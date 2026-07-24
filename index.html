@@ -173,6 +173,12 @@
     content:''; position:absolute; inset:0;
     background: linear-gradient(180deg, var(--bg) 0%, rgba(7,8,9,0.55) 35%, rgba(7,8,9,0.85) 75%, var(--bg) 100%);
   }
+  @media (max-width: 920px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-globe-wrap { order:2; min-height: 320px; }
+    #globalRiskCanvas { height: 320px; }
+    .hero-cta { margin-bottom: 32px; }
+  }
   @media (max-width: 620px) { .hero-chart-bg { opacity:0.6; } }
   @media (prefers-reduced-motion: reduce) {
     .hero-chart-line, .hero-chart-dot { animation: none; opacity:0.3; }
@@ -187,6 +193,30 @@
     margin-bottom:24px;
   }
   .hero-sub { font-size: 1.15rem; color: var(--muted); max-width:540px; margin-bottom:36px; }
+  .hero-grid {
+    display:grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 480px);
+    gap: 28px;
+    align-items:center;
+    position:relative;
+    z-index:1;
+  }
+  .hero-inner { max-width: 720px; position:relative; z-index:1; }
+  .hero-globe-wrap {
+    position:relative;
+    min-height: 420px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #globalRiskCanvas {
+    width:100%;
+    height:420px;
+    display:block;
+    touch-action: pan-y;
+    pointer-events:auto;
+    filter: drop-shadow(0 14px 22px rgba(3, 12, 24, 0.52));
+  }
   .hero-cta { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:60px; }
 
   .ticker {
@@ -420,13 +450,18 @@
       <circle class="hero-chart-dot down" cx="1200.0" cy="309.8" r="4" style="animation-delay:3.9s" />
       </svg>
     </div>
-    <div class="wrap hero-inner">
-      <p class="eyebrow" data-i18n="hero.eyebrow">Updated finance · by Jaime Sandoval</p>
-      <h1 data-i18n="hero.title">Finance That Actually Clicks.</h1>
-      <p class="hero-sub" data-i18n="hero.sub">Financial education, explained simply.</p>
-      <div class="hero-cta">
-        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-primary" data-i18n="hero.linkedin">Connect on LinkedIn</a>
-        <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">Watch on TikTok</a>
+    <div class="wrap hero-grid">
+      <div class="hero-inner">
+        <p class="eyebrow" data-i18n="hero.eyebrow">Updated finance · by Jaime Sandoval</p>
+        <h1 data-i18n="hero.title">Finance That Actually Clicks.</h1>
+        <p class="hero-sub" data-i18n="hero.sub">Financial education, explained simply.</p>
+        <div class="hero-cta">
+          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-primary" data-i18n="hero.linkedin">Connect on LinkedIn</a>
+          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">Watch on TikTok</a>
+        </div>
+      </div>
+      <div class="hero-globe-wrap">
+        <canvas id="globalRiskCanvas" aria-label="Global Risk Map"></canvas>
       </div>
     </div>
     <div class="ticker" aria-label="Live market ticker">
@@ -437,7 +472,7 @@
   <section id="about" class="about reveal">
     <div class="wrap about-inner">
       <div class="about-photos">
-        <img class="main" src="ABOUT_PHOTO_PLACEHOLDER" alt="Jaime, founder of Smart Finance" loading="lazy">
+        <img class="main" src="assets/jaime-profile-placeholder.svg" alt="Jaime, founder of Smart Finance" loading="lazy">
       </div>
       <div class="about-text">
         <p class="eyebrow" data-i18n="about.eyebrow">About</p>
@@ -660,7 +695,7 @@
   <section id="follow" class="follow reveal">
     <div class="wrap">
       <div class="follow-intro">
-        <img id="followPhoto" src="FOLLOW_PHOTO_PLACEHOLDER" alt="Jaime, founder of Smart Finance" class="follow-photo">
+        <img id="followPhoto" src="assets/jaime-profile-placeholder.svg" alt="Jaime, founder of Smart Finance" class="follow-photo">
         <div>
           <p class="eyebrow" data-i18n="follow.eyebrow">Let's connect</p>
           <h2 class="section-title" data-i18n="follow.title">Follow along</h2>
@@ -706,6 +741,7 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
 (function(){
@@ -1192,6 +1228,322 @@
   setInterval(fetchFx, 5 * 60000);
   if (TWELVE_DATA_API_KEY) setInterval(fetchStocks, 60000);
   setInterval(fetchNews, 15 * 60000);
+})();
+</script>
+<script>
+(function () {
+  if (!window.THREE) return;
+
+  const canvas = document.getElementById('globalRiskCanvas');
+  if (!canvas) return;
+
+  const container = canvas.parentElement;
+  const updateCanvasSize = () => {
+    const width = Math.max(container.clientWidth || 320, 260);
+    const height = Math.max(container.clientHeight || 320, 260);
+    canvas.width = width * Math.min(window.devicePixelRatio || 1, 2);
+    canvas.height = height * Math.min(window.devicePixelRatio || 1, 2);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+  };
+  updateCanvasSize();
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isSmallScreen = window.matchMedia('(max-width: 680px)').matches;
+  const particleBudget = isSmallScreen ? 28000 : 52000;
+  const radarColors = {
+    green: new THREE.Color('#2dd4a0'),
+    amber: new THREE.Color('#f5a623'),
+    red: new THREE.Color('#ff6b5b')
+  };
+
+  const worldPoints = [];
+  const hotSpots = [
+    { code: 'MX', lat: 23.6, lon: -102.5, score: 62 },
+    { code: 'US', lat: 39.8, lon: -98.6, score: 46 },
+    { code: 'BR', lat: -14.2, lon: -51.9, score: 58 },
+    { code: 'DE', lat: 51.1, lon: 10.4, score: 35 },
+    { code: 'CN', lat: 35.9, lon: 104.2, score: 67 }
+  ];
+
+  function latLonToVec3(lat, lon, radius) {
+    const phi = (90 - lat) * Math.PI / 180;
+    const theta = (lon + 180) * Math.PI / 180;
+    return new THREE.Vector3(
+      -radius * Math.sin(phi) * Math.cos(theta),
+      radius * Math.cos(phi),
+      radius * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  function pickColor(score) {
+    if (score < 40) return radarColors.green;
+    if (score <= 60) return radarColors.amber;
+    return radarColors.red;
+  }
+
+  function createSpriteTexture() {
+    const size = 128;
+    const spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = size;
+    spriteCanvas.height = size;
+    const ctx = spriteCanvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    gradient.addColorStop(0.45, 'rgba(173, 225, 255, 0.85)');
+    gradient.addColorStop(1, 'rgba(173, 225, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(spriteCanvas);
+  }
+
+  function generateLandGeometry() {
+    return fetch('./data/globe-land-mask.json')
+      .then((response) => response.json())
+      .then((cells) => {
+        const positions = [];
+        const colors = [];
+        const pulses = [];
+        const step = Math.max(1, Math.round(cells.length / particleBudget));
+        const selected = cells.filter((_, index) => index % step === 0).slice(0, particleBudget);
+        for (const cell of selected) {
+          const position = latLonToVec3(cell.lat, cell.lon, 1.78);
+          positions.push(position.x, position.y, position.z);
+          colors.push(0.67, 0.91, 0.81);
+          pulses.push(0.2 + (Math.random() * 0.2));
+        }
+        return { positions, colors, pulses };
+      })
+      .catch((error) => {
+        console.warn('Global Risk Map land mask unavailable:', error);
+        return null;
+      });
+  }
+
+  function buildHotspotPoints() {
+    const positions = [];
+    const colors = [];
+    const pulses = [];
+    const radii = [0.02, 0.03, 0.05, 0.07, 0.09];
+
+    hotSpots.forEach((country, countryIndex) => {
+      const scoreColor = pickColor(country.score);
+      const count = Math.round(180 + countryIndex * 25);
+      for (let i = 0; i < count; i += 1) {
+        const jitter = (Math.random() - 0.5) * 0.45;
+        const lat = country.lat + (Math.random() - 0.5) * 8 + jitter;
+        const lon = country.lon + (Math.random() - 0.5) * 10;
+        const radius = 1.78 + (Math.random() - 0.5) * 0.035;
+        const point = latLonToVec3(lat, lon, radius);
+        positions.push(point.x, point.y, point.z);
+        colors.push(scoreColor.r, scoreColor.g, scoreColor.b);
+        pulses.push(0.65 + (country.score / 100) * 0.7 + Math.random() * 0.15);
+      }
+    });
+
+    return { positions, colors, pulses };
+  }
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isSmallScreen ? 2 : 1.75));
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.z = 5.25;
+
+  const atmosphere = new THREE.Mesh(
+    new THREE.SphereGeometry(1.82, 48, 48),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      transparent: true,
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color('#3bb7ff') }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
+          float fresnel = pow(1.0 - max(dot(normalize(vNormal), viewDirection), 0.0), 2.6);
+          float pulse = 0.25 + 0.05 * sin(uTime * 1.25);
+          float alpha = clamp(fresnel * 0.7 + pulse, 0.05, 0.55);
+          gl_FragColor = vec4(uColor, alpha);
+        }
+      `
+    })
+  );
+  scene.add(atmosphere);
+
+  const globeOcean = new THREE.Mesh(
+    new THREE.SphereGeometry(1.78, 48, 48),
+    new THREE.MeshBasicMaterial({
+      color: '#071d35',
+      transparent: true,
+      opacity: 0.72,
+      side: THREE.DoubleSide
+    })
+  );
+  scene.add(globeOcean);
+
+  const particleSprite = createSpriteTexture();
+  const planetGroup = new THREE.Group();
+  scene.add(planetGroup);
+
+  const landGeometry = new THREE.BufferGeometry();
+  const hotspotGeometry = new THREE.BufferGeometry();
+
+  Promise.resolve(generateLandGeometry()).then((landData) => {
+    if (landData) {
+      landGeometry.setAttribute('position', new THREE.Float32BufferAttribute(landData.positions, 3));
+      landGeometry.setAttribute('color', new THREE.Float32BufferAttribute(landData.colors, 3));
+      landGeometry.setAttribute('aPulse', new THREE.Float32BufferAttribute(landData.pulses, 1));
+
+      const landMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uTexture: { value: particleSprite },
+          uOpacity: { value: 1.0 }
+        },
+        vertexShader: `
+          attribute vec3 color;
+          attribute float aPulse;
+          varying vec3 vColor;
+          varying float vPulse;
+          void main() {
+            vColor = color;
+            vPulse = aPulse;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = (160.0 / -mvPosition.z) * (0.82 + 0.22 * sin(aPulse * 8.0));
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D uTexture;
+          uniform float uTime;
+          varying vec3 vColor;
+          varying float vPulse;
+          void main() {
+            vec4 tex = texture2D(uTexture, gl_PointCoord);
+            float pulse = 0.5 + 0.5 * sin(uTime * (0.8 + vPulse * 1.7));
+            gl_FragColor = vec4(vColor * (0.9 + pulse * 0.3), tex.a * (0.72 + pulse * 0.18));
+          }
+        `,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+
+      const landPoints = new THREE.Points(landGeometry, landMaterial);
+      planetGroup.add(landPoints);
+    }
+
+    const hotspotData = buildHotspotPoints();
+    hotspotGeometry.setAttribute('position', new THREE.Float32BufferAttribute(hotspotData.positions, 3));
+    hotspotGeometry.setAttribute('color', new THREE.Float32BufferAttribute(hotspotData.colors, 3));
+    hotspotGeometry.setAttribute('aPulse', new THREE.Float32BufferAttribute(hotspotData.pulses, 1));
+
+    const hotspotMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uTexture: { value: particleSprite }
+      },
+      vertexShader: `
+        attribute vec3 color;
+        attribute float aPulse;
+        varying vec3 vColor;
+        varying float vPulse;
+        void main() {
+          vColor = color;
+          vPulse = aPulse;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          float pulse = 1.0 + sin(aPulse * 18.0) * 0.16;
+          gl_PointSize = (205.0 / -mvPosition.z) * pulse;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        uniform float uTime;
+        varying vec3 vColor;
+        varying float vPulse;
+        void main() {
+          vec4 tex = texture2D(uTexture, gl_PointCoord);
+          float pulse = 0.5 + 0.5 * sin(uTime * (2.4 + vPulse * 2.4));
+          gl_FragColor = vec4(vColor * (0.95 + pulse * 0.7), tex.a * (0.9 + pulse * 0.24));
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    const hotspotPoints = new THREE.Points(hotspotGeometry, hotspotMaterial);
+    planetGroup.add(hotspotPoints);
+
+    const cloudRing = new THREE.Mesh(
+      new THREE.SphereGeometry(1.785, 48, 48),
+      new THREE.MeshBasicMaterial({
+        color: '#1a3558',
+        transparent: true,
+        opacity: 0.12,
+        side: THREE.DoubleSide
+      })
+    );
+    scene.add(cloudRing);
+
+    const rotateTarget = prefersReducedMotion ? 0 : 0.18;
+    const resize = () => {
+      const width = canvas.clientWidth || 320;
+      const height = canvas.clientHeight || 320;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    let isInView = true;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isInView = entry.isIntersecting;
+      });
+    }, { threshold: 0.15 });
+    observer.observe(canvas);
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+      if (!prefersReducedMotion && isInView) {
+        planetGroup.rotation.y += 0.0014;
+        planetGroup.rotation.x = Math.sin(elapsed * 0.22) * 0.08;
+      }
+      atmosphere.material.uniforms.uTime.value = elapsed;
+      if (landGeometry.attributes.position) {
+        landGeometry.attributes.position.needsUpdate = true;
+      }
+      if (hotspotGeometry.attributes.position) {
+        hotspotGeometry.attributes.position.needsUpdate = true;
+      }
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
+  });
 })();
 </script>
 </body>
