@@ -262,6 +262,14 @@
   }
   .fx-tab:hover { color: var(--ink); border-color: var(--muted); }
   .fx-tab.active { background: var(--brand); color:#06110D; border-color: var(--brand); font-weight:700; }
+  .fx-range-tabs { display:flex; gap:6px; margin-left:auto; }
+  .fx-range-tab {
+    font-family: var(--font-mono); font-size:0.72rem; font-weight:600;
+    background: var(--card-2); border:1px solid var(--line); color: var(--muted);
+    padding: 5px 11px; border-radius:999px; transition: all .15s ease;
+  }
+  .fx-range-tab:hover { color: var(--ink); border-color: var(--muted); }
+  .fx-range-tab.active { background: var(--brand); color:#06110D; border-color: var(--brand); font-weight:700; }
   .fx-chart-head { display:flex; align-items:baseline; gap:14px; margin-bottom:6px; flex-wrap:wrap; }
   .fx-chart-pair { font-family: var(--font-mono); color: var(--muted); font-size:0.9rem; }
   .fx-chart-value { font-family: var(--font-mono); font-size:2rem; font-weight:700; }
@@ -467,22 +475,28 @@
         <p class="group-note" data-i18n="market.fxchartnote">30-day trend, daily ECB reference rates.</p>
         <div class="fx-chart-panel">
           <div class="fx-tabs" id="fxTabs">
-            <button class="fx-tab active" data-pair="USD/MXN">USD/MXN</button>
-            <button class="fx-tab" data-pair="EUR/MXN">EUR/MXN</button>
-            <button class="fx-tab" data-pair="CHF/MXN">CHF/MXN</button>
-            <button class="fx-tab" data-pair="EUR/USD">EUR/USD</button>
-            <button class="fx-tab" data-pair="GBP/USD">GBP/USD</button>
-            <button class="fx-tab" data-pair="USD/JPY">USD/JPY</button>
+            <button class="fx-tab active" data-pair="USDMXN">USD/MXN</button>
+            <button class="fx-tab" data-pair="EURMXN">EUR/MXN</button>
+            <button class="fx-tab" data-pair="CHFMXN">CHF/MXN</button>
+            <button class="fx-tab" data-pair="EURUSD">EUR/USD</button>
+            <button class="fx-tab" data-pair="GBPUSD">GBP/USD</button>
+            <button class="fx-tab" data-pair="USDJPY">USD/JPY</button>
           </div>
           <div class="fx-chart-head">
             <span class="fx-chart-pair" id="fxChartPair">USD/MXN</span>
             <span class="fx-chart-value" id="fxChartValue">—</span>
             <span class="fx-chart-change" id="fxChartChange"></span>
+            <div class="fx-range-tabs" id="fxRangeTabs">
+              <button class="fx-range-tab active" data-range="1D">1D</button>
+              <button class="fx-range-tab" data-range="1M">1M</button>
+              <button class="fx-range-tab" data-range="3M">3M</button>
+              <button class="fx-range-tab" data-range="1Y">1Y</button>
+            </div>
           </div>
           <div class="fx-chart-canvas-wrap">
             <canvas id="fxChartCanvas" height="90"></canvas>
           </div>
-          <p class="fx-chart-note">Daily close · Frankfurter (ECB reference rates) · last 30 days</p>
+          <p class="fx-chart-note" id="fxChartNote">Yahoo Finance · live · last 24h, 5-min bars</p>
         </div>
       </div>
 
@@ -875,72 +889,148 @@
     render();
   }
 
-  let fxChartInstance = null;
-  let currentFxPair = 'USD/MXN';
-  function toISODate(d) { return d.toISOString().slice(0, 10); }
+  const FX_PAIRS = {
+    USDMXN: { label: 'USD/MXN', decimals: 4 },
+    EURMXN: { label: 'EUR/MXN', decimals: 4 },
+    CHFMXN: { label: 'CHF/MXN', decimals: 4 },
+    EURUSD: { label: 'EUR/USD', decimals: 4 },
+    GBPUSD: { label: 'GBP/USD', decimals: 4 },
+    USDJPY: { label: 'USD/JPY', decimals: 2 }
+  };
+  const FX_RANGE_NOTE = {
+    '1D': 'last 24h, 5-min bars', '1M': 'last 30 days, daily close',
+    '3M': 'last 3 months, daily close', '1Y': 'last 12 months, daily close'
+  };
 
-  async function loadFxChart(pair) {
-    const [base, quote] = pair.split('/');
+  let fxChartInstance = null;
+  let currentFxPair = 'USDMXN';
+  let currentFxRange = '1D';
+  let fxAutoRefreshTimer = null;
+  let fxActivePoints = [];
+
+  function formatFxTimestamp(ts, range, full) {
+    const d = new Date(ts * 1000);
+    if (range === '1D') {
+      return full
+        ? d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: range === '1Y' ? 'numeric' : undefined });
+  }
+
+  const fxCrosshairPlugin = {
+    id: 'fxCrosshair',
+    afterDraw(chart) {
+      const active = chart.tooltip && chart.tooltip._active;
+      if (!active || !active.length) return;
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      const x = active[0].element.x;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(247,247,247,0.35)';
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+  if (typeof Chart !== 'undefined') Chart.register(fxCrosshairPlugin);
+
+  async function loadFxChart(pair, range) {
+    currentFxPair = pair;
+    currentFxRange = range;
+    const cfg = FX_PAIRS[pair];
     const pairEl = document.getElementById('fxChartPair');
     const valueEl = document.getElementById('fxChartValue');
     const changeEl = document.getElementById('fxChartChange');
-    if (pairEl) pairEl.textContent = pair;
+    const noteEl = document.getElementById('fxChartNote');
+    if (pairEl) pairEl.textContent = cfg.label;
     try {
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - 30);
-      const url = `https://api.frankfurter.dev/v1/${toISODate(start)}..${toISODate(end)}?base=${base}&symbols=${quote}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('frankfurter history ' + res.status);
+      const res = await fetch(`/api/history?pair=${pair}&range=${range}`);
+      if (!res.ok) throw new Error('history ' + res.status);
       const data = await res.json();
-      const rows = Object.entries(data.rates || {})
-        .map(([date, obj]) => ({ date, value: obj[quote] }))
-        .filter(r => typeof r.value === 'number')
-        .sort((a, b) => a.date.localeCompare(b.date));
-      if (!rows.length) throw new Error('empty series');
+      const points = Array.isArray(data.points) ? data.points : [];
+      if (!points.length) throw new Error('empty series');
+      fxActivePoints = points;
 
-      const first = rows[0].value, last = rows[rows.length - 1].value;
+      const first = points[0][1], last = points[points.length - 1][1];
       const changePct = ((last - first) / first) * 100;
       const dir = changePct > 0 ? 'up' : changePct < 0 ? 'down' : '';
-      if (valueEl) valueEl.textContent = fmtPrice(last, quote === 'JPY' ? 2 : 4);
+      const lineColor = dir === 'down' ? '#FF6B5B' : '#2DD4A0';
+      const rgb = dir === 'down' ? '255,107,91' : '45,212,160';
+
+      if (valueEl) valueEl.textContent = fmtPrice(last, cfg.decimals);
       if (changeEl) {
-        changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + '% (30d)';
+        changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + `% (${range})`;
         changeEl.className = 'fx-chart-change ' + dir;
       }
+      if (noteEl) noteEl.textContent = `Yahoo Finance · ${FX_RANGE_NOTE[range] || 'live'}`;
 
       const ctx = document.getElementById('fxChartCanvas');
       if (!ctx || typeof Chart === 'undefined') return;
       const chartData = {
-        labels: rows.map(r => r.date.slice(5)),
+        labels: points.map(p => formatFxTimestamp(p[0], range)),
         datasets: [{
-          data: rows.map(r => r.value),
-          borderColor: '#2DD4A0',
-          backgroundColor: 'rgba(45,212,160,0.08)',
-          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+          data: points.map(p => p[1]),
+          borderColor: lineColor,
+          backgroundColor: (context) => {
+            const { ctx: c, chartArea: area } = context.chart;
+            if (!area) return null;
+            const gradient = c.createLinearGradient(0, area.top, 0, area.bottom);
+            gradient.addColorStop(0, `rgba(${rgb},0.28)`);
+            gradient.addColorStop(1, `rgba(${rgb},0)`);
+            return gradient;
+          },
+          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: lineColor,
           fill: true, tension: 0.3
         }]
       };
-      if (fxChartInstance) {
-        fxChartInstance.data = chartData;
-        fxChartInstance.update();
-      } else {
-        fxChartInstance = new Chart(ctx, {
-          type: 'line',
-          data: chartData,
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { ticks: { color: '#949494', maxTicksLimit: 6, font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#262928' } },
-              y: { ticks: { color: '#949494', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#262928' } }
+      const options = {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#161817', borderColor: '#262928', borderWidth: 1,
+            titleColor: '#F7F7F7', bodyColor: '#F7F7F7',
+            titleFont: { family: 'Share Tech Mono', size: 11 }, bodyFont: { family: 'Share Tech Mono', size: 12 },
+            padding: 10, displayColors: false,
+            callbacks: {
+              title: (items) => items.length ? formatFxTimestamp(fxActivePoints[items[0].dataIndex][0], currentFxRange, true) : '',
+              label: (item) => fmtPrice(item.parsed.y, cfg.decimals)
             }
           }
-        });
+        },
+        scales: {
+          x: { ticks: { color: '#949494', maxTicksLimit: 6, font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#262928' } },
+          y: { ticks: { color: '#949494', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#262928' } }
+        }
+      };
+      if (fxChartInstance) {
+        fxChartInstance.data = chartData;
+        fxChartInstance.options = options;
+        fxChartInstance.update();
+      } else {
+        fxChartInstance = new Chart(ctx, { type: 'line', data: chartData, options, plugins: [fxCrosshairPlugin] });
       }
     } catch (e) {
       console.warn('FX chart fetch failed:', e);
+      fxActivePoints = [];
       if (valueEl) valueEl.textContent = '—';
-      if (changeEl) { changeEl.textContent = 'Unavailable — retry shortly'; changeEl.className = 'fx-chart-change'; }
+      if (changeEl) { changeEl.textContent = '—'; changeEl.className = 'fx-chart-change'; }
+      if (noteEl) noteEl.textContent = 'Yahoo Finance · live data unavailable, retrying automatically';
+    }
+  }
+
+  function setFxRange(range) {
+    document.querySelectorAll('.fx-range-tab').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+    loadFxChart(currentFxPair, range);
+    if (fxAutoRefreshTimer) { clearInterval(fxAutoRefreshTimer); fxAutoRefreshTimer = null; }
+    if (range === '1D') {
+      fxAutoRefreshTimer = setInterval(() => loadFxChart(currentFxPair, currentFxRange), 60000);
     }
   }
 
@@ -948,9 +1038,12 @@
     btn.addEventListener('click', () => {
       document.querySelectorAll('.fx-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      currentFxPair = btn.dataset.pair;
-      loadFxChart(currentFxPair);
+      loadFxChart(btn.dataset.pair, currentFxRange);
     });
+  });
+
+  document.querySelectorAll('.fx-range-tab').forEach(btn => {
+    btn.addEventListener('click', () => setFxRange(btn.dataset.range));
   });
 
   async function fetchStocks() {
@@ -1093,13 +1186,12 @@
   fetchFx();
   fetchStocks();
   fetchNews();
-  loadFxChart('USD/MXN');
+  setFxRange('1D');
 
   setInterval(fetchCrypto, 60000);
   setInterval(fetchFx, 5 * 60000);
   if (TWELVE_DATA_API_KEY) setInterval(fetchStocks, 60000);
   setInterval(fetchNews, 15 * 60000);
-  setInterval(() => loadFxChart(currentFxPair), 5 * 60000);
 })();
 </script>
 </body>
