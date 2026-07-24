@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Finance — Updated Finance, by Jaime Sandoval</title>
+<meta name="description" content="Financial education, markets, and money, explained clearly. Live data, real breakdowns. Follow Smart Finance on LinkedIn and TikTok.">
+<meta name="theme-color" content="#070707">
+<meta property="og:title" content="Smart Finance — Updated Finance, by Jaime Sandoval">
+<meta property="og:description" content="Financial education in plain English. Live market data, clear breakdowns, no jargon.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08090A;
+    --bg-raise: #0F1110;
+    --card: #161817;
+    --card-2: #1D201F;
+    --ink: #F7F7F7;
+    --muted: #949494;
+    --brand: #2DD4A0;
+    --gold-text: #2DD4A0;
+    --brand-soft: #10221C;
+    --up: #2DD4A0;
+    --down: #FF6B5B;
+    --accent-orange: #F5A623;
+    --accent-purple: #9B8CF2;
+    --line: #262928;
+    --radius: 14px;
+    --font-display: 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+    --max-width: 1180px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width:100%; display:block; }
+  a { color: inherit; text-decoration:none; }
+  ul { list-style:none; }
+  button { font-family:inherit; cursor:pointer; }
+  code { font-family: var(--font-mono); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+  input { font-family:inherit; }
+
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+
+  .wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 32px; }
+  section { scroll-margin-top: 84px; position: relative; z-index: 1; }
+  header, footer { position: relative; z-index: 1; }
+
+  /* ---------- Safe scroll-reveal: visible by default; JS only hides+animates when it can guarantee a reveal ---------- */
+  .reveal.reveal-armed { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.reveal-armed.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Click / hover feedback (safe, CSS-only) ---------- */
+  .btn:active, .nav-cta:active { transform: scale(0.95); }
+  .btn-primary:hover { box-shadow: 0 10px 28px -6px rgba(255,255,255,0.35); }
+  .btn-outline:hover { box-shadow: 0 10px 28px -8px rgba(255,255,255,0.12); }
+  .market-card, .news-card, .post-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .market-card:hover, .news-card:hover { transform: translateY(-4px); border-color: var(--brand); box-shadow: 0 20px 40px -24px rgba(255,255,255,0.18); }
+  .market-card:active, .news-card:active, .post-card:active { transform: scale(0.98); }
+  .follow-card:active { transform: scale(0.97); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal.reveal-armed { transition: none; opacity: 1; transform: none; }
+  }
+
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    color: var(--gold-text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+  }
+  .live-dot {
+    display:inline-block; width:7px; height:7px; border-radius:50%;
+    background: var(--up); margin-right:8px; box-shadow: 0 0 8px var(--up);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .section-sub { color: var(--muted); max-width: 580px; margin-bottom: 40px; font-size: 1.02rem; }
+
+  .btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding: 13px 26px;
+    border-radius: 999px;
+    font-weight:600;
+    font-size:0.95rem;
+    border: 1.5px solid transparent;
+    transition: transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .btn-primary { background: var(--brand); color: #0A0A0A; }
+  .btn-primary:hover { background: var(--gold-text); transform: translateY(-1px); }
+  .btn-outline { border-color: var(--line); color: var(--ink); }
+  .btn-outline:hover { background: var(--card-2); border-color: var(--muted); }
+
+  .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; background: var(--line); }
+  .dot.up { background: var(--up); box-shadow: 0 0 6px var(--up); }
+  .dot.down { background: var(--down); box-shadow: 0 0 6px var(--down); }
+
+  @keyframes flashUp { 0% { background: rgba(61,214,140,0.22); } 100% { background: transparent; } }
+  @keyframes flashDown { 0% { background: rgba(255,107,91,0.22); } 100% { background: transparent; } }
+  .flash-up { animation: flashUp .9s ease-out; }
+  .flash-down { animation: flashDown .9s ease-out; }
+  @media (prefers-reduced-motion: reduce) { .flash-up, .flash-down { animation:none; } }
+
+  /* ---------- Header ---------- */
+  .site-nav {
+    position: sticky; top:0; z-index: 50;
+    background: rgba(10,14,22,0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { max-width: var(--max-width); margin:0 auto; padding: 18px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .wordmark { font-family: var(--font-display); font-weight:800; font-size: 1.3rem; letter-spacing:-0.01em; }
+  .wordmark span { color: var(--brand); }
+  .nav-links-desktop { display:flex; gap: 30px; align-items:center; }
+  .nav-links-desktop a { font-size: 0.92rem; font-weight:500; color: var(--muted); transition: color .15s ease; }
+  .nav-links-desktop a:hover { color: var(--ink); }
+  .lang-toggle { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:2px; gap:2px; }
+  .lang-btn { background:none; border:none; color:var(--muted); font-family:var(--font-mono); font-size:0.74rem; font-weight:600; padding:5px 10px; border-radius:999px; transition: background .15s ease, color .15s ease; }
+  .lang-btn.active { background: var(--brand); color:#0A0A0A; }
+  .lang-toggle-mobile { margin-top:14px; }
+  .nav-cta { background: var(--brand); color: #0A0A0A !important; padding: 9px 20px; border-radius: 999px; font-size:0.88rem; font-weight:600; }
+  .nav-cta:hover { background: var(--gold-text); }
+  .nav-toggle { display:none; flex-direction:column; justify-content:center; gap:5px; width:36px; height:36px; background:none; border:none; }
+  .nav-toggle span { display:block; height:2px; width:100%; background: var(--ink); border-radius:2px; }
+  .nav-mobile { display:none; flex-direction:column; padding: 8px 32px 20px; border-top:1px solid var(--line); }
+  .nav-mobile a { padding: 14px 0; border-bottom:1px solid var(--line); font-weight:500; }
+  .nav-mobile.open { display:flex; }
+  @media (max-width: 860px) {
+    .nav-links-desktop { display:none; }
+    .nav-toggle { display:flex; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 90px 0 0; overflow:hidden; position:relative; }
+  .hero-chart-bg {
+    position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+  }
+  .hero-chart-bg svg { position:absolute; inset:0; width:100%; height:100%; }
+  .hero-chart-line { fill:none; stroke-width:2; animation: chartPulse 6s ease-in-out infinite; }
+  .hero-chart-line.up { stroke: var(--up); }
+  .hero-chart-line.down { stroke: var(--down); }
+  .hero-chart-dot { animation: chartPulse 6s ease-in-out infinite; }
+  .hero-chart-dot.up { fill: var(--up); }
+  .hero-chart-dot.down { fill: var(--down); }
+  @keyframes chartPulse { 0%,100% { opacity:0.55; } 50% { opacity:0.16; } }
+  .hero-chart-bg::after {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(180deg, var(--bg) 0%, rgba(7,8,9,0.55) 35%, rgba(7,8,9,0.85) 75%, var(--bg) 100%);
+  }
+  @media (max-width: 620px) { .hero-chart-bg { opacity:0.6; } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-chart-line, .hero-chart-dot { animation: none; opacity:0.3; }
+  }
+  .hero-inner { max-width: 720px; position:relative; z-index:1; }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4.4rem);
+    line-height:1.05;
+    font-weight:900;
+    letter-spacing:-0.03em;
+    margin-bottom:24px;
+  }
+  .hero-sub { font-size: 1.15rem; color: var(--muted); max-width:540px; margin-bottom:36px; }
+  .hero-cta { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:60px; }
+
+  .ticker {
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    background: var(--bg-raise);
+    overflow:hidden;
+    white-space:nowrap;
+    padding: 16px 0;
+    position: relative;
+  }
+  .ticker::before, .ticker::after {
+    content:''; position:absolute; top:0; bottom:0; width:60px; z-index:2; pointer-events:none;
+  }
+  .ticker::before { left:0; background: linear-gradient(to right, var(--bg-raise), transparent); }
+  .ticker::after { right:0; background: linear-gradient(to left, var(--bg-raise), transparent); }
+  .ticker-track { display:inline-flex; gap:14px; animation: scroll-left 46s linear infinite; padding-left: 14px; }
+  @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; overflow-x:auto; } }
+  .chip {
+    display:inline-flex; align-items:center; gap:8px;
+    font-family: var(--font-mono);
+    font-size:0.86rem;
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px;
+    white-space:nowrap;
+    transition: border-color .2s ease;
+  }
+  .chip .sym { font-weight:600; color:var(--ink); }
+  .chip .chg.up { color: var(--up); }
+  .chip .chg.down { color: var(--down); }
+
+  /* ---------- About ---------- */
+  .about { padding: 88px 0; background: var(--bg-raise); border-bottom:1px solid var(--line); }
+  .about-inner { display:grid; grid-template-columns: 320px 1fr; gap: 64px; align-items:center; }
+  .about-photos img.main {
+    border-radius: 20px; border: 1px solid var(--line);
+    box-shadow: 0 24px 48px -20px rgba(0,0,0,0.55);
+  }
+  .about-text p { color: var(--muted); margin-bottom:16px; max-width: 540px; }
+  .about-socials { display:flex; gap:22px; margin-top:8px; }
+  .about-socials a { font-weight:600; color: var(--gold-text); }
+  .about-socials a:hover { color: var(--ink); }
+  @media (max-width: 860px) {
+    .about-inner { grid-template-columns: 1fr; gap: 56px; }
+    .about-photos { max-width: 300px; margin: 0 auto; }
+  }
+
+  /* ---------- Market ---------- */
+  .market { padding: 88px 0; }
+  .group-label { font-family: var(--font-mono); font-size: 0.85rem; text-transform:uppercase; letter-spacing:0.08em; color: var(--muted); margin: 36px 0 6px; }
+  .market-group:first-of-type .group-label { margin-top:0; }
+  .group-note { font-size:0.85rem; color: var(--muted); margin-bottom:14px; }
+  .market-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .market-card { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 20px; transition: border-color .2s ease; }
+  .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .card-sym { font-family: var(--font-mono); font-weight:600; font-size:0.92rem; }
+  .card-price { font-family: var(--font-mono); font-size:1.5rem; font-weight:600; margin-bottom:4px; }
+  .card-change { font-family: var(--font-mono); font-size:0.88rem; font-weight:500; color: var(--muted); }
+  .card-change.up { color: var(--up); }
+  .card-change.down { color: var(--down); }
+  .setup-card { grid-column: 1 / -1; background: var(--brand-soft); border: 1px dashed var(--brand); border-radius: var(--radius); padding: 22px 24px; font-size:0.92rem; color: var(--gold-text); line-height:1.6; }
+
+  .fx-chart-panel { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .fx-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .fx-tab {
+    font-family: var(--font-mono); font-size:0.78rem; font-weight:500;
+    background: var(--card-2); border:1px solid var(--line); color: var(--muted);
+    padding: 7px 14px; border-radius:999px; transition: all .15s ease;
+  }
+  .fx-tab:hover { color: var(--ink); border-color: var(--muted); }
+  .fx-tab.active { background: var(--brand); color:#06110D; border-color: var(--brand); font-weight:700; }
+  .fx-chart-head { display:flex; align-items:baseline; gap:14px; margin-bottom:6px; flex-wrap:wrap; }
+  .fx-chart-pair { font-family: var(--font-mono); color: var(--muted); font-size:0.9rem; }
+  .fx-chart-value { font-family: var(--font-mono); font-size:2rem; font-weight:700; }
+  .fx-chart-change { font-family: var(--font-mono); font-size:0.95rem; font-weight:600; }
+  .fx-chart-change.up { color: var(--up); } .fx-chart-change.down { color: var(--down); }
+  .fx-chart-canvas-wrap { margin-top:14px; height:220px; position:relative; }
+  .fx-chart-note { font-size:0.74rem; color: var(--muted); margin-top:14px; font-family: var(--font-mono); }
+  .setup-card a { text-decoration:underline; font-weight:600; }
+
+  /* Macro snapshot: yield curve + reference rates */
+  .macro-grid { display:grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-top: 8px; }
+  .macro-panel { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .macro-panel h4 { font-family: var(--font-display); font-size: 1.05rem; font-weight:700; margin-bottom:4px; }
+  .macro-panel .as-of { font-family: var(--font-mono); font-size:0.72rem; color: var(--muted); margin-bottom:18px; display:block; }
+  .yc-svg { width:100%; height:auto; overflow:visible; }
+  .yc-svg .yc-line { fill:none; stroke: var(--brand); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+  .yc-svg .yc-dot { fill: var(--bg); stroke: var(--brand); stroke-width:2.5; }
+  .yc-svg .yc-axis-label { font-family: var(--font-mono); font-size:11px; fill: var(--muted); }
+  .yc-svg .yc-val-label { font-family: var(--font-mono); font-size:11px; fill: var(--ink); font-weight:600; }
+  .rate-row { display:flex; justify-content:space-between; align-items:baseline; padding: 12px 0; border-bottom:1px solid var(--line); }
+  .rate-row:last-child { border-bottom:none; }
+  .rate-label { font-size:0.88rem; color: var(--muted); }
+  .rate-value { font-family: var(--font-mono); font-weight:600; font-size:1.05rem; }
+
+  /* Economic calendar */
+  .calendar-list { display:flex; flex-direction:column; gap:2px; margin-top:8px; }
+  .cal-row { display:grid; grid-template-columns: 90px 60px 1fr; gap:16px; align-items:center; padding: 14px 16px; background: var(--card); border:1px solid var(--line); border-radius:10px; }
+  .cal-date { font-family: var(--font-mono); font-size:0.85rem; color: var(--gold-text); font-weight:600; }
+  .cal-tag { font-family: var(--font-mono); font-size:0.7rem; font-weight:700; text-align:center; padding:3px 0; border-radius:6px; background: var(--card-2); color: var(--muted); }
+  .cal-tag.us { color: var(--accent-purple); }
+  .cal-tag.mx { color: var(--up); }
+  .cal-event { font-size:0.9rem; }
+  .cal-event .cal-note { display:block; font-size:0.78rem; color:var(--muted); margin-top:2px; }
+  @media (max-width: 640px) {
+    .macro-grid { grid-template-columns: 1fr; }
+    .cal-row { grid-template-columns: 74px 50px 1fr; gap:10px; padding:12px; }
+  }
+
+  /* ---------- News ---------- */
+  .news { padding: 88px 0; }
+  .news-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .news-card { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; display:flex; flex-direction:column; transition: transform .15s ease, box-shadow .15s ease; }
+  .news-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -28px rgba(0,0,0,0.5); }
+  .news-card img { width:100%; height:150px; object-fit:cover; background: var(--card-2); display:block; }
+  .news-card-body { padding:20px; display:flex; flex-direction:column; gap:10px; flex-grow:1; }
+  .news-source { font-family: var(--font-mono); font-size:0.7rem; color: var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .news-card h3 { font-family: var(--font-display); font-size:1.02rem; font-weight:700; line-height:1.35; flex-grow:1; }
+  .news-card a.news-link { font-weight:600; color: var(--gold-text); font-size:0.88rem; }
+
+  /* ---------- Content / Lessons ---------- */
+  .content { padding: 88px 0; background: var(--bg-raise); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .content-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .post-card { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 26px; display:flex; flex-direction:column; gap: 12px; transition: transform .15s ease, box-shadow .15s ease; }
+  .post-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -28px rgba(0,0,0,0.5); }
+  .post-tag { align-self:flex-start; font-family: var(--font-mono); font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding: 4px 10px; border-radius:999px; }
+  .post-tag.tiktok { background:#F2F2F2; color:#0A0A0A; }
+  .post-tag.linkedin { background:#241F38; color:#B4A8F5; }
+  .post-card h3 { font-family: var(--font-display); font-size:1.12rem; line-height:1.35; font-weight:700; }
+  .post-card p { color: var(--muted); font-size:0.92rem; flex-grow:1; }
+  .post-card a.post-link { font-weight:600; color: var(--gold-text); font-size:0.9rem; }
+
+  /* ---------- Subscribe ---------- */
+  .subscribe { padding: 80px 0; }
+  .subscribe-box { background: var(--card); border:1px solid var(--line); border-radius: 20px; padding: 44px; display:grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items:center; }
+  .subscribe-box h3 { font-family: var(--font-display); font-size:1.6rem; font-weight:700; margin-bottom:10px; }
+  .subscribe-box p { color: var(--muted); }
+  .subscribe-form { display:flex; gap:10px; flex-wrap:wrap; }
+  .subscribe-form input[type="email"] {
+    flex:1; min-width:200px; background: var(--bg-raise); border:1px solid var(--line); border-radius: 999px;
+    padding: 13px 20px; color: var(--ink); font-size:0.95rem;
+  }
+  .subscribe-form input[type="email"]::placeholder { color: var(--muted); }
+  .subscribe-note { font-size:0.76rem; color: var(--muted); margin-top:10px; }
+  .subscribe-msg { font-size:0.85rem; margin-top:10px; color: var(--gold-text); display:none; }
+  @media (max-width: 760px) { .subscribe-box { grid-template-columns: 1fr; } }
+
+  /* ---------- Follow ---------- */
+  .follow { padding: 92px 0; }
+  .follow-intro { display:flex; align-items:center; gap:22px; margin-bottom:6px; }
+  .follow-photo { width:84px; height:134px; object-fit:cover; border-radius:12px; border:1px solid var(--line); flex-shrink:0; box-shadow: 0 12px 24px -12px rgba(0,0,0,0.5); background: var(--card); }
+  @media (max-width:600px) { .follow-photo { width:64px; height:102px; } .follow-intro { gap:16px; } }
+  .follow-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .follow-card { border-radius: 20px; padding: 40px; display:flex; flex-direction:column; gap:10px; transition: transform .18s ease; }
+  .follow-card:hover { transform: translateY(-4px); }
+  .follow-card.linkedin-card { background: var(--card-2); color: var(--ink); border:1px solid var(--line); }
+  .follow-card.tiktok-card { background: var(--brand); color: #0A0A0A; }
+  .icon-badge { display:inline-flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius: 12px; font-family: var(--font-display); font-weight:700; font-size:1.3rem; margin-bottom:10px; }
+  .icon-linkedin { background:#F2F2F2; color:#0A0A0A; }
+  .icon-tiktok { background:#0A0A0A; color:#fff; border:1px solid var(--line); }
+  .follow-card h3 { font-family: var(--font-display); font-size:1.5rem; font-weight:700; }
+  .follow-card p { opacity:0.82; max-width:340px; }
+  .follow-link { font-weight:600; margin-top:8px; }
+  @media (max-width:760px) { .follow-grid { grid-template-columns:1fr; } }
+
+  /* ---------- Footer ---------- */
+  .site-footer { border-top:1px solid var(--line); padding: 48px 0 32px; background: var(--bg-raise); }
+  .footer-inner { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:24px; margin-bottom:32px; }
+  .footer-tagline { color:var(--muted); font-size:0.88rem; margin-top:6px; }
+  .footer-links { display:flex; gap:20px; flex-wrap:wrap; }
+  .footer-links a { font-size:0.88rem; font-weight:500; color:var(--muted); }
+  .footer-links a:hover { color: var(--ink); }
+  .disclaimer { font-size:0.78rem; color:var(--muted); max-width:640px; margin-bottom:12px; }
+  .copyright { font-size:0.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="#home" class="wordmark">Smart <span>Finance</span></a>
+    <nav class="nav-links-desktop">
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#market" data-i18n="nav.market">Market</a>
+      <a href="#content" data-i18n="nav.lessons">Lessons</a>
+      <a href="#follow" class="nav-cta" data-i18n="nav.follow">Follow</a>
+      <span class="lang-toggle">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="es">ES</button>
+      </span>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="#about" data-i18n="nav.about">About</a>
+    <a href="#market" data-i18n="nav.market">Market</a>
+    <a href="#content" data-i18n="nav.lessons">Lessons</a>
+    <a href="#follow" data-i18n="nav.follow">Follow</a>
+    <span class="lang-toggle lang-toggle-mobile">
+      <button type="button" class="lang-btn active" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="es">ES</button>
+    </span>
+  </div>
+</header>
+
+<main>
+
+  <section id="home" class="hero">
+    <div class="hero-chart-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid slice">
+<polyline class="hero-chart-line up" points="0.0,114.9 57.1,148.3 114.3,173.6 171.4,150.1 228.6,149.6 285.7,144.8 342.9,159.3 400.0,187.0 457.1,148.1 514.3,102.8 571.4,135.0 628.6,128.6 685.7,153.7 742.9,105.9 800.0,100.7 857.1,122.0 914.3,95.9 971.4,138.7 1028.6,177.2 1085.7,132.1 1142.9,86.6 1200.0,90.6" style="animation-delay:0.0s; stroke-width:2.4" />
+      <polyline class="hero-chart-line down" points="0.0,423.5 57.1,378.7 114.3,423.1 171.4,464.6 228.6,431.0 285.7,407.4 342.9,390.5 400.0,409.6 457.1,399.0 514.3,388.4 571.4,380.2 628.6,414.4 685.7,421.3 742.9,432.0 800.0,409.7 857.1,360.2 914.3,319.1 971.4,319.1 1028.6,324.6 1085.7,347.8 1142.9,394.2 1200.0,441.5" style="animation-delay:1.3s; stroke-width:2" />
+      <polyline class="hero-chart-line up" points="0.0,238.5 57.1,234.6 114.3,246.0 171.4,236.9 228.6,225.8 285.7,264.0 342.9,306.9 400.0,277.2 457.1,298.4 514.3,321.7 571.4,278.1 628.6,280.7 685.7,251.1 742.9,253.2 800.0,241.0 857.1,271.7 914.3,259.8 971.4,227.5 1028.6,225.4 1085.7,204.2 1142.9,189.1 1200.0,227.5" style="animation-delay:2.6s; stroke-width:1.6" />
+      <polyline class="hero-chart-line down" points="0.0,243.6 57.1,273.7 114.3,281.6 171.4,307.8 228.6,340.8 285.7,348.3 342.9,316.5 400.0,293.7 457.1,273.5 514.3,294.6 571.4,291.9 628.6,308.8 685.7,333.7 742.9,363.6 800.0,385.3 857.1,352.9 914.3,327.9 971.4,304.6 1028.6,281.7 1085.7,305.0 1142.9,319.5 1200.0,309.8" style="animation-delay:3.9s; stroke-width:1.6" />
+      <circle class="hero-chart-dot up" cx="1200.0" cy="90.6" r="4" style="animation-delay:0.0s" />
+      <circle class="hero-chart-dot down" cx="1200.0" cy="441.5" r="4" style="animation-delay:1.3s" />
+      <circle class="hero-chart-dot up" cx="1200.0" cy="227.5" r="4" style="animation-delay:2.6s" />
+      <circle class="hero-chart-dot down" cx="1200.0" cy="309.8" r="4" style="animation-delay:3.9s" />
+      </svg>
+    </div>
+    <div class="wrap hero-inner">
+      <p class="eyebrow" data-i18n="hero.eyebrow">Updated finance · by Jaime Sandoval</p>
+      <h1 data-i18n="hero.title">Finance That Actually Clicks.</h1>
+      <p class="hero-sub" data-i18n="hero.sub">Financial education, explained simply.</p>
+      <div class="hero-cta">
+        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-primary" data-i18n="hero.linkedin">Connect on LinkedIn</a>
+        <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">Watch on TikTok</a>
+      </div>
+    </div>
+    <div class="ticker" aria-label="Live market ticker">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </section>
+
+  <section id="about" class="about reveal">
+    <div class="wrap about-inner">
+      <div class="about-photos">
+        <img class="main" src="ABOUT_PHOTO_PLACEHOLDER" alt="Jaime, founder of Smart Finance" loading="lazy">
+      </div>
+      <div class="about-text">
+        <p class="eyebrow" data-i18n="about.eyebrow">About</p>
+        <h2 class="section-title" data-i18n="about.title">Hi, I'm Jaime.</h2>
+        <p data-i18n="about.p1">I'm Jaime Sandoval Ricaño, a student and content creator passionate about finance, business, and entrepreneurship. Through TikTok and LinkedIn, I share financial news, educational content, and insights to make finance easier to understand, especially for young people.</p>
+        <p data-i18n="about.p2">My goal is to keep learning, share valuable knowledge, and help more people become interested in the world of finance.</p>
+        <div class="about-socials">
+          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="market" class="market reveal">
+    <div class="wrap">
+      <p class="eyebrow"><span class="live-dot"></span><span data-i18n="market.eyebrow">Market pulse · live data</span></p>
+      <h2 class="section-title" data-i18n="market.title">What the market's doing right now</h2>
+      <p class="section-sub" data-i18n="market.sub">Live prices pulled straight from the source, refreshing automatically while you're here — plus the macro backdrop, updated by hand.</p>
+
+      <div class="market-group">
+        <h3 class="group-label" data-i18n="market.crypto">Crypto</h3>
+        <div class="market-grid" id="grid-crypto"></div>
+      </div>
+
+      <div class="market-group">
+        <h3 class="group-label" data-i18n="market.currencies">Currencies</h3>
+        <p class="group-note" data-i18n="market.fxnote">ECB reference rates, updated daily.</p>
+        <div class="market-grid" id="grid-fx"></div>
+      </div>
+
+      <div class="market-group">
+        <h3 class="group-label" data-i18n="market.fxchart">Exchange rate chart</h3>
+        <p class="group-note" data-i18n="market.fxchartnote">30-day trend, daily ECB reference rates.</p>
+        <div class="fx-chart-panel">
+          <div class="fx-tabs" id="fxTabs">
+            <button class="fx-tab active" data-pair="USD/MXN">USD/MXN</button>
+            <button class="fx-tab" data-pair="EUR/MXN">EUR/MXN</button>
+            <button class="fx-tab" data-pair="CHF/MXN">CHF/MXN</button>
+            <button class="fx-tab" data-pair="EUR/USD">EUR/USD</button>
+            <button class="fx-tab" data-pair="GBP/USD">GBP/USD</button>
+            <button class="fx-tab" data-pair="USD/JPY">USD/JPY</button>
+          </div>
+          <div class="fx-chart-head">
+            <span class="fx-chart-pair" id="fxChartPair">USD/MXN</span>
+            <span class="fx-chart-value" id="fxChartValue">—</span>
+            <span class="fx-chart-change" id="fxChartChange"></span>
+          </div>
+          <div class="fx-chart-canvas-wrap">
+            <canvas id="fxChartCanvas" height="90"></canvas>
+          </div>
+          <p class="fx-chart-note">Daily close · Frankfurter (ECB reference rates) · last 30 days</p>
+        </div>
+      </div>
+
+      <div class="market-group">
+        <h3 class="group-label" data-i18n="market.stocks">Stocks &amp; indices</h3>
+        <div class="market-grid" id="grid-stocks"></div>
+      </div>
+
+      <div class="market-group">
+        <h3 class="group-label" data-i18n="market.macro">Macro snapshot</h3>
+        <p class="group-note" data-i18n="market.macronote">Manually verified July 21, 2026 — not a live feed, updated by hand when it moves.</p>
+        <div class="macro-grid">
+          <div class="macro-panel">
+            <h4>US Treasury yield curve</h4>
+            <span class="as-of">As of Jul 16, 2026 close</span>
+            <svg class="yc-svg" viewBox="0 0 680 260" id="ycSvg">
+              <line x1="40" y1="220" x2="660" y2="220" stroke="var(--line)" stroke-width="1"/>
+              <path class="yc-line" id="ycPath" d="M40,201.3 L129,181.3 L217,158.7 L306,142.7 L394,125.3 L483,104 L571,34.7 L660,34.7" />
+              <g id="ycDots">
+                <circle class="yc-dot" cx="40" cy="201.3" r="4"/>
+                <circle class="yc-dot" cx="129" cy="181.3" r="4"/>
+                <circle class="yc-dot" cx="217" cy="158.7" r="4"/>
+                <circle class="yc-dot" cx="306" cy="142.7" r="4"/>
+                <circle class="yc-dot" cx="394" cy="125.3" r="4"/>
+                <circle class="yc-dot" cx="483" cy="104" r="5"/>
+                <circle class="yc-dot" cx="571" cy="34.7" r="4"/>
+                <circle class="yc-dot" cx="660" cy="34.7" r="4"/>
+              </g>
+              <text class="yc-val-label" x="483" y="90" text-anchor="middle">4.57%</text>
+              <text class="yc-axis-label" x="40" y="240" text-anchor="middle">3M</text>
+              <text class="yc-axis-label" x="129" y="240" text-anchor="middle">1Y</text>
+              <text class="yc-axis-label" x="217" y="240" text-anchor="middle">2Y</text>
+              <text class="yc-axis-label" x="306" y="240" text-anchor="middle">5Y</text>
+              <text class="yc-axis-label" x="394" y="240" text-anchor="middle">7Y</text>
+              <text class="yc-axis-label" x="483" y="240" text-anchor="middle">10Y</text>
+              <text class="yc-axis-label" x="571" y="240" text-anchor="middle">20Y</text>
+              <text class="yc-axis-label" x="660" y="240" text-anchor="middle">30Y</text>
+            </svg>
+          </div>
+          <div class="macro-panel">
+            <h4>Reference rates</h4>
+            <span class="as-of">Fed: held Jun 17 · Banxico: cut Jun 25</span>
+            <div class="rate-row"><span class="rate-label">Fed Funds Target</span><span class="rate-value">3.50–3.75%</span></div>
+            <div class="rate-row"><span class="rate-label">Banxico Reference Rate</span><span class="rate-value">6.50%</span></div>
+            <div class="rate-row"><span class="rate-label">MX–US Spread</span><span class="rate-value">≈2.88 pp</span></div>
+            <div class="rate-row"><span class="rate-label">Next FOMC</span><span class="rate-value">Jul 28–29</span></div>
+            <div class="rate-row"><span class="rate-label">Next Banxico</span><span class="rate-value">Aug 7</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="market-group">
+        <h3 class="group-label" data-i18n="market.calendar">Economic calendar</h3>
+        <p class="group-note" data-i18n="market.calendarnote">Key dates over the next few weeks.</p>
+        <div class="calendar-list">
+          <div class="cal-row"><span class="cal-date">Jul 28–29</span><span class="cal-tag us">US</span><span class="cal-event">FOMC meeting — Fed rate decision<span class="cal-note">Held at 3.50–3.75% for four straight meetings; market watches the tone more than the number.</span></span></div>
+          <div class="cal-row"><span class="cal-date">Jul 30</span><span class="cal-tag us">US</span><span class="cal-event">PCE inflation + Q2 GDP (1st estimate)<span class="cal-note">The Fed's preferred inflation gauge, a day after the rate decision.</span></span></div>
+          <div class="cal-row"><span class="cal-date">Aug 7</span><span class="cal-tag us">US</span><span class="cal-event">Jobs report (nonfarm payrolls)</span></div>
+          <div class="cal-row"><span class="cal-date">Aug 7</span><span class="cal-tag mx">MX</span><span class="cal-event">Banxico policy decision<span class="cal-note">Holds at 6.50% since Jun 25; analysts split 5–5 on the next move being up or down.</span></span></div>
+          <div class="cal-row"><span class="cal-date">Aug 12</span><span class="cal-tag us">US</span><span class="cal-event">CPI inflation</span></div>
+          <div class="cal-row"><span class="cal-date">Aug 19</span><span class="cal-tag us">US</span><span class="cal-event">FOMC minutes</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="news" class="news reveal">
+    <div class="wrap">
+      <p class="eyebrow"><span class="live-dot"></span><span data-i18n="news.eyebrow">Finance news · Bloomberg</span></p>
+      <h2 class="section-title" data-i18n="news.title">In the headlines</h2>
+      <p class="section-sub" data-i18n="news.sub">Top market and business stories from Bloomberg, pulled automatically.</p>
+      <div class="news-grid" id="grid-news"></div>
+    </div>
+  </section>
+
+  <section id="content" class="content reveal">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="content.eyebrow">Latest lessons</p>
+      <h2 class="section-title" data-i18n="content.title">Recent breakdowns</h2>
+      <p class="section-sub" data-i18n="content.sub">A running feed of real posts from LinkedIn and TikTok — updated as you post more.</p>
+
+      <!--
+        HOW TO ADD ANOTHER POST:
+        Copy one <article class="post-card"> block below, then update the tag
+        (tiktok or linkedin), title, description, and link to match the real post.
+      -->
+      <div class="content-grid">
+
+        <article class="post-card">
+          <span class="post-tag tiktok">TikTok</span>
+          <h3>Japan's Financial Data, Explained</h3>
+          <p>A look at Japan's latest economic numbers and what they signal for the market.</p>
+          <a class="post-link" href="https://www.tiktok.com/@smart.financee/video/7653328531694439700" target="_blank" rel="noopener">Watch on TikTok →</a>
+        </article>
+
+        <article class="post-card">
+          <span class="post-tag tiktok">TikTok</span>
+          <h3>Interview: Andy Toh, CEO of BlueSky Education</h3>
+          <p>A conversation on education, leadership, and creating opportunities for students, recorded during a summer program in Singapore.</p>
+          <a class="post-link" href="https://www.tiktok.com/@smart.financee/video/7662781308988411156" target="_blank" rel="noopener">Watch on TikTok →</a>
+        </article>
+
+        <article class="post-card">
+          <span class="post-tag tiktok">TikTok</span>
+          <h3>Singapore's Financial Data, Explained</h3>
+          <p>A breakdown of Singapore's economic numbers and what they mean for investors.</p>
+          <a class="post-link" href="https://www.tiktok.com/@smart.financee/video/7655111359419387157" target="_blank" rel="noopener">Watch on TikTok →</a>
+        </article>
+
+        <article class="post-card">
+          <span class="post-tag linkedin">LinkedIn</span>
+          <h3>Takeaways from JPMorgan's Chief ETF Strategist</h3>
+          <p>Notes from an insightful session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management.</p>
+          <a class="post-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ" target="_blank" rel="noopener">Read on LinkedIn →</a>
+        </article>
+
+        <article class="post-card">
+          <span class="post-tag linkedin">LinkedIn</span>
+          <h3>A Conversation with Moris Dieck</h3>
+          <p>Talking pillars of personal finance and the power of compound interest with one of Mexico's leading financial educators.</p>
+          <a class="post-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn" target="_blank" rel="noopener">Read on LinkedIn →</a>
+        </article>
+
+        <article class="post-card">
+          <span class="post-tag linkedin">LinkedIn</span>
+          <h3>Hosting the Financial Trading Room Podcast</h3>
+          <p>A personal finance conversation with the president of Tecnológico de Monterrey's student finance organization.</p>
+          <a class="post-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7" target="_blank" rel="noopener">Read on LinkedIn →</a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="subscribe reveal">
+    <div class="wrap">
+      <div class="subscribe-box">
+        <div>
+          <h3 data-i18n="subscribe.title">Get the daily brief</h3>
+          <p data-i18n="subscribe.sub">One short email before the market opens. No spam, unsubscribe anytime.</p>
+        </div>
+        <div>
+          <!--
+            SETUP: this form posts to Formspree (free, no backend needed).
+            1) Create a free form at https://formspree.io
+            2) Replace YOUR_FORM_ID below with the ID they give you.
+            Until then, the script shows a friendly reminder instead of submitting.
+          -->
+          <form class="subscribe-form" id="subscribeForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+            <input type="email" name="email" placeholder="you@email.com" required>
+            <button type="submit" class="btn btn-primary" data-i18n="subscribe.button">Subscribe</button>
+          </form>
+          <p class="subscribe-note" data-i18n="subscribe.note">Powered by Formspree — free tier, no backend required.</p>
+          <p class="subscribe-msg" id="subscribeMsg"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="follow" class="follow reveal">
+    <div class="wrap">
+      <div class="follow-intro">
+        <img id="followPhoto" src="FOLLOW_PHOTO_PLACEHOLDER" alt="Jaime, founder of Smart Finance" class="follow-photo">
+        <div>
+          <p class="eyebrow" data-i18n="follow.eyebrow">Let's connect</p>
+          <h2 class="section-title" data-i18n="follow.title">Follow along</h2>
+        </div>
+      </div>
+      <p class="section-sub" data-i18n="follow.sub">New breakdowns every week. Pick your platform.</p>
+      <div class="follow-grid">
+        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="follow-card linkedin-card">
+          <span class="icon-badge icon-linkedin">in</span>
+          <h3 data-i18n="follow.linkedin_title">Connect on LinkedIn</h3>
+          <p data-i18n="follow.linkedin_sub">Long-form breakdowns, market takes, and the occasional deep dive into the Fed.</p>
+          <span class="follow-link" data-i18n="follow.linkedin_link">View profile ↗</span>
+        </a>
+        <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="follow-card tiktok-card">
+          <span class="icon-badge icon-tiktok">♪</span>
+          <h3 data-i18n="follow.tiktok_title">Follow on TikTok</h3>
+          <p data-i18n="follow.tiktok_sub">Quick, clear lessons that actually stick — 60 seconds at a time.</p>
+          <span class="follow-link" data-i18n="follow.tiktok_link">Watch now ↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <p class="wordmark">Smart <span>Finance</span></p>
+      <p class="footer-tagline" data-i18n="footer.tagline">Finance that actually clicks.</p>
+    </div>
+    <nav class="footer-links">
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#market" data-i18n="nav.market">Market</a>
+      <a href="#content" data-i18n="nav.lessons">Lessons</a>
+      <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>
+    </nav>
+  </div>
+  <div class="wrap">
+    <p class="disclaimer" data-i18n="footer.disclaimer">Smart Finance content is for educational purposes only and does not constitute financial, investment, or tax advice.</p>
+    <p class="copyright">© 2026 Smart Finance</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+(function(){
+  // ============================================
+  // LIVE MARKET DATA CONFIG
+  // ============================================
+  const TWELVE_DATA_API_KEY = '58a2e1a00ab84a48aa47bb482d5eba6c';
+
+  const translations = {
+    'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.follow': 'Síguenos',
+    'hero.eyebrow': 'Finanzas actualizadas · por Jaime Sandoval',
+    'hero.title': 'Finanzas Que Sí Se Entienden.',
+    'hero.sub': 'Educación financiera, explicada de forma simple.',
+    'hero.linkedin': 'Conecta en LinkedIn', 'hero.tiktok': 'Mira en TikTok',
+    'about.eyebrow': 'Acerca de', 'about.title': 'Hola, soy Jaime.',
+    'about.p1': 'Soy Jaime Sandoval Ricaño, estudiante y creador de contenido apasionado por las finanzas, los negocios y el emprendimiento. En TikTok y LinkedIn comparto noticias financieras, contenido educativo e ideas para que las finanzas sean más fáciles de entender, sobre todo para los jóvenes.',
+    'about.p2': 'Mi meta es seguir aprendiendo, compartir conocimiento de valor y ayudar a que más personas se interesen en el mundo de las finanzas.',
+    'market.eyebrow': 'Pulso del mercado · datos en vivo',
+    'market.title': 'Qué está haciendo el mercado ahora mismo',
+    'market.sub': 'Precios en vivo directo de la fuente, actualizados automáticamente mientras estás aquí — más el panorama macro, actualizado a mano.',
+    'market.crypto': 'Cripto', 'market.currencies': 'Divisas',
+    'market.fxnote': 'Tasas de referencia del BCE, actualizadas a diario.',
+    'market.stocks': 'Acciones e índices', 'market.macro': 'Panorama macro',
+    'market.macronote': 'Verificado a mano el 21 de julio de 2026 — no es un feed en vivo, se actualiza a mano cuando cambia.',
+    'market.calendar': 'Calendario económico',
+    'market.calendarnote': 'Fechas clave de las próximas semanas.',
+    'news.eyebrow': 'Noticias financieras · Bloomberg', 'news.title': 'En los titulares',
+    'news.sub': 'Las noticias de mercado y negocios más importantes de Bloomberg, actualizadas automáticamente.',
+    'content.eyebrow': 'Últimas lecciones', 'content.title': 'Explicaciones recientes',
+    'content.sub': 'Contenido real de LinkedIn y TikTok — se actualiza conforme voy publicando.',
+    'subscribe.title': 'Recibe el resumen diario',
+    'subscribe.sub': 'Un correo breve antes de que abra el mercado. Sin spam, cancela cuando quieras.',
+    'subscribe.button': 'Suscribirme',
+    'subscribe.note': 'Con Formspree — plan gratuito, sin necesidad de servidor.',
+    'follow.eyebrow': 'Conectemos', 'follow.title': 'Sígueme',
+    'follow.sub': 'Nuevas explicaciones cada semana. Elige tu plataforma.',
+    'follow.linkedin_title': 'Conecta en LinkedIn',
+    'follow.linkedin_sub': 'Explicaciones a fondo, opiniones de mercado y uno que otro análisis de la Fed.',
+    'follow.linkedin_link': 'Ver perfil ↗',
+    'follow.tiktok_title': 'Sígueme en TikTok',
+    'follow.tiktok_sub': 'Lecciones rápidas y claras que sí se quedan — de 60 segundos.',
+    'follow.tiktok_link': 'Ver ahora ↗',
+    'footer.tagline': 'Finanzas que sí se entienden.',
+    'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.'
+  };
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.dataset.i18nOriginal = el.textContent; });
+
+  function setLanguage(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (lang === 'es' && translations[key]) {
+        el.textContent = translations[key];
+      } else {
+        el.textContent = el.dataset.i18nOriginal;
+      }
+    });
+    const emailInput = document.querySelector('.subscribe-form input[type="email"]');
+    if (emailInput) emailInput.placeholder = lang === 'es' ? 'tu@correo.com' : 'you@email.com';
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    document.documentElement.lang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+  });
+
+  const navToggle = document.getElementById('navToggle');
+  const navMobile = document.getElementById('navMobile');
+  if (navToggle && navMobile) {
+    navToggle.addEventListener('click', () => {
+      const open = navMobile.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navMobile.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      navMobile.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }));
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const revealEls = Array.from(document.querySelectorAll('.reveal'));
+    revealEls.forEach(el => el.classList.add('reveal-armed'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => io.observe(el));
+    setTimeout(() => revealEls.forEach(el => el.classList.add('in')), 4000);
+  }
+
+  const ycPath = document.getElementById('ycPath');
+  if (ycPath && 'IntersectionObserver' in window) {
+    const len = 2000;
+    ycPath.style.strokeDasharray = len;
+    ycPath.style.strokeDashoffset = len;
+    const revealYc = () => { ycPath.style.transition = 'stroke-dashoffset 1.4s ease'; ycPath.style.strokeDashoffset = '0'; };
+    const ycIo = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { revealYc(); ycIo.unobserve(e.target); } });
+    }, { threshold: 0.3 });
+    ycIo.observe(ycPath);
+    setTimeout(revealYc, 3000);
+  }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches && ycPath) {
+    ycPath.style.strokeDasharray = 'none';
+  }
+
+  const subForm = document.getElementById('subscribeForm');
+  const subMsg = document.getElementById('subscribeMsg');
+  if (subForm) {
+    subForm.addEventListener('submit', (e) => {
+      if (subForm.action.includes('YOUR_FORM_ID')) {
+        e.preventDefault();
+        subMsg.textContent = "This box isn't connected yet — create a free form at formspree.io and drop the ID into the code (see the comment above this form).";
+        subMsg.style.display = 'block';
+      }
+    });
+  }
+
+  function fmtPrice(n, decimals) {
+    if (n === null || n === undefined || isNaN(n)) return '—';
+    return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+  function fmtChange(n) {
+    if (n === null || n === undefined || isNaN(n)) return null;
+    const sign = n > 0 ? '+' : '';
+    return `${sign}${n.toFixed(2)}%`;
+  }
+
+  const LABELS = {
+    BTC: 'BTC', ETH: 'ETH',
+    'USD/MXN': 'USD/MXN', 'EUR/USD': 'EUR/USD', 'USD/JPY': 'USD/JPY', 'GBP/USD': 'GBP/USD',
+    SPY: 'S&P 500 (SPY)', QQQ: 'Nasdaq 100 (QQQ)', AAPL: 'AAPL', TSLA: 'TSLA', NVDA: 'NVDA'
+  };
+
+  let cryptoData = null, fxData = null, stockData = null;
+  let prevValues = {};
+
+  function markFlash(el, key, newPrice, dir) {
+    if (!el) return;
+    const prev = prevValues[key];
+    if (prev !== undefined && prev !== newPrice && newPrice !== null && newPrice !== undefined) {
+      el.classList.remove('flash-up', 'flash-down');
+      void el.offsetWidth;
+      el.classList.add(dir === 'down' ? 'flash-down' : 'flash-up');
+    }
+    if (newPrice !== null && newPrice !== undefined) prevValues[key] = newPrice;
+  }
+
+  async function fetchCrypto() {
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true');
+      if (!res.ok) throw new Error('coingecko ' + res.status);
+      const data = await res.json();
+      cryptoData = {
+        BTC: { price: data.bitcoin && data.bitcoin.usd, change: data.bitcoin && data.bitcoin.usd_24h_change },
+        ETH: { price: data.ethereum && data.ethereum.usd, change: data.ethereum && data.ethereum.usd_24h_change }
+      };
+    } catch (e) { console.warn('Crypto fetch failed:', e); }
+    render();
+  }
+
+  async function fetchFx() {
+    try {
+      const res = await fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=MXN,EUR,JPY,GBP');
+      if (!res.ok) throw new Error('frankfurter ' + res.status);
+      const data = await res.json();
+      const r = data.rates || {};
+      fxData = {
+        'USD/MXN': r.MXN,
+        'EUR/USD': r.EUR ? 1 / r.EUR : null,
+        'USD/JPY': r.JPY,
+        'GBP/USD': r.GBP ? 1 / r.GBP : null
+      };
+    } catch (e) { console.warn('FX fetch failed:', e); }
+    render();
+  }
+
+  let fxChartInstance = null;
+  let currentFxPair = 'USD/MXN';
+  function toISODate(d) { return d.toISOString().slice(0, 10); }
+
+  async function loadFxChart(pair) {
+    const [base, quote] = pair.split('/');
+    const pairEl = document.getElementById('fxChartPair');
+    const valueEl = document.getElementById('fxChartValue');
+    const changeEl = document.getElementById('fxChartChange');
+    if (pairEl) pairEl.textContent = pair;
+    try {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(start.getDate() - 30);
+      const url = `https://api.frankfurter.dev/v1/${toISODate(start)}..${toISODate(end)}?base=${base}&symbols=${quote}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('frankfurter history ' + res.status);
+      const data = await res.json();
+      const rows = Object.entries(data.rates || {})
+        .map(([date, obj]) => ({ date, value: obj[quote] }))
+        .filter(r => typeof r.value === 'number')
+        .sort((a, b) => a.date.localeCompare(b.date));
+      if (!rows.length) throw new Error('empty series');
+
+      const first = rows[0].value, last = rows[rows.length - 1].value;
+      const changePct = ((last - first) / first) * 100;
+      const dir = changePct > 0 ? 'up' : changePct < 0 ? 'down' : '';
+      if (valueEl) valueEl.textContent = fmtPrice(last, quote === 'JPY' ? 2 : 4);
+      if (changeEl) {
+        changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + '% (30d)';
+        changeEl.className = 'fx-chart-change ' + dir;
+      }
+
+      const ctx = document.getElementById('fxChartCanvas');
+      if (!ctx || typeof Chart === 'undefined') return;
+      const chartData = {
+        labels: rows.map(r => r.date.slice(5)),
+        datasets: [{
+          data: rows.map(r => r.value),
+          borderColor: '#2DD4A0',
+          backgroundColor: 'rgba(45,212,160,0.08)',
+          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+          fill: true, tension: 0.3
+        }]
+      };
+      if (fxChartInstance) {
+        fxChartInstance.data = chartData;
+        fxChartInstance.update();
+      } else {
+        fxChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: '#949494', maxTicksLimit: 6, font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#262928' } },
+              y: { ticks: { color: '#949494', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#262928' } }
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('FX chart fetch failed:', e);
+      if (valueEl) valueEl.textContent = '—';
+      if (changeEl) { changeEl.textContent = 'Unavailable — retry shortly'; changeEl.className = 'fx-chart-change'; }
+    }
+  }
+
+  document.querySelectorAll('.fx-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fx-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFxPair = btn.dataset.pair;
+      loadFxChart(currentFxPair);
+    });
+  });
+
+  async function fetchStocks() {
+    if (!TWELVE_DATA_API_KEY) { stockData = 'no-key'; render(); return; }
+    const symbols = ['SPY', 'QQQ', 'AAPL', 'TSLA', 'NVDA'];
+    const map = {};
+    let sawAuthError = false;
+    const results = await Promise.allSettled(symbols.map(async (sym) => {
+      const res = await fetch(`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(sym)}&apikey=${TWELVE_DATA_API_KEY}`);
+      const q = await res.json();
+      if (q.status === 'error' || q.code) {
+        console.warn(`Twelve Data error for ${sym}:`, q.message || q);
+        if (q.code === 401 || q.code === 403) sawAuthError = true;
+        return;
+      }
+      if (q && q.close) map[sym] = { price: parseFloat(q.close), change: parseFloat(q.percent_change) };
+    }));
+    results.forEach((r, i) => { if (r.status === 'rejected') console.warn(`Stocks fetch failed for ${symbols[i]}:`, r.reason); });
+    if (Object.keys(map).length) {
+      stockData = map;
+    } else {
+      stockData = sawAuthError ? 'auth-error' : 'error';
+      console.warn('Stocks: no symbols returned data this round.');
+    }
+    render();
+  }
+
+  const RSS2JSON_API_KEY = 'g00axttspvihuudzkq7aps9uq7xfairyybizv9f5';
+  let newsData = null;
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  async function fetchNews() {
+    const bloombergFeed = 'https://feeds.bloomberg.com/markets/news.rss';
+    let url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(bloombergFeed)}&count=3`;
+    if (RSS2JSON_API_KEY) url += `&api_key=${RSS2JSON_API_KEY}`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('rss2json ' + res.status);
+      const data = await res.json();
+      if (data.status !== 'ok' || !data.items || !data.items.length) throw new Error('bad feed response');
+      newsData = data.items.slice(0, 3);
+    } catch (e) {
+      console.warn('News fetch failed:', e);
+      newsData = 'error';
+    }
+    renderNews();
+  }
+
+  function renderNews() {
+    const grid = document.getElementById('grid-news');
+    if (!grid) return;
+    if (newsData === 'error' || !newsData) {
+      grid.innerHTML = `<div class="setup-card">Live headlines are temporarily unavailable. It will retry on your next visit.</div>`;
+      return;
+    }
+    grid.innerHTML = newsData.map(item => {
+      const img = item.thumbnail || (item.enclosure && item.enclosure.link) || '';
+      return `<article class="news-card">
+        ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+        <div class="news-card-body">
+          <span class="news-source">Bloomberg</span>
+          <h3>${escapeHtml(item.title)}</h3>
+          <a class="news-link" href="${item.link}" target="_blank" rel="noopener">Read more →</a>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  function cardHTML(sym, price, change, decimals) {
+    const priceStr = (price !== undefined && price !== null && !isNaN(price)) ? '$' + fmtPrice(price, decimals) : '—';
+    const changeStr = fmtChange(change);
+    const dir = (change > 0) ? 'up' : (change < 0) ? 'down' : '';
+    return `<div class="market-card" data-key="${sym}">
+      <div class="card-top"><span class="card-sym">${LABELS[sym] || sym}</span>${dir ? `<span class="dot ${dir}"></span>` : ''}</div>
+      <p class="card-price">${priceStr}</p>
+      <p class="card-change ${dir}">${changeStr ? changeStr : '&nbsp;'}</p>
+    </div>`;
+  }
+
+  function chipHTML(sym, price, change, decimals) {
+    const priceStr = (price !== undefined && price !== null && !isNaN(price)) ? fmtPrice(price, decimals) : '—';
+    const changeStr = fmtChange(change);
+    const dir = (change > 0) ? 'up' : (change < 0) ? 'down' : '';
+    return `<span class="chip">${dir ? `<span class="dot ${dir}"></span>` : ''}<span class="sym">${LABELS[sym] || sym}</span><span>${priceStr}</span>${changeStr ? `<span class="chg ${dir}">${changeStr}</span>` : ''}</span>`;
+  }
+
+  function render() {
+    const chips = [];
+
+    const cryptoGrid = document.getElementById('grid-crypto');
+    if (cryptoGrid) {
+      if (cryptoData) {
+        cryptoGrid.innerHTML = cardHTML('BTC', cryptoData.BTC.price, cryptoData.BTC.change, 0) + cardHTML('ETH', cryptoData.ETH.price, cryptoData.ETH.change, 0);
+        chips.push(chipHTML('BTC', cryptoData.BTC.price, cryptoData.BTC.change, 0));
+        chips.push(chipHTML('ETH', cryptoData.ETH.price, cryptoData.ETH.change, 0));
+        ['BTC','ETH'].forEach(k => markFlash(cryptoGrid.querySelector(`[data-key="${k}"]`), k, cryptoData[k].price, cryptoData[k].change < 0 ? 'down' : 'up'));
+      } else {
+        cryptoGrid.innerHTML = cardHTML('BTC') + cardHTML('ETH');
+        chips.push(chipHTML('BTC'), chipHTML('ETH'));
+      }
+    }
+
+    const fxGrid = document.getElementById('grid-fx');
+    if (fxGrid) {
+      const pairs = ['USD/MXN', 'EUR/USD', 'USD/JPY', 'GBP/USD'];
+      pairs.forEach(p => chips.push(chipHTML(p, fxData ? fxData[p] : null, null, p === 'USD/JPY' ? 2 : 4)));
+      fxGrid.innerHTML = pairs.map(p => cardHTML(p, fxData ? fxData[p] : null, null, p === 'USD/JPY' ? 2 : 4)).join('');
+    }
+
+    const stockGrid = document.getElementById('grid-stocks');
+    if (stockGrid) {
+      const symbols = ['SPY', 'QQQ', 'AAPL', 'TSLA', 'NVDA'];
+      if (stockData === 'no-key') {
+        stockGrid.innerHTML = `<div class="setup-card">Live stock data needs a free key from twelvedata.com pasted into TWELVE_DATA_API_KEY.</div>`;
+        symbols.forEach(s => chips.push(chipHTML(s)));
+      } else if (stockData === 'auth-error') {
+        stockGrid.innerHTML = `<div class="setup-card">Twelve Data rejected the API key.</div>`;
+        symbols.forEach(s => chips.push(chipHTML(s)));
+      } else if (stockData === 'error' || !stockData) {
+        stockGrid.innerHTML = `<div class="setup-card">Live data is temporarily unavailable. It will retry automatically.</div>`;
+        symbols.forEach(s => chips.push(chipHTML(s)));
+      } else {
+        stockGrid.innerHTML = symbols.map(s => cardHTML(s, stockData[s] && stockData[s].price, stockData[s] && stockData[s].change, 2)).join('');
+        symbols.forEach(s => chips.push(chipHTML(s, stockData[s] && stockData[s].price, stockData[s] && stockData[s].change, 2)));
+        symbols.forEach(k => { if (stockData[k]) markFlash(stockGrid.querySelector(`[data-key="${k}"]`), k, stockData[k].price, stockData[k].change < 0 ? 'down' : 'up'); });
+      }
+    }
+
+    const track = document.getElementById('tickerTrack');
+    if (track && chips.length) track.innerHTML = chips.join('') + chips.join('');
+  }
+
+  render();
+  fetchCrypto();
+  fetchFx();
+  fetchStocks();
+  fetchNews();
+  loadFxChart('USD/MXN');
+
+  setInterval(fetchCrypto, 60000);
+  setInterval(fetchFx, 5 * 60000);
+  if (TWELVE_DATA_API_KEY) setInterval(fetchStocks, 60000);
+  setInterval(fetchNews, 15 * 60000);
+  setInterval(() => loadFxChart(currentFxPair), 5 * 60000);
+})();
+</script>
+</body>
+</html>
