@@ -6,11 +6,17 @@
 // suficiente para agotar el plan gratis en una tarde).
 //
 // Aquí la key vive en process.env y una sola llamada al proveedor sirve a todos
-// los visitantes durante 60s.
+// los visitantes durante el TTL del caché.
+//
+// El TTL es de 15 minutos porque el plan gratis de Twelve Data da 800 créditos
+// al día y cada refresco cuesta 5 (uno por símbolo). A 15 min son 96 refrescos
+// diarios = 480 créditos en el peor caso, con margen de sobra; a 60s eran
+// ~7,200 y la cuota se agotaba en un par de horas. Para un sitio educativo no
+// hacen falta precios al segundo.
 
 const SYMBOLS = ['SPY', 'QQQ', 'AAPL', 'TSLA', 'NVDA'];
 
-const CACHE_TTL_MS = 60 * 1000;
+const CACHE_TTL_MS = 15 * 60 * 1000;
 let cache = null;
 
 // Twelve Data devuelve un objeto plano cuando pides un símbolo, y uno indexado
@@ -31,7 +37,7 @@ module.exports = async function handler(req, res) {
   }
 
   if (cache && cache.expires > Date.now()) {
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
     res.status(200).json(cache.body);
     return;
   }
@@ -67,11 +73,13 @@ module.exports = async function handler(req, res) {
     const body = { quotes, asOf: Date.now() };
     cache = { expires: Date.now() + CACHE_TTL_MS, body };
 
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
     res.status(200).json(body);
   } catch (err) {
     console.error('quote fetch failed:', err);
-    // Preferimos datos tibios a una sección vacía si el proveedor falla.
+    // Preferimos datos tibios a una sección vacía si el proveedor falla. Aquí
+    // el s-maxage sí es corto: son datos viejos, y así reintentamos pronto en
+    // vez de congelarlos 15 minutos.
     if (cache) {
       res.setHeader('Cache-Control', 'public, s-maxage=60');
       res.status(200).json(cache.body);

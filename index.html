@@ -483,7 +483,7 @@
     <div class="wrap">
       <p class="eyebrow"><span class="live-dot"></span><span data-i18n="market.eyebrow">Market pulse · live data</span></p>
       <h2 class="section-title" data-i18n="market.title">What the market's doing right now</h2>
-      <p class="section-sub" data-i18n="market.sub">Live prices pulled straight from the source, refreshing automatically while you're here — plus the macro backdrop, updated by hand.</p>
+      <p class="section-sub" data-i18n="market.sub">Prices updated every 15 minutes, plus the macro backdrop, checked by hand.</p>
 
       <div class="market-group">
         <h3 class="group-label" data-i18n="market.crypto">Crypto</h3>
@@ -737,7 +737,7 @@
     'about.p2': 'Mi meta es seguir aprendiendo, compartir conocimiento de valor y ayudar a que más personas se interesen en el mundo de las finanzas.',
     'market.eyebrow': 'Pulso del mercado · datos en vivo',
     'market.title': 'Qué está haciendo el mercado ahora mismo',
-    'market.sub': 'Precios en vivo directo de la fuente, actualizados automáticamente mientras estás aquí — más el panorama macro, actualizado a mano.',
+    'market.sub': 'Precios actualizados cada 15 minutos, más el panorama macro, revisado a mano.',
     'market.crypto': 'Cripto', 'market.currencies': 'Divisas',
     'market.fxnote': 'Tasas de referencia del BCE, actualizadas a diario.',
     'market.stocks': 'Acciones e índices', 'market.macro': 'Panorama macro',
@@ -1213,7 +1213,7 @@
       if (stockData === 'error' || !stockData) {
         stockGrid.innerHTML = `<div class="setup-card">${document.documentElement.lang === 'es'
           ? 'Datos no disponibles por el momento. Se reintenta solo.'
-          : 'Live data is temporarily unavailable. It will retry automatically.'}</div>`;
+          : 'Stock data is temporarily unavailable. It will retry automatically.'}</div>`;
         symbols.forEach(s => chips.push(chipHTML(s)));
       } else {
         stockGrid.innerHTML = symbols.map(s => cardHTML(s, stockData[s] && stockData[s].price, stockData[s] && stockData[s].change, 2)).join('');
@@ -1237,10 +1237,13 @@
   // Antes los setInterval seguían corriendo con la pestaña oculta, quemando
   // cuota de API sin que nadie estuviera viendo. Ahora se detienen al ocultar
   // la pestaña y se refrescan de golpe al volver.
+  // Cada intervalo va igualado al caché de su endpoint: pedir más seguido solo
+  // devuelve la misma respuesta cacheada. /api/quote cachea 15 min (cuota de
+  // Twelve Data, ver api/quote.js) y /api/news también.
   const POLLS = [
     { fn: fetchCrypto, every: 60000 },
     { fn: fetchFx,     every: 5 * 60000 },
-    { fn: fetchStocks, every: 5 * 60000 },
+    { fn: fetchStocks, every: 15 * 60000 },
     { fn: fetchNews,   every: 15 * 60000 }
   ];
   let timers = [];
