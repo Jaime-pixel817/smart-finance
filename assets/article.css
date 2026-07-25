@@ -1,0 +1,154 @@
+/* Estilos compartidos de las páginas de artículo (/articles/*.html).
+   Mismos tokens, tipografía y paleta oscura que index.html; aquí viven en un
+   archivo aparte para no repetir 400 líneas de CSS en cada artículo. */
+
+:root {
+  --bg: #0A0A0B;
+  --bg-raise: #111113;
+  --card: #111113;
+  --card-2: #1A1A1C;
+  --ink: #F5F5F2;
+  --muted: #8A8A8E;
+  --brand: #0F8A5F;
+  --gold-text: #0F8A5F;
+  --line: #1E1E22;
+  --radius: 14px;
+  --card-pad: 22px;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
+  --max-width: 1180px;
+  --read-width: 720px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+
+.wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 32px; }
+
+/* ---------- Header (idéntico al del sitio) ---------- */
+.site-nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,14,22,0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner { max-width: var(--max-width); margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.nav-brand { display: flex; flex-direction: column; line-height: 1.05; }
+.wordmark { font-family: var(--font-display); font-weight: 600; font-size: 1.4rem; letter-spacing: -0.01em; }
+.wordmark span { color: var(--brand); }
+.nav-tagline { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.nav-right { display: flex; align-items: center; gap: 22px; }
+.nav-links-desktop { display: flex; gap: 26px; align-items: center; }
+.nav-links-desktop > a:not(.nav-cta) { font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color .15s ease; }
+.nav-links-desktop > a:not(.nav-cta):hover { color: var(--ink); }
+.lang-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 3px; background: var(--card); }
+.lang-btn { background: none; border: none; color: var(--muted); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 5px; transition: background .15s ease, color .15s ease; }
+.lang-btn.active { background: var(--ink); color: var(--bg); }
+.nav-cta { background: var(--brand); color: #06110D !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 700; }
+.nav-cta:hover { background: #12A06E; }
+@media (max-width: 860px) {
+  .nav-links-desktop { display: none; }
+  .nav-tagline { display: none; }
+}
+
+/* ---------- Botones (misma jerarquía que el sitio) ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 26px; border-radius: 999px;
+  font-weight: 600; font-size: 0.95rem;
+  border: 1.5px solid transparent;
+  transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: var(--brand); color: #06110D; border-color: var(--brand); font-weight: 700; }
+.btn-primary:hover { background: #12A06E; border-color: #12A06E; transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(15,138,95,0.75); }
+.btn-outline { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-outline:hover { background: var(--card-2); border-color: var(--muted); transform: translateY(-1px); }
+
+/* ---------- Artículo ---------- */
+.article { padding: 44px 0 88px; }
+.article-inner { max-width: var(--read-width); margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.86rem; font-weight: 500; color: var(--muted);
+  margin-bottom: 34px; transition: color .15s ease;
+}
+.back-link:hover { color: var(--ink); }
+
+.article-eyebrow {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+  font-weight: 600; color: var(--gold-text); text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.article h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.9rem);
+  line-height: 1.1; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+.article-lede { color: var(--muted); font-size: 1.08rem; line-height: 1.6; margin-bottom: 20px; }
+.article-meta {
+  font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+  padding-bottom: 30px; margin-bottom: 34px; border-bottom: 1px solid var(--line);
+}
+
+.article-body h2 {
+  font-family: var(--font-display); font-size: 1.42rem; font-weight: 700;
+  line-height: 1.25; margin: 40px 0 12px;
+}
+.article-body h3 {
+  font-family: var(--font-body); font-size: 1.02rem; font-weight: 700;
+  margin: 26px 0 8px;
+}
+.article-body p { margin-bottom: 17px; color: #D8D8D4; }
+.article-body ul, .article-body ol { margin: 0 0 20px 22px; color: #D8D8D4; }
+.article-body ul { list-style: disc; }
+.article-body ol { list-style: decimal; }
+.article-body li { margin-bottom: 9px; padding-left: 4px; }
+.article-body strong { color: var(--ink); font-weight: 600; }
+.article-body a:not(.btn) { color: var(--gold-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.article-body a:not(.btn):hover { color: var(--ink); }
+
+/* Cita/nota destacada dentro del texto */
+.callout {
+  background: var(--card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radius);
+  padding: var(--card-pad); margin: 26px 0;
+}
+.callout p { margin-bottom: 0; }
+
+.article-foot { margin-top: 46px; padding-top: 28px; border-top: 1px solid var(--line); }
+.article-foot .disclaimer { font-size: 0.78rem; color: var(--muted); margin-bottom: 22px; }
+.article-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- Footer (idéntico al del sitio) ---------- */
+.site-footer { border-top: 1px solid var(--line); padding: 48px 0 32px; background: var(--bg-raise); }
+.footer-inner { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; margin-bottom: 32px; }
+.footer-tagline { color: var(--muted); font-size: 0.88rem; margin-top: 6px; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 0.88rem; font-weight: 500; color: var(--muted); }
+.footer-links a:hover { color: var(--ink); }
+.disclaimer { font-size: 0.78rem; color: var(--muted); max-width: 640px; margin-bottom: 12px; }
+.copyright { font-size: 0.78rem; color: var(--muted); }
+
+@media (max-width: 560px) {
+  .wrap { padding: 0 20px; }
+  .nav-inner { padding: 14px 20px; }
+  .article { padding: 32px 0 60px; }
+  .article-body h2 { margin-top: 32px; }
+}
