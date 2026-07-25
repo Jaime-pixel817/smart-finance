@@ -1,2 +1,10 @@
 # Código fuente de referencia (original React de Mauricio) — solo local
 reference/
+
+# Config local de Claude Code (permisos de esta máquina) — no va al repo público
+.claude/
+
+# Variables de entorno: las API keys nunca deben llegar a git
+.env
+.env.local
+.vercel
