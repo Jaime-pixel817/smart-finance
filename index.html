@@ -133,7 +133,6 @@
 
   /* ---------- Click / hover feedback (safe, CSS-only) ---------- */
   .btn:active, .nav-cta:active { transform: scale(0.95); }
-  .follow-card:active { transform: scale(0.97); }
 
   /* Un solo lugar donde se apaga TODO lo que se mueve por decoración.
      El contenido nunca depende de la animación: si esto se aplica, los mismos
@@ -531,6 +530,11 @@
 
   /* ---------- Content / Lessons ---------- */
   .content { padding: var(--section-pad) 0; background: var(--bg-raise); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  /* Al quitar la sección Follow, Lessons quedó como última sección y su borde
+     inferior caía justo sobre el borde superior del footer: se veía una línea
+     doble. Va como :last-child y no borrando el borde, para que si algún día se
+     agrega otra sección después, Lessons lo recupere solo. */
+  main > section:last-child { border-bottom: none; }
   .content-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
   .post-card { padding: 0; display:flex; flex-direction:column; overflow:hidden; }
   .post-body { padding: var(--card-pad); display:flex; flex-direction:column; gap: 12px; flex-grow:1; }
@@ -594,29 +598,6 @@
   .post-card-link { display:flex; }
   .post-card-link .post-card { width:100%; }
 
-  /* ---------- Follow ---------- */
-  .follow { padding: var(--section-pad) 0; }
-  .follow-intro { display:flex; align-items:center; gap:22px; margin-bottom:6px; }
-  .follow-photo { width:72px; height:72px; aspect-ratio:1/1; object-fit:cover; object-position:center 30%; border-radius:50%; border:1px solid var(--line); flex-shrink:0; box-shadow: 0 12px 24px -12px rgba(0,0,0,0.5); background: var(--card); }
-  @media (max-width:600px) { .follow-photo { width:60px; height:60px; } .follow-intro { gap:16px; } }
-  .follow-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .follow-card { border-radius: var(--radius); padding: 40px; display:flex; flex-direction:column; gap:10px; border:1px solid transparent; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-  .follow-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -24px rgba(0,0,0,0.65); }
-  /* LinkedIn es la tarjeta primaria (verde sólido), igual que el botón primario
-     del hero. TikTok queda como secundaria en outline, para que las dos no
-     compitan por la misma atención. */
-  .follow-card.linkedin-card { background: var(--brand); color: #06110D; border-color: var(--brand); }
-  .follow-card.linkedin-card:hover { background: #12A06E; border-color: #12A06E; }
-  .follow-card.tiktok-card { background: transparent; color: var(--ink); border-color: var(--line); }
-  .follow-card.tiktok-card:hover { background: var(--card-2); border-color: var(--muted); }
-  .icon-badge { display:inline-flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius: 12px; font-family: var(--font-display); font-weight:700; font-size:1.3rem; margin-bottom:10px; }
-  .icon-linkedin { background:#06110D; color:#F2F2F2; }
-  .icon-tiktok { background:#F2F2F2; color:#0A0A0A; }
-  .follow-card h3 { font-family: var(--font-display); font-size:1.5rem; font-weight:700; }
-  .follow-card p { opacity:0.82; max-width:340px; }
-  .follow-link { font-weight:600; margin-top:8px; }
-  @media (max-width:760px) { .follow-grid { grid-template-columns:1fr; } }
-
   /* ---------- Footer ---------- */
   .site-footer { border-top:1px solid var(--line); padding: 48px 0 32px; background: var(--bg-raise); }
   .footer-inner { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:24px; margin-bottom:32px; }
@@ -638,7 +619,6 @@
     .wrap { padding: 0 20px; }
     .nav-inner { padding: 14px 20px; }
     .nav-mobile { padding: 8px 20px 20px; }
-    .follow-card { padding: 28px; }
     .group-label { margin-top: 34px; }
     .tip-actions .btn { margin-left: 0; }
   }
@@ -655,7 +635,7 @@
       <a href="#about" data-i18n="nav.about">About</a>
       <a href="#market" data-i18n="nav.market">Market</a>
       <a href="#content" data-i18n="nav.lessons">Lessons</a>
-      <a href="#follow" class="nav-cta" data-i18n="nav.follow">Follow</a>
+      <a href="#home" class="nav-cta" data-i18n="nav.follow">Follow</a>
       <span class="lang-toggle">
         <button type="button" class="lang-btn active" data-lang="en">EN</button>
         <button type="button" class="lang-btn" data-lang="es">ES</button>
@@ -669,7 +649,7 @@
     <a href="#about" data-i18n="nav.about">About</a>
     <a href="#market" data-i18n="nav.market">Market</a>
     <a href="#content" data-i18n="nav.lessons">Lessons</a>
-    <a href="#follow" data-i18n="nav.follow">Follow</a>
+    <a href="#home" data-i18n="nav.follow">Follow</a>
     <span class="lang-toggle lang-toggle-mobile">
       <button type="button" class="lang-btn active" data-lang="en">EN</button>
       <button type="button" class="lang-btn" data-lang="es">ES</button>
@@ -1081,33 +1061,6 @@
     </div>
   </section>
 
-  <section id="follow" class="follow reveal">
-    <div class="wrap">
-      <div class="follow-intro">
-        <img id="followPhoto" src="jaime.jpg" alt="Jaime, founder of Smart Finance" class="follow-photo" width="72" height="72" loading="lazy" decoding="async">
-        <div>
-          <p class="eyebrow" data-i18n="follow.eyebrow">Let's connect</p>
-          <h2 class="section-title" data-i18n="follow.title">Follow along</h2>
-        </div>
-      </div>
-      <p class="section-sub" data-i18n="follow.sub">New breakdowns every week. Pick your platform.</p>
-      <div class="follow-grid">
-        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="follow-card linkedin-card">
-          <span class="icon-badge icon-linkedin">in</span>
-          <h3 data-i18n="follow.linkedin_title">Connect on LinkedIn</h3>
-          <p data-i18n="follow.linkedin_sub">Long-form breakdowns, market takes, and the occasional deep dive into the Fed.</p>
-          <span class="follow-link" data-i18n="follow.linkedin_link">View profile ↗</span>
-        </a>
-        <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="follow-card tiktok-card">
-          <span class="icon-badge icon-tiktok">♪</span>
-          <h3 data-i18n="follow.tiktok_title">Follow on TikTok</h3>
-          <p data-i18n="follow.tiktok_sub">Quick, clear lessons that actually stick — 60 seconds at a time.</p>
-          <span class="follow-link" data-i18n="follow.tiktok_link">Watch now ↗</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
 </main>
 
 <footer class="site-footer">
@@ -1204,14 +1157,6 @@
     'content.sub': 'Contenido real de LinkedIn y TikTok — se actualiza conforme voy publicando.',
     'content.watch': 'Ver en TikTok',
     'content.read': 'Ver en LinkedIn',
-    'follow.eyebrow': 'Conectemos', 'follow.title': 'Sígueme',
-    'follow.sub': 'Nuevas explicaciones cada semana. Elige tu plataforma.',
-    'follow.linkedin_title': 'Conecta en LinkedIn',
-    'follow.linkedin_sub': 'Explicaciones a fondo, opiniones de mercado y uno que otro análisis de la Fed.',
-    'follow.linkedin_link': 'Ver perfil ↗',
-    'follow.tiktok_title': 'Sígueme en TikTok',
-    'follow.tiktok_sub': 'Lecciones rápidas y claras que sí se quedan — de 60 segundos.',
-    'follow.tiktok_link': 'Ver ahora ↗',
     'footer.tagline': 'Finanzas que sí se entienden.',
     'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.'
   };
