@@ -11,7 +11,12 @@ const PAIR_MAP = {
 };
 
 const RANGE_MAP = {
-  '1D': { range: '2d', interval: '5m', windowHours: 24 },
+  // El mercado FX cierra el viernes por la tarde y no reabre hasta el domingo
+  // por la noche. Si filtráramos por "últimas 24h desde ahora", el fin de semana
+  // no quedaría ningún punto y la gráfica saldría vacía. En vez de eso pedimos
+  // 5 días y nos quedamos con los últimos ~288 puntos de 5 minutos (un día de
+  // trading), así el sábado se ve la sesión del viernes.
+  '1D': { range: '5d', interval: '5m', maxPoints: 288 },
   '1M': { range: '1mo', interval: '1d' },
   '3M': { range: '3mo', interval: '1d' },
   '1Y': { range: '1y', interval: '1d' }
@@ -68,9 +73,8 @@ module.exports = async function handler(req, res) {
       .map((t, i) => [t, closes[i]])
       .filter(([, c]) => typeof c === 'number' && !isNaN(c));
 
-    if (rangeCfg.windowHours) {
-      const cutoff = Date.now() / 1000 - rangeCfg.windowHours * 3600;
-      points = points.filter(([t]) => t >= cutoff);
+    if (rangeCfg.maxPoints && points.length > rangeCfg.maxPoints) {
+      points = points.slice(-rangeCfg.maxPoints);
     }
 
     if (!points.length) throw new Error('no data points');
