@@ -1,22 +1,28 @@
-// Vercel serverless function: proxies Yahoo Finance FX chart data server-side
+// Vercel serverless function: proxies Yahoo Finance chart data server-side
 // (the browser can't call Yahoo directly — no CORS headers on their API).
+//
+// Sirve a dos gráficas del sitio: la de tipo de cambio (6 pares) y la del VIX.
 
-const PAIR_MAP = {
-  USDMXN: 'MXN=X',
-  EURMXN: 'EURMXN=X',
-  CHFMXN: 'CHFMXN=X',
-  EURUSD: 'EURUSD=X',
-  GBPUSD: 'GBPUSD=X',
-  USDJPY: 'JPY=X'
+const SYMBOLS = {
+  USDMXN: { yahoo: 'MXN=X', intradayPoints: 288 },
+  EURMXN: { yahoo: 'EURMXN=X', intradayPoints: 288 },
+  CHFMXN: { yahoo: 'CHFMXN=X', intradayPoints: 288 },
+  EURUSD: { yahoo: 'EURUSD=X', intradayPoints: 288 },
+  GBPUSD: { yahoo: 'GBPUSD=X', intradayPoints: 288 },
+  USDJPY: { yahoo: 'JPY=X', intradayPoints: 288 },
+  // El VIX solo cotiza en horario de Estados Unidos: ~156 barras de 5 minutos
+  // por sesion, no 288 como el FX, que opera casi 24 h. Si le pidieramos 288 la
+  // gráfica de "1D" mostraria casi dos dias.
+  VIX: { yahoo: '^VIX', intradayPoints: 156 }
 };
 
 const RANGE_MAP = {
-  // El mercado FX cierra el viernes por la tarde y no reabre hasta el domingo
-  // por la noche. Si filtráramos por "últimas 24h desde ahora", el fin de semana
-  // no quedaría ningún punto y la gráfica saldría vacía. En vez de eso pedimos
-  // 5 días y nos quedamos con los últimos ~288 puntos de 5 minutos (un día de
-  // trading), así el sábado se ve la sesión del viernes.
-  '1D': { range: '5d', interval: '5m', maxPoints: 288 },
+  // El mercado cierra el viernes por la tarde y no reabre hasta el domingo por
+  // la noche. Si filtraramos por "ultimas 24h desde ahora", el fin de semana no
+  // quedaria ningun punto y la grafica saldria vacia. En vez de eso pedimos 5
+  // dias y nos quedamos con los ultimos N puntos (una sesion), asi el sabado se
+  // ve la sesion del viernes.
+  '1D': { range: '5d', interval: '5m', intraday: true },
   '1M': { range: '1mo', interval: '1d' },
   '3M': { range: '3mo', interval: '1d' },
   '1Y': { range: '1y', interval: '1d' }
@@ -34,10 +40,10 @@ module.exports = async function handler(req, res) {
   const pair = String(req.query.pair || '').toUpperCase();
   const range = String(req.query.range || '').toUpperCase();
 
-  const yahooSymbol = PAIR_MAP[pair];
+  const symbolCfg = SYMBOLS[pair];
   const rangeCfg = RANGE_MAP[range];
 
-  if (!yahooSymbol || !rangeCfg) {
+  if (!symbolCfg || !rangeCfg) {
     res.status(400).json({ error: 'invalid pair or range' });
     return;
   }
@@ -53,7 +59,7 @@ module.exports = async function handler(req, res) {
   try {
     const url =
       'https://query1.finance.yahoo.com/v8/finance/chart/' +
-      encodeURIComponent(yahooSymbol) +
+      encodeURIComponent(symbolCfg.yahoo) +
       '?range=' + rangeCfg.range + '&interval=' + rangeCfg.interval;
 
     const yahooRes = await fetch(url, {
@@ -73,15 +79,15 @@ module.exports = async function handler(req, res) {
       .map((t, i) => [t, closes[i]])
       .filter(([, c]) => typeof c === 'number' && !isNaN(c));
 
-    if (rangeCfg.maxPoints && points.length > rangeCfg.maxPoints) {
-      points = points.slice(-rangeCfg.maxPoints);
+    if (rangeCfg.intraday && points.length > symbolCfg.intradayPoints) {
+      points = points.slice(-symbolCfg.intradayPoints);
     }
 
     if (!points.length) throw new Error('no data points');
 
     const body = {
       pair,
-      symbol: yahooSymbol,
+      symbol: symbolCfg.yahoo,
       range,
       currency: result.meta && result.meta.currency,
       points

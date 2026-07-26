@@ -1,1 +1,41 @@
-{"cleanUrls":true,"trailingSlash":false}
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/articles/tipo-de-cambio",
+      "destination": "/lessons/peso-tipo-de-cambio",
+      "permanent": true
+    },
+    {
+      "source": "/articles/tipo-de-cambio.html",
+      "destination": "/lessons/peso-tipo-de-cambio",
+      "permanent": true
+    },
+    {
+      "source": "/articles/presupuesto",
+      "destination": "/lessons/presupuesto-50-30-20",
+      "permanent": true
+    },
+    {
+      "source": "/articles/presupuesto.html",
+      "destination": "/lessons/presupuesto-50-30-20",
+      "permanent": true
+    },
+    {
+      "source": "/articles/ahorro-vs-inversion",
+      "destination": "/lessons/errores-al-invertir",
+      "permanent": true
+    },
+    {
+      "source": "/articles/ahorro-vs-inversion.html",
+      "destination": "/lessons/errores-al-invertir",
+      "permanent": true
+    },
+    {
+      "source": "/articles/:path*",
+      "destination": "/#tips",
+      "permanent": false
+    }
+  ]
+}

@@ -80,30 +80,72 @@
   .reveal.reveal-armed.in { opacity: 1; transform: translateY(0); }
 
   /* ---------- Sistema unificado de tarjetas ----------
-     Todas las tarjetas del sitio (mercado, noticias, tips, artículos, posts)
-     comparten superficie, radio, borde y hover. Antes cada sección traía su
-     propio -3px/-4px y su propia sombra según cuándo se escribió. */
-  .market-card, .news-card, .post-card, .tip-card, .article-card {
+     Todas las tarjetas del sitio (mercado, noticias, tips, posts) comparten
+     superficie, radio, borde y hover. Antes cada sección traía su propio
+     -3px/-4px y su propia sombra según cuándo se escribió. */
+  .market-card, .news-card, .post-card, .tip-card {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .market-card:hover, .news-card:hover, .post-card:hover,
-  .tip-card:hover, .article-card:hover {
+  .market-card:hover, .news-card:hover, .post-card:hover, .tip-card:hover {
     transform: translateY(-4px);
     border-color: var(--brand);
     box-shadow: 0 20px 40px -24px rgba(0,0,0,0.65);
   }
-  .market-card:active, .news-card:active, .post-card:active,
-  .tip-card:active, .article-card:active { transform: scale(0.98); }
+  .market-card:active, .news-card:active, .post-card:active, .tip-card:active { transform: scale(0.98); }
+
+  /* ---------- Set de iconos de línea ----------
+     Un solo grosor de trazo (1.6) y currentColor en todo el sitio, para que
+     tips, noticias y posts se vean del mismo set y no de tres épocas distintas. */
+  .ico { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* ---------- Esqueleto con shimmer ----------
+     Sustituye al "—" mientras llega el dato: comunica "cargando" en vez de
+     "vacío", que es lo que parecía el guion. */
+  .skel {
+    display: inline-block; min-width: 62px; height: 1em; vertical-align: middle;
+    border-radius: 5px; color: transparent !important;
+    background: linear-gradient(90deg, var(--card-2) 24%, #2A2A30 38%, var(--card-2) 56%);
+    background-size: 300% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  .skel.skel-sm { min-width: 42px; height: 0.85em; }
+  @keyframes shimmer { 0% { background-position: 130% 0; } 100% { background-position: -30% 0; } }
+
+  /* ---------- Profundidad que sigue al cursor ----------
+     Glow direccional + inclinación mínima. Solo con mouse fino: en táctil no
+     hay cursor que seguir y el repintado no vale la batería. */
+  .tilt { position: relative; }
+  .tilt::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    pointer-events: none; opacity: 0; transition: opacity .25s ease;
+    background: radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(15,138,95,0.16), transparent 62%);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tilt:hover::after { opacity: 1; }
+    .tilt.is-tilting {
+      transform: translateY(-4px) perspective(760px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+      transition: transform .1s ease-out, box-shadow .18s ease, border-color .18s ease;
+    }
+  }
 
   /* ---------- Click / hover feedback (safe, CSS-only) ---------- */
   .btn:active, .nav-cta:active { transform: scale(0.95); }
   .follow-card:active { transform: scale(0.97); }
 
+  /* Un solo lugar donde se apaga TODO lo que se mueve por decoración.
+     El contenido nunca depende de la animación: si esto se aplica, los mismos
+     datos siguen ahí, solo que sin transición. */
   @media (prefers-reduced-motion: reduce) {
     .reveal.reveal-armed { transition: none; opacity: 1; transform: none; }
+    .skel { animation: none; }
+    .tilt::after { display: none; }
+    .tilt.is-tilting { transform: translateY(-4px); }
+    .tip-more { transition: none; }
+    .post-thumb-art { transition: none; }
+    .post-card:hover .post-thumb-art { transform: none; }
   }
 
 
@@ -282,6 +324,13 @@
   .chip .sym { font-weight:600; color:var(--ink); }
   .chip .chg.up { color: var(--up); }
   .chip .chg.down { color: var(--down); }
+  /* Mini-gráfica de 24 h dentro del chip: solo la forma, sin ejes ni números.
+     aria-hidden porque no aporta nada que el precio y el % de al lado no digan. */
+  .chip .spark { width: 54px; height: 16px; overflow: visible; opacity: 0.9; }
+  .chip .spark path { fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .chip .spark.up path { stroke: var(--up); }
+  .chip .spark.down path { stroke: var(--down); }
+  .chip .spark.flat path { stroke: var(--muted); }
 
   /* ---------- About ---------- */
   .about { padding: var(--section-pad) 0; background: var(--bg-raise); border-bottom:1px solid var(--line); }
@@ -366,16 +415,24 @@
   .fx-chart-note { font-size:0.74rem; color: var(--muted); margin-top:14px; font-family: var(--font-mono); }
   .setup-card a { text-decoration:underline; font-weight:600; }
 
-  /* Macro snapshot: yield curve + reference rates */
+  /* Macro snapshot: VIX en vivo + tasas de referencia */
   .macro-grid { display:grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-top: 8px; }
-  .macro-panel { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  /* min-width:0 es obligatorio: por defecto un ítem de grid no se encoge por
+     debajo de su contenido, y el canvas de Chart.js arranca en 300 px fijos.
+     Sin esto, en móvil la pista se quedaba en 350 px y el panel se salía. */
+  .macro-panel { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 24px; min-width: 0; }
   .macro-panel h4 { font-family: var(--font-display); font-size: 1.05rem; font-weight:700; margin-bottom:4px; }
   .macro-panel .as-of { font-family: var(--font-mono); font-size:0.72rem; color: var(--muted); margin-bottom:18px; display:block; }
-  .yc-svg { width:100%; height:auto; overflow:visible; }
-  .yc-svg .yc-line { fill:none; stroke: var(--brand); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
-  .yc-svg .yc-dot { fill: var(--bg); stroke: var(--brand); stroke-width:2.5; }
-  .yc-svg .yc-axis-label { font-family: var(--font-mono); font-size:11px; fill: var(--muted); }
-  .yc-svg .yc-val-label { font-family: var(--font-mono); font-size:11px; fill: var(--ink); font-weight:600; }
+  /* El panel del VIX reusa la maquinaria de la gráfica de FX (mismo /api/history,
+     mismo Chart.js, mismas pestañas de rango) para que las dos se vean hermanas. */
+  .vix-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:2px; }
+  .vix-value { font-family: var(--font-mono); font-size:1.7rem; font-weight:700; }
+  .vix-change { font-family: var(--font-mono); font-size:0.88rem; font-weight:600; color: var(--muted); }
+  .vix-change.up { color: var(--down); }   /* VIX arriba = mas miedo: se pinta en rojo a proposito */
+  .vix-change.down { color: var(--up); }
+  .vix-canvas-wrap { margin-top:12px; height:170px; position:relative; min-width: 0; }
+  .vix-note { font-size:0.78rem; color: var(--muted); margin-top:14px; line-height:1.5; }
+  .vix-note strong { color: var(--ink); font-weight:600; }
   .rate-row { display:flex; justify-content:space-between; align-items:baseline; padding: 12px 0; border-bottom:1px solid var(--line); }
   .rate-row:last-child { border-bottom:none; }
   .rate-label { font-size:0.88rem; color: var(--muted); }
@@ -399,26 +456,36 @@
     .cal-row { grid-template-columns: 74px 50px 1fr; gap:10px; padding:12px; }
   }
 
-  /* ---------- Tips (consejos cortos, dentro de Market) ---------- */
+  /* ---------- Tips / Start here (dentro de Market) ---------- */
   /* 300px como mínimo para que en escritorio caigan 3 columnas (3+3) y no 4,
      que dejaba la segunda fila coja con dos tarjetas. */
-  .tips-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .tips-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items:start; }
   .tip-card { padding: var(--card-pad); display:flex; flex-direction:column; gap:8px; }
+  .tip-top { display:flex; align-items:center; gap:9px; }
+  .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:9px; background: var(--brand-soft); color: var(--gold-text); font-size:16px; }
   .tip-index { font-family: var(--font-mono); font-size:0.7rem; font-weight:700; letter-spacing:0.08em; color: var(--gold-text); }
   .tip-card h4 { font-family: var(--font-display); font-size:1.04rem; font-weight:700; line-height:1.32; }
   .tip-card p { color: var(--muted); font-size:0.9rem; line-height:1.55; }
   .tips-disclaimer { margin-top:18px; }
 
-  /* ---------- Artículos (dentro de Lessons) ---------- */
-  .articles-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 12px; }
-  .article-card { padding: var(--card-pad); display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
-  .article-card h3 { font-family: var(--font-display); font-size:1.12rem; line-height:1.35; font-weight:700; }
-  .article-card p { color: var(--muted); font-size:0.92rem; flex-grow:1; }
-  .subgroup-label {
-    font-family: var(--font-mono); font-size:0.85rem; text-transform:uppercase;
-    letter-spacing:0.08em; color: var(--muted); margin: 52px 0 6px;
+  /* Acordeón: capa intermedia entre el resumen y la lección completa.
+     grid-template-rows 0fr→1fr anima la altura sin tener que medirla en JS. */
+  .tip-more { display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .34s ease, opacity .34s ease; }
+  .tip-more > div { overflow:hidden; }
+  .tip-card.is-open .tip-more { grid-template-rows: 1fr; opacity:1; }
+  .tip-more p { border-left:2px solid var(--brand); padding-left:12px; margin-top:6px; color:#C9C9C6; }
+  .tip-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px; }
+  .tip-toggle {
+    display:inline-flex; align-items:center; gap:6px;
+    background:none; border:none; padding:6px 0;
+    font-family: var(--font-mono); font-size:0.74rem; font-weight:600;
+    letter-spacing:0.04em; text-transform:uppercase; color: var(--muted);
+    transition: color .15s ease;
   }
-  .subgroup-note { font-size:0.85rem; color: var(--muted); margin-bottom:18px; }
+  .tip-toggle:hover { color: var(--ink); }
+  .tip-toggle .ico { font-size:14px; transition: transform .3s ease; }
+  .tip-card.is-open .tip-toggle .ico { transform: rotate(180deg); }
+  .tip-actions .btn { margin-left:auto; }
 
   /* ---------- News ---------- */
   .news { padding: var(--section-pad) 0; }
@@ -426,9 +493,28 @@
   .news-card { overflow:hidden; display:flex; flex-direction:column; }
   .news-card img { width:100%; height:150px; object-fit:cover; background: var(--card-2); display:block; }
   .news-card-body { padding: var(--card-pad); display:flex; flex-direction:column; gap:10px; flex-grow:1; }
-  .news-source { font-family: var(--font-mono); font-size:0.7rem; color: var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
-  .news-card h3 { font-family: var(--font-display); font-size:1.02rem; font-weight:700; line-height:1.35; }
-  .news-card a.news-link { font-weight:600; color: var(--gold-text); font-size:0.88rem; }
+  /* Jerarquía: primero la etiqueta de categoría (color), luego el titular grande,
+     luego fuente y hora en mono chiquito. Antes las tres cosas competían. */
+  .news-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .news-cat {
+    display:inline-flex; align-items:center; gap:5px;
+    font-family: var(--font-mono); font-size:0.64rem; font-weight:700;
+    letter-spacing:0.09em; text-transform:uppercase;
+    padding: 4px 9px; border-radius:999px;
+    border: 1px solid currentColor; line-height:1;
+  }
+  .news-cat .ico { font-size:12px; }
+  /* Cada categoría toma su color de la paleta que ya existe, nada nuevo. */
+  .news-cat.rates { color: var(--accent-purple); }
+  .news-cat.markets { color: var(--up); }
+  .news-cat.companies { color: var(--accent-orange); }
+  .news-cat.crypto { color: #E8B54D; }
+  .news-cat.policy { color: #6FA8DC; }
+  .news-cat.economy { color: var(--muted); }
+  .news-source { font-family: var(--font-mono); font-size:0.68rem; color: var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-left:auto; }
+  .news-card h3 { font-family: var(--font-display); font-size:1.12rem; font-weight:700; line-height:1.32; letter-spacing:-0.01em; }
+  .news-card a.news-link { font-weight:600; color: var(--gold-text); font-size:0.88rem; display:inline-flex; align-items:center; gap:6px; }
+  .news-card a.news-link .ico { font-size:14px; }
   /* Mi lectura del titular. El texto lo pongo a mano en NEWS_TAKES (ver el JS);
      mientras no haya nada escrito, queda el placeholder. */
   .news-take {
@@ -446,13 +532,67 @@
   /* ---------- Content / Lessons ---------- */
   .content { padding: var(--section-pad) 0; background: var(--bg-raise); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .content-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-  .post-card { padding: var(--card-pad); display:flex; flex-direction:column; gap: 12px; }
-  .post-tag { align-self:flex-start; font-family: var(--font-mono); font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding: 4px 10px; border-radius:999px; }
+  .post-card { padding: 0; display:flex; flex-direction:column; overflow:hidden; }
+  .post-body { padding: var(--card-pad); display:flex; flex-direction:column; gap: 12px; flex-grow:1; }
+
+  /* ---------- Miniatura de post ----------
+     Es una ilustración generada con CSS/SVG por tema, NO una captura de la red
+     social: TikTok y LinkedIn no dan la miniatura real desde el navegador, y
+     falsear una captura sería mentir sobre el contenido. */
+  .post-thumb { position:relative; height:148px; overflow:hidden; background: var(--card-2); border-bottom:1px solid var(--line); }
+  .post-thumb-art {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color: rgba(245,245,242,0.92);
+    transition: transform .45s cubic-bezier(.2,.7,.3,1);
+  }
+  .post-thumb-art .ico { width:52px; height:52px; stroke-width:1.3; opacity:0.95; }
+  .post-card:hover .post-thumb-art { transform: scale(1.08); }
+  /* Con botón de play, el ícono de tema se va a una esquina: al centro los dos
+     se encimaban y se leía como un solo garabato. */
+  .post-thumb.has-play .post-thumb-art { align-items: flex-end; justify-content: flex-start; padding: 0 0 14px 16px; }
+  .post-thumb.has-play .post-thumb-art .ico { width:30px; height:30px; opacity:0.5; }
+  /* Fondos por tema, con la paleta del sitio. */
+  .thumb-markets { background: radial-gradient(120% 120% at 15% 10%, #123B2E 0%, #0D1A17 55%, #0A0A0B 100%); }
+  .thumb-interview { background: radial-gradient(120% 120% at 85% 15%, #241F38 0%, #14121F 55%, #0A0A0B 100%); }
+  .thumb-data { background: radial-gradient(120% 120% at 20% 85%, #1E3348 0%, #101A24 55%, #0A0A0B 100%); }
+  .thumb-podcast { background: radial-gradient(120% 120% at 80% 80%, #3A2A16 0%, #1E170D 55%, #0A0A0B 100%); }
+  /* Retícula tenue encima, para que no sea un degradado plano. */
+  .post-thumb::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image: linear-gradient(rgba(245,245,242,0.045) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(245,245,242,0.045) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  /* Play solo en TikTok: marca que es video sin fingir una captura. */
+  .post-play {
+    position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
+    width:46px; height:46px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(10,10,11,0.62); border:1px solid rgba(245,245,242,0.45);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    color:#F5F5F2; z-index:2;
+    transition: transform .3s ease, background .3s ease;
+  }
+  .post-play .ico { width:19px; height:19px; fill: currentColor; stroke:none; margin-left:2px; }
+  .post-card:hover .post-play { transform: translate(-50%,-50%) scale(1.12); background: rgba(15,138,95,0.85); }
+
+  .post-tag {
+    align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
+    font-family: var(--font-mono); font-size:0.7rem; font-weight:600;
+    letter-spacing:0.06em; text-transform:uppercase; padding: 4px 10px; border-radius:999px;
+  }
+  .post-tag .ico { font-size:13px; }
   .post-tag.tiktok { background:#F2F2F2; color:#0A0A0A; }
   .post-tag.linkedin { background:#241F38; color:#B4A8F5; }
   .post-card h3 { font-family: var(--font-display); font-size:1.12rem; line-height:1.35; font-weight:700; }
   .post-card p { color: var(--muted); font-size:0.92rem; flex-grow:1; }
-  .post-card a.post-link { font-weight:600; color: var(--gold-text); font-size:0.9rem; }
+  .post-card a.post-link { font-weight:600; color: var(--gold-text); font-size:0.9rem; display:inline-flex; align-items:center; gap:6px; }
+  .post-card a.post-link .ico { font-size:14px; }
+  /* La tarjeta entera es el área de clic; el enlace de abajo se queda como
+     señal visual, pero el <a> que la envuelve es el que navega. */
+  .post-card-link { display:flex; }
+  .post-card-link .post-card { width:100%; }
 
   /* ---------- Follow ---------- */
   .follow { padding: var(--section-pad) 0; }
@@ -500,7 +640,7 @@
     .nav-mobile { padding: 8px 20px 20px; }
     .follow-card { padding: 28px; }
     .group-label { margin-top: 34px; }
-    .subgroup-label { margin-top: 40px; }
+    .tip-actions .btn { margin-left: 0; }
   }
 </style>
 </head>
@@ -601,7 +741,7 @@
           </div>
           <div class="fx-chart-head">
             <span class="fx-chart-pair" id="fxChartPair">USD/MXN</span>
-            <span class="fx-chart-value" id="fxChartValue">—</span>
+            <span class="fx-chart-value" id="fxChartValue"><span class="skel">00.0000</span></span>
             <span class="fx-chart-change" id="fxChartChange"></span>
             <div class="fx-range-tabs" id="fxRangeTabs">
               <button class="fx-range-tab active" data-range="1D">1D</button>
@@ -625,42 +765,126 @@
       <div class="market-group" id="tips">
         <h3 class="group-label" data-i18n="tips.label">Start here</h3>
         <p class="group-note" data-i18n="tips.note">Short answers to the questions that come up most. No jargon.</p>
+        <!--
+          CADA TARJETA = UNA LECCIÓN. El resumen corto se queda aquí, el contexto
+          extra vive en .tip-more (se abre al dar clic), y la lección completa
+          está en /lessons/. Para agregar otra: copia un bloque, sube el número,
+          y crea la página partiendo de cualquiera de las seis.
+        -->
         <div class="tips-grid">
 
-          <article class="tip-card">
-            <span class="tip-index">01</span>
+          <article class="tip-card tilt">
+            <div class="tip-top">
+              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
+              <span class="tip-index">01</span>
+            </div>
             <h4 data-i18n="tips.t1">What it means when the peso weakens</h4>
             <p data-i18n="tips.d1">It means each dollar costs more pesos. Anything imported — gas, phones, streaming — gets pricier, and traveling abroad costs more. If you earn in dollars it's the opposite: your money stretches further at home.</p>
+            <div class="tip-more" id="tipMore1"><div>
+              <p data-i18n="tips.x1">Mexico has a floating rate, so no office decides it each morning — it comes out of millions of buy and sell orders. Interest rates, fear, trade and remittances explain most of the movement. There's no "good" level: it depends entirely on which side of the transaction you're on.</p>
+            </div></div>
+            <div class="tip-actions">
+              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore1">
+                <span data-i18n="tips.expand">More context</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <a class="btn btn-outline btn-sm" href="./lessons/peso-tipo-de-cambio.html" data-i18n="tips.more">Read more →</a>
+            </div>
           </article>
 
-          <article class="tip-card">
-            <span class="tip-index">02</span>
+          <article class="tip-card tilt">
+            <div class="tip-top">
+              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+              <span class="tip-index">02</span>
+            </div>
             <h4 data-i18n="tips.t2">Simple vs. compound interest, in 30 seconds</h4>
             <p data-i18n="tips.d2">Simple interest only ever pays you on the money you put in. Compound interest pays you on your money and on the interest it already earned. Same deposit, same rate — compound just keeps building on a bigger base.</p>
+            <div class="tip-more" id="tipMore2"><div>
+              <p data-i18n="tips.x2">Ten thousand pesos at 10% ends at 30,000 simple, or about 67,000 compounded, after twenty years. It rewards starting early far more than starting big. And it runs identically against you on a credit card, which is why expensive debt comes first.</p>
+            </div></div>
+            <div class="tip-actions">
+              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore2">
+                <span data-i18n="tips.expand">More context</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <a class="btn btn-outline btn-sm" href="./lessons/interes-compuesto.html" data-i18n="tips.more">Read more →</a>
+            </div>
           </article>
 
-          <article class="tip-card">
-            <span class="tip-index">03</span>
+          <article class="tip-card tilt">
+            <div class="tip-top">
+              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="16"/><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/></svg></span>
+              <span class="tip-index">03</span>
+            </div>
             <h4 data-i18n="tips.t3">Why the S&amp;P 500 goes up or down</h4>
             <p data-i18n="tips.d3">It tracks 500 of the largest US companies, so it moves with what people expect those companies to earn. Better expected profits push it up; higher rates, bad news, or plain fear push it down. Day to day is noise — the trend is what matters.</p>
+            <div class="tip-more" id="tipMore3"><div>
+              <p data-i18n="tips.x3">It's weighted by size, so a few giant tech names can move the whole index alone. That's also why good news sometimes sinks it: a strong economy means rates stay high for longer, and high rates weigh on prices.</p>
+            </div></div>
+            <div class="tip-actions">
+              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore3">
+                <span data-i18n="tips.expand">More context</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <a class="btn btn-outline btn-sm" href="./lessons/sp500.html" data-i18n="tips.more">Read more →</a>
+            </div>
           </article>
 
-          <article class="tip-card">
-            <span class="tip-index">04</span>
+          <article class="tip-card tilt">
+            <div class="tip-top">
+              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></span>
+              <span class="tip-index">04</span>
+            </div>
             <h4 data-i18n="tips.t4">The 50/30/20 rule for your first budget</h4>
             <p data-i18n="tips.d4">Split what actually lands in your account: 50% needs (rent, food, transport), 30% wants, 20% saving or paying down debt. It won't fit everyone perfectly, and that's fine — it's a starting point, not a law.</p>
+            <div class="tip-more" id="tipMore4"><div>
+              <p data-i18n="tips.x4">Use your real take-home pay, not your gross salary, and leave the aguinaldo out of the monthly plan. If you rent in a big city your needs will blow past 50% — that means your fixed costs are high, not that the rule failed.</p>
+            </div></div>
+            <div class="tip-actions">
+              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore4">
+                <span data-i18n="tips.expand">More context</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <a class="btn btn-outline btn-sm" href="./lessons/presupuesto-50-30-20.html" data-i18n="tips.more">Read more →</a>
+            </div>
           </article>
 
-          <article class="tip-card">
-            <span class="tip-index">05</span>
+          <article class="tip-card tilt">
+            <div class="tip-top">
+              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg></span>
+              <span class="tip-index">05</span>
+            </div>
             <h4 data-i18n="tips.t5">What inflation is, and how it hits you</h4>
             <p data-i18n="tips.d5">Inflation means the same money buys less than it did before. Your salary can stay identical on paper and still shrink in practice. That's why money sitting still loses value, and why central banks raise rates to cool it down.</p>
+            <div class="tip-more" id="tipMore5"><div>
+              <p data-i18n="tips.x5">A 4% raise against 5% inflation is a raise on paper and a pay cut in practice — nominal is the number, real is what it buys. The same applies to savings: 3% while prices rise 5% loses about 2% a year, quietly.</p>
+            </div></div>
+            <div class="tip-actions">
+              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore5">
+                <span data-i18n="tips.expand">More context</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <a class="btn btn-outline btn-sm" href="./lessons/inflacion.html" data-i18n="tips.more">Read more →</a>
+            </div>
           </article>
 
-          <article class="tip-card">
-            <span class="tip-index">06</span>
+          <article class="tip-card tilt">
+            <div class="tip-top">
+              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+              <span class="tip-index">06</span>
+            </div>
             <h4 data-i18n="tips.t6">3 common mistakes when you start investing</h4>
             <p data-i18n="tips.d6">Investing money you'll need next month. Chasing whatever went up the most last week. And checking your account every single day, which turns normal swings into panic. Slow and boring usually wins.</p>
+            <div class="tip-more" id="tipMore6"><div>
+              <p data-i18n="tips.x6">All three come from the same root: investing before the base underneath was ready. Cushion first, then expensive debt, then the emergency fund, and only then money you genuinely won't touch for five years.</p>
+            </div></div>
+            <div class="tip-actions">
+              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore6">
+                <span data-i18n="tips.expand">More context</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <a class="btn btn-outline btn-sm" href="./lessons/errores-al-invertir.html" data-i18n="tips.more">Read more →</a>
+            </div>
           </article>
 
         </div>
@@ -668,42 +892,29 @@
       </div>
 
       <div class="market-group">
-        <h3 class="group-label" data-i18n="market.stocks">Stocks &amp; indices</h3>
-        <p class="group-note" data-i18n="market.stocksnote">Twelve Data · updated every 15 minutes.</p>
-        <div class="market-grid" id="grid-stocks"></div>
-      </div>
-
-      <div class="market-group">
         <h3 class="group-label" data-i18n="market.macro">Macro snapshot</h3>
         <!-- Al actualizar el bloque macro a mano, mueve también data-verified (AAAA-MM-DD). -->
         <p class="group-note" id="macroNote" data-verified="2026-07-21" data-i18n="market.macronote">Manually verified July 21, 2026 — not a live feed, updated by hand when it moves.</p>
         <div class="macro-grid">
+          <!-- VIX en vivo. Comparte /api/history y Chart.js con la gráfica de
+               tipo de cambio; lo único propio es el símbolo y esta nota. -->
           <div class="macro-panel">
-            <h4>US Treasury yield curve</h4>
-            <span class="as-of">As of Jul 16, 2026 close</span>
-            <svg class="yc-svg" viewBox="0 0 680 260" id="ycSvg">
-              <line x1="40" y1="220" x2="660" y2="220" stroke="var(--line)" stroke-width="1"/>
-              <path class="yc-line" id="ycPath" d="M40,201.3 L129,181.3 L217,158.7 L306,142.7 L394,125.3 L483,104 L571,34.7 L660,34.7" />
-              <g id="ycDots">
-                <circle class="yc-dot" cx="40" cy="201.3" r="4"/>
-                <circle class="yc-dot" cx="129" cy="181.3" r="4"/>
-                <circle class="yc-dot" cx="217" cy="158.7" r="4"/>
-                <circle class="yc-dot" cx="306" cy="142.7" r="4"/>
-                <circle class="yc-dot" cx="394" cy="125.3" r="4"/>
-                <circle class="yc-dot" cx="483" cy="104" r="5"/>
-                <circle class="yc-dot" cx="571" cy="34.7" r="4"/>
-                <circle class="yc-dot" cx="660" cy="34.7" r="4"/>
-              </g>
-              <text class="yc-val-label" x="483" y="90" text-anchor="middle">4.57%</text>
-              <text class="yc-axis-label" x="40" y="240" text-anchor="middle">3M</text>
-              <text class="yc-axis-label" x="129" y="240" text-anchor="middle">1Y</text>
-              <text class="yc-axis-label" x="217" y="240" text-anchor="middle">2Y</text>
-              <text class="yc-axis-label" x="306" y="240" text-anchor="middle">5Y</text>
-              <text class="yc-axis-label" x="394" y="240" text-anchor="middle">7Y</text>
-              <text class="yc-axis-label" x="483" y="240" text-anchor="middle">10Y</text>
-              <text class="yc-axis-label" x="571" y="240" text-anchor="middle">20Y</text>
-              <text class="yc-axis-label" x="660" y="240" text-anchor="middle">30Y</text>
-            </svg>
+            <h4 data-i18n="vix.title">Fear index (VIX)</h4>
+            <span class="as-of" id="vixAsOf" data-i18n="vix.asof">Yahoo Finance · live</span>
+            <div class="vix-head">
+              <span class="vix-value" id="vixValue"><span class="skel">00.00</span></span>
+              <span class="vix-change" id="vixChange"></span>
+              <div class="fx-range-tabs" id="vixRangeTabs">
+                <button class="fx-range-tab active" data-range="1D">1D</button>
+                <button class="fx-range-tab" data-range="1M">1M</button>
+                <button class="fx-range-tab" data-range="3M">3M</button>
+                <button class="fx-range-tab" data-range="1Y">1Y</button>
+              </div>
+            </div>
+            <div class="vix-canvas-wrap">
+              <canvas id="vixChartCanvas" height="80"></canvas>
+            </div>
+            <p class="vix-note" data-i18n="vix.note" data-i18n-html>Basically, <strong>how much fear there is in the market</strong>. It measures how big a swing traders expect in the S&amp;P 500 over the next 30 days. Under 20 is calm, over 30 means people are nervous. It usually spikes when stocks fall — which is why it's nicknamed the fear index.</p>
           </div>
           <div class="macro-panel">
             <h4>Reference rates</h4>
@@ -757,80 +968,114 @@
 
       <!--
         HOW TO ADD ANOTHER POST:
-        Copy one <article class="post-card"> block below, then update the tag
+        Copy one <a class="post-card-link"> block below, then update the tag
         (tiktok or linkedin), title, description, and link to match the real post.
+        La miniatura es una ilustración por tema (thumb-markets / thumb-interview /
+        thumb-data / thumb-podcast), NO una captura de la red social: ni TikTok ni
+        LinkedIn dan la miniatura real desde el navegador, y falsear una captura
+        sería mentir sobre el contenido. El <div class="post-play"> va solo en
+        TikTok, para marcar que es video.
       -->
       <div class="content-grid">
 
-        <article class="post-card">
-          <span class="post-tag tiktok">TikTok</span>
-          <h3>Japan's Financial Data, Explained</h3>
-          <p>A look at Japan's latest economic numbers and what they signal for the market.</p>
-          <a class="post-link" href="https://www.tiktok.com/@smart.financee/video/7653328531694439700" target="_blank" rel="noopener">Watch on TikTok →</a>
-        </article>
+        <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7653328531694439700" target="_blank" rel="noopener">
+          <article class="post-card">
+            <div class="post-thumb thumb-data has-play">
+              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L21 6"/></svg></div>
+              <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+            </div>
+            <div class="post-body">
+              <span class="post-tag tiktok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>TikTok</span>
+              <h3>Japan's Financial Data, Explained</h3>
+              <p>A look at Japan's latest economic numbers and what they signal for the market.</p>
+              <span class="post-link"><span data-i18n="content.watch">Watch on TikTok</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+          </article>
+        </a>
 
-        <article class="post-card">
-          <span class="post-tag tiktok">TikTok</span>
-          <h3>Interview: Andy Toh, CEO of BlueSky Education</h3>
-          <p>A conversation on education, leadership, and creating opportunities for students, recorded during a summer program in Singapore.</p>
-          <a class="post-link" href="https://www.tiktok.com/@smart.financee/video/7662781308988411156" target="_blank" rel="noopener">Watch on TikTok →</a>
-        </article>
+        <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7662781308988411156" target="_blank" rel="noopener">
+          <article class="post-card">
+            <div class="post-thumb thumb-interview has-play">
+              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+              <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+            </div>
+            <div class="post-body">
+              <span class="post-tag tiktok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>TikTok</span>
+              <h3>Interview: Andy Toh, CEO of BlueSky Education</h3>
+              <p>A conversation on education, leadership, and creating opportunities for students, recorded during a summer program in Singapore.</p>
+              <span class="post-link"><span data-i18n="content.watch">Watch on TikTok</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+          </article>
+        </a>
 
-        <article class="post-card">
-          <span class="post-tag tiktok">TikTok</span>
-          <h3>Singapore's Financial Data, Explained</h3>
-          <p>A breakdown of Singapore's economic numbers and what they mean for investors.</p>
-          <a class="post-link" href="https://www.tiktok.com/@smart.financee/video/7655111359419387157" target="_blank" rel="noopener">Watch on TikTok →</a>
-        </article>
+        <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7655111359419387157" target="_blank" rel="noopener">
+          <article class="post-card">
+            <div class="post-thumb thumb-markets has-play">
+              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+              <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+            </div>
+            <div class="post-body">
+              <span class="post-tag tiktok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>TikTok</span>
+              <h3>Singapore's Financial Data, Explained</h3>
+              <p>A breakdown of Singapore's economic numbers and what they mean for investors.</p>
+              <span class="post-link"><span data-i18n="content.watch">Watch on TikTok</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+          </article>
+        </a>
 
-        <article class="post-card">
-          <span class="post-tag linkedin">LinkedIn</span>
-          <h3>Takeaways from JPMorgan's Chief ETF Strategist</h3>
-          <p>Notes from an insightful session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management.</p>
-          <a class="post-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ" target="_blank" rel="noopener">Read on LinkedIn →</a>
-        </article>
+        <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ" target="_blank" rel="noopener">
+          <article class="post-card">
+            <div class="post-thumb thumb-markets">
+              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="8"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="3" y1="20" x2="21" y2="20"/></svg></div>
+            </div>
+            <div class="post-body">
+              <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
+              <h3>Takeaways from JPMorgan's Chief ETF Strategist</h3>
+              <p>Notes from an insightful session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management.</p>
+              <span class="post-link"><span data-i18n="content.read">Read on LinkedIn</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+          </article>
+        </a>
 
-        <article class="post-card">
-          <span class="post-tag linkedin">LinkedIn</span>
-          <h3>A Conversation with Moris Dieck</h3>
-          <p>Talking pillars of personal finance and the power of compound interest with one of Mexico's leading financial educators.</p>
-          <a class="post-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn" target="_blank" rel="noopener">Read on LinkedIn →</a>
-        </article>
+        <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn" target="_blank" rel="noopener">
+          <article class="post-card">
+            <div class="post-thumb thumb-interview">
+              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            </div>
+            <div class="post-body">
+              <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
+              <h3>A Conversation with Moris Dieck</h3>
+              <p>Talking pillars of personal finance and the power of compound interest with one of Mexico's leading financial educators.</p>
+              <span class="post-link"><span data-i18n="content.read">Read on LinkedIn</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+          </article>
+        </a>
 
-        <article class="post-card">
-          <span class="post-tag linkedin">LinkedIn</span>
-          <h3>Hosting the Financial Trading Room Podcast</h3>
-          <p>A personal finance conversation with the president of Tecnológico de Monterrey's student finance organization.</p>
-          <a class="post-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7" target="_blank" rel="noopener">Read on LinkedIn →</a>
-        </article>
-
-      </div>
-
-      <!--
-        PARA AGREGAR UN ARTÍCULO: copia una tarjeta, ajusta título y resumen, y
-        crea la página en /articles/ partiendo de una de las tres existentes.
-      -->
-      <h3 class="subgroup-label" data-i18n="articles.label">Deep dives</h3>
-      <p class="subgroup-note" data-i18n="articles.note">Longer reads for when you want the whole picture, not just the headline.</p>
-      <div class="articles-grid">
-
-        <article class="article-card">
-          <h3 data-i18n="articles.t1">A beginner's guide to how the exchange rate works</h3>
-          <p data-i18n="articles.d1">Who moves the peso, why it swings, and what the number on the chart actually means for your money.</p>
-          <a class="btn btn-outline btn-sm" href="./articles/tipo-de-cambio.html" data-i18n="articles.more">Read more →</a>
-        </article>
-
-        <article class="article-card">
-          <h3 data-i18n="articles.t2">How to build your first budget in Mexico, step by step</h3>
-          <p data-i18n="articles.d2">From your real take-home pay to a plan that survives contact with a normal month.</p>
-          <a class="btn btn-outline btn-sm" href="./articles/presupuesto.html" data-i18n="articles.more">Read more →</a>
-        </article>
-
-        <article class="article-card">
-          <h3 data-i18n="articles.t3">Saving vs. investing: when do you make the jump?</h3>
-          <p data-i18n="articles.d3">They're not rivals. Here's the order that works, and the signal that tells you you're ready.</p>
-          <a class="btn btn-outline btn-sm" href="./articles/ahorro-vs-inversion.html" data-i18n="articles.more">Read more →</a>
-        </article>
+        <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7" target="_blank" rel="noopener">
+          <article class="post-card">
+            <div class="post-thumb thumb-podcast">
+              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v2a7 7 0 0014 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></div>
+            </div>
+            <div class="post-body">
+              <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
+              <h3>Hosting the Financial Trading Room Podcast</h3>
+              <p>A personal finance conversation with the president of Tecnológico de Monterrey's student finance organization.</p>
+              <span class="post-link"><span data-i18n="content.read">Read on LinkedIn</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+          </article>
+        </a>
 
       </div>
     </div>
@@ -892,9 +1137,11 @@
   // ============================================
   // LIVE MARKET DATA
   // ============================================
-  // Sin API keys aquí a propósito: acciones y noticias pasan por /api/quote y
-  // /api/news, que guardan las credenciales del lado del servidor y cachean la
-  // respuesta para todos los visitantes. Ver api/quote.js y api/news.js.
+  // Sin API keys aquí a propósito: las noticias pasan por /api/news, que guarda
+  // las credenciales del lado del servidor y cachea la respuesta para todos los
+  // visitantes. Las gráficas y las sparklines pasan por /api/history y
+  // /api/sparklines, que son proxies de Yahoo (sin credencial, pero sin CORS
+  // desde el navegador). Ver api/news.js, api/history.js y api/sparklines.js.
 
   const translations = {
     'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.follow': 'Síguenos',
@@ -912,8 +1159,6 @@
     'market.crypto': 'Cripto',
     'market.fxchart': 'Gráfico de tipo de cambio',
     'market.fxchartnote': 'Yahoo Finance · elige el rango.',
-    'market.stocks': 'Acciones e índices',
-    'market.stocksnote': 'Twelve Data · actualizado cada 15 minutos.',
     'market.macro': 'Panorama macro',
     'market.macronote': 'Verificado a mano el 21 de julio de 2026 — no es un feed en vivo, se actualiza a mano cuando cambia.',
     'market.calendar': 'Calendario económico',
@@ -934,19 +1179,31 @@
     'tips.t6': '3 errores comunes al empezar a invertir',
     'tips.d6': 'Invertir dinero que vas a necesitar el mes que entra. Perseguir lo que más subió la semana pasada. Y revisar tu cuenta todos los días, que convierte movimientos normales en pánico. Lo lento y aburrido suele ganar.',
     'tips.disclaimer': 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal.',
-    'articles.label': 'Artículos a fondo',
-    'articles.note': 'Lecturas más largas para cuando quieres el panorama completo, no nada más el titular.',
-    'articles.t1': 'Guía para principiantes: cómo funciona el tipo de cambio',
-    'articles.d1': 'Quién mueve al peso, por qué se sacude, y qué significa de verdad ese número de la gráfica para tu dinero.',
-    'articles.t2': 'Cómo armar tu primer presupuesto en México, paso a paso',
-    'articles.d2': 'De lo que realmente te llega libre a un plan que aguanta un mes normal.',
-    'articles.t3': 'Ahorro vs. inversión: ¿cuándo pasar de uno a otro?',
-    'articles.d3': 'No son rivales. Aquí va el orden que sí funciona, y la señal de que ya estás listo.',
-    'articles.more': 'Leer más →',
+    'tips.x1': 'México tiene tipo de cambio flotante, así que ninguna oficina lo decide cada mañana: sale de millones de órdenes de compra y venta. Las tasas, el miedo, el comercio y las remesas explican casi todo el movimiento. No hay un nivel "bueno": depende por completo de qué lado de la transacción estés.',
+    'tips.x2': 'Diez mil pesos al 10% terminan en 30,000 con interés simple, o cerca de 67,000 compuesto, después de veinte años. Premia mucho más empezar temprano que empezar en grande. Y corre igualito en tu contra en una tarjeta de crédito: por eso la deuda cara va primero.',
+    'tips.x3': 'Está ponderado por tamaño, así que unas cuantas tecnológicas gigantes pueden mover el índice completo solas. Por eso también las buenas noticias a veces lo hunden: una economía fuerte significa que las tasas se quedan altas más tiempo, y las tasas altas pesan sobre los precios.',
+    'tips.x4': 'Usa lo que de verdad te llega libre, no tu sueldo bruto, y deja el aguinaldo fuera del plan mensual. Si rentas en una ciudad grande tus necesidades se van a pasar del 50%: eso significa que tus costos fijos son altos, no que la regla falló.',
+    'tips.x5': 'Un aumento de 4% contra inflación de 5% es aumento en papel y recorte en la práctica: nominal es el número, real es lo que compra. Lo mismo aplica al ahorro: 3% mientras los precios suben 5% pierde como 2% al año, en silencio.',
+    'tips.x6': 'Los tres salen de la misma raíz: invertir antes de que la base de abajo estuviera lista. Primero un colchón, luego la deuda cara, luego el fondo de emergencia, y hasta entonces dinero que de verdad no vas a tocar en cinco años.',
+    'tips.expand': 'Más contexto',
+    'tips.collapse': 'Menos contexto',
+    'tips.more': 'Leer más →',
+    'vix.title': 'Índice del miedo (VIX)',
+    'vix.asof': 'Yahoo Finance · en vivo',
+    'vix.note': 'Básicamente, <strong>qué tanto miedo hay en el mercado</strong>. Mide qué tan grande esperan los operadores que sea el movimiento del S&P 500 en los próximos 30 días. Debajo de 20 es calma, arriba de 30 es que la gente está nerviosa. Casi siempre se dispara cuando las acciones caen, y por eso le dicen el índice del miedo.',
+    'vix.unavailable': 'Yahoo Finance · datos no disponibles por ahora, se reintenta solo',
     'news.eyebrow': 'Noticias financieras · Bloomberg', 'news.title': 'En los titulares',
     'news.sub': 'Las noticias de mercado y negocios más importantes de Bloomberg, actualizadas automáticamente.',
+    'news.cat.rates': 'Tasas',
+    'news.cat.markets': 'Mercados',
+    'news.cat.companies': 'Empresas',
+    'news.cat.crypto': 'Cripto',
+    'news.cat.policy': 'Política',
+    'news.cat.economy': 'Economía',
     'content.eyebrow': 'Últimas lecciones', 'content.title': 'Explicaciones recientes',
     'content.sub': 'Contenido real de LinkedIn y TikTok — se actualiza conforme voy publicando.',
+    'content.watch': 'Ver en TikTok',
+    'content.read': 'Ver en LinkedIn',
     'follow.eyebrow': 'Conectemos', 'follow.title': 'Sígueme',
     'follow.sub': 'Nuevas explicaciones cada semana. Elige tu plataforma.',
     'follow.linkedin_title': 'Conecta en LinkedIn',
@@ -986,6 +1243,10 @@
     // idioma (mi lectura, "hace 2 h", mensajes de error): hay que repintarlas.
     if (typeof renderNews === 'function') renderNews();
     if (typeof render === 'function') render();
+    // El pie del panel del VIX lo reescribe loadVixChart, así que el diccionario
+    // acaba de pisar su estado real. Sin esto, un panel que falló se anunciaría
+    // como "en vivo" nada más por cambiar de idioma.
+    if (typeof paintVixMeta === 'function') paintVixMeta();
   }
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -1020,20 +1281,52 @@
     setTimeout(() => revealEls.forEach(el => el.classList.add('in')), 4000);
   }
 
-  const ycPath = document.getElementById('ycPath');
-  if (ycPath && 'IntersectionObserver' in window) {
-    const len = 2000;
-    ycPath.style.strokeDasharray = len;
-    ycPath.style.strokeDashoffset = len;
-    const revealYc = () => { ycPath.style.transition = 'stroke-dashoffset 1.4s ease'; ycPath.style.strokeDashoffset = '0'; };
-    const ycIo = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { revealYc(); ycIo.unobserve(e.target); } });
-    }, { threshold: 0.3 });
-    ycIo.observe(ycPath);
-    setTimeout(revealYc, 3000);
-  }
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches && ycPath) {
-    ycPath.style.strokeDasharray = 'none';
+  // ---- Acordeón de "Start here" -----------------------------------------
+  // Capa intermedia entre el resumen de la tarjeta y la lección completa. La
+  // altura la anima el CSS (grid-template-rows), aquí solo va el estado y el
+  // texto del botón, que cambia según idioma.
+  document.querySelectorAll('.tip-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.tip-card');
+      if (!card) return;
+      const open = card.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+      const label = btn.querySelector('[data-i18n]');
+      if (label) {
+        // Se reescribe también data-i18n para que un cambio de idioma posterior
+        // traduzca el estado en el que quedó, no el original del HTML.
+        label.setAttribute('data-i18n', open ? 'tips.collapse' : 'tips.expand');
+        label.dataset.i18nOriginal = open ? 'Less context' : 'More context';
+        label.textContent = (document.documentElement.lang === 'es')
+          ? (open ? 'Menos contexto' : 'Más contexto')
+          : label.dataset.i18nOriginal;
+      }
+    });
+  });
+
+  // ---- Profundidad que sigue al cursor ----------------------------------
+  // Solo con mouse fino y sin prefers-reduced-motion. En táctil no se registra
+  // nada, así que no hay listeners corriendo en móvil.
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (finePointer && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.tilt').forEach(card => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+        // ±2.5° es suficiente para leerse como profundidad sin marear.
+        card.style.setProperty('--ry', ((px - 0.5) * 5).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', ((0.5 - py) * 5).toFixed(2) + 'deg');
+        card.classList.add('is-tilting');
+      });
+      card.addEventListener('pointerleave', () => {
+        card.classList.remove('is-tilting');
+        card.style.removeProperty('--rx');
+        card.style.removeProperty('--ry');
+      });
+    });
   }
 
   // ---- Calendario: esconde lo que ya pasó -------------------------------
@@ -1091,11 +1384,10 @@
 
   const LABELS = {
     BTC: 'BTC', ETH: 'ETH',
-    'USD/MXN': 'USD/MXN', 'EUR/USD': 'EUR/USD', 'USD/JPY': 'USD/JPY', 'GBP/USD': 'GBP/USD',
-    SPY: 'S&P 500 (SPY)', QQQ: 'Nasdaq 100 (QQQ)', AAPL: 'AAPL', TSLA: 'TSLA', NVDA: 'NVDA'
+    'USD/MXN': 'USD/MXN', 'EUR/USD': 'EUR/USD', 'USD/JPY': 'USD/JPY', 'GBP/USD': 'GBP/USD'
   };
 
-  let cryptoData = null, fxData = null, stockData = null;
+  let cryptoData = null, fxData = null, sparkData = null;
   let prevValues = {};
 
   function markFlash(el, key, newPrice, dir) {
@@ -1107,6 +1399,78 @@
       el.classList.add(dir === 'down' ? 'flash-down' : 'flash-up');
     }
     if (newPrice !== null && newPrice !== undefined) prevValues[key] = newPrice;
+  }
+
+  // ---- Conteo tipo odómetro ---------------------------------------------
+  // render() repinta con innerHTML, así que los nodos del precio son nuevos en
+  // cada vuelta. En vez de animar el nodo viejo (que ya no existe), se anima el
+  // nuevo desde el último valor que vimos, guardado en displayedValues.
+  const displayedValues = {};
+  const COUNT_MS = 520;
+
+  function animateValue(el, from, to, decimals, prefix) {
+    // Salto seco si no hay de dónde partir, si el usuario pidió menos animación,
+    // o si el salto es tan grande que el conteo se vería como ruido.
+    const jump = Math.abs(to - from);
+    const noAnim = reduceMotion || from === undefined || from === null ||
+                   !isFinite(from) || jump === 0 || jump > Math.abs(to) * 0.25;
+    if (noAnim) { el.textContent = prefix + fmtPrice(to, decimals); return; }
+
+    const t0 = performance.now();
+    function step(now) {
+      const p = Math.min(1, (now - t0) / COUNT_MS);
+      const eased = 1 - Math.pow(1 - p, 3);           // ease-out cúbico
+      el.textContent = prefix + fmtPrice(from + (to - from) * eased, decimals);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = prefix + fmtPrice(to, decimals);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // Recorre lo recién pintado y anima cada número que cambió de valor.
+  function runCounters(root) {
+    (root || document).querySelectorAll('[data-count-key]').forEach(el => {
+      const key = el.getAttribute('data-count-key');
+      const to = parseFloat(el.getAttribute('data-count-to'));
+      if (!isFinite(to)) return;
+      const decimals = parseInt(el.getAttribute('data-count-dec'), 10) || 0;
+      const prefix = el.getAttribute('data-count-prefix') || '';
+      animateValue(el, displayedValues[key], to, decimals, prefix);
+      displayedValues[key] = to;
+    });
+  }
+
+  // ---- Sparklines del ticker --------------------------------------------
+  // Solo la forma de las últimas 24 h: sin ejes, sin números, sin tooltip.
+  // aria-hidden porque el precio y el % que van al lado ya dicen lo mismo.
+  function sparkHTML(sym) {
+    const vals = sparkData && sparkData[sym];
+    if (!Array.isArray(vals) || vals.length < 4) return '';
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const span = max - min;
+    const W = 54, H = 16, PAD = 1.5;
+    const d = vals.map((v, i) => {
+      const x = (i / (vals.length - 1)) * W;
+      // Serie plana: línea al centro en vez de dividir entre cero.
+      const y = span === 0 ? H / 2 : PAD + (1 - (v - min) / span) * (H - PAD * 2);
+      return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+    const dir = span === 0 ? 'flat' : (vals[vals.length - 1] >= vals[0] ? 'up' : 'down');
+    return `<svg class="spark ${dir}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}"/></svg>`;
+  }
+
+  async function fetchSparklines() {
+    try {
+      const res = await fetch('/api/sparklines');
+      if (!res.ok) throw new Error('sparklines ' + res.status);
+      const data = await res.json();
+      if (!data.series || !Object.keys(data.series).length) throw new Error('empty series');
+      sparkData = data.series;
+    } catch (e) {
+      // Sin sparklines el chip se ve como antes: es decoración, no dato.
+      console.warn('Sparklines fetch failed:', e);
+    }
+    render();
   }
 
   async function fetchCrypto() {
@@ -1188,6 +1552,50 @@
   };
   if (typeof Chart !== 'undefined') Chart.register(fxCrosshairPlugin);
 
+  // Opciones compartidas por la gráfica de tipo de cambio y la del VIX, para que
+  // las dos se vean exactamente iguales y no se desincronicen al tocar una.
+  function lineChartOptions(callbacks) {
+    return {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111113', borderColor: '#1E1E22', borderWidth: 1,
+          titleColor: '#F5F5F2', bodyColor: '#F5F5F2',
+          titleFont: { family: 'JetBrains Mono', size: 11 }, bodyFont: { family: 'JetBrains Mono', size: 12 },
+          padding: 10, displayColors: false,
+          callbacks: callbacks
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#8A8A8E', maxTicksLimit: 6, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } },
+        y: { ticks: { color: '#8A8A8E', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } }
+      }
+    };
+  }
+
+  // Dataset con degradado, idéntico en ambas gráficas.
+  function lineDataset(values, labels, rgb) {
+    return {
+      labels: labels,
+      datasets: [{
+        data: values,
+        borderColor: `rgb(${rgb})`,
+        backgroundColor: (context) => {
+          const { ctx: c, chartArea: area } = context.chart;
+          if (!area) return null;
+          const gradient = c.createLinearGradient(0, area.top, 0, area.bottom);
+          gradient.addColorStop(0, `rgba(${rgb},0.28)`);
+          gradient.addColorStop(1, `rgba(${rgb},0)`);
+          return gradient;
+        },
+        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: `rgb(${rgb})`,
+        fill: true, tension: 0.3
+      }]
+    };
+  }
+
   async function loadFxChart(pair, range) {
     currentFxPair = pair;
     currentFxRange = range;
@@ -1237,27 +1645,10 @@
           fill: true, tension: 0.3
         }]
       };
-      const options = {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#111113', borderColor: '#1E1E22', borderWidth: 1,
-            titleColor: '#F5F5F2', bodyColor: '#F5F5F2',
-            titleFont: { family: 'JetBrains Mono', size: 11 }, bodyFont: { family: 'JetBrains Mono', size: 12 },
-            padding: 10, displayColors: false,
-            callbacks: {
-              title: (items) => items.length ? formatFxTimestamp(fxActivePoints[items[0].dataIndex][0], currentFxRange, true) : '',
-              label: (item) => fmtPrice(item.parsed.y, cfg.decimals)
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color: '#8A8A8E', maxTicksLimit: 6, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } },
-          y: { ticks: { color: '#8A8A8E', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } }
-        }
-      };
+      const options = lineChartOptions({
+        title: (items) => items.length ? formatFxTimestamp(fxActivePoints[items[0].dataIndex][0], currentFxRange, true) : '',
+        label: (item) => fmtPrice(item.parsed.y, cfg.decimals)
+      });
       if (fxChartInstance) {
         fxChartInstance.data = chartData;
         fxChartInstance.options = options;
@@ -1275,13 +1666,109 @@
   }
 
   function setFxRange(range) {
-    document.querySelectorAll('.fx-range-tab').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+    // Ojo: los selectores van acotados a #fxRangeTabs. El panel del VIX usa la
+    // misma clase .fx-range-tab para verse igual, y sin acotar se marcarían las
+    // pestañas de las dos gráficas al hacer clic en una.
+    document.querySelectorAll('#fxRangeTabs .fx-range-tab').forEach(b => b.classList.toggle('active', b.dataset.range === range));
     loadFxChart(currentFxPair, range);
     if (fxAutoRefreshTimer) { clearInterval(fxAutoRefreshTimer); fxAutoRefreshTimer = null; }
     if (range === '1D') {
       fxAutoRefreshTimer = setInterval(() => loadFxChart(currentFxPair, currentFxRange), 60000);
     }
   }
+
+  // ---- Gráfica del VIX ---------------------------------------------------
+  // Reemplaza al panel de la curva de rendimiento, que era un SVG estático
+  // actualizado a mano. Usa el mismo /api/history que el tipo de cambio, con
+  // pair=VIX, así que no hay una segunda fuente de datos que mantener.
+  let vixChartInstance = null;
+  let vixRange = '1D';
+  let vixPoints = [];
+  let vixAutoRefreshTimer = null;
+  let vixFailed = false;
+
+  // Pie del panel en el idioma actual, según si hay datos o no. Se llama tanto
+  // al cargar la gráfica como al cambiar de idioma.
+  function paintVixMeta() {
+    const asOfEl = document.getElementById('vixAsOf');
+    if (!asOfEl) return;
+    const es = document.documentElement.lang === 'es';
+    if (vixFailed) {
+      asOfEl.textContent = es
+        ? 'Yahoo Finance · datos no disponibles por ahora, se reintenta solo'
+        : 'Yahoo Finance · data unavailable right now, retrying automatically';
+    } else {
+      asOfEl.textContent = es ? 'Yahoo Finance · en vivo' : 'Yahoo Finance · live';
+    }
+  }
+
+  async function loadVixChart(range) {
+    vixRange = range;
+    const valueEl = document.getElementById('vixValue');
+    const changeEl = document.getElementById('vixChange');
+    try {
+      const res = await fetch(`/api/history?pair=VIX&range=${range}`);
+      if (!res.ok) throw new Error('history ' + res.status);
+      const data = await res.json();
+      const points = Array.isArray(data.points) ? data.points : [];
+      if (!points.length) throw new Error('empty series');
+      vixPoints = points;
+
+      const first = points[0][1], last = points[points.length - 1][1];
+      const changePct = ((last - first) / first) * 100;
+      const dir = changePct > 0 ? 'up' : changePct < 0 ? 'down' : '';
+      // VIX arriba = más miedo, así que la subida se pinta roja: al revés que
+      // en una gráfica de precio, donde subir es bueno.
+      const rgb = changePct > 0 ? '163,45,45' : '15,138,95';
+
+      if (valueEl) valueEl.textContent = fmtPrice(last, 2);
+      if (changeEl) {
+        changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + `% (${range})`;
+        changeEl.className = 'vix-change ' + dir;
+      }
+      vixFailed = false;
+      paintVixMeta();
+
+      const ctx = document.getElementById('vixChartCanvas');
+      if (!ctx || typeof Chart === 'undefined') return;
+      const chartData = lineDataset(
+        points.map(p => p[1]),
+        points.map(p => formatFxTimestamp(p[0], range)),
+        rgb
+      );
+      const options = lineChartOptions({
+        title: (items) => items.length ? formatFxTimestamp(vixPoints[items[0].dataIndex][0], vixRange, true) : '',
+        label: (item) => fmtPrice(item.parsed.y, 2)
+      });
+      if (vixChartInstance) {
+        vixChartInstance.data = chartData;
+        vixChartInstance.options = options;
+        vixChartInstance.update();
+      } else {
+        vixChartInstance = new Chart(ctx, { type: 'line', data: chartData, options, plugins: [fxCrosshairPlugin] });
+      }
+    } catch (e) {
+      console.warn('VIX chart fetch failed:', e);
+      vixPoints = [];
+      vixFailed = true;
+      if (valueEl) valueEl.textContent = '—';
+      if (changeEl) { changeEl.textContent = ''; changeEl.className = 'vix-change'; }
+      paintVixMeta();
+    }
+  }
+
+  function setVixRange(range) {
+    document.querySelectorAll('#vixRangeTabs .fx-range-tab').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+    loadVixChart(range);
+    if (vixAutoRefreshTimer) { clearInterval(vixAutoRefreshTimer); vixAutoRefreshTimer = null; }
+    if (range === '1D') {
+      vixAutoRefreshTimer = setInterval(() => loadVixChart(vixRange), 60000);
+    }
+  }
+
+  document.querySelectorAll('#vixRangeTabs .fx-range-tab').forEach(btn => {
+    btn.addEventListener('click', () => setVixRange(btn.dataset.range));
+  });
 
   document.querySelectorAll('.fx-tab').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1291,25 +1778,9 @@
     });
   });
 
-  document.querySelectorAll('.fx-range-tab').forEach(btn => {
+  document.querySelectorAll('#fxRangeTabs .fx-range-tab').forEach(btn => {
     btn.addEventListener('click', () => setFxRange(btn.dataset.range));
   });
-
-  async function fetchStocks() {
-    try {
-      const res = await fetch('/api/quote');
-      if (!res.ok) throw new Error('quote ' + res.status);
-      const data = await res.json();
-      const quotes = data && data.quotes;
-      if (!quotes || !Object.keys(quotes).length) throw new Error('empty quotes');
-      stockData = quotes;
-    } catch (e) {
-      console.warn('Stocks fetch failed:', e);
-      // Si ya teníamos precios, los dejamos en pantalla en vez de vaciarlos.
-      if (!stockData || typeof stockData !== 'object') stockData = 'error';
-    }
-    render();
-  }
 
   let newsData = null;
 
@@ -1327,6 +1798,37 @@
     const t = (title || '').toLowerCase();
     const hit = Object.keys(NEWS_TAKES).find(k => t.includes(k.toLowerCase()));
     return hit ? NEWS_TAKES[hit] : null;
+  }
+
+  // ---- Categoría visual del titular -------------------------------------
+  // Etiqueta de color + icono para que la tarjeta no sea puro texto. Se deduce
+  // del titular que ya llega del feed: NO cambia de dónde vienen los datos ni
+  // qué se muestra, solo cómo se presenta. Si nada coincide, cae en "economy".
+  const NEWS_CATEGORIES = [
+    { key: 'rates', en: 'Rates', es: 'Tasas',
+      words: ['fed', 'fomc', 'banxico', 'central bank', 'interest rate', 'rate cut', 'rate hike', 'ecb', 'bond', 'yield', 'treasury', 'powell'],
+      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="21" x2="21" y2="21"/><path d="M4 21V10l8-6 8 6v11"/><line x1="9" y1="21" x2="9" y2="14"/><line x1="15" y1="21" x2="15" y2="14"/></svg>' },
+    { key: 'crypto', en: 'Crypto', es: 'Cripto',
+      words: ['bitcoin', 'ethereum', 'crypto', 'blockchain', 'stablecoin', 'token'],
+      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 8h4.5a2.5 2.5 0 010 5H9zm0 5h5a2.5 2.5 0 010 5H9zm0-5V6m0 12v-2m3-10V6m0 12v-2"/></svg>' },
+    { key: 'companies', en: 'Companies', es: 'Empresas',
+      words: ['earnings', 'shares', 'stock', 'ceo', 'merger', 'acquisition', 'ipo', 'profit', 'revenue', 'layoff', 'apple', 'tesla', 'nvidia', 'amazon', 'microsoft', 'google'],
+      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>' },
+    { key: 'markets', en: 'Markets', es: 'Mercados',
+      words: ['market', 'rally', 'selloff', 'index', 'investors', 's&p', 'nasdaq', 'dow', 'oil', 'gold', 'copper', 'dollar', 'peso', 'currency', 'trading', 'commodit'],
+      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>' },
+    { key: 'policy', en: 'Policy', es: 'Política',
+      words: ['tariff', 'trade', 'sanction', 'president', 'prime minister', 'government', 'election', 'parliament', 'congress', 'trump', 'sheinbaum', 'regulat', 'lawmaker', 'summit', 'treaty'],
+      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 4.5v3H3v-3z"/><line x1="6" y1="10" x2="6" y2="17"/><line x1="12" y1="10" x2="12" y2="17"/><line x1="18" y1="10" x2="18" y2="17"/><line x1="3" y1="21" x2="21" y2="21"/></svg>' },
+    { key: 'economy', en: 'Economy', es: 'Economía',
+      words: [],
+      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' }
+  ];
+
+  function categoryFor(title) {
+    const t = (title || '').toLowerCase();
+    return NEWS_CATEGORIES.find(c => c.words.some(w => t.includes(w)))
+        || NEWS_CATEGORIES[NEWS_CATEGORIES.length - 1];
   }
 
   function escapeHtml(str) {
@@ -1379,42 +1881,56 @@
       const link = safeUrl(item.link);
       const when = relativeTime(item.pubDate);
       const es = document.documentElement.lang === 'es';
-      const more = es ? 'Leer más →' : 'Read more →';
+      const more = es ? 'Leer más' : 'Read more';
       const take = takeFor(item.title);
       const takeLabel = es ? 'Mi lectura' : 'My take';
       const takeText = take
         ? escapeHtml(es ? take.es : take.en)
         : (es ? '[Tu opinión aquí]' : '[Your take here]');
+      const cat = categoryFor(item.title);
       return `<article class="news-card">
         ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
         <div class="news-card-body">
-          <span class="news-source">Bloomberg${when ? ` · ${escapeHtml(when)}` : ''}</span>
+          <div class="news-top">
+            <span class="news-cat ${cat.key}">${cat.icon}${escapeHtml(es ? cat.es : cat.en)}</span>
+            <span class="news-source">Bloomberg${when ? ` · ${escapeHtml(when)}` : ''}</span>
+          </div>
           <h3>${escapeHtml(item.title)}</h3>
           <p class="news-take${take ? '' : ' is-placeholder'}">
             <span class="news-take-label">${takeLabel}</span>${takeText}
           </p>
-          ${link ? `<a class="news-link" href="${link}" target="_blank" rel="noopener">${more}</a>` : ''}
+          ${link ? `<a class="news-link" href="${link}" target="_blank" rel="noopener">${more}
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>` : ''}
         </div>
       </article>`;
     }).join('');
   }
 
+  // Mientras no hay dato se pinta un esqueleto con shimmer en vez de "—": el
+  // guion se leía como "no hay nada", el esqueleto como "viene en camino".
+  function hasValue(n) { return n !== undefined && n !== null && !isNaN(n); }
+
   function cardHTML(sym, price, change, decimals) {
-    const priceStr = (price !== undefined && price !== null && !isNaN(price)) ? '$' + fmtPrice(price, decimals) : '—';
     const changeStr = fmtChange(change);
     const dir = (change > 0) ? 'up' : (change < 0) ? 'down' : '';
-    return `<div class="market-card" data-key="${sym}">
+    const priceCell = hasValue(price)
+      ? `<span data-count-key="card:${sym}" data-count-to="${price}" data-count-dec="${decimals}" data-count-prefix="$">$${fmtPrice(price, decimals)}</span>`
+      : '<span class="skel">$00,000</span>';
+    return `<div class="market-card tilt" data-key="${sym}">
       <div class="card-top"><span class="card-sym">${LABELS[sym] || sym}</span>${dir ? `<span class="dot ${dir}"></span>` : ''}</div>
-      <p class="card-price">${priceStr}</p>
-      <p class="card-change ${dir}">${changeStr ? changeStr : '&nbsp;'}</p>
+      <p class="card-price">${priceCell}</p>
+      <p class="card-change ${dir}">${changeStr ? changeStr : (hasValue(price) ? '&nbsp;' : '<span class="skel skel-sm">+0.00%</span>')}</p>
     </div>`;
   }
 
   function chipHTML(sym, price, change, decimals) {
-    const priceStr = (price !== undefined && price !== null && !isNaN(price)) ? fmtPrice(price, decimals) : '—';
     const changeStr = fmtChange(change);
     const dir = (change > 0) ? 'up' : (change < 0) ? 'down' : '';
-    return `<span class="chip">${dir ? `<span class="dot ${dir}"></span>` : ''}<span class="sym">${LABELS[sym] || sym}</span><span>${priceStr}</span>${changeStr ? `<span class="chg ${dir}">${changeStr}</span>` : ''}</span>`;
+    const priceCell = hasValue(price)
+      ? `<span data-count-key="chip:${sym}" data-count-to="${price}" data-count-dec="${decimals}">${fmtPrice(price, decimals)}</span>`
+      : '<span class="skel skel-sm">0,000</span>';
+    return `<span class="chip">${dir ? `<span class="dot ${dir}"></span>` : ''}<span class="sym">${LABELS[sym] || sym}</span>${priceCell}${changeStr ? `<span class="chg ${dir}">${changeStr}</span>` : ''}${sparkHTML(sym)}</span>`;
   }
 
   function render() {
@@ -1439,44 +1955,44 @@
     ['USD/MXN', 'EUR/USD', 'USD/JPY', 'GBP/USD'].forEach(p =>
       chips.push(chipHTML(p, fxData ? fxData[p] : null, null, p === 'USD/JPY' ? 2 : 4)));
 
-    const stockGrid = document.getElementById('grid-stocks');
-    if (stockGrid) {
-      const symbols = ['SPY', 'QQQ', 'AAPL', 'TSLA', 'NVDA'];
-      if (stockData === 'error' || !stockData) {
-        stockGrid.innerHTML = `<div class="setup-card">${document.documentElement.lang === 'es'
-          ? 'Datos no disponibles por el momento. Se reintenta solo.'
-          : 'Stock data is temporarily unavailable. It will retry automatically.'}</div>`;
-        symbols.forEach(s => chips.push(chipHTML(s)));
-      } else {
-        stockGrid.innerHTML = symbols.map(s => cardHTML(s, stockData[s] && stockData[s].price, stockData[s] && stockData[s].change, 2)).join('');
-        symbols.forEach(s => chips.push(chipHTML(s, stockData[s] && stockData[s].price, stockData[s] && stockData[s].change, 2)));
-        symbols.forEach(k => { if (stockData[k]) markFlash(stockGrid.querySelector(`[data-key="${k}"]`), k, stockData[k].price, stockData[k].change < 0 ? 'down' : 'up'); });
-      }
-    }
-
     const track = document.getElementById('tickerTrack');
     if (track && chips.length) track.innerHTML = chips.join('') + chips.join('');
+
+    // Después de repintar: anima los números que cambiaron. El ticker se duplica
+    // para el bucle infinito, así que la misma clave aparece dos veces; se anima
+    // solo la primera copia y la segunda se pone al valor final de una vez.
+    runCounters(document.getElementById('grid-crypto'));
+    if (track) {
+      const seen = new Set();
+      track.querySelectorAll('[data-count-key]').forEach(el => {
+        const k = el.getAttribute('data-count-key');
+        if (seen.has(k)) el.removeAttribute('data-count-key');
+        else seen.add(k);
+      });
+      runCounters(track);
+    }
   }
 
   render();
   fetchCrypto();
   fetchFx();
-  fetchStocks();
+  fetchSparklines();
   fetchNews();
   setFxRange('1D');
+  setVixRange('1D');
 
   // ---- Refresco con pausa en segundo plano ------------------------------
   // Antes los setInterval seguían corriendo con la pestaña oculta, quemando
   // cuota de API sin que nadie estuviera viendo. Ahora se detienen al ocultar
   // la pestaña y se refrescan de golpe al volver.
   // Cada intervalo va igualado al caché de su endpoint: pedir más seguido solo
-  // devuelve la misma respuesta cacheada. /api/quote cachea 15 min (cuota de
-  // Twelve Data, ver api/quote.js) y /api/news también.
+  // devuelve la misma respuesta cacheada. /api/news y /api/sparklines cachean
+  // 15 min del lado del servidor.
   const POLLS = [
-    { fn: fetchCrypto, every: 60000 },
-    { fn: fetchFx,     every: 5 * 60000 },
-    { fn: fetchStocks, every: 15 * 60000 },
-    { fn: fetchNews,   every: 15 * 60000 }
+    { fn: fetchCrypto,     every: 60000 },
+    { fn: fetchFx,         every: 5 * 60000 },
+    { fn: fetchSparklines, every: 15 * 60000 },
+    { fn: fetchNews,       every: 15 * 60000 }
   ];
   let timers = [];
 
