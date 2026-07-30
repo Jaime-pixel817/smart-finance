@@ -8,3 +8,10 @@ reference/
 .env
 .env.local
 .vercel
+
+# Dependencias: se instalan desde package.json (Vercel corre npm install en cada
+# despliegue), asi que no tienen por que viajar en el repo.
+node_modules/
+
+# Notas de trabajo locales, no parte del sitio
+instrucciones.md
