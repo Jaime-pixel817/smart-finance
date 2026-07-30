@@ -15,3 +15,8 @@ node_modules/
 
 # Notas de trabajo locales, no parte del sitio
 instrucciones.md
+
+# Fotos originales de los breakdowns a resolucion completa (~8 MB). El sitio
+# usa las versiones de 900px que estan junto a esta carpeta; estas se guardan
+# solo como respaldo local por si hay que regenerarlas con otro encuadre.
+assets/breakdowns/_originales/

@@ -296,19 +296,40 @@
      escritorio. El velo de .hero-grid::before es lo que mantiene el texto
      legible sobre las partículas. */
   @media (max-width: 767px) {
-    .hero { padding-top: 20px; }
+    /* El hero ocupa la pantalla completa al cargar, y el ticker va DENTRO de
+       esa pantalla: como .hero es flex en columna y el ticker es su último
+       hijo, queda pegado abajo sin cortarse. Así la siguiente sección (About)
+       empieza justo en el borde inferior y no se alcanza a ver sin scroll.
+       100vh primero como respaldo; 100dvh es el que descuenta la barra del
+       navegador en móvil, que es lo que hacía que el ticker quedara fuera. */
+    .hero {
+      padding-top: 12px;
+      /* Se resta el nav: es sticky pero ocupa lugar en el flujo, así que el
+         hero empieza debajo de él. Con 100dvh a secas el hero medía una
+         pantalla completa EMPEZANDO en y=65, y el ticker terminaba 65px por
+         debajo del borde inferior. El nav mide 65px en todo este rango (su
+         línea de tagline se esconde desde 860px), así que el valor es fijo. */
+      --nav-h: 65px;
+      min-height: calc(100vh - var(--nav-h));
+      min-height: calc(100dvh - var(--nav-h));
+      display: flex;
+      flex-direction: column;
+    }
     .hero .hero-grid {
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: stretch;
-      min-height: 420px;
+      /* flex:1 se come el alto que sobra y centra el texto ahí; min-height:0
+         evita que el contenido empuje el hero más allá de la pantalla. */
+      flex: 1;
+      min-height: 0;
       /* Solo el espaciado vertical: .hero-grid ES el .wrap, así que usar el
          atajo "padding" borraría los 20px de los lados y el titular quedaría
          pegado al borde de la pantalla. */
-      padding-top: 28px;
-      padding-bottom: 24px;
+      padding-top: 20px;
+      padding-bottom: 20px;
     }
     .hero .hero-globe-wrap {
       position: absolute; z-index: 0;
@@ -629,10 +650,15 @@
   }
   .news-take.is-placeholder .news-take-label { color: var(--muted); }
 
-  /* En móvil las noticias van a una sola columna: a media pantalla el titular
-     se parte en demasiados renglones y la opinión deja de leerse. */
-  @media (max-width: 767px) {
+  /* La cuadrícula 2×2 se mantiene hasta bien entrado el móvil y solo colapsa a
+     una columna en pantallas de verdad angostas (≤560px). Antes colapsaba a
+     767px, y eso dejaba en una sola columna corrida a las pantallas que
+     reportan menos de 768px CSS — por ejemplo una laptop con escalado de
+     Windows al 200%, donde 1366px físicos son 683px CSS. */
+  @media (max-width: 560px) {
     .news-grid { grid-template-columns: 1fr; gap: 18px; }
+  }
+  @media (max-width: 767px) {
     .news-thumb { height: 160px; }
   }
 
@@ -648,10 +674,34 @@
   .post-body { padding: var(--card-pad); display:flex; flex-direction:column; gap: 12px; flex-grow:1; }
 
   /* ---------- Miniatura de post ----------
-     Es una ilustración generada con CSS/SVG por tema, NO una captura de la red
-     social: TikTok y LinkedIn no dan la miniatura real desde el navegador, y
-     falsear una captura sería mentir sobre el contenido. */
+     Ahora es la foto real del post. El degradado por tema (.thumb-*) se queda
+     debajo como respaldo: si una foto no carga, la tarjeta muestra ese fondo en
+     lugar de un hueco roto. Las tarjetas sin foto siguen usando .post-thumb-art
+     con el ícono del tema, y esas llevan además la clase .is-art. */
   .post-thumb { position:relative; height:148px; overflow:hidden; background: var(--card-2); border-bottom:1px solid var(--line); }
+
+  /* ---------- Encuadre de cada foto ----------
+     La miniatura es apaisada y cuatro de las seis fotos son verticales, así que
+     object-fit:cover recorta de arriba y abajo. El object-position va AJUSTADO
+     POR FOTO —revisando el recorte real, no un valor único— para que ninguna
+     cara quede cortada. El porcentaje vertical es la altura de la foto que
+     queda al centro de la banda visible: bajarlo sube el encuadre. */
+  .post-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform .45s cubic-bezier(.2,.7,.3,1);
+  }
+  .post-card:hover .post-thumb img { transform: scale(1.06); }
+  /* Verticales (la cara cae hacia la mitad de la foto). Cada valor se eligió
+     comparando el recorte a 425px de ancho, que es el caso más apretado: la
+     tarjeta más ancha es la que menos alto de foto deja ver. */
+  .thumb-japan img       { object-position: 50% 50%; }
+  .thumb-andytoh img     { object-position: 50% 40%; }
+  .thumb-singapore img   { object-position: 50% 60%; }
+  .thumb-moris img       { object-position: 50% 40%; }
+  /* Apaisadas: las caras quedan en el tercio de arriba. */
+  .thumb-jpmorgan img    { object-position: 50% 30%; }
+  .thumb-tradingroom img { object-position: 50% 35%; }
   .post-thumb-art {
     position:absolute; inset:0;
     display:flex; align-items:center; justify-content:center;
@@ -669,8 +719,9 @@
   .thumb-interview { background: radial-gradient(120% 120% at 85% 15%, #241F38 0%, #14121F 55%, #0A0A0B 100%); }
   .thumb-data { background: radial-gradient(120% 120% at 20% 85%, #1E3348 0%, #101A24 55%, #0A0A0B 100%); }
   .thumb-podcast { background: radial-gradient(120% 120% at 80% 80%, #3A2A16 0%, #1E170D 55%, #0A0A0B 100%); }
-  /* Retícula tenue encima, para que no sea un degradado plano. */
-  .post-thumb::after {
+  /* Retícula tenue, solo sobre los fondos generados: encima de una foto real
+     ensuciaría la imagen. */
+  .post-thumb.is-art::after {
     content:''; position:absolute; inset:0; pointer-events:none;
     background-image: linear-gradient(rgba(245,245,242,0.045) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(245,245,242,0.045) 1px, transparent 1px);
@@ -952,18 +1003,24 @@
         HOW TO ADD ANOTHER POST:
         Copy one <a class="post-card-link"> block below, then update the tag
         (tiktok or linkedin), title, description, and link to match the real post.
-        La miniatura es una ilustración por tema (thumb-markets / thumb-interview /
-        thumb-data / thumb-podcast), NO una captura de la red social: ni TikTok ni
-        LinkedIn dan la miniatura real desde el navegador, y falsear una captura
-        sería mentir sobre el contenido. El <div class="post-play"> va solo en
-        TikTok, para marcar que es video.
+        La miniatura es la foto real del post, en assets/breakdowns/. Cada
+        tarjeta lleva dos clases de miniatura: la del tema (thumb-markets /
+        thumb-interview / thumb-data / thumb-podcast), que pinta el degradado de
+        respaldo si la foto no carga, y una propia de la foto (thumb-japan,
+        thumb-andytoh...) que solo fija su object-position. Al agregar una foto
+        nueva, crea su clase en el CSS y ajusta ese porcentaje mirando el
+        recorte real: casi todas las fotos son verticales y la miniatura es
+        apaisada, así que el valor correcto cambia foto por foto. Si algún post
+        no tiene foto, usa el <div class="post-thumb-art"> con el ícono del tema
+        y agrega la clase .is-art a la miniatura. El <div class="post-play"> va
+        solo en TikTok, para marcar que es video.
       -->
       <div class="content-grid">
 
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7653328531694439700" target="_blank" rel="noopener">
           <article class="post-card">
-            <div class="post-thumb thumb-data has-play">
-              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L21 6"/></svg></div>
+            <div class="post-thumb thumb-data thumb-japan has-play">
+              <img src="assets/breakdowns/breakdown-japan.jpg" alt="Shibuya de noche, durante el video sobre los datos financieros de Japón" width="900" height="1601" loading="lazy" decoding="async">
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -979,8 +1036,8 @@
 
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7662781308988411156" target="_blank" rel="noopener">
           <article class="post-card">
-            <div class="post-thumb thumb-interview has-play">
-              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+            <div class="post-thumb thumb-interview thumb-andytoh has-play">
+              <img src="assets/breakdowns/breakdown-andy-toh.jpg" alt="Entrevista grabada durante el programa de verano en Singapur" width="900" height="1582" loading="lazy" decoding="async">
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -996,8 +1053,8 @@
 
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7655111359419387157" target="_blank" rel="noopener">
           <article class="post-card">
-            <div class="post-thumb thumb-markets has-play">
-              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+            <div class="post-thumb thumb-markets thumb-singapore has-play">
+              <img src="assets/breakdowns/breakdown-singapore.jpg" alt="Frente a Marina Bay Sands, en Singapur" width="900" height="1543" loading="lazy" decoding="async">
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1013,8 +1070,8 @@
 
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ" target="_blank" rel="noopener">
           <article class="post-card">
-            <div class="post-thumb thumb-markets">
-              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="8"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="3" y1="20" x2="21" y2="20"/></svg></div>
+            <div class="post-thumb thumb-markets thumb-jpmorgan">
+              <img src="assets/breakdowns/breakdown-jpmorgan-etf.jpg" alt="Al terminar la sesión con el Chief ETF Strategist de J.P. Morgan" width="900" height="737" loading="lazy" decoding="async">
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1029,8 +1086,8 @@
 
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn" target="_blank" rel="noopener">
           <article class="post-card">
-            <div class="post-thumb thumb-interview">
-              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <div class="post-thumb thumb-interview thumb-moris">
+              <img src="assets/breakdowns/breakdown-moris-dieck.jpg" alt="En un evento de educación financiera en México" width="900" height="1200" loading="lazy" decoding="async">
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1045,8 +1102,8 @@
 
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7" target="_blank" rel="noopener">
           <article class="post-card">
-            <div class="post-thumb thumb-podcast">
-              <div class="post-thumb-art"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v2a7 7 0 0014 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></div>
+            <div class="post-thumb thumb-podcast thumb-tradingroom">
+              <img src="assets/breakdowns/breakdown-trading-room-podcast.jpg" alt="Grabando el podcast del Financial Trading Room" width="900" height="506" loading="lazy" decoding="async">
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
