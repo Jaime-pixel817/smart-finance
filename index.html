@@ -83,18 +83,18 @@
      Todas las tarjetas del sitio (mercado, noticias, tips, posts) comparten
      superficie, radio, borde y hover. Antes cada sección traía su propio
      -3px/-4px y su propia sombra según cuándo se escribió. */
-  .market-card, .news-card, .post-card, .tip-card {
+  .market-card, .news-card, .post-card {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .market-card:hover, .news-card:hover, .post-card:hover, .tip-card:hover {
+  .market-card:hover, .news-card:hover, .post-card:hover {
     transform: translateY(-4px);
     border-color: var(--brand);
     box-shadow: 0 20px 40px -24px rgba(0,0,0,0.65);
   }
-  .market-card:active, .news-card:active, .post-card:active, .tip-card:active { transform: scale(0.98); }
+  .market-card:active, .news-card:active, .post-card:active { transform: scale(0.98); }
 
   /* ---------- Set de iconos de línea ----------
      Un solo grosor de trazo (1.6) y currentColor en todo el sitio, para que
@@ -142,7 +142,6 @@
     .skel { animation: none; }
     .tilt::after { display: none; }
     .tilt.is-tilting { transform: translateY(-4px); }
-    .tip-more { transition: none; }
     .post-thumb-art { transition: none; }
     .post-card:hover .post-thumb-art { transform: none; }
   }
@@ -193,7 +192,6 @@
   .btn-primary:hover { background: #12A06E; border-color: #12A06E; transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(15,138,95,0.75); }
   .btn-outline { border-color: var(--line); color: var(--ink); background: transparent; }
   .btn-outline:hover { background: var(--card-2); border-color: var(--muted); transform: translateY(-1px); }
-  .btn-sm { padding: 9px 18px; font-size:0.86rem; }
 
   .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; background: var(--line); }
   .dot.up { background: var(--up); box-shadow: 0 0 6px var(--up); }
@@ -291,6 +289,57 @@
     .hero .hero-cta { margin-bottom: 32px; }
   }
 
+  /* ---------- Móvil: el texto vuelve a ir ENCIMA del globo ----------
+     Hasta 767px se deshace el apilado del bloque de arriba. El globo conserva
+     su tamaño (100% de ancho × 340px de alto) pero pasa a capa de fondo, y el
+     titular, la línea pequeña y los botones se superponen igual que en
+     escritorio. El velo de .hero-grid::before es lo que mantiene el texto
+     legible sobre las partículas. */
+  @media (max-width: 767px) {
+    .hero { padding-top: 20px; }
+    .hero .hero-grid {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      min-height: 420px;
+      /* Solo el espaciado vertical: .hero-grid ES el .wrap, así que usar el
+         atajo "padding" borraría los 20px de los lados y el titular quedaría
+         pegado al borde de la pantalla. */
+      padding-top: 28px;
+      padding-bottom: 24px;
+    }
+    .hero .hero-globe-wrap {
+      position: absolute; z-index: 0;
+      top: 50%; left: 50%; right: auto;
+      transform: translate(-50%, -50%);
+      width: 100%; height: 340px;
+      order: 0; margin: 0;
+    }
+    /* Velo entre el globo y el texto: radial al centro (donde cae el titular)
+       y un poco más cerrado arriba y abajo, para que ninguna partícula quede
+       justo detrás de una letra. */
+    .hero .hero-grid::before {
+      content: '';
+      position: absolute; inset: -24px 0;
+      z-index: 1; pointer-events: none;
+      background:
+        radial-gradient(105% 66% at 42% 44%, rgba(10,10,11,0.88) 0%, rgba(10,10,11,0.58) 48%, rgba(10,10,11,0) 84%),
+        linear-gradient(to bottom, rgba(10,10,11,0.5) 0%, rgba(10,10,11,0) 22%, rgba(10,10,11,0) 78%, rgba(10,10,11,0.5) 100%);
+    }
+    .hero .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 100%;
+      padding: 0;
+      /* El bloque de texto no intercepta el dedo: así el globo se sigue
+         pudiendo girar aunque esté debajo. Los botones lo recuperan abajo. */
+      pointer-events: none;
+    }
+    .hero .hero-cta { margin-bottom: 0; }
+    .hero .hero-cta .btn { pointer-events: auto; }
+  }
+
   .ticker {
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
@@ -362,6 +411,10 @@
   @media (max-width: 860px) {
     .about-inner { grid-template-columns: 1fr; gap: 56px; }
     .about-photos { display:flex; justify-content:center; }
+  }
+  /* En móvil el ↗ se quita: los links siguen funcionando igual, solo sin icono. */
+  @media (max-width: 767px) {
+    .about-socials .ext-arrow { display: none; }
   }
 
   /* ---------- Market ---------- */
@@ -437,61 +490,108 @@
   .rate-label { font-size:0.88rem; color: var(--muted); }
   .rate-value { font-family: var(--font-mono); font-weight:600; font-size:1.05rem; }
 
-  /* Economic calendar */
-  .calendar-list { display:flex; flex-direction:column; gap:2px; margin-top:8px; }
-  .cal-row { display:grid; grid-template-columns: 90px 60px 1fr; gap:16px; align-items:center; padding: 14px 16px; background: var(--card); border:1px solid var(--line); border-radius:10px; }
-  .cal-date { font-family: var(--font-mono); font-size:0.85rem; color: var(--gold-text); font-weight:600; }
-  .cal-tag { font-family: var(--font-mono); font-size:0.7rem; font-weight:700; text-align:center; padding:3px 0; border-radius:6px; background: var(--card-2); color: var(--muted); }
-  .cal-tag.us { color: var(--accent-purple); }
-  .cal-tag.mx { color: var(--up); }
-  .cal-event { font-size:0.9rem; }
-  .cal-event .cal-note { display:block; font-size:0.78rem; color:var(--muted); margin-top:2px; }
-  .cal-row.is-past { display:none; }
-  .cal-empty { display:none; font-size:0.9rem; color:var(--muted); padding:14px 16px; background:var(--card); border:1px dashed var(--line); border-radius:10px; }
-  .calendar-list.is-empty .cal-empty { display:block; }
   .stale-flag { color: var(--accent-orange); }
   @media (max-width: 640px) {
     .macro-grid { grid-template-columns: 1fr; }
-    .cal-row { grid-template-columns: 74px 50px 1fr; gap:10px; padding:12px; }
   }
 
-  /* ---------- Tips / Start here (dentro de Market) ---------- */
-  /* 300px como mínimo para que en escritorio caigan 3 columnas (3+3) y no 4,
-     que dejaba la segunda fila coja con dos tarjetas. */
-  .tips-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items:start; }
-  .tip-card { padding: var(--card-pad); display:flex; flex-direction:column; gap:8px; }
-  .tip-top { display:flex; align-items:center; gap:9px; }
-  .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:9px; background: var(--brand-soft); color: var(--gold-text); font-size:16px; }
-  .tip-index { font-family: var(--font-mono); font-size:0.7rem; font-weight:700; letter-spacing:0.08em; color: var(--gold-text); }
-  .tip-card h4 { font-family: var(--font-display); font-size:1.04rem; font-weight:700; line-height:1.32; }
-  .tip-card p { color: var(--muted); font-size:0.9rem; line-height:1.55; }
-  .tips-disclaimer { margin-top:18px; }
-
-  /* Acordeón: capa intermedia entre el resumen y la lección completa.
-     grid-template-rows 0fr→1fr anima la altura sin tener que medirla en JS. */
-  .tip-more { display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .34s ease, opacity .34s ease; }
-  .tip-more > div { overflow:hidden; }
-  .tip-card.is-open .tip-more { grid-template-rows: 1fr; opacity:1; }
-  .tip-more p { border-left:2px solid var(--brand); padding-left:12px; margin-top:6px; color:#C9C9C6; }
-  .tip-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px; }
-  .tip-toggle {
-    display:inline-flex; align-items:center; gap:6px;
-    background:none; border:none; padding:6px 0;
-    font-family: var(--font-mono); font-size:0.74rem; font-weight:600;
-    letter-spacing:0.04em; text-transform:uppercase; color: var(--muted);
-    transition: color .15s ease;
+  /* ---------- Start here: gancho a la página de lecciones ----------
+     Las seis tarjetas se mudaron a /lessons/ (su CSS vive en
+     assets/lessons.css). Aquí queda solo este bloque promocional. */
+  .lessons-promo {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 26px 28px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    /* Verde muy tenue desde la esquina del icono: da relieve sin competir con
+       el botón, que es lo único que debe llamar de verdad. */
+    background:
+      radial-gradient(130% 170% at 0% 0%, rgba(15,138,95,0.17) 0%, rgba(15,138,95,0) 60%),
+      var(--card);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .tip-toggle:hover { color: var(--ink); }
-  .tip-toggle .ico { font-size:14px; transition: transform .3s ease; }
-  .tip-card.is-open .tip-toggle .ico { transform: rotate(180deg); }
-  .tip-actions .btn { margin-left:auto; }
+  .lessons-promo:hover {
+    transform: translateY(-4px);
+    border-color: var(--brand);
+    box-shadow: 0 20px 40px -24px rgba(0,0,0,0.65);
+  }
+  .lessons-promo:active { transform: scale(0.99); }
+  .lessons-promo-art {
+    display: flex; align-items: center; justify-content: center;
+    width: 62px; height: 62px;
+    border-radius: 17px;
+    background: var(--brand-soft);
+    color: var(--gold-text);
+  }
+  .lessons-promo-art .ico { width: 30px; height: 30px; stroke-width: 1.5; }
+  .lessons-promo-text { display: block; }
+  .lessons-promo-eyebrow {
+    display: block;
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold-text); margin-bottom: 7px;
+  }
+  .lessons-promo-title {
+    display: block;
+    font-family: var(--font-display); font-size: 1.34rem; font-weight: 700;
+    line-height: 1.22; letter-spacing: -0.01em; margin-bottom: 7px;
+  }
+  .lessons-promo-sub { display: block; color: var(--muted); font-size: 0.9rem; line-height: 1.5; max-width: 48ch; }
+  .lessons-promo-cta { white-space: nowrap; }
+  .tips-disclaimer { margin-top: 18px; }
+
+  @media (max-width: 860px) {
+    /* El botón baja a su propia fila y ocupa el ancho: a esta altura ya no cabe
+       al lado del texto sin dejarlo en dos palabras por renglón. */
+    .lessons-promo { grid-template-columns: auto 1fr; gap: 18px; padding: 22px; }
+    .lessons-promo-cta { grid-column: 1 / -1; justify-content: center; }
+  }
+  @media (max-width: 560px) {
+    .lessons-promo { grid-template-columns: 1fr; gap: 16px; }
+    .lessons-promo-art { width: 52px; height: 52px; border-radius: 15px; }
+    .lessons-promo-art .ico { width: 26px; height: 26px; }
+    .lessons-promo-title { font-size: 1.18rem; }
+  }
 
   /* ---------- News ---------- */
   .news { padding: var(--section-pad) 0; }
-  .news-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  /* Cuadrícula fija de 2 columnas: con cuatro titulares queda 2×2 exacto, sin
+     depender de cuánto mida cada tarjeta. minmax(0,1fr) evita que un titular
+     largo ensanche su columna. */
+  .news-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
   .news-card { overflow:hidden; display:flex; flex-direction:column; }
-  .news-card img { width:100%; height:150px; object-fit:cover; background: var(--card-2); display:block; }
   .news-card-body { padding: var(--card-pad); display:flex; flex-direction:column; gap:10px; flex-grow:1; }
+
+  /* ---------- Miniatura de la noticia ----------
+     La foto del feed cuando Bloomberg la manda; cuando no, un fondo por tema
+     con el icono de la categoría. Nunca una foto inventada ni sacada de otro
+     lado: sería atribuirle a la nota una imagen que no es suya. */
+  .news-thumb { position:relative; height:172px; overflow:hidden; background: var(--card-2); border-bottom:1px solid var(--line); }
+  .news-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .news-thumb-art {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color: rgba(245,245,242,0.9);
+  }
+  .news-thumb-art .ico { width:44px; height:44px; stroke-width:1.3; }
+  /* Retícula tenue, solo sobre el fondo generado: encima de una foto real
+     ensuciaría la imagen. */
+  .news-thumb.is-art::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image: linear-gradient(rgba(245,245,242,0.045) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(245,245,242,0.045) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  /* Un fondo por categoría, con la misma paleta que las miniaturas de posts. */
+  .news-thumb.rates     { background: radial-gradient(120% 120% at 18% 12%, #241F38 0%, #14121F 55%, #0A0A0B 100%); }
+  .news-thumb.markets   { background: radial-gradient(120% 120% at 15% 10%, #123B2E 0%, #0D1A17 55%, #0A0A0B 100%); }
+  .news-thumb.companies { background: radial-gradient(120% 120% at 80% 80%, #3A2A16 0%, #1E170D 55%, #0A0A0B 100%); }
+  .news-thumb.crypto    { background: radial-gradient(120% 120% at 82% 18%, #3B3013 0%, #1F1A0C 55%, #0A0A0B 100%); }
+  .news-thumb.policy    { background: radial-gradient(120% 120% at 20% 85%, #1E3348 0%, #101A24 55%, #0A0A0B 100%); }
+  .news-thumb.economy   { background: radial-gradient(120% 120% at 50% 15%, #26262B 0%, #17171A 55%, #0A0A0B 100%); }
   /* Jerarquía: primero la etiqueta de categoría (color), luego el titular grande,
      luego fuente y hora en mono chiquito. Antes las tres cosas competían. */
   .news-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -514,8 +614,9 @@
   .news-card h3 { font-family: var(--font-display); font-size:1.12rem; font-weight:700; line-height:1.32; letter-spacing:-0.01em; }
   .news-card a.news-link { font-weight:600; color: var(--gold-text); font-size:0.88rem; display:inline-flex; align-items:center; gap:6px; }
   .news-card a.news-link .ico { font-size:14px; }
-  /* Mi lectura del titular. El texto lo pongo a mano en NEWS_TAKES (ver el JS);
-     mientras no haya nada escrito, queda el placeholder. */
+  /* Mi lectura del titular. La genera /api/news una vez al día con la API de
+     Anthropic; si esa llamada falla, llega marcada como pendiente y se pinta
+     con el estilo de placeholder. */
   .news-take {
     font-size:0.86rem; line-height:1.5; color: var(--ink);
     border-left: 2px solid var(--brand);
@@ -527,6 +628,13 @@
     letter-spacing:0.1em; text-transform:uppercase; color: var(--gold-text); margin-bottom:3px;
   }
   .news-take.is-placeholder .news-take-label { color: var(--muted); }
+
+  /* En móvil las noticias van a una sola columna: a media pantalla el titular
+     se parte en demasiados renglones y la opinión deja de leerse. */
+  @media (max-width: 767px) {
+    .news-grid { grid-template-columns: 1fr; gap: 18px; }
+    .news-thumb { height: 160px; }
+  }
 
   /* ---------- Content / Lessons ---------- */
   .content { padding: var(--section-pad) 0; background: var(--bg-raise); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
@@ -598,6 +706,25 @@
   .post-card-link { display:flex; }
   .post-card-link .post-card { width:100%; }
 
+  /* ---------- Móvil: los 6 posts en cuadrícula 2×3 ----------
+     minmax(0,1fr) y no 1fr a secas: sin eso un título largo sin espacios
+     ensancha la columna y saca la cuadrícula del ancho de la pantalla.
+     La miniatura se queda, solo baja de alto para que la tarjeta no se
+     vuelva una torre a media pantalla de ancho. */
+  @media (max-width: 767px) {
+    .content-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .post-thumb { height: 104px; }
+    .post-thumb-art .ico { width: 38px; height: 38px; }
+    .post-thumb.has-play .post-thumb-art { padding: 0 0 10px 10px; }
+    .post-thumb.has-play .post-thumb-art .ico { width: 22px; height: 22px; }
+    .post-play { width: 36px; height: 36px; }
+    .post-play .ico { width: 15px; height: 15px; }
+    .post-body { padding: 14px; gap: 8px; }
+    .post-card h3 { font-size: 0.95rem; line-height: 1.3; }
+    .post-card p { font-size: 0.8rem; }
+    .post-tag { font-size: 0.6rem; padding: 3px 8px; }
+  }
+
   /* ---------- Footer ---------- */
   .site-footer { border-top:1px solid var(--line); padding: 48px 0 32px; background: var(--bg-raise); }
   .footer-inner { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:24px; margin-bottom:32px; }
@@ -620,7 +747,6 @@
     .nav-inner { padding: 14px 20px; }
     .nav-mobile { padding: 8px 20px 20px; }
     .group-label { margin-top: 34px; }
-    .tip-actions .btn { margin-left: 0; }
   }
 </style>
 </head>
@@ -634,7 +760,7 @@
     <nav class="nav-links-desktop">
       <a href="#about" data-i18n="nav.about">About</a>
       <a href="#market" data-i18n="nav.market">Market</a>
-      <a href="#content" data-i18n="nav.lessons">Lessons</a>
+      <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
       <a href="#home" class="nav-cta" data-i18n="nav.follow">Follow</a>
       <span class="lang-toggle">
         <button type="button" class="lang-btn active" data-lang="en">EN</button>
@@ -648,7 +774,7 @@
   <div class="nav-mobile" id="navMobile">
     <a href="#about" data-i18n="nav.about">About</a>
     <a href="#market" data-i18n="nav.market">Market</a>
-    <a href="#content" data-i18n="nav.lessons">Lessons</a>
+    <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
     <a href="#home" data-i18n="nav.follow">Follow</a>
     <span class="lang-toggle lang-toggle-mobile">
       <button type="button" class="lang-btn active" data-lang="en">EN</button>
@@ -692,9 +818,11 @@
           </svg>
           <span data-i18n="about.credential" data-i18n-html>Through my work in financial education and content creation, I have had the opportunity to speak with leading figures in the financial sector, including <strong>Margaret Franklin</strong>, CEO of CFA Institute; <strong>Jon Maier</strong>, Chief ETF Strategist at J.P. Morgan Asset Management; <strong>Moris Dieck</strong>, one of Mexico's most prominent financial educators; <strong>Andy Toh</strong>, CEO of Bluesky Education; and many other industry professionals.</span>
         </p>
+        <!-- La flecha va en su propio span para poder esconderla solo en móvil
+             (ver .ext-arrow en el CSS) sin tocar el texto del link. -->
         <div class="about-socials">
-          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a>
+          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn<span class="ext-arrow" aria-hidden="true"> ↗</span></a>
+          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok<span class="ext-arrow" aria-hidden="true"> ↗</span></a>
         </div>
       </div>
     </div>
@@ -746,128 +874,22 @@
         <h3 class="group-label" data-i18n="tips.label">Start here</h3>
         <p class="group-note" data-i18n="tips.note">Short answers to the questions that come up most. No jargon.</p>
         <!--
-          CADA TARJETA = UNA LECCIÓN. El resumen corto se queda aquí, el contexto
-          extra vive en .tip-more (se abre al dar clic), y la lección completa
-          está en /lessons/. Para agregar otra: copia un bloque, sube el número,
-          y crea la página partiendo de cualquiera de las seis.
+          GANCHO, NO CONTENIDO. Las seis tarjetas (resumen, acordeón "Más
+          contexto" y "Leer más") viven ahora en /lessons/index.html; aquí solo
+          queda la invitación y el botón que lleva allá. Si agregas o quitas
+          lecciones, actualiza el conteo de promo.eyebrow.
         -->
-        <div class="tips-grid">
-
-          <article class="tip-card tilt">
-            <div class="tip-top">
-              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
-              <span class="tip-index">01</span>
-            </div>
-            <h4 data-i18n="tips.t1">What it means when the peso weakens</h4>
-            <p data-i18n="tips.d1">It means each dollar costs more pesos. Anything imported — gas, phones, streaming — gets pricier, and traveling abroad costs more. If you earn in dollars it's the opposite: your money stretches further at home.</p>
-            <div class="tip-more" id="tipMore1"><div>
-              <p data-i18n="tips.x1">Mexico has a floating rate, so no office decides it each morning — it comes out of millions of buy and sell orders. Interest rates, fear, trade and remittances explain most of the movement. There's no "good" level: it depends entirely on which side of the transaction you're on.</p>
-            </div></div>
-            <div class="tip-actions">
-              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore1">
-                <span data-i18n="tips.expand">More context</span>
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <a class="btn btn-outline btn-sm" href="./lessons/peso-tipo-de-cambio.html" data-i18n="tips.more">Read more →</a>
-            </div>
-          </article>
-
-          <article class="tip-card tilt">
-            <div class="tip-top">
-              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-              <span class="tip-index">02</span>
-            </div>
-            <h4 data-i18n="tips.t2">Simple vs. compound interest, in 30 seconds</h4>
-            <p data-i18n="tips.d2">Simple interest only ever pays you on the money you put in. Compound interest pays you on your money and on the interest it already earned. Same deposit, same rate — compound just keeps building on a bigger base.</p>
-            <div class="tip-more" id="tipMore2"><div>
-              <p data-i18n="tips.x2">Ten thousand pesos at 10% ends at 30,000 simple, or about 67,000 compounded, after twenty years. It rewards starting early far more than starting big. And it runs identically against you on a credit card, which is why expensive debt comes first.</p>
-            </div></div>
-            <div class="tip-actions">
-              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore2">
-                <span data-i18n="tips.expand">More context</span>
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <a class="btn btn-outline btn-sm" href="./lessons/interes-compuesto.html" data-i18n="tips.more">Read more →</a>
-            </div>
-          </article>
-
-          <article class="tip-card tilt">
-            <div class="tip-top">
-              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="16"/><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/></svg></span>
-              <span class="tip-index">03</span>
-            </div>
-            <h4 data-i18n="tips.t3">Why the S&amp;P 500 goes up or down</h4>
-            <p data-i18n="tips.d3">It tracks 500 of the largest US companies, so it moves with what people expect those companies to earn. Better expected profits push it up; higher rates, bad news, or plain fear push it down. Day to day is noise — the trend is what matters.</p>
-            <div class="tip-more" id="tipMore3"><div>
-              <p data-i18n="tips.x3">It's weighted by size, so a few giant tech names can move the whole index alone. That's also why good news sometimes sinks it: a strong economy means rates stay high for longer, and high rates weigh on prices.</p>
-            </div></div>
-            <div class="tip-actions">
-              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore3">
-                <span data-i18n="tips.expand">More context</span>
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <a class="btn btn-outline btn-sm" href="./lessons/sp500.html" data-i18n="tips.more">Read more →</a>
-            </div>
-          </article>
-
-          <article class="tip-card tilt">
-            <div class="tip-top">
-              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></span>
-              <span class="tip-index">04</span>
-            </div>
-            <h4 data-i18n="tips.t4">The 50/30/20 rule for your first budget</h4>
-            <p data-i18n="tips.d4">Split what actually lands in your account: 50% needs (rent, food, transport), 30% wants, 20% saving or paying down debt. It won't fit everyone perfectly, and that's fine — it's a starting point, not a law.</p>
-            <div class="tip-more" id="tipMore4"><div>
-              <p data-i18n="tips.x4">Use your real take-home pay, not your gross salary, and leave the aguinaldo out of the monthly plan. If you rent in a big city your needs will blow past 50% — that means your fixed costs are high, not that the rule failed.</p>
-            </div></div>
-            <div class="tip-actions">
-              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore4">
-                <span data-i18n="tips.expand">More context</span>
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <a class="btn btn-outline btn-sm" href="./lessons/presupuesto-50-30-20.html" data-i18n="tips.more">Read more →</a>
-            </div>
-          </article>
-
-          <article class="tip-card tilt">
-            <div class="tip-top">
-              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg></span>
-              <span class="tip-index">05</span>
-            </div>
-            <h4 data-i18n="tips.t5">What inflation is, and how it hits you</h4>
-            <p data-i18n="tips.d5">Inflation means the same money buys less than it did before. Your salary can stay identical on paper and still shrink in practice. That's why money sitting still loses value, and why central banks raise rates to cool it down.</p>
-            <div class="tip-more" id="tipMore5"><div>
-              <p data-i18n="tips.x5">A 4% raise against 5% inflation is a raise on paper and a pay cut in practice — nominal is the number, real is what it buys. The same applies to savings: 3% while prices rise 5% loses about 2% a year, quietly.</p>
-            </div></div>
-            <div class="tip-actions">
-              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore5">
-                <span data-i18n="tips.expand">More context</span>
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <a class="btn btn-outline btn-sm" href="./lessons/inflacion.html" data-i18n="tips.more">Read more →</a>
-            </div>
-          </article>
-
-          <article class="tip-card tilt">
-            <div class="tip-top">
-              <span class="tip-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-              <span class="tip-index">06</span>
-            </div>
-            <h4 data-i18n="tips.t6">3 common mistakes when you start investing</h4>
-            <p data-i18n="tips.d6">Investing money you'll need next month. Chasing whatever went up the most last week. And checking your account every single day, which turns normal swings into panic. Slow and boring usually wins.</p>
-            <div class="tip-more" id="tipMore6"><div>
-              <p data-i18n="tips.x6">All three come from the same root: investing before the base underneath was ready. Cushion first, then expensive debt, then the emergency fund, and only then money you genuinely won't touch for five years.</p>
-            </div></div>
-            <div class="tip-actions">
-              <button class="tip-toggle" type="button" aria-expanded="false" aria-controls="tipMore6">
-                <span data-i18n="tips.expand">More context</span>
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <a class="btn btn-outline btn-sm" href="./lessons/errores-al-invertir.html" data-i18n="tips.more">Read more →</a>
-            </div>
-          </article>
-
-        </div>
+        <a class="lessons-promo tilt" href="/lessons">
+          <span class="lessons-promo-art" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 014.5 4H10a2 2 0 012 2v14a1.5 1.5 0 00-1.5-1.5H4.5A2.5 2.5 0 012 16V6.5z"/><path d="M22 6.5A2.5 2.5 0 0019.5 4H14a2 2 0 00-2 2v14a1.5 1.5 0 011.5-1.5h6A2.5 2.5 0 0022 16V6.5z"/><path d="M12 8.5h4M12 12h3"/></svg>
+          </span>
+          <span class="lessons-promo-text">
+            <span class="lessons-promo-eyebrow" data-i18n="promo.eyebrow">6 lessons · about 5 minutes each</span>
+            <span class="lessons-promo-title" data-i18n="promo.title">Finance from zero, in plain words</span>
+            <span class="lessons-promo-sub" data-i18n="promo.sub">The peso, compound interest, the S&amp;P 500, your first budget, inflation, and the mistakes almost everyone makes starting out.</span>
+          </span>
+          <span class="btn btn-primary lessons-promo-cta" data-i18n="promo.cta">See all lessons →</span>
+        </a>
         <p class="disclaimer tips-disclaimer" data-i18n="tips.disclaimer">Educational content only — this is not financial, investment, or tax advice.</p>
       </div>
 
@@ -905,26 +927,6 @@
             <div class="rate-row"><span class="rate-label">Next FOMC</span><span class="rate-value">Jul 28–29</span></div>
             <div class="rate-row"><span class="rate-label">Next Banxico</span><span class="rate-value">Aug 7</span></div>
           </div>
-        </div>
-      </div>
-
-      <div class="market-group">
-        <h3 class="group-label" data-i18n="market.calendar">Economic calendar</h3>
-        <p class="group-note" data-i18n="market.calendarnote">Key dates over the next few weeks.</p>
-        <!--
-          PARA AGREGAR UN EVENTO: copia una fila y ajusta data-until (AAAA-MM-DD,
-          el último día en que el evento sigue siendo futuro). El script de abajo
-          esconde solo las filas ya vencidas, así que el calendario nunca muestra
-          fechas pasadas aunque no lo actualices por unas semanas.
-        -->
-        <div class="calendar-list" id="calendarList">
-          <div class="cal-row" data-until="2026-07-29"><span class="cal-date">Jul 28–29</span><span class="cal-tag us">US</span><span class="cal-event">FOMC meeting — Fed rate decision<span class="cal-note">Held at 3.50–3.75% for four straight meetings; market watches the tone more than the number.</span></span></div>
-          <div class="cal-row" data-until="2026-07-30"><span class="cal-date">Jul 30</span><span class="cal-tag us">US</span><span class="cal-event">PCE inflation + Q2 GDP (1st estimate)<span class="cal-note">The Fed's preferred inflation gauge, a day after the rate decision.</span></span></div>
-          <div class="cal-row" data-until="2026-08-07"><span class="cal-date">Aug 7</span><span class="cal-tag us">US</span><span class="cal-event">Jobs report (nonfarm payrolls)</span></div>
-          <div class="cal-row" data-until="2026-08-07"><span class="cal-date">Aug 7</span><span class="cal-tag mx">MX</span><span class="cal-event">Banxico policy decision<span class="cal-note">Holds at 6.50% since Jun 25; analysts split 5–5 on the next move being up or down.</span></span></div>
-          <div class="cal-row" data-until="2026-08-12"><span class="cal-date">Aug 12</span><span class="cal-tag us">US</span><span class="cal-event">CPI inflation</span></div>
-          <div class="cal-row" data-until="2026-08-19"><span class="cal-date">Aug 19</span><span class="cal-tag us">US</span><span class="cal-event">FOMC minutes</span></div>
-          <p class="cal-empty" id="calEmpty" data-i18n="market.calendarempty">Next dates coming soon — this calendar is updated by hand.</p>
         </div>
       </div>
 
@@ -1072,7 +1074,7 @@
     <nav class="footer-links">
       <a href="#about" data-i18n="nav.about">About</a>
       <a href="#market" data-i18n="nav.market">Market</a>
-      <a href="#content" data-i18n="nav.lessons">Lessons</a>
+      <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
       <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>
     </nav>
@@ -1114,33 +1116,13 @@
     'market.fxchartnote': 'Yahoo Finance · elige el rango.',
     'market.macro': 'Panorama macro',
     'market.macronote': 'Verificado a mano el 21 de julio de 2026 — no es un feed en vivo, se actualiza a mano cuando cambia.',
-    'market.calendar': 'Calendario económico',
-    'market.calendarnote': 'Fechas clave de las próximas semanas.',
-    'market.calendarempty': 'Próximas fechas en camino — este calendario se actualiza a mano.',
     'tips.label': 'Empieza por aquí',
     'tips.note': 'Respuestas cortas a las dudas que más me llegan. Sin jerga.',
-    'tips.t1': '¿Qué significa que el peso se deprecie?',
-    'tips.d1': 'Significa que cada dólar cuesta más pesos. Todo lo importado —gasolina, celulares, streaming— se encarece, y viajar fuera cuesta más. Si tú ganas en dólares es al revés: tu dinero rinde más aquí.',
-    'tips.t2': 'Interés simple vs. compuesto, en 30 segundos',
-    'tips.d2': 'El interés simple solo te paga sobre lo que metiste. El compuesto te paga sobre tu dinero y también sobre los intereses que ya generaste. Mismo depósito, misma tasa: el compuesto va construyendo sobre una base cada vez más grande.',
-    'tips.t3': '¿Por qué sube o baja el S&P 500?',
-    'tips.d3': 'Sigue a 500 de las empresas más grandes de Estados Unidos, así que se mueve con lo que la gente espera que ganen. Mejores utilidades esperadas lo suben; tasas más altas, malas noticias o puro miedo lo bajan. El día a día es ruido: lo que importa es la tendencia.',
-    'tips.t4': 'La regla 50/30/20 para tu primer presupuesto',
-    'tips.d4': 'Divide lo que de verdad te cae en la cuenta: 50% necesidades (renta, comida, transporte), 30% gustos, 20% ahorro o pagar deudas. No le queda perfecto a todo el mundo, y está bien: es un punto de partida, no una ley.',
-    'tips.t5': '¿Qué es la inflación y cómo te afecta?',
-    'tips.d5': 'Que el mismo dinero compra menos que antes. Tu sueldo puede quedarse igualito en papel y aun así encoger en la práctica. Por eso el dinero quieto pierde valor, y por eso los bancos centrales suben tasas para enfriarla.',
-    'tips.t6': '3 errores comunes al empezar a invertir',
-    'tips.d6': 'Invertir dinero que vas a necesitar el mes que entra. Perseguir lo que más subió la semana pasada. Y revisar tu cuenta todos los días, que convierte movimientos normales en pánico. Lo lento y aburrido suele ganar.',
     'tips.disclaimer': 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal.',
-    'tips.x1': 'México tiene tipo de cambio flotante, así que ninguna oficina lo decide cada mañana: sale de millones de órdenes de compra y venta. Las tasas, el miedo, el comercio y las remesas explican casi todo el movimiento. No hay un nivel "bueno": depende por completo de qué lado de la transacción estés.',
-    'tips.x2': 'Diez mil pesos al 10% terminan en 30,000 con interés simple, o cerca de 67,000 compuesto, después de veinte años. Premia mucho más empezar temprano que empezar en grande. Y corre igualito en tu contra en una tarjeta de crédito: por eso la deuda cara va primero.',
-    'tips.x3': 'Está ponderado por tamaño, así que unas cuantas tecnológicas gigantes pueden mover el índice completo solas. Por eso también las buenas noticias a veces lo hunden: una economía fuerte significa que las tasas se quedan altas más tiempo, y las tasas altas pesan sobre los precios.',
-    'tips.x4': 'Usa lo que de verdad te llega libre, no tu sueldo bruto, y deja el aguinaldo fuera del plan mensual. Si rentas en una ciudad grande tus necesidades se van a pasar del 50%: eso significa que tus costos fijos son altos, no que la regla falló.',
-    'tips.x5': 'Un aumento de 4% contra inflación de 5% es aumento en papel y recorte en la práctica: nominal es el número, real es lo que compra. Lo mismo aplica al ahorro: 3% mientras los precios suben 5% pierde como 2% al año, en silencio.',
-    'tips.x6': 'Los tres salen de la misma raíz: invertir antes de que la base de abajo estuviera lista. Primero un colchón, luego la deuda cara, luego el fondo de emergencia, y hasta entonces dinero que de verdad no vas a tocar en cinco años.',
-    'tips.expand': 'Más contexto',
-    'tips.collapse': 'Menos contexto',
-    'tips.more': 'Leer más →',
+    'promo.eyebrow': '6 lecciones · como 5 minutos cada una',
+    'promo.title': 'Finanzas desde cero, en palabras normales',
+    'promo.sub': 'El peso, el interés compuesto, el S&P 500, tu primer presupuesto, la inflación y los errores que casi todos cometemos al empezar.',
+    'promo.cta': 'Ver todas las lecciones →',
     'vix.title': 'Índice del miedo (VIX)',
     'vix.asof': 'Yahoo Finance · en vivo',
     'vix.note': 'Básicamente, <strong>qué tanto miedo hay en el mercado</strong>. Mide qué tan grande esperan los operadores que sea el movimiento del S&P 500 en los próximos 30 días. Debajo de 20 es calma, arriba de 30 es que la gente está nerviosa. Casi siempre se dispara cuando las acciones caen, y por eso le dicen el índice del miedo.',
@@ -1226,29 +1208,6 @@
     setTimeout(() => revealEls.forEach(el => el.classList.add('in')), 4000);
   }
 
-  // ---- Acordeón de "Start here" -----------------------------------------
-  // Capa intermedia entre el resumen de la tarjeta y la lección completa. La
-  // altura la anima el CSS (grid-template-rows), aquí solo va el estado y el
-  // texto del botón, que cambia según idioma.
-  document.querySelectorAll('.tip-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const card = btn.closest('.tip-card');
-      if (!card) return;
-      const open = card.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', String(open));
-      const label = btn.querySelector('[data-i18n]');
-      if (label) {
-        // Se reescribe también data-i18n para que un cambio de idioma posterior
-        // traduzca el estado en el que quedó, no el original del HTML.
-        label.setAttribute('data-i18n', open ? 'tips.collapse' : 'tips.expand');
-        label.dataset.i18nOriginal = open ? 'Less context' : 'More context';
-        label.textContent = (document.documentElement.lang === 'es')
-          ? (open ? 'Menos contexto' : 'Más contexto')
-          : label.dataset.i18nOriginal;
-      }
-    });
-  });
-
   // ---- Profundidad que sigue al cursor ----------------------------------
   // Solo con mouse fino y sin prefers-reduced-motion. En táctil no se registra
   // nada, así que no hay listeners corriendo en móvil.
@@ -1274,27 +1233,6 @@
     });
   }
 
-  // ---- Calendario: esconde lo que ya pasó -------------------------------
-  // Sin esto, el calendario acaba mostrando puras fechas vencidas en cuanto
-  // pasan unas semanas sin actualizarlo a mano.
-  function pruneCalendar() {
-    const list = document.getElementById('calendarList');
-    if (!list) return;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let live = 0;
-    list.querySelectorAll('.cal-row').forEach(row => {
-      const until = row.getAttribute('data-until');
-      if (!until) { live++; return; }
-      // Se parsea como fecha local (no UTC) para que no se adelante un día.
-      const [y, m, d] = until.split('-').map(Number);
-      const past = new Date(y, m - 1, d) < today;
-      row.classList.toggle('is-past', past);
-      if (!past) live++;
-    });
-    list.classList.toggle('is-empty', live === 0);
-  }
-
   // Si el bloque macro lleva más de 45 días sin tocarse, lo dice en vez de
   // presentar números viejos como si fueran actuales.
   function flagStaleMacro() {
@@ -1314,7 +1252,6 @@
     }
   }
 
-  pruneCalendar();
   flagStaleMacro();
 
   function fmtPrice(n, decimals) {
@@ -1730,20 +1667,10 @@
   let newsData = null;
 
   // ---- Mi lectura de cada titular ---------------------------------------
-  // PARA AGREGAR LA TUYA: pon un fragmento del titular (en minúsculas) como
-  // clave y tu línea en los dos idiomas. Si el titular que trae Bloomberg
-  // contiene ese fragmento, se muestra tu texto; si no, sale el placeholder.
-  // Ejemplo:
-  //   'banxico': { en: 'Watch the vote split, not the number.',
-  //                es: 'Lo interesante es cómo se dividió el voto, no la cifra.' },
-  const NEWS_TAKES = {
-  };
-
-  function takeFor(title) {
-    const t = (title || '').toLowerCase();
-    const hit = Object.keys(NEWS_TAKES).find(k => t.includes(k.toLowerCase()));
-    return hit ? NEWS_TAKES[hit] : null;
-  }
+  // Ya no se escribe a mano: /api/news llama a la API de Anthropic una vez al
+  // día y devuelve item.take = { en, es }. Cuando esa llamada falla, el take
+  // llega con pending:true y aquí se pinta como placeholder en vez de hacerlo
+  // pasar por una opinión mía. Ver api/news.js.
 
   // ---- Categoría visual del titular -------------------------------------
   // Etiqueta de color + icono para que la tarjeta no sea puro texto. Se deduce
@@ -1788,7 +1715,7 @@
       if (!res.ok) throw new Error('news ' + res.status);
       const data = await res.json();
       if (!data.items || !data.items.length) throw new Error('bad feed response');
-      newsData = data.items.slice(0, 3);
+      newsData = data.items.slice(0, 4);
     } catch (e) {
       console.warn('News fetch failed:', e);
       if (!Array.isArray(newsData)) newsData = 'error';
@@ -1827,21 +1754,28 @@
       const when = relativeTime(item.pubDate);
       const es = document.documentElement.lang === 'es';
       const more = es ? 'Leer más' : 'Read more';
-      const take = takeFor(item.title);
-      const takeLabel = es ? 'Mi lectura' : 'My take';
-      const takeText = take
-        ? escapeHtml(es ? take.es : take.en)
-        : (es ? '[Tu opinión aquí]' : '[Your take here]');
       const cat = categoryFor(item.title);
+      const take = item.take || {};
+      const pending = !!take.pending || !(es ? take.es : take.en);
+      const takeLabel = es ? 'Mi lectura' : 'My take';
+      const takeText = pending
+        ? (es ? 'El contexto de esta nota va en camino.' : 'Context on this one is coming shortly.')
+        : escapeHtml(es ? take.es : take.en);
+      // Con foto se muestra la del feed; sin foto, el fondo del tema con su
+      // icono. onerror quita solo el <img>, así que si la imagen no carga
+      // queda el fondo de .news-thumb en lugar de un hueco roto.
+      const thumb = img
+        ? `<div class="news-thumb ${cat.key}"><img src="${img}" alt="" loading="lazy" onerror="this.remove()"></div>`
+        : `<div class="news-thumb is-art ${cat.key}"><span class="news-thumb-art" aria-hidden="true">${cat.icon}</span></div>`;
       return `<article class="news-card">
-        ${img ? `<img src="${img}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+        ${thumb}
         <div class="news-card-body">
           <div class="news-top">
             <span class="news-cat ${cat.key}">${cat.icon}${escapeHtml(es ? cat.es : cat.en)}</span>
             <span class="news-source">Bloomberg${when ? ` · ${escapeHtml(when)}` : ''}</span>
           </div>
           <h3>${escapeHtml(item.title)}</h3>
-          <p class="news-take${take ? '' : ' is-placeholder'}">
+          <p class="news-take${pending ? ' is-placeholder' : ''}">
             <span class="news-take-label">${takeLabel}</span>${takeText}
           </p>
           ${link ? `<a class="news-link" href="${link}" target="_blank" rel="noopener">${more}
@@ -1931,13 +1865,14 @@
   // cuota de API sin que nadie estuviera viendo. Ahora se detienen al ocultar
   // la pestaña y se refrescan de golpe al volver.
   // Cada intervalo va igualado al caché de su endpoint: pedir más seguido solo
-  // devuelve la misma respuesta cacheada. /api/news y /api/sparklines cachean
-  // 15 min del lado del servidor.
+  // devuelve la misma respuesta cacheada. /api/sparklines cachea 15 min;
+  // /api/news pasó a 24 h desde que genera las opiniones, así que preguntarle
+  // cada 15 min era gastar peticiones para recibir lo mismo.
   const POLLS = [
     { fn: fetchCrypto,     every: 60000 },
     { fn: fetchFx,         every: 5 * 60000 },
     { fn: fetchSparklines, every: 15 * 60000 },
-    { fn: fetchNews,       every: 15 * 60000 }
+    { fn: fetchNews,       every: 60 * 60000 }
   ];
   let timers = [];
 
