@@ -9,6 +9,16 @@
 
 const { tipDelDia } = require('./tips');
 
+// Respaldo del consejo motivacional que abre el correo. La sección nunca puede
+// salir vacía: un hueco arriba de todo rompe el correo visualmente y es peor
+// que una frase fija. Genérica a propósito — sirve cualquier día, sin depender
+// de la fecha ni del mercado. /api/news la importa de aquí para que no existan
+// dos copias que se puedan desincronizar.
+const IMPULSO_RESPALDO = {
+  en: 'Starting early beats starting perfect. What you put away this month has more time to grow than anything you save later, and the habit is worth more than the amount.',
+  es: 'Empezar temprano vale más que empezar perfecto. Lo que guardes este mes tiene más tiempo para crecer que cualquier cantidad que ahorres después, y el hábito pesa más que el monto.'
+};
+
 // Dominio público del sitio. Es el que va en los links del correo, incluido el
 // de baja, así que tiene que ser uno que responda: el antiguo
 // smartfinance-sooty.vercel.app ya devuelve DEPLOYMENT_NOT_FOUND.
@@ -89,17 +99,28 @@ async function datosDeMercado(base) {
 async function construirContenido(fecha = new Date()) {
   const base = urlBase();
 
-  const [noticias, mercado] = await Promise.all([
+  // Una sola petición trae titulares, opiniones y el consejo del inicio: los
+  // tres salen de la misma llamada a Anthropic que /api/news ya cachea.
+  const [noticiasYConsejo, mercado] = await Promise.all([
     pedirJSON(base + '/api/news')
-      .then((d) => (d && Array.isArray(d.items) ? d.items.slice(0, 4) : []))
+      .then((d) => ({
+        noticias: d && Array.isArray(d.items) ? d.items.slice(0, 4) : [],
+        impulso: d && d.impulso
+      }))
       .catch((e) => {
         console.error('boletín: falló /api/news:', e.message);
-        return [];
+        return { noticias: [], impulso: null };
       }),
     datosDeMercado(base)
   ]);
 
-  return { fecha, noticias, mercado, tip: tipDelDia(fecha) };
+  const crudo = noticiasYConsejo.impulso;
+  const impulso = crudo && typeof crudo.es === 'string' && crudo.es.trim() &&
+    typeof crudo.en === 'string' && crudo.en.trim()
+    ? { en: crudo.en.trim(), es: crudo.es.trim() }
+    : IMPULSO_RESPALDO;
+
+  return { fecha, noticias: noticiasYConsejo.noticias, mercado, impulso, tip: tipDelDia(fecha) };
 }
 
 // ---- Plantilla del correo --------------------------------------------------
@@ -115,6 +136,11 @@ const TINTA = '#14161A';
 const GRIS = '#5B6470';
 const LINEA = '#E4E7EC';
 const FONDO = '#F4F6F8';
+// Tinte del bloque motivacional que abre el correo. Es la única sección con
+// fondo propio: así se lee como el arranque y no como una noticia más. Verde
+// muy lavado para que el texto oscuro encima siga teniendo contraste de sobra.
+const VERDE_TENUE = '#F1F8F4';
+const VERDE_BORDE = '#D7EAE0';
 
 const FUENTE = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 const FUENTE_TITULO = "Georgia,'Times New Roman',serif";
@@ -140,6 +166,7 @@ function fmt(n, dec = 4) {
 const TEXTOS = {
   en: {
     saludo: 'Today in markets',
+    impulsoTitulo: 'To start your day',
     tipTitulo: 'Tip of the day',
     tipCta: 'Read the full lesson →',
     mercadoTitulo: 'Quick numbers',
@@ -156,6 +183,7 @@ const TEXTOS = {
   },
   es: {
     saludo: 'Hoy en los mercados',
+    impulsoTitulo: 'Para arrancar el día',
     tipTitulo: 'Tip del día',
     tipCta: 'Leer la lección completa →',
     mercadoTitulo: 'Datos rápidos',
@@ -235,6 +263,10 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const sitio = urlSitio();
   const tip = contenido.tip[idioma === 'es' ? 'es' : 'en'];
   const urlTip = sitio + contenido.tip.url;
+  // construirContenido ya garantiza que esto viene lleno; el respaldo de aquí
+  // cubre a quien llame a renderizarCorreo por su cuenta (por ejemplo el ensayo).
+  const impulso = (contenido.impulso && contenido.impulso[idioma === 'es' ? 'es' : 'en']) ||
+    IMPULSO_RESPALDO[idioma === 'es' ? 'es' : 'en'];
 
   const html = `<!doctype html>
 <html lang="${idioma === 'es' ? 'es' : 'en'}">
@@ -260,6 +292,22 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     <div style="font-family:${FUENTE};font-size:12px;color:${GRIS};padding-top:3px;">
       ${escapar(fechaLarga(contenido.fecha, idioma))}
     </div>
+  </td></tr>
+
+  <!-- Arranque motivacional. Es el único bloque del correo con fondo propio: el
+       tinte, la comilla y la cursiva lo separan del resto sin usar imágenes,
+       que la mayoría de los clientes bloquea hasta que el lector las permite.
+       Maquetado en tabla de dos celdas porque flexbox no existe en correo. -->
+  <tr><td style="padding:20px 24px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${VERDE_TENUE};border:1px solid ${VERDE_BORDE};border-radius:12px;">
+      <tr>
+        <td width="34" valign="top" style="padding:14px 0 16px 16px;font-family:${FUENTE_TITULO};font-size:38px;line-height:32px;color:${VERDE};">&ldquo;</td>
+        <td valign="top" style="padding:16px 18px 16px 4px;">
+          <div style="font-family:${FUENTE};font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${VERDE};padding-bottom:6px;">${escapar(t.impulsoTitulo)}</div>
+          <div style="font-family:${FUENTE_TITULO};font-style:italic;font-size:16px;line-height:1.5;color:${TINTA};">${escapar(impulso)}</div>
+        </td>
+      </tr>
+    </table>
   </td></tr>
 
   <tr><td style="padding:22px 24px 6px;">
@@ -309,6 +357,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const lineas = [
     'SMART FINANCE — ' + fechaLarga(contenido.fecha, idioma),
     '',
+    t.impulsoTitulo.toUpperCase(), impulso, '',
     t.tipTitulo.toUpperCase(), tip.titulo, tip.resumen, urlTip, '',
     t.mercadoTitulo.toUpperCase(),
     contenido.mercado.usdmxn
@@ -333,4 +382,4 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   return { html, texto: lineas.join('\n'), asunto };
 }
 
-module.exports = { construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura };
+module.exports = { construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura, IMPULSO_RESPALDO };

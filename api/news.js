@@ -110,7 +110,18 @@ const TAKE_SYSTEM = [
   '- Only use what the headline and summary say. Never invent numbers, dates or quotes.',
   '',
   'Return one take per headline, in the same order, in English (en) and Mexican Spanish (es).',
-  'The Spanish is its own version in the same voice, not a literal translation.'
+  'The Spanish is its own version in the same voice, not a literal translation.',
+  '',
+  'SEPARATELY, also write one short motivational line for the top of the newsletter ("impulso").',
+  'This one is NOT about the news. Rules:',
+  '- Speak to someone 18 to 25 who is just starting with money: first job, first savings, first',
+  '  investment. Same close voice as the takes.',
+  '- 2 to 3 short lines. Under 240 characters.',
+  '- It has to push toward an action they can take now: save something, learn something, start',
+  '  early. Encouraging, never scolding, never guilt.',
+  '- Not a statistic, not a market fact, not a headline. No specific numbers, tickers or returns.',
+  '- No investment advice, no promises of getting rich, no emoji, no exclamation marks.',
+  '- Change the angle every day so it never reads like the same sentence twice.'
 ].join('\n');
 
 const TAKES_SCHEMA = {
@@ -127,9 +138,18 @@ const TAKES_SCHEMA = {
         required: ['en', 'es'],
         additionalProperties: false
       }
+    },
+    impulso: {
+      type: 'object',
+      properties: {
+        en: { type: 'string' },
+        es: { type: 'string' }
+      },
+      required: ['en', 'es'],
+      additionalProperties: false
     }
   },
-  required: ['takes'],
+  required: ['takes', 'impulso'],
   additionalProperties: false
 };
 
@@ -140,18 +160,26 @@ const TAKES_SCHEMA = {
 const JSON_ONLY_HINT = [
   '',
   'Reply with raw JSON only — no prose, no markdown fence. Exact shape:',
-  '{"takes":[{"en":"...","es":"..."}]}'
+  '{"takes":[{"en":"...","es":"..."}],"impulso":{"en":"...","es":"..."}}'
 ].join('\n');
 
 // El modelo a veces envuelve el JSON en ```json ... ```; con el esquema no pasa,
 // sin el esquema sí. Se toma del primer { al último }.
-function parseTakes(text) {
+function parseRespuesta(text) {
   const start = text.indexOf('{');
   const end = text.lastIndexOf('}');
-  if (start === -1 || end <= start) return null;
+  if (start === -1 || end <= start) return { takes: null, impulso: null };
   const parsed = JSON.parse(text.slice(start, end + 1));
-  return Array.isArray(parsed.takes) ? parsed.takes : null;
+  return {
+    takes: Array.isArray(parsed.takes) ? parsed.takes : null,
+    impulso: parsed.impulso || null
+  };
 }
+
+// El respaldo del consejo vive en _lib/boletin.js, que es quien tiene que
+// garantizar que la sección nunca salga vacía. Se importa en vez de copiarse
+// para que no haya dos frases que se puedan desincronizar.
+const { IMPULSO_RESPALDO } = require('./_lib/boletin');
 
 // pending marca la opinión como "todavía no generada" para que el front la
 // pinte en gris y en cursiva, y no como si fuera algo que yo escribí.
@@ -192,7 +220,10 @@ async function generateTakes(items) {
     const res = await client.messages.create(Object.assign(
       {
         model: MODEL,
-        max_tokens: 2000,
+        // Sube de 2000 al agregar el consejo del inicio: son ~240 caracteres más
+        // en dos idiomas. Holgura de sobra para que la respuesta no se corte a
+        // media frase, que es como se vería el fallo.
+        max_tokens: 2400,
         system: withSchema ? TAKE_SYSTEM : TAKE_SYSTEM + JSON_ONLY_HINT,
         messages: [
           {
@@ -209,23 +240,23 @@ async function generateTakes(items) {
   };
 
   try {
-    return parseTakes(await ask(true));
+    return parseRespuesta(await ask(true));
   } catch (err) {
     // Solo se reintenta si la API rechazó la petición (400). Un timeout o un 429
     // se dejan pasar: reintentar ahí sería gastar el presupuesto de la función
     // dos veces para el mismo resultado.
     if (!err || err.status !== 400) throw err;
     console.warn('structured output rejected, retrying without schema:', err.message);
-    return parseTakes(await ask(false));
+    return parseRespuesta(await ask(false));
   }
 }
 
-// Devuelve { items, degraded }. degraded = true significa que las tarjetas
-// llevan el texto neutro y conviene reintentar pronto.
+// Devuelve { items, impulso, degraded }. degraded = true significa que algo del
+// texto generado salió con respaldo y conviene reintentar pronto.
 async function withTakes(items) {
-  let takes = null;
+  let generado = { takes: null, impulso: null };
   try {
-    takes = await generateTakes(items);
+    generado = (await generateTakes(items)) || generado;
   } catch (err) {
     // Cualquier cosa: sin credencial, timeout, 429, JSON raro. Las noticias
     // salen igual, solo sin opinión.
@@ -234,7 +265,7 @@ async function withTakes(items) {
 
   let degraded = false;
   const withTake = items.map((it, i) => {
-    const take = takes && takes[i];
+    const take = generado.takes && generado.takes[i];
     if (isUsable(take)) {
       return Object.assign({}, it, { take: { en: take.en.trim(), es: take.es.trim() } });
     }
@@ -242,7 +273,17 @@ async function withTakes(items) {
     return Object.assign({}, it, { take: neutralTake() });
   });
 
-  return { items: withTake, degraded };
+  // El consejo del inicio va por separado: viene de la misma llamada, pero si
+  // solo él falla no tiene por qué apagar las opiniones (ni al revés).
+  let impulso;
+  if (isUsable(generado.impulso)) {
+    impulso = { en: generado.impulso.en.trim(), es: generado.impulso.es.trim() };
+  } else {
+    impulso = Object.assign({ fallback: true }, IMPULSO_RESPALDO);
+    degraded = true;
+  }
+
+  return { items: withTake, impulso, degraded };
 }
 
 module.exports = async function handler(req, res) {
@@ -262,7 +303,7 @@ module.exports = async function handler(req, res) {
     if (!items.length) throw new Error('no items parsed from feed');
 
     const result = await withTakes(items);
-    const body = { source: 'Bloomberg', items: result.items };
+    const body = { source: 'Bloomberg', items: result.items, impulso: result.impulso };
 
     // El caché guarda titulares + imágenes + opiniones juntos, así que la
     // llamada a Anthropic ocurre una vez por ventana, no una por visita.
