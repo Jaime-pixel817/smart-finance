@@ -10,6 +10,9 @@
   "functions": {
     "api/send-newsletter.js": {
       "maxDuration": 60
+    },
+    "api/news.js": {
+      "maxDuration": 30
     }
   },
   "redirects": [

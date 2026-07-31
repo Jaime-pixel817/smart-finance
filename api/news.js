@@ -28,10 +28,18 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 // es que el siguiente intento sí funcione.
 const DEGRADED_TTL_MS = 30 * 60 * 1000;
 
-// Presupuesto de la llamada a Anthropic. Corto a propósito: si tarda más que
-// esto preferimos devolver los titulares sin opinión antes que arriesgarnos a
-// que Vercel corte la función entera y el visitante no vea nada.
-const TAKES_TIMEOUT_MS = 8000;
+// Presupuesto de la llamada a Anthropic.
+//
+// Estuvo en 8 s mientras la llamada solo escribía las cuatro opiniones. Al
+// sumarle el consejo del inicio (dos idiomas más) la generación se pasó de ese
+// límite y empezó a fallar ENTERA: no se perdía solo el consejo, se perdían
+// también las cuatro opiniones, que caían al texto neutro.
+//
+// Subirlo es seguro porque casi nadie espera esta llamada: el Cache-Control de
+// abajo lleva stale-while-revalidate, así que a partir de la primera respuesta
+// del día el visitante recibe la copia cacheada al instante y la regeneración
+// ocurre detrás. Solo paga la espera quien llega con el caché frío.
+const TAKES_TIMEOUT_MS = 20000;
 
 const MODEL = 'claude-haiku-4-5';
 
