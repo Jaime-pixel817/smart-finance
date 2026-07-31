@@ -1,0 +1,121 @@
+/* Estilos de las páginas de estado del boletín (confirmación y baja) y del
+   formulario de suscripción de la home.
+   Se carga DESPUÉS de article.css en las páginas de estado: de ahí salen los
+   tokens de color, el header, el footer y los botones. */
+
+/* ---------- Páginas de estado ---------- */
+.estado-pagina {
+  /* Centrado vertical: es una página de un solo mensaje, y dejarlo pegado
+     arriba con media pantalla vacía abajo se ve inacabado. */
+  min-height: calc(100vh - 220px);
+  display: flex;
+  align-items: center;
+  padding: 48px 0 72px;
+}
+.estado-caja { max-width: 620px; }
+
+.estado-icono {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 50%;
+  margin-bottom: 22px;
+}
+.estado-icono svg { width: 27px; height: 27px; }
+.estado-icono.ok { background: rgba(15, 138, 95, 0.14); color: #16A46F; }
+.estado-icono.aviso { background: rgba(224, 135, 58, 0.14); color: #E0873A; }
+.estado-icono.neutro { background: rgba(245, 245, 242, 0.08); color: #9A9A95; }
+
+.estado h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5vw, 2.7rem);
+  line-height: 1.12; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.estado p {
+  color: var(--muted); font-size: 1.05rem; line-height: 1.65;
+  max-width: 52ch; margin-bottom: 28px;
+}
+.estado-acciones { display: flex; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 560px) {
+  .estado-pagina { padding: 32px 0 56px; min-height: 0; }
+  .estado p { font-size: 0.98rem; }
+  .estado-acciones .btn { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ---------- Formulario de suscripción (home) ----------
+   Vive en index.html, que ya trae sus propios tokens; aquí solo lo específico
+   del bloque para no engordar el <style> de la home. */
+.newsletter { padding: var(--section-pad) 0; }
+.newsletter-caja {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 34px 36px;
+  /* Mismo verde tenue del gancho de lecciones, para que se lean como familia. */
+  background:
+    radial-gradient(130% 170% at 0% 0%, rgba(15, 138, 95, 0.17) 0%, rgba(15, 138, 95, 0) 60%),
+    var(--card);
+}
+.newsletter-titulo {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.2; font-weight: 700; letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.newsletter-sub { color: var(--muted); font-size: 0.98rem; line-height: 1.6; max-width: 54ch; margin-bottom: 22px; }
+
+.newsletter-form { display: flex; flex-direction: column; gap: 14px; max-width: 520px; }
+.newsletter-fila { display: flex; gap: 10px; }
+.newsletter-label {
+  /* La etiqueta existe para lectores de pantalla; visualmente basta el
+     placeholder neutro, que se entiende igual en los dos idiomas. */
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.newsletter-input {
+  flex: 1; min-width: 0;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 15px;
+  color: var(--ink);
+  font-family: inherit; font-size: 0.95rem;
+  transition: border-color .15s ease;
+}
+.newsletter-input::placeholder { color: #6E6E69; }
+.newsletter-input:focus { outline: none; border-color: var(--brand); }
+.newsletter-boton { white-space: nowrap; }
+
+/* Honeypot: invisible para una persona pero presente para un bot que rellena
+   todo lo que encuentra. No se usa display:none porque varios bots lo detectan
+   y se saltan justo esos campos. tabindex y autocomplete evitan que un teclado
+   o el autocompletado caigan aquí por accidente. */
+.newsletter-trampa {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px; height: 1px; opacity: 0;
+  pointer-events: none;
+}
+
+.newsletter-consentimiento {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 0.86rem; line-height: 1.5; color: var(--muted);
+  cursor: pointer;
+}
+.newsletter-consentimiento input {
+  flex-shrink: 0; margin-top: 2px;
+  width: 17px; height: 17px;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+.newsletter-nota { font-size: 0.78rem; color: var(--muted); }
+
+/* Mensajes de resultado. aria-live los anuncia sin robar el foco. */
+.newsletter-estado { font-size: 0.9rem; line-height: 1.5; min-height: 1.2em; }
+.newsletter-estado.ok { color: var(--up); }
+.newsletter-estado.error { color: var(--accent-orange); }
+
+@media (max-width: 560px) {
+  .newsletter-caja { padding: 24px 20px; }
+  .newsletter-fila { flex-direction: column; }
+  .newsletter-boton { width: 100%; justify-content: center; }
+}

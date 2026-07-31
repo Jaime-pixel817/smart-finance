@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscription confirmed — Smart Finance</title>
+<meta name="description" content="Your subscription to the Smart Finance daily newsletter is confirmed.">
+<meta name="theme-color" content="#0A0A0B">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0A0B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316A46F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Rutas absolutas: con cleanUrls esta página se sirve en /newsletter/confirmado
+     y una ruta relativa se resolvería dentro de /newsletter/. -->
+<link rel="stylesheet" href="/assets/article.css">
+<link rel="stylesheet" href="/assets/newsletter.css">
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <span class="wordmark">Smart <span>Finance</span></span>
+      <span class="nav-tagline" data-i18n="nav.tagline">Markets &amp; money, decoded</span>
+    </a>
+    <div class="nav-right">
+      <span class="lang-toggle">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="es">ES</button>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="estado-pagina">
+  <div class="wrap estado-caja">
+
+    <!-- Los tres desenlaces viven en el HTML y el script deja visible el que
+         corresponde según ?estado=. Así la página funciona sin depender de que
+         el servidor arme HTML distinto para cada caso. -->
+    <div class="estado" data-estado="ok" hidden>
+      <span class="estado-icono ok" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </span>
+      <h1 data-i18n="ok.titulo">You're in.</h1>
+      <p data-i18n="ok.texto">Your subscription is confirmed. The next issue lands tomorrow at 8:00 AM Mexico City time: the markets in a nutshell, one lesson, and my take on the day's headlines.</p>
+      <a class="btn btn-primary" href="/" data-i18n="ok.cta">Back to Smart Finance</a>
+    </div>
+
+    <div class="estado" data-estado="invalido" hidden>
+      <span class="estado-icono aviso" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </span>
+      <h1 data-i18n="invalido.titulo">That link didn't work</h1>
+      <p data-i18n="invalido.texto">It may have expired, or a newer confirmation email may have replaced it. Subscribing again takes a second and sends you a fresh link.</p>
+      <a class="btn btn-primary" href="/#newsletter" data-i18n="invalido.cta">Subscribe again</a>
+    </div>
+
+    <div class="estado" data-estado="error" hidden>
+      <span class="estado-icono aviso" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </span>
+      <h1 data-i18n="error.titulo">Something broke on our side</h1>
+      <p data-i18n="error.texto">Your confirmation could not be processed right now. Try the link in your email again in a few minutes.</p>
+      <a class="btn btn-outline" href="/" data-i18n="error.cta">Back to Smart Finance</a>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <p class="wordmark">Smart <span>Finance</span></p>
+      <p class="footer-tagline" data-i18n="footer.tagline">Finance that actually clicks.</p>
+    </div>
+    <nav class="footer-links">
+      <a href="/#about" data-i18n="nav.about">About</a>
+      <a href="/#market" data-i18n="nav.market">Market</a>
+      <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
+      <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>
+    </nav>
+  </div>
+  <div class="wrap">
+    <p class="disclaimer" data-i18n="footer.disclaimer">Smart Finance content is for educational purposes only and does not constitute financial, investment, or tax advice.</p>
+    <p class="copyright">© 2026 Smart Finance</p>
+  </div>
+</footer>
+
+<script>
+window.ARTICLE_I18N = {
+  'nav.tagline': 'Mercados y dinero, en claro',
+  'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones',
+  'ok.titulo': 'Ya estás dentro.',
+  'ok.texto': 'Tu suscripción quedó confirmada. El próximo boletín llega mañana a las 8:00 AM, hora de Ciudad de México: los mercados en corto, una lección y mi lectura de los titulares del día.',
+  'ok.cta': 'Volver a Smart Finance',
+  'invalido.titulo': 'Ese link no funcionó',
+  'invalido.texto': 'Puede que haya vencido, o que un correo de confirmación más reciente lo haya reemplazado. Suscribirte otra vez toma un segundo y te manda un link nuevo.',
+  'invalido.cta': 'Suscribirme de nuevo',
+  'error.titulo': 'Algo falló de nuestro lado',
+  'error.texto': 'No pudimos procesar tu confirmación en este momento. Vuelve a abrir el link de tu correo en unos minutos.',
+  'error.cta': 'Volver a Smart Finance',
+  'footer.tagline': 'Finanzas que sí se entienden.',
+  'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.'
+};
+</script>
+<script>
+// Se elige el desenlace ANTES de cargar article.js: así el script de idioma
+// solo guarda el texto original de los nodos que van a verse.
+(function () {
+  var estado = new URLSearchParams(location.search).get('estado') || 'ok';
+  var bloque = document.querySelector('.estado[data-estado="' + estado + '"]') ||
+               document.querySelector('.estado[data-estado="ok"]');
+  bloque.hidden = false;
+  // El resto se quita del DOM para que no queden títulos duplicados de cara a
+  // lectores de pantalla.
+  document.querySelectorAll('.estado[hidden]').forEach(function (el) { el.remove(); });
+})();
+</script>
+<script src="/assets/article.js"></script>
+</body>
+</html>

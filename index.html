@@ -6,14 +6,14 @@
 <title>Smart Finance — Updated Finance, by Jaime Sandoval</title>
 <meta name="description" content="Financial education, markets, and money, explained clearly. Live data, real breakdowns. Follow Smart Finance on LinkedIn and TikTok.">
 <meta name="theme-color" content="#0A0A0B">
-<link rel="canonical" href="https://smartfinance-sooty.vercel.app/">
+<link rel="canonical" href="https://smartfinance.lat/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0A0B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316A46F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="Smart Finance — Updated Finance, by Jaime Sandoval">
 <meta property="og:description" content="Financial education in plain English. Live market data, clear breakdowns, no jargon.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Smart Finance">
-<meta property="og:url" content="https://smartfinance-sooty.vercel.app/">
-<meta property="og:image" content="https://smartfinance-sooty.vercel.app/og-image.jpg">
+<meta property="og:url" content="https://smartfinance.lat/">
+<meta property="og:image" content="https://smartfinance.lat/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Smart Finance — Jaime Sandoval Ricaño">
@@ -22,7 +22,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Smart Finance — Updated Finance, by Jaime Sandoval">
 <meta name="twitter:description" content="Financial education in plain English. Live market data, clear breakdowns, no jargon.">
-<meta name="twitter:image" content="https://smartfinance-sooty.vercel.app/og-image.jpg">
+<meta name="twitter:image" content="https://smartfinance.lat/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -813,6 +813,9 @@
     .group-label { margin-top: 34px; }
   }
 </style>
+<!-- Lo propio del boletín (formulario y páginas de estado) va aparte para no
+     seguir engordando el <style> de la home. -->
+<link rel="stylesheet" href="assets/newsletter.css">
 </head>
 <body>
 <header class="site-nav">
@@ -1133,6 +1136,47 @@
     </div>
   </section>
 
+  <!--
+    SUSCRIPCIÓN AL BOLETÍN. Va al final, después de que el visitante ya vio los
+    datos de mercado, las lecciones y los posts: para ese punto ya sabe qué le
+    estás ofreciendo, que es cuando tiene sentido pedirle el correo.
+    El alta es de doble confirmación: esto solo dispara el correo con el link.
+  -->
+  <section id="newsletter" class="newsletter reveal">
+    <div class="wrap">
+      <div class="newsletter-caja">
+        <p class="eyebrow" data-i18n="news2.eyebrow">Daily newsletter</p>
+        <h2 class="newsletter-titulo" data-i18n="news2.titulo">The markets, in your inbox at 8:00 AM</h2>
+        <p class="newsletter-sub" data-i18n="news2.sub">One short email a day: what moved the peso and the fear index, a lesson in plain words, and my take on the four headlines that matter. Free, and you can leave with one click.</p>
+
+        <form class="newsletter-form" id="newsletterForm" novalidate>
+          <div class="newsletter-fila">
+            <label class="newsletter-label" for="newsletterEmail" data-i18n="news2.label">Your email</label>
+            <input class="newsletter-input" id="newsletterEmail" name="email" type="email"
+                   inputmode="email" autocomplete="email" required
+                   placeholder="tu@correo.com">
+            <button class="btn btn-primary newsletter-boton" type="submit" data-i18n="news2.boton">Subscribe</button>
+          </div>
+
+          <!-- Honeypot: invisible para una persona. Si llega con algo escrito,
+               el servidor descarta el alta sin decir que la descartó. -->
+          <div class="newsletter-trampa" aria-hidden="true">
+            <label for="newsletterWebsite">Website</label>
+            <input id="newsletterWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <label class="newsletter-consentimiento">
+            <input type="checkbox" id="newsletterConsent" name="consent" required>
+            <span data-i18n="news2.consentimiento">I agree to receive the Smart Finance daily newsletter.</span>
+          </label>
+
+          <p class="newsletter-estado" id="newsletterEstado" role="status" aria-live="polite"></p>
+          <p class="newsletter-nota" data-i18n="news2.nota">No spam, no sharing your address. Unsubscribe link in every email.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="site-footer">
@@ -1209,6 +1253,13 @@
     'content.sub': 'Contenido real de LinkedIn y TikTok — se actualiza conforme voy publicando.',
     'content.watch': 'Ver en TikTok',
     'content.read': 'Ver en LinkedIn',
+    'news2.eyebrow': 'Boletín diario',
+    'news2.titulo': 'Los mercados, en tu correo a las 8:00 AM',
+    'news2.sub': 'Un correo corto al día: qué movió al peso y al índice del miedo, una lección en palabras normales, y mi lectura de los cuatro titulares que importan. Gratis, y te sales con un clic.',
+    'news2.label': 'Tu correo',
+    'news2.boton': 'Suscribirme',
+    'news2.consentimiento': 'Acepto recibir el boletín diario de Smart Finance.',
+    'news2.nota': 'Sin spam y sin compartir tu correo. Link para darte de baja en cada envío.',
     'footer.tagline': 'Finanzas que sí se entienden.',
     'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.'
   };
@@ -1964,6 +2015,105 @@
     }
   });
   if (!document.hidden) startPolling();
+
+  // ============================================
+  // ALTA EN EL BOLETÍN
+  // ============================================
+  // Solo dispara el correo de confirmación: el alta real ocurre cuando la
+  // persona abre ese link. Sin claves aquí — /api/subscribe habla con Resend y
+  // con Redis del lado del servidor.
+  (function () {
+    const form = document.getElementById('newsletterForm');
+    if (!form) return;
+
+    const campoCorreo = document.getElementById('newsletterEmail');
+    const campoConsent = document.getElementById('newsletterConsent');
+    const campoTrampa = document.getElementById('newsletterWebsite');
+    const salida = document.getElementById('newsletterEstado');
+    const boton = form.querySelector('button[type="submit"]');
+
+    const MENSAJES = {
+      en: {
+        exito: 'Check your email to confirm your subscription.',
+        correoInvalido: 'That email address does not look right.',
+        faltaConsentimiento: 'Please tick the box to confirm you want the newsletter.',
+        limite: 'Too many attempts from here. Try again in a little while.',
+        error: 'Something went wrong on our side. Try again in a moment.',
+        enviando: 'Sending…'
+      },
+      es: {
+        exito: 'Revisa tu correo para confirmar tu suscripción.',
+        correoInvalido: 'Ese correo no se ve bien.',
+        faltaConsentimiento: 'Marca la casilla para confirmar que quieres el boletín.',
+        limite: 'Demasiados intentos desde aquí. Inténtalo en un rato.',
+        error: 'Algo falló de nuestro lado. Inténtalo en un momento.',
+        enviando: 'Enviando…'
+      }
+    };
+
+    const msg = () => MENSAJES[document.documentElement.lang === 'es' ? 'es' : 'en'];
+
+    function mostrar(texto, clase) {
+      salida.textContent = texto;
+      salida.className = 'newsletter-estado' + (clase ? ' ' + clase : '');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const t = msg();
+
+      const correo = campoCorreo.value.trim();
+      if (!/^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(correo)) {
+        mostrar(t.correoInvalido, 'error');
+        campoCorreo.focus();
+        return;
+      }
+      if (!campoConsent.checked) {
+        mostrar(t.faltaConsentimiento, 'error');
+        campoConsent.focus();
+        return;
+      }
+
+      // Se lee aquí y no al cargar: si el visitante cambió de idioma, el botón
+      // ya dice "Suscribirme" y hay que devolverle ese texto, no el inicial.
+      const textoBoton = boton.textContent;
+      boton.disabled = true;
+      boton.textContent = t.enviando;
+      mostrar('', '');
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: correo,
+            consent: true,
+            website: campoTrampa.value,          // honeypot
+            lang: document.documentElement.lang === 'es' ? 'es' : 'en'
+          })
+        });
+
+        if (res.ok) {
+          mostrar(t.exito, 'ok');
+          form.reset();
+        } else {
+          const datos = await res.json().catch(() => ({}));
+          const porCodigo = {
+            invalid_email: t.correoInvalido,
+            consent_required: t.faltaConsentimiento,
+            rate_limited: t.limite
+          };
+          mostrar(porCodigo[datos.error] || t.error, 'error');
+        }
+      } catch (err) {
+        console.warn('alta fallida:', err);
+        mostrar(t.error, 'error');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = textoBoton;
+      }
+    });
+  })();
 })();
 </script>
 <script type="module" src="./assets/risk-sphere.js"></script>

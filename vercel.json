@@ -1,6 +1,17 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/send-newsletter",
+      "schedule": "0 14 * * *"
+    }
+  ],
+  "functions": {
+    "api/send-newsletter.js": {
+      "maxDuration": 60
+    }
+  },
   "redirects": [
     {
       "source": "/articles/tipo-de-cambio",
