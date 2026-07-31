@@ -15,8 +15,18 @@ const { tipDelDia } = require('./tips');
 // Se puede sobreescribir con la variable SITE_URL sin tocar código.
 const SITIO_POR_DEFECTO = 'https://smartfinance.lat';
 
-// URL base del propio despliegue, para las llamadas internas y para los links
-// del correo. VERCEL_URL la pone Vercel sola en cada despliegue.
+// URL base para las llamadas internas a /api/news y /api/history.
+//
+// SITE_URL TIENE QUE ESTAR CONFIGURADA EN VERCEL. No es opcional aunque el
+// código tenga respaldos: el proyecto tiene activada la Protección de
+// Despliegue, así que la URL de VERCEL_URL (la del despliegue, no el alias)
+// contesta con la página de login SSO. Las llamadas de aquí reciben entonces
+// HTML en vez de JSON, se quedan sin titulares y el envío aborta con
+// "sin_contenido" — en silencio, porque el cron corre solo y nadie mira.
+// El alias público smartfinance.lat sí responde, y a eso apunta SITE_URL.
+//
+// El orden de abajo se conserva por si algún día se apaga la protección: ahí
+// VERCEL_URL vuelve a ser útil para probar en despliegues de previsualización.
 function urlBase() {
   if (process.env.SITE_URL) return process.env.SITE_URL.replace(/\/$/, '');
   if (process.env.VERCEL_URL) return 'https://' + process.env.VERCEL_URL;
