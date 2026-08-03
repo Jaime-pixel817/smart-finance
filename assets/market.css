@@ -1,8 +1,7 @@
-/* Estilos propios de /market. Los tokens, el nav, el footer y los botones
-   vienen de assets/article.css, que es el mismo archivo que usan /lessons y
-   cada lección: así el nav y el pie son literalmente los mismos, no una copia
-   que se pueda desincronizar.
-   La tarjeta de noticia y el carrusel vienen de assets/news.css. */
+/* Estilos propios de /market. El nav viene de assets/nav.css y los tokens, el
+   footer y los botones de assets/article.css, que es el mismo archivo que usan
+   /lessons y cada lección: así el nav y el pie son literalmente los mismos, no
+   una copia que se pueda desincronizar. */
 
 /* Tokens que article.css no trae porque los artículos no pintan mercados. */
 :root {
@@ -161,7 +160,8 @@
 .fx-chart-note { font-size: .74rem; color: var(--muted); margin-top: 14px; font-family: var(--font-mono); }
 
 /* ---------- Noticias dentro de /market ---------- */
-.mkt-news { padding: var(--section-pad) 0 0; }
+/* .mkt-news se quitó junto con la sección de titulares: ahora viven solo en el
+   home, que trae su propio andamio y assets/news.css. */
 
 .mkt-foot { padding: 56px 0 72px; }
 .mkt-foot .disclaimer { font-size: .8rem; color: var(--muted); max-width: 680px; }
@@ -173,6 +173,30 @@
 @media (max-width: 560px) {
   :root { --section-pad: 52px; }
   .mkt-head { padding-top: 30px; }
+
+  /* El recuadro de frescura deja de ser una píldora. En escritorio cabe en un
+     renglón y el borde 999px se ve bien; en móvil el texto se parte en tres o
+     cuatro líneas y una píldora de varias líneas queda con los costados
+     redondísimos y el texto apretado contra ellos.
+     Aquí pasa a cuadrícula de dos columnas —icono | texto— con la hora en su
+     propio renglón debajo del texto, en vez de colarse al final de la última
+     línea como un envoltorio más. */
+  .mkt-freshness {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 5px 9px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    line-height: 1.5;
+  }
+  /* El icono se alinea con la primera línea, no con el centro del bloque. */
+  .mkt-freshness .ico { margin-top: 3px; }
+  .mkt-freshness [data-updated] { grid-column: 2; }
+  /* Mientras no hay dato la hora está vacía: sin esto deja un renglón y su
+     hueco de separación en blanco. */
+  .mkt-freshness [data-updated]:empty { display: none; }
   /* Dos columnas fijas: con auto-fill y 160px, a 375 px cabía una sola y las
      tarjetas quedaban como tiras larguísimas. */
   .mkt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

@@ -62,6 +62,7 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/assets/nav.css">
 <link rel="stylesheet" href="/assets/article.css">
 <link rel="stylesheet" href="/assets/lessons.css">
 </head>
@@ -74,14 +75,15 @@
       <span class="nav-tagline" data-i18n="nav.tagline">Markets &amp; money, decoded</span>
     </a>
     <div class="nav-right">
-      <nav class="nav-links-desktop">
+      <nav class="nav-links">
         <a href="/#about" data-i18n="nav.about">About</a>
         <a href="/market" data-i18n="nav.market">Market</a>
         <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
         <a href="/#newsletter" class="nav-cta" data-i18n="nav.subscribe">Subscribe</a>
       </nav>
-      <!-- El toggle vive fuera de .nav-links-desktop a propósito: ese bloque se
-           oculta en móvil, y el cambio de idioma tiene que seguir disponible. -->
+      <!-- El toggle vive fuera de .nav-links a propósito: así assets/nav.css
+                puede compactarlo por separado en móvil, donde ahora TODO el nav se
+                queda visible. -->
       <span class="lang-toggle">
         <button type="button" class="lang-btn active" data-lang="en">EN</button>
         <button type="button" class="lang-btn" data-lang="es">ES</button>

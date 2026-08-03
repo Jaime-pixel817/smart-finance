@@ -21,6 +21,50 @@
     return d.innerHTML;
   }
 
+  // ---- La hora de "última actualización" --------------------------------
+  //
+  // Antes esto era un toLocaleTimeString(  [], {hour,minute}  ) y daba pie a
+  // que a las 11:50 de la mañana se leyera "11:49 p.m.". El formateador nunca
+  // estuvo mal: el problema es que la marca puede venir VIEJA y solo se
+  // pintaba "hh:mm", sin fecha que lo delatara. Cuando las dos fuentes
+  // fallan, api/markets.js sirve el último cuerpo que tenga en memoria con su
+  // updatedAt original (ver el bloque `if (!stocks && !crypto)`), y un lambda
+  // caliente puede guardarlo horas. Una marca de anoche pintada como "11:49"
+  // se lee igual que un error de AM/PM.
+  //
+  // Tres cambios, entonces:
+  //
+  // 1. El idioma sale de la PÁGINA, no del dispositivo. Con [] el navegador
+  //    usaba su propio locale, así que un teléfono mexicano en la versión en
+  //    inglés mostraba "Last updated 11:49 p. m." — mitad y mitad.
+  // 2. hourCycle fijo en h12. Sin fijarlo, algunos locales resuelven a h11 y
+  //    el mediodía sale como "00:05 p.m.".
+  // 3. Si la marca NO es de hoy, se muestra también el día. Así una marca
+  //    vieja se ve vieja, en vez de parecer una hora mal puesta.
+  //
+  // La zona horaria se escribe siempre: la hora se convierte a la del
+  // dispositivo, y sin la etiqueta no hay forma de saber respecto a qué son
+  // esos "15 minutos".
+  function formatoActualizacion(t) {
+    if (isNaN(t.getTime())) return '';
+    var loc = es() ? 'es-MX' : 'en-US';
+    var ahora = new Date();
+    var mismoDia = t.getFullYear() === ahora.getFullYear() &&
+      t.getMonth() === ahora.getMonth() &&
+      t.getDate() === ahora.getDate();
+
+    var opciones = { hour: 'numeric', minute: '2-digit', hourCycle: 'h12', timeZoneName: 'short' };
+    if (!mismoDia) { opciones.day = 'numeric'; opciones.month = 'short'; }
+
+    try {
+      return t.toLocaleString(loc, opciones);
+    } catch (e) {
+      // hourCycle es relativamente nuevo; si el navegador lo rechaza, se cae a
+      // la versión de siempre antes que quedarse sin hora.
+      return t.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit' });
+    }
+  }
+
   // Los precios se muestran con los decimales que el número pide: 62 790 dólares
   // no necesita centavos, 1.07 sí, y 0.4821 más todavía.
   function decimalsFor(n) {
@@ -63,13 +107,38 @@
       '<path class="area" d="' + area + '"/><path class="line" d="' + line + '"/></svg>';
   }
 
+  // Dirección del PORCENTAJE: manda el dato de 24 h. Un 0.00% se queda en
+  // 'flat' —gris y sin flecha—, que es exactamente lo que dice el número.
   function dirOf(pct, series) {
     if (typeof pct === 'number' && !isNaN(pct)) return pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+    return dirSerie(series);
+  }
+
+  function dirSerie(series) {
     if (Array.isArray(series) && series.length > 1) {
       var d = series[series.length - 1] - series[0];
       return d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
     }
     return 'flat';
+  }
+
+  // Dirección de la MINI-GRÁFICA, que NO es la misma pregunta.
+  //
+  // El porcentaje habla de 24 h; la línea dibuja 48 h. Antes las dos usaban
+  // dirOf, así que un cambio de exactamente 0 dejaba la línea gris y plana
+  // aunque la serie que se estaba dibujando subiera y bajara. Eso es lo que se
+  // veía en BNB y parecía un dato que no llegó.
+  //
+  // No es eso: CoinGecko SÍ manda price_change_percentage_24h para BNB
+  // (comprobado contra el endpoint). Lo que pasa es que ese campo llega con
+  // poca precisión y a veces cae en 0 clavado — ese día le tocó a BNB, otro
+  // día le toca a otra. Es general, no del símbolo.
+  //
+  // Con el porcentaje en 0, entonces, el color de la línea lo decide su propia
+  // pendiente: si la forma se mueve, se ve de qué color se mueve.
+  function dirSpark(pct, series) {
+    if (typeof pct === 'number' && !isNaN(pct) && pct !== 0) return pct > 0 ? 'up' : 'down';
+    return dirSerie(series);
   }
 
   function cardHTML(item) {
@@ -85,7 +154,7 @@
       '<p class="mkt-price">' + fmtPrice(item.price) + '</p>' +
       '<p class="mkt-change ' + dir + '">' + (arrow ? '<span class="arrow" aria-hidden="true">' + arrow + '</span>' : '') +
         (pct || '&nbsp;') + '</p>' +
-      sparkSVG(item.series, dir) +
+      sparkSVG(item.series, dirSpark(item.changePct, item.series)) +
     '</article>';
   }
 
@@ -126,12 +195,10 @@
     var err = data === 'error';
     var estado = vacio ? 'loading' : (err ? 'unavailable' : 'quarter');
 
-    var s = document.querySelector('[data-src-stocks]');
+    // Ya no hay pie de fuente para acciones: ese bloque dejó de leer
+    // /api/markets y ahora es una gráfica sobre /api/history, que escribe su
+    // propio pie desde assets/charts.js.
     var c = document.querySelector('[data-src-crypto]');
-    if (s && window.SmartSource) {
-      window.SmartSource.paint(s, (!vacio && !err && data.stocks.source) || '',
-        (!vacio && !err && data.stocks.items.length) ? 'quarter' : estado);
-    }
     if (c && window.SmartSource) {
       window.SmartSource.paint(c, (!vacio && !err && data.crypto.source) || '',
         (!vacio && !err && data.crypto.items.length) ? 'quarter' : estado);
@@ -140,18 +207,39 @@
     var stamp = document.querySelector('[data-updated]');
     if (stamp) {
       if (!vacio && !err && data.updatedAt) {
-        var t = new Date(data.updatedAt);
-        var hora = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        stamp.textContent = (es() ? 'Última actualización ' : 'Last updated ') + hora;
+        stamp.textContent = (es() ? 'Última actualización ' : 'Last updated ') +
+          formatoActualizacion(new Date(data.updatedAt));
       } else {
         stamp.textContent = '';
       }
     }
   }
 
+  // Cuántas criptos se muestran EN ESTA PÁGINA. /api/markets sigue devolviendo
+  // cinco (el home usa dos de ellas), así que el recorte es solo de vista: no
+  // se toca el endpoint ni se deja de pedir nada.
+  //
+  // Se quitó BNB, no una de las otras. Las cuatro que quedan —BTC, ETH, XRP y
+  // SOL— son monedas de su propia red; BNB es el token de un exchange, así que
+  // su valor cuelga del negocio de una sola empresa. Para alguien que apenas
+  // está entendiendo qué es una cripto, esa distinción es justo la que peor se
+  // explica en una tarjeta de tres líneas.
+  var CRIPTO_EN_ESTA_PAGINA = 4;
+  var CRIPTO_FUERA = ['BNB'];
+
+  function criptoVisible(bloque) {
+    if (!bloque || !Array.isArray(bloque.items)) return bloque;
+    return Object.assign({}, bloque, {
+      items: bloque.items
+        .filter(function (it) { return CRIPTO_FUERA.indexOf(it.sym) === -1; })
+        .slice(0, CRIPTO_EN_ESTA_PAGINA)
+    });
+  }
+
   function render() {
-    paint('[data-market-stocks]', data && data !== 'error' ? data.stocks : null, 7);
-    paint('[data-market-crypto]', data && data !== 'error' ? data.crypto : null, 5);
+    paint('[data-market-crypto]',
+      data && data !== 'error' ? criptoVisible(data.crypto) : null,
+      CRIPTO_EN_ESTA_PAGINA);
     paintSources();
   }
 
@@ -181,9 +269,35 @@
         rangeTabs: document.getElementById('fxRangeTabs'),
         pair: 'USDMXN', range: '1D'
       });
-    }
 
-    if (window.SmartNews) window.SmartNews.init('[data-news]');
+      // Acciones: el mismo componente otra vez. Antes esto eran siete tarjetas
+      // pintadas a mano desde /api/markets; ahora es una gráfica sobre
+      // /api/history, así que lo único propio de este bloque son los ids y con
+      // qué símbolo abre.
+      window.__stockPanel = window.SmartCharts.panel({
+        canvas: document.getElementById('stockChartCanvas'),
+        valueEl: document.getElementById('stockChartValue'),
+        changeEl: document.getElementById('stockChartChange'),
+        changeClass: 'fx-chart-change',
+        noteEl: document.getElementById('stockChartNote'),
+        pairLabelEl: document.getElementById('stockChartPair'),
+        pairTabs: document.getElementById('stockTabs'),
+        rangeTabs: document.getElementById('stockRangeTabs'),
+        pair: 'SPY', range: '1D'
+      });
+
+      // VIX: igual, con el símbolo fijo (no hay pestañas de símbolo) y invert
+      // en true, porque aquí subir significa más miedo y se pinta en rojo.
+      window.__vixPanel = window.SmartCharts.panel({
+        canvas: document.getElementById('vixChartCanvas'),
+        valueEl: document.getElementById('vixChartValue'),
+        changeEl: document.getElementById('vixChartChange'),
+        changeClass: 'fx-chart-change',
+        noteEl: document.getElementById('vixChartNote'),
+        rangeTabs: document.getElementById('vixRangeTabs'),
+        pair: 'VIX', range: '1D', invert: true
+      });
+    }
 
     // Refresco pausado en segundo plano: con la pestaña oculta no tiene sentido
     // seguir pidiendo, y el intervalo va igualado al caché del endpoint (15 min):

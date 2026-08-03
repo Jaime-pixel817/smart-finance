@@ -1,0 +1,116 @@
+/* Barra superior — ÚNICA fuente del nav para todo el sitio.
+ *
+ * Antes vivía duplicada: una copia en el <style> de index.html y otra en
+ * article.css (que cargan /market, /lessons y las lecciones). Las dos se
+ * habían ido separando, y el resultado era que en móvil el home tenía menú
+ * hamburguesa y las demás páginas NO tenían nada: solo el logo y el toggle de
+ * idioma, sin forma de llegar a ninguna otra sección desde el celular.
+ *
+ * Ahora las nueve páginas cargan este archivo y se ven igual. El menú
+ * hamburguesa desapareció: en móvil los enlaces van directos en la barra, que
+ * son dos toques menos para llegar a cualquier sección.
+ */
+
+.site-nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10, 10, 11, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner {
+  max-width: var(--max-width); margin: 0 auto;
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.nav-brand { display: flex; flex-direction: column; line-height: 1.05; }
+.wordmark { font-family: var(--font-display); font-weight: 600; font-size: 1.4rem; letter-spacing: -0.01em; }
+.wordmark span { color: var(--brand); }
+.nav-tagline {
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin-top: 4px;
+}
+.nav-right { display: flex; align-items: center; gap: 22px; }
+.nav-links { display: flex; gap: 26px; align-items: center; }
+.nav-links > a:not(.nav-cta) { font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color .15s ease; }
+.nav-links > a:not(.nav-cta):hover { color: var(--ink); }
+
+.lang-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 3px; background: var(--card); }
+.lang-btn {
+  background: none; border: none; color: var(--muted);
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+  padding: 4px 9px; border-radius: 5px;
+  transition: background .15s ease, color .15s ease;
+}
+.lang-btn.active { background: var(--ink); color: var(--bg); }
+
+.nav-cta { background: var(--brand); color: #06110D !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 700; }
+.nav-cta:hover { background: #12A06E; }
+
+/* ---------- Móvil ----------
+ * Los cinco elementos (logo, Market, Lessons, Subscribe, idioma) caben en
+ * 375px, pero con poco margen, así que aquí se recorta TODO lo prescindible:
+ *
+ * - la línea secundaria del logo ("Markets & money, decoded") se esconde;
+ * - "About" sale de la barra: es un ancla que solo existe en el home, y era
+ *   el único de los cinco que no lleva a otra página. Los cuatro que quedan
+ *   son los que piden el archivo de instrucciones;
+ * - el toggle de idioma y "Subscribe" se compactan.
+ *
+ * El selector de About vale para las dos formas del enlace: "#about" en el
+ * home y "/#about" en el resto de las páginas.
+ *
+ * min-height 44px en cada zona tocable: el texto se ve más chico, pero el
+ * área que responde al dedo sigue siendo cómoda. Es alto, no tamaño de letra.
+ */
+@media (max-width: 860px) {
+  .nav-tagline { display: none; }
+  .nav-inner { padding: 8px 14px; gap: 8px; }
+  .nav-right { gap: 8px; }
+  .nav-links { gap: 12px; }
+
+  /* El logo no se encoge ni se parte: es lo primero que hace el flexbox
+     cuando falta espacio, y "Smart Finance" en dos líneas subía la barra de
+     61px a dos renglones. Prefiero que lo que ceda sea el espacio entre
+     enlaces, que se controla arriba. */
+  .nav-brand { flex-shrink: 0; }
+  .wordmark { font-size: 1.1rem; white-space: nowrap; }
+
+  .nav-links > a:not(.nav-cta) {
+    font-size: 0.82rem;
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+  }
+  .nav-cta {
+    padding: 0 12px;
+    font-size: 0.78rem;
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  /* 38 + 2+2 de padding del contenedor + 1+1 de borde = 44px de alto real
+     para el toggle, que es el mínimo cómodo al tacto aunque la letra sea
+     chica. Lo mismo vale para el botón de Suscríbete. */
+  .lang-toggle { padding: 2px; gap: 2px; flex-shrink: 0; }
+  .lang-btn { font-size: 0.62rem; padding: 0 7px; min-height: 38px; }
+
+  /* Va DESPUÉS de la regla de tamaño de arriba a propósito: las dos tienen la
+     misma especificidad (0,2,1), así que si esta fuera antes, el
+     display:inline-flex de allá la pisaría y "About" seguiría visible.
+     Sirve para las tres formas del enlace: "#about" en el home, "/#about" en
+     /market y /lessons, "../#about" en las lecciones. */
+  .nav-links > a[href$="#about"] { display: none; }
+}
+
+/* Pantallas muy angostas (iPhone SE y parecidos): se aprieta un punto más,
+   sin bajar de los 44px de área táctil en los enlaces. */
+@media (max-width: 380px) {
+  .nav-inner { padding: 8px 10px; gap: 6px; }
+  .nav-right { gap: 6px; }
+  .nav-links { gap: 8px; }
+  .wordmark { font-size: 0.94rem; }
+  .nav-links > a:not(.nav-cta) { font-size: 0.76rem; }
+  .nav-cta { padding: 0 8px; font-size: 0.71rem; }
+  .lang-btn { font-size: 0.58rem; padding: 6px 4px; }
+}

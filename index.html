@@ -252,38 +252,11 @@
   .flash-down { animation: flashDown .9s ease-out; }
   @media (prefers-reduced-motion: reduce) { .flash-up, .flash-down { animation:none; } }
 
-  /* ---------- Header ---------- */
-  .site-nav {
-    position: sticky; top:0; z-index: 50;
-    background: rgba(10,14,22,0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
-  }
-  .nav-inner { max-width: var(--max-width); margin:0 auto; padding: 14px 32px; display:flex; align-items:center; justify-content:space-between; gap: 24px; }
-  .nav-brand { display:flex; flex-direction:column; line-height:1.05; }
-  .wordmark { font-family: var(--font-display); font-weight:600; font-size: 1.4rem; letter-spacing:-0.01em; }
-  .wordmark span { color: var(--brand); }
-  .nav-tagline { font-family: var(--font-mono); font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color: var(--muted); margin-top:4px; }
-  .nav-links-desktop { display:flex; gap: 26px; align-items:center; }
-  .nav-links-desktop > a:not(.nav-cta) { font-size: 0.9rem; font-weight:500; color: var(--muted); transition: color .15s ease; }
-  .nav-links-desktop > a:not(.nav-cta):hover { color: var(--ink); }
-  .lang-toggle { display:inline-flex; border:1px solid var(--line); border-radius:8px; padding:3px; gap:3px; background: var(--card); }
-  .lang-btn { background:none; border:none; color:var(--muted); font-family:var(--font-mono); font-size:0.72rem; font-weight:600; padding:4px 9px; border-radius:5px; transition: background .15s ease, color .15s ease; }
-  .lang-btn.active { background: var(--ink); color: var(--bg); }
-  .lang-toggle-mobile { margin-top:16px; align-self:flex-start; }
-  .nav-cta { background: var(--brand); color: #06110D !important; padding: 9px 18px; border-radius: 8px; font-size:0.86rem; font-weight:700; }
-  .nav-cta:hover { background: #12a06e; }
-  .nav-toggle { display:none; flex-direction:column; justify-content:center; gap:5px; width:36px; height:36px; background:none; border:none; }
-  .nav-toggle span { display:block; height:2px; width:100%; background: var(--ink); border-radius:2px; }
-  .nav-mobile { display:none; flex-direction:column; padding: 8px 32px 20px; border-top:1px solid var(--line); }
-  .nav-mobile a { padding: 14px 0; border-bottom:1px solid var(--line); font-weight:500; }
-  .nav-mobile.open { display:flex; }
-  @media (max-width: 860px) {
-    .nav-links-desktop { display:none; }
-    .nav-toggle { display:flex; }
-    .nav-tagline { display:none; }
-  }
+  /* ---------- Header ----------
+     Se mudó entero a assets/nav.css (enlazado arriba), que es el mismo que
+     cargan /market, /lessons y las lecciones. Estaba duplicado aquí y en
+     article.css, y las copias ya se habían separado. El menú hamburguesa se
+     quitó: en móvil los enlaces van directos en la barra. */
 
   /* ---------- Hero ---------- */
   .hero {
@@ -355,10 +328,14 @@
       padding-top: 12px;
       /* Se resta el nav: es sticky pero ocupa lugar en el flujo, así que el
          hero empieza debajo de él. Con 100dvh a secas el hero medía una
-         pantalla completa EMPEZANDO en y=65, y el ticker terminaba 65px por
-         debajo del borde inferior. El nav mide 65px en todo este rango (su
-         línea de tagline se esconde desde 860px), así que el valor es fijo. */
-      --nav-h: 65px;
+         pantalla completa EMPEZANDO bajo el nav, y el ticker terminaba esa
+         misma altura por debajo del borde inferior.
+         El valor va a mano porque el nav es sticky y no hay forma de leer su
+         alto desde CSS. Está medido sobre assets/nav.css: 8px de padding
+         arriba + 44px de área táctil + 8px abajo + 1px de borde. Si cambia
+         el padding o el min-height de .nav-links en móvil, hay que ajustarlo
+         aquí también. */
+      --nav-h: 61px;
       min-height: calc(100vh - var(--nav-h));
       min-height: calc(100dvh - var(--nav-h));
       display: flex;
@@ -408,6 +385,20 @@
     }
     .hero .hero-cta { margin-bottom: 0; }
     .hero .hero-cta .btn { pointer-events: auto; }
+
+    /* Los tres CTAs en cuadrícula en vez de flex-wrap. Envolviendo quedaban
+       "correo + LinkedIn" en la primera fila y TikTok solo en la segunda, que
+       se veía desbalanceado. Así el primario ocupa su propia fila completa y
+       las dos redes se reparten la segunda a mitades exactas.
+       justify-content: el .btn base es inline-flex sin centrar, y al estirarse
+       a todo el ancho de la celda el texto se iría a la izquierda. */
+    .hero .hero-cta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hero .hero-cta .btn { justify-content: center; }
+    .hero .hero-cta .btn-primary { grid-column: 1 / -1; }
   }
 
   .ticker {
@@ -815,6 +806,7 @@
      seguir engordando el <style> de la home. -->
 <link rel="stylesheet" href="assets/newsletter.css">
 <!-- El carrusel de titulares es el mismo archivo que usa /market. -->
+<link rel="stylesheet" href="/assets/nav.css">
 <link rel="stylesheet" href="/assets/news.css">
 </head>
 <body>
@@ -824,32 +816,24 @@
       <span class="wordmark">Smart <span>Finance</span></span>
       <span class="nav-tagline" data-i18n="nav.tagline">Markets &amp; money, decoded</span>
     </a>
-    <nav class="nav-links-desktop">
-      <a href="#about" data-i18n="nav.about">About</a>
-      <a href="/market" data-i18n="nav.market">Market</a>
-      <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
-      <!-- Antes decía "Follow" y apuntaba a #home: quedó huérfano al borrar la
-           sección "Follow along" y solo subía al inicio. El botón más
-           prominente del sitio ahora lleva al objetivo real, el boletín. -->
-      <a href="#newsletter" class="nav-cta" data-i18n="nav.subscribe">Subscribe</a>
+    <!-- Misma estructura que /market y las lecciones, para que assets/nav.css
+         valga igual en las nueve páginas: el toggle de idioma va FUERA de
+         .nav-links, como hermano dentro de .nav-right. -->
+    <div class="nav-right">
+      <nav class="nav-links">
+        <a href="#about" data-i18n="nav.about">About</a>
+        <a href="/market" data-i18n="nav.market">Market</a>
+        <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
+        <!-- Antes decía "Follow" y apuntaba a #home: quedó huérfano al borrar la
+             sección "Follow along" y solo subía al inicio. El botón más
+             prominente del sitio ahora lleva al objetivo real, el boletín. -->
+        <a href="#newsletter" class="nav-cta" data-i18n="nav.subscribe">Subscribe</a>
+      </nav>
       <span class="lang-toggle">
         <button type="button" class="lang-btn active" data-lang="en">EN</button>
         <button type="button" class="lang-btn" data-lang="es">ES</button>
       </span>
-    </nav>
-    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-  <div class="nav-mobile" id="navMobile">
-    <a href="#about" data-i18n="nav.about">About</a>
-    <a href="/market" data-i18n="nav.market">Market</a>
-    <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
-    <a href="#newsletter" data-i18n="nav.subscribe">Subscribe</a>
-    <span class="lang-toggle lang-toggle-mobile">
-      <button type="button" class="lang-btn active" data-lang="en">EN</button>
-      <button type="button" class="lang-btn" data-lang="es">ES</button>
-    </span>
+    </div>
   </div>
 </header>
 
@@ -1382,18 +1366,9 @@
   try { idiomaGuardado = localStorage.getItem('sf-lang'); } catch (e) { /* modo privado */ }
   if (idiomaGuardado === 'es') setLanguage('es', true);
 
-  const navToggle = document.getElementById('navToggle');
-  const navMobile = document.getElementById('navMobile');
-  if (navToggle && navMobile) {
-    navToggle.addEventListener('click', () => {
-      const open = navMobile.classList.toggle('open');
-      navToggle.setAttribute('aria-expanded', String(open));
-    });
-    navMobile.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      navMobile.classList.remove('open');
-      navToggle.setAttribute('aria-expanded', 'false');
-    }));
-  }
+  // El menú hamburguesa se quitó junto con su markup: en móvil los enlaces
+  // ahora van directos en la barra (assets/nav.css), igual que en el resto de
+  // las páginas, así que no queda nada que abrir ni cerrar.
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if ('IntersectionObserver' in window && !reduceMotion) {

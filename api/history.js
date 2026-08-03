@@ -13,7 +13,23 @@ const SYMBOLS = {
   // El VIX solo cotiza en horario de Estados Unidos: ~156 barras de 5 minutos
   // por sesion, no 288 como el FX, que opera casi 24 h. Si le pidieramos 288 la
   // gráfica de "1D" mostraria casi dos dias.
-  VIX: { yahoo: '^VIX', intradayPoints: 156 }
+  VIX: { yahoo: '^VIX', intradayPoints: 156 },
+
+  // Acciones e indices. Los tres primeros son los ETF que siguen a cada indice:
+  // es lo que se puede cotizar de verdad, y el dato del indice en si es de pago
+  // (mismo criterio que en api/markets.js). Yahoo los toma con el ticker tal
+  // cual, sin sufijo.
+  //
+  // 78 barras: la sesion regular de EE. UU. va de 9:30 a 16:00 ET, o sea 6.5 h,
+  // que en barras de 5 minutos son 78. Con el 156 del VIX saldrian dos sesiones
+  // en la vista de "1D".
+  SPY:  { yahoo: 'SPY',  intradayPoints: 78 },
+  QQQ:  { yahoo: 'QQQ',  intradayPoints: 78 },
+  DIA:  { yahoo: 'DIA',  intradayPoints: 78 },
+  AAPL: { yahoo: 'AAPL', intradayPoints: 78 },
+  MSFT: { yahoo: 'MSFT', intradayPoints: 78 },
+  NVDA: { yahoo: 'NVDA', intradayPoints: 78 },
+  AMZN: { yahoo: 'AMZN', intradayPoints: 78 }
 };
 
 const RANGE_MAP = {
