@@ -1336,7 +1336,15 @@
     el.dataset.i18nAltOriginal = el.getAttribute('alt') || '';
   });
 
-  function setLanguage(lang) {
+  // inicial=true solo en la llamada de arranque (la que aplica el idioma
+  // guardado). Ahí NO se puede repintar el mercado: render() lee cryptoData y
+  // LABELS, que se declaran con let/const más abajo, así que llamarlo desde
+  // aquí arriba tiraba un ReferenceError de zona muerta temporal. Ese error
+  // reventaba el resto del bloque — noticias, ticker, cripto y gráficas se
+  // quedaban vacíos — pero SOLO para quien tenía español guardado, por eso no
+  // se veía en una primera visita. El repintado no se pierde: render() corre
+  // más abajo en el arranque normal, ya con el idioma puesto.
+  function setLanguage(lang, inicial) {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const value = (lang === 'es' && translations[key]) ? translations[key] : el.dataset.i18nOriginal;
@@ -1360,7 +1368,7 @@
     // 2 h", el panel de tasas, los pies de fuente) se repinta con este evento,
     // que es el mismo que escuchan /market y las lecciones.
     document.dispatchEvent(new CustomEvent('smartfinance:lang', { detail: { lang } }));
-    if (typeof render === 'function') render();
+    if (!inicial && typeof render === 'function') render();
   }
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -1372,7 +1380,7 @@
   // inglés en cada carga. Misma clave 'sf-lang' en todo el sitio.
   let idiomaGuardado = null;
   try { idiomaGuardado = localStorage.getItem('sf-lang'); } catch (e) { /* modo privado */ }
-  if (idiomaGuardado === 'es') setLanguage('es');
+  if (idiomaGuardado === 'es') setLanguage('es', true);
 
   const navToggle = document.getElementById('navToggle');
   const navMobile = document.getElementById('navMobile');
