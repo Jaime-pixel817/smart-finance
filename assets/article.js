@@ -1,47 +1,30 @@
-// Toggle EN/ES de las páginas de artículo.
+// Antes aquí vivía el toggle EN/ES de /market, /lessons y las lecciones: leía
+// window.ARTICLE_I18N y reescribía los textos de la página al vuelo.
 //
-// Mismo mecanismo que index.html: el inglés vive en el HTML y el español en un
-// diccionario. Cada artículo define el suyo en window.ARTICLE_I18N antes de
-// cargar este script; aquí solo está la mecánica, que es idéntica en los tres.
+// Ese mecanismo se retiró. Cada idioma tiene ahora su propia URL y su propio
+// HTML —/lessons/inflacion y /es/lecciones/inflacion son dos archivos, no uno
+// con un botón—, que es lo único que Google puede indexar. Las páginas en
+// español las genera scripts/build-es.js a partir de estos mismos diccionarios,
+// así que window.ARTICLE_I18N sigue en cada página: es la fuente del generador.
 //
-// data-i18n-html marca los pocos nodos que traen etiquetas dentro (<strong>,
-// <a>) y hay que guardar/restaurar como HTML en vez de como texto plano. Solo
-// se usa con strings del diccionario de la propia página, nunca con datos de
-// una API.
+// El toggle es un enlace normal a la URL hermana, y de recordar la elección y
+// de la detección en la primera visita se encarga assets/lang.js.
+//
+// Este archivo se queda porque las lecciones lo cargan y porque aquí vive el
+// acordeón y el resto de la mecánica común; solo se fue la parte del idioma.
 (function () {
-  var translations = window.ARTICLE_I18N || {};
+  'use strict';
 
-  document.querySelectorAll('[data-i18n]').forEach(function (el) {
-    el.dataset.i18nOriginal = el.hasAttribute('data-i18n-html') ? el.innerHTML : el.textContent;
+  // document.documentElement.lang lo trae el HTML servido, así que todo lo que
+  // pregunta por el idioma (charts.js, market.js, news.js) lee el valor
+  // correcto desde el primer render y no hay nada que avisar.
+  //
+  // El evento 'smartfinance:lang' se sigue emitiendo una vez al cargar por si
+  // algún módulo se suscribe para pintar su parte: antes lo disparaba el
+  // toggle, y sin él esos módulos nunca recibirían la señal inicial.
+  document.addEventListener('DOMContentLoaded', function () {
+    document.dispatchEvent(new CustomEvent('smartfinance:lang', {
+      detail: { lang: document.documentElement.lang === 'es' ? 'es' : 'en' }
+    }));
   });
-
-  function setLanguage(lang) {
-    document.querySelectorAll('[data-i18n]').forEach(function (el) {
-      var key = el.getAttribute('data-i18n');
-      var value = (lang === 'es' && translations[key]) ? translations[key] : el.dataset.i18nOriginal;
-      if (el.hasAttribute('data-i18n-html')) {
-        el.innerHTML = value;
-      } else {
-        el.textContent = value;
-      }
-    });
-    document.querySelectorAll('.lang-btn').forEach(function (btn) {
-      btn.classList.toggle('active', btn.dataset.lang === lang);
-    });
-    document.documentElement.lang = lang;
-    try { localStorage.setItem('sf-lang', lang); } catch (e) { /* modo privado */ }
-    // Aviso para lo que este diccionario no alcanza: /market pinta tarjetas,
-    // titulares y pies de gráfica con texto que genera el propio JS, y tiene
-    // que repintarlos. En las páginas que no escuchan, el evento se ignora.
-    document.dispatchEvent(new CustomEvent('smartfinance:lang', { detail: { lang: lang } }));
-  }
-
-  document.querySelectorAll('.lang-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () { setLanguage(btn.dataset.lang); });
-  });
-
-  // Si el visitante ya había elegido idioma, se respeta al abrir el artículo.
-  var saved = null;
-  try { saved = localStorage.getItem('sf-lang'); } catch (e) { /* modo privado */ }
-  if (saved === 'es') setLanguage('es');
 })();
