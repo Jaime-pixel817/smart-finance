@@ -228,6 +228,10 @@
     return pending;
   }
 
+  // Se suscribe solo al cambio de idioma: así cualquier página que monte este
+  // módulo repinta las tarjetas sin tener que acordarse de llamarlo.
+  document.addEventListener('smartfinance:lang', render);
+
   window.SmartNews = {
     mount: mount,
     render: render,

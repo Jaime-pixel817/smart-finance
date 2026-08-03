@@ -114,15 +114,32 @@
     el.innerHTML = block.items.map(cardHTML).join('');
   }
 
+  // Atribución de fuente por el componente compartido (assets/source.js), el
+  // mismo que usan las gráficas y el bloque de tasas.
+  //
+  // Antes esto escribía literalmente "Source: —" mientras no había datos: un
+  // guion suelto que se leía como "esto está roto". Ahora, sin datos todavía,
+  // se muestra solo el estado ("cargando…" o el aviso de reintento) y el nombre
+  // de la fuente aparece cuando de verdad se sabe cuál fue.
   function paintSources() {
+    var vacio = !data;
+    var err = data === 'error';
+    var estado = vacio ? 'loading' : (err ? 'unavailable' : 'quarter');
+
     var s = document.querySelector('[data-src-stocks]');
     var c = document.querySelector('[data-src-crypto]');
-    if (s) s.textContent = (data && data !== 'error' && data.stocks.source) || '—';
-    if (c) c.textContent = (data && data !== 'error' && data.crypto.source) || '—';
+    if (s && window.SmartSource) {
+      window.SmartSource.paint(s, (!vacio && !err && data.stocks.source) || '',
+        (!vacio && !err && data.stocks.items.length) ? 'quarter' : estado);
+    }
+    if (c && window.SmartSource) {
+      window.SmartSource.paint(c, (!vacio && !err && data.crypto.source) || '',
+        (!vacio && !err && data.crypto.items.length) ? 'quarter' : estado);
+    }
 
     var stamp = document.querySelector('[data-updated]');
     if (stamp) {
-      if (data && data !== 'error' && data.updatedAt) {
+      if (!vacio && !err && data.updatedAt) {
         var t = new Date(data.updatedAt);
         var hora = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         stamp.textContent = (es() ? 'Última actualización ' : 'Last updated ') + hora;
@@ -180,11 +197,11 @@
     });
     if (!document.hidden) start();
 
-    // Al cambiar de idioma hay que repintar lo que genera el JS con su propio
-    // texto (mensajes de error, "última actualización", mi lectura).
+    // Al cambiar de idioma se repinta lo que genera ESTE módulo. El carrusel de
+    // noticias y el panel de la gráfica ya se suscriben solos al mismo evento,
+    // así que aquí no hay que acordarse de llamarlos.
     document.addEventListener('smartfinance:lang', function () {
       render();
-      if (window.SmartNews) window.SmartNews.render();
       if (window.__fxPanel) window.__fxPanel.repaintMeta();
     });
   }

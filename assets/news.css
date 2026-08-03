@@ -10,6 +10,11 @@
    está trabajado y no es un relleno gris. Nunca una foto de otro lado: sería
    atribuirle a la nota una imagen que no es suya. */
 
+/* "Desliza para ver más" solo tiene sentido donde hay dedo: con mouse se usan
+   las flechas o se arrastra, y la frase sobra. */
+.swipe-hint { display: none; }
+@media (hover: none) and (pointer: coarse) { .swipe-hint { display: inline; } }
+
 .news-rail-head {
   display: flex; align-items: flex-end; justify-content: space-between;
   gap: 20px; margin-bottom: 22px;

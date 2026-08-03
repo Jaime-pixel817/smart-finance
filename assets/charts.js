@@ -21,16 +21,10 @@
     VIX:    { label: 'VIX',     decimals: 2 }
   };
 
-  var RANGE_NOTE = {
-    en: {
-      '1D': 'latest trading session, 5-min bars', '1M': 'last 30 days, daily close',
-      '3M': 'last 3 months, daily close', '1Y': 'last 12 months, daily close'
-    },
-    es: {
-      '1D': 'última sesión, barras de 5 min', '1M': 'últimos 30 días, cierre diario',
-      '3M': 'últimos 3 meses, cierre diario', '1Y': 'últimos 12 meses, cierre diario'
-    }
-  };
+  // Qué detalle de frescura le toca a cada rango. Las cadenas de texto NO están
+  // aquí: viven en assets/source.js, que es el único lugar del sitio donde se
+  // decide cómo se redacta la atribución de una fuente.
+  var RANGE_DETAIL = { '1D': 'minute', '1M': 'daily', '3M': 'daily', '1Y': 'daily' };
 
   function fmtPrice(n, decimals) {
     if (n === null || n === undefined || isNaN(n)) return '—';
@@ -120,7 +114,7 @@
 
   // ---- Panel de gráfica -------------------------------------------------
   // opts: { canvas, valueEl, changeEl, noteEl?, pairLabelEl?, pairTabs?,
-  //         rangeTabs, pair, range, invert?, noteText? }
+  //         rangeTabs, pair, range, invert? }
   // invert = true pinta la SUBIDA en rojo. Es para el VIX: subir ahí significa
   // más miedo, al revés que en una gráfica de precio.
   function Panel(opts) {
@@ -133,6 +127,12 @@
     this.failed = false;
     ensureRegistered();
     this.wire();
+    // Cada panel se suscribe solo al cambio de idioma: así su pie se traduce
+    // sin que la página tenga que acordarse de llamarlo. Antes esto lo hacía
+    // /market a mano y el home no, así que el pie de la gráfica del home se
+    // quedaba en inglés al cambiar a español.
+    var self = this;
+    document.addEventListener('smartfinance:lang', function () { self.repaintMeta(); });
     this.setRange(this.range);
   }
 
@@ -198,7 +198,7 @@
           self.o.changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + '% (' + self.range + ')';
           self.o.changeEl.className = self.o.changeClass + ' ' + dir;
         }
-        if (self.o.noteEl) self.o.noteEl.textContent = self.noteText();
+        self.repaintMeta();
 
         var canvas = self.o.canvas;
         if (!canvas || typeof Chart === 'undefined') return;
@@ -225,26 +225,18 @@
         self.failed = true;
         if (self.o.valueEl) self.o.valueEl.textContent = '—';
         if (self.o.changeEl) { self.o.changeEl.textContent = ''; self.o.changeEl.className = self.o.changeClass; }
-        if (self.o.noteEl) self.o.noteEl.textContent = self.noteText();
+        self.repaintMeta();
       });
   };
 
-  // El pie del panel según si hay datos o no, en el idioma actual. Se vuelve a
-  // llamar al cambiar de idioma: sin esto, un panel que falló se anunciaría
-  // como "en vivo" nada más por cambiar de idioma.
-  Panel.prototype.noteText = function () {
-    var es = esNow();
-    if (this.failed) {
-      return es
-        ? 'Yahoo Finance · datos no disponibles por ahora, se reintenta solo'
-        : 'Yahoo Finance · data unavailable right now, retrying automatically';
-    }
-    if (this.o.liveOnly) return es ? 'Yahoo Finance · en vivo' : 'Yahoo Finance · live';
-    return 'Yahoo Finance · ' + (RANGE_NOTE[es ? 'es' : 'en'][this.range] || (es ? 'en vivo' : 'live'));
-  };
-
+  // El pie del panel pasa por el componente compartido de atribución, así que
+  // se ve idéntico al de las tarjetas de /market y al del bloque de tasas.
+  // Se vuelve a llamar al cambiar de idioma: sin esto, un panel que falló se
+  // anunciaría como fresco nada más por cambiar de idioma.
   Panel.prototype.repaintMeta = function () {
-    if (this.o.noteEl) this.o.noteEl.textContent = this.noteText();
+    if (!this.o.noteEl || !window.SmartSource) return;
+    var key = this.failed ? 'unavailable' : (RANGE_DETAIL[this.range] || 'minute');
+    window.SmartSource.paint(this.o.noteEl, 'Yahoo Finance', key);
   };
 
   window.SmartCharts = {

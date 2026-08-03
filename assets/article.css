@@ -15,7 +15,7 @@
   --radius: 14px;
   --card-pad: 22px;
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
   --max-width: 1180px;
   --read-width: 720px;
@@ -63,6 +63,44 @@ button { font-family: inherit; cursor: pointer; }
   .nav-links-desktop { display: none; }
   .nav-tagline { display: none; }
 }
+
+/* ---------- Transiciones entre páginas ----------
+   Un fade corto al navegar entre home, /market, /lessons y las lecciones. Los
+   navegadores que no soportan la regla simplemente la ignoran y navegan como
+   siempre: no hay nada que degradar a mano.
+   El nav y el pie llevan view-transition-name propio para que no parpadeen
+   junto con el resto — son idénticos entre páginas, así que se quedan quietos
+   mientras el contenido cambia. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: sf-fade-out .18s ease both; }
+::view-transition-new(root) { animation: sf-fade-in .24s ease both; }
+@keyframes sf-fade-out { to { opacity: 0; } }
+@keyframes sf-fade-in { from { opacity: 0; } }
+
+.site-nav { view-transition-name: sf-nav; }
+.site-footer { view-transition-name: sf-footer; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
+
+/* ---------- Atribución de fuente ----------
+   Un solo componente para las seis apariciones del sitio (gráficas, tarjetas de
+   mercado, bloque de tasas). Lo llena assets/source.js; aquí solo va la forma.
+   Antes esto estaba escrito de cuatro maneras distintas. */
+.src-line {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+  display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;
+  margin-top: 12px;
+  /* Reserva una línea aunque todavía esté vacía, para que el bloque no salte
+     cuando llegue el texto. */
+  min-height: 1.1em;
+}
+.src-line .src-name { color: var(--ink); font-weight: 600; }
+.src-line .src-sep { opacity: 0.5; }
 
 /* ---------- Botones (misma jerarquía que el sitio) ---------- */
 .btn {

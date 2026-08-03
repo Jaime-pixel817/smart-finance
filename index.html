@@ -16,7 +16,7 @@
 <meta property="og:image" content="https://smartfinance.lat/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Smart Finance — Jaime Sandoval Ricaño">
+<meta property="og:image:alt" content="Smart Finance — finance that actually clicks, by Jaime Sandoval Ricaño">
 <meta property="og:locale" content="es_MX">
 <meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
@@ -25,7 +25,7 @@
 <meta name="twitter:image" content="https://smartfinance.lat/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!--
   Datos estructurados. Organization + WebSite van solo en el home: son sobre el
   sitio entero, y repetirlos en cada página le da a Google la misma entidad
@@ -93,7 +93,7 @@
     --card-pad: 22px;
     --section-pad: 96px;
     --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
     --max-width: 1180px;
   }
@@ -555,19 +555,54 @@
   .vix-canvas-wrap { margin-top:12px; height:170px; position:relative; min-width: 0; }
   .vix-note { font-size:0.78rem; color: var(--muted); margin-top:14px; line-height:1.5; }
   .vix-note strong { color: var(--ink); font-weight:600; }
-  .rate-row { display:flex; justify-content:space-between; align-items:baseline; padding: 12px 0; border-bottom:1px solid var(--line); }
-  .rate-row:last-child { border-bottom:none; }
+  .rate-row { display:flex; justify-content:space-between; align-items:baseline; gap: 14px; padding: 12px 0; border-bottom:1px solid var(--line); }
+  .rate-row:last-of-type { border-bottom:none; }
   .rate-label { font-size:0.88rem; color: var(--muted); }
-  .rate-value { font-family: var(--font-mono); font-weight:600; font-size:1.05rem; }
+  .rate-value { font-family: var(--font-mono); font-weight:600; font-size:1.05rem; white-space: nowrap; }
+  /* Pie del panel de tasas: la misma atribución que el resto, más lo que hizo
+     cada banco la última vez. */
+  .rate-src.is-warn { color: var(--accent-orange); }
+  .rate-src.is-warn .src-name { color: var(--accent-orange); }
+  .rate-last { font-family: var(--font-mono); font-size:0.72rem; color: var(--muted); margin-top: 6px; opacity: 0.85; }
+  /* Cuando la verificación manual caduca, el panel se queda solo con el aviso. */
+  .macro-panel.is-stale { display:flex; flex-direction:column; justify-content:center; }
+  .rate-stale { font-size:0.88rem; color: var(--muted); line-height:1.55; margin-top:10px; }
 
-  .stale-flag { color: var(--accent-orange); }
+  /* ---------- Señal de scroll ----------
+     Una línea corta que baja y se desvanece. Va absoluta al fondo del hero y
+     sin pointer-events salvo en su propia área: no debe estorbarle al globo. */
+  .scroll-cue {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    z-index: 3; width: 26px; height: 40px;
+    display: flex; justify-content: center;
+  }
+  .scroll-cue-line {
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--muted));
+    transform-origin: top;
+    animation: scrollCue 2.1s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes scrollCue {
+    0%   { transform: scaleY(0); opacity: 0; }
+    35%  { transform: scaleY(1); opacity: 0.9; }
+    70%  { transform: scaleY(1); opacity: 0.9; }
+    100% { transform: scaleY(0) translateY(100%); opacity: 0; }
+  }
+  /* En el hero de escritorio el texto está centrado verticalmente y sobra
+     espacio abajo; en móvil el ticker ya ocupa ese borde. */
+  @media (max-width: 767px) { .scroll-cue { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue-line { animation: none; opacity: 0.55; }
+  }
   @media (max-width: 640px) {
     .macro-grid { grid-template-columns: 1fr; }
   }
 
   /* ---------- Start here: gancho a la página de lecciones ----------
      Las seis tarjetas se mudaron a /lessons/ (su CSS vive en
-     assets/lessons.css). Aquí queda solo este bloque promocional. */
+     assets/lessons.css). Aquí queda solo este bloque promocional, que ahora es
+     su propia sección y ya no una subsección de "Mercado". */
+  .start-here { padding: var(--section-pad) 0; }
   .lessons-promo {
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -793,7 +828,10 @@
       <a href="#about" data-i18n="nav.about">About</a>
       <a href="/market" data-i18n="nav.market">Market</a>
       <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
-      <a href="#home" class="nav-cta" data-i18n="nav.follow">Follow</a>
+      <!-- Antes decía "Follow" y apuntaba a #home: quedó huérfano al borrar la
+           sección "Follow along" y solo subía al inicio. El botón más
+           prominente del sitio ahora lleva al objetivo real, el boletín. -->
+      <a href="#newsletter" class="nav-cta" data-i18n="nav.subscribe">Subscribe</a>
       <span class="lang-toggle">
         <button type="button" class="lang-btn active" data-lang="en">EN</button>
         <button type="button" class="lang-btn" data-lang="es">ES</button>
@@ -807,7 +845,7 @@
     <a href="#about" data-i18n="nav.about">About</a>
     <a href="/market" data-i18n="nav.market">Market</a>
     <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
-    <a href="#home" data-i18n="nav.follow">Follow</a>
+    <a href="#newsletter" data-i18n="nav.subscribe">Subscribe</a>
     <span class="lang-toggle lang-toggle-mobile">
       <button type="button" class="lang-btn active" data-lang="en">EN</button>
       <button type="button" class="lang-btn" data-lang="es">ES</button>
@@ -822,12 +860,21 @@
       <div class="hero-inner">
         <h1 data-i18n="hero.title">Finance That Actually Clicks.</h1>
         <p class="eyebrow" data-i18n="hero.eyebrow">Updated finance · by Jaime Sandoval</p>
+        <!-- El boletín es el objetivo principal del sitio, así que se queda con
+             el único botón relleno; las redes pasan a outline. No se quitan:
+             siguen siendo por dónde llega la mayoría. -->
         <div class="hero-cta">
-          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-primary" data-i18n="hero.linkedin">Connect on LinkedIn</a>
-          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">Watch on TikTok</a>
+          <a href="#newsletter" class="btn btn-primary" data-i18n="hero.newsletter">Get the daily email</a>
+          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.linkedin">LinkedIn</a>
+          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">TikTok</a>
         </div>
       </div>
-      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Global Risk Map"></div>
+      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Rotating globe of world markets"></div>
+      <!-- Señal de que hay más abajo. aria-hidden: no aporta nada a quien no la
+           ve, y el contenido siguiente ya está en el DOM. -->
+      <a class="scroll-cue" href="#about" aria-hidden="true" tabindex="-1">
+        <span class="scroll-cue-line"></span>
+      </a>
     </div>
     <div class="ticker" aria-label="Live market ticker">
       <div class="ticker-track" id="tickerTrack"></div>
@@ -863,37 +910,42 @@
 
   <section id="market" class="market reveal">
     <div class="wrap">
-      <p class="eyebrow"><span class="live-dot"></span><span data-i18n="market.eyebrow">Market pulse · live data</span></p>
+      <!-- Sin "live data" ni punto parpadeante: contradecía al subtítulo de
+           abajo, que dice la verdad. Ninguna de las fuentes gratuitas que
+           usamos es tick a tick. -->
+      <p class="eyebrow" data-i18n="market.eyebrow">Market pulse</p>
       <h2 class="section-title" data-i18n="market.title">What the market's doing right now</h2>
-      <p class="section-sub" data-i18n="market.sub">Prices updated every 15 minutes, plus the macro backdrop, checked by hand.</p>
+      <p class="section-sub" data-i18n="market.sub">Delayed data, not a trading feed — each block says how fresh it is.</p>
 
       <div class="market-group">
         <h3 class="group-label" data-i18n="market.fxchart">Exchange rate chart</h3>
-        <p class="group-note" data-i18n="market.fxchartnote">Yahoo Finance · pick the range.</p>
+        <p class="group-note" data-i18n="market.fxchartnote">Pick the pair and the range.</p>
         <div class="fx-chart-panel">
           <div class="fx-tabs" id="fxTabs">
-            <button class="fx-tab active" data-pair="USDMXN">USD/MXN</button>
-            <button class="fx-tab" data-pair="EURMXN">EUR/MXN</button>
-            <button class="fx-tab" data-pair="CHFMXN">CHF/MXN</button>
-            <button class="fx-tab" data-pair="EURUSD">EUR/USD</button>
-            <button class="fx-tab" data-pair="GBPUSD">GBP/USD</button>
-            <button class="fx-tab" data-pair="USDJPY">USD/JPY</button>
+            <button class="fx-tab active" type="button" data-pair="USDMXN">USD/MXN</button>
+            <button class="fx-tab" type="button" data-pair="EURMXN">EUR/MXN</button>
+            <button class="fx-tab" type="button" data-pair="CHFMXN">CHF/MXN</button>
+            <button class="fx-tab" type="button" data-pair="EURUSD">EUR/USD</button>
+            <button class="fx-tab" type="button" data-pair="GBPUSD">GBP/USD</button>
+            <button class="fx-tab" type="button" data-pair="USDJPY">USD/JPY</button>
           </div>
           <div class="fx-chart-head">
             <span class="fx-chart-pair" id="fxChartPair">USD/MXN</span>
-            <span class="fx-chart-value" id="fxChartValue"><span class="skel">00.0000</span></span>
+            <!-- El esqueleto va vacío: un "00.0000" es un número inventado, y
+                 durante un instante se lee como si fuera el tipo de cambio. -->
+            <span class="fx-chart-value" id="fxChartValue"><span class="skel">&nbsp;</span></span>
             <span class="fx-chart-change" id="fxChartChange"></span>
             <div class="fx-range-tabs" id="fxRangeTabs">
-              <button class="fx-range-tab active" data-range="1D">1D</button>
-              <button class="fx-range-tab" data-range="1M">1M</button>
-              <button class="fx-range-tab" data-range="3M">3M</button>
-              <button class="fx-range-tab" data-range="1Y">1Y</button>
+              <button class="fx-range-tab active" type="button" data-range="1D">1D</button>
+              <button class="fx-range-tab" type="button" data-range="1M">1M</button>
+              <button class="fx-range-tab" type="button" data-range="3M">3M</button>
+              <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
             </div>
           </div>
           <div class="fx-chart-canvas-wrap">
             <canvas id="fxChartCanvas" height="90"></canvas>
           </div>
-          <p class="fx-chart-note" id="fxChartNote">Yahoo Finance · live · latest trading session, 5-min bars</p>
+          <p class="src-line" id="fxChartNote"></p>
         </div>
       </div>
 
@@ -902,66 +954,65 @@
         <div class="market-grid compact" id="grid-crypto"></div>
       </div>
 
-      <div class="market-group" id="tips">
-        <h3 class="group-label" data-i18n="tips.label">Start here</h3>
-        <p class="group-note" data-i18n="tips.note">Short answers to the questions that come up most. No jargon.</p>
-        <!--
-          GANCHO, NO CONTENIDO. Las seis tarjetas (resumen, acordeón "Más
-          contexto" y "Leer más") viven ahora en /lessons/index.html; aquí solo
-          queda la invitación y el botón que lleva allá. Si agregas o quitas
-          lecciones, actualiza el conteo de promo.eyebrow.
-        -->
-        <a class="lessons-promo tilt" href="/lessons">
-          <span class="lessons-promo-art" aria-hidden="true">
-            <svg class="ico" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 014.5 4H10a2 2 0 012 2v14a1.5 1.5 0 00-1.5-1.5H4.5A2.5 2.5 0 012 16V6.5z"/><path d="M22 6.5A2.5 2.5 0 0019.5 4H14a2 2 0 00-2 2v14a1.5 1.5 0 011.5-1.5h6A2.5 2.5 0 0022 16V6.5z"/><path d="M12 8.5h4M12 12h3"/></svg>
-          </span>
-          <span class="lessons-promo-text">
-            <span class="lessons-promo-eyebrow" data-i18n="promo.eyebrow">6 lessons · about 5 minutes each</span>
-            <span class="lessons-promo-title" data-i18n="promo.title">Finance from zero, in plain words</span>
-            <span class="lessons-promo-sub" data-i18n="promo.sub">The peso, compound interest, the S&amp;P 500, your first budget, inflation, and the mistakes almost everyone makes starting out.</span>
-          </span>
-          <span class="btn btn-primary lessons-promo-cta" data-i18n="promo.cta">See all lessons →</span>
-        </a>
-        <p class="disclaimer tips-disclaimer" data-i18n="tips.disclaimer">Educational content only — this is not financial, investment, or tax advice.</p>
-      </div>
-
       <div class="market-group">
         <h3 class="group-label" data-i18n="market.macro">Macro snapshot</h3>
-        <!-- Al actualizar el bloque macro a mano, mueve también data-verified (AAAA-MM-DD). -->
-        <p class="group-note" id="macroNote" data-verified="2026-07-21" data-i18n="market.macronote">Manually verified July 21, 2026 — not a live feed, updated by hand when it moves.</p>
         <div class="macro-grid">
-          <!-- VIX en vivo. Comparte /api/history y Chart.js con la gráfica de
-               tipo de cambio; lo único propio es el símbolo y esta nota. -->
           <div class="macro-panel">
             <h4 data-i18n="vix.title">Fear index (VIX)</h4>
-            <span class="as-of" id="vixAsOf" data-i18n="vix.asof">Yahoo Finance · live</span>
             <div class="vix-head">
-              <span class="vix-value" id="vixValue"><span class="skel">00.00</span></span>
+              <span class="vix-value" id="vixValue"><span class="skel">&nbsp;</span></span>
               <span class="vix-change" id="vixChange"></span>
               <div class="fx-range-tabs" id="vixRangeTabs">
-                <button class="fx-range-tab active" data-range="1D">1D</button>
-                <button class="fx-range-tab" data-range="1M">1M</button>
-                <button class="fx-range-tab" data-range="3M">3M</button>
-                <button class="fx-range-tab" data-range="1Y">1Y</button>
+                <button class="fx-range-tab active" type="button" data-range="1D">1D</button>
+                <button class="fx-range-tab" type="button" data-range="1M">1M</button>
+                <button class="fx-range-tab" type="button" data-range="3M">3M</button>
+                <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
               </div>
             </div>
             <div class="vix-canvas-wrap">
               <canvas id="vixChartCanvas" height="80"></canvas>
             </div>
+            <p class="src-line" id="vixAsOf"></p>
             <p class="vix-note" data-i18n="vix.note" data-i18n-html>Basically, <strong>how much fear there is in the market</strong>. It measures how big a swing traders expect in the S&amp;P 500 over the next 30 days. Under 20 is calm, over 30 means people are nervous. It usually spikes when stocks fall — which is why it's nicknamed the fear index.</p>
           </div>
-          <div class="macro-panel">
-            <h4>Reference rates</h4>
-            <span class="as-of">Fed: held Jun 17 · Banxico: cut Jun 25</span>
-            <div class="rate-row"><span class="rate-label">Fed Funds Target</span><span class="rate-value">3.50–3.75%</span></div>
-            <div class="rate-row"><span class="rate-label">Banxico Reference Rate</span><span class="rate-value">6.50%</span></div>
-            <div class="rate-row"><span class="rate-label">MX–US Spread</span><span class="rate-value">≈2.88 pp</span></div>
-            <div class="rate-row"><span class="rate-label">Next FOMC</span><span class="rate-value">Jul 28–29</span></div>
-            <div class="rate-row"><span class="rate-label">Next Banxico</span><span class="rate-value">Aug 7</span></div>
-          </div>
+          <!--
+            Tasas de referencia. El contenido lo pinta assets/macro.js: ahí viven
+            los calendarios oficiales del FOMC y de Banxico, y "la próxima
+            reunión" se calcula contra la fecha de hoy. Antes las dos fechas
+            estaban escritas a mano aquí y acabaron anunciando como próxima una
+            reunión que ya había pasado.
+          -->
+          <div class="macro-panel" id="ratesPanel" hidden></div>
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!--
+    START HERE. Salió de dentro de "What the market's doing right now": era un
+    h3 hermano de "Exchange rate chart" y "Crypto", o sea que semánticamente las
+    lecciones eran una subsección de los datos de mercado. Ahora es su propia
+    sección con su h2. El id="tips" se queda: es el ancla a la que vuelven los
+    enlaces desde /lessons.
+  -->
+  <section id="tips" class="start-here reveal">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="tips.label">Start here</p>
+      <h2 class="section-title" data-i18n="tips.title">Finance from zero</h2>
+      <p class="section-sub" data-i18n="tips.note">Short answers to the questions that come up most. No jargon.</p>
+
+      <a class="lessons-promo tilt" href="/lessons">
+        <span class="lessons-promo-art" aria-hidden="true">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 014.5 4H10a2 2 0 012 2v14a1.5 1.5 0 00-1.5-1.5H4.5A2.5 2.5 0 012 16V6.5z"/><path d="M22 6.5A2.5 2.5 0 0019.5 4H14a2 2 0 00-2 2v14a1.5 1.5 0 011.5-1.5h6A2.5 2.5 0 0022 16V6.5z"/><path d="M12 8.5h4M12 12h3"/></svg>
+        </span>
+        <span class="lessons-promo-text">
+          <span class="lessons-promo-eyebrow" data-i18n="promo.eyebrow">6 lessons · about 5 minutes each</span>
+          <span class="lessons-promo-title" data-i18n="promo.title">Finance from zero, in plain words</span>
+          <span class="lessons-promo-sub" data-i18n="promo.sub">The peso, compound interest, the S&amp;P 500, your first budget, inflation, and the mistakes almost everyone makes starting out.</span>
+        </span>
+        <span class="btn btn-primary lessons-promo-cta" data-i18n="promo.cta">See all lessons →</span>
+      </a>
     </div>
   </section>
 
@@ -972,9 +1023,15 @@
     <div class="wrap">
       <div class="news-rail-head">
         <div>
-          <p class="eyebrow"><span class="live-dot"></span><span data-i18n="news.eyebrow">Finance news · Bloomberg</span></p>
+          <p class="eyebrow" data-i18n="news.eyebrow">Finance news · Bloomberg</p>
           <h2 class="section-title" data-i18n="news.title">In the headlines</h2>
-          <p class="section-sub news-sub" data-i18n="news.sub">Top market and business stories from Bloomberg, pulled automatically. Swipe for more.</p>
+          <!-- "pulled automatically" le avisaba al lector que era un feed de
+               robot justo donde va mi opinión. La pista de deslizar solo se
+               muestra en táctil (ver .swipe-hint en news.css). -->
+          <!-- Los dos data-i18n van como hermanos, NO anidados: setLanguage
+               reescribe textContent, así que un data-i18n dentro de otro se
+               borraría al traducir el de fuera. -->
+          <p class="section-sub news-sub"><span data-i18n="news.sub">Top market and business stories from Bloomberg, with my read on each one.</span><span class="swipe-hint" data-i18n="news.swipe"> Swipe for more.</span></p>
         </div>
         <div class="news-rail-arrows" data-news-arrows>
           <button class="news-arrow" type="button" data-news-prev aria-label="Previous headlines">
@@ -993,7 +1050,8 @@
     <div class="wrap">
       <p class="eyebrow" data-i18n="content.eyebrow">Latest lessons</p>
       <h2 class="section-title" data-i18n="content.title">Recent breakdowns</h2>
-      <p class="section-sub" data-i18n="content.sub">A running feed of real posts from LinkedIn and TikTok — updated as you post more.</p>
+      <!-- Decía "as you post more": le hablaba a mí, no a quien lee. -->
+      <p class="section-sub" data-i18n="content.sub">A running feed of my real posts from LinkedIn and TikTok — updated as I post more.</p>
 
       <!--
         HOW TO ADD ANOTHER POST:
@@ -1016,7 +1074,7 @@
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7653328531694439700" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-data thumb-japan has-play">
-              <img src="assets/breakdowns/breakdown-japan.jpg" alt="Shibuya de noche, durante el video sobre los datos financieros de Japón" width="900" height="1601" loading="lazy" decoding="async">
+              <img src="assets/breakdowns/breakdown-japan.jpg" alt="Shibuya at night, while filming the video on Japan's economic data" data-i18n-alt="alt.japan" width="900" height="1601" loading="lazy" decoding="async">
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1033,7 +1091,7 @@
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7662781308988411156" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-interview thumb-andytoh has-play">
-              <img src="assets/breakdowns/breakdown-andy-toh.jpg" alt="Entrevista grabada durante el programa de verano en Singapur" width="900" height="1582" loading="lazy" decoding="async">
+              <img src="assets/breakdowns/breakdown-andy-toh.jpg" alt="Interview recorded during the summer program in Singapore" data-i18n-alt="alt.andytoh" width="900" height="1582" loading="lazy" decoding="async">
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1050,7 +1108,7 @@
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7655111359419387157" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-markets thumb-singapore has-play">
-              <img src="assets/breakdowns/breakdown-singapore.jpg" alt="Frente a Marina Bay Sands, en Singapur" width="900" height="1543" loading="lazy" decoding="async">
+              <img src="assets/breakdowns/breakdown-singapore.jpg" alt="In front of Marina Bay Sands, Singapore" data-i18n-alt="alt.singapore" width="900" height="1543" loading="lazy" decoding="async">
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1067,7 +1125,7 @@
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-markets thumb-jpmorgan">
-              <img src="assets/breakdowns/breakdown-jpmorgan-etf.jpg" alt="Al terminar la sesión con el Chief ETF Strategist de J.P. Morgan" width="900" height="737" loading="lazy" decoding="async">
+              <img src="assets/breakdowns/breakdown-jpmorgan-etf.jpg" alt="After the session with J.P. Morgan's Chief ETF Strategist" data-i18n-alt="alt.jpmorgan" width="900" height="737" loading="lazy" decoding="async">
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1083,7 +1141,7 @@
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-interview thumb-moris">
-              <img src="assets/breakdowns/breakdown-moris-dieck.jpg" alt="En un evento de educación financiera en México" width="900" height="1200" loading="lazy" decoding="async">
+              <img src="assets/breakdowns/breakdown-moris-dieck.jpg" alt="At a financial education event in Mexico" data-i18n-alt="alt.moris" width="900" height="1200" loading="lazy" decoding="async">
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1099,7 +1157,7 @@
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-podcast thumb-tradingroom">
-              <img src="assets/breakdowns/breakdown-trading-room-podcast.jpg" alt="Grabando el podcast del Financial Trading Room" width="900" height="506" loading="lazy" decoding="async">
+              <img src="assets/breakdowns/breakdown-trading-room-podcast.jpg" alt="Recording the Financial Trading Room podcast" data-i18n-alt="alt.tradingroom" width="900" height="506" loading="lazy" decoding="async">
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1138,11 +1196,20 @@
             <button class="btn btn-primary newsletter-boton" type="submit" data-i18n="news2.boton">Subscribe</button>
           </div>
 
-          <!-- Honeypot: invisible para una persona. Si llega con algo escrito,
-               el servidor descarta el alta sin decir que la descartó. -->
+          <!--
+            Honeypot: invisible para una persona. Si llega con algo escrito, el
+            servidor descarta el alta sin decir que la descartó.
+            El aria-hidden del contenedor NO basta: un campo enfocable dentro de
+            un contenedor aria-hidden sigue siendo alcanzable y además produce
+            un árbol inválido. Por eso el input lleva su propio aria-hidden y su
+            tabindex="-1", y el label se esconde igual. Alguien con lector de
+            pantalla podría haberlo llenado y su alta se habría rechazado en
+            silencio, sin ninguna pista de por qué.
+          -->
           <div class="newsletter-trampa" aria-hidden="true">
-            <label for="newsletterWebsite">Website</label>
-            <input id="newsletterWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+            <label for="newsletterWebsite" aria-hidden="true">Website</label>
+            <input id="newsletterWebsite" name="website" type="text"
+                   tabindex="-1" autocomplete="off" aria-hidden="true">
           </div>
 
           <label class="newsletter-consentimiento">
@@ -1182,9 +1249,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <!-- Antes del bloque de abajo: ese llama a SmartNews.init() y SmartCharts.panel()
-     al arrancar, así que los dos módulos tienen que estar ya cargados. -->
+     al arrancar, así que los módulos tienen que estar ya cargados.
+     source.js va primero de todos: los demás lo usan para escribir su pie. -->
+<script src="/assets/source.js"></script>
 <script src="/assets/news.js"></script>
 <script src="/assets/charts.js"></script>
+<script src="/assets/macro.js"></script>
 <script>
 (function(){
   // ============================================
@@ -1197,36 +1267,44 @@
   // desde el navegador). Ver api/news.js, api/history.js y api/sparklines.js.
 
   const translations = {
-    'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.follow': 'Síguenos',
+    'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones',
+    'nav.subscribe': 'Suscríbete',
     'nav.tagline': 'Mercados y dinero, en claro',
     'hero.eyebrow': 'Finanzas actualizadas · por Jaime Sandoval',
     'hero.title': 'Finanzas Que Sí Se Entienden.',
-    'hero.linkedin': 'Conecta en LinkedIn', 'hero.tiktok': 'Mira en TikTok',
+    'hero.newsletter': 'Recibe el correo diario',
+    'hero.linkedin': 'LinkedIn', 'hero.tiktok': 'TikTok',
+    // Los alt de las fotos de "Recent breakdowns": el HTML los trae en inglés
+    // y aquí está su versión en español.
+    'alt.japan': 'Shibuya de noche, durante la grabación del video sobre los datos económicos de Japón',
+    'alt.andytoh': 'Entrevista grabada durante el programa de verano en Singapur',
+    'alt.singapore': 'Frente a Marina Bay Sands, en Singapur',
+    'alt.jpmorgan': 'Al terminar la sesión con el Chief ETF Strategist de J.P. Morgan',
+    'alt.moris': 'En un evento de educación financiera en México',
+    'alt.tradingroom': 'Grabando el podcast del Financial Trading Room',
     'about.eyebrow': 'Acerca de', 'about.title': 'Hola, soy Jaime.',
     'about.p1': 'Soy Jaime Sandoval Ricaño, estudiante y creador de contenido apasionado por las finanzas, los negocios y el emprendimiento. En TikTok y LinkedIn comparto noticias financieras, contenido educativo e ideas para que las finanzas sean más fáciles de entender, sobre todo para los jóvenes.',
     'about.p2': 'Mi meta es seguir aprendiendo, compartir conocimiento de valor y ayudar a que más personas se interesen en el mundo de las finanzas.',
     'about.credential': 'A través de mi trabajo en educación financiera y creación de contenido, he tenido la oportunidad de conversar con figuras destacadas del sector financiero, entre ellas <strong>Margaret Franklin</strong>, CEO de CFA Institute; <strong>Jon Maier</strong>, Chief ETF Strategist de J.P. Morgan Asset Management; <strong>Moris Dieck</strong>, uno de los educadores financieros más conocidos de México; <strong>Andy Toh</strong>, CEO de Bluesky Education; y muchos otros profesionales de la industria.',
-    'market.eyebrow': 'Pulso del mercado · datos en vivo',
+    'market.eyebrow': 'Pulso del mercado',
     'market.title': 'Qué está haciendo el mercado ahora mismo',
-    'market.sub': 'Precios actualizados cada 15 minutos, más el panorama macro, revisado a mano.',
+    'market.sub': 'Datos con retraso, no un feed para operar — cada bloque dice qué tan fresco es.',
     'market.crypto': 'Cripto',
     'market.fxchart': 'Gráfico de tipo de cambio',
-    'market.fxchartnote': 'Yahoo Finance · elige el rango.',
+    'market.fxchartnote': 'Elige el par y el rango.',
     'market.macro': 'Panorama macro',
-    'market.macronote': 'Verificado a mano el 21 de julio de 2026 — no es un feed en vivo, se actualiza a mano cuando cambia.',
     'tips.label': 'Empieza por aquí',
+    'tips.title': 'Finanzas desde cero',
     'tips.note': 'Respuestas cortas a las dudas que más me llegan. Sin jerga.',
-    'tips.disclaimer': 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal.',
     'promo.eyebrow': '6 lecciones · como 5 minutos cada una',
     'promo.title': 'Finanzas desde cero, en palabras normales',
     'promo.sub': 'El peso, el interés compuesto, el S&P 500, tu primer presupuesto, la inflación y los errores que casi todos cometemos al empezar.',
     'promo.cta': 'Ver todas las lecciones →',
     'vix.title': 'Índice del miedo (VIX)',
-    'vix.asof': 'Yahoo Finance · en vivo',
     'vix.note': 'Básicamente, <strong>qué tanto miedo hay en el mercado</strong>. Mide qué tan grande esperan los operadores que sea el movimiento del S&P 500 en los próximos 30 días. Debajo de 20 es calma, arriba de 30 es que la gente está nerviosa. Casi siempre se dispara cuando las acciones caen, y por eso le dicen el índice del miedo.',
-    'vix.unavailable': 'Yahoo Finance · datos no disponibles por ahora, se reintenta solo',
     'news.eyebrow': 'Noticias financieras · Bloomberg', 'news.title': 'En los titulares',
-    'news.sub': 'Las noticias de mercado y negocios más importantes de Bloomberg, actualizadas automáticamente.',
+    'news.sub': 'Las noticias de mercado y negocios más importantes de Bloomberg, con mi lectura de cada una.',
+    'news.swipe': ' Desliza para ver más.',
     'news.cat.rates': 'Tasas',
     'news.cat.markets': 'Mercados',
     'news.cat.companies': 'Empresas',
@@ -1234,7 +1312,7 @@
     'news.cat.policy': 'Política',
     'news.cat.economy': 'Economía',
     'content.eyebrow': 'Últimas lecciones', 'content.title': 'Explicaciones recientes',
-    'content.sub': 'Contenido real de LinkedIn y TikTok — se actualiza conforme voy publicando.',
+    'content.sub': 'Mis publicaciones reales de LinkedIn y TikTok — se actualiza conforme voy publicando.',
     'content.watch': 'Ver en TikTok',
     'content.read': 'Ver en LinkedIn',
     'news2.eyebrow': 'Boletín diario',
@@ -1253,6 +1331,10 @@
   document.querySelectorAll('[data-i18n]').forEach(el => {
     el.dataset.i18nOriginal = el.hasAttribute('data-i18n-html') ? el.innerHTML : el.textContent;
   });
+  // Los alt van aparte: no son contenido del nodo, son un atributo.
+  document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+    el.dataset.i18nAltOriginal = el.getAttribute('alt') || '';
+  });
 
   function setLanguage(lang) {
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1264,26 +1346,33 @@
         el.textContent = value;
       }
     });
+    document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+      const key = el.getAttribute('data-i18n-alt');
+      el.setAttribute('alt', (lang === 'es' && translations[key]) ? translations[key] : el.dataset.i18nAltOriginal);
+    });
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === lang);
     });
     document.documentElement.lang = lang;
-    // setLanguage reescribe textContent, así que el aviso de antigüedad hay que
-    // volver a ponerlo (y en el idioma nuevo).
-    if (typeof flagStaleMacro === 'function') flagStaleMacro();
-    // Noticias y tarjetas de mercado las pinta el JS con su propio texto por
-    // idioma (mi lectura, "hace 2 h", mensajes de error): hay que repintarlas.
-    if (window.SmartNews) window.SmartNews.render();
+    try { localStorage.setItem('sf-lang', lang); } catch (e) { /* modo privado */ }
+
+    // Todo lo que el JS pinta con texto propio por idioma (mi lectura, "hace
+    // 2 h", el panel de tasas, los pies de fuente) se repinta con este evento,
+    // que es el mismo que escuchan /market y las lecciones.
+    document.dispatchEvent(new CustomEvent('smartfinance:lang', { detail: { lang } }));
     if (typeof render === 'function') render();
-    // El pie de cada gráfica lo reescribe su panel, así que el diccionario
-    // acaba de pisar su estado real. Sin esto, un panel que falló se anunciaría
-    // como "en vivo" nada más por cambiar de idioma.
-    if (fxPanel) fxPanel.repaintMeta();
-    if (vixPanel) vixPanel.repaintMeta();
   }
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
   });
+
+  // El idioma elegido se respeta al volver. Faltaba justo aquí: el home
+  // GUARDABA la preferencia pero nunca la leía, así que /market y las lecciones
+  // (que sí la leen, en assets/article.js) salían en español y el home volvía a
+  // inglés en cada carga. Misma clave 'sf-lang' en todo el sitio.
+  let idiomaGuardado = null;
+  try { idiomaGuardado = localStorage.getItem('sf-lang'); } catch (e) { /* modo privado */ }
+  if (idiomaGuardado === 'es') setLanguage('es');
 
   const navToggle = document.getElementById('navToggle');
   const navMobile = document.getElementById('navMobile');
@@ -1339,26 +1428,9 @@
     });
   }
 
-  // Si el bloque macro lleva más de 45 días sin tocarse, lo dice en vez de
-  // presentar números viejos como si fueran actuales.
-  function flagStaleMacro() {
-    const note = document.getElementById('macroNote');
-    if (!note) return;
-    const verified = note.getAttribute('data-verified');
-    if (!verified) return;
-    const [y, m, d] = verified.split('-').map(Number);
-    const days = Math.floor((Date.now() - new Date(y, m - 1, d)) / 86400000);
-    if (days > 45 && !note.querySelector('.stale-flag')) {
-      const flag = document.createElement('span');
-      flag.className = 'stale-flag';
-      flag.textContent = document.documentElement.lang === 'es'
-        ? ` · Pendiente de revisión (${days} días).`
-        : ` · Pending review (${days} days).`;
-      note.appendChild(flag);
-    }
-  }
-
-  flagStaleMacro();
+  // El aviso de antigüedad del bloque macro vive ahora en assets/macro.js,
+  // junto a la fecha de verificación y los calendarios: tener el dato en un
+  // lado y la advertencia sobre ese dato en otro era como se desincronizaban.
 
   function fmtPrice(n, decimals) {
     if (n === null || n === undefined || isNaN(n)) return '—';
@@ -1515,7 +1587,7 @@
     changeClass: 'vix-change',
     noteEl: document.getElementById('vixAsOf'),
     rangeTabs: document.getElementById('vixRangeTabs'),
-    pair: 'VIX', range: '1D', invert: true, liveOnly: true
+    pair: 'VIX', range: '1D', invert: true
   });
 
 
