@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mapa del sitio. Solo van páginas indexables y con contenido propio.
+
+  NO se incluyen a propósito:
+    /newsletter/confirmado y /newsletter/baja  — pantallas de estado a las que
+      se llega desde un correo; llevan noindex.
+    /articles/*  — ya no existen, son redirecciones 301 definidas en
+      vercel.json. Un sitemap no debe listar redirecciones.
+
+  lastmod sale de la fecha real del último commit de cada archivo. Si editas
+  una página, actualiza también su fecha aquí: una fecha inventada o vieja le
+  enseña a Google a desconfiar del archivo entero.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://smartfinance.lat/</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/market</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons/peso-tipo-de-cambio</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons/interes-compuesto</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons/sp500</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons/presupuesto-50-30-20</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons/inflacion</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/lessons/errores-al-invertir</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

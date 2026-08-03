@@ -1,0 +1,16 @@
+# Smart Finance — https://smartfinance.lat
+#
+# Todo el contenido es público y se puede indexar. Lo único cerrado es /api/,
+# que no son páginas: son endpoints JSON que devuelven datos de mercado y
+# titulares. Indexarlos no le sirve a nadie y gastaría presupuesto de rastreo
+# (y créditos de las APIs de las que dependen).
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Pantallas a las que solo se llega desde un correo. Llevan noindex en el HTML;
+# esto es el cinturón además del tirante.
+Disallow: /newsletter/
+
+Sitemap: https://smartfinance.lat/sitemap.xml

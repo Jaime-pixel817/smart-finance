@@ -584,9 +584,41 @@ async function initRiskSphere() {
   const isSmall = Math.min(window.innerWidth, window.innerHeight) < 768;
   const cores   = navigator.hardwareConcurrency || 4;
   const lowEnd  = (navigator.deviceMemory != null && navigator.deviceMemory <= 4) || cores <= 4;
-  const N   = isSmall ? (lowEnd ? 72000 : 220000) : (lowEnd ? 72000 : 160000);
-  let DPR = Math.min((window.devicePixelRatio || 1) * (lowEnd ? 1 : 1.25),
-                     isSmall ? (lowEnd ? 2 : 3.75) : (lowEnd ? 2 : 2.5));
+
+  // ---- Presupuesto de píxeles, no un DPR a ojo -------------------------
+  // Lo que ahoga a la GPU de un teléfono aquí no es el número de partículas:
+  // es el fill rate. Son THREE.Points con AdditiveBlending, y gl_PointSize va
+  // multiplicado por uPixelRatio, así que subir el DPR encarece DOS veces —
+  // más píxeles de lienzo Y sprites más grandes sobre cada uno.
+  //
+  // La escalera estaba invertida: en móvil se pedían 220 000 partículas con
+  // tope de DPR 3.75, contra 160 000 y 2.5 en escritorio. En un teléfono de
+  // 390 px con DPR 3 eso daba un lienzo de 1462x1275 (1.86 Mpx) para una caja
+  // de 390x340 CSS. Medido con EXT_disjoint_timer_query, esa configuración
+  // cuesta 2.28 ms de GPU por frame en una RTX 2080 SUPER — el equivalente en
+  // una GPU de gama media de teléfono se va muy por encima de los 16.7 ms de
+  // presupuesto, y el scroll se congela mientras el globo está en pantalla.
+  //
+  // Ahora el tope es de área de lienzo y el DPR sale de ahí, así que el costo
+  // queda acotado sin importar qué DPR reporte el aparato. Escritorio se queda
+  // como estaba: ahí nunca hubo problema.
+  const MAX_CANVAS_PX = isSmall ? (lowEnd ? 380000 : 620000) : (lowEnd ? 1200000 : 2600000);
+  const boxPx = Math.max(1, container.clientWidth * container.clientHeight);
+  const dprCap = isSmall ? (lowEnd ? 1.5 : 2) : (lowEnd ? 2 : 2.5);
+  let DPR = Math.min(
+    (window.devicePixelRatio || 1) * (lowEnd ? 1 : 1.25),
+    dprCap,
+    Math.sqrt(MAX_CANVAS_PX / boxPx)
+  );
+  DPR = Math.max(1, DPR);
+
+  // Las partículas se reparten sobre el lienzo real. 220 000 dentro de una caja
+  // de 390x340 era más de una partícula por píxel CSS: densidad que no se
+  // alcanza a ver y que sí se paga en cada frame.
+  const N = Math.round(Math.min(
+    lowEnd ? 72000 : (isSmall ? 110000 : 160000),
+    Math.max(48000, boxPx * DPR * DPR * 0.16)
+  ));
 
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);

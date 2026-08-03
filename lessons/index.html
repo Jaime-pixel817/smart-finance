@@ -24,6 +24,37 @@
   va con ruta absoluta desde la raíz. Las lecciones sueltas (/lessons/sp500)
   sí pueden usar ../ porque su carpeta base sí es /lessons/.
 -->
+<!--
+  CollectionPage con las seis lecciones en el orden en que aparecen. El
+  ItemList apunta a cada URL, no repite su contenido: el Article completo vive
+  en cada lección. Si agregas o quitas una tarjeta, actualiza también esta
+  lista y el numberOfItems.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "All lessons",
+  "description": "Six short finance lessons in plain words: the peso, compound interest, the S&P 500, the 50/30/20 budget, inflation, and the mistakes everyone makes when they start investing.",
+  "url": "https://smartfinance.lat/lessons",
+  "inLanguage": "en",
+  "isPartOf": { "@type": "WebSite", "name": "Smart Finance", "url": "https://smartfinance.lat/" },
+  "publisher": { "@type": "Organization", "name": "Smart Finance", "@id": "https://smartfinance.lat/#organization" },
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": 6,
+    "itemListOrder": "https://schema.org/ItemListOrderAscending",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "url": "https://smartfinance.lat/lessons/peso-tipo-de-cambio", "name": "What it means when the peso weakens" },
+      { "@type": "ListItem", "position": 2, "url": "https://smartfinance.lat/lessons/interes-compuesto", "name": "Simple vs. compound interest" },
+      { "@type": "ListItem", "position": 3, "url": "https://smartfinance.lat/lessons/sp500", "name": "Why the S&P 500 goes up or down" },
+      { "@type": "ListItem", "position": 4, "url": "https://smartfinance.lat/lessons/presupuesto-50-30-20", "name": "The 50/30/20 rule for your first budget" },
+      { "@type": "ListItem", "position": 5, "url": "https://smartfinance.lat/lessons/inflacion", "name": "What inflation is, and how it hits you" },
+      { "@type": "ListItem", "position": 6, "url": "https://smartfinance.lat/lessons/errores-al-invertir", "name": "3 common mistakes when you start investing" }
+    ]
+  }
+}
+</script>
 <link rel="stylesheet" href="/assets/article.css">
 <link rel="stylesheet" href="/assets/lessons.css">
 </head>
@@ -38,7 +69,7 @@
     <div class="nav-right">
       <nav class="nav-links-desktop">
         <a href="/#about" data-i18n="nav.about">About</a>
-        <a href="/#market" data-i18n="nav.market">Market</a>
+        <a href="/market" data-i18n="nav.market">Market</a>
         <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
         <a href="/#home" class="nav-cta" data-i18n="nav.follow">Follow</a>
       </nav>
@@ -198,7 +229,7 @@
     </div>
     <nav class="footer-links">
       <a href="/#about" data-i18n="nav.about">About</a>
-      <a href="/#market" data-i18n="nav.market">Market</a>
+      <a href="/market" data-i18n="nav.market">Market</a>
       <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
       <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>

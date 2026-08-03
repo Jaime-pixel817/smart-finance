@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live markets: stocks, currencies and crypto — Smart Finance</title>
+<meta name="description" content="Seven stocks and index ETFs, six currency pairs and five major cryptocurrencies, each with its own trend chart. Prices refresh every 15 minutes.">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="canonical" href="https://smartfinance.lat/market">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0A0B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316A46F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="Live markets: stocks, currencies and crypto — Smart Finance">
+<meta property="og:description" content="Stocks, currencies and crypto in one place, each with its own trend chart. Refreshed every 15 minutes.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Smart Finance">
+<meta property="og:url" content="https://smartfinance.lat/market">
+<meta property="og:image" content="https://smartfinance.lat/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Smart Finance — Jaime Sandoval Ricaño">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Live markets: stocks, currencies and crypto — Smart Finance">
+<meta name="twitter:description" content="Stocks, currencies and crypto in one place, each with its own trend chart. Refreshed every 15 minutes.">
+<meta name="twitter:image" content="https://smartfinance.lat/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  OJO CON LAS RUTAS: vercel.json trae cleanUrls, así que esta página se sirve
+  en /market (sin barra final). Desde esa URL una ruta relativa se resolvería
+  contra la raíz, así que aquí TODO va con ruta absoluta.
+  article.css es el mismo archivo que usan /lessons y cada lección: de ahí
+  salen los tokens, el nav y el footer, para que sean literalmente los mismos.
+-->
+<link rel="stylesheet" href="/assets/article.css">
+<link rel="stylesheet" href="/assets/market.css">
+<link rel="stylesheet" href="/assets/news.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Live markets: stocks, currencies and crypto",
+  "description": "Seven stocks and index ETFs, six currency pairs and five major cryptocurrencies, each with its own trend chart. Prices refresh every 15 minutes.",
+  "url": "https://smartfinance.lat/market",
+  "isPartOf": { "@type": "WebSite", "name": "Smart Finance", "url": "https://smartfinance.lat/" },
+  "publisher": { "@type": "Organization", "name": "Smart Finance", "url": "https://smartfinance.lat/" }
+}
+</script>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <span class="wordmark">Smart <span>Finance</span></span>
+      <span class="nav-tagline" data-i18n="nav.tagline">Markets &amp; money, decoded</span>
+    </a>
+    <div class="nav-right">
+      <nav class="nav-links-desktop">
+        <a href="/#about" data-i18n="nav.about">About</a>
+        <a href="/market" data-i18n="nav.market">Market</a>
+        <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
+        <a href="/#home" class="nav-cta" data-i18n="nav.follow">Follow</a>
+      </nav>
+      <!-- El toggle vive fuera de .nav-links-desktop a propósito: ese bloque se
+           oculta en móvil, y el cambio de idioma tiene que seguir disponible. -->
+      <span class="lang-toggle">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="es">ES</button>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="mkt-head">
+    <div class="wrap">
+      <a href="/" class="back-link" data-i18n="mkt.back">← Back to Smart Finance</a>
+      <p class="eyebrow"><span class="live-dot"></span><span data-i18n="mkt.eyebrow">Market data</span></p>
+      <h1 data-i18n="mkt.title">Stocks, currencies and crypto</h1>
+      <p class="mkt-lede" data-i18n="mkt.lede">Everything in one place, each with its own trend chart. Nothing here is a recommendation to buy or sell — it's the number, and what it's been doing.</p>
+      <!--
+        HONESTIDAD SOBRE EL RETRASO. Ninguna de las fuentes gratuitas que usamos
+        es tick a tick, así que en ningún lado de esta página dice "en tiempo
+        real": dice cada cuánto se actualiza, que es lo que de verdad pasa.
+      -->
+      <p class="mkt-freshness">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+        <!-- data-i18n-html porque la versión en español trae <strong> dentro:
+             sin esto article.js la insertaría como texto y se verían las
+             etiquetas literales. -->
+        <span data-i18n="mkt.fresh" data-i18n-html><strong>Updated every 15 minutes</strong> — not tick-by-tick, and not a trading feed.</span>
+        <span data-updated></span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ ACCIONES E ÍNDICES ============ -->
+  <section class="mkt-block">
+    <div class="wrap">
+      <div class="mkt-block-head">
+        <!-- "and" y no "&": el ampersand de Fraunces es una versión decorativa
+             que a este tamaño se lee como un símbolo raro, no como una "y". -->
+        <h2 data-i18n="mkt.stocks.title">Stocks and indexes</h2>
+        <p class="mkt-block-note">
+          <span data-i18n="mkt.stocks.note">Three index ETFs and four companies you've probably heard of. The chart is the latest session; the percentage compares against the previous close.</span>
+          <br><span class="src" data-i18n="mkt.source">Source:</span> <span class="src" data-src-stocks>—</span>
+        </p>
+      </div>
+      <div class="mkt-grid" data-market-stocks></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVISAS ============
+       Es el MISMO panel de la home: mismos pares, mismo /api/history y el
+       mismo assets/charts.js. No hay una segunda implementación que mantener. -->
+  <section class="mkt-block">
+    <div class="wrap">
+      <div class="mkt-block-head">
+        <h2 data-i18n="mkt.fx.title">Currencies</h2>
+        <p class="mkt-block-note">
+          <span data-i18n="mkt.fx.note">Pick a pair and a range. The peso against the dollar is the one most people here actually feel.</span>
+          <br><span class="src">Yahoo Finance</span>
+        </p>
+      </div>
+      <div class="fx-chart-panel">
+        <div class="fx-tabs" id="fxTabs">
+          <button class="fx-tab active" type="button" data-pair="USDMXN">USD/MXN</button>
+          <button class="fx-tab" type="button" data-pair="EURMXN">EUR/MXN</button>
+          <button class="fx-tab" type="button" data-pair="CHFMXN">CHF/MXN</button>
+          <button class="fx-tab" type="button" data-pair="EURUSD">EUR/USD</button>
+          <button class="fx-tab" type="button" data-pair="GBPUSD">GBP/USD</button>
+          <button class="fx-tab" type="button" data-pair="USDJPY">USD/JPY</button>
+        </div>
+        <div class="fx-chart-head">
+          <span class="fx-chart-pair" id="fxChartPair">USD/MXN</span>
+          <span class="fx-chart-value" id="fxChartValue"><span class="skel">00.0000</span></span>
+          <span class="fx-chart-change" id="fxChartChange"></span>
+          <div class="fx-range-tabs" id="fxRangeTabs">
+            <button class="fx-range-tab active" type="button" data-range="1D">1D</button>
+            <button class="fx-range-tab" type="button" data-range="1M">1M</button>
+            <button class="fx-range-tab" type="button" data-range="3M">3M</button>
+            <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
+          </div>
+        </div>
+        <div class="fx-chart-canvas-wrap">
+          <canvas id="fxChartCanvas" height="90"></canvas>
+        </div>
+        <p class="fx-chart-note" id="fxChartNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CRIPTO ============ -->
+  <section class="mkt-block">
+    <div class="wrap">
+      <div class="mkt-block-head">
+        <h2 data-i18n="mkt.crypto.title">Crypto</h2>
+        <p class="mkt-block-note">
+          <span data-i18n="mkt.crypto.note">The five largest by market value, leaving stablecoins out. The chart covers the last two days; the percentage is the last 24 hours.</span>
+          <br><span class="src" data-i18n="mkt.source">Source:</span> <span class="src" data-src-crypto>—</span>
+        </p>
+      </div>
+      <div class="mkt-grid" data-market-crypto></div>
+    </div>
+  </section>
+
+  <!-- ============ TITULARES ============
+       Mismo módulo que el home (assets/news.js): una sola petición a /api/news
+       y un solo renderizador, no una copia. -->
+  <section class="mkt-news" data-news>
+    <div class="wrap">
+      <div class="news-rail-head">
+        <div>
+          <h2 data-i18n="mkt.news.title">In the headlines</h2>
+          <p class="mkt-block-note" data-i18n="mkt.news.note">Top market and business stories from Bloomberg, with my read on each one. Swipe for more.</p>
+        </div>
+        <div class="news-rail-arrows" data-news-arrows>
+          <button class="news-arrow" type="button" data-news-prev aria-label="Previous headlines">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="news-arrow" type="button" data-news-next aria-label="More headlines">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="news-rail" data-news-rail></div>
+    </div>
+  </section>
+
+  <section class="mkt-foot">
+    <div class="wrap">
+      <p class="disclaimer" data-i18n="mkt.disclaimer">Educational content only — this is not financial, investment, or tax advice. Prices are delayed and may differ from your broker's. Always check the original source before making a decision.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <p class="wordmark">Smart <span>Finance</span></p>
+      <p class="footer-tagline" data-i18n="footer.tagline">Finance that actually clicks.</p>
+    </div>
+    <nav class="footer-links">
+      <a href="/#about" data-i18n="nav.about">About</a>
+      <a href="/market" data-i18n="nav.market">Market</a>
+      <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
+      <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>
+    </nav>
+  </div>
+  <div class="wrap">
+    <p class="disclaimer" data-i18n="footer.disclaimer">Smart Finance content is for educational purposes only and does not constitute financial, investment, or tax advice.</p>
+    <p class="copyright">© 2026 Smart Finance</p>
+  </div>
+</footer>
+
+<script>
+window.ARTICLE_I18N = {
+  'nav.tagline': 'Mercados y dinero, en claro',
+  'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.follow': 'Síguenos',
+  'mkt.back': '← Volver a Smart Finance',
+  'mkt.eyebrow': 'Datos de mercado',
+  'mkt.title': 'Acciones, divisas y cripto',
+  'mkt.lede': 'Todo en un solo lugar, cada cosa con su propia gráfica de tendencia. Nada de aquí es una recomendación de compra o venta: es el número, y lo que ha venido haciendo.',
+  'mkt.fresh': '<strong>Se actualiza cada 15 minutos</strong> — no es tick a tick, ni es un feed para operar.',
+  'mkt.source': 'Fuente:',
+  'mkt.stocks.title': 'Acciones e índices',
+  'mkt.stocks.note': 'Tres ETF que siguen a un índice y cuatro empresas que seguro ubicas. La gráfica es la última sesión; el porcentaje compara contra el cierre anterior.',
+  'mkt.fx.title': 'Divisas',
+  'mkt.fx.note': 'Elige el par y el rango. El peso contra el dólar es el que de verdad se siente por acá.',
+  'mkt.crypto.title': 'Cripto',
+  'mkt.crypto.note': 'Las cinco más grandes por valor de mercado, dejando fuera las stablecoins. La gráfica cubre los últimos dos días; el porcentaje son las últimas 24 horas.',
+  'mkt.news.title': 'En los titulares',
+  'mkt.news.note': 'Las noticias de mercado y negocios más importantes de Bloomberg, con mi lectura de cada una. Desliza para ver más.',
+  'mkt.disclaimer': 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal. Los precios traen retraso y pueden no coincidir con los de tu bróker. Verifica siempre en la fuente original antes de decidir.',
+  'footer.tagline': 'Finanzas que sí se entienden.',
+  'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.'
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- article.js primero: guarda el texto original de cada [data-i18n] y aplica
+     el idioma guardado antes de que market.js pinte nada. -->
+<script src="/assets/article.js"></script>
+<script src="/assets/news.js"></script>
+<script src="/assets/charts.js"></script>
+<script src="/assets/market.js"></script>
+</body>
+</html>

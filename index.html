@@ -26,6 +26,51 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Datos estructurados. Organization + WebSite van solo en el home: son sobre el
+  sitio entero, y repetirlos en cada página le da a Google la misma entidad
+  varias veces sin agregar nada. Las lecciones llevan su propio Article.
+  Todo lo de aquí tiene que ser verdad y estar visible en la página: describir
+  algo que no está es exactamente lo que Google penaliza.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://smartfinance.lat/#organization",
+      "name": "Smart Finance",
+      "url": "https://smartfinance.lat/",
+      "logo": "https://smartfinance.lat/og-image.jpg",
+      "description": "Financial education, markets and money, explained in plain words.",
+      "founder": {
+        "@type": "Person",
+        "name": "Jaime Sandoval Ricaño",
+        "jobTitle": "Founder, Smart Finance",
+        "sameAs": [
+          "https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401",
+          "https://www.tiktok.com/@smart.financee"
+        ]
+      },
+      "sameAs": [
+        "https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401",
+        "https://www.tiktok.com/@smart.financee"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://smartfinance.lat/#website",
+      "name": "Smart Finance",
+      "alternateName": "Smart Finance — Finanzas que sí se entienden",
+      "url": "https://smartfinance.lat/",
+      "description": "Financial education, markets, and money, explained clearly. Live data, real breakdowns.",
+      "inLanguage": ["en", "es-MX"],
+      "publisher": { "@id": "https://smartfinance.lat/#organization" }
+    }
+  ]
+}
+</script>
 <style>
   :root {
     --bg: #0A0A0B;
@@ -82,19 +127,23 @@
   /* ---------- Sistema unificado de tarjetas ----------
      Todas las tarjetas del sitio (mercado, noticias, tips, posts) comparten
      superficie, radio, borde y hover. Antes cada sección traía su propio
-     -3px/-4px y su propia sombra según cuándo se escribió. */
-  .market-card, .news-card, .post-card {
+     -3px/-4px y su propia sombra según cuándo se escribió.
+     La tarjeta de noticia ya NO está en esta lista: desde que es un carrusel
+     vive en assets/news.css (compartida con /market). Dejarla aquí le metía un
+     :active con scale que se disparaba a media deslizada, y un :hover que en
+     táctil se queda pegado. */
+  .market-card, .post-card {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .market-card:hover, .news-card:hover, .post-card:hover {
+  .market-card:hover, .post-card:hover {
     transform: translateY(-4px);
     border-color: var(--brand);
     box-shadow: 0 20px 40px -24px rgba(0,0,0,0.65);
   }
-  .market-card:active, .news-card:active, .post-card:active { transform: scale(0.98); }
+  .market-card:active, .post-card:active { transform: scale(0.98); }
 
   /* ---------- Set de iconos de línea ----------
      Un solo grosor de trazo (1.6) y currentColor en todo el sitio, para que
@@ -577,102 +626,16 @@
     .lessons-promo-title { font-size: 1.18rem; }
   }
 
-  /* ---------- News ---------- */
+  /* ---------- News ----------
+     La tarjeta y el carrusel viven en assets/news.css, compartidos con
+     /market. Aquí queda solo lo que es del hueco de la sección en el home. */
   .news { padding: var(--section-pad) 0; }
-  /* Cuadrícula fija de 2 columnas: con cuatro titulares queda 2×2 exacto, sin
-     depender de cuánto mida cada tarjeta. minmax(0,1fr) evita que un titular
-     largo ensanche su columna. */
-  .news-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-  .news-card { overflow:hidden; display:flex; flex-direction:column; }
-  .news-card-body { padding: var(--card-pad); display:flex; flex-direction:column; gap:10px; flex-grow:1; }
-
-  /* ---------- Miniatura de la noticia ----------
-     La foto del feed cuando Bloomberg la manda; cuando no, un fondo por tema
-     con el icono de la categoría. Nunca una foto inventada ni sacada de otro
-     lado: sería atribuirle a la nota una imagen que no es suya. */
-  .news-thumb { position:relative; height:172px; overflow:hidden; background: var(--card-2); border-bottom:1px solid var(--line); }
-  .news-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-  .news-thumb-art {
-    position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
-    color: rgba(245,245,242,0.9);
-  }
-  .news-thumb-art .ico { width:44px; height:44px; stroke-width:1.3; }
-  /* Retícula tenue, solo sobre el fondo generado: encima de una foto real
-     ensuciaría la imagen. */
-  .news-thumb.is-art::after {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background-image: linear-gradient(rgba(245,245,242,0.045) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(245,245,242,0.045) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-  /* Un fondo por categoría, con la misma paleta que las miniaturas de posts. */
-  .news-thumb.rates     { background: radial-gradient(120% 120% at 18% 12%, #241F38 0%, #14121F 55%, #0A0A0B 100%); }
-  .news-thumb.markets   { background: radial-gradient(120% 120% at 15% 10%, #123B2E 0%, #0D1A17 55%, #0A0A0B 100%); }
-  .news-thumb.companies { background: radial-gradient(120% 120% at 80% 80%, #3A2A16 0%, #1E170D 55%, #0A0A0B 100%); }
-  .news-thumb.crypto    { background: radial-gradient(120% 120% at 82% 18%, #3B3013 0%, #1F1A0C 55%, #0A0A0B 100%); }
-  .news-thumb.policy    { background: radial-gradient(120% 120% at 20% 85%, #1E3348 0%, #101A24 55%, #0A0A0B 100%); }
-  .news-thumb.economy   { background: radial-gradient(120% 120% at 50% 15%, #26262B 0%, #17171A 55%, #0A0A0B 100%); }
-  /* Jerarquía: primero la etiqueta de categoría (color), luego el titular grande,
-     luego fuente y hora en mono chiquito. Antes las tres cosas competían. */
-  .news-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .news-cat {
-    display:inline-flex; align-items:center; gap:5px;
-    font-family: var(--font-mono); font-size:0.64rem; font-weight:700;
-    letter-spacing:0.09em; text-transform:uppercase;
-    padding: 4px 9px; border-radius:999px;
-    border: 1px solid currentColor; line-height:1;
-  }
-  .news-cat .ico { font-size:12px; }
-  /* Cada categoría toma su color de la paleta que ya existe, nada nuevo. */
-  .news-cat.rates { color: var(--accent-purple); }
-  .news-cat.markets { color: var(--up); }
-  .news-cat.companies { color: var(--accent-orange); }
-  .news-cat.crypto { color: #E8B54D; }
-  .news-cat.policy { color: #6FA8DC; }
-  .news-cat.economy { color: var(--muted); }
-  .news-source { font-family: var(--font-mono); font-size:0.68rem; color: var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-left:auto; }
-  .news-card h3 { font-family: var(--font-display); font-size:1.12rem; font-weight:700; line-height:1.32; letter-spacing:-0.01em; }
-  .news-card a.news-link { font-weight:600; color: var(--gold-text); font-size:0.88rem; display:inline-flex; align-items:center; gap:6px; }
-  .news-card a.news-link .ico { font-size:14px; }
-  /* Mi lectura del titular. La genera /api/news una vez al día con la API de
-     Anthropic; si esa llamada falla, llega marcada como pendiente y se pinta
-     con el estilo de placeholder. */
-  .news-take {
-    font-size:0.86rem; line-height:1.5; color: var(--ink);
-    border-left: 2px solid var(--brand);
-    padding: 2px 0 2px 12px; margin-top: 2px; flex-grow:1;
-  }
-  .news-take.is-placeholder { color: var(--muted); font-style: italic; border-left-color: var(--line); }
-  .news-take-label {
-    display:block; font-family: var(--font-mono); font-size:0.64rem; font-weight:700;
-    letter-spacing:0.1em; text-transform:uppercase; color: var(--gold-text); margin-bottom:3px;
-  }
-  .news-take.is-placeholder .news-take-label { color: var(--muted); }
-
-  /* La cuadrícula es 2×2 en TODOS los anchos: no hay ningún punto en el que
-     colapse a una columna ni en el que quepan más de dos, porque el número de
-     columnas es fijo y no depende del ancho de la tarjeta. Un auto-fit con
-     minmax() sí dependería: con minmax(260px,1fr) y 1136px de contenido caben
-     cuatro columnas y las cuatro tarjetas terminan en una sola fila.
-     A media pantalla la tarjeta queda angosta, así que abajo se aprieta la
-     miniatura y la tipografía en vez de tocar el número de columnas. */
+  .news-sub { margin-bottom: 0; }
+  /* El encabezado y las flechas comparten renglón en escritorio; en móvil las
+     flechas no existen (se desliza con el dedo) y el bloque vuelve a apilarse. */
   @media (max-width: 767px) {
-    .news-grid { gap: 14px; }
-    .news-thumb { height: 96px; }
-    .news-card h3 { font-size: 0.95rem; line-height: 1.3; }
-    .news-card-body { gap: 8px; }
-    .news-take { font-size: 0.78rem; padding-left: 9px; }
-    .news-cat { font-size: 0.58rem; padding: 3px 7px; }
-    .news-source { font-size: 0.6rem; }
-    .news-card a.news-link { font-size: 0.8rem; }
-  }
-  /* Bajo 420px dos columnas dejan la tarjeta en ~160px: se recorta lo que
-     menos aporta a ese tamaño para que el titular y la opinión respiren. */
-  @media (max-width: 420px) {
-    .news-grid { gap: 10px; }
-    .news-thumb { height: 78px; }
-    .news-source { display: none; }
+    .news .news-rail-head { display: block; }
+    .news .news-sub { margin-bottom: 0; }
   }
 
   /* ---------- Content / Lessons ---------- */
@@ -816,6 +779,8 @@
 <!-- Lo propio del boletín (formulario y páginas de estado) va aparte para no
      seguir engordando el <style> de la home. -->
 <link rel="stylesheet" href="assets/newsletter.css">
+<!-- El carrusel de titulares es el mismo archivo que usa /market. -->
+<link rel="stylesheet" href="/assets/news.css">
 </head>
 <body>
 <header class="site-nav">
@@ -826,7 +791,7 @@
     </a>
     <nav class="nav-links-desktop">
       <a href="#about" data-i18n="nav.about">About</a>
-      <a href="#market" data-i18n="nav.market">Market</a>
+      <a href="/market" data-i18n="nav.market">Market</a>
       <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
       <a href="#home" class="nav-cta" data-i18n="nav.follow">Follow</a>
       <span class="lang-toggle">
@@ -840,7 +805,7 @@
   </div>
   <div class="nav-mobile" id="navMobile">
     <a href="#about" data-i18n="nav.about">About</a>
-    <a href="#market" data-i18n="nav.market">Market</a>
+    <a href="/market" data-i18n="nav.market">Market</a>
     <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
     <a href="#home" data-i18n="nav.follow">Follow</a>
     <span class="lang-toggle lang-toggle-mobile">
@@ -1000,12 +965,27 @@
     </div>
   </section>
 
-  <section id="news" class="news reveal">
+  <!-- El carrusel lo pinta assets/news.js, que es el MISMO módulo que usa
+       /market: una sola petición a /api/news y un solo renderizador. Aquí solo
+       va el andamio (encabezado, flechas y la pista vacía). -->
+  <section id="news" class="news reveal" data-news>
     <div class="wrap">
-      <p class="eyebrow"><span class="live-dot"></span><span data-i18n="news.eyebrow">Finance news · Bloomberg</span></p>
-      <h2 class="section-title" data-i18n="news.title">In the headlines</h2>
-      <p class="section-sub" data-i18n="news.sub">Top market and business stories from Bloomberg, pulled automatically.</p>
-      <div class="news-grid" id="grid-news"></div>
+      <div class="news-rail-head">
+        <div>
+          <p class="eyebrow"><span class="live-dot"></span><span data-i18n="news.eyebrow">Finance news · Bloomberg</span></p>
+          <h2 class="section-title" data-i18n="news.title">In the headlines</h2>
+          <p class="section-sub news-sub" data-i18n="news.sub">Top market and business stories from Bloomberg, pulled automatically. Swipe for more.</p>
+        </div>
+        <div class="news-rail-arrows" data-news-arrows>
+          <button class="news-arrow" type="button" data-news-prev aria-label="Previous headlines">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="news-arrow" type="button" data-news-next aria-label="More headlines">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="news-rail" data-news-rail></div>
     </div>
   </section>
 
@@ -1187,7 +1167,7 @@
     </div>
     <nav class="footer-links">
       <a href="#about" data-i18n="nav.about">About</a>
-      <a href="#market" data-i18n="nav.market">Market</a>
+      <a href="/market" data-i18n="nav.market">Market</a>
       <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
       <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>
@@ -1201,6 +1181,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- Antes del bloque de abajo: ese llama a SmartNews.init() y SmartCharts.panel()
+     al arrancar, así que los dos módulos tienen que estar ya cargados. -->
+<script src="/assets/news.js"></script>
+<script src="/assets/charts.js"></script>
 <script>
 (function(){
   // ============================================
@@ -1289,12 +1273,13 @@
     if (typeof flagStaleMacro === 'function') flagStaleMacro();
     // Noticias y tarjetas de mercado las pinta el JS con su propio texto por
     // idioma (mi lectura, "hace 2 h", mensajes de error): hay que repintarlas.
-    if (typeof renderNews === 'function') renderNews();
+    if (window.SmartNews) window.SmartNews.render();
     if (typeof render === 'function') render();
-    // El pie del panel del VIX lo reescribe loadVixChart, así que el diccionario
+    // El pie de cada gráfica lo reescribe su panel, así que el diccionario
     // acaba de pisar su estado real. Sin esto, un panel que falló se anunciaría
     // como "en vivo" nada más por cambiar de idioma.
-    if (typeof paintVixMeta === 'function') paintVixMeta();
+    if (fxPanel) fxPanel.repaintMeta();
+    if (vixPanel) vixPanel.repaintMeta();
   }
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -1505,407 +1490,40 @@
     render();
   }
 
-  const FX_PAIRS = {
-    USDMXN: { label: 'USD/MXN', decimals: 4 },
-    EURMXN: { label: 'EUR/MXN', decimals: 4 },
-    CHFMXN: { label: 'CHF/MXN', decimals: 4 },
-    EURUSD: { label: 'EUR/USD', decimals: 4 },
-    GBPUSD: { label: 'GBP/USD', decimals: 4 },
-    USDJPY: { label: 'USD/JPY', decimals: 2 }
-  };
-  const FX_RANGE_NOTE = {
-    '1D': 'latest trading session, 5-min bars', '1M': 'last 30 days, daily close',
-    '3M': 'last 3 months, daily close', '1Y': 'last 12 months, daily close'
-  };
-
-  let fxChartInstance = null;
-  let currentFxPair = 'USDMXN';
-  let currentFxRange = '1D';
-  let fxAutoRefreshTimer = null;
-  let fxActivePoints = [];
-
-  function formatFxTimestamp(ts, range, full) {
-    const d = new Date(ts * 1000);
-    if (range === '1D') {
-      return full
-        ? d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: range === '1Y' ? 'numeric' : undefined });
-  }
-
-  const fxCrosshairPlugin = {
-    id: 'fxCrosshair',
-    afterDraw(chart) {
-      const active = chart.tooltip && chart.tooltip._active;
-      if (!active || !active.length) return;
-      const { ctx, chartArea } = chart;
-      if (!chartArea) return;
-      const x = active[0].element.x;
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(x, chartArea.top);
-      ctx.lineTo(x, chartArea.bottom);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(245,245,242,0.35)';
-      ctx.setLineDash([4, 4]);
-      ctx.stroke();
-      ctx.restore();
-    }
-  };
-  if (typeof Chart !== 'undefined') Chart.register(fxCrosshairPlugin);
-
-  // Opciones compartidas por la gráfica de tipo de cambio y la del VIX, para que
-  // las dos se vean exactamente iguales y no se desincronicen al tocar una.
-  function lineChartOptions(callbacks) {
-    return {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#111113', borderColor: '#1E1E22', borderWidth: 1,
-          titleColor: '#F5F5F2', bodyColor: '#F5F5F2',
-          titleFont: { family: 'JetBrains Mono', size: 11 }, bodyFont: { family: 'JetBrains Mono', size: 12 },
-          padding: 10, displayColors: false,
-          callbacks: callbacks
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#8A8A8E', maxTicksLimit: 6, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } },
-        y: { ticks: { color: '#8A8A8E', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } }
-      }
-    };
-  }
-
-  // Dataset con degradado, idéntico en ambas gráficas.
-  function lineDataset(values, labels, rgb) {
-    return {
-      labels: labels,
-      datasets: [{
-        data: values,
-        borderColor: `rgb(${rgb})`,
-        backgroundColor: (context) => {
-          const { ctx: c, chartArea: area } = context.chart;
-          if (!area) return null;
-          const gradient = c.createLinearGradient(0, area.top, 0, area.bottom);
-          gradient.addColorStop(0, `rgba(${rgb},0.28)`);
-          gradient.addColorStop(1, `rgba(${rgb},0)`);
-          return gradient;
-        },
-        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: `rgb(${rgb})`,
-        fill: true, tension: 0.3
-      }]
-    };
-  }
-
-  async function loadFxChart(pair, range) {
-    currentFxPair = pair;
-    currentFxRange = range;
-    const cfg = FX_PAIRS[pair];
-    const pairEl = document.getElementById('fxChartPair');
-    const valueEl = document.getElementById('fxChartValue');
-    const changeEl = document.getElementById('fxChartChange');
-    const noteEl = document.getElementById('fxChartNote');
-    if (pairEl) pairEl.textContent = cfg.label;
-    try {
-      const res = await fetch(`/api/history?pair=${pair}&range=${range}`);
-      if (!res.ok) throw new Error('history ' + res.status);
-      const data = await res.json();
-      const points = Array.isArray(data.points) ? data.points : [];
-      if (!points.length) throw new Error('empty series');
-      fxActivePoints = points;
-
-      const first = points[0][1], last = points[points.length - 1][1];
-      const changePct = ((last - first) / first) * 100;
-      const dir = changePct > 0 ? 'up' : changePct < 0 ? 'down' : '';
-      const lineColor = dir === 'down' ? '#A32D2D' : '#0F8A5F';
-      const rgb = dir === 'down' ? '163,45,45' : '15,138,95';
-
-      if (valueEl) valueEl.textContent = fmtPrice(last, cfg.decimals);
-      if (changeEl) {
-        changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + `% (${range})`;
-        changeEl.className = 'fx-chart-change ' + dir;
-      }
-      if (noteEl) noteEl.textContent = `Yahoo Finance · ${FX_RANGE_NOTE[range] || 'live'}`;
-
-      const ctx = document.getElementById('fxChartCanvas');
-      if (!ctx || typeof Chart === 'undefined') return;
-      const chartData = {
-        labels: points.map(p => formatFxTimestamp(p[0], range)),
-        datasets: [{
-          data: points.map(p => p[1]),
-          borderColor: lineColor,
-          backgroundColor: (context) => {
-            const { ctx: c, chartArea: area } = context.chart;
-            if (!area) return null;
-            const gradient = c.createLinearGradient(0, area.top, 0, area.bottom);
-            gradient.addColorStop(0, `rgba(${rgb},0.28)`);
-            gradient.addColorStop(1, `rgba(${rgb},0)`);
-            return gradient;
-          },
-          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: lineColor,
-          fill: true, tension: 0.3
-        }]
-      };
-      const options = lineChartOptions({
-        title: (items) => items.length ? formatFxTimestamp(fxActivePoints[items[0].dataIndex][0], currentFxRange, true) : '',
-        label: (item) => fmtPrice(item.parsed.y, cfg.decimals)
-      });
-      if (fxChartInstance) {
-        fxChartInstance.data = chartData;
-        fxChartInstance.options = options;
-        fxChartInstance.update();
-      } else {
-        fxChartInstance = new Chart(ctx, { type: 'line', data: chartData, options, plugins: [fxCrosshairPlugin] });
-      }
-    } catch (e) {
-      console.warn('FX chart fetch failed:', e);
-      fxActivePoints = [];
-      if (valueEl) valueEl.textContent = '—';
-      if (changeEl) { changeEl.textContent = '—'; changeEl.className = 'fx-chart-change'; }
-      if (noteEl) noteEl.textContent = 'Yahoo Finance · live data unavailable, retrying automatically';
-    }
-  }
-
-  function setFxRange(range) {
-    // Ojo: los selectores van acotados a #fxRangeTabs. El panel del VIX usa la
-    // misma clase .fx-range-tab para verse igual, y sin acotar se marcarían las
-    // pestañas de las dos gráficas al hacer clic en una.
-    document.querySelectorAll('#fxRangeTabs .fx-range-tab').forEach(b => b.classList.toggle('active', b.dataset.range === range));
-    loadFxChart(currentFxPair, range);
-    if (fxAutoRefreshTimer) { clearInterval(fxAutoRefreshTimer); fxAutoRefreshTimer = null; }
-    if (range === '1D') {
-      fxAutoRefreshTimer = setInterval(() => loadFxChart(currentFxPair, currentFxRange), 60000);
-    }
-  }
-
-  // ---- Gráfica del VIX ---------------------------------------------------
-  // Reemplaza al panel de la curva de rendimiento, que era un SVG estático
-  // actualizado a mano. Usa el mismo /api/history que el tipo de cambio, con
-  // pair=VIX, así que no hay una segunda fuente de datos que mantener.
-  let vixChartInstance = null;
-  let vixRange = '1D';
-  let vixPoints = [];
-  let vixAutoRefreshTimer = null;
-  let vixFailed = false;
-
-  // Pie del panel en el idioma actual, según si hay datos o no. Se llama tanto
-  // al cargar la gráfica como al cambiar de idioma.
-  function paintVixMeta() {
-    const asOfEl = document.getElementById('vixAsOf');
-    if (!asOfEl) return;
-    const es = document.documentElement.lang === 'es';
-    if (vixFailed) {
-      asOfEl.textContent = es
-        ? 'Yahoo Finance · datos no disponibles por ahora, se reintenta solo'
-        : 'Yahoo Finance · data unavailable right now, retrying automatically';
-    } else {
-      asOfEl.textContent = es ? 'Yahoo Finance · en vivo' : 'Yahoo Finance · live';
-    }
-  }
-
-  async function loadVixChart(range) {
-    vixRange = range;
-    const valueEl = document.getElementById('vixValue');
-    const changeEl = document.getElementById('vixChange');
-    try {
-      const res = await fetch(`/api/history?pair=VIX&range=${range}`);
-      if (!res.ok) throw new Error('history ' + res.status);
-      const data = await res.json();
-      const points = Array.isArray(data.points) ? data.points : [];
-      if (!points.length) throw new Error('empty series');
-      vixPoints = points;
-
-      const first = points[0][1], last = points[points.length - 1][1];
-      const changePct = ((last - first) / first) * 100;
-      const dir = changePct > 0 ? 'up' : changePct < 0 ? 'down' : '';
-      // VIX arriba = más miedo, así que la subida se pinta roja: al revés que
-      // en una gráfica de precio, donde subir es bueno.
-      const rgb = changePct > 0 ? '163,45,45' : '15,138,95';
-
-      if (valueEl) valueEl.textContent = fmtPrice(last, 2);
-      if (changeEl) {
-        changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + `% (${range})`;
-        changeEl.className = 'vix-change ' + dir;
-      }
-      vixFailed = false;
-      paintVixMeta();
-
-      const ctx = document.getElementById('vixChartCanvas');
-      if (!ctx || typeof Chart === 'undefined') return;
-      const chartData = lineDataset(
-        points.map(p => p[1]),
-        points.map(p => formatFxTimestamp(p[0], range)),
-        rgb
-      );
-      const options = lineChartOptions({
-        title: (items) => items.length ? formatFxTimestamp(vixPoints[items[0].dataIndex][0], vixRange, true) : '',
-        label: (item) => fmtPrice(item.parsed.y, 2)
-      });
-      if (vixChartInstance) {
-        vixChartInstance.data = chartData;
-        vixChartInstance.options = options;
-        vixChartInstance.update();
-      } else {
-        vixChartInstance = new Chart(ctx, { type: 'line', data: chartData, options, plugins: [fxCrosshairPlugin] });
-      }
-    } catch (e) {
-      console.warn('VIX chart fetch failed:', e);
-      vixPoints = [];
-      vixFailed = true;
-      if (valueEl) valueEl.textContent = '—';
-      if (changeEl) { changeEl.textContent = ''; changeEl.className = 'vix-change'; }
-      paintVixMeta();
-    }
-  }
-
-  function setVixRange(range) {
-    document.querySelectorAll('#vixRangeTabs .fx-range-tab').forEach(b => b.classList.toggle('active', b.dataset.range === range));
-    loadVixChart(range);
-    if (vixAutoRefreshTimer) { clearInterval(vixAutoRefreshTimer); vixAutoRefreshTimer = null; }
-    if (range === '1D') {
-      vixAutoRefreshTimer = setInterval(() => loadVixChart(vixRange), 60000);
-    }
-  }
-
-  document.querySelectorAll('#vixRangeTabs .fx-range-tab').forEach(btn => {
-    btn.addEventListener('click', () => setVixRange(btn.dataset.range));
+  // ---- Gráficas de línea -------------------------------------------------
+  // La maquinaria (Chart.js, /api/history, pestañas de rango, crosshair) vive
+  // en assets/charts.js, que es el MISMO módulo que monta /market. Aquí solo se
+  // arman los dos paneles con sus elementos.
+  const fxPanel = window.SmartCharts && window.SmartCharts.panel({
+    canvas: document.getElementById('fxChartCanvas'),
+    valueEl: document.getElementById('fxChartValue'),
+    changeEl: document.getElementById('fxChartChange'),
+    changeClass: 'fx-chart-change',
+    noteEl: document.getElementById('fxChartNote'),
+    pairLabelEl: document.getElementById('fxChartPair'),
+    pairTabs: document.getElementById('fxTabs'),
+    rangeTabs: document.getElementById('fxRangeTabs'),
+    pair: 'USDMXN', range: '1D'
   });
 
-  document.querySelectorAll('.fx-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.fx-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadFxChart(btn.dataset.pair, currentFxRange);
-    });
+  // El VIX es el mismo panel con el símbolo fijo y el color al revés: ahí subir
+  // significa más miedo, así que la subida se pinta roja.
+  const vixPanel = window.SmartCharts && window.SmartCharts.panel({
+    canvas: document.getElementById('vixChartCanvas'),
+    valueEl: document.getElementById('vixValue'),
+    changeEl: document.getElementById('vixChange'),
+    changeClass: 'vix-change',
+    noteEl: document.getElementById('vixAsOf'),
+    rangeTabs: document.getElementById('vixRangeTabs'),
+    pair: 'VIX', range: '1D', invert: true, liveOnly: true
   });
 
-  document.querySelectorAll('#fxRangeTabs .fx-range-tab').forEach(btn => {
-    btn.addEventListener('click', () => setFxRange(btn.dataset.range));
-  });
 
-  let newsData = null;
-
-  // ---- Mi lectura de cada titular ---------------------------------------
-  // Ya no se escribe a mano: /api/news llama a la API de Anthropic una vez al
-  // día y devuelve item.take = { en, es }. Cuando esa llamada falla, el take
-  // llega con pending:true y aquí se pinta como placeholder en vez de hacerlo
-  // pasar por una opinión mía. Ver api/news.js.
-
-  // ---- Categoría visual del titular -------------------------------------
-  // Etiqueta de color + icono para que la tarjeta no sea puro texto. Se deduce
-  // del titular que ya llega del feed: NO cambia de dónde vienen los datos ni
-  // qué se muestra, solo cómo se presenta. Si nada coincide, cae en "economy".
-  const NEWS_CATEGORIES = [
-    { key: 'rates', en: 'Rates', es: 'Tasas',
-      words: ['fed', 'fomc', 'banxico', 'central bank', 'interest rate', 'rate cut', 'rate hike', 'ecb', 'bond', 'yield', 'treasury', 'powell'],
-      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="21" x2="21" y2="21"/><path d="M4 21V10l8-6 8 6v11"/><line x1="9" y1="21" x2="9" y2="14"/><line x1="15" y1="21" x2="15" y2="14"/></svg>' },
-    { key: 'crypto', en: 'Crypto', es: 'Cripto',
-      words: ['bitcoin', 'ethereum', 'crypto', 'blockchain', 'stablecoin', 'token'],
-      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 8h4.5a2.5 2.5 0 010 5H9zm0 5h5a2.5 2.5 0 010 5H9zm0-5V6m0 12v-2m3-10V6m0 12v-2"/></svg>' },
-    { key: 'companies', en: 'Companies', es: 'Empresas',
-      words: ['earnings', 'shares', 'stock', 'ceo', 'merger', 'acquisition', 'ipo', 'profit', 'revenue', 'layoff', 'apple', 'tesla', 'nvidia', 'amazon', 'microsoft', 'google'],
-      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>' },
-    { key: 'markets', en: 'Markets', es: 'Mercados',
-      words: ['market', 'rally', 'selloff', 'index', 'investors', 's&p', 'nasdaq', 'dow', 'oil', 'gold', 'copper', 'dollar', 'peso', 'currency', 'trading', 'commodit'],
-      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>' },
-    { key: 'policy', en: 'Policy', es: 'Política',
-      words: ['tariff', 'trade', 'sanction', 'president', 'prime minister', 'government', 'election', 'parliament', 'congress', 'trump', 'sheinbaum', 'regulat', 'lawmaker', 'summit', 'treaty'],
-      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 4.5v3H3v-3z"/><line x1="6" y1="10" x2="6" y2="17"/><line x1="12" y1="10" x2="12" y2="17"/><line x1="18" y1="10" x2="18" y2="17"/><line x1="3" y1="21" x2="21" y2="21"/></svg>' },
-    { key: 'economy', en: 'Economy', es: 'Economía',
-      words: [],
-      icon: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' }
-  ];
-
-  function categoryFor(title) {
-    const t = (title || '').toLowerCase();
-    return NEWS_CATEGORIES.find(c => c.words.some(w => t.includes(w)))
-        || NEWS_CATEGORIES[NEWS_CATEGORIES.length - 1];
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str || '';
-    return div.innerHTML;
-  }
-
-  async function fetchNews() {
-    try {
-      const res = await fetch('/api/news');
-      if (!res.ok) throw new Error('news ' + res.status);
-      const data = await res.json();
-      if (!data.items || !data.items.length) throw new Error('bad feed response');
-      newsData = data.items.slice(0, 4);
-    } catch (e) {
-      console.warn('News fetch failed:', e);
-      if (!Array.isArray(newsData)) newsData = 'error';
-    }
-    renderNews();
-  }
-
-  // "hace 2 h" / "2h ago" a partir del pubDate del feed.
-  function relativeTime(dateStr) {
-    const t = Date.parse(dateStr || '');
-    if (isNaN(t)) return '';
-    const mins = Math.round((Date.now() - t) / 60000);
-    const es = document.documentElement.lang === 'es';
-    if (mins < 1) return es ? 'ahora' : 'just now';
-    if (mins < 60) return es ? `hace ${mins} min` : `${mins}m ago`;
-    const hrs = Math.round(mins / 60);
-    if (hrs < 24) return es ? `hace ${hrs} h` : `${hrs}h ago`;
-    const days = Math.round(hrs / 24);
-    return es ? `hace ${days} d` : `${days}d ago`;
-  }
-
-  function renderNews() {
-    const grid = document.getElementById('grid-news');
-    if (!grid) return;
-    if (newsData === 'error' || !newsData) {
-      grid.innerHTML = `<div class="setup-card">${document.documentElement.lang === 'es'
-        ? 'Titulares no disponibles por el momento. Se reintenta solo.'
-        : 'Live headlines are temporarily unavailable. It will retry automatically.'}</div>`;
-      return;
-    }
-    grid.innerHTML = newsData.map(item => {
-      // Solo http(s): así una URL con javascript: en el feed no se vuelve un link vivo.
-      const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? escapeHtml(u) : '');
-      const img = safeUrl(item.thumbnail || (item.enclosure && item.enclosure.link));
-      const link = safeUrl(item.link);
-      const when = relativeTime(item.pubDate);
-      const es = document.documentElement.lang === 'es';
-      const more = es ? 'Leer más' : 'Read more';
-      const cat = categoryFor(item.title);
-      const take = item.take || {};
-      const pending = !!take.pending || !(es ? take.es : take.en);
-      const takeLabel = es ? 'Mi lectura' : 'My take';
-      const takeText = pending
-        ? (es ? 'El contexto de esta nota va en camino.' : 'Context on this one is coming shortly.')
-        : escapeHtml(es ? take.es : take.en);
-      // Con foto se muestra la del feed; sin foto, el fondo del tema con su
-      // icono. onerror quita solo el <img>, así que si la imagen no carga
-      // queda el fondo de .news-thumb en lugar de un hueco roto.
-      const thumb = img
-        ? `<div class="news-thumb ${cat.key}"><img src="${img}" alt="" loading="lazy" onerror="this.remove()"></div>`
-        : `<div class="news-thumb is-art ${cat.key}"><span class="news-thumb-art" aria-hidden="true">${cat.icon}</span></div>`;
-      return `<article class="news-card">
-        ${thumb}
-        <div class="news-card-body">
-          <div class="news-top">
-            <span class="news-cat ${cat.key}">${cat.icon}${escapeHtml(es ? cat.es : cat.en)}</span>
-            <span class="news-source">Bloomberg${when ? ` · ${escapeHtml(when)}` : ''}</span>
-          </div>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p class="news-take${pending ? ' is-placeholder' : ''}">
-            <span class="news-take-label">${takeLabel}</span>${takeText}
-          </p>
-          ${link ? `<a class="news-link" href="${link}" target="_blank" rel="noopener">${more}
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>` : ''}
-        </div>
-      </article>`;
-    }).join('');
-  }
+  // ---- Titulares --------------------------------------------------------
+  // Todo lo de "In the headlines" (petición, categorías, tarjeta, carrusel)
+  // vive en assets/news.js, que es el MISMO módulo que monta /market. Aquí solo
+  // quedan las llamadas: SmartNews.init() al cargar, SmartNews.render() al
+  // cambiar de idioma y SmartNews.refresh() en el ciclo de refresco.
 
   // Mientras no hay dato se pinta un esqueleto con shimmer en vez de "—": el
   // guion se leía como "no hay nada", el esqueleto como "viene en camino".
@@ -1977,9 +1595,10 @@
   fetchCrypto();
   fetchFx();
   fetchSparklines();
-  fetchNews();
-  setFxRange('1D');
-  setVixRange('1D');
+  // Monta el carrusel de titulares (assets/news.js) y dispara su primera carga.
+  if (window.SmartNews) window.SmartNews.init('[data-news]');
+  // Las dos gráficas ya arrancan solas al construirse (SmartCharts.panel las
+  // carga en su rango inicial), así que aquí no hace falta nada más.
 
   // ---- Refresco con pausa en segundo plano ------------------------------
   // Antes los setInterval seguían corriendo con la pestaña oculta, quemando
@@ -1993,7 +1612,7 @@
     { fn: fetchCrypto,     every: 60000 },
     { fn: fetchFx,         every: 5 * 60000 },
     { fn: fetchSparklines, every: 15 * 60000 },
-    { fn: fetchNews,       every: 60 * 60000 }
+    { fn: () => { if (window.SmartNews) window.SmartNews.refresh(); }, every: 60 * 60000 }
   ];
   let timers = [];
 

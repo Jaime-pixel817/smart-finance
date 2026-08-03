@@ -30,6 +30,10 @@
     });
     document.documentElement.lang = lang;
     try { localStorage.setItem('sf-lang', lang); } catch (e) { /* modo privado */ }
+    // Aviso para lo que este diccionario no alcanza: /market pinta tarjetas,
+    // titulares y pies de gráfica con texto que genera el propio JS, y tiene
+    // que repintarlos. En las páginas que no escuchan, el evento se ignora.
+    document.dispatchEvent(new CustomEvent('smartfinance:lang', { detail: { lang: lang } }));
   }
 
   document.querySelectorAll('.lang-btn').forEach(function (btn) {
