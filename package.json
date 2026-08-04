@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:es": "node scripts/build-es.js",
+    "check-es": "node scripts/build-es.js && git diff --quiet -- es sitemap.xml || (echo /es esta desactualizado: corre npm run build:es y commitea el resultado. && exit 1)"
   },
   "repository": {
     "type": "git",

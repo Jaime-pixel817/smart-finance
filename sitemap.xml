@@ -1,24 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Mapa del sitio. Solo van páginas indexables y con contenido propio.
+  Mapa del sitio. LO GENERA scripts/build-es.js — no se edita a mano; se
+  vuelve a correr el script y listo. Así no puede pasar que se agregue una
+  lección y su URL en español se quede fuera.
+
+  Cada página aparece dos veces, una por idioma, y las dos declaran los
+  mismos xhtml:link recíprocos (en, es y x-default apuntando al inglés).
 
   NO se incluyen a propósito:
-    /newsletter/confirmado y /newsletter/baja  — pantallas de estado a las que
-      se llega desde un correo; llevan noindex.
-    /articles/*  — ya no existen, son redirecciones 301 definidas en
-      vercel.json. Un sitemap no debe listar redirecciones.
+    /newsletter/confirmado y /newsletter/baja  — pantallas de estado a las
+      que se llega desde un correo; llevan noindex.
+    /articles/*  — ya no existen, son redirecciones 301 de vercel.json.
+      Un sitemap no debe listar redirecciones.
 
-  lastmod sale de la fecha real del último commit de cada archivo. Si editas
-  una página, actualiza también su fecha aquí: una fecha inventada o vieja le
-  enseña a Google a desconfiar del archivo entero.
+  lastmod sale de la fecha real del último commit de cada archivo. Si
+  editas una página, actualiza su fecha en METADATOS dentro del script:
+  una fecha inventada le enseña a Google a desconfiar del archivo entero.
 -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
   <url>
     <loc>https://smartfinance.lat/</loc>
     <lastmod>2026-08-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/"/>
   </url>
 
   <url>
@@ -26,6 +45,19 @@
     <lastmod>2026-08-02</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/market"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/mercado"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/market"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/mercado</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/market"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/mercado"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/market"/>
   </url>
 
   <url>
@@ -33,6 +65,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons"/>
   </url>
 
   <url>
@@ -40,6 +85,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/peso-tipo-de-cambio"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/peso-tipo-de-cambio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/peso-tipo-de-cambio"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones/peso-tipo-de-cambio</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/peso-tipo-de-cambio"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/peso-tipo-de-cambio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/peso-tipo-de-cambio"/>
   </url>
 
   <url>
@@ -47,6 +105,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/interes-compuesto"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/interes-compuesto"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/interes-compuesto"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones/interes-compuesto</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/interes-compuesto"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/interes-compuesto"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/interes-compuesto"/>
   </url>
 
   <url>
@@ -54,6 +125,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/sp500"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/sp500"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/sp500"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones/sp500</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/sp500"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/sp500"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/sp500"/>
   </url>
 
   <url>
@@ -61,6 +145,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/presupuesto-50-30-20"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/presupuesto-50-30-20"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/presupuesto-50-30-20"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones/presupuesto-50-30-20</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/presupuesto-50-30-20"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/presupuesto-50-30-20"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/presupuesto-50-30-20"/>
   </url>
 
   <url>
@@ -68,6 +165,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/inflacion"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/inflacion"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/inflacion"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones/inflacion</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/inflacion"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/inflacion"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/inflacion"/>
   </url>
 
   <url>
@@ -75,6 +185,19 @@
     <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/errores-al-invertir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/errores-al-invertir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/errores-al-invertir"/>
+  </url>
+
+  <url>
+    <loc>https://smartfinance.lat/es/lecciones/errores-al-invertir</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smartfinance.lat/lessons/errores-al-invertir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/lecciones/errores-al-invertir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://smartfinance.lat/lessons/errores-al-invertir"/>
   </url>
 
 </urlset>

@@ -18,7 +18,18 @@
     EURUSD: { label: 'EUR/USD', decimals: 4 },
     GBPUSD: { label: 'GBP/USD', decimals: 4 },
     USDJPY: { label: 'USD/JPY', decimals: 2 },
-    VIX:    { label: 'VIX',     decimals: 2 }
+    VIX:    { label: 'VIX',     decimals: 2 },
+
+    // Acciones e índices (solo /market). La etiqueta lleva el nombre que la
+    // gente reconoce y no el ticker suelto: "S&P 500" dice más que "SPY" a
+    // quien está empezando, que es justo el público de este sitio.
+    SPY:    { label: 'S&P 500 (SPY)',    decimals: 2 },
+    QQQ:    { label: 'Nasdaq 100 (QQQ)', decimals: 2 },
+    DIA:    { label: 'Dow Jones (DIA)',  decimals: 2 },
+    AAPL:   { label: 'Apple',            decimals: 2 },
+    MSFT:   { label: 'Microsoft',        decimals: 2 },
+    NVDA:   { label: 'Nvidia',           decimals: 2 },
+    AMZN:   { label: 'Amazon',           decimals: 2 }
   };
 
   // Qué detalle de frescura le toca a cada rango. Las cadenas de texto NO están
@@ -125,6 +136,7 @@
     this.points = [];
     this.timer = null;
     this.failed = false;
+    this.reqId = 0;   // ver Panel.prototype.load: descarta respuestas atrasadas
     ensureRegistered();
     this.wire();
     // Cada panel se suscribe solo al cambio de idioma: así su pie se traduce
@@ -178,9 +190,19 @@
     var cfg = PAIRS[this.pair] || { label: this.pair, decimals: 2 };
     if (this.o.pairLabelEl) this.o.pairLabelEl.textContent = cfg.label;
 
-    return fetch('/api/history?pair=' + encodeURIComponent(this.pair) + '&range=' + encodeURIComponent(this.range))
+    // Ficha de esta petición. Cambiar de símbolo y de rango seguido lanza
+    // varias a la vez, y no tienen por qué contestar en el mismo orden: si la
+    // vieja llegaba al final, pintaba SUS datos bajo la etiqueta de la nueva
+    // (un "+20.04% (1D)" que en realidad era el año completo). Al volver, cada
+    // respuesta comprueba que sigue siendo la última pedida; si no, se
+    // descarta sin tocar la pantalla.
+    var ficha = ++this.reqId;
+    var pedido = { pair: this.pair, range: this.range };
+
+    return fetch('/api/history?pair=' + encodeURIComponent(pedido.pair) + '&range=' + encodeURIComponent(pedido.range))
       .then(function (res) { if (!res.ok) throw new Error('history ' + res.status); return res.json(); })
       .then(function (data) {
+        if (ficha !== self.reqId) return;
         var points = Array.isArray(data.points) ? data.points : [];
         if (!points.length) throw new Error('empty series');
         self.points = points;
@@ -220,7 +242,10 @@
         }
       })
       .catch(function (e) {
-        console.warn('chart fetch failed (' + self.pair + '):', e);
+        // Igual que arriba: un fallo de una petición ya superada no debe
+        // borrar la gráfica que sí llegó bien después.
+        if (ficha !== self.reqId) return;
+        console.warn('chart fetch failed (' + pedido.pair + '):', e);
         self.points = [];
         self.failed = true;
         if (self.o.valueEl) self.o.valueEl.textContent = '—';

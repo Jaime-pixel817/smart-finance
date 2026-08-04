@@ -37,32 +37,11 @@ button { font-family: inherit; cursor: pointer; }
 
 .wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 32px; }
 
-/* ---------- Header (idéntico al del sitio) ---------- */
-.site-nav {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(10,14,22,0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
-}
-.nav-inner { max-width: var(--max-width); margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.nav-brand { display: flex; flex-direction: column; line-height: 1.05; }
-.wordmark { font-family: var(--font-display); font-weight: 600; font-size: 1.4rem; letter-spacing: -0.01em; }
-.wordmark span { color: var(--brand); }
-.nav-tagline { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
-.nav-right { display: flex; align-items: center; gap: 22px; }
-.nav-links-desktop { display: flex; gap: 26px; align-items: center; }
-.nav-links-desktop > a:not(.nav-cta) { font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color .15s ease; }
-.nav-links-desktop > a:not(.nav-cta):hover { color: var(--ink); }
-.lang-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 3px; background: var(--card); }
-.lang-btn { background: none; border: none; color: var(--muted); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 5px; transition: background .15s ease, color .15s ease; }
-.lang-btn.active { background: var(--ink); color: var(--bg); }
-.nav-cta { background: var(--brand); color: #06110D !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 700; }
-.nav-cta:hover { background: #12A06E; }
-@media (max-width: 860px) {
-  .nav-links-desktop { display: none; }
-  .nav-tagline { display: none; }
-}
+/* ---------- Header ----------
+   Se mudó entero a assets/nav.css, que cargan las nueve páginas. Estaba
+   duplicado aquí y en el <style> de index.html, y las dos copias ya se habían
+   separado (hasta el color de fondo de la barra era distinto). El .wordmark
+   del pie también vive allí. */
 
 /* ---------- Transiciones entre páginas ----------
    Un fade corto al navegar entre home, /market, /lessons y las lecciones. Los
@@ -186,7 +165,9 @@ button { font-family: inherit; cursor: pointer; }
 
 @media (max-width: 560px) {
   .wrap { padding: 0 20px; }
-  .nav-inner { padding: 14px 20px; }
+  /* El padding del .nav-inner en móvil lo fija assets/nav.css. Aquí quedaba
+     un 14px 20px que, al cargarse este archivo después, lo pisaba y sacaba la
+     barra 5px fuera de la pantalla en /market y las lecciones. */
   .article { padding: 32px 0 60px; }
   .article-body h2 { margin-top: 32px; }
 }
