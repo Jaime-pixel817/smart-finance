@@ -33,10 +33,16 @@
 
 
 
+
+
+
+
 <script src="/assets/lang.js"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23000000'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="Smart Finance — Updated Finance, by Jaime Sandoval">
 <meta property="og:description" content="Financial education in plain English. Live market data, clear breakdowns, no jargon.">
+
+
 
 
 
@@ -285,10 +291,11 @@
     position:relative; overflow:hidden;
     padding: 48px 0 0;
   }
-  /* El bloque de texto va ARRIBA, no centrado verticalmente: el titular
-     empieza justo debajo del nav y el globo se queda con la mitad de abajo de
-     la pantalla. Es la misma composición en escritorio y en móvil, para que
-     una no se sienta el remiendo de la otra. */
+  /* En escritorio el bloque de texto va ARRIBA: el titular empieza justo
+     debajo del nav y el globo se queda con la mitad de abajo de la pantalla.
+     En móvil NO — ahí vuelve al centro vertical de la pantalla (ver el bloque
+     de 767px), porque el hero mide exactamente una pantalla y con el texto
+     pegado arriba quedaba un hueco grande entre los botones y el ticker. */
   .hero-grid {
     position:relative;
     min-height: clamp(520px, 76vh, 780px);
@@ -348,6 +355,9 @@
      alineados a la izquierda, debajo del eyebrow. Son más chicos que los .btn
      del resto del sitio porque aquí compiten con el titular, no con nada más. */
   .hero-cta { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-start; }
+  /* El envoltorio de LinkedIn + TikTok. En escritorio es un flex con el mismo
+     gap que su padre, así que los tres botones se leen como una sola fila. */
+  .hero-cta-social { display:flex; gap:10px; flex-wrap:wrap; }
   .hero-cta .btn { padding: 10px 20px; font-size: 0.88rem; }
 
   @media (max-width: 920px) {
@@ -391,14 +401,15 @@
       display: flex;
       flex-direction: column;
     }
-    /* justify-content: flex-start y no center. El titular ya no se centra en
-       el alto de la pantalla: arranca justo debajo del nav y deja toda la
-       mitad de abajo para el globo. */
+    /* justify-content: center. El bloque de texto se centra en el alto que
+       queda entre el nav y el ticker, alineado a la izquierda. El globo va
+       absoluto, así que no participa de este centrado: se coloca por su cuenta
+       unas líneas más abajo. */
     .hero .hero-grid {
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: stretch;
       /* flex:1 se come el alto que sobra; min-height:0 evita que el contenido
          empuje el hero más allá de la pantalla. */
@@ -410,28 +421,33 @@
       padding-top: 14px;
       padding-bottom: 20px;
     }
-    /* El globo baja y crece: manda en la mitad inferior de la pantalla, que es
-       el espacio que dejó libre el titular al subir. Se sale de los lados a
-       propósito (118% de ancho) para que se lea como un planeta cortado por el
-       encuadre y no como una pelota centrada. No provoca scroll horizontal
-       porque .hero lleva overflow:hidden. */
+    /* El globo conserva su tamaño (118% × 400px) y sube: su centro pasa del
+       62% al 52% del alto del hero, que lo deja prácticamente centrado en la
+       pantalla en vez de recargado abajo. Se sale de los lados a propósito
+       para que se lea como un planeta cortado por el encuadre y no como una
+       pelota centrada. No provoca scroll horizontal porque .hero lleva
+       overflow:hidden. */
     .hero .hero-globe-wrap {
       position: absolute; z-index: 0;
-      top: 62%; left: 50%; right: auto;
+      top: 52%; left: 50%; right: auto;
       transform: translate(-50%, -50%);
       width: 118%; height: 400px;
       order: 0; margin: 0;
     }
-    /* Velo entre el globo y el texto. El foco del radial sigue al titular, que
-       ahora está arriba a la izquierda: por eso el centro se movió de 42%/44%
-       a 30%/26%. Sin mover el velo, el texto quedaba sobre la parte clara de
-       las partículas y perdía legibilidad. */
+    /* Velo entre el globo y el texto. El foco del radial persigue al titular:
+       como el texto volvió al centro vertical, el centro del radial baja de
+       26% a 45% (la x se queda en 30%, el texto sigue alineado a la
+       izquierda). Sin mover el velo, el titular quedaba sobre la parte clara
+       de las partículas y perdía legibilidad — que es justo la zona donde
+       ahora está, porque el globo también subió. Por eso además se abre un
+       poco el radio vertical, de 58% a 66%: el bloque de texto es más alto
+       que antes al haber pasado los botones a dos filas. */
     .hero .hero-grid::before {
       content: '';
       position: absolute; inset: -24px 0;
       z-index: 1; pointer-events: none;
       background:
-        radial-gradient(115% 58% at 30% 26%, rgba(0, 0, 0,0.92) 0%, rgba(0, 0, 0,0.62) 46%, rgba(0, 0, 0,0) 82%),
+        radial-gradient(115% 66% at 30% 45%, rgba(0, 0, 0,0.92) 0%, rgba(0, 0, 0,0.62) 46%, rgba(0, 0, 0,0) 82%),
         linear-gradient(to bottom, rgba(0, 0, 0,0.55) 0%, rgba(0, 0, 0,0) 26%, rgba(0, 0, 0,0) 78%, rgba(0, 0, 0,0.5) 100%);
     }
     .hero .hero-inner {
@@ -445,18 +461,20 @@
     .hero .hero-cta { margin-bottom: 0; }
     .hero .hero-cta .btn { pointer-events: auto; }
 
-    /* Los tres CTAs vuelven a flex y se quedan del tamaño de su texto,
-       alineados a la izquierda. Antes eran una cuadrícula donde el primario
-       ocupaba una fila entera y las dos redes se repartían la siguiente a
-       mitades: ocupaban todo el ancho de la pantalla y competían con el
-       titular. Ahora envuelven solos —el primario arriba, LinkedIn y TikTok
-       debajo— pero sin estirarse. */
+    /* Dos filas fijas: el boletín arriba, solo; LinkedIn y TikTok abajo,
+       juntos. Con una sola fila que envolviera sola, el reparto dependía del
+       ancho de la pantalla y del largo del texto traducido: a 390px en inglés
+       entraban "Get the daily email" y "LinkedIn" en el mismo renglón, y
+       TikTok se quedaba huérfano en el de abajo.
+       align-items: flex-start es lo que impide que los botones se estiren a
+       todo el ancho: en una columna, el estirado es el valor por omisión. */
     .hero .hero-cta {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 8px;
     }
+    .hero .hero-cta-social { gap: 8px; }
     .hero .hero-cta .btn { padding: 9px 16px; font-size: 0.82rem; }
   }
 
@@ -911,15 +929,29 @@
   <section id="home" class="hero">
     <div class="wrap hero-grid">
       <div class="hero-inner">
-        <h1 data-i18n="hero.title">Finance That Actually Clicks.</h1>
+        <!-- El salto de línea va en el HTML, no lo decide el ancho de la
+             pantalla: "Finance That / Actually Clicks." es la composición que
+             se quiere en todos los tamaños. Si se dejara al navegador, a 375px
+             partía en "Finance That Actually / Clicks." y la segunda línea
+             quedaba con una sola palabra.
+             data-i18n-html para que el generador de /es copie el <br> tal cual
+             en vez de escaparlo como texto (ver scripts/build-es.js). -->
+        <h1 data-i18n="hero.title" data-i18n-html>Finance That<br>Actually Clicks.</h1>
         <p class="eyebrow" data-i18n="hero.eyebrow">Updated finance · by Jaime Sandoval</p>
         <!-- El boletín es el objetivo principal del sitio, así que se queda con
              el único botón relleno; las redes pasan a outline. No se quitan:
-             siguen siendo por dónde llega la mayoría. -->
+             siguen siendo por dónde llega la mayoría.
+             Las dos redes van envueltas en su propio div para que en móvil
+             puedan bajar JUNTAS a la segunda fila, con el botón del boletín
+             solo en la primera. En escritorio el div es transparente: un flex
+             dentro de otro flex con el mismo gap se ve igual que los tres
+             botones sueltos en una sola fila. -->
         <div class="hero-cta">
           <a href="#newsletter" class="btn btn-primary" data-i18n="hero.newsletter">Get the daily email</a>
-          <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.linkedin">LinkedIn</a>
-          <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">TikTok</a>
+          <div class="hero-cta-social">
+            <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.linkedin">LinkedIn</a>
+            <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">TikTok</a>
+          </div>
         </div>
       </div>
       <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Rotating globe of world markets"></div>
@@ -1324,7 +1356,11 @@
     'nav.subscribe': 'Suscríbete',
     'nav.tagline': 'Mercados y dinero, en claro',
     'hero.eyebrow': 'Finanzas actualizadas · por Jaime Sandoval',
-    'hero.title': 'Finanzas Que Sí Se Entienden.',
+    // Lleva <br> porque el h1 es data-i18n-html: el corte se elige aquí, no lo
+    // decide el ancho. Se parte en "Finanzas Que / Sí Se Entienden." para que
+    // "Sí Se Entienden" —el predicado— no quede repartido entre dos renglones,
+    // igual que en inglés se parte después de "That".
+    'hero.title': 'Finanzas Que<br>Sí Se Entienden.',
     'hero.newsletter': 'Recibe el correo diario',
     'hero.linkedin': 'LinkedIn', 'hero.tiktok': 'TikTok',
     // Los alt de las fotos de "Recent breakdowns": el HTML los trae en inglés
