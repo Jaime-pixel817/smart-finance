@@ -133,7 +133,27 @@ const RUTAS = PAGINAS
 
 // ------------------------------------------------------------------ utilidades
 
-function leer(rel) { return fs.readFileSync(path.join(RAIZ, rel), 'utf8'); }
+/*
+ * Se lee normalizando los finales de línea a \n.
+ *
+ * NO ES COSMÉTICO. En Windows git suele estar con core.autocrlf=true: el repo
+ * guarda \n pero la copia de trabajo se saca con \r\n. Este script limpia
+ * líneas enteras con expresiones que terminan en \n? —por ejemplo la que borra
+ * los hreflang viejos antes de volver a escribirlos— y contra un archivo con
+ * \r\n ese \n? no se lleva el \r: se borra el texto de la línea y queda el \r
+ * solo, o sea una línea en blanco.
+ *
+ * Como el script también reescribe las páginas en inglés, la basura se guarda
+ * y la corrida siguiente empieza con una línea en blanco más. Así se juntaron
+ * las 31 líneas en blanco que había en el <head> del home y las 8 de cada
+ * lección: cinco por corrida (tres hreflang y dos og:locale), durante meses.
+ *
+ * Normalizando aquí, el resto del archivo puede seguir dando por hecho \n.
+ * La salida se escribe con \n, que es lo que guarda git de todos modos.
+ */
+function leer(rel) {
+  return fs.readFileSync(path.join(RAIZ, rel), 'utf8').replace(/\r\n/g, '\n');
+}
 
 function escribir(rel, contenido) {
   const destino = path.join(RAIZ, rel);
