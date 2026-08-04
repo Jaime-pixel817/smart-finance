@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live markets: stocks, currencies and crypto — Smart Finance</title>
 <meta name="description" content="Seven stocks and index ETFs, six currency pairs, the VIX and four major cryptocurrencies, each with its own trend chart. Prices refresh every 15 minutes.">
-<meta name="theme-color" content="#0A0A0B">
+<meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://smartfinance.lat/market">
 <link rel="alternate" hreflang="en" href="https://smartfinance.lat/market">
 <link rel="alternate" hreflang="es" href="https://smartfinance.lat/es/mercado">
@@ -14,10 +14,16 @@
 
 
 
+
+
+
+
 <script src="/assets/lang.js"></script>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0A0B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316A46F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23000000'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="Live markets: stocks, currencies and crypto — Smart Finance">
 <meta property="og:description" content="Stocks, currencies and crypto in one place, each with its own trend chart. Refreshed every 15 minutes.">
+
+
 
 
 <meta property="og:locale" content="en_US">
@@ -33,9 +39,7 @@
 <meta name="twitter:title" content="Live markets: stocks, currencies and crypto — Smart Finance">
 <meta name="twitter:description" content="Stocks, currencies and crypto in one place, each with its own trend chart. Refreshed every 15 minutes.">
 <meta name="twitter:image" content="https://smartfinance.lat/og-market.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/tokens.css">
 <!--
   OJO CON LAS RUTAS: vercel.json trae cleanUrls, así que esta página se sirve
   en /market (sin barra final). Desde esa URL una ruta relativa se resolvería
@@ -44,6 +48,8 @@
   salen los tokens, el nav y el footer, para que sean literalmente los mismos.
 -->
 <link rel="stylesheet" href="/assets/nav.css">
+<script src="/assets/nav.js" defer></script>
+<script src="/assets/reveal.js" defer></script>
 <link rel="stylesheet" href="/assets/article.css">
 <link rel="stylesheet" href="/assets/market.css">
 <script type="application/ld+json">

@@ -1,0 +1,279 @@
+/* Tipografía y paleta — LA ÚNICA fuente de estos valores para todo el sitio.
+ *
+ * POR QUÉ EXISTE
+ * --------------
+ * Los mismos tokens vivían copiados en dos lados: el <style> de index.html y
+ * assets/article.css. Ya se habían separado antes (hasta el color de fondo de
+ * la barra era distinto en cada copia). Cualquier cambio de paleta o de fuente
+ * había que hacerlo dos veces y acordarse de las dos.
+ *
+ * Ahora las nueve páginas cargan este archivo ANTES que su CSS propio, y los
+ * dos :root duplicados se borraron.
+ *
+ * ───────────────────────────────────────────────────────────────────────────
+ * LAS FUENTES: por qué estas tres
+ * ───────────────────────────────────────────────────────────────────────────
+ * Se probaron de verdad, renderizando los precios reales del sitio (18.4521,
+ * $62,790, +0.36%, -3.02%) en Geist, IBM Plex, Inter y las que ya estaban.
+ * Lo que decidió es la prueba de glifos ambiguos a tamaño grande:
+ *
+ *   Geist Mono      0 CON BARRA · 1 l I los tres distintos   ← gana
+ *   JetBrains Mono  0 con punto  · 1 l I los tres distintos
+ *   IBM Plex Mono   0 SIN MARCA (óvalo pelón, se confunde con la O)
+ *   Geist Sans      0 ≡ O  ·  l ≡ I  (dos palos idénticos)
+ *   Inter           0 ≡ O  ·  l ≡ I  (igual; los sets alternos cv05/cv08 no
+ *                   vienen en los archivos estáticos, así que no rescatan nada)
+ *
+ * De ahí salen las dos respuestas:
+ *
+ * 1. NÚMEROS Y TEXTO VAN SEPARADOS. Ninguna sans resuelve 0/O ni l/I — es una
+ *    limitación del género, no de una familia concreta. Un sitio de datos
+ *    financieros no puede permitirse que un cero se lea como O.
+ *
+ * 2. PERO SON LA MISMA SUPERFAMILIA. Geist Sans y Geist Mono comparten
+ *    esqueleto, métricas verticales y tensión de curva, así que un precio en
+ *    mono al lado de su etiqueta en sans se sienten del mismo sistema y no de
+ *    dos épocas distintas. Es lo mejor de los dos mundos: la desambiguación de
+ *    una mono, la coherencia de una sola familia.
+ *
+ * Cómo se reparten:
+ *   --font-mono     TODO lo que sea número: precios, porcentajes, la hora, los
+ *                   eyebrows y las etiquetas en versalitas.
+ *   --font-body     texto de interfaz, cuerpo y encabezados de sección.
+ *   --font-display  SOLO el h1 del hero (y el logo, ver abajo).
+ *
+ * Las cifras tabulares salen gratis: Geist Mono es monoespaciada, así que todos
+ * los dígitos miden lo mismo por construcción y un precio no puede "bailar" al
+ * actualizarse. Aun así se declara tabular-nums explícitamente más abajo, para
+ * que si algún día un número cae en la sans, siga sin bailar.
+ *
+ * EXCEPCIÓN DECLARADA: el logo ("Smart Finance") se queda en Fraunces. La
+ * instrucción decía Fraunces solo en el título del hero, y en trabajo
+ * tipográfico así es: no hay un solo encabezado, botón ni número en Fraunces.
+ * Pero el logo no es tipografía, es la marca, y cambiarlo de serif a sans es
+ * una decisión de identidad que nadie pidió. Si se quiere igual, es una línea:
+ * .wordmark { font-family: var(--font-body); } en assets/nav.css.
+ *
+ * AUTOALOJADAS. Ya no hay ningún <link> a fonts.googleapis.com ni a
+ * fonts.gstatic.com en el sitio: se fueron los dos preconnect y la hoja
+ * externa de las nueve páginas. Nueve archivos woff2 en /assets/fonts/, 212 KB
+ * en total, servidos desde el mismo dominio — menos que las tres familias de
+ * antes, y sin dos handshakes contra otro host antes de ver una letra.
+ * Licencias OFL, copiadas junto a los archivos.
+ */
+
+/* font-display: swap en todas — el texto se ve desde el primer frame con la
+   fuente de respaldo y cambia cuando llega la real. En un sitio donde lo que
+   importa es el dato, es preferible leerlo feo un instante que no leerlo. */
+
+@font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
+@font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
+
+@font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
+@font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
+
+/* Fraunces: un solo peso, porque solo lo usan el h1 del hero y el logo. */
+@font-face { font-family:'Fraunces'; src:url('/assets/fonts/fraunces-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
+
+:root {
+  /* ───────────────────────── Superficies ─────────────────────────
+   * Negro puro abajo y una escalera muy corta encima. Los saltos son
+   * deliberadamente mínimos: sobre #000 el ojo distingue diferencias que
+   * sobre un gris se perderían, así que no hace falta subir a los grises de
+   * antes (#111113 / #1A1A1C) para que una tarjeta se lea como una capa
+   * aparte. El borde de 1px hace la otra mitad del trabajo. */
+  --bg: #000000;
+  --bg-raise: #060608;   /* bandas de sección, footer, ticker */
+  --card: #0A0A0C;       /* tarjetas y paneles */
+  --card-2: #131316;     /* chips y pestañas DENTRO de una tarjeta */
+
+  /* ───────────────────────── Texto ───────────────────────── */
+  --ink: #F5F5F2;
+  --muted: #8A8A8E;      /* 6.1:1 sobre negro — pasa AA de sobra */
+  /* Un escalón más apagado, para lo que debe estar sin pedir turno (la
+     atribución de fuente). 4.9:1 sobre negro: sigue pasando AA para texto
+     normal. No se bajó más a propósito — ver la nota en .src-line. */
+  --muted-soft: #7A7A7E;
+
+  /* ───────────────────────── La línea de 1px ─────────────────────────
+   * Es el color del TEXTO al 12 %, no un gris nuevo.
+   *
+   * Tres razones, en orden de peso:
+   *
+   * 1. Es alfa, no un hex fijo. La misma línea se compone sobre lo que tenga
+   *    debajo: sobre el negro puro, sobre una tarjeta (#0A0A0C) o sobre la
+   *    banda elevada, y en los tres casos queda al MISMO escalón relativo por
+   *    encima de su fondo. Un #1E1E22 sólido, que es lo que había, se veía
+   *    bien sobre el fondo y casi desaparecía sobre una tarjeta.
+   * 2. Sale de la familia de colores que ya existe (--ink), no de un tercer
+   *    gris inventado. La separación pertenece a la página en vez de ser un
+   *    elemento con vida propia.
+   * 3. El número: 12 % de #F5F5F2 sobre negro resuelve a ~#1D1D1D, que da
+   *    1.25:1 contra el fondo. Por debajo de ~1.2:1 una línea de 1px deja de
+   *    percibirse en una pantalla normal; por encima de ~3:1 empieza a leerse
+   *    como un elemento de interfaz que pide atención. 1.25:1 cae justo en la
+   *    franja donde el ojo la registra como "aquí termina una cosa y empieza
+   *    otra" sin que nadie la mire a propósito. Que es exactamente el encargo.
+   */
+  --line: rgba(245, 245, 242, 0.12);
+  /* Versión opaca, para los pocos sitios donde hace falta un color sólido
+     (degradados, bordes de canvas). Es --line ya compuesta sobre negro. */
+  --line-solid: #1D1D1D;
+
+  /* ───────────────────────── Verde y rojo ─────────────────────────
+   * Más brillantes y saturados que los de antes (#0F8A5F / #A32D2D), que se
+   * eligieron contra un fondo #0A0A0B. Sobre negro puro hay margen de sobra:
+   *
+   *   --up    9.2:1 contra el fondo
+   *   --down  6.4:1 contra el fondo
+   *
+   * DALTONISMO. Los dos no se distinguen solo por tono: se llevan 1.5× de
+   * luminancia entre sí, así que quien no separa rojo de verde los sigue
+   * viendo como "el claro" y "el oscuro". El verde además está corrido hacia
+   * el turquesa (tiene azul dentro), que es lo que lo salva en deuteranopia;
+   * un verde puro se le confunde con el rojo. Y encima siguen los ▲▼, que son
+   * los que de verdad cargan el mensaje: el color es refuerzo, no el dato. */
+  --up: #16C47F;
+  --down: #FF4D4D;
+
+  /* Marca: el mismo verde que los datos. Tener dos verdes casi iguales en la
+     misma pantalla se lee como un error de color, no como jerarquía. */
+  --brand: #16C47F;
+  --brand-hover: #3ADB9B;
+  --gold-text: #16C47F;
+  --brand-soft: #06231A;   /* fondo tenue para bloques con acento verde */
+  --on-brand: #04140D;     /* texto sobre relleno verde — 8.5:1 */
+
+  --accent-orange: #FFB84D;
+  --accent-purple: #B4A8F5;
+
+  /* ───────────────────────── Forma y ritmo ───────────────────────── */
+  --radius: 14px;
+  --card-pad: 22px;
+  --section-pad: 96px;
+  --max-width: 1180px;
+  --read-width: 720px;
+
+  /* ───────────────────────── Fuentes ───────────────────────── */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+/* Cifras tabulares donde haya números.
+ *
+ * Geist Mono ya es monoespaciada, así que esto es un cinturón además del
+ * tirante: cubre el caso de un número que caiga en la sans (un <strong> dentro
+ * de un párrafo, una cifra en un encabezado) para que tampoco ahí cambie de
+ * ancho al actualizarse. slashed-zero refuerza la barra del cero. */
+body {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+[class*="price"], [class*="value"], [class*="change"], [class*="chg"],
+[class*="rate-"], .num, .card-sym, .chip, .src-line, .article-meta {
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+}
+
+/* ───────────────────────── Atribución de fuente ─────────────────────────
+ *
+ * "Yahoo Finance · última sesión, barras de 5 min". Una sola definición para
+ * las seis apariciones del sitio (las dos gráficas del home, las tres de
+ * /market, las tarjetas de cripto y el bloque de tasas). La llena
+ * assets/source.js; aquí solo va la forma.
+ *
+ * POR QUÉ SE VEÍA MAL
+ * -------------------
+ * Estaba definida en assets/article.css… que index.html NO carga. O sea que
+ * en el home el componente no tenía NI UNA regla: salía en Geist a 16px, en
+ * blanco, con el "·" pegado a las dos palabras y partiéndose en dos renglones.
+ * Se leía más fuerte que el texto que explicaba el VIX justo debajo. Eso es el
+ * "texto encimado y mal espaciado": no era un ajuste fino, era CSS que nunca
+ * llegaba. Por eso ahora vive aquí, en el archivo que cargan las once páginas,
+ * y se borraron las copias de article.css, del <style> del home y de
+ * market.css (que además usaban otro nombre, .fx-chart-note, para lo mismo).
+ *
+ * HASTA DÓNDE SE APAGA
+ * --------------------
+ * El encargo es que sea casi invisible hasta que alguien la busque, pero NO
+ * quitarla: la atribución a CoinGecko es requisito de su plan gratuito, y
+ * decir de dónde salen los números es parte de por qué creerle al sitio. Una
+ * atribución que no se puede leer no cumple ninguna de las dos cosas. Así que
+ * el volumen se baja por donde no cuesta legibilidad:
+ *
+ *   - tamaño: de 0.74rem a 0.66rem;
+ *   - el nombre de la fuente deja de ir en blanco y en 600. Eso era lo que de
+ *     verdad competía: un "Yahoo Finance" en el color del titular dentro de un
+ *     pie de gráfica. Ahora toda la línea es del mismo gris;
+ *   - color --muted-soft, un escalón por debajo del gris normal.
+ *
+ * Lo que NO se toca es el contraste por debajo de 4.9:1, que es el mínimo que
+ * sigue pasando AA. Discreta, no ilegible.
+ */
+.src-line {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--muted-soft);
+  display: flex; align-items: baseline; flex-wrap: wrap;
+  /* column-gap y row-gap por separado: con el atajo "gap" las líneas
+     envueltas heredaban la separación horizontal y quedaban despegadas. El
+     row-gap chico es lo que arregla que dos renglones se vieran encimados. */
+  column-gap: 6px; row-gap: 3px;
+  margin-top: 14px;
+  /* Reserva una línea aunque todavía esté vacía, para que el bloque no salte
+     cuando llegue el texto. */
+  min-height: 1.5em;
+}
+.src-line .src-name { color: inherit; font-weight: 500; }
+/* El "·" ya no se apaga aparte. Llevaba opacity .55, que sobre --muted-soft lo
+   dejaba en 2.2:1 — el único texto del sitio por debajo del mínimo. Tenía
+   sentido cuando el nombre iba en blanco y hacía falta separar jerarquías;
+   ahora la línea entera es del mismo gris y el punto no necesita apagarse más. */
+
+/* ───────────────────── Aparición al hacer scroll ─────────────────────
+ *
+ * La clase .reveal-el la pone assets/reveal.js, y solo cuando puede
+ * garantizar que va a volver a mostrar el elemento. Sin JavaScript nada de
+ * esto se aplica y la página se ve completa desde el primer momento.
+ *
+ * El movimiento: 18px de subida (12px para las tarjetas dentro de una
+ * rejilla) y 620ms. Corto y sin prisa, que es lo que lo hace fluido en vez de
+ * brusco — un desplazamiento largo y rápido es justo lo que se siente como un
+ * salto.
+ *
+ * El easing es cubic-bezier(.22,.61,.36,1): arranca rápido y frena largo, así
+ * que el elemento parece que llega y se asienta. Un `ease` normal reparte la
+ * desaceleración de forma más pareja y se lee más mecánico.
+ *
+ * El escalón entre hermanos son 65ms. Suficiente para percibir que llegan en
+ * orden, poco para que nadie sienta que está esperando.
+ */
+.reveal-el {
+  opacity: 0;
+  /* translateY y no translate3d a propósito: translate3d promueve el elemento
+     a su propia capa de composición DE FORMA PERMANENTE, y con media página
+     de elementos marcados eso es memoria de vídeo que en un teléfono se nota.
+     Con translateY el navegador crea la capa solo mientras dura la
+     transición y la suelta al terminar. Tampoco hay will-change por lo mismo. */
+  transform: translateY(var(--reveal-y, 18px));
+  transition: opacity .62s cubic-bezier(.22, .61, .36, 1),
+              transform .62s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: calc(var(--reveal-i, 0) * 65ms);
+}
+.reveal-el.is-in { opacity: 1; transform: translateY(0); }
+
+/* Sin movimiento: el contenido aparece y ya. reveal.js ni siquiera llega a
+   marcar nada en este caso; esto es el cinturón por si la clase llegara
+   puesta desde otro lado. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-el, .reveal-el.is-in {
+    opacity: 1; transform: none; transition: none;
+  }
+}

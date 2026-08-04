@@ -270,9 +270,42 @@ function reescribirEnlaces(html) {
     if (ruta === '') ruta = '/';
 
     const par = RUTAS.find((r) => r.en === ruta);
-    if (!par) return todo;   // /assets/…, /api/… y demás se quedan igual
+    if (!par) return todo;   // /assets/…, /api/… y demás los arregla absolutizarRecursos
     return at + '="' + par.es + ancla + '"';
   });
+}
+
+/*
+ * Las rutas relativas a archivos (CSS, JS, imágenes) pasan a ser absolutas.
+ *
+ * EL BUG QUE ARREGLA — y era gordo:
+ *
+ * Las seis lecciones enlazan sus hojas con "../assets/article.css". Desde
+ * /lessons/inflacion eso resuelve a /assets/article.css, correcto. Pero la
+ * versión en español vive un nivel MÁS ABAJO, en /es/lecciones/inflacion, así
+ * que el mismo "../" resuelve a /es/assets/article.css… que no existe.
+ *
+ * Resultado: las seis lecciones en español llevaban sirviéndose SIN NADA de
+ * CSS y sin su JavaScript desde que existe /es. Ni la barra, ni la paleta, ni
+ * la tipografía: texto negro sobre blanco en Times New Roman. Se comprobó
+ * contra producción, no solo en local:
+ *
+ *     GET https://smartfinance.lat/es/assets/article.css  → 404
+ *     GET https://smartfinance.lat/assets/article.css     → 200
+ *
+ * No se veía en el generador porque copia el atributo tal cual, y no se veía
+ * en las otras páginas en español porque el home, /market y /lessons ya
+ * enlazaban con "/assets/…" absoluto.
+ *
+ * Se corre DESPUÉS de reescribirEnlaces, para que lo que quede en "../" sea
+ * ya solo archivos: los enlaces a páginas ("../#about") ese paso los convirtió
+ * antes a su equivalente en español.
+ *
+ * Se hace absoluto en vez de contar niveles porque las páginas en inglés
+ * cuelgan todas de un solo nivel: ahí "../algo" y "/algo" son la misma ruta.
+ */
+function absolutizarRecursos(html) {
+  return html.replace(/\b(href|src)="\.\.\/([^"]*)"/gi, (todo, at, resto) => at + '="/' + resto + '"');
 }
 
 // ------------------------------------------------------- cabecera de cada página
@@ -396,6 +429,7 @@ function construir() {
     out = traducirContenido(out, dic, avisos);
     out = traducirAlt(out, dic, avisos);
     out = reescribirEnlaces(out);
+    out = absolutizarRecursos(out);
     out = traducirDatosEstructurados(out, pag, enTitle, enDesc);
     out = cabeceraEs(out, pag);
     if (pag.imgAlt) {

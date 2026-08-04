@@ -35,21 +35,48 @@
   // Qué detalle de frescura le toca a cada rango. Las cadenas de texto NO están
   // aquí: viven en assets/source.js, que es el único lugar del sitio donde se
   // decide cómo se redacta la atribución de una fuente.
-  var RANGE_DETAIL = { '1D': 'minute', '1M': 'daily', '3M': 'daily', '1Y': 'daily' };
+  var RANGE_DETAIL = { '1D': 'session', '1M': 'daily', '3M': 'daily', '1Y': 'daily' };
 
   function fmtPrice(n, decimals) {
     if (n === null || n === undefined || isNaN(n)) return '—';
     return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
 
+  /*
+   * Fechas y horas de la gráfica.
+   *
+   * EL BUG QUE ARREGLA: los tres formateadores recibían [] como locale, que
+   * significa "usa el del dispositivo". En un teléfono configurado en español
+   * leyendo la página en INGLÉS, el tooltip salía "3 ago, 10:25 a. m." —
+   * español dentro de una página en inglés. El locale tiene que salir del
+   * IDIOMA DE LA PÁGINA, que es el mismo criterio que ya usaba
+   * assets/market.js para la hora de "última actualización".
+   *
+   * hourCycle fijo en h12 por la misma razón que allá: sin fijarlo, algunos
+   * locales resuelven a h11 y el mediodía sale como "00:05 p.m.".
+   */
+  function locale() { return esNow() ? 'es-MX' : 'en-US'; }
+
   function formatTimestamp(ts, range, full) {
     var d = new Date(ts * 1000);
-    if (range === '1D') {
-      return full
-        ? d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    var loc = locale();
+    try {
+      if (range === '1D') {
+        return full
+          ? d.toLocaleString(loc, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h12' })
+          : d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit', hourCycle: 'h12' });
+      }
+      return d.toLocaleDateString(loc, { month: 'short', day: 'numeric', year: range === '1Y' ? 'numeric' : undefined });
+    } catch (e) {
+      // hourCycle es relativamente nuevo; si el navegador lo rechaza, se cae a
+      // la versión sin él antes que quedarse sin etiqueta.
+      if (range === '1D') {
+        return full
+          ? d.toLocaleString(loc, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
+      }
+      return d.toLocaleDateString(loc, { month: 'short', day: 'numeric' });
     }
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: range === '1Y' ? 'numeric' : undefined });
   }
 
   // Línea punteada vertical siguiendo al cursor sobre la gráfica.
@@ -86,16 +113,16 @@
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#111113', borderColor: '#1E1E22', borderWidth: 1,
+          backgroundColor: '#0A0A0C', borderColor: '#1D1D1D', borderWidth: 1,
           titleColor: '#F5F5F2', bodyColor: '#F5F5F2',
-          titleFont: { family: 'JetBrains Mono', size: 11 }, bodyFont: { family: 'JetBrains Mono', size: 12 },
+          titleFont: { family: 'Geist Mono', size: 11 }, bodyFont: { family: 'Geist Mono', size: 12 },
           padding: 10, displayColors: false,
           callbacks: callbacks
         }
       },
       scales: {
-        x: { ticks: { color: '#8A8A8E', maxTicksLimit: 6, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } },
-        y: { ticks: { color: '#8A8A8E', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1E1E22' } }
+        x: { ticks: { color: '#8A8A8E', maxTicksLimit: 6, font: { family: 'Geist Mono', size: 10 } }, grid: { color: '#1D1D1D' } },
+        y: { ticks: { color: '#8A8A8E', font: { family: 'Geist Mono', size: 10 } }, grid: { color: '#1D1D1D' } }
       }
     };
   }
@@ -213,7 +240,9 @@
         var dir = changePct > 0 ? 'up' : changePct < 0 ? 'down' : '';
         // Normal: bajar es lo rojo. Invertido (VIX): subir es lo rojo, porque
         // ahí subir significa más miedo. Plano se queda en verde en los dos.
-        var rgb = (self.o.invert ? changePct > 0 : changePct < 0) ? '163,45,45' : '15,138,95';
+        // Mismos --up/--down de assets/tokens.css. Van a mano porque Chart.js
+        // pinta sobre un canvas y ahí no llega una var() de CSS.
+        var rgb = (self.o.invert ? changePct > 0 : changePct < 0) ? '255,77,77' : '22,196,127';
 
         if (self.o.valueEl) self.o.valueEl.textContent = fmtPrice(last, cfg.decimals);
         if (self.o.changeEl) {
@@ -260,7 +289,7 @@
   // anunciaría como fresco nada más por cambiar de idioma.
   Panel.prototype.repaintMeta = function () {
     if (!this.o.noteEl || !window.SmartSource) return;
-    var key = this.failed ? 'unavailable' : (RANGE_DETAIL[this.range] || 'minute');
+    var key = this.failed ? 'unavailable' : (RANGE_DETAIL[this.range] || 'session');
     window.SmartSource.paint(this.o.noteEl, 'Yahoo Finance', key);
   };
 

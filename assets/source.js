@@ -19,15 +19,30 @@
   // Detalles reutilizables, en los dos idiomas. Cada clave describe una cadencia
   // real, medida contra el caché del endpoint que la sirve.
   var DETAIL = {
-    // /api/history cachea 60 s y el panel se repide cada 60 s en el rango 1D.
-    minute:   { en: 'refreshed every minute',        es: 'se actualiza cada minuto' },
+    /*
+     * Rango 1D de las gráficas.
+     *
+     * Antes esta clave se llamaba "minute" y decía "refreshed every minute",
+     * porque se miró solo la mitad de la cadena: es verdad que /api/history
+     * cachea 60 s y que el panel repregunta cada 60 s. Pero lo que se pide a
+     * Yahoo en el rango 1D es interval=5m (ver RANGE_MAP en api/history.js),
+     * o sea BARRAS DE CINCO MINUTOS. Preguntar cada minuto por una serie que
+     * solo gana un punto cada cinco no la hace fresca cada minuto: cuatro de
+     * cada cinco respuestas traen exactamente lo mismo.
+     *
+     * Así que el intervalo real del componente son 5 minutos, y eso es lo que
+     * dice ahora. De paso deja de contradecir al resto de la página, que
+     * promete 15 minutos para los precios (esos sí son /api/markets, que
+     * cachea 15 min de verdad): ya no son dos promesas peleadas, son dos
+     * cadencias distintas, cada una dicha con su número correcto.
+     */
+    session:  { en: 'latest session, 5-min bars',    es: 'última sesión, barras de 5 min' },
     // /api/markets y /api/sparklines cachean 15 min.
     quarter:  { en: 'refreshed every 15 minutes',    es: 'se actualiza cada 15 minutos' },
     // /api/news cachea 24 h; el cliente repregunta cada hora.
     hourly:   { en: 'refreshed hourly',              es: 'se actualiza cada hora' },
     // Rangos 1M/3M/1Y: son cierres diarios, no hay nada intradía que refrescar.
     daily:    { en: 'daily closes',                  es: 'cierres diarios' },
-    session:  { en: 'latest session, 5-min bars',    es: 'última sesión, barras de 5 min' },
     unavailable: { en: 'unavailable right now, retrying automatically',
                    es: 'no disponible por ahora, se reintenta solo' },
     loading:  { en: 'loading…',                      es: 'cargando…' }

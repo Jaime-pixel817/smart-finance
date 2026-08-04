@@ -1,25 +1,10 @@
-/* Estilos compartidos de las páginas de artículo (/articles/*.html).
+/* Estilos compartidos de las páginas de artículo, /market y /lessons.
    Mismos tokens, tipografía y paleta oscura que index.html; aquí viven en un
-   archivo aparte para no repetir 400 líneas de CSS en cada artículo. */
+   archivo aparte para no repetir 400 líneas de CSS en cada artículo.
 
-:root {
-  --bg: #0A0A0B;
-  --bg-raise: #111113;
-  --card: #111113;
-  --card-2: #1A1A1C;
-  --ink: #F5F5F2;
-  --muted: #8A8A8E;
-  --brand: #0F8A5F;
-  --gold-text: #0F8A5F;
-  --line: #1E1E22;
-  --radius: 14px;
-  --card-pad: 22px;
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
-  --max-width: 1180px;
-  --read-width: 720px;
-}
+   Los tokens (paleta, fuentes, radios, ritmo) se mudaron a assets/tokens.css,
+   que estas páginas enlazan ANTES que este archivo. Estaban copiados aquí y en
+   el <style> de index.html, y las dos copias ya se habían separado. */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -65,21 +50,8 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* ---------- Atribución de fuente ----------
-   Un solo componente para las seis apariciones del sitio (gráficas, tarjetas de
-   mercado, bloque de tasas). Lo llena assets/source.js; aquí solo va la forma.
-   Antes esto estaba escrito de cuatro maneras distintas. */
-.src-line {
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  color: var(--muted);
-  display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;
-  margin-top: 12px;
-  /* Reserva una línea aunque todavía esté vacía, para que el bloque no salte
-     cuando llegue el texto. */
-  min-height: 1.1em;
-}
-.src-line .src-name { color: var(--ink); font-weight: 600; }
-.src-line .src-sep { opacity: 0.5; }
+   Se mudó a assets/tokens.css. Estaba aquí, y este archivo NO lo carga
+   index.html: en el home el componente se quedaba literalmente sin CSS. */
 
 /* ---------- Botones (misma jerarquía que el sitio) ---------- */
 .btn {
@@ -90,8 +62,8 @@ button { font-family: inherit; cursor: pointer; }
   transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 .btn:active { transform: scale(0.95); }
-.btn-primary { background: var(--brand); color: #06110D; border-color: var(--brand); font-weight: 700; }
-.btn-primary:hover { background: #12A06E; border-color: #12A06E; transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(15,138,95,0.75); }
+.btn-primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 700; }
+.btn-primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(22, 196, 127,0.75); }
 .btn-outline { border-color: var(--line); color: var(--ink); background: transparent; }
 .btn-outline:hover { background: var(--card-2); border-color: var(--muted); transform: translateY(-1px); }
 
@@ -111,10 +83,15 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 600; color: var(--gold-text); text-transform: uppercase;
   margin-bottom: 14px;
 }
+/* Fraunces se quedó SOLO en el h1 del hero del home. Los encabezados pasan a
+   Geist, que es la misma familia del cuerpo. Como Geist es una grotesca y
+   Fraunces una serif de contraste alto, al mismo tamaño se ve más ligera: por
+   eso el peso sube a 700 y el interletraje se cierra un punto. Es lo que
+   devuelve la presencia que el encabezado tenía antes. */
 .article h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: clamp(2rem, 5vw, 2.9rem);
-  line-height: 1.1; font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; font-weight: 700; letter-spacing: -0.03em;
   margin-bottom: 18px;
 }
 .article-lede { color: var(--muted); font-size: 1.08rem; line-height: 1.6; margin-bottom: 20px; }
@@ -124,8 +101,8 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .article-body h2 {
-  font-family: var(--font-display); font-size: 1.42rem; font-weight: 700;
-  line-height: 1.25; margin: 40px 0 12px;
+  font-family: var(--font-body); font-size: 1.42rem; font-weight: 700;
+  line-height: 1.25; letter-spacing: -0.02em; margin: 40px 0 12px;
 }
 .article-body h3 {
   font-family: var(--font-body); font-size: 1.02rem; font-weight: 700;

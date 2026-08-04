@@ -18,7 +18,7 @@
   margin-bottom: 14px;
 }
 .lessons h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: clamp(2rem, 5vw, 2.9rem);
   line-height: 1.1; font-weight: 800; letter-spacing: -0.02em;
   margin-bottom: 16px;
@@ -52,7 +52,7 @@
 .tip-top { display: flex; align-items: center; gap: 9px; }
 .tip-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--brand-soft); color: var(--gold-text); font-size: 16px; }
 .tip-index { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--gold-text); }
-.tip-card h2 { font-family: var(--font-display); font-size: 1.04rem; font-weight: 700; line-height: 1.32; }
+.tip-card h2 { font-family: var(--font-body); font-size: 1.04rem; font-weight: 700; line-height: 1.32; }
 .tip-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
 .tips-disclaimer { margin-top: 22px; }
 
@@ -82,7 +82,7 @@
 .tilt::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   pointer-events: none; opacity: 0; transition: opacity .25s ease;
-  background: radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(15,138,95,0.16), transparent 62%);
+  background: radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(22, 196, 127,0.16), transparent 62%);
 }
 @media (hover: hover) and (pointer: fine) {
   .tilt:hover::after { opacity: 1; }

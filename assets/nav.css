@@ -6,14 +6,28 @@
  * hamburguesa y las demás páginas NO tenían nada: solo el logo y el toggle de
  * idioma, sin forma de llegar a ninguna otra sección desde el celular.
  *
- * Ahora las nueve páginas cargan este archivo y se ven igual. El menú
- * hamburguesa desapareció: en móvil los enlaces van directos en la barra, que
- * son dos toques menos para llegar a cualquier sección.
+ * ─────────────────────────────────────────────────────────────────────────
+ * MÓVIL: por qué volvió el menú
+ * ─────────────────────────────────────────────────────────────────────────
+ * Se probó meter los cuatro enlaces sueltos en la barra. No cabe: a 320, 375 y
+ * 390 px el toggle EN/ES quedaba cortado por el borde derecho de la pantalla,
+ * en los dos idiomas. La barra tenía que llevar logo + Mercado + Lecciones +
+ * Suscríbete + EN/ES, y en español las palabras son más largas todavía.
+ *
+ * Ahora en la barra quedan SOLO tres cosas: el logo, el toggle EN/ES y el
+ * botón de menú. Lo demás vive dentro del desplegable.
+ *
+ * El markup del menú NO está en el HTML: lo arma assets/nav.js a partir de los
+ * enlaces que ya existen en .nav-links. Así el menú no es una segunda lista
+ * que se pueda desincronizar, y no hubo que pegar el mismo bloque en las once
+ * páginas. Si el JS no corre, la clase .has-mobile-menu nunca se agrega y los
+ * enlaces se quedan en la barra como hasta ahora: se ve apretado, pero se
+ * puede navegar.
  */
 
 .site-nav {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(10, 10, 11, 0.82);
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -24,6 +38,8 @@
   display: flex; align-items: center; justify-content: space-between; gap: 24px;
 }
 .nav-brand { display: flex; flex-direction: column; line-height: 1.05; }
+/* El logo se queda en Fraunces: es la marca, no un encabezado. Ver la nota
+   larga en assets/tokens.css. */
 .wordmark { font-family: var(--font-display); font-weight: 600; font-size: 1.4rem; letter-spacing: -0.01em; }
 .wordmark span { color: var(--brand); }
 .nav-tagline {
@@ -35,82 +51,146 @@
 .nav-links > a:not(.nav-cta) { font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color .15s ease; }
 .nav-links > a:not(.nav-cta):hover { color: var(--ink); }
 
-.lang-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 3px; background: var(--card); }
+/* ---------- Toggle EN/ES ----------
+   Dos botones cuadrados independientes, cada uno con su borde, en vez de una
+   cápsula con los dos dentro. El activo va relleno; el otro solo lleva borde.
+   Al ser cuadrados de 34px cumplen el área táctil aunque la letra sea chica, y
+   el par mide lo mismo en inglés que en español (EN y ES tienen dos letras las
+   dos), así que la barra no cambia de ancho al cambiar de idioma — que era la
+   mitad de por qué antes se cortaba. */
+.lang-toggle { display: inline-flex; align-items: center; gap: 6px; }
 .lang-btn {
-  background: none; border: none; color: var(--muted);
-  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
-  padding: 4px 9px; border-radius: 5px;
-  transition: background .15s ease, color .15s ease;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
-.lang-btn.active { background: var(--ink); color: var(--bg); }
+.lang-btn:hover { color: var(--ink); border-color: rgba(245, 245, 242, 0.3); }
+.lang-btn.active {
+  background: rgba(245, 245, 242, 0.12);
+  border-color: rgba(245, 245, 242, 0.45);
+  color: var(--ink);
+}
 
-.nav-cta { background: var(--brand); color: #06110D !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 700; }
-.nav-cta:hover { background: #12A06E; }
+.nav-cta { background: var(--brand); color: var(--on-brand) !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 700; }
+.nav-cta:hover { background: var(--brand-hover); }
+
+/* ---------- Botón de menú (hamburguesa → X) ----------
+   Tres líneas de 1px dentro de un cuadrado con borde, igual que el toggle de
+   idioma: los tres controles de la derecha se leen como un mismo juego.
+   Al abrirse, la de arriba y la de abajo se juntan al centro y giran ±45°, y
+   la de en medio se desvanece. Se anima solo transform y opacity, que son las
+   dos propiedades que el compositor resuelve sin volver a calcular layout. */
+.nav-toggle {
+  display: none;   /* solo existe en móvil; lo enciende el @media de abajo */
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 5px;
+  width: 34px; height: 34px; flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: border-color .15s ease;
+}
+.nav-toggle:hover { border-color: rgba(245, 245, 242, 0.3); }
+.nav-toggle span {
+  display: block; width: 16px; height: 1px;
+  background: var(--ink);
+  transition: transform .28s cubic-bezier(.4, 0, .2, 1), opacity .18s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* ---------- El desplegable ----------
+   Se abre animando grid-template-rows de 0fr a 1fr. Es el truco que permite
+   una transición hasta "la altura que el contenido pida" sin medirla en
+   JavaScript ni poner un max-height inventado que se quede corto el día que se
+   agregue un enlace. */
+.nav-mobile {
+  display: none;   /* lo enciende el @media */
+  overflow: hidden;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows .28s cubic-bezier(.4, 0, .2, 1), opacity .2s ease;
+}
+.site-nav.is-open .nav-mobile { grid-template-rows: 1fr; opacity: 1; }
+.nav-mobile-inner {
+  min-height: 0;   /* obligatorio: sin esto el hijo del grid no se deja encoger a 0 */
+  overflow: hidden;
+  /* width:100% es obligatorio junto al margin:auto. Dentro de un grid, un
+     margen automático gana sobre el estirado por defecto: el ítem se encoge al
+     ancho de su contenido y se centra. Sin esta línea los enlaces salían
+     centrados en una columna del ancho de la palabra más larga, y el botón de
+     Suscríbete no llegaba a los lados. */
+  width: 100%;
+  max-width: var(--max-width); margin: 0 auto;
+  /* Sin padding VERTICAL. Una fila de 0fr no puede encoger por debajo del
+     padding de su ítem —el padding no se comprime—, así que un padding-bottom
+     de 14px dejaba el panel cerrado midiendo 14px en vez de 0, y la barra
+     quedaba más alta de la cuenta con el menú cerrado. El aire de abajo lo
+     pone el margen del botón (ver .nav-mobile .nav-cta), que sí colapsa. */
+  padding: 0 14px;
+  display: flex; flex-direction: column;
+}
+.nav-mobile a {
+  display: flex; align-items: center;
+  min-height: 48px;
+  font-size: 0.95rem; font-weight: 500;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+.nav-mobile a:last-child { border-bottom: none; }
+/* El CTA no es un renglón más de la lista: es un botón de ancho completo al
+   final, el único elemento del menú que de verdad queremos que se toque. */
+.nav-mobile .nav-cta {
+  justify-content: center;
+  margin: 14px 0;   /* el de abajo es el aire del panel; ver .nav-mobile-inner */
+  padding: 13px 18px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  border-bottom: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-toggle span, .nav-mobile { transition: none; }
+}
 
 /* ---------- Móvil ----------
- * Los cinco elementos (logo, Market, Lessons, Subscribe, idioma) caben en
- * 375px, pero con poco margen, así que aquí se recorta TODO lo prescindible:
- *
- * - la línea secundaria del logo ("Markets & money, decoded") se esconde;
- * - "About" sale de la barra: es un ancla que solo existe en el home, y era
- *   el único de los cinco que no lleva a otra página. Los cuatro que quedan
- *   son los que piden el archivo de instrucciones;
- * - el toggle de idioma y "Subscribe" se compactan.
- *
- * El selector de About vale para las dos formas del enlace: "#about" en el
- * home y "/#about" en el resto de las páginas.
- *
- * min-height 44px en cada zona tocable: el texto se ve más chico, pero el
- * área que responde al dedo sigue siendo cómoda. Es alto, no tamaño de letra.
+ * A partir de aquí la barra se queda con tres cosas y nada más.
+ * .has-mobile-menu la pone assets/nav.js: sin JavaScript no se esconde nada y
+ * los enlaces siguen accesibles en la barra.
  */
 @media (max-width: 860px) {
   .nav-tagline { display: none; }
-  .nav-inner { padding: 8px 14px; gap: 8px; }
+  .nav-inner { padding: 9px 14px; gap: 10px; }
   .nav-right { gap: 8px; }
-  .nav-links { gap: 12px; }
 
   /* El logo no se encoge ni se parte: es lo primero que hace el flexbox
-     cuando falta espacio, y "Smart Finance" en dos líneas subía la barra de
-     61px a dos renglones. Prefiero que lo que ceda sea el espacio entre
-     enlaces, que se controla arriba. */
+     cuando falta espacio, y "Smart Finance" en dos líneas subía la barra a
+     dos renglones. */
   .nav-brand { flex-shrink: 0; }
   .wordmark { font-size: 1.1rem; white-space: nowrap; }
 
-  .nav-links > a:not(.nav-cta) {
-    font-size: 0.82rem;
-    display: inline-flex; align-items: center;
-    min-height: 44px;
-    color: var(--ink);
-  }
-  .nav-cta {
-    padding: 0 12px;
-    font-size: 0.78rem;
-    display: inline-flex; align-items: center;
-    min-height: 44px;
-    white-space: nowrap;
-  }
-  /* 38 + 2+2 de padding del contenedor + 1+1 de borde = 44px de alto real
-     para el toggle, que es el mínimo cómodo al tacto aunque la letra sea
-     chica. Lo mismo vale para el botón de Suscríbete. */
-  .lang-toggle { padding: 2px; gap: 2px; flex-shrink: 0; }
-  .lang-btn { font-size: 0.62rem; padding: 0 7px; min-height: 38px; }
-
-  /* Va DESPUÉS de la regla de tamaño de arriba a propósito: las dos tienen la
-     misma especificidad (0,2,1), así que si esta fuera antes, el
-     display:inline-flex de allá la pisaría y "About" seguiría visible.
-     Sirve para las tres formas del enlace: "#about" en el home, "/#about" en
-     /market y /lessons, "../#about" en las lecciones. */
-  .nav-links > a[href$="#about"] { display: none; }
+  .site-nav.has-mobile-menu .nav-links { display: none; }
+  .site-nav.has-mobile-menu .nav-toggle { display: flex; }
+  .site-nav.has-mobile-menu .nav-mobile { display: grid; }
 }
 
-/* Pantallas muy angostas (iPhone SE y parecidos): se aprieta un punto más,
-   sin bajar de los 44px de área táctil en los enlaces. */
+/* Pantallas muy angostas (iPhone SE y parecidos). Ya no hace falta apretar los
+   enlaces —no están en la barra—, así que solo se recorta el aire de los lados
+   y el logo. Los tres controles conservan sus 34px: son el área táctil, y
+   encogerla es justo lo que no se debe hacer en la pantalla más chica. */
 @media (max-width: 380px) {
-  .nav-inner { padding: 8px 10px; gap: 6px; }
+  .nav-inner { padding: 9px 12px; gap: 8px; }
   .nav-right { gap: 6px; }
-  .nav-links { gap: 8px; }
-  .wordmark { font-size: 0.94rem; }
-  .nav-links > a:not(.nav-cta) { font-size: 0.76rem; }
-  .nav-cta { padding: 0 8px; font-size: 0.71rem; }
-  .lang-btn { font-size: 0.58rem; padding: 6px 4px; }
+  .wordmark { font-size: 1rem; }
+  /* Solo horizontal, por lo mismo que en la regla base: un padding vertical
+     aquí impide que la fila de 0fr colapse y engorda la barra cerrada. */
+  .nav-mobile-inner { padding: 0 12px; }
 }
