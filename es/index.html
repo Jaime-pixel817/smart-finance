@@ -37,10 +37,15 @@
 
 
 
+
+
+
 <script src="/assets/lang.js"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23000000'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="Smart Finance — Finanzas actualizadas, por Jaime Sandoval">
 <meta property="og:description" content="Educación financiera en palabras normales. Datos de mercado en vivo, explicaciones claras, sin jerga.">
+
+
 
 
 
@@ -602,6 +607,21 @@
   .fx-chart-change { font-family: var(--font-mono); font-size:0.95rem; font-weight:600; }
   .fx-chart-change.up { color: var(--up); } .fx-chart-change.down { color: var(--down); }
   .fx-chart-canvas-wrap { margin-top:14px; height:220px; position:relative; }
+  /* ---------- El canvas no puede pasarse del panel ----------
+     Un <canvas> sin CSS mide 300 px de ancho: es su tamaño intrínseco, y estos
+     dos no traen atributo width. Cuando Chart.js pinta, le pone el ancho del
+     contenedor en un style y el problema no se ve — pero Chart.js solo corre
+     si /api/history contesta. En el primer pintado (antes de que llegue la
+     respuesta) y en cualquier fallo de la API, el canvas se queda en sus 300 px
+     y a 320 px de pantalla se sale del panel: la caja de la gráfica asomaba por
+     el borde derecho de la tarjeta.
+     max-width lo ata al contenedor sin estorbarle a Chart.js, que sigue
+     midiendo el wrap y escribiendo su propio ancho en línea. Los wrap ya
+     llevaban min-width:0 para lo mismo, pero eso encoge la CAJA, no el canvas
+     de dentro. display:block además le quita el hueco de línea base que deja
+     un elemento en línea. */
+  .fx-chart-canvas-wrap canvas,
+  .vix-canvas-wrap canvas { display:block; max-width:100%; }
   /* .fx-chart-note: la regla se borró. Es el mismo pie de fuente que
      .src-line con otro nombre, y ese componente vive ahora en
      assets/tokens.css; SmartSource.paint() le pone esa clase al elemento, así

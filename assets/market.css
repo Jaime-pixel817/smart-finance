@@ -179,6 +179,14 @@
 /* min-width:0 es obligatorio: el canvas de Chart.js arranca en 300 px fijos y
    sin esto el panel se sale de la pantalla en móvil. */
 .fx-chart-canvas-wrap { margin-top: 14px; height: 250px; position: relative; min-width: 0; }
+/* …y el min-width:0 de arriba encoge la CAJA, no el canvas de dentro. Los tres
+   canvas de esta página no traen atributo width, así que su ancho intrínseco
+   son esos 300 px. Chart.js les escribe el ancho real en un style al pintar,
+   pero solo corre si /api/history contesta: en el primer pintado y en
+   cualquier fallo de la API se quedan en 300 px, y a 320 px de pantalla el
+   wrap mide 231 — la gráfica asomaba 32 px por fuera de la pantalla.
+   max-width no le estorba a Chart.js, que sigue midiendo el wrap. */
+.fx-chart-canvas-wrap canvas { display: block; max-width: 100%; }
 /* .fx-chart-note: la regla se borró. Es el mismo pie de fuente que .src-line,
    que ahora vive en assets/tokens.css; SmartSource.paint() le pone esa clase
    al elemento, así que se estiliza solo. */
