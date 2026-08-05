@@ -321,9 +321,14 @@
      No cuesta más píxeles: assets/risk-sphere.js no dimensiona el lienzo por
      la caja sino por un presupuesto de área (MAX_CANVAS_PX), y baja el DPR
      solo para no pasarse. La caja crece 2.3× y el lienzo apenas 1.4×. */
+  /* El globo se corrió MÁS a la derecha (de -13vw a -22vw) por lo mismo que en
+     móvil bajó: la esfera monocromática es mucho más clara que el mapa que
+     había antes, y en escritorio se metía por debajo de "Actually Clicks."
+     dejando el titular en 3.5:1. Aquí la separación es horizontal en vez de
+     vertical, porque el texto vive a la izquierda y el globo a la derecha. */
   .hero-globe-wrap {
     position:absolute; z-index:0;
-    top:50%; right: clamp(-300px, -13vw, -140px);
+    top:50%; right: clamp(-620px, -30vw, -260px);
     transform: translateY(-50%);
     width: min(1240px, 76vw);
     height: min(1400px, 118vh);
@@ -359,11 +364,11 @@
     position: absolute; z-index: 1; pointer-events: none;
     top: -48px; bottom: 0; left: 50%;
     width: 100vw; transform: translateX(-50%);
-    background: radial-gradient(80% 40% at 30% 33%,
-      rgba(0,0,0,0.62) 0%,
-      rgba(0,0,0,0.46) 34%,
-      rgba(0,0,0,0.22) 62%,
-      rgba(0,0,0,0) 88%);
+    background: radial-gradient(84% 42% at 30% 33%,
+      rgba(0,0,0,0.78) 0%,
+      rgba(0,0,0,0.62) 34%,
+      rgba(0,0,0,0.30) 62%,
+      rgba(0,0,0,0) 90%);
   }
   .hero-globe-wrap canvas {
     display:block;
@@ -460,18 +465,27 @@
        es cuadrada (con la caja apaisada de antes se quedaba en el 75 %):
        a 390px son 424px de esfera contra los 300px que había.
 
-       Y el centro baja del 52 % al 61 %. Es la otra mitad de quitar el velo:
-       con la esfera más grande, el titular caía sobre la parte densa del
-       globo; bajándola, el texto queda sobre el borde —donde el propio shader
-       apaga las partículas con frontVis— y el fondo detrás de la letra se
-       mantiene oscuro sin necesidad de taparlo. De paso el globo domina la
-       mitad de abajo de la pantalla, que es como se ve en riskon.
+       Y el centro baja al 72 %. Empezó en 52 %, pasó a 61 % al agrandar la
+       esfera, y bajó otra vez al volverse monocromática: esa versión es MUCHO
+       más clara que el mapa que había antes, así que el titular encima ya no
+       se sostenía.
+
+       Se intentó primero por el otro lado —dejar el globo donde estaba y subir
+       el degradado que protege el texto— y salió mal de una forma que se ve en
+       cuanto se mira: el degradado está centrado justo donde está la esfera,
+       así que para salvar el titular apagaba el globo entero y lo dejaba como
+       un disco oscuro con el borde brillante. Justo lo contrario de "densa y
+       uniforme".
+
+       Separarlos cuesta menos y no le quita nada a ninguno de los dos: el
+       texto se queda arriba, la esfera ocupa la mitad de abajo entera y puede
+       ir a su brillo completo. Es además la composición de riskon.
        Se sale de los lados a propósito, para que se lea como un planeta
        cortado por el encuadre y no como una pelota centrada. No provoca scroll
        horizontal porque .hero lleva overflow:hidden. */
     .hero .hero-globe-wrap {
       position: absolute; z-index: 0;
-      top: 61%; left: 50%; right: auto;
+      top: 72%; left: 50%; right: auto;
       transform: translate(-50%, -50%);
       width: min(128vw, 520px); height: min(128vw, 520px);
       order: 0; margin: 0;
@@ -480,14 +494,24 @@
        centrado en la pantalla (no pegado a la izquierda como en escritorio),
        así que el foco se va al 50 % de ancho, y se abre un poco porque aquí la
        esfera queda justo detrás. Sigue siendo UN radial, sin bandas y sobre
-       una caja de 100vw: ni un borde visible. */
+       una caja de 100vw: ni un borde visible.
+
+       CON EL GLOBO MONOCROMÁTICO se subió un escalón, pero poco: de 0.62 a
+       0.68 en el centro. El trabajo pesado lo hace ahora la composición —el
+       globo bajó al 72 % y el texto ya no cae sobre la parte brillante de la
+       esfera—, y este degradado solo cubre lo que queda: el borde superior del
+       globo, que sí llega hasta debajo de los botones.
+
+       Se probó con 0.80 y apagaba el globo. La cuenta está en el informe: con
+       la esfera separada, 0.68 deja el titular por encima de 7:1 en la peor
+       rotación, que es lo mismo que daba el diseño anterior. */
     .hero .hero-grid::before {
       top: 0;
-      background: radial-gradient(96% 42% at 50% 40%,
-        rgba(0,0,0,0.62) 0%,
-        rgba(0,0,0,0.46) 36%,
-        rgba(0,0,0,0.2) 64%,
-        rgba(0,0,0,0) 88%);
+      background: radial-gradient(100% 44% at 50% 38%,
+        rgba(0,0,0,0.68) 0%,
+        rgba(0,0,0,0.52) 36%,
+        rgba(0,0,0,0.24) 64%,
+        rgba(0,0,0,0) 90%);
     }
     .hero .hero-inner {
       position: relative; z-index: 2;
