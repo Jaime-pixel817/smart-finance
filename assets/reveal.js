@@ -38,27 +38,42 @@
   'use strict';
 
   /*
-   * Bloques que aparecen enteros. Uno por página, porque cada una tiene su
-   * propia estructura:
-   *   .reveal                  las secciones del home, que ya lo traían
-   *   .mkt-head / .mkt-block   /market
-   *   .lessons > .wrap > *     /lessons (no usa <section>)
-   *   .article-inner > *       cada lección
+   * Bloques que aparecen enteros: los que no tienen partes que valga la pena
+   * separar, o cuyas partes ya se escalonan por otro lado.
    */
   var BLOQUES = [
-    '.reveal',
     '.mkt-head', '.mkt-block',
-    '.lessons > .wrap > *',
     '.article-inner > *'
   ].join(',');
 
   /*
-   * Rejillas cuyos hijos entran EN ESCALÓN, uno detrás de otro. Es el
-   * "ligero escalón entre elementos hermanos": sin esto, seis tarjetas
-   * aparecen las seis de golpe y se lee como un parpadeo del bloque entero,
-   * no como que el contenido va llegando.
+   * Contenedores cuyos HIJOS entran EN ESCALÓN, uno detrás de otro.
+   *
+   * QUÉ CAMBIÓ Y POR QUÉ
+   * --------------------
+   * Antes las secciones del home entraban de una pieza: la sección entera
+   * pasaba de opacidad 0 a 1, con el título, el texto y las tarjetas a la vez.
+   * Eso se lee como un parpadeo del bloque, no como que el contenido va
+   * llegando — que es justo lo que se pedía arreglar.
+   *
+   * Ahora la sección NO se mueve: se mueven sus partes, en orden. El
+   * antetítulo, el titular, la bajada y cada bloque de contenido llegan uno
+   * detrás de otro con 65 ms de diferencia. Es el patrón de ondo.finance, y es
+   * también más barato: el elemento que se anima es más chico, así que el área
+   * que el navegador repinta en cada frame también.
+   *
+   * Los dos niveles (las partes de la sección, y dentro de una rejilla sus
+   * tarjetas) se llevan bien porque el de dentro se mueve menos: 18px el de
+   * fuera, 12px el de dentro. Sumar dos recorridos completos se vería como un
+   * rebote.
    */
-  var REJILLAS = '.market-grid, .content-grid, .mkt-grid, .tips-grid';
+  var GRUPOS = [
+    '.reveal > .wrap',      // las seis secciones del home
+    '.lessons > .wrap',     // /lessons
+    '.about-inner',         // retrato y texto de "About"
+    '.footer-inner',        // el pie, que hasta ahora no se movía en ninguna página
+    '.market-grid', '.content-grid', '.mkt-grid', '.tips-grid', '.macro-grid'
+  ].join(',');
 
   // Tope del escalón. Sin él, la tarjeta 12 de una rejilla esperaría casi un
   // segundo con la pantalla ya quieta, que se siente roto, no elegante.
@@ -72,19 +87,25 @@
     if (reduce.matches || !('IntersectionObserver' in window)) return;
 
     var elementos = [];
-
-    Array.prototype.forEach.call(document.querySelectorAll(BLOQUES), function (el) {
+    // Sin repetidos: un mismo elemento puede caer en BLOQUES y ser además hijo
+    // de un grupo, y observarlo dos veces solo duplica trabajo.
+    function anotar(el) {
+      if (el.__reveal) return;
+      el.__reveal = true;
       elementos.push(el);
-    });
+    }
 
-    Array.prototype.forEach.call(document.querySelectorAll(REJILLAS), function (rejilla) {
-      Array.prototype.forEach.call(rejilla.children, function (hijo, i) {
-        hijo.style.setProperty('--reveal-i', Math.min(i, MAX_ESCALON));
-        // Un desplazamiento más corto que el del bloque: la tarjeta se acomoda
-        // dentro de un bloque que ya se está acomodando, y sumar los dos
-        // movimientos completos se ve como un rebote.
-        hijo.style.setProperty('--reveal-y', '12px');
-        elementos.push(hijo);
+    Array.prototype.forEach.call(document.querySelectorAll(BLOQUES), anotar);
+
+    Array.prototype.forEach.call(document.querySelectorAll(GRUPOS), function (grupo) {
+      // Anidado dentro de otro grupo (una rejilla dentro de una sección): sus
+      // hijos se mueven menos, para que los dos recorridos no se sumen.
+      var dentro = !!(grupo.parentNode && grupo.parentNode.closest &&
+                      grupo.parentNode.closest(GRUPOS));
+      Array.prototype.forEach.call(grupo.children, function (hijo) {
+        if (!hijo.getBoundingClientRect) return;
+        hijo.style.setProperty('--reveal-y', dentro ? '12px' : '18px');
+        anotar(hijo);
       });
     });
 
@@ -113,6 +134,7 @@
         el.classList.remove('reveal-el', 'is-in');
         el.style.removeProperty('--reveal-i');
         el.style.removeProperty('--reveal-y');
+        delete el.__reveal;
       }
       function alTerminar(e) {
         if (e.target !== el || e.propertyName !== 'transform') return;
@@ -122,9 +144,26 @@
       setTimeout(limpiar, 1800);
     }
 
+    /*
+     * EL ESCALÓN SE DECIDE AQUÍ, NO AL PREPARAR.
+     *
+     * Antes cada hijo llevaba su número de orden escrito desde el principio.
+     * Eso funciona en una rejilla, donde las seis tarjetas entran a la vez,
+     * pero no en una sección alta: el quinto bloque de "What the market's
+     * doing" entra en pantalla él solo, minutos después, y se quedaba
+     * esperando 325 ms con la pantalla quieta antes de aparecer. Un retraso
+     * heredado de unos hermanos que ya nadie está mirando.
+     *
+     * El observador avisa EN LOTES: lo que entra en el mismo momento llega en
+     * la misma llamada. Así que el escalón se reparte dentro del lote, y quien
+     * entra solo entra sin esperar a nadie.
+     */
     var io = new IntersectionObserver(function (entradas) {
+      var n = 0;
       entradas.forEach(function (entrada) {
         if (!entrada.isIntersecting) return;
+        entrada.target.style.setProperty('--reveal-i', Math.min(n, MAX_ESCALON));
+        n++;
         encender(entrada.target);
         io.unobserve(entrada.target);
       });

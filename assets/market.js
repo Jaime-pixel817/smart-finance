@@ -141,11 +141,58 @@
     return dirSerie(series);
   }
 
+  /* ---- Las mini-gráficas se trazan al aparecer ---------------------------
+   *
+   * SOLO LA PRIMERA VEZ. paint() rehace el innerHTML entero cada 15 minutos y
+   * cada vez que se cambia de idioma, así que los <path> son nodos NUEVOS en
+   * cada vuelta y "ya se animó" no se puede guardar en el nodo. Se guarda por
+   * símbolo, que es lo que sobrevive al repintado.
+   *
+   * Se marca cuando la animación ARRANCA, no cuando se programa: si llega un
+   * refresco mientras la tarjeta todavía está esperando a entrar en pantalla,
+   * la tarjeta nueva vuelve a quedarse esperando, que es lo correcto.
+   */
+  var trazadas = {};
+
+  function animarSparks(cont) {
+    var M = window.SmartMotion;
+    if (!M || !M.puedeAnimar()) return;   // sin esconder nada
+    Array.prototype.forEach.call(cont.querySelectorAll('.mkt-card[data-sym]'), function (card) {
+      var sym = card.getAttribute('data-sym');
+      var linea = card.querySelector('.mkt-spark path.line');
+      var area = card.querySelector('.mkt-spark path.area');
+      if (!linea || trazadas[sym]) return;
+      if (!M.prepararTrazo(linea)) return;  // path sin largo medible: se deja
+      if (area) area.style.opacity = '0';
+      M.alPrimerVistazo(card, function (animar) {
+        trazadas[sym] = true;
+        if (!animar) {
+          linea.style.strokeDasharray = '';
+          linea.style.strokeDashoffset = '';
+          if (area) area.style.opacity = '';
+          return;
+        }
+        M.trazar(linea, M.DUR_SPARK);
+        if (area) {
+          // El relleno no se puede "trazar": entra desvanecido detrás de la
+          // línea, un poco más lento para que la línea vaya por delante.
+          void area.getBoundingClientRect();
+          area.style.transition = 'opacity ' + Math.round(M.DUR_SPARK * 1.15) + 'ms ' + M.CURVA;
+          area.style.opacity = '1';
+          M.limpiarAlTerminar(area, Math.round(M.DUR_SPARK * 1.15), function () {
+            area.style.transition = '';
+            area.style.opacity = '';
+          });
+        }
+      }, { threshold: 0.3 });
+    });
+  }
+
   function cardHTML(item) {
     var dir = dirOf(item.changePct, item.series);
     var pct = fmtPct(item.changePct);
     var arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '';
-    return '<article class="mkt-card">' +
+    return '<article class="mkt-card" data-sym="' + escapeHtml(item.sym) + '">' +
       '<div class="mkt-card-top">' +
         '<span class="mkt-sym">' + escapeHtml(item.sym) + '</span>' +
         '<span class="mkt-name">' + escapeHtml(item.name || '') + '</span>' +
@@ -181,6 +228,12 @@
       return;
     }
     el.innerHTML = block.items.map(cardHTML).join('');
+    animarSparks(el);
+    // El precio y el porcentaje de cada tarjeta entran deslizándose desde
+    // abajo, escalonados entre tarjetas. Se llama en cada pintado porque el
+    // primero es de esqueletos; motion.js se engancha solo cuando ya hay
+    // números de verdad, y una sola vez.
+    if (window.SmartMotion) window.SmartMotion.numeros(el, '.mkt-price, .mkt-change');
   }
 
   // Atribución de fuente por el componente compartido (assets/source.js), el

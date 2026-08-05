@@ -277,3 +277,38 @@ body {
     opacity: 1; transform: none; transition: none;
   }
 }
+
+/* ───────────────────── Números que entran desde abajo ─────────────────────
+ *
+ * Las dos clases las pone assets/motion.js, y solo mientras dura la
+ * animación: al terminar se quitan las dos, se borra --num-i y se deshace la
+ * envoltura. Fuera de esos 720 ms no queda ni una propiedad puesta.
+ *
+ * .num-mask   RECORTA. Va en el elemento del precio, que no se mueve.
+ * .num-sube   SE MUEVE. Es la envoltura que motion.js crea alrededor del
+ *             texto, con el valor definitivo dentro desde el primer frame.
+ *
+ * El recorte deja el borde de abajo a ras (0) —que es lo que esconde el
+ * número mientras sube— y abre por arriba y por los lados, para no cortar
+ * acentos, el símbolo de moneda ni el triangulito de dirección.
+ *
+ * El 110 % de salida es un pelo más que la altura del propio número: así
+ * empieza completamente fuera del recorte y no se ve asomar nada antes de
+ * tiempo. */
+.num-mask {
+  clip-path: inset(-45% -10% 0 -10%);
+}
+.num-mask > .num-sube {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform .72s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: calc(var(--num-i, 0) * 70ms);
+}
+.num-mask.num-in > .num-sube { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .num-mask { clip-path: none; }
+  .num-mask > .num-sube, .num-mask.num-in > .num-sube {
+    transform: none; transition: none;
+  }
+}

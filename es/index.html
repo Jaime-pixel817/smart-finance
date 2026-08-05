@@ -266,15 +266,26 @@
     padding: 24px 0;
   }
   /* Fraunces se queda AQUÍ y en ningún otro lado del sitio.
-     Más chico que antes (llegaba a 5.6rem): el titular ya no tiene que
-     sostener el centro de la pantalla él solo, ahora lo acompaña el globo. */
+     El tamaño subió: el titular volvió a crecer para acompañar al globo, que
+     también es más grande. El tope de 4.8rem se probó contra el caso apretado
+     —.hero-inner mide 600px y "Actually Clicks." es la línea más larga— y entra
+     con margen; el suelo de 2.4rem es el de tablet, porque de 767px para abajo
+     manda el bloque de móvil.
+
+     LA SOMBRA. Es lo que sustituye al velo rectangular junto con el degradado
+     de .hero-grid::before: sigue la forma de las letras en vez de dibujar una
+     caja, así que resuelve justo el problema que el degradado no puede —una
+     partícula brillante suelta pegada al trazo— sin ensuciar nada. Dos capas:
+     una corta y opaca que despega la letra del fondo, y una larga y suave que
+     apaga el ruido de alrededor. */
   .hero h1 {
     font-family: var(--font-display);
-    font-size: clamp(1.95rem, 5.2vw, 4.4rem);
+    font-size: clamp(2.4rem, 5.6vw, 4.8rem);
     line-height:1.04;
     font-weight:600;
     letter-spacing:-0.025em;
     margin: 0 0 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.92), 0 0 24px rgba(0,0,0,0.7);
   }
   /* ---------- El eyebrow, en UNA sola línea ----------
      Antes se partía en dos renglones en móvil. El caso apretado es el
@@ -282,26 +293,77 @@
        "FINANZAS ACTUALIZADAS · POR JAIME SANDOVAL"   42 caracteres
        "UPDATED FINANCE · BY JAIME SANDOVAL"          35 caracteres
      A 320px quedan 280px útiles (la pantalla menos los 20px de .wrap a cada
-     lado). Geist Mono avanza 0.6em por carácter, así que con el interletraje
-     bajado de 0.14em a 0.06em son 0.66em por carácter: 42 × 0.66 × 9.6px =
-     266px, y cabe con holgura.
-     De ahí sale el min(): 0.7rem en pantallas donde sobra el espacio, y 3vw
-     en las que no, que a 320px da esos 9.6px. nowrap para que si algún día el
-     texto crece, se note enseguida en vez de partirse en silencio. */
+     lado). Geist Mono avanza 0.6em por carácter, así que el interletraje es lo
+     que decide cuánta letra cabe.
+
+     AHORA ES MÁS GRANDE, y el sitio salió de bajar el interletraje de 0.06em a
+     0.04em: son 0.64em por carácter en vez de 0.66em. Con eso, el caso que
+     manda —el español a 320px— aguanta 10.2px en vez de 9.6px, y el resto de
+     las pantallas suben hasta 0.82rem:
+       320px → 3.2vw = 10.2px → 42 × 0.64 × 10.2 = 274px de 280 útiles
+       390px → 3.2vw = 12.5px → 42 × 0.64 × 12.5 = 336px de 350 útiles
+       ≥410px → 0.82rem = 13.1px, ya con sitio de sobra
+     nowrap para que si algún día el texto crece, se note enseguida en vez de
+     partirse en silencio. */
   .hero .eyebrow {
     margin: 0 0 22px;
-    font-size: min(0.7rem, 3vw);
-    letter-spacing: 0.06em;
+    font-size: min(0.82rem, 3.2vw);
+    letter-spacing: 0.04em;
     white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9);
   }
+  /* El globo, más grande.
+     El alto es lo que manda: la esfera ocupa siempre el 87 % del ALTO de esta
+     caja (el escalado del grupo topa en BASE_SCALE en cuanto la caja es más
+     ancha que alta), así que subir el alto es lo único que la hace crecer de
+     verdad. De 94vh a 118vh son 750px de esfera → 940px en una pantalla de
+     1080 de alto.
+     No cuesta más píxeles: assets/risk-sphere.js no dimensiona el lienzo por
+     la caja sino por un presupuesto de área (MAX_CANVAS_PX), y baja el DPR
+     solo para no pasarse. La caja crece 2.3× y el lienzo apenas 1.4×. */
   .hero-globe-wrap {
     position:absolute; z-index:0;
-    top:50%; right: clamp(-260px, -12vw, -120px);
+    top:50%; right: clamp(-300px, -13vw, -140px);
     transform: translateY(-50%);
-    width: min(1120px, 70vw);
-    height: min(1120px, 94vh);
+    width: min(1240px, 76vw);
+    height: min(1400px, 118vh);
     touch-action: pan-y;
     pointer-events:auto;
+  }
+  /* ---------- Lo que sustituye al velo ----------
+     Antes había un rectángulo con dos degradados: uno radial y otro lineal con
+     bandas arriba y abajo. Las bandas terminaban en seco en el borde de la
+     caja y ESO era la mancha con forma de caja que se veía; el radial, además,
+     se recortaba contra los lados de .hero-grid, que en móvil mide solo 299px
+     porque .wrap lleva margin:0 auto y en un flex en columna eso lo encoge a
+     su contenido.
+
+     Ahora es un solo degradado radial, sin bandas, sobre una caja de 100vw
+     centrada: los lados quedan fuera de la pantalla y arriba y abajo el
+     degradado llega a cero MUY dentro de la caja (el radio vertical es 46 % y
+     el centro está al 44 %), así que no hay un solo borde que se pueda ver.
+
+     Por qué no basta con quitarlo y ya: medido sobre los píxeles reales del
+     canvas detrás del titular, en ocho posiciones de rotación, el 99 % del
+     fondo está en luminancia ≤ 0.084 —contraste 7:1, de sobra— pero hay
+     partículas sueltas que llegan a 0.96, es decir, blanco. Contra esas no
+     puede un degradado ancho: son puntos del tamaño de la letra. De eso se
+     encarga la sombra del texto; de bajar el nivel general, este radial. */
+     El -48px de arriba es el padding superior de .hero: sube la caja hasta el
+     borde del hero para que el degradado tenga sitio de sobrar por encima del
+     titular, que en escritorio va pegado al techo. Con la caja empezando en el
+     titular no había forma: o no lo cubría, o el degradado llegaba al borde
+     con alfa suficiente para verse como una línea. */
+  .hero-grid::before {
+    content: '';
+    position: absolute; z-index: 1; pointer-events: none;
+    top: -48px; bottom: 0; left: 50%;
+    width: 100vw; transform: translateX(-50%);
+    background: radial-gradient(80% 40% at 30% 33%,
+      rgba(0,0,0,0.62) 0%,
+      rgba(0,0,0,0.46) 34%,
+      rgba(0,0,0,0.22) 62%,
+      rgba(0,0,0,0) 88%);
   }
   .hero-globe-wrap canvas {
     display:block;
@@ -309,13 +371,23 @@
     pointer-events:auto;
   }
   /* Los tres botones no ocupan el ancho: se quedan del tamaño de su texto y
-     alineados a la izquierda, debajo del eyebrow. Son más chicos que los .btn
-     del resto del sitio porque aquí compiten con el titular, no con nada más. */
-  .hero-cta { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-start; }
+     alineados a la izquierda, debajo del eyebrow. Ya no son más chicos que los
+     .btn del resto del sitio — en el ajuste anterior se habían quedado
+     demasiado discretos para lo que son, que es la única acción del hero. */
+  .hero-cta { display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-start; }
   /* El envoltorio de LinkedIn + TikTok. En escritorio es un flex con el mismo
      gap que su padre, así que los tres botones se leen como una sola fila. */
-  .hero-cta-social { display:flex; gap:10px; flex-wrap:wrap; }
-  .hero-cta .btn { padding: 10px 20px; font-size: 0.88rem; }
+  .hero-cta-social { display:flex; gap:12px; flex-wrap:wrap; }
+  .hero-cta .btn { padding: 14px 28px; font-size: 1rem; }
+  /* Los dos de contorno van sobre el globo, no sobre el fondo: sin relleno, su
+     texto blanco queda contra las partículas igual que el titular. El relleno
+     translúcido lo resuelve con la forma que ya tiene el botón —una píldora—
+     en vez de con un rectángulo, que es justo lo que se quería quitar.
+     Sin backdrop-filter a propósito: desenfocar lo que hay detrás obliga al
+     navegador a mantener una superficie de composición aparte y a rehacerla en
+     CADA frame del globo. Por dos botones no vale ese precio en un teléfono. */
+  .hero-cta .btn-outline { background: rgba(0,0,0,0.45); }
+  .hero-cta .btn-outline:hover { background: var(--card-2); }
 
   @media (max-width: 920px) {
     .hero { padding-top: 32px; }
@@ -378,34 +450,44 @@
       padding-top: 14px;
       padding-bottom: 20px;
     }
-    /* El globo conserva su tamaño (118% × 400px) y sube: su centro pasa del
-       62% al 52% del alto del hero, que lo deja prácticamente centrado en la
-       pantalla en vez de recargado abajo. Se sale de los lados a propósito
-       para que se lea como un planeta cortado por el encuadre y no como una
-       pelota centrada. No provoca scroll horizontal porque .hero lleva
-       overflow:hidden. */
+    /* El globo, bastante más grande y un poco más abajo.
+       El tamaño ya NO va en porcentaje del padre: .hero-grid es .wrap, y .wrap
+       lleva margin:0 auto, que dentro de un flex en columna lo encoge a su
+       contenido — en móvil medía 299px, así que aquel "118%" eran 353px, menos
+       que la pantalla. En vh/vw el tamaño depende de la pantalla y no del
+       largo del titular, que es lo que se quería decir.
+       Caja cuadrada porque la esfera ocupa el 85 % del alto de la caja cuando
+       es cuadrada (con la caja apaisada de antes se quedaba en el 75 %):
+       a 390px son 424px de esfera contra los 300px que había.
+
+       Y el centro baja del 52 % al 61 %. Es la otra mitad de quitar el velo:
+       con la esfera más grande, el titular caía sobre la parte densa del
+       globo; bajándola, el texto queda sobre el borde —donde el propio shader
+       apaga las partículas con frontVis— y el fondo detrás de la letra se
+       mantiene oscuro sin necesidad de taparlo. De paso el globo domina la
+       mitad de abajo de la pantalla, que es como se ve en riskon.
+       Se sale de los lados a propósito, para que se lea como un planeta
+       cortado por el encuadre y no como una pelota centrada. No provoca scroll
+       horizontal porque .hero lleva overflow:hidden. */
     .hero .hero-globe-wrap {
       position: absolute; z-index: 0;
-      top: 52%; left: 50%; right: auto;
+      top: 61%; left: 50%; right: auto;
       transform: translate(-50%, -50%);
-      width: 118%; height: 400px;
+      width: min(128vw, 520px); height: min(128vw, 520px);
       order: 0; margin: 0;
     }
-    /* Velo entre el globo y el texto. El foco del radial persigue al titular:
-       como el texto volvió al centro vertical, el centro del radial baja de
-       26% a 45% (la x se queda en 30%, el texto sigue alineado a la
-       izquierda). Sin mover el velo, el titular quedaba sobre la parte clara
-       de las partículas y perdía legibilidad — que es justo la zona donde
-       ahora está, porque el globo también subió. Por eso además se abre un
-       poco el radio vertical, de 58% a 66%: el bloque de texto es más alto
-       que antes al haber pasado los botones a dos filas. */
+    /* El degradado de arriba, ajustado a móvil: el bloque de texto está
+       centrado en la pantalla (no pegado a la izquierda como en escritorio),
+       así que el foco se va al 50 % de ancho, y se abre un poco porque aquí la
+       esfera queda justo detrás. Sigue siendo UN radial, sin bandas y sobre
+       una caja de 100vw: ni un borde visible. */
     .hero .hero-grid::before {
-      content: '';
-      position: absolute; inset: -24px 0;
-      z-index: 1; pointer-events: none;
-      background:
-        radial-gradient(115% 66% at 30% 45%, rgba(0, 0, 0,0.92) 0%, rgba(0, 0, 0,0.62) 46%, rgba(0, 0, 0,0) 82%),
-        linear-gradient(to bottom, rgba(0, 0, 0,0.55) 0%, rgba(0, 0, 0,0) 26%, rgba(0, 0, 0,0) 78%, rgba(0, 0, 0,0.5) 100%);
+      top: 0;
+      background: radial-gradient(96% 42% at 50% 40%,
+        rgba(0,0,0,0.62) 0%,
+        rgba(0,0,0,0.46) 36%,
+        rgba(0,0,0,0.2) 64%,
+        rgba(0,0,0,0) 88%);
     }
     .hero .hero-inner {
       position: relative; z-index: 2;
@@ -429,10 +511,25 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 8px;
+      gap: 10px;
     }
-    .hero .hero-cta-social { gap: 8px; }
-    .hero .hero-cta .btn { padding: 9px 16px; font-size: 0.82rem; }
+    .hero .hero-cta-social { gap: 10px; }
+    /* 13px de relleno vertical sobre una línea de ~20px dejan el botón en 47px
+       de alto. Los 44px son el mínimo que recomiendan Apple y Google para algo
+       que se toca con el dedo; los de antes se quedaban en 40. */
+    .hero .hero-cta .btn { padding: 13px 22px; font-size: 0.92rem; }
+
+    /* El titular tiene su propio tamaño aquí, más chico que el clamp general.
+       No es capricho: el bloque de texto encoge a su contenido, así que el
+       límite real es que "Actually Clicks." / "Sí Se Entienden." sigan cabiendo
+       en DOS líneas en la pantalla más angosta. Medido, la línea larga ocupa
+       8.3 veces el tamaño de fuente:
+         320px → 9.6vw = 30.7px, gana el suelo de 1.95rem = 31.2px → 259 de 280
+         390px → 9.6vw = 37.4px                                   → 310 de 350
+         ≥409px → tope de 2.45rem = 39.2px
+       O sea: igual que antes en la pantalla apretada, y +20 % de 360px para
+       arriba, que es donde estaba el hueco. */
+    .hero h1 { font-size: clamp(1.95rem, 9.6vw, 2.45rem); }
   }
 
   .ticker {
@@ -866,6 +963,12 @@
 <!-- El carrusel de titulares es el mismo archivo que usa /market. -->
 <link rel="stylesheet" href="/assets/nav.css">
 <script src="/assets/nav.js" defer></script>
+<!-- Movimiento compartido. reveal.js FALTABA en esta página: el comentario de
+     más arriba decía que lo cargaban "las once páginas" y resulta que el home
+     era justo la que no, así que sus seis secciones .reveal bajaban quietas
+     desde que el archivo se sacó del <script> de aquí. -->
+<script src="/assets/motion.js"></script>
+<script src="/assets/reveal.js" defer></script>
 <link rel="stylesheet" href="/assets/news.css">
 </head>
 <body>
@@ -1476,14 +1579,26 @@
   // render() repinta con innerHTML, así que los nodos del precio son nuevos en
   // cada vuelta. En vez de animar el nodo viejo (que ya no existe), se anima el
   // nuevo desde el último valor que vimos, guardado en displayedValues.
+  //
+  // ESTO ESTABA ROTO. animateValue leía una variable `reduceMotion` que ya no
+  // existe —se fue con el bloque de aparición al hacer scroll cuando se mudó a
+  // assets/reveal.js— y lanzaba un ReferenceError en CADA pintado. Como la
+  // excepción sale del forEach de runCounters y sube hasta render(), se llevaba
+  // por delante todo lo que viniera después: el odómetro no corría nunca y el
+  // resto de render() se quedaba a medias. Ahora la pregunta se le hace a
+  // assets/motion.js, que es donde vive ese criterio para todo el sitio.
   const displayedValues = {};
   const COUNT_MS = 520;
+
+  function sinMovimiento() {
+    return !!(window.SmartMotion && window.SmartMotion.reducido());
+  }
 
   function animateValue(el, from, to, decimals, prefix) {
     // Salto seco si no hay de dónde partir, si el usuario pidió menos animación,
     // o si el salto es tan grande que el conteo se vería como ruido.
     const jump = Math.abs(to - from);
-    const noAnim = reduceMotion || from === undefined || from === null ||
+    const noAnim = sinMovimiento() || from === undefined || from === null ||
                    !isFinite(from) || jump === 0 || jump > Math.abs(to) * 0.25;
     if (noAnim) { el.textContent = prefix + fmtPrice(to, decimals); return; }
 
@@ -1647,6 +1762,17 @@
       } else {
         cryptoGrid.innerHTML = cardHTML('BTC') + cardHTML('ETH');
         chips.push(chipHTML('BTC'), chipHTML('ETH'));
+      }
+      // Los precios de las dos tarjetas entran deslizándose desde abajo,
+      // escalonados. Se llama en cada pintado a propósito: el primero es de
+      // esqueletos y motion.js no se engancha hasta que hay números de verdad.
+      // Los chips del ticker NO entran aquí — ese ya está en movimiento
+      // constante y meterle otro sería ruido.
+      // Va aquí arriba y no al final de render() por lo que acaba de pasar con
+      // el odómetro: cualquier fallo más abajo se llevaba por delante todo lo
+      // que viniera después.
+      if (window.SmartMotion) {
+        window.SmartMotion.numeros(cryptoGrid, '.card-price, .card-change');
       }
     }
 

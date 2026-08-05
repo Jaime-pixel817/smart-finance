@@ -99,9 +99,61 @@
       ctx.restore();
     }
   };
+  /* ---- La línea se dibuja al aparecer -----------------------------------
+   *
+   * Un recorte que crece de izquierda a derecha. El dibujo de Chart.js no se
+   * toca: se le recorta el lienzo antes de pintar los datos y se le devuelve
+   * después, así que la línea, su relleno y sus puntos aparecen a la vez y en
+   * orden, como si se estuvieran trazando.
+   *
+   * POR QUÉ ASÍ Y NO CON LA ANIMACIÓN DE CHART.JS
+   * ---------------------------------------------
+   * Chart.js sabe animar punto por punto, pero eso anima TODA actualización:
+   * el refresco de cada minuto y cada cambio de par o de rango volverían a
+   * dibujar la línea desde cero, que es justo lo que no se quiere. Aquí la
+   * animación no vive en las opciones de la gráfica sino en una propiedad
+   * suelta ($trazo) que solo se toca una vez. Las opciones llevan
+   * animation:false, así que un update() repinta y punto.
+   *
+   * El recorte solo existe mientras $trazo está entre 0 y 1. Cuando termina se
+   * BORRA la propiedad, y a partir de ahí el plugin sale en la primera línea
+   * sin tocar el contexto: cero coste en todos los repintados siguientes.
+   *
+   * VA EN EL <canvas>, NO EN LA GRÁFICA. new Chart() pinta durante su propio
+   * constructor, o sea antes de que exista la variable donde guardarla: con la
+   * marca en el objeto Chart habría un frame con la línea entera a la vista
+   * justo antes de esconderla. En el elemento se puede dejar puesta desde que
+   * se construye el panel, mucho antes de que llegue el primer dato.
+   */
+  var trazoPlugin = {
+    id: 'trazoEntrada',
+    beforeDatasetsDraw: function (chart) {
+      var p = chart.canvas && chart.canvas.$trazo;
+      if (p === undefined || p >= 1) return;
+      var a = chart.chartArea;
+      if (!a) return;
+      var ctx = chart.ctx;
+      ctx.save();
+      ctx.beginPath();
+      // 2px de más a la izquierda y arriba/abajo para no cortar el grosor de
+      // la línea ni el punto del primer dato.
+      ctx.rect(a.left - 2, a.top - 2, (a.right - a.left) * p + 2, a.bottom - a.top + 4);
+      ctx.clip();
+    },
+    afterDatasetsDraw: function (chart) {
+      var p = chart.canvas && chart.canvas.$trazo;
+      if (p === undefined || p >= 1) return;
+      chart.ctx.restore();
+    }
+  };
+
   var registered = false;
   function ensureRegistered() {
-    if (!registered && typeof Chart !== 'undefined') { Chart.register(crosshairPlugin); registered = true; }
+    if (!registered && typeof Chart !== 'undefined') {
+      Chart.register(crosshairPlugin);
+      Chart.register(trazoPlugin);
+      registered = true;
+    }
   }
 
   // Opciones compartidas: así las gráficas del home y las de /market se ven
@@ -109,6 +161,11 @@
   function lineChartOptions(callbacks) {
     return {
       responsive: true, maintainAspectRatio: false,
+      // Sin animación propia: la de entrada la lleva trazoPlugin y corre una
+      // sola vez. Con la de Chart.js encendida, cada refresco de datos y cada
+      // cambio de par o de rango volvería a animar la línea entera.
+      animation: false,
+      animations: { colors: false, x: false, y: false },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
@@ -164,7 +221,13 @@
     this.timer = null;
     this.failed = false;
     this.reqId = 0;   // ver Panel.prototype.load: descarta respuestas atrasadas
+    // Estado del trazado de entrada. trazado=true significa "ya pasó (o no va
+    // a pasar)", y a partir de ahí la gráfica se repinta sin recorte ninguno.
+    this.trazado = false;
+    this.animando = false;
+    this.enPantalla = false;
     ensureRegistered();
+    this.observarEntrada();
     this.wire();
     // Cada panel se suscribe solo al cambio de idioma: así su pie se traduce
     // sin que la página tenga que acordarse de llamarlo. Antes esto lo hacía
@@ -174,6 +237,71 @@
     document.addEventListener('smartfinance:lang', function () { self.repaintMeta(); });
     this.setRange(this.range);
   }
+
+  /*
+   * El trazado de entrada, en tres piezas que pueden llegar en cualquier orden:
+   * que el lienzo entre en pantalla y que la gráfica exista. Cada una llama a
+   * arrancarTrazo(), que solo hace algo cuando ya están las dos.
+   *
+   * Si no se puede animar (sin IntersectionObserver o con
+   * prefers-reduced-motion), esto marca trazado=true de entrada y NADIE llega
+   * a poner $trazo: la gráfica se pinta completa desde el primer frame, como
+   * antes de todo esto.
+   */
+  Panel.prototype.observarEntrada = function () {
+    var self = this;
+    var M = window.SmartMotion;
+    if (!this.o.canvas || !M || !M.puedeAnimar()) { this.trazado = true; return; }
+    // Escondida desde ya, antes de que exista la gráfica.
+    this.o.canvas.$trazo = 0;
+    M.alPrimerVistazo(this.o.canvas, function (animar) {
+      self.enPantalla = true;
+      if (!animar) { self.terminarTrazo(); return; }
+      self.arrancarTrazo();
+    }, { threshold: 0.25 });
+  };
+
+  /*
+   * El valor grande y el porcentaje del encabezado entran deslizándose desde
+   * abajo, con el segundo un escalón por detrás del primero.
+   *
+   * El contenedor que se observa es el propio valor y no el panel entero: el
+   * panel mide 300px de alto y en un teléfono entra en pantalla mucho antes
+   * que su encabezado, así que la animación habría pasado con los números
+   * todavía fuera de la vista.
+   */
+  Panel.prototype.animarCifras = function () {
+    if (!window.SmartMotion || !this.o.valueEl) return;
+    var lista = this.o.changeEl ? [this.o.valueEl, this.o.changeEl] : [this.o.valueEl];
+    window.SmartMotion.numeros(this.o.valueEl, lista);
+  };
+
+  Panel.prototype.terminarTrazo = function () {
+    this.trazado = true;
+    this.animando = false;
+    if (this.o.canvas) delete this.o.canvas.$trazo;
+    if (this.chart) this.chart.draw();
+  };
+
+  Panel.prototype.arrancarTrazo = function () {
+    var self = this;
+    if (this.trazado || this.animando || !this.chart || !this.enPantalla) return;
+    this.animando = true;
+    var dur = (window.SmartMotion && window.SmartMotion.DUR_TRAZO) || 1000;
+    var t0 = 0;
+    function paso(ts) {
+      if (!self.chart) { self.animando = false; return; }
+      if (!t0) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      // Cúbica de salida: el equivalente en JavaScript de la curva
+      // cubic-bezier(.22,.61,.36,1) que usa el CSS del sitio.
+      self.o.canvas.$trazo = 1 - Math.pow(1 - p, 3);
+      self.chart.draw();
+      if (p < 1) requestAnimationFrame(paso);
+      else self.terminarTrazo();
+    }
+    requestAnimationFrame(paso);
+  };
 
   Panel.prototype.wire = function () {
     var self = this;
@@ -250,6 +378,7 @@
           self.o.changeEl.className = self.o.changeClass + ' ' + dir;
         }
         self.repaintMeta();
+        self.animarCifras();
 
         var canvas = self.o.canvas;
         if (!canvas || typeof Chart === 'undefined') return;
@@ -265,10 +394,18 @@
         if (self.chart) {
           self.chart.data = chartData;
           self.chart.options = options;
-          self.chart.update();
+          // update('none'): repinta con los datos nuevos SIN animar. Es lo que
+          // pide el encargo — al refrescarse los datos o al cambiar de par o
+          // de rango, la línea se actualiza, no se vuelve a dibujar desde el
+          // principio. El recorte de entrada tampoco se reinicia: $trazo no se
+          // toca aquí.
+          self.chart.update('none');
         } else {
+          // El recorte de entrada ya está puesto en el <canvas> desde
+          // observarEntrada, así que esta primera pintada nace escondida.
           self.chart = new Chart(canvas, { type: 'line', data: chartData, options: options, plugins: [crosshairPlugin] });
         }
+        self.arrancarTrazo();
       })
       .catch(function (e) {
         // Igual que arriba: un fallo de una petición ya superada no debe

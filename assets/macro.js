@@ -185,6 +185,10 @@
     html += '<p class="rate-last">' + ult + '</p>';
 
     panel.innerHTML = html;
+    // Las tasas entran deslizándose desde abajo, una detrás de otra. Van con
+    // selector y no con la lista de nodos porque este panel se rehace entero
+    // al cambiar de idioma.
+    if (window.SmartMotion) window.SmartMotion.numeros(panel, '.rate-value');
   }
 
   window.SmartMacro = { render: render, FOMC: FOMC, BANXICO: BANXICO, TASAS: TASAS, proxima: proxima };
