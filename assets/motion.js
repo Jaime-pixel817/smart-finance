@@ -228,32 +228,66 @@
     return !!t && t !== '—';
   }
 
-  function animarNumero(el, indice) {
-    if (!el || el.__num) return;
-    el.__num = true;
-
+  /* ── ESCONDER Y SOLTAR SON DOS MOMENTOS DISTINTOS ──────────────────────
+   *
+   * EL BUG QUE ARREGLA. Antes esto era una sola función que, al entrar el
+   * bloque en pantalla, envolvía el número, le ponía el recorte y lo soltaba —
+   * todo seguido. El problema es que hasta ese instante el número estaba
+   * pintado, entero y en su sitio. Y el observador no avisa cuando el bloque
+   * asoma: avisa cuando ya lleva un cuarto dentro. O sea que se veía el número
+   * completo, quieto, y DESPUÉS bajaba y volvía a subir. Justo al revés de lo
+   * que tiene que pasar: el deslizamiento ES la forma en que el número
+   * aparece, no algo que le ocurre después de haberse visto.
+   *
+   * Ahora son dos pasos, como en assets/reveal.js:
+   *
+   *   prepararNumero()  esconde EN EL MISMO INSTANTE en que se detecta que el
+   *                     número ya tiene valor — o sea, en la misma tarea de
+   *                     JavaScript en la que se acaba de escribir, antes de
+   *                     que el navegador haya pintado un solo frame. El número
+   *                     no llega nunca a verse en su posición final.
+   *   soltarNumero()    cuando el bloque entra en pantalla, quita el freno y
+   *                     deja que suba.
+   *
+   * Entre uno y otro pueden pasar minutos (un bloque al final de la página) y
+   * no pasa nada: lo que está escondido está fuera de la pantalla de todas
+   * formas.
+   */
+  function prepararNumero(el) {
+    if (!el || el.__num) return null;
+    el.__num = 'escondido';
     var envoltura = document.createElement('span');
     envoltura.className = 'num-sube';
     while (el.firstChild) envoltura.appendChild(el.firstChild);
     el.appendChild(envoltura);
-
-    el.style.setProperty('--num-i', indice || 0);
     el.classList.add('num-mask');
-    // Un frame con la posición de salida ya aplicada; sin esto el navegador
-    // resuelve poner y quitar el transform como que nunca pasó nada.
+    return envoltura;
+  }
+
+  function soltarNumero(el, envoltura, indice) {
+    if (!el || el.__num !== 'escondido') return;
+    el.__num = 'soltado';
+    el.style.setProperty('--num-i', indice || 0);
+    // Una lectura de medidas para que el navegador se quede con la posición
+    // escondida como punto de partida. Sin esto puede resolver poner y quitar
+    // el transform como que nunca pasó nada.
     void el.getBoundingClientRect();
     el.classList.add('num-in');
 
     limpiarAlTerminar(envoltura, DUR_NUM + (indice || 0) * ESCALON_NUM, function () {
-      // Se deshace todo: fuera el recorte, fuera la transición, fuera la
-      // envoltura. El elemento queda como un nodo normal, sin nada promovido.
-      el.classList.remove('num-mask', 'num-in');
-      el.style.removeProperty('--num-i');
-      if (envoltura.parentNode === el) {
-        while (envoltura.firstChild) el.insertBefore(envoltura.firstChild, envoltura);
-        el.removeChild(envoltura);
-      }
+      desmontarNumero(el, envoltura);
     });
+  }
+
+  // Deshace todo: fuera el recorte, fuera la transición, fuera la envoltura.
+  // El elemento queda como un nodo normal, sin nada promovido.
+  function desmontarNumero(el, envoltura) {
+    el.classList.remove('num-mask', 'num-in');
+    el.style.removeProperty('--num-i');
+    if (envoltura && envoltura.parentNode === el) {
+      while (envoltura.firstChild) el.insertBefore(envoltura.firstChild, envoltura);
+      el.removeChild(envoltura);
+    }
   }
 
   /*
@@ -261,35 +295,49 @@
    * (no cada número por su cuenta): así los hermanos llegan escalonados en vez
    * de cada uno con su propio retraso suelto.
    *
-   * Se puede llamar en cada repintado. Solo se engancha la primera vez que hay
-   * datos de verdad: mientras solo haya esqueletos, sale sin hacer nada y se
-   * vuelve a intentar en el siguiente pintado.
+   * SE PUEDE (Y SE DEBE) LLAMAR EN CADA PINTADO. Cada llamada esconde los
+   * números nuevos que hayan aparecido con valor, y se apunta al observador
+   * una sola vez. Eso cubre el caso de que las tarjetas se repinten enteras
+   * entre que se escondieron y que llegaron a pantalla: los nodos de entonces
+   * ya no existen, pero los de ahora se esconden igual y entran con el resto.
+   *
+   * Una vez soltado, el contenedor queda cerrado: un refresco de datos
+   * posterior repinta el número y ya no lo vuelve a animar, que es la regla de
+   * siempre.
    */
   function numeros(cont, que) {
-    if (!cont || cont.__numLista) return;
+    if (!cont || cont.__numHecho) return;
+    if (!puedeAnimar()) return;   // se quedan visibles y quietos
+
     // "que" puede ser un selector (tarjetas que se repintan enteras) o una
     // lista de elementos fijos (el valor y el cambio de una gráfica, que
     // siempre son los mismos nodos y solo cambian de textContent).
     var lista = typeof que === 'string' ? cont.querySelectorAll(que) : que;
-    var hay = false;
-    for (var i = 0; i < lista.length; i++) { if (conValor(lista[i])) { hay = true; break; } }
-    if (!hay) return;
 
-    cont.__numLista = true;
-    if (!puedeAnimar()) return;   // se quedan visibles y quietos
+    cont.__numPend = cont.__numPend || [];
+    for (var i = 0; i < lista.length; i++) {
+      if (!conValor(lista[i])) continue;             // todavía esqueleto
+      var env = prepararNumero(lista[i]);
+      if (env) cont.__numPend.push({ el: lista[i], env: env });
+    }
+    if (!cont.__numPend.length) return;              // nada que animar aún
+
+    if (cont.__numObs) return;                       // ya hay un observador
+    cont.__numObs = true;
 
     alPrimerVistazo(cont, function (animar) {
-      if (!animar) return;
-      // Con selector se vuelve a consultar aquí: entre que se enganchó y que
-      // entró en pantalla puede haber habido un refresco, y los nodos de
-      // entonces ya no estarían en el documento.
-      var actuales = typeof que === 'string' ? cont.querySelectorAll(que) : que;
+      cont.__numHecho = true;
+      var pend = cont.__numPend;
       var n = 0;
-      for (var j = 0; j < actuales.length; j++) {
-        if (!conValor(actuales[j])) continue;
-        animarNumero(actuales[j], Math.min(n, MAX_ESCALON_NUM));
+      for (var j = 0; j < pend.length; j++) {
+        // Un nodo que ya no está en el documento se quedó fuera por un
+        // repintado: no hay nada que soltar ni que limpiar.
+        if (!pend[j].el.isConnected) continue;
+        if (animar) soltarNumero(pend[j].el, pend[j].env, Math.min(n, MAX_ESCALON_NUM));
+        else desmontarNumero(pend[j].el, pend[j].env);   // sin animar, a la vista
         n++;
       }
+      cont.__numPend = [];
     }, { threshold: 0.25 });
   }
 
