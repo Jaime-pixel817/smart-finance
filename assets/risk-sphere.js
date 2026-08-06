@@ -1,11 +1,37 @@
 // risk-sphere.js
-// Port fiel del "Global Risk Map" (RiskSphere) de riskon.lat (Mauricio) a
-// HTML/CSS/JS plano — sin React/Next, sin build step. Usa Three.js r128 cargado
-// como global (window.THREE) desde CDN, y los datos geográficos reales de
-// ./geoMasks.js (costas/fronteras en base64). Misma lógica y shaders que el
-// original; solo se cambió el andamiaje de React por vanilla + un mount por id.
-
-import * as geoMasks from "./geoMasks.js";
+// Port del "Global Risk Map" (RiskSphere) de riskon.lat (Mauricio) a HTML/CSS/JS
+// plano — sin React/Next, sin build step. Usa Three.js r128 cargado como global
+// (window.THREE) desde CDN.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// YA NO ES UN MAPA. Es una esfera de puntos, y nada más.
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// El original dibujaba tres capas encima de la nube de partículas: los
+// continentes (por una máscara de tierra), las fronteras de los países (por
+// líneas de verdad) y un semáforo de riesgo que teñía cinco países de verde,
+// ámbar o rojo. Las tres se fueron. Lo que queda es puntos hueso sobre negro,
+// con un halo blanco en el borde que le da volumen. Ni un color más.
+//
+// LO QUE SE LLEVÓ POR DELANTE, Y POR QUÉ NO SE ROMPIÓ NADA
+// -------------------------------------------------------
+// Antes de borrar se revisó quién usaba cada pieza. Resultado: NADIE fuera de
+// este archivo. Ni el HTML, ni los otros scripts, ni las páginas en español
+// llamaban a la API de países (setCountryScores, setCountries, countries,
+// setHalo) — estaba publicada en window.riskSphere y sin un solo consumidor.
+//
+// Y con las tres capas fuera, el shader ya no lee la textura, así que se cayó
+// TODA la cadena que la construía: la máscara de tierra, la de países, las
+// aristas de frontera, el lienzo de 1440x720 que se pintaba píxel a píxel al
+// arrancar (con etiquetado de componentes conexas para limpiar islas sueltas),
+// y el import de ./geoMasks.js — 551 KB de base64 que el navegador se
+// descargaba y parseaba en cada carga del home. La esfera nunca dependió de
+// esos datos: sus posiciones salen de una espiral de Fibonacci, que se calcula
+// aquí en tres líneas.
+//
+// El archivo assets/geoMasks.js se DEJA en el repo aunque ya no se importe: si
+// algún día se quiere volver a un mapa, volver a generarlo cuesta bastante más
+// que tenerlo ahí sin que nadie lo pida.
 
 /* ============================================================
    quantForms.js — generadores de formas, shaders y helpers
@@ -33,166 +59,7 @@ function genGlobe(n, r) {
   return genSphere(n, r);
 }
 
-function b64ToBytes(b64) {
-  const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes;
-}
 
-function decodeBorderLatLon(m) {
-  const { BORDER_POS_B64, BORDER_EDGES_B64 } = m;
-  const ll    = new Int16Array(b64ToBytes(BORDER_POS_B64).buffer);
-  const edges = new Uint16Array(b64ToBytes(BORDER_EDGES_B64).buffer);
-  const n = ll.length / 2;
-  const lats = new Float32Array(n), lons = new Float32Array(n);
-  for (let i = 0; i < n; i++) {
-    lats[i] = ll[i*2]   / 182.0444;
-    lons[i] = ll[i*2+1] / 91.0222;
-  }
-  return { lats, lons, edges };
-}
-
-let _geoCanvas = null;
-function buildGeoCanvas(m) {
-  const { LAND_COLS, LAND_ROWS, LAND_MASK_B64, COUNTRY_COLS, COUNTRY_ROWS, COUNTRY_MASK_B64 } = m;
-  if (_geoCanvas) return _geoCanvas;
-  const W = 1440, H = 720;
-  const c = document.createElement("canvas");
-  c.width = W; c.height = H;
-  const ctx = c.getContext("2d");
-
-  const bytes = b64ToBytes(LAND_MASK_B64);
-
-  const srcLand = new Uint8Array(LAND_COLS * LAND_ROWS);
-  for (let i = 0; i < srcLand.length; i++) {
-    srcLand[i] = (bytes[i >> 3] & (1 << (i & 7))) ? 1 : 0;
-  }
-  const MIN_COMPONENT = Math.round(4 * (LAND_COLS / 360) ** 2);
-  const cleanLand = new Uint8Array(srcLand);
-  const seen = new Uint8Array(srcLand.length);
-  const stack = [];
-  for (let start = 0; start < srcLand.length; start++) {
-    if (!srcLand[start] || seen[start]) continue;
-    const comp = [];
-    stack.length = 0;
-    stack.push(start);
-    seen[start] = 1;
-    while (stack.length) {
-      const i = stack.pop();
-      comp.push(i);
-      const r = (i / LAND_COLS) | 0, c = i % LAND_COLS;
-      for (let dr = -1; dr <= 1; dr++) {
-        const rr = r + dr;
-        if (rr < 0 || rr >= LAND_ROWS) continue;
-        for (let dc = -1; dc <= 1; dc++) {
-          if (!dr && !dc) continue;
-          const cc = ((c + dc) % LAND_COLS + LAND_COLS) % LAND_COLS;
-          const j = rr * LAND_COLS + cc;
-          if (srcLand[j] && !seen[j]) { seen[j] = 1; stack.push(j); }
-        }
-      }
-    }
-    if (comp.length < MIN_COMPONENT) for (const i of comp) cleanLand[i] = 0;
-  }
-
-  const land = new Uint8Array(W * H);
-  for (let y = 0; y < H; y++) {
-    const row = (y / H * LAND_ROWS) | 0;
-    for (let x = 0; x < W; x++) {
-      const col = (x / W * LAND_COLS) | 0;
-      land[y * W + x] = cleanLand[row * LAND_COLS + col] ? 255 : 0;
-    }
-  }
-
-  const countryBytes = b64ToBytes(COUNTRY_MASK_B64);
-  const countryId = new Uint8Array(W * H);
-  for (let y = 0; y < H; y++) {
-    const row = (y / H * COUNTRY_ROWS) | 0;
-    for (let x = 0; x < W; x++) {
-      const col = (x / W * COUNTRY_COLS) | 0;
-      const i = row * COUNTRY_COLS + col;
-      const byte = countryBytes[i >> 1];
-      countryId[y * W + x] = (i % 2 === 0) ? (byte & 0x0f) : (byte >> 4);
-    }
-  }
-
-  const COAST_R = 1;
-  const img = ctx.createImageData(W, H);
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const idx = y * W + x;
-      const v = land[idx];
-      let coast = 0;
-      for (let dy = -COAST_R; dy <= COAST_R && !coast; dy++) {
-        const yy = Math.max(0, Math.min(H - 1, y + dy));
-        for (let dx = -COAST_R; dx <= COAST_R; dx++) {
-          const xx = ((x + dx) % W + W) % W;
-          if (land[yy * W + xx] !== v) { coast = 255; break; }
-        }
-      }
-      const p = idx * 4;
-      img.data[p] = v; img.data[p+1] = coast; img.data[p+2] = countryId[idx] * 17; img.data[p+3] = 255;
-    }
-  }
-  ctx.putImageData(img, 0, 0);
-
-  const { lats, lons, edges } = decodeBorderLatLon(m);
-  ctx.globalCompositeOperation = "lighter";
-  ctx.strokeStyle = "rgb(0,255,0)";
-  ctx.lineWidth = 2;
-  for (let e = 0; e < edges.length; e += 2) {
-    const a = edges[e], bI = edges[e+1];
-    const ax = (lons[a]  + 180) / 360 * W, ay = (90 - lats[a])  / 180 * H;
-    const bx = (lons[bI] + 180) / 360 * W, by = (90 - lats[bI]) / 180 * H;
-    if (Math.abs(ax - bx) > W / 2) continue;
-    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-  }
-
-  _geoCanvas = c;
-  return c;
-}
-
-async function makeGeoTexture(THREE, m) {
-  const tex = new THREE.CanvasTexture(buildGeoCanvas(m));
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.ClampToEdgeWrapping;
-  tex.minFilter = THREE.NearestFilter;
-  tex.magFilter = THREE.NearestFilter;
-  tex.flipY = false;
-  return tex;
-}
-
-const COUNTRY_UNIVERSE = [
-  { id: "mx", maskId: 1,  name_es: "México",         name_en: "Mexico",        lat: 23.6,  lon: -102.5, score: 62, phase: 0.0 },
-  { id: "us", maskId: 2,  name_es: "Estados Unidos", name_en: "United States", lat: 39.8,  lon: -98.6,  score: 48, phase: 1.3 },
-  { id: "cn", maskId: 3,  name_es: "China",          name_en: "China",         lat: 35.0,  lon: 103.8,  score: 70, phase: 2.6 },
-  { id: "br", maskId: 4,  name_es: "Brasil",         name_en: "Brazil",        lat: -10.3, lon: -53.2,  score: 65, phase: 3.9 },
-  { id: "tr", maskId: 5,  name_es: "Turquía",        name_en: "Turkey",        lat: 38.9,  lon: 35.2,   score: 88, phase: 5.2 },
-  { id: "jp", maskId: 6,  name_es: "Japón",          name_en: "Japan",         lat: 36.2,  lon: 138.3,  score: 40, phase: 0.7 },
-  { id: "gb", maskId: 7,  name_es: "Reino Unido",    name_en: "UK",            lat: 54.0,  lon: -2.5,   score: 38, phase: 1.9 },
-  { id: "de", maskId: 8,  name_es: "Alemania",       name_en: "Germany",       lat: 51.2,  lon: 10.4,   score: 36, phase: 3.2 },
-  { id: "in", maskId: 9,  name_es: "India",          name_en: "India",         lat: 21.0,  lon: 78.0,   score: 45, phase: 4.5 },
-  { id: "kr", maskId: 10, name_es: "Corea del Sur",  name_en: "South Korea",   lat: 36.5,  lon: 127.8,  score: 42, phase: 5.8 },
-  { id: "za", maskId: 11, name_es: "Sudáfrica",      name_en: "South Africa",  lat: -29.0, lon: 24.7,   score: 55, phase: 0.4 },
-  { id: "ar", maskId: 12, name_es: "Argentina",      name_en: "Argentina",     lat: -34.0, lon: -64.0,  score: 58, phase: 1.6 },
-  { id: "cl", maskId: 13, name_es: "Chile",          name_en: "Chile",         lat: -35.7, lon: -71.5,  score: 44, phase: 2.9 },
-  { id: "co", maskId: 14, name_es: "Colombia",       name_en: "Colombia",      lat: 4.6,   lon: -74.1,  score: 50, phase: 4.2 },
-];
-
-// 5 países a resaltar: MX y US fijos + Brasil, Argentina y China (relevantes
-// para audiencia LatAm). Scores placeholder (los de COUNTRY_UNIVERSE) — se
-// pueden actualizar en runtime con window.riskSphere.setCountryScores(...).
-const SELECTED_IDS = ["mx", "us", "br", "ar", "cn"];
-const RISK_COUNTRIES = SELECTED_IDS.map((id) => COUNTRY_UNIVERSE.find((c) => c.id === id));
-
-function makeCountryDataUniform(THREE) {
-  return RISK_COUNTRIES.map((c) => new THREE.Vector2(c.score / 100, c.phase));
-}
-
-function makeSelIdsUniform() {
-  return RISK_COUNTRIES.map((c) => c.maskId);
-}
 
 function latLonToDir(lat, lon) {
   const latR  = (lat * Math.PI) / 180;
@@ -205,33 +72,20 @@ function latLonToDir(lat, lon) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * EL GLOBO ES MONOCROMÁTICO. Y no por descuido.
+ * EL SHADER DE LA ESFERA. Monocromo y nada más.
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * El port original tenía DOS aspectos y una animación entre ellos, gobernada
- * por un uniforme uColorT:
+ * Cada partícula es un punto hueso cuyo brillo depende solo de una cosa:
+ * cuánto mira a la cámara. Ya no se muestrea ninguna textura, así que no hay
+ * tierra ni océano ni países — la esfera no sabe qué es la geografía.
  *
- *   uColorT = 0   esfera de puntos hueso sobre negro, densa y uniforme, con
- *                 todas las partículas visibles (también las de la cara de
- *                 atrás, que es lo que la hace densa)
- *   uColorT = 1   mapa: océano azul, continentes claros, y solo la cara de
- *                 delante
- *
- * La entrada pasaba del primero al segundo, y el segundo era el estado final.
- * Se cambió al revés: el estado de uColorT = 0 es ahora el DEFINITIVO, y el
- * mapa a color ya no existe. De ahí que este shader ya no tenga ni uColorT ni
- * los colores de océano y continente: no quedaban dos estados que mezclar.
- *
- * Lo que SÍ se conserva de la parte "mapa" es el muestreo de la textura, pero
- * solo por dos datos que se siguen necesitando: vLand (para que el semáforo de
- * riesgo tiña tierra y no mar) y vCountryId (para saber a qué país pertenece
- * cada partícula). El canal de fronteras de la textura ya no se lee: las
- * fronteras se dibujan aparte, con líneas de verdad, y ahora se ven siempre.
- * ═══════════════════════════════════════════════════════════════════════════ */
+ * TODAS las partículas se pintan, también las de la cara de atrás. Eso es lo
+ * que le da la densidad: la mezcla aditiva de las dos capas es lo que se ve
+ * como una nube sólida en vez de como una cáscara.
+ */
 const GLOBE_VERTEX_SHADER = /* glsl */ `
 precision highp float;
 attribute float jPhase;
-uniform sampler2D uMap;
 uniform float uPixelsPerUnit;
 uniform float uPixelRatio;
 uniform float uSize;
@@ -241,41 +95,45 @@ uniform float uUseViewFacing;
 uniform float uBrightBase;
 uniform float uBrightScale;
 uniform float uShimmerSpeed;
+uniform float uPlano;
 varying vec3 vColor;
-varying float vLand;
-varying float vCountryId;
-varying float vFacing;
 
 void main() {
   vec3 dir = normalize(position);
-  float phi = acos(clamp(dir.y, -1.0, 1.0));
-  float theta = atan(dir.z, -dir.x);
-  if (theta < 0.0) theta += 6.283185307;
-  vec2 uv = vec2(theta / 6.283185307, phi / 3.141592653);
-
-  vec4 mapSample = texture2D(uMap, uv);
-  vLand      = mapSample.r;
-  vCountryId = mapSample.b * 15.0;
-
   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
 
   vec3 viewNormal = normalize(normalMatrix * dir);
   vec3 viewDir    = normalize(-mvPosition.xyz);
-  vFacing = dot(viewNormal, viewDir);
+  float vFacing = dot(viewNormal, viewDir);
 
   float facingLight = dot(dir, uLightDir);
   float facing = mix(facingLight, vFacing, uUseViewFacing);
-  // El titileo iba multiplicado por (1.0 - uColorT), o sea que solo existía en
-  // el estado monocromático. Como ese es ahora el único estado, se queda puesto
-  // siempre: es lo que impide que la esfera se lea como una textura muerta.
+  // El titileo es lo unico que se mueve dentro de la esfera. Sin el, la nube
+  // se lee como una textura muerta pegada encima.
   float shimmer = 0.12 * sin(uTime * uShimmerSpeed + jPhase);
   float b = max(0.0, uBrightBase + (facing * 0.5 + 0.5) * uBrightScale + shimmer);
+
+  /* ── Por qué la esfera salía oscura por dentro y con un aro brillante ──
+   *
+   * No era el degradado del texto ni la opacidad: es geometría. Las
+   * partículas están repartidas por igual sobre la superficie de una esfera,
+   * pero al proyectarla en pantalla esa superficie se comprime hacia el
+   * borde: una franja de píxeles cerca del limbo recoge muchísimas más
+   * partículas que la misma franja en el centro, porque ahí la superficie se
+   * ve de canto. La densidad va como 1/|vFacing|, y con mezcla aditiva eso
+   * es exactamente lo que se veía: un disco apagado con un anillo blanco.
+   *
+   * La corrección es la inversa: multiplicar el brillo por |vFacing|. El
+   * producto de las dos queda constante y el disco se lee parejo, que es lo
+   * que se pidió — una esfera blanca lisa. El volumen no se pierde: lo pone
+   * el halo, que sigue en el borde.
+   *
+   * El suelo de 0.05 evita que el limbo se apague del todo y deje un canto
+   * duro entre la nube y el halo. */
+  b *= mix(1.0, max(0.05, abs(vFacing)), uPlano);
+
   vColor = vec3(b);
 
-  // Tamaño único. Antes las partículas que caían sobre una frontera crecían un
-  // 90 %, pero eso era para marcar los países en el modo mapa; aquí dibujaría
-  // las fronteras DOS veces (en la nube y en las líneas) y rompería justo lo
-  // que se pidió: que la esfera sea una textura uniforme.
   gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / -mvPosition.z;
   gl_Position = projectionMatrix * mvPosition;
 }
@@ -285,54 +143,11 @@ const GLOBE_FRAGMENT_SHADER = /* glsl */ `
 precision highp float;
 uniform sampler2D uDot;
 uniform float uOpacity;
-uniform float uTime;
-uniform float uRiskT;
-uniform vec2 uCountryData[5];
-uniform float uSelIds[5];
 varying vec3 vColor;
-varying float vLand;
-varying float vCountryId;
-varying float vFacing;
 
 void main() {
-  // La base: hueso sobre negro, sin distinguir tierra de océano. TODAS las
-  // partículas se pintan, también las de la cara de atrás — eso es lo que da
-  // la densidad, y era lo que el modo mapa apagaba con su frontVis.
-  vec3 color = vColor;
-
-  vec3 riskGreen   = vec3(0.10, 0.72, 0.38);
-  vec3 riskYellow  = vec3(0.98, 0.68, 0.12);
-  vec3 riskRed     = vec3(1.00, 0.22, 0.16);
-
-  /* EL SEMÁFORO DE RIESGO, RESCATADO.
-   * Iba multiplicado por uColorT, o sea que vivía solo en el modo mapa: al
-   * quedarse la esfera en monocromo habría desaparecido con él. Ahora se
-   * aplica sobre la base hueso y su propio uRiskT, que es lo que lo hace
-   * aparecer al terminar la entrada.
-   *
-   * Se mantiene el recorte por cara: el tinte solo se ve en las partículas que
-   * miran a la cámara. Sin eso, con la esfera entera visible, México se vería
-   * ámbar A TRAVÉS del planeta al mismo tiempo que por delante, y ya no se
-   * entendería dónde está cada país. La esfera es densa; el semáforo, no. */
-  int cid = int(vCountryId + 0.5);
-  bool selected = false;
-  vec2 cd = vec2(0.0);
-  for (int i = 0; i < 5; i++) {
-    if (cid == int(uSelIds[i] + 0.5)) { cd = uCountryData[i]; selected = true; }
-  }
-  if (cid >= 1 && selected) {
-    float score = cd.x;
-    vec3 riskColor = score < 0.5
-      ? mix(riskGreen, riskYellow, score * 2.0)
-      : mix(riskYellow, riskRed, (score - 0.5) * 2.0);
-    float pulse = 0.5 + 0.5 * sin(uTime * (1.0 + score * 3.5) + cd.y);
-    float frente = smoothstep(0.02, 0.14, vFacing);
-    float amt = clamp((0.42 + 0.75 * score) * pulse * 1.4, 0.0, 1.0);
-    color = mix(color, riskColor * 1.35, amt * vLand * frente * uRiskT);
-  }
-
   vec4 dot = texture2D(uDot, gl_PointCoord);
-  gl_FragColor = vec4(color, 1.0) * dot * uOpacity;
+  gl_FragColor = vec4(vColor, 1.0) * dot * uOpacity;
 }
 `;
 
@@ -366,72 +181,6 @@ void main() {
 }
 `;
 
-const BORDER_LINE_VERTEX_SHADER = /* glsl */ `
-varying float vFacing;
-void main() {
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  vec3 n = normalize(normalMatrix * normalize(position));
-  vFacing = dot(n, normalize(-mv.xyz));
-  gl_Position = projectionMatrix * mv;
-}
-`;
-
-/* Las fronteras.
- *
- * Antes su alfa iba multiplicada por uColorT, el mismo uniforme que encendía
- * el modo mapa: existían únicamente cuando el globo ya era mapa. Ahora tienen
- * su propio uFade, que no depende de nada más, y suben de 0.38 a 0.82 de alfa,
- * porque encima de una esfera clara un trazo tenue se pierde.
- *
- * El recorte por cara se queda: solo se dibuja la mitad que mira a la cámara.
- * La esfera de partículas sí se ve entera —eso es lo que la hace densa— pero
- * unas líneas de país vistas desde dentro y superpuestas a las de delante se
- * leen como una maraña, no como un planeta.
- *
- * Y ese recorte se abrió mucho: de smoothstep(0.02, 0.14) a (0.04, 0.45). O
- * sea que las fronteras ya no están a plena intensidad hasta casi el borde del
- * disco, sino que se van apagando conforme el terreno se inclina respecto a la
- * cámara. Dos motivos, y los dos importan:
- *
- *   1. Es lo que hace un globo de verdad. Una línea sobre una superficie que
- *      se aleja en escorzo se ve más tenue; con el corte anterior, Europa
- *      llegaba al borde con la misma fuerza que el centro y la esfera se leía
- *      plana, como un sticker.
- *   2. Es donde está el titular. El texto del hero cae sobre la parte alta del
- *      globo, o sea sobre el escorzo. Medido: con el corte cerrado, la mancha
- *      de fronteras de Europa detrás del titular dejaba el contraste en 2.7:1;
- *      con este, la zona que pisa el texto es justo la que menos brilla.
- */
-const BORDER_LINE_FRAGMENT_SHADER = /* glsl */ `
-precision highp float;
-uniform float uFade;
-uniform float uAlpha;
-uniform vec3 uColor;
-varying float vFacing;
-void main() {
-  float frontVis = smoothstep(0.04, 0.45, vFacing);
-  gl_FragColor = vec4(uColor, frontVis * uFade * uAlpha);
-}
-`;
-
-async function makeBorderPositions(r, m) {
-  const { lats, lons, edges } = decodeBorderLatLon(m);
-  const out = new Float32Array(edges.length * 3);
-  const D = Math.PI / 180;
-  let w = 0;
-  for (let e = 0; e < edges.length; e += 2) {
-    const a = edges[e], b = edges[e + 1];
-    if (Math.abs(lons[a] - lons[b]) > 180) continue;
-    for (const i of [a, b]) {
-      const lat = lats[i] * D, t = (lons[i] + 180) * D;
-      const cl = Math.cos(lat);
-      out[w++] = -cl * Math.cos(t) * r;
-      out[w++] = Math.sin(lat) * r;
-      out[w++] = cl * Math.sin(t) * r;
-    }
-  }
-  return out.slice(0, w);
-}
 
 function genThomas(n) {
   const pos = new Float32Array(n * 3);
@@ -610,30 +359,9 @@ const HERO_FORMS = [
  * aditiva sobre una esfera que ya es clara, así que un trazo blanco SUMA
  * blanco sobre blanco y se satura, mientras que uno de color desplaza el
  * matiz y se sigue distinguiendo con menos intensidad. */
-const BORDER_VARIANTES = {
-  verde: { rgb: [0.22, 1.00, 0.28], alpha: 0.80 },
-  hueso: { rgb: [1.00, 1.00, 0.96], alpha: 0.82 },
-};
-/* Se probaron las dos, una al lado de la otra y en la misma rotación. Gana
- * "hueso", por dos motivos que no se ven hasta que están las dos delante:
- *
- *   1. EL VERDE DE LA MARCA DEJA DE SER LA MARCA. Con Europa de frente, el
- *      globo es una maraña de líneas verdes, y el botón "Get the daily email"
- *      —que es la única acción del hero— pasa a ser una mancha verde más entre
- *      muchas. Con las fronteras en hueso, el verde vuelve a significar una
- *      sola cosa: esto se toca, esto subió.
- *   2. SE COMÍA EL SEMÁFORO. El extremo bajo de la escala de riesgo es verde
- *      (0.10, 0.72, 0.38). Un país tranquilo teñido de verde, rodeado de
- *      fronteras verdes, deja de leerse como país tranquilo y pasa a ser
- *      "otro trozo de línea".
- *
- * En contra: en hueso el titular queda un poco peor sobre la peor rotación
- * (5.9:1 contra 7.3:1 del verde). Los dos pasan AA de sobra, así que el
- * criterio decide por jerarquía de color, no por contraste. */
-const BORDER_VARIANTE = "hueso";
 
-// Cuándo entran las fronteras. Ver la nota en animate().
-const BORDER_FADE_S = 0.9;
+// Cuánto tarda el halo en aparecer, una vez que la esfera está formada.
+const HALO_FADE_S = 0.9;
 
 const R = 1.8;
 const FOCUS_LERP = 0.06;
@@ -674,9 +402,6 @@ async function initRiskSphere() {
   const container = document.getElementById("globalRiskGlobe");
   if (!container) return;
 
-  const geoTex = await makeGeoTexture(THREE, geoMasks);
-  const borderPos = await makeBorderPositions(R * 1.003, geoMasks);
-
   const isSmall = Math.min(window.innerWidth, window.innerHeight) < 768;
   const cores   = navigator.hardwareConcurrency || 4;
   const lowEnd  = (navigator.deviceMemory != null && navigator.deviceMemory <= 4) || cores <= 4;
@@ -715,6 +440,48 @@ async function initRiskSphere() {
     lowEnd ? 72000 : (isSmall ? 110000 : 160000),
     Math.max(48000, boxPx * DPR * DPR * 0.16)
   ));
+
+  /* ── El brillo, calculado en vez de puesto a ojo ───────────────────────
+   *
+   * EL PROBLEMA: el globo se veía bastante más brillante en un teléfono que en
+   * un monitor. No era una impresión, y tampoco era el teléfono: N sale de
+   * boxPx * DPR², así que un aparato con más densidad de píxeles recibe MÁS
+   * partículas sobre la misma superficie en píxeles CSS. Con mezcla aditiva,
+   * más partículas es más luz.
+   *
+   * LA CORRECCIÓN: dentro de un mismo punto de ruptura, ni el tamaño del punto
+   * ni el de la esfera cambian, así que la única variable es N — y la luz va
+   * con N. Basta dividir por N, normalizado contra un N de referencia medido
+   * en ese punto de ruptura:
+   *
+   *   móvil, DPR 1 (este laboratorio)  N =  48 000  →  opacidad 1.30
+   *   móvil, DPR 3 (un teléfono)       N =  97 300  →  opacidad 0.64
+   *   escritorio                       N tope 160 000 →  opacidad 0.47
+   *
+   * SE INTENTÓ una sola fórmula para todas las pantallas, K/(N·uSize²),
+   * razonando que el área del punto va con uSize² y que el alto de la caja se
+   * cancela contra el tamaño de la esfera. Sobre el papel cuadra; medido, se
+   * pasa por ocho — daba 0.14 en escritorio y el globo casi desaparecía. Así
+   * que el número base de cada punto de ruptura va MEDIDO (igualando la media
+   * del disco entre móvil y escritorio) y lo único que se calcula es la
+   * corrección por N, que es la que sí se comprobó.
+   *
+   * Antes de todo esto era un 0.715 fijo para todos, y de ahí venía que el
+   * mismo globo fuera dos cosas distintas según el aparato. */
+  /* El tamaño del punto sube en escritorio de 0.016 a 0.024.
+     POR QUÉ: N topa en 160 000 partículas, y en escritorio esas 160 000 se
+     reparten sobre una esfera de casi 1000px. La separación entre puntos queda
+     en unos 3px, del mismo orden que el propio punto — y ahí la espiral de
+     Fibonacci empieza a batir contra la rejilla de píxeles y sale un moiré. No
+     se veía antes porque el centro del disco estaba oscuro; al aplanarlo (ver
+     uPlano) quedó a la vista. Con el punto más grande los vecinos se solapan y
+     el campo se lee como una superficie continua.
+     Cuesta relleno —el área va al cuadrado— pero el presupuesto de escritorio
+     es el que nunca ha dado problemas. En móvil, que sí los dio, no se toca. */
+  const uSize = isSmall ? (lowEnd ? 0.022 : 0.0145) : (lowEnd ? 0.020 : 0.019);
+  const OPACIDAD_BASE = isSmall ? 1.30 : 0.47;
+  const N_REF = isSmall ? 48000 : 160000;
+  const opacidad = Math.max(0.15, Math.min(1.6, OPACIDAD_BASE * (N_REF / N)));
 
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -794,27 +561,20 @@ async function initRiskSphere() {
 
   const material = new THREE.ShaderMaterial({
     uniforms: {
-      uMap:           { value: geoTex },
       uDot:           { value: tex },
-      /* Bajó de 0.715 a 0.56. No es un ajuste estético suelto: el modo mapa
-         solo pintaba la cara de delante (su frontVis apagaba el resto), y el
-         monocromático pinta la esfera ENTERA. Con mezcla aditiva eso es
-         aproximadamente el doble de partículas sumando luz en cada píxel, así
-         que a igual opacidad el globo salía casi el doble de brillante que
-         antes — y el titular va encima. */
-      uOpacity:       { value: 0.66 },
-      uRiskT:         { value: 0 },
-      uCountryData:   { value: makeCountryDataUniform(THREE) },
-      uSelIds:        { value: makeSelIdsUniform() },
+      uOpacity:       { value: opacidad },
       uPixelsPerUnit: { value: 1 },
       uPixelRatio:    { value: DPR },
-      uSize:          { value: isSmall ? (lowEnd ? 0.022 : 0.0145) : (lowEnd ? 0.019 : 0.016) },
+      uSize:          { value: uSize },
       uTime:          { value: 0 },
       uLightDir:      { value: new THREE.Vector3(0, 0, 0) },
       uUseViewFacing: { value: 1 },
       uBrightBase:    { value: 0.22 },
       uBrightScale:   { value: 0.72 },
       uShimmerSpeed:  { value: 1.8 },
+      // 1 = disco completamente parejo. Se deja un pelo por debajo para que
+      // quede un rastro de aro y la esfera no se lea como un círculo plano.
+      uPlano:         { value: 0.92 },
     },
     vertexShader: GLOBE_VERTEX_SHADER,
     fragmentShader: GLOBE_FRAGMENT_SHADER,
@@ -830,15 +590,18 @@ async function initRiskSphere() {
   const group = new THREE.Group();
   group.add(new THREE.Points(geometry, material));
 
-  /* El halo. Su intensidad también colgaba de uColorT, así que en el estado
-     monocromático valía 0 y el globo se quedaba sin borde luminoso: era una
-     nube de puntos sin volumen. Ahora entra con la esfera y se queda. */
+  /* El halo del borde — la "capa de ozono" que le da volumen a la esfera.
+     Era azul (0.45, 0.66, 1.0) porque venía del original, donde acompañaba a
+     un océano azul. Sin océano, ese azul era el único color que quedaba en
+     toda la pantalla, así que pasa a gris neutro. El efecto de volumen no
+     depende del tono: lo hace el rim (pow de 1 menos el facing) más el
+     respiro y la deriva, que se quedan igual. */
   const atmoMat = new THREE.ShaderMaterial({
     uniforms: {
       uIntensity: { value: 0 },
       uTime:      { value: 0 },
       uPulse:     { value: 0.9 },
-      uColor: { value: new THREE.Color(0.45, 0.66, 1.0) },
+      uColor: { value: new THREE.Color(0.86, 0.86, 0.86) },
     },
     vertexShader: ATMO_VERTEX_SHADER,
     fragmentShader: ATMO_FRAGMENT_SHADER,
@@ -848,29 +611,19 @@ async function initRiskSphere() {
   const atmo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.06, 64, 48), atmoMat);
   group.add(atmo);
 
-  const borderGeo = new THREE.BufferGeometry();
-  borderGeo.setAttribute("position", new THREE.BufferAttribute(borderPos, 3));
-  const borderMat = new THREE.ShaderMaterial({
-    uniforms: {
-      uFade:  { value: 0 },              // lo sube la entrada, ver animate()
-      uAlpha: { value: BORDER_VARIANTES[BORDER_VARIANTE].alpha },
-      uColor: { value: new THREE.Color().setRGB(
-        BORDER_VARIANTES[BORDER_VARIANTE].rgb[0],
-        BORDER_VARIANTES[BORDER_VARIANTE].rgb[1],
-        BORDER_VARIANTES[BORDER_VARIANTE].rgb[2]) },
-    },
-    vertexShader: BORDER_LINE_VERTEX_SHADER,
-    fragmentShader: BORDER_LINE_FRAGMENT_SHADER,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  });
-  const borderLines = new THREE.LineSegments(borderGeo, borderMat);
-  group.add(borderLines);
-
   group.scale.set(groupScale, groupScale, groupScale);
   scene.add(group);
 
   let focusTarget = null;
 
+  /* Lo que queda de la API pública. Todo lo demás —setHalo, setCountryScores,
+     setCountries, countries, setBorderVariant— se fue con los países y las
+     fronteras. Ninguna de esas la llamaba nadie.
+
+     focusCountry se queda aunque ya no haya países: lo único que hace es
+     apuntar una longitud hacia la cámara, y es la forma de dejar el globo en
+     una posición concreta para revisarlo. select() también, que es lo que
+     cambia entre las cinco formas (esfera, Thomas, Voronoi, átomo). */
   const api = {
     focusCountry: (lat, lon) => {
       const d = latLonToDir(lat, lon);
@@ -884,37 +637,6 @@ async function initRiskSphere() {
       morphT     = 0;
       morphDur   = MORPH_S;
     },
-    // Cambia el color de las fronteras en caliente. Existe para poder comparar
-    // las dos variantes una al lado de la otra sin recargar.
-    setBorderVariant: (nombre) => {
-      const v = BORDER_VARIANTES[nombre];
-      if (!v) return false;
-      borderMat.uniforms.uColor.value.setRGB(v.rgb[0], v.rgb[1], v.rgb[2]);
-      borderMat.uniforms.uAlpha.value = v.alpha;
-      return true;
-    },
-    setHalo: (hex, score = 50) => {
-      atmoMat.uniforms.uColor.value.set(hex).lerp(new THREE.Color(1, 1, 1), 0.3);
-      atmoMat.uniforms.uPulse.value = 0.7 + (1 - Math.max(0, Math.min(100, score)) / 100) * 0.9;
-      return true;
-    },
-    setCountryScores: (map) => {
-      const arr = material.uniforms.uCountryData.value;
-      RISK_COUNTRIES.forEach((c, i) => {
-        if (map?.[c.id] != null && arr[i]) arr[i].x = Math.max(0, Math.min(100, map[c.id])) / 100;
-      });
-    },
-    setCountries: (list) => {
-      const data = material.uniforms.uCountryData.value;
-      list.slice(0, 5).forEach((c, i) => {
-        if (!data[i]) return;
-        data[i].x = Math.max(0, Math.min(100, c.score ?? 50)) / 100;
-        data[i].y = c.phase ?? i * 1.3;
-      });
-      material.uniforms.uSelIds.value = list.slice(0, 5).map((c) => c.maskId ?? 0);
-      return true;
-    },
-    countries: RISK_COUNTRIES,
   };
   window.riskSphere = api;
 
@@ -1025,32 +747,23 @@ async function initRiskSphere() {
 
     material.uniforms.uTime.value = elapsed;
 
-    /* ── Qué entra, y cuándo ──────────────────────────────────────────────
+    /* ── El halo entra cuando la esfera ya está ───────────────────────────
      *
-     * La esfera se forma igual que siempre: las partículas nacen dispersas y
-     * convergen (eso lo lleva morphT, más abajo). Lo que cambió es en qué
-     * estado termina, y qué se le suma encima al terminar.
+     * Las partículas nacen dispersas y convergen (eso lo lleva morphT). El
+     * halo no puede estar desde el primer frame: es un anillo en el radio
+     * final, y mientras el polvo todavía anda suelto por la pantalla se vería
+     * una burbuja flotando alrededor de nada. Aparece con un fundido de 0.9 s
+     * en cuanto la esfera está casi cuajada, y remata la entrada.
      *
-     * LAS FRONTERAS ENTRAN DESPUÉS, con un fundido de 0.9 s que arranca
-     * cuando la esfera ya está casi cuajada (morphT > 0.8). Se probó ponerlas
-     * desde el primer frame y no funciona: durante la convergencia las líneas
-     * están quietas en su radio final mientras las partículas todavía andan
-     * sueltas por la pantalla, así que se ve una jaula de alambre flotando en
-     * medio del polvo. Entrando después, la lectura es la correcta —primero
-     * aparece el planeta, luego se dibujan encima los países— y además remata
-     * la entrada con un segundo tiempo en vez de dejarla apagándose sola.
-     *
-     * El halo y el semáforo de riesgo entran con el mismo fundido: los tres
-     * son "lo que se ve una vez que el planeta existe". */
+     * Antes este mismo fundido encendía también las fronteras y el semáforo de
+     * riesgo; ya no existen, así que solo queda el halo. */
     const formada = morphT > 0.8 ? 1 : 0;
-    const paso = dt / BORDER_FADE_S;
+    const paso = dt / HALO_FADE_S;
     fadeExtras += (formada ? paso : -paso);
     fadeExtras = Math.max(0, Math.min(1, fadeExtras));
     // Suavizado en los extremos, para que no arranque ni pare en seco.
     const fade = fadeExtras * fadeExtras * (3 - 2 * fadeExtras);
 
-    borderMat.uniforms.uFade.value    = fade;
-    material.uniforms.uRiskT.value    = fade;
     atmoMat.uniforms.uIntensity.value = fade;
     atmoMat.uniforms.uTime.value      = elapsed;
 

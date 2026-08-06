@@ -454,40 +454,53 @@
          pegado al borde de la pantalla. */
       padding-top: 14px;
       padding-bottom: 20px;
+      /* ANULA EL margin:0 auto DE .wrap. Es lo que estaba impidiendo centrar
+         nada: en un flex en columna, un margen lateral automático encoge la
+         caja hasta su contenido en vez de estirarla. O sea que .hero-grid
+         medía lo que midiera el titular (299px en inglés, 275 en español) y
+         quedaba centrada como bloque, con el texto pegado a SU izquierda.
+         Centrar el texto dentro de una caja que abraza al texto no hace nada.
+         Con los márgenes a cero la caja ocupa el ancho completo y ya hay
+         dónde centrar. De paso el globo, que se posiciona contra esta caja,
+         deja de depender del largo del titular. */
+      margin-left: 0;
+      margin-right: 0;
     }
-    /* El globo, bastante más grande y un poco más abajo.
-       El tamaño ya NO va en porcentaje del padre: .hero-grid es .wrap, y .wrap
-       lleva margin:0 auto, que dentro de un flex en columna lo encoge a su
-       contenido — en móvil medía 299px, así que aquel "118%" eran 353px, menos
-       que la pantalla. En vh/vw el tamaño depende de la pantalla y no del
-       largo del titular, que es lo que se quería decir.
-       Caja cuadrada porque la esfera ocupa el 85 % del alto de la caja cuando
-       es cuadrada (con la caja apaisada de antes se quedaba en el 75 %):
-       a 390px son 424px de esfera contra los 300px que había.
+    /* Todo el bloque de texto, centrado. El h1 conserva su <br>, así que las
+       dos líneas se mantienen y cada una se centra por su cuenta. Los botones
+       se centran unas reglas más abajo, donde se decide su reparto en dos
+       filas. */
+    .hero .hero-inner { text-align: center; }
+    /* El eyebrow necesita SU PROPIA regla: .eyebrow es display:flex (viene así
+       de la definición general, para poder alinear el puntito de "en vivo" con
+       el texto en otras secciones), y a un contenedor flex el text-align
+       heredado no le hace nada — a sus hijos los coloca justify-content, que
+       por omisión los manda a la izquierda. Por eso el titular y los botones
+       se centraban y esta línea no. */
+    .hero .eyebrow { justify-content: center; }
+    /* EL GLOBO: entero dentro de la pantalla, y centrado de verdad.
+       La esfera ocupa el 85 % del alto de esta caja cuando la caja es cuadrada,
+       así que una caja de 100vw deja una esfera del 85 % del ancho de la
+       pantalla, con el 7.5 % de margen a cada lado:
+         320px → caja 320, esfera 272, margen 24 a cada lado
+         390px → caja 390, esfera 331, margen 29 a cada lado
+       Antes la caja medía 128vw y la esfera se salía por los dos costados.
+       Sigue sin provocar scroll horizontal, y ahora ni siquiera hace falta el
+       overflow:hidden de .hero para eso.
 
-       Y el centro baja al 72 %. Empezó en 52 %, pasó a 61 % al agrandar la
-       esfera, y bajó otra vez al volverse monocromática: esa versión es MUCHO
-       más clara que el mapa que había antes, así que el titular encima ya no
-       se sostenía.
+       El centro vuelve al 50 %: el texto va ENCIMA del globo otra vez, que es
+       la composición que se pidió. Estuvo en 72 % mientras la esfera llevaba
+       fronteras y semáforo encima —había que apartar el texto de todo aquel
+       ruido—, pero una esfera lisa y más chica ya no obliga a esquivarla.
 
-       Se intentó primero por el otro lado —dejar el globo donde estaba y subir
-       el degradado que protege el texto— y salió mal de una forma que se ve en
-       cuanto se mira: el degradado está centrado justo donde está la esfera,
-       así que para salvar el titular apagaba el globo entero y lo dejaba como
-       un disco oscuro con el borde brillante. Justo lo contrario de "densa y
-       uniforme".
-
-       Separarlos cuesta menos y no le quita nada a ninguno de los dos: el
-       texto se queda arriba, la esfera ocupa la mitad de abajo entera y puede
-       ir a su brillo completo. Es además la composición de riskon.
-       Se sale de los lados a propósito, para que se lea como un planeta
-       cortado por el encuadre y no como una pelota centrada. No provoca scroll
-       horizontal porque .hero lleva overflow:hidden. */
+       left:50% se mide contra .hero-grid, que ahora ocupa el ancho completo
+       (ver el margin-left/right:0 de arriba), así que el 50 % es el centro de
+       la pantalla y no el centro del titular. */
     .hero .hero-globe-wrap {
       position: absolute; z-index: 0;
-      top: 72%; left: 50%; right: auto;
+      top: 50%; left: 50%; right: auto;
       transform: translate(-50%, -50%);
-      width: min(128vw, 520px); height: min(128vw, 520px);
+      width: min(100vw, 460px); height: min(100vw, 460px);
       order: 0; margin: 0;
     }
     /* El degradado de arriba, ajustado a móvil: el bloque de texto está
@@ -496,21 +509,19 @@
        esfera queda justo detrás. Sigue siendo UN radial, sin bandas y sobre
        una caja de 100vw: ni un borde visible.
 
-       CON EL GLOBO MONOCROMÁTICO se subió un escalón, pero poco: de 0.62 a
-       0.68 en el centro. El trabajo pesado lo hace ahora la composición —el
-       globo bajó al 72 % y el texto ya no cae sobre la parte brillante de la
-       esfera—, y este degradado solo cubre lo que queda: el borde superior del
-       globo, que sí llega hasta debajo de los botones.
-
-       Se probó con 0.80 y apagaba el globo. La cuenta está en el informe: con
-       la esfera separada, 0.68 deja el titular por encima de 7:1 en la peor
-       rotación, que es lo mismo que daba el diseño anterior. */
+       CUÁNTO PESA. Con el texto otra vez ENCIMA de la esfera, este degradado
+       vuelve a ser lo único que separa una cosa de la otra, y se nota: medido
+       sobre los píxeles del canvas, sin él el titular se queda en 3.6:1 y con
+       él pasa de 5.4:1. No se puede subir mucho más porque oscurece la esfera
+       justo donde tiene que verse blanca — de ahí que el ajuste fino se
+       reparta entre este 0.74 y el brillo del globo, en vez de cargarlo todo
+       aquí. Sigue sin borde visible: llega a cero al 90 % del radio. */
     .hero .hero-grid::before {
       top: 0;
       background: radial-gradient(100% 44% at 50% 38%,
-        rgba(0,0,0,0.68) 0%,
-        rgba(0,0,0,0.52) 36%,
-        rgba(0,0,0,0.24) 64%,
+        rgba(0,0,0,0.74) 0%,
+        rgba(0,0,0,0.57) 36%,
+        rgba(0,0,0,0.27) 64%,
         rgba(0,0,0,0) 90%);
     }
     .hero .hero-inner {
@@ -529,15 +540,17 @@
        ancho de la pantalla y del largo del texto traducido: a 390px en inglés
        entraban "Get the daily email" y "LinkedIn" en el mismo renglón, y
        TikTok se quedaba huérfano en el de abajo.
-       align-items: flex-start es lo que impide que los botones se estiren a
-       todo el ancho: en una columna, el estirado es el valor por omisión. */
+       align-items: center hace las dos cosas a la vez: impide que los botones
+       se estiren a todo el ancho (en una columna, estirarse es el valor por
+       omisión) y los centra. Antes era flex-start, que también evitaba el
+       estirón pero los dejaba pegados a la izquierda. */
     .hero .hero-cta {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
       gap: 10px;
     }
-    .hero .hero-cta-social { gap: 10px; }
+    .hero .hero-cta-social { gap: 10px; justify-content: center; }
     /* 13px de relleno vertical sobre una línea de ~20px dejan el botón en 47px
        de alto. Los 44px son el mínimo que recomiendan Apple y Google para algo
        que se toca con el dedo; los de antes se quedaban en 40. */
