@@ -293,9 +293,16 @@
       if (!self.chart) { self.animando = false; return; }
       if (!t0) t0 = ts;
       var p = Math.min(1, (ts - t0) / dur);
-      // Cúbica de salida: el equivalente en JavaScript de la curva
-      // cubic-bezier(.22,.61,.36,1) que usa el CSS del sitio.
-      self.o.canvas.$trazo = 1 - Math.pow(1 - p, 3);
+      /* Cúbica de ENTRADA Y SALIDA — el equivalente en JavaScript de
+       * cubic-bezier(.65,0,.35,1), que es la curva de trazado que define
+       * assets/motion.js. Era una cúbica de salida a secas; se cambió porque
+       * con 1.7 s por delante una curva de salida deja la punta cruzando media
+       * gráfica en el primer tercio y arrastrándose el resto. Esta arranca
+       * suave, avanza parejo por el medio y se posa: es lo que parece un trazo
+       * y no un barrido. */
+      self.o.canvas.$trazo = p < 0.5
+        ? 4 * p * p * p
+        : 1 - Math.pow(-2 * p + 2, 3) / 2;
       self.chart.draw();
       if (p < 1) requestAnimationFrame(paso);
       else self.terminarTrazo();

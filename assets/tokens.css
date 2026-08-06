@@ -298,11 +298,15 @@ body {
 .num-mask {
   clip-path: inset(-45% -10% 0 -10%);
 }
+/* 1.1s y la curva de cola larga (ver assets/motion.js, que es donde se decide
+   la duración y donde está el porqué). Con la curva corta anterior, alargar el
+   tiempo solo hacía que el número subiera despacio; con esta, la mayor parte
+   del recorrido pasa al principio y el final es un asentamiento. */
 .num-mask > .num-sube {
   display: inline-block;
   transform: translateY(110%);
-  transition: transform .72s cubic-bezier(.22, .61, .36, 1);
-  transition-delay: calc(var(--num-i, 0) * 70ms);
+  transition: transform 1.1s cubic-bezier(.22, 1, .36, 1);
+  transition-delay: calc(var(--num-i, 0) * 90ms);
 }
 .num-mask.num-in > .num-sube { transform: translateY(0); }
 

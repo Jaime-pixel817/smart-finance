@@ -176,13 +176,75 @@
 
     elementos.forEach(function (el) { io.observe(el); });
 
-    // Red de seguridad. Si por lo que sea algo no llegó a dispararse, se
-    // enciende igual: nunca se queda contenido invisible.
-    setTimeout(function () {
-      elementos.forEach(function (el) {
-        if (el.classList.contains('reveal-el')) { encender(el); io.unobserve(el); }
-      });
-    }, 3500);
+    /*
+     * LA RED DE SEGURIDAD, QUE ERA EL PROBLEMA.
+     *
+     * Estaba escrita como "a los 3.5 s enciende TODO lo que quede pendiente".
+     * La intención era buena —nunca dejar contenido invisible— pero se comía
+     * justo lo que venía a proteger: a los 3.5 s de cargar, alguien todavía
+     * está mirando el hero, y para entonces la red ya había encendido el
+     * retrato de About, las tarjetas de "Start here", las de "Recent
+     * breakdowns" y el bloque del boletín. Cuando el visitante llegaba ahí
+     * bajando, esas secciones ya estaban puestas y no se movía ni una. Por eso
+     * parecía que "no tenían animación": la tenían, y se gastaba sola en el
+     * primer segundo y medio, con nadie delante.
+     *
+     * Ahora la red mira GEOMETRÍA, no solo el reloj: enciende lo que está en
+     * pantalla o lo que ya quedó por encima (que solo puede pasar si el
+     * observador falló y el visitante pasó de largo). Lo que está más abajo se
+     * queda esperando a su turno, que es de lo que va todo esto.
+     *
+     * Se repite cada 4 s y se apaga sola en cuanto no queda nada pendiente,
+     * así que en una página normal son dos o tres pasadas y fuera. No es un
+     * listener de scroll: sigue sin haber ni uno en este archivo.
+     */
+    /*
+     * Y LA RED DISTINGUE DOS CASOS, que no es lo mismo:
+     *
+     *   en pantalla   → se enciende con animación, escalonado dentro de la
+     *                   propia pasada igual que hace el observador.
+     *   ya por encima → se muestra DE GOLPE, sin transición. Nadie lo está
+     *                   mirando: quedó arriba, fuera de la vista. Animarlo no
+     *                   se ve y sí se paga.
+     *
+     * La diferencia importa de verdad y salió al medirla: entrando de golpe a
+     * media página (un enlace con ancla, o el navegador restaurando la
+     * posición de scroll al recargar) la red encontraba 22 elementos y los
+     * animaba todos a la vez, la mayoría fuera de pantalla. Ahora en ese mismo
+     * caso se animan solo los pocos que se ven.
+     */
+    function mostrarYa(el) {
+      el.classList.remove('reveal-el', 'is-in');
+      el.style.removeProperty('--reveal-i');
+      el.style.removeProperty('--reveal-y');
+      delete el.__reveal;
+    }
+
+    var pendientes = elementos.slice();
+    function red() {
+      var alto = window.innerHeight || 0;
+      var quedan = [];
+      var n = 0;
+      for (var i = 0; i < pendientes.length; i++) {
+        var el = pendientes[i];
+        if (!el.classList.contains('reveal-el')) continue;   // ya lo hizo el observador
+        var r = el.getBoundingClientRect();
+        if (r.bottom <= 0) {                 // se quedó arriba: sin animación
+          mostrarYa(el);
+          io.unobserve(el);
+        } else if (r.top < alto) {           // está en pantalla: con animación
+          el.style.setProperty('--reveal-i', Math.min(n, MAX_ESCALON));
+          n++;
+          encender(el);
+          io.unobserve(el);
+        } else {
+          quedan.push(el);                   // más abajo: le toca al observador
+        }
+      }
+      pendientes = quedan;
+      if (pendientes.length) setTimeout(red, 4000);
+    }
+    setTimeout(red, 3500);
   }
 
   if (document.readyState === 'loading') {

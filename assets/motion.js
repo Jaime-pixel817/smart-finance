@@ -38,12 +38,35 @@
 (function () {
   'use strict';
 
-  var DUR_TRAZO = 1000;   // gráficas grandes
-  var DUR_SPARK = 800;    // mini-gráficas de las tarjetas
-  // Arranca rápido y frena largo: la línea "llega y se asienta" en vez de
-  // avanzar a velocidad constante. Es la misma curva de las apariciones de
-  // assets/tokens.css, para que todo el sitio se mueva igual.
-  var CURVA = 'cubic-bezier(.22,.61,.36,1)';
+  /* ── Duraciones y curvas ───────────────────────────────────────────────
+   *
+   * Las duraciones subieron bastante: la gráfica de 1000 a 1700 ms, la
+   * mini-gráfica de 800 a 1400, el número de 720 a 1100. Lo de antes no estaba
+   * mal medido, estaba mal elegido: leía como "esto se dibuja rápido" cuando
+   * lo que se busca es que se lea como "esto se está trazando".
+   *
+   * PERO HAY DOS CURVAS, NO UNA, PORQUE SON DOS MOVIMIENTOS DISTINTOS:
+   *
+   * CURVA_TRAZO — para la línea de una gráfica, donde lo que se mira es la
+   *   PUNTA avanzando. Aquí una curva de salida (rápido al principio, frenado
+   *   largo) es exactamente lo que no se quiere: la punta cruzaría media
+   *   gráfica en el primer tercio del tiempo y luego se arrastraría los
+   *   últimos píxeles durante casi un segundo. Se probó y se siente peor que
+   *   la versión corta, no mejor. Va una curva simétrica de entrada y salida:
+   *   arranca suave, mantiene un avance parejo en el medio, y se posa al
+   *   final. Eso es lo que parece un trazo hecho a propósito.
+   *
+   * CURVA_ENTRA — para lo que LLEGA A UN SITIO y se queda: el número que sube
+   *   hasta su posición, el relleno que aparece. Ahí sí manda la salida con
+   *   cola larga: casi todo el recorrido al principio y un asentamiento que
+   *   no se acaba nunca del todo. Es la misma familia que la aparición de
+   *   bloque de tokens.css, con la cola más larga.
+   */
+  var DUR_TRAZO = 1700;   // gráficas grandes
+  var DUR_SPARK = 1400;   // mini-gráficas de las tarjetas
+  var CURVA_TRAZO = 'cubic-bezier(.65,0,.35,1)';   // simétrica, para trazar
+  var CURVA_ENTRA = 'cubic-bezier(.22,1,.36,1)';   // salida larga, para llegar
+  var CURVA = CURVA_ENTRA;                          // compatibilidad
 
   function reducido() {
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -127,7 +150,9 @@
     // como punto de partida; sin esto, poner y quitar el dashoffset en el
     // mismo frame se resuelve como que nunca cambió y no hay transición.
     void path.getBoundingClientRect();
-    path.style.transition = 'stroke-dashoffset ' + dur + 'ms ' + CURVA;
+    // CURVA_TRAZO: esto también es una punta avanzando, aunque sea de 100
+    // unidades de viewBox.
+    path.style.transition = 'stroke-dashoffset ' + dur + 'ms ' + CURVA_TRAZO;
     path.style.strokeDashoffset = '0';
     limpiarAlTerminar(path, dur, function () {
       // Se borra TODO el rastro: sin transition puesta y sin dasharray, el
@@ -188,8 +213,12 @@
    * que la envoltura se pone al empezar la animación y se quita al terminar,
    * y entre medias el elemento vuelve a quedar exactamente como estaba.
    */
-  var DUR_NUM = 720;
-  var ESCALON_NUM = 70;   // ms entre hermanos
+  // De 720 a 1100 ms, y el escalón de 70 a 90, por lo mismo que las gráficas:
+  // el número tiene que parecer que sube a su sitio, no que salta. Con 1100 ms
+  // y siete hermanos el último termina a los 1.64 s de entrar el bloque, que
+  // sigue estando por debajo de lo que nadie llamaría espera.
+  var DUR_NUM = 1100;
+  var ESCALON_NUM = 90;   // ms entre hermanos
   var MAX_ESCALON_NUM = 6;
 
   function conValor(el) {
@@ -270,6 +299,8 @@
     DUR_TRAZO: DUR_TRAZO,
     DUR_SPARK: DUR_SPARK,
     CURVA: CURVA,
+    CURVA_TRAZO: CURVA_TRAZO,
+    CURVA_ENTRA: CURVA_ENTRA,
     reducido: reducido,
     puedeAnimar: puedeAnimar,
     alPrimerVistazo: alPrimerVistazo,
