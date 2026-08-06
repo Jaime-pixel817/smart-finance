@@ -363,6 +363,62 @@ const HERO_FORMS = [
 // Cuánto tarda el halo en aparecer, una vez que la esfera está formada.
 const HALO_FADE_S = 0.9;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ * REJILLA ESPACIAL — para no recorrer 97 000 partículas por cada frame
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * El bucle de la simulación recorría TODAS las partículas en cada frame en el
+ * que hubiera un puntero encima. Medido: 10.6 ms de hilo principal por frame
+ * con 160 000 partículas, contra 0.04 ms con la esfera quieta. En escritorio
+ * se aguanta; en un teléfono, con el presupuesto en 16.7 ms y una CPU tres o
+ * cuatro veces más lenta, no — y por eso el efecto estaba apagado en móvil.
+ *
+ * Pero el trabajo de verdad es minúsculo: el dedo solo empuja lo que tiene
+ * alrededor. Un casquete de radio 0.455 sobre una esfera de radio 1.8 es el
+ * 1.6 % de la superficie. Todo lo demás es recorrer partículas para
+ * comprobar que están lejos y no hacerles nada.
+ *
+ * Esta rejilla responde "¿qué partículas hay cerca de este punto?" sin mirar
+ * las demás. Es una ordenación por cubos (counting sort):
+ *
+ *   inicio[c]              dónde empieza el cubo c dentro de items
+ *   items[inicio[c]..]     los índices de partícula que caen en ese cubo
+ *
+ * Dos arrays de enteros y ni un objeto por partícula, que con 97 000 sería
+ * basura para el recolector. Se construye UNA vez, al arrancar, porque las
+ * posiciones de reposo de la esfera no cambian nunca.
+ */
+function construirRejilla(pos, n, radio, lado) {
+  const min = -radio * 1.02;
+  const tam = (radio * 2.04) / lado;          // arista de cada cubo
+  const cubos = lado * lado * lado;
+  const cubo = new Int32Array(n);
+  const inicio = new Int32Array(cubos + 1);
+
+  for (let i = 0; i < n; i++) {
+    const ix = i * 3;
+    let cx = ((pos[ix] - min) / tam) | 0;
+    let cy = ((pos[ix + 1] - min) / tam) | 0;
+    let cz = ((pos[ix + 2] - min) / tam) | 0;
+    if (cx < 0) cx = 0; else if (cx >= lado) cx = lado - 1;
+    if (cy < 0) cy = 0; else if (cy >= lado) cy = lado - 1;
+    if (cz < 0) cz = 0; else if (cz >= lado) cz = lado - 1;
+    const c = (cz * lado + cy) * lado + cx;
+    cubo[i] = c;
+    inicio[c + 1]++;
+  }
+  for (let c = 0; c < cubos; c++) inicio[c + 1] += inicio[c];
+
+  const items = new Int32Array(n);
+  const cursor = new Int32Array(cubos);
+  for (let i = 0; i < n; i++) {
+    const c = cubo[i];
+    items[inicio[c] + cursor[c]] = i;
+    cursor[c]++;
+  }
+  return { lado, min, tam, inicio, items };
+}
+
 const R = 1.8;
 const FOCUS_LERP = 0.06;
 const MORPH_S = 1.4;
@@ -516,6 +572,13 @@ async function initRiskSphere() {
     }
   });
 
+  /* La rejilla se construye sobre las posiciones de reposo de la ESFERA, que
+     es la forma en la que el globo vive siempre. Ocho cubos por lado dan una
+     arista de 0.46, prácticamente el radio de acción del dedo (0.455): así el
+     vecindario de 3x3x3 cubos cubre el casquete entero con margen de sobra
+     para lo que las partículas se hayan desplazado. */
+  const rejilla = construirRejilla(HOMES[GLOBE_IDX], N, R, 8);
+
   const gauss = () => {
     let u = 0, v = 0;
     while (u === 0) u = Math.random();
@@ -550,6 +613,32 @@ async function initRiskSphere() {
 
   const dispX = new Float32Array(N), dispY = new Float32Array(N), dispZ = new Float32Array(N);
   const velX  = new Float32Array(N), velY  = new Float32Array(N), velZ  = new Float32Array(N);
+
+  /* ── El conjunto activo ────────────────────────────────────────────────
+   *
+   * La otra mitad del ahorro. La rejilla dice qué partículas toca el dedo AHORA;
+   * esto se acuerda de las que ya lo tocó y todavía están volviendo a su sitio.
+   * Sin ello habría que recorrer las N para ver quién sigue en movimiento, que
+   * es justo lo que se quería evitar.
+   *
+   * activos    índices, sin orden
+   * enActivos  0/1 por partícula, para no meter la misma dos veces
+   *
+   * Una partícula entra cuando el dedo la alcanza y sale cuando su
+   * desplazamiento y su velocidad bajan del umbral: ahí se la clava en su
+   * posición de reposo y deja de costar nada. */
+  const activos = new Int32Array(N);
+  const enActivos = new Uint8Array(N);
+  let nActivos = 0;
+  // Por debajo de esto el ojo no distingue la partícula de su sitio, así que
+  // se da por vuelta. Al cuadrado para no tener que sacar raíces.
+  const QUIETA2 = 1e-8;
+
+  function activar(i) {
+    if (enActivos[i]) return;
+    enActivos[i] = 1;
+    activos[nActivos++] = i;
+  }
 
   const jPhase  = new Float32Array(N);
   for (let i = 0; i < N; i++) jPhase[i] = Math.random() * Math.PI * 2;
@@ -636,6 +725,12 @@ async function initRiskSphere() {
       currentIdx = idx;
       morphT     = 0;
       morphDur   = MORPH_S;
+      // Cambiar de forma invalida las posiciones de reposo y la rejilla, que
+      // está construida sobre la esfera. Se vuelve al camino completo hasta
+      // que todo se asiente otra vez.
+      asentadoUnaVez = false;
+      for (let a = 0; a < nActivos; a++) enActivos[activos[a]] = 0;
+      nActivos = 0;
     },
   };
   window.riskSphere = api;
@@ -643,6 +738,10 @@ async function initRiskSphere() {
   // Fundido de lo que se suma a la esfera ya formada: fronteras, halo y
   // semáforo de riesgo. 0 mientras las partículas convergen, 1 después.
   let fadeExtras = 0;
+  // Se enciende cuando la entrada termina de asentarse y las posiciones de
+  // reposo ya son definitivas. A partir de ahí el camino rápido puede confiar
+  // en baseNow. Vuelve a cero si se cambia de forma con select().
+  let asentadoUnaVez = false;
   let elapsed = 0, animId = 0, lastFrame = 0, nextFrameAt = 0;
   let lastScrollAt = -1e9;
   let mouseActive = false;
@@ -670,7 +769,14 @@ async function initRiskSphere() {
   };
   const onPointerLeave = () => { mouseActive = false; };
   const onPointerDown  = (e) => { onPointerMove(e); lastMoveAt = elapsed; };
-  const onScroll = () => { lastScrollAt = performance.now(); };
+  // Estado del gesto táctil. Se declara aquí arriba porque onScroll lo mira.
+  let gestoTactil = null;    // null sin decidir | "efecto" | "scroll"
+  const onScroll = () => {
+    lastScrollAt = performance.now();
+    // Si la página se movió, esto era un scroll. Se suelta el efecto en el
+    // acto, sin discutir. Ver el bloque táctil de más abajo.
+    if (gestoTactil) { gestoTactil = "scroll"; mouseActive = false; }
+  };
   window.addEventListener("scroll", onScroll, { passive: true });
   if (!isSmall) {
     container.addEventListener("pointermove", onPointerMove);
@@ -678,6 +784,102 @@ async function initRiskSphere() {
     container.addEventListener("pointerdown",   onPointerDown);
     container.addEventListener("pointerup",     onPointerLeave);
     container.addEventListener("pointercancel", onPointerLeave);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * EL DEDO, EN MÓVIL
+   * ═══════════════════════════════════════════════════════════════════════
+   *
+   * El efecto estaba apagado en móvil por dos motivos, y hubo que resolver los
+   * dos antes de encenderlo:
+   *
+   *   1. COSTABA DEMASIADO. Lo arregla la rejilla espacial de más arriba: en
+   *      vez de recorrer las 48-97 mil partículas por frame, se tocan solo las
+   *      del casquete que hay bajo el dedo.
+   *   2. COMPETÍA CON EL SCROLL. Lo resuelve este bloque.
+   *
+   * LA REGLA DE ORO: aquí NO se llama nunca a preventDefault, y todos los
+   * listeners son passive:true. O sea que el navegador conserva el control
+   * absoluto del scroll — este código no puede bloquearlo ni aunque se
+   * equivoque en todas las decisiones que toma abajo. Lo único que se decide
+   * es si además se le pasa la posición del dedo a las partículas.
+   *
+   * Y ENCIMA SE RINDE SOLO. En cuanto llega un evento de scroll de verdad
+   * (ver onScroll), el efecto se apaga y ese gesto queda descartado hasta que
+   * el dedo se levante. Si el navegador decidió que era un scroll, se acabó.
+   *
+   * CÓMO DISTINGUE UNA CARICIA DE UN SCROLL. Un scroll empieza con un tirón
+   * vertical y rápido. Una caricia es otra cosa: o va de lado, o empieza
+   * despacio. Así que se activa si el movimiento es predominantemente
+   * horizontal, o si el dedo estuvo quieto un momento antes de arrancar.
+   * Mientras no haya decisión no se hace nada, así que un scroll normal no
+   * llega a encender el efecto ni un frame.
+   *
+   * SOBRE LOS BOTONES, NADA. Un toque que empieza en un enlace o un botón se
+   * descarta de entrada: ahí el dedo va a pulsar, no a jugar.
+   */
+  const UMBRAL_PX = 10;      // cuánto hay que moverse para que haya que decidir
+  const QUIETO_MS = 110;     // quieto más de esto = no venías a hacer scroll
+  const SESGO_H = 1.2;       // cuánto más horizontal que vertical para contar
+
+  let tx0 = 0, ty0 = 0, tms0 = 0;
+
+  function apuntarTacto(clientX, clientY) {
+    const rect = container.getBoundingClientRect();
+    mouseNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouseNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    lastMoveAt = elapsed;
+    mouseActive = true;
+  }
+
+  function soltarTacto() {
+    gestoTactil = null;
+    mouseActive = false;
+  }
+
+  if (isSmall) {
+    // La zona es el hero entero, no solo el lienzo: se pidió que funcione
+    // también pasando el dedo por encima del texto.
+    const zona = container.closest(".hero") || container;
+
+    zona.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1) { gestoTactil = "scroll"; return; }
+      const t = e.touches[0];
+      const sobre = t.target && t.target.closest
+        ? t.target.closest("a, button, input, textarea, label, select")
+        : null;
+      if (sobre) { gestoTactil = "scroll"; return; }   // es un toque, no una caricia
+      gestoTactil = null;
+      tx0 = t.clientX; ty0 = t.clientY; tms0 = performance.now();
+    }, { passive: true });
+
+    zona.addEventListener("touchmove", (e) => {
+      if (gestoTactil === "scroll" || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - tx0, dy = t.clientY - ty0;
+
+      if (gestoTactil === null) {
+        const lejos = (dx * dx + dy * dy) > UMBRAL_PX * UMBRAL_PX;
+        const quieto = (performance.now() - tms0) > QUIETO_MS;
+        const ax = Math.abs(dx), ay = Math.abs(dy);
+        /* Dos formas de ganarse el efecto:
+             - el gesto va claramente de lado (ax > ay * 1.2), o
+             - el dedo se entretuvo antes de arrancar Y no está bajando en
+               vertical pura (ax > ay * 0.6).
+           Esa segunda condición es la que evita el falso positivo obvio: un
+           scroll lento también empieza con el dedo quieto, y sin ella se
+           encendería el efecto justo antes de que la página se mueva. */
+        if (!lejos) { if (!quieto) return; gestoTactil = "efecto"; }
+        else if (ax > ay * SESGO_H) gestoTactil = "efecto";
+        else if (quieto && ax > ay * 0.6) gestoTactil = "efecto";
+        else gestoTactil = "scroll";
+        if (gestoTactil !== "efecto") return;
+      }
+      apuntarTacto(t.clientX, t.clientY);
+    }, { passive: true });
+
+    zona.addEventListener("touchend", soltarTacto, { passive: true });
+    zona.addEventListener("touchcancel", soltarTacto, { passive: true });
   }
 
   let gyroTilt = 0, gyroBase = null;
@@ -772,6 +974,19 @@ async function initRiskSphere() {
       const rayLocal = raycaster.ray.clone().applyMatrix4(localMatrix.copy(group.matrixWorld).invert());
       if (rayLocal.intersectSphere(hitSphere, hitPoint)) {
         mouseLocal.copy(hitPoint);
+      } else if (isSmall) {
+        /* El rayo no dio en la esfera. En escritorio eso significaba "el ratón
+           se salió del globo, apaga"; en móvil no sirve, porque se pidió que
+           el efecto responda también sobre el TEXTO del hero, y buena parte
+           del texto cae fuera del disco.
+           Así que en vez de apagar, se proyecta: se busca el punto del rayo
+           más cercano al centro y se lleva a la superficie. El dedo empuja
+           entonces el borde de la esfera más cercano a donde está, que es lo
+           que se espera al pasarlo por al lado. */
+        rayLocal.closestPointToPoint(hitSphere.center, hitPoint);
+        const d = hitPoint.length();
+        if (d > 1e-5) mouseLocal.copy(hitPoint).multiplyScalar(R / d);
+        else mouseActive = false;
       } else {
         mouseActive = false;
       }
@@ -790,8 +1005,133 @@ async function initRiskSphere() {
 
     if (morphT < 1) morphT = Math.min(1, morphT + dt / morphDur);
 
+    /* ── Dos caminos para la simulación ──────────────────────────────────
+     *
+     * RÁPIDO: la esfera ya está formada y quieta, y lo único que pasa es que
+     * hay un dedo o un ratón encima. Solo se tocan las partículas que el
+     * puntero alcanza (las encuentra la rejilla) más las que siguen volviendo
+     * a su sitio (las recuerda el conjunto activo). Es el camino que hace
+     * viable el efecto en un teléfono.
+     *
+     * COMPLETO: durante la entrada, durante un cambio de forma o mientras el
+     * átomo gira, TODAS las partículas se mueven a la vez y no hay nada que
+     * ahorrar. Es el bucle de siempre, intacto.
+     */
+    /* asentadoUnaVez, y no `settled`, porque el manejador del puntero pone
+       settled en false en cuanto te acercas — y entonces el camino rápido no
+       se usaría nunca, que es justo al revés de lo que se busca. Lo que hace
+       falta saber aquí es otra cosa: si la entrada ya terminó de asentarse
+       alguna vez, o sea si las posiciones de reposo son de fiar. */
+    const puedeRapido = morphT >= 1 && currentIdx === GLOBE_IDX && asentadoUnaVez;
+
+    if (puedeRapido) {
+      if (mouseActive) {
+        /* Vecindario de 3x3x3 cubos alrededor del dedo. Se marcan como
+           activas; el bucle de abajo ya se encarga de empujarlas. */
+        const g = rejilla;
+        let cx = ((mouseLocal.x - g.min) / g.tam) | 0;
+        let cy = ((mouseLocal.y - g.min) / g.tam) | 0;
+        let cz = ((mouseLocal.z - g.min) / g.tam) | 0;
+        for (let dz = -1; dz <= 1; dz++) {
+          const z = cz + dz; if (z < 0 || z >= g.lado) continue;
+          for (let dy = -1; dy <= 1; dy++) {
+            const y = cy + dy; if (y < 0 || y >= g.lado) continue;
+            for (let dx = -1; dx <= 1; dx++) {
+              const x = cx + dx; if (x < 0 || x >= g.lado) continue;
+              const c = (z * g.lado + y) * g.lado + x;
+              const fin = g.inicio[c + 1];
+              for (let k = g.inicio[c]; k < fin; k++) activar(g.items[k]);
+            }
+          }
+        }
+      }
+
+      if (nActivos) {
+        let escribeMin = N, escribeMax = 0;
+        let quedan = 0;
+        for (let a = 0; a < nActivos; a++) {
+          const i = activos[a];
+          const ix = i * 3, iy = ix + 1, iz = ix + 2;
+          const bx = baseNow[ix], by = baseNow[iy], bz = baseNow[iz];
+          const px = bx + dispX[i], py = by + dispY[i], pz = bz + dispZ[i];
+
+          let fx, fy, fz;
+          let empujada = false;
+          if (mouseActive) {
+            const dx = mouseLocal.x - px, dy = mouseLocal.y - py, dz = mouseLocal.z - pz;
+            const d2 = dx * dx + dy * dy + dz * dz;
+            if (d2 < HOVER_RADIUS2 && d2 > 1e-8) {
+              empujada = true;
+              const d = Math.sqrt(d2);
+              const falloff = 1 - d / HOVER_RADIUS;
+              const invD = 1 / d;
+              const rx = dx * invD, ry = dy * invD, rz = dz * invD;
+              if (isAttract) {
+                const tx = -ry, ty = rx, tz = 0;
+                const radialAccel = (d - ORBIT_RADIUS) * RADIAL_K;
+                const orbitAccel = falloff * attractAccel;
+                fx = rx * radialAccel + tx * orbitAccel;
+                fy = ry * radialAccel + ty * orbitAccel;
+                fz = rz * radialAccel + tz * orbitAccel;
+              } else {
+                const accel = falloff * REPEL_ACCEL;
+                fx = -rx * accel; fy = -ry * accel; fz = -rz * accel;
+              }
+            }
+          }
+          if (!empujada) {
+            fx = -dispX[i] * SPRING_K;
+            fy = -dispY[i] * SPRING_K;
+            fz = -dispZ[i] * SPRING_K;
+          }
+
+          const vx = (velX[i] + fx * dt) * DAMPING;
+          const vy = (velY[i] + fy * dt) * DAMPING;
+          const vz = (velZ[i] + fz * dt) * DAMPING;
+          const ndx = dispX[i] + vx * dt;
+          const ndy = dispY[i] + vy * dt;
+          const ndz = dispZ[i] + vz * dt;
+
+          // ¿Ya volvió a su sitio? Entonces se clava y sale del conjunto.
+          const quieta = !empujada &&
+            (ndx * ndx + ndy * ndy + ndz * ndz) < QUIETA2 &&
+            (vx * vx + vy * vy + vz * vz) < QUIETA2;
+
+          if (quieta) {
+            dispX[i] = 0; dispY[i] = 0; dispZ[i] = 0;
+            velX[i] = 0; velY[i] = 0; velZ[i] = 0;
+            effHome[ix] = bx; effHome[iy] = by; effHome[iz] = bz;
+            enActivos[i] = 0;
+          } else {
+            velX[i] = vx; velY[i] = vy; velZ[i] = vz;
+            dispX[i] = ndx; dispY[i] = ndy; dispZ[i] = ndz;
+            effHome[ix] = bx + ndx; effHome[iy] = by + ndy; effHome[iz] = bz + ndz;
+            activos[quedan++] = i;
+          }
+          if (i < escribeMin) escribeMin = i;
+          if (i > escribeMax) escribeMax = i;
+        }
+        nActivos = quedan;
+
+        /* Solo se sube a la GPU el tramo tocado, no el buffer entero.
+           Las posiciones salen de una espiral de Fibonacci ordenada por
+           latitud, así que un casquete alrededor del dedo cae dentro de una
+           banda de latitudes — o sea, un rango CONTIGUO de índices. Con eso
+           el envío baja de 1.2 MB por frame a una fracción. */
+        posAttr.updateRange.offset = escribeMin * 3;
+        posAttr.updateRange.count = (escribeMax - escribeMin + 1) * 3;
+        posAttr.needsUpdate = true;
+      }
+
+      renderer.render(scene, camera);
+      return;
+    }
+
     const needsSim = mouseActive || morphT < 1 || currentIdx === ATOM_IDX || !settled;
     if (needsSim) {
+    // El camino completo vuelve a subir el buffer entero.
+    posAttr.updateRange.offset = 0;
+    posAttr.updateRange.count = -1;
     const mt = morphT < 1 ? eio(morphT) : 1;
 
     for (let i = 0; i < N; i++) {
@@ -864,6 +1204,7 @@ async function initRiskSphere() {
         }
         posAttr.needsUpdate = true;
         settled = true;
+        asentadoUnaVez = true;
       }
     } else settleFrames = 0;
     }
