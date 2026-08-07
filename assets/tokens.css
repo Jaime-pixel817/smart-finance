@@ -269,6 +269,19 @@ body {
 }
 .reveal-el.is-in { opacity: 1; transform: translateY(0); }
 
+/* El interruptor de "cambia de estado SIN animarlo".
+ *
+ * Lo usan las tarjetas que se re-animan en ambos sentidos (ver REPETIBLES en
+ * assets/reveal.js). Cuando una de ellas sale de pantalla hay que devolverla a
+ * su estado escondido, y ese viaje de vuelta NO se anima: nadie lo está
+ * mirando —está fuera de la vista— y animarlo costaría los mismos frames que
+ * la entrada, dos veces por cada pasada. Lo mismo al encender de golpe algo
+ * que quedó por encima del scroll.
+ *
+ * reveal.js la quita al segundo frame, así que la transición vuelve a estar
+ * puesta mucho antes de que el elemento pueda volver a entrar. */
+.reveal-el.reveal-quieto { transition: none; }
+
 /* Sin movimiento: el contenido aparece y ya. reveal.js ni siquiera llega a
    marcar nada en este caso; esto es el cinturón por si la clase llegara
    puesta desde otro lado. */

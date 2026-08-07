@@ -25,7 +25,11 @@
  *   2. Solo se animan opacity y transform. Son las dos propiedades que el
  *      compositor resuelve sin recalcular layout ni repintar. Animar height,
  *      top o filter sí habría costado frames.
- *   3. Cada elemento se deja de observar en cuanto aparece.
+ *   3. Cada elemento se deja de observar en cuanto aparece — salvo la
+ *      secciones de REPETIBLES (más abajo), que siguen observadas
+ *      porque necesitan el aviso de salida para volver a esconderse. Su
+ *      vuelta al estado inicial no se anima, así que repetir cuesta una
+ *      pasada de animación, no dos.
  *   4. Y sobre todo: EN CUANTO TERMINA LA TRANSICIÓN SE LIMPIA TODO. Se le
  *      quitan las clases y la variable, así que el elemento vuelve a ser un
  *      nodo normal, sin transition y sin capa de composición. Media página de
@@ -79,6 +83,43 @@
   // segundo con la pantalla ya quieta, que se siente roto, no elegante.
   var MAX_ESCALON = 6;
 
+  /*
+   * ─────────────────────────────────────────────────────────────────────────
+   * LAS QUE SE RE-ANIMAN EN AMBOS SENTIDOS
+   * ─────────────────────────────────────────────────────────────────────────
+   * Todo lo demás de este archivo anima UNA vez y se queda revelado para
+   * siempre. Lo que caiga dentro de estos contenedores no: cada vez que sale
+   * de pantalla vuelve a su estado escondido, y cada vez que entra —bajando o
+   * subiendo— repite la animación.
+   *
+   * QUÉ ENTRA Y QUÉ NO, Y POR QUÉ
+   * -----------------------------
+   * Entran las tarjetas: son adorno, y verlas llegar otra vez al volver sobre
+   * ellas se lee como que la página está viva.
+   *
+   * NO entran las gráficas ni los números que suben desde abajo, y no es una
+   * omisión: esos animan solo la primera vez a propósito y viven en otro
+   * archivo (assets/motion.js, con su propio mecanismo). Son datos
+   * financieros que se refrescan cada 15 minutos; volver a dibujar la línea o
+   * a subir el precio cada vez que el usuario pasa por delante sería ruido
+   * encima de un dato en vivo, no movimiento. #market y #news se quedan fuera
+   * por eso.
+   *
+   * El precio de repetir: estos elementos NO se limpian al terminar (ver
+   * limpiarAlTerminar) — conservan su clase y su transition, porque hay que
+   * poder volver a animarlos. Lo que sí se conserva es lo caro: sigue sin
+   * haber will-change ni translate3d, así que fuera de los 620 ms de cada
+   * pasada no queda ninguna capa de composición promovida. Son cuatro
+   * secciones, no media página.
+   */
+  var REPETIBLES = [
+    '#tips',        // "Start here" y su tarjeta hacia /lessons
+    '#content',     // "Recent breakdowns"
+    '#newsletter',  // el bloque del boletín diario
+    '#about',       // el retrato y el texto
+    '.tips-grid'    // las seis tarjetas de lección en /lessons
+  ].join(',');
+
   function init() {
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     // Si alguien no quiere movimiento, este archivo no hace absolutamente
@@ -111,11 +152,46 @@
 
     if (!elementos.length) return;
 
-    elementos.forEach(function (el) { el.classList.add('reveal-el'); });
+    elementos.forEach(function (el) {
+      el.classList.add('reveal-el');
+      // Se resuelve una sola vez, aquí: closest() en cada aparición y en cada
+      // salida sería subir el árbol del DOM decenas de veces mientras el dedo
+      // se mueve, que es exactamente lo que este archivo no hace.
+      el.__revealRep = !!(el.closest && el.closest(REPETIBLES));
+    });
+
+    /*
+     * Cambiar de estado sin animar: se pone la clase que apaga la transition,
+     * se cambia lo que haya que cambiar, y se devuelve la transition al
+     * segundo frame — cuando el navegador ya pintó el estado nuevo.
+     *
+     * Dos frames y no un reflow forzado (void el.offsetWidth) a propósito: leer
+     * offsetWidth después de escribir clases obliga al navegador a recalcular
+     * layout ahí mismo, y hacerlo una vez por tarjeta dentro del callback del
+     * observador es la receta del layout thrashing en móvil. Con rAF no se
+     * fuerza ningún cálculo: se espera al que el navegador iba a hacer solo.
+     */
+    function sinAnimar(el, cambio) {
+      el.classList.add('reveal-quieto');
+      cambio();
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { el.classList.remove('reveal-quieto'); });
+      });
+    }
 
     function encender(el) {
+      el.__revealYa = true;
       el.classList.add('is-in');
       limpiarAlTerminar(el);
+    }
+
+    // La vuelta al estado escondido, solo para las repetibles. Sin animación:
+    // el elemento ya está fuera de la vista cuando esto ocurre.
+    function apagar(el) {
+      sinAnimar(el, function () {
+        el.classList.remove('is-in');
+        el.style.removeProperty('--reveal-i');
+      });
     }
 
     /*
@@ -126,6 +202,11 @@
      * no ocurre nunca y el elemento se quedaría con su transition puesta.
      */
     function limpiarAlTerminar(el) {
+      // Las repetibles no se limpian: quitarles la clase y la variable sería
+      // quitarles justo lo que necesitan para volver a animarse. Se quedan
+      // como están, que no cuesta nada mientras no haya will-change.
+      if (el.__revealRep) return;
+
       var hecho = false;
       function limpiar() {
         if (hecho) return;
@@ -161,11 +242,26 @@
     var io = new IntersectionObserver(function (entradas) {
       var n = 0;
       entradas.forEach(function (entrada) {
-        if (!entrada.isIntersecting) return;
-        entrada.target.style.setProperty('--reveal-i', Math.min(n, MAX_ESCALON));
+        var el = entrada.target;
+
+        if (!entrada.isIntersecting) {
+          // Solo las repetibles reaccionan al salir. Para todas las demás
+          // esta rama no existe: se quedaron reveladas y ya no se observan.
+          if (el.__revealRep && el.classList.contains('is-in')) apagar(el);
+          return;
+        }
+
+        // Ya encendida y todavía en pantalla: el observador puede avisar dos
+        // veces sin que el estado haya cambiado (un resize, por ejemplo). Sin
+        // esto se reiniciaría el escalón de una tarjeta que ya está puesta.
+        if (el.classList.contains('is-in')) return;
+
+        el.style.setProperty('--reveal-i', Math.min(n, MAX_ESCALON));
         n++;
-        encender(entrada.target);
-        io.unobserve(entrada.target);
+        encender(el);
+        // Las repetibles se siguen observando: hace falta el aviso de salida
+        // para devolverlas a su sitio.
+        if (!el.__revealRep) io.unobserve(el);
       });
     }, {
       // Un umbral bajo y un margen negativo abajo: el elemento empieza a
@@ -214,6 +310,18 @@
      * caso se animan solo los pocos que se ven.
      */
     function mostrarYa(el) {
+      el.__revealYa = true;
+
+      // Repetible: se enciende de golpe pero CONSERVA su clase y su variable,
+      // porque tiene que poder volver a esconderse cuando salga de pantalla.
+      // Quitárselas aquí la convertiría en una tarjeta normal de un solo uso,
+      // y el fallo se vería justo en el caso que esta red cubre: entrar a
+      // media página por un ancla.
+      if (el.__revealRep) {
+        sinAnimar(el, function () { el.classList.add('is-in'); });
+        return;
+      }
+
       el.classList.remove('reveal-el', 'is-in');
       el.style.removeProperty('--reveal-i');
       el.style.removeProperty('--reveal-y');
@@ -227,16 +335,20 @@
       var n = 0;
       for (var i = 0; i < pendientes.length; i++) {
         var el = pendientes[i];
-        if (!el.classList.contains('reveal-el')) continue;   // ya lo hizo el observador
+        // Ya lo hizo el observador. Se mira una marca propia y no la clase
+        // .reveal-el porque las repetibles la conservan de por vida: con la
+        // comprobación vieja nunca salían de la lista y la red seguía dando
+        // vueltas cada 4 s para siempre.
+        if (el.__revealYa) continue;
         var r = el.getBoundingClientRect();
         if (r.bottom <= 0) {                 // se quedó arriba: sin animación
           mostrarYa(el);
-          io.unobserve(el);
+          if (!el.__revealRep) io.unobserve(el);
         } else if (r.top < alto) {           // está en pantalla: con animación
           el.style.setProperty('--reveal-i', Math.min(n, MAX_ESCALON));
           n++;
           encender(el);
-          io.unobserve(el);
+          if (!el.__revealRep) io.unobserve(el);
         } else {
           quedan.push(el);                   // más abajo: le toca al observador
         }
