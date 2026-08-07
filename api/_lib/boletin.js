@@ -19,6 +19,16 @@ const IMPULSO_RESPALDO = {
   es: 'Empezar temprano vale más que empezar perfecto. Lo que guardes este mes tiene más tiempo para crecer que cualquier cantidad que ahorres después, y el hábito pesa más que el monto.'
 };
 
+// Respaldo del gancho, que es además el asunto del correo. Genérico pero cierto
+// de cualquier edición: siempre lleva el dólar y siempre lleva una lección. Un
+// asunto vacío o con la fecha dentro es un correo que nadie abre, así que aquí
+// no puede quedar hueco. /api/news lo importa de aquí por lo mismo que el
+// consejo: una sola copia que no se pueda desincronizar.
+const GANCHO_RESPALDO = {
+  en: 'How the dollar opened, and a lesson in two minutes',
+  es: 'Así amaneció el dólar, y una lección en dos minutos'
+};
+
 // Dominio público del sitio. Es el que va en los links del correo, incluido el
 // de baja, así que tiene que ser uno que responda: el antiguo
 // smartfinance-sooty.vercel.app ya devuelve DEPLOYMENT_NOT_FOUND.
@@ -61,6 +71,35 @@ async function pedirJSON(url, ms = 8000) {
   }
 }
 
+/*
+ * EL PRESUPUESTO DE /api/news, Y POR QUÉ NO ES EL DE POR DEFECTO.
+ *
+ * ESTE ERA EL FALLO QUE DEJÓ AL BOLETÍN SIN ENVIARSE.
+ *
+ * /api/news tarda unos milisegundos cuando su caché está caliente y unos OCHO
+ * SEGUNDOS cuando está frío, porque en frío tiene que bajar el RSS de Bloomberg
+ * y esperar a que Anthropic escriba las opiniones, el consejo y el gancho. El
+ * presupuesto de aquí eran 8 s exactos: medido en local, la corrida en frío da
+ * 8.1 s. Se pasaba por menos de dos décimas.
+ *
+ * Lo que hacía eso: el cron corre a las 8:00 de la mañana. Si alguien había
+ * entrado al sitio antes, el caché estaba caliente y el boletín salía sin
+ * enterarse. Si el cron era la primera visita del día —que es lo normal a esa
+ * hora— la petición se abortaba, el boletín se quedaba sin titulares y abortaba
+ * con "sin_contenido". Un correo que sale unos días sí y otros no, sin tocar
+ * una línea de código, y sin rastro porque los logs de Vercel duran 30 minutos.
+ *
+ * De dónde salió: el commit d97a250 subió el plazo de la llamada a Anthropic de
+ * 8 a 20 segundos para que el consejo del inicio dejara de perderse. Arregló
+ * /api/news y dejó a su consumidor con el presupuesto viejo.
+ *
+ * 30 s cubre el peor caso de /api/news (20 s de Anthropic más el feed) con
+ * holgura, y cabe de sobra: los datos de mercado se piden EN PARALELO, no
+ * después, y send-newsletter tiene 60 s de función con un tope propio de 50 s
+ * para el envío.
+ */
+const MS_NOTICIAS = 30000;
+
 // ---- Datos de mercado ------------------------------------------------------
 // De la serie intradía se toma el primer y el último punto: ese es el cambio de
 // la sesión, el mismo criterio que usa la gráfica del sitio.
@@ -96,31 +135,49 @@ async function datosDeMercado(base) {
 
 // ---- Contenido completo ----------------------------------------------------
 
+// Un par {en, es} sirve solo si las dos versiones traen texto. Si falta una, se
+// usa el respaldo entero en vez de mezclar: media pareja deja a la mitad de la
+// lista sin esa sección, y eso no se nota hasta que alguien se queja.
+function parBilingue(crudo, respaldo) {
+  return crudo && typeof crudo.es === 'string' && crudo.es.trim() &&
+    typeof crudo.en === 'string' && crudo.en.trim()
+    ? { en: crudo.en.trim(), es: crudo.es.trim() }
+    : respaldo;
+}
+
 async function construirContenido(fecha = new Date()) {
   const base = urlBase();
 
-  // Una sola petición trae titulares, opiniones y el consejo del inicio: los
-  // tres salen de la misma llamada a Anthropic que /api/news ya cachea.
-  const [noticiasYConsejo, mercado] = await Promise.all([
-    pedirJSON(base + '/api/news')
-      .then((d) => ({
-        noticias: d && Array.isArray(d.items) ? d.items.slice(0, 4) : [],
-        impulso: d && d.impulso
-      }))
+  // Una sola petición trae el titular, su opinión, el consejo del inicio y el
+  // gancho: los cuatro salen de la misma llamada a Anthropic que /api/news ya
+  // cachea, así que el boletín no dispara ni una generación extra.
+  const [deNoticias, mercado] = await Promise.all([
+    pedirJSON(base + '/api/news', MS_NOTICIAS)
+      .then((d) => {
+        const items = d && Array.isArray(d.items) ? d.items : [];
+        // El índice viene elegido por el modelo con el criterio que está
+        // escrito en el prompt de /api/news; aquí solo se comprueba que apunte
+        // a algo. Fuera de rango cae al primero, que es el más reciente.
+        const i = Number.isInteger(d && d.principal) && d.principal >= 0 && d.principal < items.length
+          ? d.principal
+          : 0;
+        return { noticia: items[i] || null, impulso: d && d.impulso, gancho: d && d.gancho };
+      })
       .catch((e) => {
         console.error('boletín: falló /api/news:', e.message);
-        return { noticias: [], impulso: null };
+        return { noticia: null, impulso: null, gancho: null };
       }),
     datosDeMercado(base)
   ]);
 
-  const crudo = noticiasYConsejo.impulso;
-  const impulso = crudo && typeof crudo.es === 'string' && crudo.es.trim() &&
-    typeof crudo.en === 'string' && crudo.en.trim()
-    ? { en: crudo.en.trim(), es: crudo.es.trim() }
-    : IMPULSO_RESPALDO;
-
-  return { fecha, noticias: noticiasYConsejo.noticias, mercado, impulso, tip: tipDelDia(fecha) };
+  return {
+    fecha,
+    noticia: deNoticias.noticia,
+    mercado,
+    impulso: parBilingue(deNoticias.impulso, IMPULSO_RESPALDO),
+    gancho: parBilingue(deNoticias.gancho, GANCHO_RESPALDO),
+    tip: tipDelDia(fecha)
+  };
 }
 
 // ---- Plantilla del correo --------------------------------------------------
@@ -165,40 +222,41 @@ function fmt(n, dec = 4) {
 
 const TEXTOS = {
   en: {
-    saludo: 'Today in markets',
     impulsoTitulo: 'To start your day',
-    tipTitulo: 'Tip of the day',
-    tipCta: 'Read the full lesson →',
-    mercadoTitulo: 'Quick numbers',
+    noticiaTitulo: "Today's story",
+    miLectura: 'My take',
+    leerMas: 'Read the full story →',
+    mercadoTitulo: 'How the dollar opened',
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Fear index (VIX)',
-    noticiasTitulo: 'In the headlines',
-    miLectura: 'My take',
-    leerMas: 'Read more →',
+    tipTitulo: "Today you'll learn",
+    tipCta: 'Read the lesson →',
+    seguir: 'Follow along',
     baja: 'Unsubscribe',
     bajaFrase: 'You are getting this because you confirmed your subscription to the Smart Finance daily.',
     aviso: 'Educational content only — not financial, investment, or tax advice.',
-    verEnLinea: 'Smart Finance',
     sinDatos: 'Not available right now.'
   },
   es: {
-    saludo: 'Hoy en los mercados',
     impulsoTitulo: 'Para arrancar el día',
-    tipTitulo: 'Tip del día',
-    tipCta: 'Leer la lección completa →',
-    mercadoTitulo: 'Datos rápidos',
+    noticiaTitulo: 'La noticia de hoy',
+    miLectura: 'Mi lectura',
+    leerMas: 'Leer la nota completa →',
+    mercadoTitulo: 'Así amaneció el dólar',
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Índice del miedo (VIX)',
-    noticiasTitulo: 'En los titulares',
-    miLectura: 'Mi lectura',
-    leerMas: 'Leer más →',
+    tipTitulo: 'Hoy aprenderás',
+    tipCta: 'Leer la lección →',
+    seguir: 'Sígueme',
     baja: 'Darse de baja',
     bajaFrase: 'Recibes este correo porque confirmaste tu suscripción al boletín diario de Smart Finance.',
     aviso: 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal.',
-    verEnLinea: 'Smart Finance',
     sinDatos: 'No disponible por ahora.'
   }
 };
+
+const URL_LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
+const URL_TIKTOK = 'https://www.tiktok.com/@smart.financee';
 
 function fechaLarga(fecha, idioma) {
   const texto = fecha.toLocaleDateString(idioma === 'es' ? 'es-MX' : 'en-US', {
@@ -234,39 +292,146 @@ function bloqueMercado(mercado, t) {
   </table>`;
 }
 
-function bloqueNoticias(noticias, idioma, t) {
-  if (!noticias.length) {
+// UNA noticia, no cuatro. La elige el modelo en /api/news con el criterio que
+// está escrito en su prompt: lo que más le mueve el dinero a una persona normal
+// en México, y a igualdad de eso lo que alcanza a más gente. El titular es más
+// grande que antes porque ahora carga con toda la sección él solo.
+function bloqueNoticia(n, idioma, t) {
+  if (!n) {
     return `<p style="font-family:${FUENTE};font-size:14px;color:${GRIS};margin:0;">${escapar(t.sinDatos)}</p>`;
   }
 
-  return noticias.map((n) => {
-    const take = (n.take && (idioma === 'es' ? n.take.es : n.take.en)) || '';
-    const pendiente = !take || (n.take && n.take.pending);
-    const link = urlSegura(n.link);
-    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
-      <tr><td style="padding:0 0 6px;font-family:${FUENTE_TITULO};font-size:17px;line-height:1.35;font-weight:700;color:${TINTA};">
-        ${link ? `<a href="${link}" style="color:${TINTA};text-decoration:none;">${escapar(n.title)}</a>` : escapar(n.title)}
-      </td></tr>
-      ${pendiente ? '' : `<tr><td style="padding:0 0 6px 12px;border-left:3px solid ${VERDE};font-family:${FUENTE};font-size:14px;line-height:1.55;color:#39404A;">
-        <span style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:3px;">${escapar(t.miLectura)}</span>
-        ${escapar(take)}
-      </td></tr>`}
-      ${link ? `<tr><td style="padding:4px 0 0;font-family:${FUENTE};font-size:13px;">
-        <a href="${link}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.leerMas)}</a>
-      </td></tr>` : ''}
-    </table>`;
-  }).join('');
+  const take = (n.take && (idioma === 'es' ? n.take.es : n.take.en)) || '';
+  const pendiente = !take || (n.take && n.take.pending);
+  const link = urlSegura(n.link);
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:0 0 10px;font-family:${FUENTE_TITULO};font-size:20px;line-height:1.3;font-weight:700;color:${TINTA};">
+      ${link ? `<a href="${link}" style="color:${TINTA};text-decoration:none;">${escapar(n.title)}</a>` : escapar(n.title)}
+    </td></tr>
+    ${pendiente ? '' : `<tr><td style="padding:0 0 6px 12px;border-left:3px solid ${VERDE};font-family:${FUENTE};font-size:15px;line-height:1.6;color:#39404A;">
+      <span style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:3px;">${escapar(t.miLectura)}</span>
+      ${escapar(take)}
+    </td></tr>`}
+    ${link ? `<tr><td style="padding:10px 0 0;font-family:${FUENTE};font-size:13px;">
+      <a href="${link}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.leerMas)}</a>
+    </td></tr>` : ''}
+  </table>`;
 }
 
+// Teaser de la lección: las primeras frases enteras de su resumen, hasta llegar
+// a unos 90 caracteres.
+//
+// Se corta por frases y no por número de letras a propósito: cortar a los 90 y
+// poner puntos suspensivos deja la línea a medias justo donde estaba la idea, y
+// el objetivo es que dé ganas de abrir la lección, no que parezca un error.
+// El corte solo cuenta como final de frase si al punto le siguen un espacio y
+// una mayúscula, para que "S&P 500." o "50/30/20." no partan la frase en dos.
+/*
+ * El tope del gancho, garantizado aquí y no solo pedido en el prompt.
+ *
+ * El prompt dice "menos de 65 caracteres" y el modelo a veces lo cumple y a
+ * veces no: en una corrida devolvió 83, que en la bandeja de Gmail se corta a
+ * media frase. Pedirlo más fuerte no lo convierte en garantía — esto sí.
+ *
+ * No recorta a lo bruto: busca el final de la primera cláusula (la coma, la
+ * raya, los dos puntos) y corta ahí, así que lo que queda es una frase entera y
+ * no una a medias con puntos suspensivos. "Los aranceles de soja suben tu
+ * carrito de compras, y la regla para controlar gastos" se queda en "Los
+ * aranceles de soja suben tu carrito de compras", que es justo lo que se
+ * querría haber escrito. Por eso el prompt le pide además poner lo importante
+ * al principio: lo que sobreviva al corte es lo de delante.
+ */
+const GANCHO_MAX = 65;
+function recortarGancho(texto) {
+  const t = String(texto || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= GANCHO_MAX) return t;
+
+  const zona = t.slice(0, GANCHO_MAX + 1);
+  const corte = Math.max(
+    zona.lastIndexOf(' — '), zona.lastIndexOf('—'), zona.lastIndexOf('–'),
+    zona.lastIndexOf(', '), zona.lastIndexOf('; '), zona.lastIndexOf(': ')
+  );
+  // El mínimo de 20 evita que una coma muy temprana deje un asunto de tres
+  // palabras; en ese caso es mejor cortar por la última palabra que quepa.
+  const bruto = corte > 20 ? zona.slice(0, corte) : zona.slice(0, zona.lastIndexOf(' '));
+
+  // Sin puntuación colgando ("…de compras,") ni palabra de relleno al final
+  // ("…y te explico la"), que es lo que deja el corte por última palabra
+  // cuando la frase no traía puntuación donde cortar.
+  const COLGANTES = /\s+(y|e|o|u|de|del|al|la|el|los|las|un|una|unos|unas|que|con|por|para|en|su|sus|and|or|the|a|an|of|to|for|in|on|with|its)$/i;
+  let r = bruto.replace(/[\s,;:—–-]+$/, '');
+  while (COLGANTES.test(r)) r = r.replace(COLGANTES, '');
+  return r.trim();
+}
+
+const TEASER_MIN = 90;
+function teaserLeccion(texto) {
+  const limpio = String(texto || '').replace(/\s+/g, ' ').trim();
+  if (!limpio) return '';
+
+  const corte = /[.!?](?=\s+[¿¡"“A-ZÁÉÍÓÚÑ])/g;
+  let m;
+  let fin = -1;
+  while ((m = corte.exec(limpio)) !== null) {
+    fin = m.index + 1;
+    if (fin >= TEASER_MIN) break;
+  }
+  return fin > 0 ? limpio.slice(0, fin) : limpio;
+}
+
+// Los dos botones de redes. En tabla y con el color de fondo en el <td>, que es
+// la única forma que pintan igual Gmail, Outlook y Apple Mail: un <a> con
+// padding y background se le queda gris a Outlook, que ignora el padding.
+function bloqueBotones(t) {
+  const boton = (texto, url, fondo, colorTexto, borde) => `<td style="padding:0 8px 0 0;">
+    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+      <td align="center" style="background:${fondo};border:1px solid ${borde};border-radius:8px;">
+        <a href="${escapar(url)}" style="display:inline-block;padding:11px 22px;font-family:${FUENTE};font-size:14px;font-weight:600;color:${colorTexto};text-decoration:none;">${escapar(texto)}</a>
+      </td>
+    </tr></table>
+  </td>`;
+
+  return `<div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(t.seguir)}</div>
+  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+    ${boton('LinkedIn', URL_LINKEDIN, VERDE, '#FFFFFF', VERDE)}
+    ${boton('TikTok', URL_TIKTOK, '#FFFFFF', TINTA, LINEA)}
+  </tr></table>`;
+}
+
+/*
+ * EL ORDEN DEL CORREO, de arriba a abajo:
+ *
+ *   1. Gancho      — titular corto y distinto cada día. Es también el asunto.
+ *   2. Impulso     — la frase motivacional.
+ *   3. La noticia  — UNA, la más relevante, con mi lectura.
+ *   4. El dólar    — USD/MXN y el VIX al lado.
+ *   5. La lección  — teaser de la lección del día, con su link.
+ *   6. Botones     — LinkedIn y TikTok.
+ *   7. La baja     — obligatoria por ley, en todos los envíos.
+ *
+ * Nada más. Las otras tres noticias salieron: un correo diario se lee en la
+ * fila del transporte, y cuatro titulares con opinión cada uno era ya un
+ * artículo. Con uno solo, ese uno se lee.
+ */
 function renderizarCorreo({ contenido, idioma, urlBaja }) {
-  const t = TEXTOS[idioma === 'es' ? 'es' : 'en'];
+  const es = idioma === 'es';
+  const t = TEXTOS[es ? 'es' : 'en'];
   const sitio = urlSitio();
-  const tip = contenido.tip[idioma === 'es' ? 'es' : 'en'];
+  const tip = contenido.tip[es ? 'es' : 'en'];
   const urlTip = sitio + contenido.tip.url;
-  // construirContenido ya garantiza que esto viene lleno; el respaldo de aquí
-  // cubre a quien llame a renderizarCorreo por su cuenta (por ejemplo el ensayo).
-  const impulso = (contenido.impulso && contenido.impulso[idioma === 'es' ? 'es' : 'en']) ||
-    IMPULSO_RESPALDO[idioma === 'es' ? 'es' : 'en'];
+  const teaser = teaserLeccion(tip.resumen);
+  // construirContenido ya garantiza que esto viene lleno; los respaldos de aquí
+  // cubren a quien llame a renderizarCorreo por su cuenta (por ejemplo el ensayo).
+  const impulso = (contenido.impulso && contenido.impulso[es ? 'es' : 'en']) ||
+    IMPULSO_RESPALDO[es ? 'es' : 'en'];
+  // Un solo valor recortado para los tres sitios donde aparece: el asunto, el
+  // titular de arriba y la versión de texto. Si el asunto y el titular no
+  // coincidieran, abrir el correo se sentiría como abrir otro distinto.
+  const gancho = recortarGancho(
+    (contenido.gancho && contenido.gancho[es ? 'es' : 'en']) || GANCHO_RESPALDO[es ? 'es' : 'en']
+  );
+  const noticia = contenido.noticia || null;
 
   const html = `<!doctype html>
 <html lang="${idioma === 'es' ? 'es' : 'en'}">
@@ -276,28 +441,35 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
 <title>Smart Finance</title>
 </head>
 <body style="margin:0;padding:0;background:${FONDO};">
-<!-- Preencabezado: lo que se lee en la bandeja junto al asunto. Oculto en el
-     cuerpo con tamaño cero para que no se vea dos veces al abrir. -->
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapar(tip.titulo)}</div>
+<!-- Preencabezado: lo que se lee en la bandeja junto al asunto. Ya no repite el
+     gancho —eso deja "titular · titular" en la bandeja—: anuncia la lección,
+     que es lo otro que trae el correo. Oculto en el cuerpo con tamaño cero
+     para que no se vea dos veces al abrir. -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapar(t.tipTitulo)}: ${escapar(tip.titulo)}</div>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${FONDO};">
 <tr><td align="center" style="padding:24px 12px;">
 
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#FFFFFF;border-radius:14px;overflow:hidden;border:1px solid ${LINEA};">
 
-  <tr><td style="padding:22px 24px;border-bottom:1px solid ${LINEA};">
-    <div style="font-family:${FUENTE_TITULO};font-size:20px;font-weight:700;color:${TINTA};">
+  <!-- 1. EL GANCHO. La marca y la fecha se quedan pequeñas encima: quien abre
+          el correo ya sabe de quién es, así que lo grande tiene que ser de qué
+          va el de hoy, no el logo otra vez. -->
+  <tr><td style="padding:22px 24px 20px;border-bottom:1px solid ${LINEA};">
+    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${GRIS};">
       Smart <span style="color:${VERDE};">Finance</span>
+      &nbsp;·&nbsp;${escapar(fechaLarga(contenido.fecha, idioma))}
     </div>
-    <div style="font-family:${FUENTE};font-size:12px;color:${GRIS};padding-top:3px;">
-      ${escapar(fechaLarga(contenido.fecha, idioma))}
+    <div style="font-family:${FUENTE_TITULO};font-size:25px;line-height:1.28;font-weight:700;color:${TINTA};padding-top:10px;">
+      ${escapar(gancho)}
     </div>
   </td></tr>
 
-  <!-- Arranque motivacional. Es el único bloque del correo con fondo propio: el
-       tinte, la comilla y la cursiva lo separan del resto sin usar imágenes,
-       que la mayoría de los clientes bloquea hasta que el lector las permite.
-       Maquetado en tabla de dos celdas porque flexbox no existe en correo. -->
+  <!-- 2. Arranque motivacional. Es el único bloque del correo con fondo propio:
+          el tinte, la comilla y la cursiva lo separan del resto sin usar
+          imágenes, que la mayoría de los clientes bloquea hasta que el lector
+          las permite. Maquetado en tabla de dos celdas porque flexbox no
+          existe en correo. -->
   <tr><td style="padding:20px 24px 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${VERDE_TENUE};border:1px solid ${VERDE_BORDE};border-radius:12px;">
       <tr>
@@ -310,34 +482,37 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     </table>
   </td></tr>
 
-  <tr><td style="padding:22px 24px 6px;">
+  <!-- 3. La noticia del día. Una. -->
+  <tr><td style="padding:26px 24px 6px;">
+    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:12px;">${escapar(t.noticiaTitulo)}</div>
+    ${bloqueNoticia(noticia, idioma, t)}
+  </td></tr>
+
+  <!-- 4. Así amaneció el dólar: USD/MXN y el VIX al lado, en la misma fila. -->
+  <tr><td style="padding:26px 24px 6px;">
+    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(t.mercadoTitulo)}</div>
+    ${bloqueMercado(contenido.mercado, t)}
+  </td></tr>
+
+  <!-- 5. Hoy aprenderás: el título de la lección del día y un teaser corto. -->
+  <tr><td style="padding:26px 24px 6px;">
     <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:8px;">${escapar(t.tipTitulo)}</div>
     <div style="font-family:${FUENTE_TITULO};font-size:19px;line-height:1.3;font-weight:700;color:${TINTA};padding-bottom:6px;">${escapar(tip.titulo)}</div>
-    <div style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:#39404A;">${escapar(tip.resumen)}</div>
+    <div style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:#39404A;">${escapar(teaser)}</div>
     <div style="padding-top:10px;font-family:${FUENTE};font-size:13px;">
       <a href="${escapar(urlTip)}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.tipCta)}</a>
     </div>
   </td></tr>
 
-  <tr><td style="padding:20px 24px 6px;">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(t.mercadoTitulo)}</div>
-    ${bloqueMercado(contenido.mercado, t)}
+  <!-- 6. Los botones de redes. -->
+  <tr><td style="padding:26px 24px 24px;">
+    ${bloqueBotones(t)}
   </td></tr>
 
-  <tr><td style="padding:22px 24px 6px;">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:12px;">${escapar(t.noticiasTitulo)}</div>
-    ${bloqueNoticias(contenido.noticias, idioma, t)}
-  </td></tr>
-
-  <tr><td style="padding:14px 24px 24px;border-top:1px solid ${LINEA};">
-    <div style="font-family:${FUENTE};font-size:12px;line-height:1.6;color:${GRIS};">
-      <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" style="color:${GRIS};text-decoration:underline;">LinkedIn</a>
-      &nbsp;·&nbsp;
-      <a href="https://www.tiktok.com/@smart.financee" style="color:${GRIS};text-decoration:underline;">TikTok</a>
-      &nbsp;·&nbsp;
-      <a href="${escapar(sitio)}" style="color:${GRIS};text-decoration:underline;">${escapar(t.verEnLinea)}</a>
-    </div>
-    <div style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};padding-top:12px;">
+  <!-- 7. La baja. Va en TODOS los envíos: es obligatoria por ley, no una
+          cortesía, y por eso no depende de ninguna condición de arriba. -->
+  <tr><td style="padding:16px 24px 24px;border-top:1px solid ${LINEA};">
+    <div style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};">
       ${escapar(t.bajaFrase)}<br>
       <a href="${escapar(urlBaja)}" style="color:${GRIS};text-decoration:underline;">${escapar(t.baja)}</a>
     </div>
@@ -354,32 +529,53 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
 
   // Versión en texto plano: algunos clientes la prefieren y su ausencia cuenta
   // como señal de spam en varios filtros.
+  // Mismo orden que el HTML, para que quien lea la versión de texto lea el
+  // mismo correo y no otro.
   const lineas = [
     'SMART FINANCE — ' + fechaLarga(contenido.fecha, idioma),
     '',
+    gancho,
+    '',
     t.impulsoTitulo.toUpperCase(), impulso, '',
-    t.tipTitulo.toUpperCase(), tip.titulo, tip.resumen, urlTip, '',
-    t.mercadoTitulo.toUpperCase(),
+    t.noticiaTitulo.toUpperCase()
+  ];
+
+  if (noticia) {
+    const take = (noticia.take && (es ? noticia.take.es : noticia.take.en)) || '';
+    lineas.push(noticia.title);
+    if (take && !(noticia.take && noticia.take.pending)) lineas.push(t.miLectura + ': ' + take);
+    if (noticia.link) lineas.push(noticia.link);
+  } else {
+    lineas.push(t.sinDatos);
+  }
+
+  lineas.push(
+    '', t.mercadoTitulo.toUpperCase(),
     contenido.mercado.usdmxn
       ? `USD/MXN ${fmt(contenido.mercado.usdmxn.valor, 4)} (${contenido.mercado.usdmxn.cambioPct >= 0 ? '+' : ''}${contenido.mercado.usdmxn.cambioPct.toFixed(2)}%)`
       : 'USD/MXN ' + t.sinDatos,
     contenido.mercado.vix
       ? `VIX ${fmt(contenido.mercado.vix.valor, 2)} (${contenido.mercado.vix.cambioPct >= 0 ? '+' : ''}${contenido.mercado.vix.cambioPct.toFixed(2)}%)`
       : 'VIX ' + t.sinDatos,
-    '', t.noticiasTitulo.toUpperCase(), ''
-  ];
-  for (const n of contenido.noticias) {
-    const take = (n.take && (idioma === 'es' ? n.take.es : n.take.en)) || '';
-    lineas.push('· ' + n.title);
-    if (take && !(n.take && n.take.pending)) lineas.push('  ' + t.miLectura + ': ' + take);
-    if (n.link) lineas.push('  ' + n.link);
-    lineas.push('');
-  }
-  lineas.push(t.bajaFrase, t.baja + ': ' + urlBaja, '', t.aviso);
+    '', t.tipTitulo.toUpperCase(), tip.titulo, teaser, urlTip,
+    '', t.seguir.toUpperCase(),
+    'LinkedIn: ' + URL_LINKEDIN,
+    'TikTok: ' + URL_TIKTOK,
+    '', t.bajaFrase, t.baja + ': ' + urlBaja,
+    '', t.aviso
+  );
 
-  const asunto = (idioma === 'es' ? 'Smart Finance · ' : 'Smart Finance · ') + tip.titulo;
+  // El asunto ES el gancho: ese es todo el punto de generarlo. Antes iba
+  // "Smart Finance · <título de la lección>", que era el mismo molde todos los
+  // días y decía lo mismo del correo del lunes que del correo del viernes. El
+  // remitente ya se llama Smart Finance, así que repetirlo aquí solo gastaba
+  // los caracteres que la bandeja muestra antes de cortar.
+  const asunto = gancho;
 
   return { html, texto: lineas.join('\n'), asunto };
 }
 
-module.exports = { construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura, IMPULSO_RESPALDO };
+module.exports = {
+  construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura,
+  teaserLeccion, recortarGancho, IMPULSO_RESPALDO, GANCHO_RESPALDO
+};

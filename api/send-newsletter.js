@@ -9,34 +9,23 @@
 // recorre la lista con una pausa entre correos por el límite de peticiones de
 // Resend, y con el máximo por defecto no alcanzaría.
 //
-// PROTECCIÓN: Vercel Cron manda "Authorization: Bearer <CRON_SECRET>" en cada
-// llamada cuando esa variable existe en el proyecto. Sin ese encabezado la
-// función responde 401, así que la URL puede ser pública sin que nadie más
-// pueda disparar un envío (ni gastarse la cuota de Resend).
+// PROTECCIÓN: la puerta de CRON_SECRET vive en _lib/secreto.js, compartida con
+// /api/newsletter-log.
+//
+// REGISTRO: cada corrida deja una línea en Redis (_lib/registro.js) con la
+// fecha, quién la disparó, si funcionó y cuántos correos salieron. Los logs de
+// Vercel duran 30 minutos y por eso no supimos por qué el boletín dejó de
+// llegar; esto no caduca. Se consulta en /api/newsletter-log.
 
 const suscriptores = require('./_lib/suscriptores');
 const resend = require('./_lib/resend');
+const registro = require('./_lib/registro');
+const { autorizado, origen } = require('./_lib/secreto');
 const { construirContenido, renderizarCorreo, urlSitio } = require('./_lib/boletin');
 
 // Margen para no morir a medio envío: Vercel corta la función y quedaría sin
 // saberse a quién se le escribió. Al acercarse al límite se para y se reporta.
 const PRESUPUESTO_MS = 50 * 1000;
-
-function autorizado(req) {
-  const secreto = process.env.CRON_SECRET;
-  // Sin secreto configurado no se envía nada: es preferible no mandar el
-  // boletín que dejar la URL abierta a cualquiera.
-  if (!secreto) return false;
-
-  const cabecera = String(req.headers.authorization || '');
-  const esperado = 'Bearer ' + secreto;
-  if (cabecera.length !== esperado.length) return false;
-
-  // Comparación en tiempo constante, por si alguien intentara adivinar el
-  // secreto midiendo tiempos de respuesta.
-  const crypto = require('crypto');
-  return crypto.timingSafeEqual(Buffer.from(cabecera), Buffer.from(esperado));
-}
 
 module.exports = async function handler(req, res) {
   if (!autorizado(req)) {
@@ -45,16 +34,31 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  if (!resend.hayCredencial()) {
-    console.error('envío abortado: RESEND_API_KEY no está configurada');
-    res.status(500).json({ error: 'resend_no_configurado' });
-    return;
-  }
-
+  const disparo = origen(req);
   const inicio = Date.now();
   // Ensayo: arma y responde el correo sin mandarlo. Sirve para revisar el
   // contenido del día sin gastar cuota ni escribirle a nadie.
   const soloEnsayo = String((req.query && req.query.dry) || '') === '1';
+
+  // Toda salida de esta función pasa por aquí, para que no exista ningún camino
+  // que responda sin dejar rastro. El registro se anota ANTES de responder pero
+  // su fallo nunca cambia la respuesta: anotar() no lanza.
+  async function responder(codigo, cuerpo, extra) {
+    await registro.anotar(Object.assign({
+      disparo,
+      ensayo: soloEnsayo,
+      ok: codigo === 200 && !cuerpo.error,
+      codigo,
+      segundos: Math.round((Date.now() - inicio) / 1000)
+    }, extra || {}));
+    res.status(codigo).json(cuerpo);
+  }
+
+  if (!resend.hayCredencial()) {
+    console.error('envío abortado: RESEND_API_KEY no está configurada');
+    await responder(500, { error: 'resend_no_configurado' }, { enviados: 0, motivo: 'resend_no_configurado' });
+    return;
+  }
 
   try {
     const [contenido, lista] = await Promise.all([
@@ -62,11 +66,11 @@ module.exports = async function handler(req, res) {
       suscriptores.listarConfirmados()
     ]);
 
-    if (!contenido.noticias.length) {
-      // Sin noticias el correo pierde su parte principal. Mejor no mandar y
-      // reintentar mañana que mandar medio boletín.
+    if (!contenido.noticia) {
+      // Sin la noticia del día el correo pierde su parte principal. Mejor no
+      // mandar y reintentar mañana que mandar medio boletín.
       console.error('envío abortado: /api/news no devolvió titulares');
-      res.status(502).json({ error: 'sin_contenido' });
+      await responder(502, { error: 'sin_contenido' }, { enviados: 0, motivo: 'sin_contenido' });
       return;
     }
 
@@ -88,7 +92,7 @@ module.exports = async function handler(req, res) {
         idioma: String((req.query && req.query.lang) || 'es'),
         urlBaja: urlSitio() + '/api/unsubscribe?token=EJEMPLO&email=ejemplo%40correo.com'
       });
-      res.status(200).json({
+      await responder(200, {
         ensayo: true,
         // Qué par de variables de Redis se detectó. Va solo aquí, detrás del
         // secreto, porque sirve para depurar la conexión sin publicar nada:
@@ -97,12 +101,13 @@ module.exports = async function handler(req, res) {
         remitente: resend.remitente(),
         confirmados: total,
         seEnviariaA: destinatarios.length,
+        gancho: contenido.gancho,
         asunto: muestra.asunto,
         tip: contenido.tip.es.titulo,
         mercado: contenido.mercado,
-        titulares: contenido.noticias.map((n) => n.title),
+        titular: contenido.noticia.title,
         html: muestra.html
-      });
+      }, { enviados: 0, confirmados: total, motivo: 'ensayo' });
       return;
     }
 
@@ -167,9 +172,22 @@ module.exports = async function handler(req, res) {
     console.log('boletín enviado:', JSON.stringify(resumen));
     if (fallidos.length) console.error('destinatarios con error:', JSON.stringify(fallidos));
 
-    res.status(200).json(resumen);
+    // Un envío en el que NADIE recibió nada no se cuenta como bueno aunque la
+    // función responda 200: si mañana el registro dice "ok" con enviados 0, la
+    // avería queda escondida detrás de un tic verde, que es justo lo contrario
+    // de lo que este registro viene a resolver.
+    await responder(200, resumen, {
+      ok: enviados > 0,
+      via,
+      confirmados: total,
+      enviados,
+      fallidos: fallidos.length,
+      pendientesPorCuota: resumen.pendientesPorCuota,
+      pendientesPorTiempo: cortadoPorTiempo
+    });
   } catch (err) {
-    console.error('envío fallido:', err && err.message ? err.message : err);
-    res.status(500).json({ error: 'send_failed' });
+    const mensaje = err && err.message ? err.message : String(err);
+    console.error('envío fallido:', mensaje);
+    await responder(500, { error: 'send_failed' }, { enviados: 0, motivo: 'excepcion', error: mensaje.slice(0, 200) });
   }
 };

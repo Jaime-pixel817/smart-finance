@@ -105,6 +105,7 @@ function parseFeed(xml) {
 
 const TAKE_SYSTEM = [
   'You write one-sentence reactions to finance headlines for Smart Finance, a site by Jaime Sandoval.',
+  'The same call also writes three things the daily newsletter needs. They are described at the end.',
   '',
   'Voice: a finance student and content creator explaining the news to someone who is just',
   'getting started. Close and conversational, but clearly informed. Never robotic, never corporate.',
@@ -129,7 +130,41 @@ const TAKE_SYSTEM = [
   '  early. Encouraging, never scolding, never guilt.',
   '- Not a statistic, not a market fact, not a headline. No specific numbers, tickers or returns.',
   '- No investment advice, no promises of getting rich, no emoji, no exclamation marks.',
-  '- Change the angle every day so it never reads like the same sentence twice.'
+  '- Change the angle every day so it never reads like the same sentence twice.',
+  '',
+  'ALSO pick "principal": the index (0-based) of the ONE headline the newsletter will lead with.',
+  'The criterion, in this order:',
+  '  1. How much it moves the money of an ordinary person in Mexico — the peso against the dollar,',
+  '     interest rates, inflation, fuel and food prices, jobs, remittances, trade with the US.',
+  '  2. Failing that, how broad its reach is: something that moves the whole market or a whole',
+  '     sector beats something that moves one company.',
+  '  3. Failing that, how understandable it is to someone who is new to finance.',
+  'A single company\'s earnings, an executive change, or a niche corporate deal loses to any of',
+  'the above. If two are close, pick the more recent one.',
+  '',
+  'ALSO write "gancho": the subject line of today\'s newsletter.',
+  'The reader sees this in their inbox, so it is what decides whether the email gets opened.',
+  'The email they are about to read contains, in this order: a short motivational line, the one',
+  'headline you picked with your take on it, today\'s USD/MXN and VIX, and the lesson of the day',
+  '(its title is given to you in the user message). Rules:',
+  '',
+  '- IT IS ABOUT THE HEADLINE YOU PICKED IN "principal". That headline is what the email opens',
+  '  with, so the subject has to be about it and nothing else first. Do not lead with the lesson,',
+  '  with the market numbers, or with the motivational line. A reader who opens expecting the',
+  '  lesson and lands on the news was told the wrong thing.',
+  '- The lesson is optional garnish, not a second half. Mention it only if the whole line still',
+  '  fits under the limit, and always after the news. If in doubt, leave it out — a subject that',
+  '  is only about the news is the correct default, not a compromise.',
+  '- One line, under 65 characters, so the inbox does not cut it off. This is a hard limit: past it',
+  '  the server keeps only the text before the first comma or dash. That is why the news goes first',
+  '  and the lesson last: what gets cut is whatever trails.',
+  '- Say what the news MEANS for the reader, not just what happened. Concrete over clever.',
+  '- Write it as natural language, the way a person would say it out loud. Not a wire slug and not',
+  '  headline shorthand: no "+" or "&" joining two topics, no dropped articles, no stacked nouns.',
+  '  "Soybean tariffs squeeze farmers + budget rule" is wrong (shorthand, and it staples on the',
+  '  lesson). "What the soybean tariffs mean for your grocery bill" is right.',
+  '- Different every day. Never a fixed formula, never "Smart Finance daily" or the date.',
+  '- No clickbait, no invented numbers, no emoji, no exclamation marks, no ALL CAPS.'
 ].join('\n');
 
 const TAKES_SCHEMA = {
@@ -155,9 +190,22 @@ const TAKES_SCHEMA = {
       },
       required: ['en', 'es'],
       additionalProperties: false
-    }
+    },
+    gancho: {
+      type: 'object',
+      properties: {
+        en: { type: 'string' },
+        es: { type: 'string' }
+      },
+      required: ['en', 'es'],
+      additionalProperties: false
+    },
+    // Sin minimum/maximum a propósito: los esquemas de salida estructurada no
+    // admiten restricciones numéricas, así que el rango se comprueba abajo, en
+    // withTakes, donde además hace falta el respaldo si viene fuera de sitio.
+    principal: { type: 'integer' }
   },
-  required: ['takes', 'impulso'],
+  required: ['takes', 'impulso', 'gancho', 'principal'],
   additionalProperties: false
 };
 
@@ -168,7 +216,8 @@ const TAKES_SCHEMA = {
 const JSON_ONLY_HINT = [
   '',
   'Reply with raw JSON only — no prose, no markdown fence. Exact shape:',
-  '{"takes":[{"en":"...","es":"..."}],"impulso":{"en":"...","es":"..."}}'
+  '{"takes":[{"en":"...","es":"..."}],"impulso":{"en":"...","es":"..."},' +
+    '"gancho":{"en":"...","es":"..."},"principal":0}'
 ].join('\n');
 
 // El modelo a veces envuelve el JSON en ```json ... ```; con el esquema no pasa,
@@ -176,18 +225,24 @@ const JSON_ONLY_HINT = [
 function parseRespuesta(text) {
   const start = text.indexOf('{');
   const end = text.lastIndexOf('}');
-  if (start === -1 || end <= start) return { takes: null, impulso: null };
+  if (start === -1 || end <= start) return { takes: null, impulso: null, gancho: null, principal: null };
   const parsed = JSON.parse(text.slice(start, end + 1));
   return {
     takes: Array.isArray(parsed.takes) ? parsed.takes : null,
-    impulso: parsed.impulso || null
+    impulso: parsed.impulso || null,
+    gancho: parsed.gancho || null,
+    principal: Number.isInteger(parsed.principal) ? parsed.principal : null
   };
 }
 
-// El respaldo del consejo vive en _lib/boletin.js, que es quien tiene que
-// garantizar que la sección nunca salga vacía. Se importa en vez de copiarse
-// para que no haya dos frases que se puedan desincronizar.
-const { IMPULSO_RESPALDO } = require('./_lib/boletin');
+// Los respaldos del consejo y del gancho viven en _lib/boletin.js, que es quien
+// tiene que garantizar que esas dos secciones nunca salgan vacías. Se importan
+// en vez de copiarse para que no haya dos versiones que se desincronicen.
+const { IMPULSO_RESPALDO, GANCHO_RESPALDO } = require('./_lib/boletin');
+// La lección del día entra en el prompt para que el gancho pueda anunciarla:
+// es la misma rotación por día del año que usa el correo, sin estado que
+// guardar, así que las dos partes siempre hablan de la misma lección.
+const { tipDelDia } = require('./_lib/tips');
 
 // pending marca la opinión como "todavía no generada" para que el front la
 // pinte en gris y en cursiva, y no como si fuera algo que yo escribí.
@@ -216,6 +271,8 @@ async function generateTakes(items) {
     maxRetries: 0
   });
 
+  const leccion = tipDelDia(new Date());
+
   const prompt = items
     .map((it, i) => {
       // El resumen del feed trae HTML; el modelo no lo necesita.
@@ -236,7 +293,15 @@ async function generateTakes(items) {
         messages: [
           {
             role: 'user',
-            content: `Write one take for each of these ${items.length} headlines:\n\n${prompt}`
+            content:
+              `Write one take for each of these ${items.length} headlines ` +
+              '(they are numbered from 1, but "principal" is 0-based: the first headline is 0):\n\n' +
+              prompt +
+              // Se le da el título de la lección solo como contexto de qué más
+              // trae el correo. Decía "for the gancho", que era una invitación
+              // a usarlo, y algún día salía un asunto que hablaba de la lección
+              // mientras el correo abría con la noticia.
+              `\n\nAlso in today's email, after the news: the lesson "${leccion.en.titulo}".`
           }
         ]
       },
@@ -259,10 +324,11 @@ async function generateTakes(items) {
   }
 }
 
-// Devuelve { items, impulso, degraded }. degraded = true significa que algo del
-// texto generado salió con respaldo y conviene reintentar pronto.
+// Devuelve { items, impulso, gancho, principal, degraded }. degraded = true
+// significa que algo del texto generado salió con respaldo y conviene
+// reintentar pronto.
 async function withTakes(items) {
-  let generado = { takes: null, impulso: null };
+  let generado = { takes: null, impulso: null, gancho: null, principal: null };
   try {
     generado = (await generateTakes(items)) || generado;
   } catch (err) {
@@ -291,7 +357,26 @@ async function withTakes(items) {
     degraded = true;
   }
 
-  return { items: withTake, impulso, degraded };
+  // El gancho, igual: si falla solo él, el correo sale con un asunto genérico
+  // en vez de no salir.
+  let gancho;
+  if (isUsable(generado.gancho)) {
+    gancho = { en: generado.gancho.en.trim(), es: generado.gancho.es.trim() };
+  } else {
+    gancho = Object.assign({ fallback: true }, GANCHO_RESPALDO);
+    degraded = true;
+  }
+
+  // La noticia principal. Un índice fuera de rango o ausente cae al 0, que es
+  // el titular más reciente del feed: el criterio de respaldo razonable si la
+  // elección no llegó. No cuenta como degradado — hay una noticia válida y
+  // reintentar en 30 minutos no daría una mejor.
+  const principal = Number.isInteger(generado.principal) &&
+    generado.principal >= 0 && generado.principal < withTake.length
+    ? generado.principal
+    : 0;
+
+  return { items: withTake, impulso, gancho, principal, degraded };
 }
 
 module.exports = async function handler(req, res) {
@@ -311,7 +396,16 @@ module.exports = async function handler(req, res) {
     if (!items.length) throw new Error('no items parsed from feed');
 
     const result = await withTakes(items);
-    const body = { source: 'Bloomberg', items: result.items, impulso: result.impulso };
+    // gancho y principal los usa solo el boletín; el carrusel del sitio lee
+    // items y nada más. Van aquí porque salen de la MISMA llamada a Anthropic
+    // que ya se cachea: pedirlos aparte sería una segunda llamada al día.
+    const body = {
+      source: 'Bloomberg',
+      items: result.items,
+      impulso: result.impulso,
+      gancho: result.gancho,
+      principal: result.principal
+    };
 
     // El caché guarda titulares + imágenes + opiniones juntos, así que la
     // llamada a Anthropic ocurre una vez por ventana, no una por visita.
