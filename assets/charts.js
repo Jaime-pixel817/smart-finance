@@ -37,6 +37,22 @@
   // decide cómo se redacta la atribución de una fuente.
   var RANGE_DETAIL = { '1D': 'session', '1M': 'daily', '3M': 'daily', '1Y': 'daily' };
 
+  /*
+   * El aviso de mercado cerrado sale SOLO en 1D.
+   *
+   * No es que en los otros rangos no importe: es que ahí no se puede calcular
+   * con este método. El aviso mira el hueco entre el último dato y ahora (ver
+   * assets/market-hours.js), y en 1M/3M/1Y los puntos son cierres diarios, así
+   * que ese hueco es de horas también con el mercado abierto de par en par: el
+   * aviso saldría un miércoles a mediodía. Esos rangos ya llevan "cierres
+   * diarios" en su pie, que es exactamente la advertencia que les toca, y
+   * además nadie lee una gráfica de un año como el precio de este segundo.
+   *
+   * Cripto no aparece por ningún lado de este archivo (ver PAIRS): ese mercado
+   * opera 24/7 y no lleva aviso. Sus tarjetas las pinta assets/market.js.
+   */
+  var RANGO_CON_AVISO = '1D';
+
   function fmtPrice(n, decimals) {
     if (n === null || n === undefined || isNaN(n)) return '—';
     return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -208,8 +224,8 @@
   function esNow() { return document.documentElement.lang === 'es'; }
 
   // ---- Panel de gráfica -------------------------------------------------
-  // opts: { canvas, valueEl, changeEl, noteEl?, pairLabelEl?, pairTabs?,
-  //         rangeTabs, pair, range, invert? }
+  // opts: { canvas, valueEl, changeEl, noteEl?, closedEl?, pairLabelEl?,
+  //         pairTabs?, rangeTabs, pair, range, invert? }
   // invert = true pinta la SUBIDA en rojo. Es para el VIX: subir ahí significa
   // más miedo, al revés que en una gráfica de precio.
   function Panel(opts) {
@@ -220,6 +236,15 @@
     this.points = [];
     this.timer = null;
     this.failed = false;
+    // Marca de tiempo del último punto (para el aviso de cierre) y de QUÉ serie
+    // salió. Lo segundo importa: al cambiar de par o de rango, la marca vieja
+    // sigue guardada hasta que conteste la petición nueva, y un USD/MXN de las
+    // 23:00 —el FX opera casi 24 h— haría que el VIX se anunciara como abierto
+    // durante ese medio segundo. Se compara la clave y, si no cuadra, no se
+    // dibuja aviso ninguno. No vale con borrar la marca en cada load(): el
+    // rango 1D se repide cada minuto y el aviso parpadearía en cada refresco.
+    this.ultimoTs = null;
+    this.ultimoClave = '';
     this.reqId = 0;   // ver Panel.prototype.load: descarta respuestas atrasadas
     // Estado del trazado de entrada. trazado=true significa "ya pasó (o no va
     // a pasar)", y a partir de ahí la gráfica se repinta sin recorte ninguno.
@@ -361,6 +386,13 @@
     var ficha = ++this.reqId;
     var pedido = { pair: this.pair, range: this.range };
 
+    // El aviso se revisa ya, antes de pedir nada: si esta llamada viene de un
+    // cambio de par o de rango, la clave guardada deja de cuadrar y el aviso de
+    // la serie anterior se va en el acto en vez de quedarse el medio segundo
+    // que tarda la respuesta. En un refresco normal la clave sigue siendo la
+    // misma y esto no cambia nada de lo que hay en pantalla.
+    this.repaintClosed();
+
     return fetch('/api/history?pair=' + encodeURIComponent(pedido.pair) + '&range=' + encodeURIComponent(pedido.range))
       .then(function (res) { if (!res.ok) throw new Error('history ' + res.status); return res.json(); })
       .then(function (data) {
@@ -369,6 +401,8 @@
         if (!points.length) throw new Error('empty series');
         self.points = points;
         self.failed = false;
+        self.ultimoTs = points[points.length - 1][0];
+        self.ultimoClave = pedido.pair + ':' + pedido.range;
 
         var first = points[0][1], last = points[points.length - 1][1];
         var changePct = ((last - first) / first) * 100;
@@ -421,6 +455,8 @@
         console.warn('chart fetch failed (' + pedido.pair + '):', e);
         self.points = [];
         self.failed = true;
+        self.ultimoTs = null;
+        self.ultimoClave = '';
         if (self.o.valueEl) self.o.valueEl.textContent = '—';
         if (self.o.changeEl) { self.o.changeEl.textContent = ''; self.o.changeEl.className = self.o.changeClass; }
         self.repaintMeta();
@@ -432,9 +468,37 @@
   // Se vuelve a llamar al cambiar de idioma: sin esto, un panel que falló se
   // anunciaría como fresco nada más por cambiar de idioma.
   Panel.prototype.repaintMeta = function () {
-    if (!this.o.noteEl || !window.SmartSource) return;
-    var key = this.failed ? 'unavailable' : (RANGE_DETAIL[this.range] || 'session');
-    window.SmartSource.paint(this.o.noteEl, 'Yahoo Finance', key);
+    if (this.o.noteEl && window.SmartSource) {
+      var key = this.failed ? 'unavailable' : (RANGE_DETAIL[this.range] || 'session');
+      window.SmartSource.paint(this.o.noteEl, 'Yahoo Finance', key);
+    }
+    this.repaintClosed();
+  };
+
+  /*
+   * "Mercado cerrado · último cierre: viernes 7 de agosto".
+   *
+   * Se recalcula en cada carga y en cada cambio de idioma. También hace falta
+   * que se pueda APAGAR: al volver el mercado el refresco de cada minuto trae
+   * un punto fresco y el aviso tiene que desaparecer solo, sin recargar la
+   * página. Por eso esto siempre decide entre poner texto y esconder, nunca
+   * "poner y olvidarse".
+   */
+  Panel.prototype.repaintClosed = function () {
+    var el = this.o.closedEl;
+    if (!el) return;
+    var MH = window.SmartMarketHours;
+    var alDia = this.ultimoClave === this.pair + ':' + this.range;
+    var est = (MH && alDia && !this.failed && this.range === RANGO_CON_AVISO)
+      ? MH.estado(this.ultimoTs)
+      : null;
+    if (!est || !est.cerrado) {
+      el.hidden = true;
+      el.textContent = '';
+      return;
+    }
+    el.textContent = MH.frase(est, { es: esNow() });
+    el.hidden = false;
   };
 
   window.SmartCharts = {

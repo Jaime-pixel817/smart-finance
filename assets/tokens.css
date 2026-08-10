@@ -237,6 +237,51 @@ body {
    sentido cuando el nombre iba en blanco y hacía falta separar jerarquías;
    ahora la línea entera es del mismo gris y el punto no necesita apagarse más. */
 
+/* ────────────────────── Aviso de mercado cerrado ──────────────────────
+ *
+ * "● Mercado cerrado · último cierre: viernes 7 de agosto". Lo escribe
+ * assets/charts.js con lo que decide assets/market-hours.js; aquí solo va la
+ * forma. Vive en este archivo por lo mismo que .src-line: lo usan el home y
+ * /market, y una copia en cada uno acaba siendo dos cosas distintas.
+ *
+ * DÓNDE VA Y POR QUÉ AHÍ. Entre el encabezado del panel (el número grande) y
+ * el lienzo. Es el sitio que cumple las dos mitades del encargo a la vez:
+ * pegado al número que matiza, así que no hay forma de leer el precio sin
+ * verlo — y fuera de la fila del encabezado, así que no le quita espacio ni al
+ * valor ni a las pestañas de rango, que en un teléfono ya van justas.
+ *
+ * Se descartó ponerlo en el pie junto a la atribución: ahí abajo se lee al
+ * final o no se lee, y "estos datos no son de hoy" no puede ser una nota al
+ * pie. Y se descartó meterlo dentro de .fx-chart-head: con seis pares, el
+ * valor, el cambio y cuatro pestañas, una frase más rompía la fila en dos
+ * renglones en cuanto la pantalla bajaba de 900px.
+ *
+ * CÁPSULA GRIS CON PUNTO ÁMBAR, no roja ni con icono de alerta. Que el
+ * mercado cierre el fin de semana es lo normal, no una avería: el ámbar dice
+ * "ojo con esto" y el gris del texto lo mantiene por debajo del número, que
+ * sigue siendo lo que se viene a mirar.
+ */
+.mkt-closed {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 10px;
+  padding: 4px 11px;
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500;
+  line-height: 1.45;
+  color: var(--muted);
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.mkt-closed::before {
+  content: ''; flex: none;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-orange);
+}
+/* El display:inline-flex de arriba gana al display:none que el navegador le
+   pone a [hidden], así que sin esta regla el aviso no se podría esconder — y
+   esconderse es justo lo que tiene que hacer con el mercado abierto. */
+.mkt-closed[hidden] { display: none; }
+
 /* ───────────────────── Aparición al hacer scroll ─────────────────────
  *
  * La clase .reveal-el la pone assets/reveal.js, y solo cuando puede

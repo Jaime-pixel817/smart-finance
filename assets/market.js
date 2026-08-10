@@ -317,6 +317,7 @@
         changeEl: document.getElementById('fxChartChange'),
         changeClass: 'fx-chart-change',
         noteEl: document.getElementById('fxChartNote'),
+        closedEl: document.getElementById('fxChartClosed'),
         pairLabelEl: document.getElementById('fxChartPair'),
         pairTabs: document.getElementById('fxTabs'),
         rangeTabs: document.getElementById('fxRangeTabs'),
@@ -333,6 +334,7 @@
         changeEl: document.getElementById('stockChartChange'),
         changeClass: 'fx-chart-change',
         noteEl: document.getElementById('stockChartNote'),
+        closedEl: document.getElementById('stockChartClosed'),
         pairLabelEl: document.getElementById('stockChartPair'),
         pairTabs: document.getElementById('stockTabs'),
         rangeTabs: document.getElementById('stockRangeTabs'),
@@ -347,6 +349,7 @@
         changeEl: document.getElementById('vixChartChange'),
         changeClass: 'fx-chart-change',
         noteEl: document.getElementById('vixChartNote'),
+        closedEl: document.getElementById('vixChartClosed'),
         rangeTabs: document.getElementById('vixRangeTabs'),
         pair: 'VIX', range: '1D', invert: true
       });

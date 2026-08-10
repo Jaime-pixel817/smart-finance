@@ -139,6 +139,9 @@
             <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
           </div>
         </div>
+        <!-- Aviso de mercado cerrado. Nace escondido y lo enciende
+             assets/charts.js; ver assets/market-hours.js. -->
+        <p class="mkt-closed" id="stockChartClosed" hidden></p>
         <div class="fx-chart-canvas-wrap">
           <canvas id="stockChartCanvas" height="90"></canvas>
         </div>
@@ -173,6 +176,7 @@
             <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
           </div>
         </div>
+        <p class="mkt-closed" id="vixChartClosed" hidden></p>
         <div class="fx-chart-canvas-wrap">
           <canvas id="vixChartCanvas" height="90"></canvas>
         </div>
@@ -212,6 +216,7 @@
             <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
           </div>
         </div>
+        <p class="mkt-closed" id="fxChartClosed" hidden></p>
         <div class="fx-chart-canvas-wrap">
           <canvas id="fxChartCanvas" height="90"></canvas>
         </div>
@@ -296,6 +301,9 @@ window.ARTICLE_I18N = {
 <script src="/assets/article.js"></script>
 <!-- source.js antes que los demás: es quien redacta el pie de cada bloque. -->
 <script src="/assets/source.js"></script>
+<!-- market-hours.js antes que charts.js: es quien decide si el mercado está
+     cerrado, y el panel lo pregunta ya en su primera carga. -->
+<script src="/assets/market-hours.js"></script>
 <script src="/assets/charts.js"></script>
 <script src="/assets/market.js"></script>
 </body>

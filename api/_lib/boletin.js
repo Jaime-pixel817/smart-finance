@@ -8,6 +8,11 @@
 // cada envío generaría las opiniones otra vez, con otro costo y otro texto.
 
 const { tipDelDia } = require('./tips');
+// El MISMO módulo que usa la gráfica del sitio para decidir si el mercado está
+// cerrado. No es una copia: si el correo y la web usaran criterios distintos,
+// un domingo el sitio diría "último cierre: viernes" y el boletín seguiría
+// presentando el mismo número como si fuera de hoy.
+const horario = require('../../assets/market-hours');
 
 // Respaldo del consejo motivacional que abre el correo. La sección nunca puede
 // salir vacía: un hueco arriba de todo rompe el correo visualmente y es peor
@@ -112,7 +117,10 @@ function resumirSerie(datos) {
   return {
     valor: ultimo,
     cambio: ultimo - primero,
-    cambioPct: ((ultimo - primero) / primero) * 100
+    cambioPct: ((ultimo - primero) / primero) * 100,
+    // Cuándo fue ese último punto. Antes se tiraba, y era justo el dato que
+    // faltaba para poder decir de qué sesión son los números.
+    ultimoTs: puntos[puntos.length - 1][0]
   };
 }
 
@@ -227,6 +235,11 @@ const TEXTOS = {
     miLectura: 'My take',
     leerMas: 'Read the full story →',
     mercadoTitulo: 'How the dollar opened',
+    // El título de repuesto para cuando el mercado de divisas está cerrado.
+    // "How the dollar opened" un domingo es falso de entrada: no abrió. No se
+    // pide perdón por ello —el mercado cierra el fin de semana, es lo normal—,
+    // simplemente se dice qué se está mirando.
+    mercadoTituloCerrado: 'The dollar at its last close',
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Fear index (VIX)',
     tipTitulo: "Today you'll learn",
@@ -243,6 +256,7 @@ const TEXTOS = {
     miLectura: 'Mi lectura',
     leerMas: 'Leer la nota completa →',
     mercadoTitulo: 'Así amaneció el dólar',
+    mercadoTituloCerrado: 'El dólar, en su último cierre',
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Índice del miedo (VIX)',
     tipTitulo: 'Hoy aprenderás',
@@ -258,20 +272,36 @@ const TEXTOS = {
 const URL_LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
 const URL_TIKTOK = 'https://www.tiktok.com/@smart.financee';
 
+// El correo entero se fecha en hora de Ciudad de México: es donde vive quien lo
+// escribe y la mayoría de quien lo lee, y el cron sale a las 8:00 de allá.
+const HUSO = 'America/Mexico_City';
+
 function fechaLarga(fecha, idioma) {
   const texto = fecha.toLocaleDateString(idioma === 'es' ? 'es-MX' : 'en-US', {
-    timeZone: 'America/Mexico_City', weekday: 'long', day: 'numeric', month: 'long'
+    timeZone: HUSO, weekday: 'long', day: 'numeric', month: 'long'
   });
   // Solo la primera letra: en español los días y meses van en minúscula, y un
   // text-transform:capitalize dejaba "Jueves, 30 De Julio".
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
-function bloqueMercado(mercado, t) {
+/*
+ * pies = { fx, vix }: "Último cierre · viernes 7 de agosto", o cadena vacía si
+ * ese mercado estaba abierto cuando salió el correo.
+ *
+ * VA POR CELDA Y NO UNA SOLA VEZ ARRIBA, porque los dos números no cierran a la
+ * vez y casi nunca coinciden. El cron sale a las 8:00 de México, o sea antes de
+ * que abra la bolsa de Estados Unidos (8:30): en un martes cualquiera el
+ * USD/MXN va en vivo —el mercado de divisas opera casi 24 h— mientras que el
+ * VIX que se enseña es el del cierre de ayer. Un aviso único diciendo "el
+ * mercado está cerrado" sería mentira sobre el dólar; uno por celda dice la
+ * verdad sobre cada uno.
+ */
+function bloqueMercado(mercado, t, pies) {
   // invertirColor sirve para el VIX: que suba significa MÁS miedo, así que se
   // pinta en rojo aunque el número vaya hacia arriba. Es el mismo criterio que
   // usa el panel del VIX en el sitio.
-  const celda = (etiqueta, resumen, decimales, invertirColor) => {
+  const celda = (etiqueta, resumen, decimales, invertirColor, pie) => {
     if (!resumen) {
       return `<td width="50%" style="padding:10px 12px;font-family:${FUENTE};font-size:13px;color:${GRIS};">
         <div style="text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:${GRIS};">${escapar(etiqueta)}</div>
@@ -280,15 +310,21 @@ function bloqueMercado(mercado, t) {
     const sube = resumen.cambio >= 0;
     const color = (invertirColor ? !sube : sube) ? VERDE : ROJO;
     const signo = sube ? '+' : '';
+    // El pie va en el gris de siempre y sin adorno: es una precisión sobre de
+    // cuándo es el número, no una advertencia de que algo salió mal.
+    const linea = pie
+      ? `<div style="font-size:11px;color:${GRIS};padding-top:6px;">${escapar(pie)}</div>`
+      : '';
     return `<td width="50%" style="padding:10px 12px;font-family:${FUENTE};">
       <div style="text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:${GRIS};">${escapar(etiqueta)}</div>
       <div style="font-size:22px;font-weight:700;color:${TINTA};padding-top:2px;">${fmt(resumen.valor, decimales)}</div>
       <div style="font-size:13px;font-weight:600;color:${color};padding-top:2px;">${signo}${fmt(resumen.cambio, decimales)} (${signo}${resumen.cambioPct.toFixed(2)}%)</div>
+      ${linea}
     </td>`;
   };
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${LINEA};border-radius:10px;background:#FFFFFF;">
-    <tr>${celda(t.fxEtiqueta, mercado.usdmxn, 4, false)}${celda(t.vixEtiqueta, mercado.vix, 2, true)}</tr>
+    <tr>${celda(t.fxEtiqueta, mercado.usdmxn, 4, false, pies.fx)}${celda(t.vixEtiqueta, mercado.vix, 2, true, pies.vix)}</tr>
   </table>`;
 }
 
@@ -433,6 +469,34 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   );
   const noticia = contenido.noticia || null;
 
+  /*
+   * ¿ESTÁ CERRADO EL MERCADO? Lo decide assets/market-hours.js con la marca de
+   * tiempo del último punto de cada serie, que es exactamente el mismo cálculo
+   * que hace la gráfica del sitio.
+   *
+   * El "ahora" es la fecha del propio boletín y no Date.now(): así un ensayo
+   * puede fingir que es domingo y ver el correo tal cual saldría ese día, sin
+   * tener que esperar al domingo.
+   */
+  const ahora = (contenido.fecha instanceof Date ? contenido.fecha : new Date()).getTime();
+  const cierreDe = (resumen) =>
+    horario.estado(resumen && resumen.ultimoTs, { ahora, timeZone: HUSO });
+  const pieDe = (est) =>
+    est.cerrado ? horario.pieCierre(est, { es, timeZone: HUSO }) : '';
+
+  const cierreFx = cierreDe(contenido.mercado.usdmxn);
+  const cierreVix = cierreDe(contenido.mercado.vix);
+  const pies = { fx: pieDe(cierreFx), vix: pieDe(cierreVix) };
+  // La misma fecha suelta, sin la etiqueta, para la versión de texto: ahí la
+  // línea la encabeza el símbolo y la etiqueta va en minúscula dentro de la
+  // frase. Se saca aparte en vez de pasar el pie por toLowerCase() porque eso
+  // se comía también la fecha y dejaba "last close · friday, august 7".
+  const cuandoCerro = (est) =>
+    est.cerrado ? horario.cuando(est, { es, timeZone: HUSO }) : '';
+  // El título habla del dólar, así que lo manda el dólar. El VIX se explica en
+  // su propia celda.
+  const tituloMercado = cierreFx.cerrado ? t.mercadoTituloCerrado : t.mercadoTitulo;
+
   const html = `<!doctype html>
 <html lang="${idioma === 'es' ? 'es' : 'en'}">
 <head>
@@ -488,10 +552,12 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     ${bloqueNoticia(noticia, idioma, t)}
   </td></tr>
 
-  <!-- 4. Así amaneció el dólar: USD/MXN y el VIX al lado, en la misma fila. -->
+  <!-- 4. Así amaneció el dólar: USD/MXN y el VIX al lado, en la misma fila.
+          Con el mercado cerrado el título cambia y cada celda dice de qué
+          sesión es su número. -->
   <tr><td style="padding:26px 24px 6px;">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(t.mercadoTitulo)}</div>
-    ${bloqueMercado(contenido.mercado, t)}
+    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(tituloMercado)}</div>
+    ${bloqueMercado(contenido.mercado, t, pies)}
   </td></tr>
 
   <!-- 5. Hoy aprenderás: el título de la lección del día y un teaser corto. -->
@@ -549,13 +615,21 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     lineas.push(t.sinDatos);
   }
 
+  // Misma información que en el HTML, incluido el aviso de cierre: quien lee la
+  // versión de texto tiene que leer el mismo correo, no uno con menos matices.
+  const etiquetaCierre = es ? 'último cierre' : 'last close';
+  const conPie = (linea, est) => {
+    const q = cuandoCerro(est);
+    return q ? linea + ' — ' + etiquetaCierre + ': ' + q : linea;
+  };
+
   lineas.push(
-    '', t.mercadoTitulo.toUpperCase(),
+    '', tituloMercado.toUpperCase(),
     contenido.mercado.usdmxn
-      ? `USD/MXN ${fmt(contenido.mercado.usdmxn.valor, 4)} (${contenido.mercado.usdmxn.cambioPct >= 0 ? '+' : ''}${contenido.mercado.usdmxn.cambioPct.toFixed(2)}%)`
+      ? conPie(`USD/MXN ${fmt(contenido.mercado.usdmxn.valor, 4)} (${contenido.mercado.usdmxn.cambioPct >= 0 ? '+' : ''}${contenido.mercado.usdmxn.cambioPct.toFixed(2)}%)`, cierreFx)
       : 'USD/MXN ' + t.sinDatos,
     contenido.mercado.vix
-      ? `VIX ${fmt(contenido.mercado.vix.valor, 2)} (${contenido.mercado.vix.cambioPct >= 0 ? '+' : ''}${contenido.mercado.vix.cambioPct.toFixed(2)}%)`
+      ? conPie(`VIX ${fmt(contenido.mercado.vix.valor, 2)} (${contenido.mercado.vix.cambioPct >= 0 ? '+' : ''}${contenido.mercado.vix.cambioPct.toFixed(2)}%)`, cierreVix)
       : 'VIX ' + t.sinDatos,
     '', t.tipTitulo.toUpperCase(), tip.titulo, teaser, urlTip,
     '', t.seguir.toUpperCase(),

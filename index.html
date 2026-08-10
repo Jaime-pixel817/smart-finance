@@ -1139,6 +1139,10 @@
               <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
             </div>
           </div>
+          <!-- Aviso de mercado cerrado. Nace escondido y lo enciende
+               assets/charts.js cuando el último dato lleva demasiado tiempo
+               parado; ver assets/market-hours.js. -->
+          <p class="mkt-closed" id="fxChartClosed" hidden></p>
           <div class="fx-chart-canvas-wrap">
             <canvas id="fxChartCanvas" height="90"></canvas>
           </div>
@@ -1166,6 +1170,7 @@
                 <button class="fx-range-tab" type="button" data-range="1Y">1Y</button>
               </div>
             </div>
+            <p class="mkt-closed" id="vixClosed" hidden></p>
             <div class="vix-canvas-wrap">
               <canvas id="vixChartCanvas" height="80"></canvas>
             </div>
@@ -1452,6 +1457,9 @@
      al arrancar, así que los módulos tienen que estar ya cargados.
      source.js va primero de todos: los demás lo usan para escribir su pie. -->
 <script src="/assets/source.js"></script>
+<!-- market-hours.js antes que charts.js: es quien decide si el mercado está
+     cerrado, y el panel lo pregunta ya en su primera carga. -->
+<script src="/assets/market-hours.js"></script>
 <script src="/assets/news.js"></script>
 <script src="/assets/charts.js"></script>
 <script src="/assets/macro.js"></script>
@@ -1738,6 +1746,7 @@
     changeEl: document.getElementById('fxChartChange'),
     changeClass: 'fx-chart-change',
     noteEl: document.getElementById('fxChartNote'),
+    closedEl: document.getElementById('fxChartClosed'),
     pairLabelEl: document.getElementById('fxChartPair'),
     pairTabs: document.getElementById('fxTabs'),
     rangeTabs: document.getElementById('fxRangeTabs'),
@@ -1752,6 +1761,7 @@
     changeEl: document.getElementById('vixChange'),
     changeClass: 'vix-change',
     noteEl: document.getElementById('vixAsOf'),
+    closedEl: document.getElementById('vixClosed'),
     rangeTabs: document.getElementById('vixRangeTabs'),
     pair: 'VIX', range: '1D', invert: true
   });
