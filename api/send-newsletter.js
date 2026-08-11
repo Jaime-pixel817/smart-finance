@@ -99,6 +99,14 @@ module.exports = async function handler(req, res) {
         // muestra el prefijo y el host, nunca el token.
         redis: require('./_lib/redis').estadoConexion(),
         remitente: resend.remitente(),
+        // Vacío significa que NEWSLETTER_REPLY_TO no está puesta y las
+        // respuestas caen en una dirección sin buzón. Se enseña aquí porque es
+        // invisible desde fuera: no se nota hasta que alguien contesta.
+        respuestaA: resend.respuestaA(),
+        cabeceras: resend.armarMensaje({
+          para: 'ejemplo@correo.com', asunto: muestra.asunto, html: '',
+          listUnsubscribeUrl: urlSitio() + '/api/unsubscribe?token=EJEMPLO&email=ejemplo%40correo.com'
+        }).headers,
         confirmados: total,
         seEnviariaA: destinatarios.length,
         gancho: contenido.gancho,

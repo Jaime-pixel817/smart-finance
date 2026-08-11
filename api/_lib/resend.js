@@ -6,7 +6,27 @@
 //
 // RESEND_API_KEY vive solo en process.env y nunca sale hacia el cliente.
 
-const REMITENTE_POR_DEFECTO = 'Smart Finance <boletin@smartfinance.lat>';
+// El nombre que se lee en la bandeja, antes que el asunto. Va la persona
+// primero y la marca después: quien se suscribió lo hizo por Jaime, y un
+// remitente con nombre propio se reconoce (y se marca menos como spam) mejor
+// que uno que solo dice la marca.
+//
+// Sin comillas a propósito. "Jaime Sandoval - Smart Finance" es una frase
+// válida sin entrecomillar según el RFC 5322 —el guion y los espacios están
+// permitidos ahí—, y así ningún cliente corre el riesgo de pintar las comillas
+// como parte del nombre. Si algún día el nombre lleva una coma o un punto
+// suelto, entonces SÍ hay que entrecomillarlo o el correo se parte en dos
+// destinatarios.
+const REMITENTE_POR_DEFECTO = 'Jaime Sandoval - Smart Finance <boletin@smartfinance.lat>';
+
+// A dónde van las respuestas. Vacío = no se manda la cabecera y las respuestas
+// caen en boletin@smartfinance.lat, que HOY NO RECIBE NADA: el dominio no tiene
+// registro MX, así que quien conteste el boletín recibe un rebote y nosotros no
+// nos enteramos. Se configura con NEWSLETTER_REPLY_TO en Vercel apuntando a un
+// buzón que se lea de verdad.
+function respuestaA() {
+  return String(process.env.NEWSLETTER_REPLY_TO || '').trim();
+}
 
 // El plan gratis de Resend permite 100 correos al día. El envío se corta ahí y
 // lo avisa en los logs en vez de fallar a medias o gastar de más.
@@ -24,28 +44,49 @@ function hayCredencial() {
   return !!process.env.RESEND_API_KEY;
 }
 
-async function enviarCorreo({ para, asunto, html, texto, listUnsubscribeUrl }) {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY no está configurada');
-  }
+/*
+ * Un correo listo para la API de Resend. Lo arman IGUAL el envío suelto y el
+ * envío por lote: antes cada uno montaba su objeto por su cuenta y las
+ * cabeceras estaban escritas dos veces, que es justo la clase de duplicado que
+ * termina en un boletín donde la baja con un clic funciona por un camino y por
+ * el otro no.
+ *
+ * Cabeceras de baja con un clic (RFC 8058). Gmail y Yahoo las EXIGEN desde
+ * febrero de 2024 a quien manda correo masivo: sin ellas el correo se filtra
+ * más, y con ellas los clientes pintan su propio botón de "cancelar
+ * suscripción" en vez de que la gente use el de "esto es spam", que es lo que
+ * de verdad hunde la reputación del dominio.
+ *
+ * No se agrega la variante mailto: de List-Unsubscribe a propósito. El RFC la
+ * admite, pero apuntaría a una dirección de smartfinance.lat, y el dominio no
+ * tiene MX: sería un botón de baja que rebota, peor que no ofrecerlo.
+ */
+function armarMensaje({ para, asunto, html, texto, listUnsubscribeUrl }) {
+  const item = { from: remitente(), to: [para], subject: asunto, html };
+  if (texto) item.text = texto;
 
-  const cuerpo = {
-    from: remitente(),
-    to: [para],
-    subject: asunto,
-    html
-  };
-  if (texto) cuerpo.text = texto;
+  // Reply-To en TODOS los correos, no solo en el boletín: la confirmación del
+  // alta es el primer correo que recibe alguien y es donde más probable es que
+  // conteste con una duda.
+  const responder = respuestaA();
+  if (responder) item.reply_to = responder;
 
-  // Cabeceras de baja con un clic. Gmail y Outlook las usan para pintar su
-  // propio botón de "cancelar suscripción", que es lo que esperan los filtros
-  // de correo masivo y ayuda a no caer en spam.
   if (listUnsubscribeUrl) {
-    cuerpo.headers = {
+    item.headers = {
       'List-Unsubscribe': '<' + listUnsubscribeUrl + '>',
       'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
     };
   }
+
+  return item;
+}
+
+async function enviarCorreo(mensaje) {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY no está configurada');
+  }
+
+  const cuerpo = armarMensaje(mensaje);
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -85,17 +126,7 @@ async function enviarLote(mensajes) {
   if (!mensajes.length) return { enviados: 0 };
   if (mensajes.length > 100) throw new Error('el lote de Resend admite 100 correos como máximo');
 
-  const cuerpo = mensajes.map((m) => {
-    const item = { from: remitente(), to: [m.para], subject: m.asunto, html: m.html };
-    if (m.texto) item.text = m.texto;
-    if (m.listUnsubscribeUrl) {
-      item.headers = {
-        'List-Unsubscribe': '<' + m.listUnsubscribeUrl + '>',
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
-      };
-    }
-    return item;
-  });
+  const cuerpo = mensajes.map((m) => armarMensaje(m));
 
   const res = await fetch('https://api.resend.com/emails/batch', {
     method: 'POST',
@@ -125,7 +156,9 @@ const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 module.exports = {
   enviarCorreo,
   enviarLote,
+  armarMensaje,
   remitente,
+  respuestaA,
   hayCredencial,
   dormir,
   LIMITE_DIARIO_PLAN_GRATIS,

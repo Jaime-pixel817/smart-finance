@@ -164,7 +164,17 @@ const TAKE_SYSTEM = [
   '  "Soybean tariffs squeeze farmers + budget rule" is wrong (shorthand, and it staples on the',
   '  lesson). "What the soybean tariffs mean for your grocery bill" is right.',
   '- Different every day. Never a fixed formula, never "Smart Finance daily" or the date.',
-  '- No clickbait, no invented numbers, no emoji, no exclamation marks, no ALL CAPS.'
+  '- No clickbait, no invented numbers, no emoji, no exclamation marks, no ALL CAPS.',
+  // El asunto es el texto que más pesa en un filtro de spam, y el vocabulario
+  // de la estafa financiera es justo el que estos filtros tienen memorizado.
+  // Describir la noticia nunca necesita esas palabras: son de promesa, no de
+  // reporte. La lista es de FORMA, no de tema — hablar de un rendimiento o de
+  // una ganancia que la noticia reporta está bien; prometérsela al lector no.
+  '- Never the vocabulary of financial spam, in either language: no "guaranteed", "risk-free",',
+  '  "free", "urgent", "act now", "don\'t miss out", "make money", "get rich", "double your",',
+  '  "garantizado", "sin riesgo", "gratis", "urgente", "no te lo pierdas", "gana dinero",',
+  '  "multiplica tu dinero", "oportunidad única". No "$$$", no "100%", no promise of a return.',
+  '  You are reporting what happened, not selling anything. If a line sounds like an ad, rewrite it.'
 ].join('\n');
 
 const TAKES_SCHEMA = {
