@@ -13,6 +13,9 @@ const { tipDelDia } = require('./tips');
 // un domingo el sitio diría "último cierre: viernes" y el boletín seguiría
 // presentando el mismo número como si fuera de hoy.
 const horario = require('../../assets/market-hours');
+// Dibuja la gráfica del dólar y la deja publicada. Vive aparte porque no tiene
+// nada que ver con armar texto: es rasterizar píxeles.
+const graficaDolar = require('./grafica');
 
 // Respaldo del consejo motivacional que abre el correo. La sección nunca puede
 // salir vacía: un hueco arriba de todo rompe el correo visualmente y es peor
@@ -138,7 +141,15 @@ async function datosDeMercado(base) {
     })
   ]);
 
-  return { usdmxn: resumirSerie(fx), vix: resumirSerie(vix) };
+  return {
+    mercado: { usdmxn: resumirSerie(fx), vix: resumirSerie(vix) },
+    // La serie completa del dólar, que es la que dibuja la gráfica del correo.
+    // Va aparte del resumen y no dentro de él porque `mercado` se devuelve
+    // entero en la respuesta del ensayo: meter aquí 288 puntos convertiría esa
+    // respuesta en un muro de números cada vez que se quiere revisar el correo
+    // del día.
+    serieFx: fx && Array.isArray(fx.points) ? fx.points : null
+  };
 }
 
 // ---- Contenido completo ----------------------------------------------------
@@ -159,7 +170,7 @@ async function construirContenido(fecha = new Date()) {
   // Una sola petición trae el titular, su opinión, el consejo del inicio y el
   // gancho: los cuatro salen de la misma llamada a Anthropic que /api/news ya
   // cachea, así que el boletín no dispara ni una generación extra.
-  const [deNoticias, mercado] = await Promise.all([
+  const [deNoticias, deMercado] = await Promise.all([
     pedirJSON(base + '/api/news', MS_NOTICIAS)
       .then((d) => {
         const items = d && Array.isArray(d.items) ? d.items : [];
@@ -178,10 +189,28 @@ async function construirContenido(fecha = new Date()) {
     datosDeMercado(base)
   ]);
 
+  /*
+   * La gráfica se dibuja AQUÍ, no al renderizar y no al abrir el correo.
+   *
+   * Aquí es donde acaban de llegar los puntos, y son los mismos con los que se
+   * calculó el resumen numérico de arriba. Dibujar en este punto es lo que
+   * garantiza que la curva y las cifras impresas al lado cuenten la misma
+   * sesión — que es todo el motivo por el que no se genera bajo demanda.
+   *
+   * Se dibuja UNA vez por envío aunque el boletín salga en dos idiomas: la
+   * imagen no lleva texto, así que la misma sirve para los dos. Y como la URL
+   * es idéntica para toda la lista, el proxy de Gmail la descarga una sola vez
+   * para todos los destinatarios.
+   */
+  const grafica = deMercado.serieFx
+    ? await graficaDolar.publicar(deMercado.serieFx, fecha, urlSitio())
+    : null;
+
   return {
     fecha,
     noticia: deNoticias.noticia,
-    mercado,
+    mercado: deMercado.mercado,
+    grafica,
     impulso: parBilingue(deNoticias.impulso, IMPULSO_RESPALDO),
     gancho: parBilingue(deNoticias.gancho, GANCHO_RESPALDO),
     tip: tipDelDia(fecha)
@@ -244,6 +273,13 @@ const TEXTOS = {
     vixEtiqueta: 'Fear index (VIX)',
     tipTitulo: "Today you'll learn",
     tipCta: 'Read the lesson →',
+    // Texto alternativo de la gráfica. Lleva los números DENTRO a propósito:
+    // Outlook bloquea las imágenes por defecto y lo que se lee entonces es
+    // esto, así que tiene que decir lo mismo que dice la curva.
+    graficaAlt: 'Chart of the dollar against the peso {periodo}: from {inicio} to {fin} ({cambio}).',
+    graficaPeriodoAbierto: 'over the last 24 hours',
+    graficaPeriodoCerrado: 'in its last session',
+    despedida: 'Until tomorrow,',
     seguir: 'Follow along',
     baja: 'Unsubscribe',
     bajaFrase: 'You are getting this because you confirmed your subscription to the Smart Finance daily.',
@@ -261,6 +297,10 @@ const TEXTOS = {
     vixEtiqueta: 'Índice del miedo (VIX)',
     tipTitulo: 'Hoy aprenderás',
     tipCta: 'Leer la lección →',
+    graficaAlt: 'Gráfica del dólar frente al peso {periodo}: de {inicio} a {fin} ({cambio}).',
+    graficaPeriodoAbierto: 'en las últimas 24 horas',
+    graficaPeriodoCerrado: 'en su última sesión',
+    despedida: 'Hasta mañana,',
     seguir: 'Sígueme',
     baja: 'Darse de baja',
     bajaFrase: 'Recibes este correo porque confirmaste tu suscripción al boletín diario de Smart Finance.',
@@ -283,6 +323,78 @@ function fechaLarga(fecha, idioma) {
   // Solo la primera letra: en español los días y meses van en minúscula, y un
   // text-transform:capitalize dejaba "Jueves, 30 De Julio".
   return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+// Quien firma el correo. Una sola constante para el HTML y para la versión de
+// texto: son el mismo nombre y no pueden decir cosas distintas.
+const FIRMA = 'Jaime Sandoval';
+
+/*
+ * EL ENCABEZADO DE CADA BLOQUE, con su ícono.
+ *
+ * Va en tabla de dos celdas y no como un <img> dentro del texto. Un ícono
+ * alineado con vertical-align se cae medio píxel para arriba en Gmail, otro
+ * medio para abajo en Outlook y se ve torcido justo en las cuatro líneas que
+ * más se miran; en celdas separadas con valign="middle" queda alineado en
+ * todos, que es la razón por la que el correo entero está maquetado en tablas.
+ *
+ * EL alt VA VACÍO Y ES CORRECTO. Los cuatro íconos no dicen nada que no diga
+ * el título que tienen al lado: son una ayuda para distinguir las secciones de
+ * un vistazo. Ponerles texto alternativo descriptivo haría que un lector de
+ * pantalla leyera "ícono de amanecer, Para arrancar el día" — la misma
+ * información dos veces. La regla de que toda imagen lleve alt existe para que
+ * no se pierda información dentro de una imagen, y aquí no hay ninguna: por eso
+ * la gráfica del dólar sí lleva un alt largo y estos no llevan ninguno.
+ */
+function etiqueta(texto, icono, sitio, opciones) {
+  const o = opciones || {};
+  const tamano = o.tamano || 11;
+  const espaciado = o.espaciado || '.1em';
+  const abajo = o.abajo === undefined ? 10 : o.abajo;
+  const celda = `padding-bottom:${abajo}px;`;
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+    <td width="16" valign="middle" style="${celda}line-height:0;padding-right:7px;">
+      <img src="${escapar(sitio)}/assets/email/${escapar(icono)}.png" width="16" height="16" alt="" style="display:block;border:0;">
+    </td>
+    <td valign="middle" style="${celda}font-family:${FUENTE};font-size:${tamano}px;font-weight:700;letter-spacing:${espaciado};text-transform:uppercase;color:${VERDE};">${escapar(texto)}</td>
+  </tr></table>`;
+}
+
+/*
+ * La gráfica del dólar.
+ *
+ * Va DEBAJO de las cifras, no encima. Con las imágenes bloqueadas —que es como
+ * llega a Outlook por defecto— lo primero que se lee entonces son los números,
+ * y el hueco de la imagen queda al final del bloque en vez de partirlo en dos.
+ *
+ * width/height en atributos Y en estilo: el atributo es lo único que entiende
+ * Outlook, y sirve además para que reserve el sitio antes de cargar; el estilo
+ * con max-width y height:auto es lo que la hace encogerse en un móvil, donde la
+ * columna mide menos de 552 px.
+ *
+ * Si no hay gráfica (falló el dibujo, o Redis no contestó) no se pinta nada.
+ * Nunca un <img> roto: los números ya están arriba, así que no se pierde dato.
+ */
+function bloqueGrafica(g, alt) {
+  if (!g || !g.url) return '';
+  return `<div style="padding-top:12px;">
+    <img src="${escapar(g.url)}" width="${g.ancho}" height="${g.alto}" alt="${escapar(alt)}"
+      style="display:block;width:100%;max-width:${g.ancho}px;height:auto;border:1px solid ${LINEA};border-radius:10px;">
+  </div>`;
+}
+
+// El texto alternativo de la gráfica, con los datos dentro. Se arma a partir
+// del mismo resumen que pintan las celdas de al lado.
+function altDeGrafica(resumen, t, cerrado) {
+  if (!resumen) return '';
+  const apertura = resumen.valor - resumen.cambio;
+  const signo = resumen.cambioPct >= 0 ? '+' : '';
+  return t.graficaAlt
+    .replace('{periodo}', cerrado ? t.graficaPeriodoCerrado : t.graficaPeriodoAbierto)
+    .replace('{inicio}', fmt(apertura, 4))
+    .replace('{fin}', fmt(resumen.valor, 4))
+    .replace('{cambio}', signo + resumen.cambioPct.toFixed(2) + '%');
 }
 
 /*
@@ -438,13 +550,15 @@ function bloqueBotones(t) {
 /*
  * EL ORDEN DEL CORREO, de arriba a abajo:
  *
- *   1. Gancho      — titular corto y distinto cada día. Es también el asunto.
- *   2. Impulso     — la frase motivacional.
- *   3. La noticia  — UNA, la más relevante, con mi lectura.
- *   4. El dólar    — USD/MXN y el VIX al lado.
- *   5. La lección  — teaser de la lección del día, con su link.
- *   6. Botones     — LinkedIn y TikTok.
- *   7. La baja     — obligatoria por ley, en todos los envíos.
+ *   1. La marca    — el nombre, tratado como en el sitio. Solo tipografía.
+ *   2. Gancho      — titular corto y distinto cada día. Es también el asunto.
+ *   3. Impulso     — la frase motivacional.
+ *   4. La noticia  — UNA, la más relevante, con mi lectura.
+ *   5. El dólar    — USD/MXN y el VIX al lado, y la gráfica de la sesión.
+ *   6. La lección  — teaser de la lección del día, con su link.
+ *   7. Botones     — LinkedIn y TikTok.
+ *   8. La firma    — quién escribe esto.
+ *   9. La baja     — obligatoria por ley, en todos los envíos.
  *
  * Nada más. Las otras tres noticias salieron: un correo diario se lee en la
  * fila del transporte, y cuatro titulares con opinión cada uno era ya un
@@ -496,6 +610,9 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   // El título habla del dólar, así que lo manda el dólar. El VIX se explica en
   // su propia celda.
   const tituloMercado = cierreFx.cerrado ? t.mercadoTituloCerrado : t.mercadoTitulo;
+  // El alt de la gráfica dice el mismo periodo que el título de la sección:
+  // "las últimas 24 horas" un domingo sería falso por la misma razón.
+  const altGrafica = altDeGrafica(contenido.mercado.usdmxn, t, cierreFx.cerrado);
 
   const html = `<!doctype html>
 <html lang="${idioma === 'es' ? 'es' : 'en'}">
@@ -516,20 +633,30 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
 
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#FFFFFF;border-radius:14px;overflow:hidden;border:1px solid ${LINEA};">
 
-  <!-- 1. EL GANCHO. La marca y la fecha se quedan pequeñas encima: quien abre
-          el correo ya sabe de quién es, así que lo grande tiene que ser de qué
-          va el de hoy, no el logo otra vez. -->
-  <tr><td style="padding:22px 24px 20px;border-bottom:1px solid ${LINEA};">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${GRIS};">
+  <!-- 1. LA MARCA. El nombre tratado como en el sitio: serif, "Finance" en
+          verde. Es TEXTO, no una imagen — así se ve igual con las imágenes
+          bloqueadas, no suma un solo byte de descarga y no le da a ningún
+          filtro de spam una imagen más que contar. La serif de sistema hace
+          aquí el papel de Fraunces, que no carga en correo. -->
+  <tr><td align="center" style="padding:22px 24px 18px;border-bottom:1px solid ${LINEA};">
+    <div style="font-family:${FUENTE_TITULO};font-size:23px;font-weight:700;letter-spacing:-0.01em;line-height:1;color:${TINTA};">
       Smart <span style="color:${VERDE};">Finance</span>
-      &nbsp;·&nbsp;${escapar(fechaLarga(contenido.fecha, idioma))}
+    </div>
+  </td></tr>
+
+  <!-- 2. EL GANCHO. La fecha se queda pequeña encima: quien abre el correo ya
+          sabe de quién es —lo acaba de leer arriba—, así que lo grande tiene
+          que ser de qué va el de hoy. -->
+  <tr><td style="padding:20px 24px 20px;border-bottom:1px solid ${LINEA};">
+    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${GRIS};">
+      ${escapar(fechaLarga(contenido.fecha, idioma))}
     </div>
     <div style="font-family:${FUENTE_TITULO};font-size:25px;line-height:1.28;font-weight:700;color:${TINTA};padding-top:10px;">
       ${escapar(gancho)}
     </div>
   </td></tr>
 
-  <!-- 2. Arranque motivacional. Es el único bloque del correo con fondo propio:
+  <!-- 3. Arranque motivacional. Es el único bloque del correo con fondo propio:
           el tinte, la comilla y la cursiva lo separan del resto sin usar
           imágenes, que la mayoría de los clientes bloquea hasta que el lector
           las permite. Maquetado en tabla de dos celdas porque flexbox no
@@ -539,30 +666,31 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
       <tr>
         <td width="34" valign="top" style="padding:14px 0 16px 16px;font-family:${FUENTE_TITULO};font-size:38px;line-height:32px;color:${VERDE};">&ldquo;</td>
         <td valign="top" style="padding:16px 18px 16px 4px;">
-          <div style="font-family:${FUENTE};font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${VERDE};padding-bottom:6px;">${escapar(t.impulsoTitulo)}</div>
+          ${etiqueta(t.impulsoTitulo, 'consejo', sitio, { tamano: 10, espaciado: '.12em', abajo: 6 })}
           <div style="font-family:${FUENTE_TITULO};font-style:italic;font-size:16px;line-height:1.5;color:${TINTA};">${escapar(impulso)}</div>
         </td>
       </tr>
     </table>
   </td></tr>
 
-  <!-- 3. La noticia del día. Una. -->
+  <!-- 4. La noticia del día. Una. -->
   <tr><td style="padding:26px 24px 6px;">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:12px;">${escapar(t.noticiaTitulo)}</div>
+    ${etiqueta(t.noticiaTitulo, 'noticia', sitio, { abajo: 12 })}
     ${bloqueNoticia(noticia, idioma, t)}
   </td></tr>
 
-  <!-- 4. Así amaneció el dólar: USD/MXN y el VIX al lado, en la misma fila.
-          Con el mercado cerrado el título cambia y cada celda dice de qué
-          sesión es su número. -->
+  <!-- 5. Así amaneció el dólar: USD/MXN y el VIX al lado, en la misma fila, y
+          debajo la gráfica de la sesión. Con el mercado cerrado el título
+          cambia y cada celda dice de qué sesión es su número. -->
   <tr><td style="padding:26px 24px 6px;">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(tituloMercado)}</div>
+    ${etiqueta(tituloMercado, 'dolar', sitio, {})}
     ${bloqueMercado(contenido.mercado, t, pies)}
+    ${bloqueGrafica(contenido.grafica, altGrafica)}
   </td></tr>
 
-  <!-- 5. Hoy aprenderás: el título de la lección del día y un teaser corto. -->
+  <!-- 6. Hoy aprenderás: el título de la lección del día y un teaser corto. -->
   <tr><td style="padding:26px 24px 6px;">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:8px;">${escapar(t.tipTitulo)}</div>
+    ${etiqueta(t.tipTitulo, 'leccion', sitio, { abajo: 8 })}
     <div style="font-family:${FUENTE_TITULO};font-size:19px;line-height:1.3;font-weight:700;color:${TINTA};padding-bottom:6px;">${escapar(tip.titulo)}</div>
     <div style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:#39404A;">${escapar(teaser)}</div>
     <div style="padding-top:10px;font-family:${FUENTE};font-size:13px;">
@@ -570,12 +698,22 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     </div>
   </td></tr>
 
-  <!-- 6. Los botones de redes. -->
-  <tr><td style="padding:26px 24px 24px;">
+  <!-- 7. Los botones de redes. -->
+  <tr><td style="padding:26px 24px 22px;">
     ${bloqueBotones(t)}
   </td></tr>
 
-  <!-- 7. La baja. Va en TODOS los envíos: es obligatoria por ley, no una
+  <!-- 8. La firma. Texto, no imagen: es un nombre, y una imagen para un nombre
+          se ve rota justo en los clientes que bloquean imágenes. Discreta a
+          propósito — cierra el correo, no lo encabeza. -->
+  <tr><td style="padding:0 24px 24px;">
+    <div style="border-top:1px solid ${LINEA};padding-top:16px;font-family:${FUENTE};font-size:12px;line-height:1.5;color:${GRIS};">
+      ${escapar(t.despedida)}
+      <div style="font-family:${FUENTE_TITULO};font-style:italic;font-size:17px;color:${TINTA};padding-top:2px;">${escapar(FIRMA)}</div>
+    </div>
+  </td></tr>
+
+  <!-- 9. La baja. Va en TODOS los envíos: es obligatoria por ley, no una
           cortesía, y por eso no depende de ninguna condición de arriba. -->
   <tr><td style="padding:16px 24px 24px;border-top:1px solid ${LINEA};">
     <div style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};">
@@ -635,6 +773,10 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     '', t.seguir.toUpperCase(),
     'LinkedIn: ' + URL_LINKEDIN,
     'TikTok: ' + URL_TIKTOK,
+    // La misma firma que cierra el HTML. La gráfica en cambio no deja rastro
+    // aquí, y es lo correcto: sus datos ya están escritos arriba, así que
+    // anunciar una imagen que esta versión no puede enseñar solo sobraría.
+    '', t.despedida, FIRMA,
     '', t.bajaFrase, t.baja + ': ' + urlBaja,
     '', t.aviso
   );

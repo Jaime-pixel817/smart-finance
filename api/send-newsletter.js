@@ -113,9 +113,60 @@ module.exports = async function handler(req, res) {
         asunto: muestra.asunto,
         tip: contenido.tip.es.titulo,
         mercado: contenido.mercado,
+        // La gráfica del día: su URL pública y lo que pesa. Va en el ensayo
+        // porque es lo único del correo que vive fuera del correo — si Redis
+        // no contestó esto sale en null, y esa es la única señal de que la
+        // imagen no va a aparecer. En el HTML no se notaría: el bloque
+        // simplemente no se pinta.
+        grafica: contenido.grafica,
         titular: contenido.noticia.title,
         html: muestra.html
       }, { enviados: 0, confirmados: total, motivo: 'ensayo' });
+      return;
+    }
+
+    /*
+     * ENVÍO DE PRUEBA: ?prueba=alguien@correo.com
+     *
+     * Manda el boletín REAL —el mismo HTML, la misma gráfica, el mismo asunto—
+     * a una sola dirección y a nadie más. Existe porque el ensayo (?dry=1)
+     * devuelve el HTML pero no prueba lo único que no se puede comprobar
+     * mirándolo: cómo lo pinta Gmail, si Outlook bloquea las imágenes, si la
+     * gráfica se descarga desde su URL. Eso solo se ve en una bandeja de
+     * entrada de verdad.
+     *
+     * Va detrás del mismo CRON_SECRET que el resto, y NO toca la lista: los
+     * suscriptores ni se consultan para esto. El link de baja lleva un token de
+     * ejemplo, así que darle no da de baja a nadie.
+     */
+    const destinoPrueba = String((req.query && req.query.prueba) || '').trim();
+    if (destinoPrueba) {
+      if (!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(destinoPrueba)) {
+        await responder(400, { error: 'correo_invalido' }, { enviados: 0, motivo: 'prueba_correo_invalido' });
+        return;
+      }
+
+      const urlBaja = urlSitio() + '/api/unsubscribe?token=EJEMPLO&email=' + encodeURIComponent(destinoPrueba);
+      const { html, texto, asunto } = renderizarCorreo({
+        contenido,
+        idioma: String((req.query && req.query.lang) || 'es'),
+        urlBaja
+      });
+
+      await resend.enviarCorreo({ para: destinoPrueba, asunto, html, texto, listUnsubscribeUrl: urlBaja });
+
+      // Se anota como ensayo aunque haya salido un correo de verdad: el
+      // registro sirve para saber si la LISTA recibió el boletín del día, y una
+      // prueba a una dirección suelta no es eso. Contarla como envío bueno
+      // taparía justo el fallo que el registro viene a destapar.
+      await responder(200, {
+        prueba: true,
+        enviadoA: destinoPrueba,
+        asunto,
+        grafica: contenido.grafica,
+        pesoHtml: Buffer.byteLength(html),
+        pesoTexto: Buffer.byteLength(texto)
+      }, { ensayo: true, enviados: 0, motivo: 'prueba' });
       return;
     }
 
