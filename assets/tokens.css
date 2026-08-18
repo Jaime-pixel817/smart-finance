@@ -164,6 +164,20 @@
   --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 
+/* Texto que solo existe para quien no ve la pantalla.
+ *
+ * Hace falta donde el estado se comunica ÚNICAMENTE con forma: los esqueletos
+ * de carga (.skel) llevan dentro un "$00,000" que es puro relleno visual —el
+ * color va en transparent— y un lector de pantalla lo leería como si fuera el
+ * precio de verdad. Ese relleno va aria-hidden y al lado se pone, con esta
+ * clase, lo que de verdad está pasando: "cargando el precio".
+ *
+ * Fuera de pantalla en vez de display:none, que sí lo esconde de todos. */
+.solo-lector {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
 /* Cifras tabulares donde haya números.
  *
  * Geist Mono ya es monoespaciada, así que esto es un cinturón además del

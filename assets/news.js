@@ -124,11 +124,25 @@
     '</article>';
   }
 
+  /*
+   * Pinta la pista.
+   *
+   * TRES ESTADOS, NO DOS. Antes había uno solo para "todavía no hay datos" y
+   * para "falló la petición", y como mount() llama a render() de inmediato, lo
+   * PRIMERO que se veía al abrir la página era "titulares no disponibles" —un
+   * error, antes de haber intentado nada— hasta que llegaba la respuesta.
+   *
+   * Ahora, mientras data es null, no se toca la pista: se queda el esqueleto
+   * que el HTML ya trae escrito (ver index.html). Ese esqueleto es el estado
+   * de carga, y no hay que duplicarlo aquí.
+   */
   function render() {
     mounts.forEach(function (m) {
       var rail = m.rail;
       if (!rail) return;
-      if (data === 'error' || !data) {
+      if (!data) { updateArrows(m); return; }          // cargando: no se toca
+      rail.removeAttribute('aria-busy');
+      if (data === 'error') {
         rail.innerHTML = '<div class="news-empty">' + (esNow()
           ? 'Titulares no disponibles por el momento. Se reintenta solo.'
           : 'Live headlines are temporarily unavailable. It will retry automatically.') + '</div>';

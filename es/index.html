@@ -19,14 +19,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Smart Finance">
 <meta property="og:url" content="https://smartfinance.lat/es">
-<meta property="og:image" content="https://smartfinance.lat/og-image.jpg">
+<meta property="og:image" content="https://smartfinance.lat/og-image-es.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Smart Finance — finanzas que sí se entienden, por Jaime Sandoval Ricaño">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Smart Finance — Finanzas actualizadas, por Jaime Sandoval">
 <meta name="twitter:description" content="Educación financiera en palabras normales. Datos de mercado en vivo, explicaciones claras, sin jerga.">
-<meta name="twitter:image" content="https://smartfinance.lat/og-image.jpg">
+<meta name="twitter:image" content="https://smartfinance.lat/og-image-es.jpg">
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
   Datos estructurados. Organization + WebSite van solo en el home: son sobre el
@@ -44,7 +44,7 @@
       "@id": "https://smartfinance.lat/#organization",
       "name": "Smart Finance",
       "url": "https://smartfinance.lat/es",
-      "logo": "https://smartfinance.lat/og-image.jpg",
+      "logo": "https://smartfinance.lat/og-image-es.jpg",
       "description": "Financial education, markets and money, explained in plain words.",
       "founder": {
         "@type": "Person",
@@ -1020,6 +1020,12 @@
          .nav-links, como hermano dentro de .nav-right. -->
     <div class="nav-right">
       <nav class="nav-links">
+        <!-- "Inicio" va explícito además del logo: volver al home por el
+             wordmark funciona, pero no todo el mundo lo intuye, y desde
+             /market o /lessons era la única salida. En móvil no aprieta la
+             barra: assets/nav.js clona estos enlaces al desplegable, así que
+             arriba siguen estando solo el logo, EN/ES y el botón de menú. -->
+        <a href="#home" data-i18n="nav.home">Inicio</a>
         <a href="#about" data-i18n="nav.about">Acerca de</a>
         <a href="/es/mercado" data-i18n="nav.market">Mercado</a>
         <a href="/es/lecciones" data-i18n="nav.lessons">Lecciones</a>
@@ -1081,7 +1087,7 @@
   <section id="about" class="about reveal">
     <div class="wrap about-inner">
       <div class="about-photos">
-        <img class="main" src="jaime.jpg" alt="Jaime, founder of Smart Finance" width="260" height="260" loading="lazy" decoding="async">
+        <img class="main" src="jaime.jpg" alt="Jaime, fundador de Smart Finance" data-i18n-alt="alt.jaime" width="260" height="260" loading="lazy" decoding="async">
       </div>
       <div class="about-text">
         <p class="eyebrow" data-i18n="about.eyebrow">Acerca de</p>
@@ -1152,7 +1158,35 @@
 
       <div class="market-group">
         <h3 class="group-label" data-i18n="market.crypto">Cripto</h3>
-        <div class="market-grid compact" id="grid-crypto"></div>
+        <!--
+          Las dos tarjetas nacen aquí, en el HTML, en su estado de carga.
+
+          Antes este <div> salía VACÍO del servidor y lo llenaba el JavaScript:
+          quien rastrea la página sin ejecutar scripts —y quien navega sin
+          ellos— no encontraba nada bajo el título "Cripto", ni siquiera la
+          estructura. Ahora el hueco tiene forma desde el primer byte.
+
+          NO llevan precio a propósito. Un número incrustado en un archivo
+          estático envejece con el archivo, y todo el sitio está montado para
+          no mentir con la frescura del dato (ver assets/market-hours.js). Lo
+          que se sirve es el andamio; la cifra sigue llegando en vivo.
+
+          Este markup es el MISMO que produce cardHTML(sym) sin precio, más
+          abajo en el <script>. Si se toca uno hay que tocar el otro, o la
+          tarjeta pegará un salto al repintarse.
+        -->
+        <div class="market-grid compact" id="grid-crypto" aria-busy="true">
+          <div class="market-card tilt" data-key="BTC">
+            <div class="card-top"><span class="card-sym">BTC</span></div>
+            <p class="card-price"><span class="skel" aria-hidden="true">$00,000</span><span class="solo-lector" data-i18n="market.cargando">Cargando el precio</span></p>
+            <p class="card-change"><span class="skel skel-sm" aria-hidden="true">+0.00%</span></p>
+          </div>
+          <div class="market-card tilt" data-key="ETH">
+            <div class="card-top"><span class="card-sym">ETH</span></div>
+            <p class="card-price"><span class="skel" aria-hidden="true">$00,000</span><span class="solo-lector" data-i18n="market.cargando">Cargando el precio</span></p>
+            <p class="card-change"><span class="skel skel-sm" aria-hidden="true">+0.00%</span></p>
+          </div>
+        </div>
       </div>
 
       <div class="market-group">
@@ -1219,8 +1253,9 @@
   </section>
 
   <!-- El carrusel lo pinta assets/news.js, que es el MISMO módulo que usa
-       /market: una sola petición a /api/news y un solo renderizador. Aquí solo
-       va el andamio (encabezado, flechas y la pista vacía). -->
+       /market: una sola petición a /api/news y un solo renderizador. Aquí va
+       el andamio (encabezado, flechas) y las cuatro tarjetas en su estado de
+       carga. -->
   <section id="news" class="news reveal" data-news>
     <div class="wrap">
       <div class="news-rail-head">
@@ -1244,7 +1279,27 @@
           </button>
         </div>
       </div>
-      <div class="news-rail" data-news-rail></div>
+      <!--
+        La pista salía vacía del servidor y no se llenaba hasta que /api/news
+        contestaba. Estas cuatro tarjetas de carga le dan forma al bloque desde
+        el primer byte y evitan que el carrusel dé un salto de alto cuando
+        llegan las noticias de verdad.
+
+        Van SIN titulares: los titulares son de Bloomberg y llegan del feed;
+        inventar cuatro de relleno en un archivo estático sería publicar texto
+        que no es de nadie. Lo que se sirve es el andamio.
+
+        assets/news.js NO las pisa mientras no tenga datos (ver render()): las
+        reemplaza cuando llega la respuesta, o por el aviso de "no disponibles"
+        si la petición falla.
+      -->
+      <div class="news-rail" data-news-rail aria-busy="true">
+        <p class="solo-lector" data-i18n="news.cargando">Cargando los últimos titulares…</p>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+      </div>
     </div>
   </section>
 
@@ -1259,6 +1314,10 @@
         HOW TO ADD ANOTHER POST:
         Copy one <a class="post-card-link"> block below, then update the tag
         (tiktok or linkedin), title, description, and link to match the real post.
+        El título, la descripción y el alt llevan data-i18n / data-i18n-alt con
+        su clave (post.<nombre>.title, post.<nombre>.desc, alt.<nombre>): hay
+        que agregar las tres al diccionario `translations` de más abajo, o la
+        tarjeta saldrá en inglés en /es. `npm run build:es` lo avisa.
         La miniatura es la foto real del post, en assets/breakdowns/. Cada
         tarjeta lleva dos clases de miniatura: la del tema (thumb-markets /
         thumb-interview / thumb-data / thumb-podcast), que pinta el degradado de
@@ -1281,8 +1340,8 @@
             </div>
             <div class="post-body">
               <span class="post-tag tiktok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>TikTok</span>
-              <h3>Japan's Financial Data, Explained</h3>
-              <p>A look at Japan's latest economic numbers and what they signal for the market.</p>
+              <h3 data-i18n="post.japan.title">Los datos financieros de Japón, explicados</h3>
+              <p data-i18n="post.japan.desc">Un repaso a los últimos números económicos de Japón y qué señalan para el mercado.</p>
               <span class="post-link"><span data-i18n="content.watch">Ver en TikTok</span>
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </span>
@@ -1298,8 +1357,8 @@
             </div>
             <div class="post-body">
               <span class="post-tag tiktok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>TikTok</span>
-              <h3>Interview: Andy Toh, CEO of BlueSky Education</h3>
-              <p>A conversation on education, leadership, and creating opportunities for students, recorded during a summer program in Singapore.</p>
+              <h3 data-i18n="post.andytoh.title">Entrevista: Andy Toh, CEO de BlueSky Education</h3>
+              <p data-i18n="post.andytoh.desc">Una conversación sobre educación, liderazgo y cómo crear oportunidades para los estudiantes, grabada durante un programa de verano en Singapur.</p>
               <span class="post-link"><span data-i18n="content.watch">Ver en TikTok</span>
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </span>
@@ -1315,8 +1374,8 @@
             </div>
             <div class="post-body">
               <span class="post-tag tiktok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>TikTok</span>
-              <h3>Singapore's Financial Data, Explained</h3>
-              <p>A breakdown of Singapore's economic numbers and what they mean for investors.</p>
+              <h3 data-i18n="post.singapore.title">Los datos financieros de Singapur, explicados</h3>
+              <p data-i18n="post.singapore.desc">Un desglose de los números económicos de Singapur y qué significan para quien invierte.</p>
               <span class="post-link"><span data-i18n="content.watch">Ver en TikTok</span>
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </span>
@@ -1331,8 +1390,8 @@
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
-              <h3>Takeaways from JPMorgan's Chief ETF Strategist</h3>
-              <p>Notes from an insightful session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management.</p>
+              <h3 data-i18n="post.jpmorgan.title">Lo que dejó el Chief ETF Strategist de J.P. Morgan</h3>
+              <p data-i18n="post.jpmorgan.desc">Apuntes de una sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management.</p>
               <span class="post-link"><span data-i18n="content.read">Ver en LinkedIn</span>
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </span>
@@ -1347,8 +1406,8 @@
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
-              <h3>A Conversation with Moris Dieck</h3>
-              <p>Talking pillars of personal finance and the power of compound interest with one of Mexico's leading financial educators.</p>
+              <h3 data-i18n="post.moris.title">Una conversación con Moris Dieck</h3>
+              <p data-i18n="post.moris.desc">Los pilares de las finanzas personales y el poder del interés compuesto, con uno de los educadores financieros más conocidos de México.</p>
               <span class="post-link"><span data-i18n="content.read">Ver en LinkedIn</span>
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </span>
@@ -1363,8 +1422,8 @@
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
-              <h3>Hosting the Financial Trading Room Podcast</h3>
-              <p>A personal finance conversation with the president of Tecnológico de Monterrey's student finance organization.</p>
+              <h3 data-i18n="post.tradingroom.title">Conduciendo el podcast del Financial Trading Room</h3>
+              <p data-i18n="post.tradingroom.desc">Una conversación de finanzas personales con el presidente de la organización estudiantil de finanzas del Tecnológico de Monterrey.</p>
               <span class="post-link"><span data-i18n="content.read">Ver en LinkedIn</span>
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </span>
@@ -1475,6 +1534,7 @@
   // desde el navegador). Ver api/news.js, api/history.js y api/sparklines.js.
 
   const translations = {
+    'nav.home': 'Inicio',
     'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones',
     'nav.subscribe': 'Suscríbete',
     'nav.tagline': 'Mercados y dinero, en claro',
@@ -1486,8 +1546,10 @@
     'hero.title': 'Finanzas Que<br>Sí Se Entienden.',
     'hero.newsletter': 'Recibe el correo diario',
     'hero.linkedin': 'LinkedIn', 'hero.tiktok': 'TikTok',
-    // Los alt de las fotos de "Recent breakdowns": el HTML los trae en inglés
-    // y aquí está su versión en español.
+    // Los alt de las fotos: el HTML los trae en inglés y aquí está su versión
+    // en español. El de la foto del "Acerca de" faltaba, así que en /es decía
+    // "Jaime, founder of Smart Finance" dentro de una página en español.
+    'alt.jaime': 'Jaime, fundador de Smart Finance',
     'alt.japan': 'Shibuya de noche, durante la grabación del video sobre los datos económicos de Japón',
     'alt.andytoh': 'Entrevista grabada durante el programa de verano en Singapur',
     'alt.singapore': 'Frente a Marina Bay Sands, en Singapur',
@@ -1502,6 +1564,9 @@
     'market.title': 'Qué está haciendo el mercado ahora mismo',
     'market.sub': 'Datos con retraso, no un feed para operar — cada bloque dice qué tan fresco es.',
     'market.crypto': 'Cripto',
+    // Solo lo oye quien usa lector de pantalla: el "$00,000" del esqueleto es
+    // relleno y va escondido (ver .solo-lector en assets/tokens.css).
+    'market.cargando': 'Cargando el precio',
     'market.fxchart': 'Gráfico de tipo de cambio',
     'market.fxchartnote': 'Elige el par y el rango.',
     'market.macro': 'Panorama macro',
@@ -1517,6 +1582,7 @@
     'news.eyebrow': 'Noticias financieras · Bloomberg', 'news.title': 'En los titulares',
     'news.sub': 'Las noticias de mercado y negocios más importantes de Bloomberg, con mi lectura de cada una.',
     'news.swipe': ' Desliza para ver más.',
+    'news.cargando': 'Cargando los últimos titulares…',
     'news.cat.rates': 'Tasas',
     'news.cat.markets': 'Mercados',
     'news.cat.companies': 'Empresas',
@@ -1527,6 +1593,23 @@
     'content.sub': 'Mis publicaciones reales de LinkedIn y TikTok — se actualiza conforme voy publicando.',
     'content.watch': 'Ver en TikTok',
     'content.read': 'Ver en LinkedIn',
+    // El título y la descripción de cada tarjeta. Antes NO estaban aquí: solo
+    // se traducían los alt de las fotos y el "Ver en TikTok", así que en /es
+    // las seis tarjetas seguían en inglés dentro de una página en español.
+    // Los cargos ("Chief ETF Strategist", "CEO") se quedan como están: es como
+    // se llaman en la vida real y como ya aparecen en about.credential.
+    'post.japan.title': 'Los datos financieros de Japón, explicados',
+    'post.japan.desc': 'Un repaso a los últimos números económicos de Japón y qué señalan para el mercado.',
+    'post.andytoh.title': 'Entrevista: Andy Toh, CEO de BlueSky Education',
+    'post.andytoh.desc': 'Una conversación sobre educación, liderazgo y cómo crear oportunidades para los estudiantes, grabada durante un programa de verano en Singapur.',
+    'post.singapore.title': 'Los datos financieros de Singapur, explicados',
+    'post.singapore.desc': 'Un desglose de los números económicos de Singapur y qué significan para quien invierte.',
+    'post.jpmorgan.title': 'Lo que dejó el Chief ETF Strategist de J.P. Morgan',
+    'post.jpmorgan.desc': 'Apuntes de una sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management.',
+    'post.moris.title': 'Una conversación con Moris Dieck',
+    'post.moris.desc': 'Los pilares de las finanzas personales y el poder del interés compuesto, con uno de los educadores financieros más conocidos de México.',
+    'post.tradingroom.title': 'Conduciendo el podcast del Financial Trading Room',
+    'post.tradingroom.desc': 'Una conversación de finanzas personales con el presidente de la organización estudiantil de finanzas del Tecnológico de Monterrey.',
     'news2.eyebrow': 'Boletín diario',
     'news2.titulo': 'Los mercados, en tu correo a las 8:00 AM',
     'news2.sub': 'Un correo corto al día: la noticia que más importa con mi lectura, qué hicieron el peso y el índice del miedo, y una lección en palabras normales. Gratis, y te sales con un clic.',
@@ -1777,16 +1860,29 @@
   // guion se leía como "no hay nada", el esqueleto como "viene en camino".
   function hasValue(n) { return n !== undefined && n !== null && !isNaN(n); }
 
+  // El "$00,000" del esqueleto es relleno para que la caja tenga el ancho del
+  // precio de verdad: va en transparent. Un lector de pantalla, en cambio, lo
+  // leería como si fuera el precio, así que se esconde y al lado va lo que de
+  // verdad está pasando.
+  const esEsta = document.documentElement.lang === 'es';
+  const CARGANDO = esEsta ? 'Cargando el precio' : 'Loading price';
+  const ESQUELETO_PRECIO =
+    '<span class="skel" aria-hidden="true">$00,000</span>' +
+    '<span class="solo-lector">' + CARGANDO + '</span>';
+
+  // OJO: el mismo markup que la rama sin precio de aquí abajo está escrito a
+  // mano en el HTML, en #grid-crypto, para que la página no salga vacía del
+  // servidor. Si se cambia uno hay que cambiar el otro.
   function cardHTML(sym, price, change, decimals) {
     const changeStr = fmtChange(change);
     const dir = (change > 0) ? 'up' : (change < 0) ? 'down' : '';
     const priceCell = hasValue(price)
       ? `<span data-count-key="card:${sym}" data-count-to="${price}" data-count-dec="${decimals}" data-count-prefix="$">$${fmtPrice(price, decimals)}</span>`
-      : '<span class="skel">$00,000</span>';
+      : ESQUELETO_PRECIO;
     return `<div class="market-card tilt" data-key="${sym}">
       <div class="card-top"><span class="card-sym">${LABELS[sym] || sym}</span>${dir ? `<span class="dot ${dir}"></span>` : ''}</div>
       <p class="card-price">${priceCell}</p>
-      <p class="card-change ${dir}">${changeStr ? changeStr : (hasValue(price) ? '&nbsp;' : '<span class="skel skel-sm">+0.00%</span>')}</p>
+      <p class="card-change ${dir}">${changeStr ? changeStr : (hasValue(price) ? '&nbsp;' : '<span class="skel skel-sm" aria-hidden="true">+0.00%</span>')}</p>
     </div>`;
   }
 
@@ -1795,7 +1891,7 @@
     const dir = (change > 0) ? 'up' : (change < 0) ? 'down' : '';
     const priceCell = hasValue(price)
       ? `<span data-count-key="chip:${sym}" data-count-to="${price}" data-count-dec="${decimals}">${fmtPrice(price, decimals)}</span>`
-      : '<span class="skel skel-sm">0,000</span>';
+      : '<span class="skel skel-sm" aria-hidden="true">0,000</span>';
     return `<span class="chip">${dir ? `<span class="dot ${dir}"></span>` : ''}<span class="sym">${LABELS[sym] || sym}</span>${priceCell}${changeStr ? `<span class="chg ${dir}">${changeStr}</span>` : ''}${sparkHTML(sym)}</span>`;
   }
 
@@ -1805,6 +1901,7 @@
     const cryptoGrid = document.getElementById('grid-crypto');
     if (cryptoGrid) {
       if (cryptoData) {
+        cryptoGrid.removeAttribute('aria-busy');
         cryptoGrid.innerHTML = cardHTML('BTC', cryptoData.BTC.price, cryptoData.BTC.change, 0) + cardHTML('ETH', cryptoData.ETH.price, cryptoData.ETH.change, 0);
         chips.push(chipHTML('BTC', cryptoData.BTC.price, cryptoData.BTC.change, 0));
         chips.push(chipHTML('ETH', cryptoData.ETH.price, cryptoData.ETH.change, 0));

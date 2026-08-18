@@ -180,6 +180,17 @@
   .site-nav.has-mobile-menu .nav-links { display: none; }
   .site-nav.has-mobile-menu .nav-toggle { display: flex; }
   .site-nav.has-mobile-menu .nav-mobile { display: grid; }
+
+  /* Sin JavaScript no se agrega .has-mobile-menu y los cinco enlaces se quedan
+     en la barra. Eso ya empujaba la página a 540 px de ancho en un teléfono de
+     320 —o sea, scroll horizontal en TODA la página, no solo en el nav— y con
+     "Inicio" en la lista se iba a 606. Que se envuelvan en dos renglones: la
+     barra queda más alta, que es exactamente lo que debe pasar cuando no cabe.
+     Con JavaScript esta regla no aplica nunca. */
+  .site-nav:not(.has-mobile-menu) .nav-inner,
+  .site-nav:not(.has-mobile-menu) .nav-right,
+  .site-nav:not(.has-mobile-menu) .nav-links { flex-wrap: wrap; }
+  .site-nav:not(.has-mobile-menu) .nav-links { gap: 10px 14px; }
 }
 
 /* Pantallas muy angostas (iPhone SE y parecidos). Ya no hace falta apretar los

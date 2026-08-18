@@ -162,6 +162,26 @@
 .news-link .ico { width: 14px; height: 14px; }
 .news-card:hover .news-link { color: var(--ink); }
 
+/* ---------- Las tarjetas mientras cargan ----------
+   El HTML del home ya trae cuatro tarjetas con .is-skel: sirven para que el
+   bloque tenga estructura antes de que conteste /api/news, y para que el
+   carrusel no cambie de alto al llegar los titulares.
+
+   .skel y su @keyframes shimmer viven en el <style> del home, que es la única
+   página que monta este carrusel. Aquí solo se estira a renglón: en el home
+   .skel es inline-block con un ancho mínimo, y para simular una línea de
+   titular hace falta que ocupe todo el ancho. */
+.news-card.is-skel .skel { display: block; width: 100%; height: .95em; margin-bottom: 8px; }
+.news-card.is-skel .skel.es-corta { width: 56%; margin-bottom: 0; }
+.news-card.is-skel .news-take .skel { height: .8em; margin-bottom: 7px; }
+.news-card.is-skel .news-take .skel.es-corta { width: 44%; margin-bottom: 0; }
+.news-card.is-skel .news-link .skel { width: 92px; height: .8em; margin-bottom: 0; }
+/* El arte por tema no se pinta: todavía no se sabe de qué va la nota, y
+   enseñar el degradado de "Economía" sería adivinar la categoría. */
+.news-card.is-skel .news-thumb { background: var(--card-2); }
+.news-card.is-skel .news-thumb::after { display: none; }
+.news-card.is-skel .news-take-label { color: var(--line-solid); }
+
 .news-empty {
   grid-column: 1 / -1;
   background: var(--brand-soft, rgba(22, 196, 127,.09));

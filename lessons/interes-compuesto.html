@@ -76,6 +76,11 @@
     </a>
     <div class="nav-right">
       <nav class="nav-links">
+        <!-- "Inicio" va explícito además del logo: desde una lección era la
+             única forma de volver al home, y no todo el mundo intuye que el
+             wordmark es un enlace. En móvil no aprieta la barra:
+             assets/nav.js clona estos enlaces al desplegable. -->
+        <a href="../" data-i18n="nav.home">Home</a>
         <a href="../#about" data-i18n="nav.about">About</a>
         <a href="/market" data-i18n="nav.market">Market</a>
         <a href="/lessons" data-i18n="nav.lessons">Lessons</a>
@@ -171,6 +176,7 @@
 <script>
 window.ARTICLE_I18N = {
   'nav.tagline': 'Mercados y dinero, en claro',
+  'nav.home': 'Inicio',
   'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.subscribe': 'Suscríbete',
   'article.back': '← Volver a Smart Finance',
   'article.eyebrow': 'Lección 02 · Lo básico',

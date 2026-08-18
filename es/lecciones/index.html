@@ -19,14 +19,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Smart Finance">
 <meta property="og:url" content="https://smartfinance.lat/es/lecciones">
-<meta property="og:image" content="https://smartfinance.lat/og-lessons.jpg">
+<meta property="og:image" content="https://smartfinance.lat/og-lessons-es.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Smart Finance — Lecciones: finanzas desde cero, en palabras normales">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Todas las lecciones — Smart Finance">
 <meta name="twitter:description" content="Seis lecciones cortas de finanzas en palabras normales, para quien apenas empieza.">
-<meta name="twitter:image" content="https://smartfinance.lat/og-lessons.jpg">
+<meta name="twitter:image" content="https://smartfinance.lat/og-lessons-es.jpg">
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
   OJO CON LAS RUTAS: vercel.json trae cleanUrls, así que esta página se sirve
@@ -83,6 +83,11 @@
     </a>
     <div class="nav-right">
       <nav class="nav-links">
+        <!-- "Inicio" va explícito además del logo: desde aquí era la única
+             forma de volver al home, y no todo el mundo intuye que el
+             wordmark es un enlace. En móvil no aprieta la barra:
+             assets/nav.js clona estos enlaces al desplegable. -->
+        <a href="/es" data-i18n="nav.home">Inicio</a>
         <a href="/es#about" data-i18n="nav.about">Acerca de</a>
         <a href="/es/mercado" data-i18n="nav.market">Mercado</a>
         <a href="/es/lecciones" data-i18n="nav.lessons">Lecciones</a>
@@ -260,6 +265,7 @@
 <script>
 window.ARTICLE_I18N = {
   'nav.tagline': 'Mercados y dinero, en claro',
+  'nav.home': 'Inicio',
   'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.subscribe': 'Suscríbete',
   'lessons.back': '← Volver a Smart Finance',
   'lessons.eyebrow': 'Empieza por aquí',

@@ -372,6 +372,32 @@ function jsonEscape(s) {
   return String(s).replace(/"/g, '\\"');
 }
 
+/*
+ * La imagen que se ve al compartir, en su versión en español.
+ *
+ * Las tres las genera scripts/build-og.js a partir de las inglesas: misma
+ * foto, mismo aro, mismo todo, con el texto traducido. Antes las páginas /es
+ * servían la inglesa, así que compartir la versión en español enseñaba una
+ * tarjeta que decía "Finance that actually clicks.".
+ *
+ * Se sustituye por URL y no por etiqueta porque la misma dirección aparece en
+ * og:image, en twitter:image y dentro del ld+json (como "image" y, en el home,
+ * como "logo" de la organización): buscar la URL las agarra todas.
+ */
+const IMAGENES_ES = {
+  'og-image.jpg': 'og-image-es.jpg',
+  'og-market.jpg': 'og-market-es.jpg',
+  'og-lessons.jpg': 'og-lessons-es.jpg'
+};
+
+function imagenEs(html) {
+  let out = html;
+  for (const [en, es] of Object.entries(IMAGENES_ES)) {
+    out = out.split(SITIO + '/' + en).join(SITIO + '/' + es);
+  }
+  return out;
+}
+
 function cabeceraEs(html, pag) {
   let out = html;
 
@@ -452,6 +478,7 @@ function construir() {
     out = absolutizarRecursos(out);
     out = traducirDatosEstructurados(out, pag, enTitle, enDesc);
     out = cabeceraEs(out, pag);
+    out = imagenEs(out);
     if (pag.imgAlt) {
       out = out.replace(/<meta property="og:image:alt" content="[^"]*">/i,
         '<meta property="og:image:alt" content="' + attr(pag.imgAlt) + '">');

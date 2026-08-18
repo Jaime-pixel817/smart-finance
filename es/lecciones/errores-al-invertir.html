@@ -19,7 +19,7 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Smart Finance">
 <meta property="og:url" content="https://smartfinance.lat/es/lecciones/errores-al-invertir">
-<meta property="og:image" content="https://smartfinance.lat/og-image.jpg">
+<meta property="og:image" content="https://smartfinance.lat/og-image-es.jpg">
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
   Article: describe ESTA lección. headline y description son los mismos que
@@ -41,7 +41,7 @@
     "@id": "https://smartfinance.lat/es/lecciones/errores-al-invertir"
   },
   "url": "https://smartfinance.lat/es/lecciones/errores-al-invertir",
-  "image": "https://smartfinance.lat/og-image.jpg",
+  "image": "https://smartfinance.lat/og-image-es.jpg",
   "author": {
     "@type": "Person",
     "name": "Jaime Sandoval Ricaño",
@@ -76,6 +76,11 @@
     </a>
     <div class="nav-right">
       <nav class="nav-links">
+        <!-- "Inicio" va explícito además del logo: desde una lección era la
+             única forma de volver al home, y no todo el mundo intuye que el
+             wordmark es un enlace. En móvil no aprieta la barra:
+             assets/nav.js clona estos enlaces al desplegable. -->
+        <a href="/es" data-i18n="nav.home">Inicio</a>
         <a href="/es#about" data-i18n="nav.about">Acerca de</a>
         <a href="/es/mercado" data-i18n="nav.market">Mercado</a>
         <a href="/es/lecciones" data-i18n="nav.lessons">Lecciones</a>
@@ -188,6 +193,7 @@
 <script>
 window.ARTICLE_I18N = {
   'nav.tagline': 'Mercados y dinero, en claro',
+  'nav.home': 'Inicio',
   'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.subscribe': 'Suscríbete',
   'article.back': '← Volver a Smart Finance',
   'article.eyebrow': 'Lección 06 · Para empezar',
