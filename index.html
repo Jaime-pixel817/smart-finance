@@ -1252,57 +1252,6 @@
     </div>
   </section>
 
-  <!-- El carrusel lo pinta assets/news.js, que es el MISMO módulo que usa
-       /market: una sola petición a /api/news y un solo renderizador. Aquí va
-       el andamio (encabezado, flechas) y las cuatro tarjetas en su estado de
-       carga. -->
-  <section id="news" class="news reveal" data-news>
-    <div class="wrap">
-      <div class="news-rail-head">
-        <div>
-          <p class="eyebrow" data-i18n="news.eyebrow">Finance news · Bloomberg</p>
-          <h2 class="section-title" data-i18n="news.title">In the headlines</h2>
-          <!-- "pulled automatically" le avisaba al lector que era un feed de
-               robot justo donde va mi opinión. La pista de deslizar solo se
-               muestra en táctil (ver .swipe-hint en news.css). -->
-          <!-- Los dos data-i18n van como hermanos, NO anidados: setLanguage
-               reescribe textContent, así que un data-i18n dentro de otro se
-               borraría al traducir el de fuera. -->
-          <p class="section-sub news-sub"><span data-i18n="news.sub">Top market and business stories from Bloomberg, with my read on each one.</span><span class="swipe-hint" data-i18n="news.swipe"> Swipe for more.</span></p>
-        </div>
-        <div class="news-rail-arrows" data-news-arrows>
-          <button class="news-arrow" type="button" data-news-prev aria-label="Previous headlines">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <button class="news-arrow" type="button" data-news-next aria-label="More headlines">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-      </div>
-      <!--
-        La pista salía vacía del servidor y no se llenaba hasta que /api/news
-        contestaba. Estas cuatro tarjetas de carga le dan forma al bloque desde
-        el primer byte y evitan que el carrusel dé un salto de alto cuando
-        llegan las noticias de verdad.
-
-        Van SIN titulares: los titulares son de Bloomberg y llegan del feed;
-        inventar cuatro de relleno en un archivo estático sería publicar texto
-        que no es de nadie. Lo que se sirve es el andamio.
-
-        assets/news.js NO las pisa mientras no tenga datos (ver render()): las
-        reemplaza cuando llega la respuesta, o por el aviso de "no disponibles"
-        si la petición falla.
-      -->
-      <div class="news-rail" data-news-rail aria-busy="true">
-        <p class="solo-lector" data-i18n="news.cargando">Loading the latest headlines…</p>
-        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
-        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
-        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
-        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
-      </div>
-    </div>
-  </section>
-
   <section id="content" class="content reveal">
     <div class="wrap">
       <p class="eyebrow" data-i18n="content.eyebrow">Latest lessons</p>
@@ -1431,6 +1380,57 @@
           </article>
         </a>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- El carrusel lo pinta assets/news.js, que es el MISMO módulo que usa
+       /market: una sola petición a /api/news y un solo renderizador. Aquí va
+       el andamio (encabezado, flechas) y las cuatro tarjetas en su estado de
+       carga. -->
+  <section id="news" class="news reveal" data-news>
+    <div class="wrap">
+      <div class="news-rail-head">
+        <div>
+          <p class="eyebrow" data-i18n="news.eyebrow">Finance news · Bloomberg</p>
+          <h2 class="section-title" data-i18n="news.title">In the headlines</h2>
+          <!-- "pulled automatically" le avisaba al lector que era un feed de
+               robot justo donde va mi opinión. La pista de deslizar solo se
+               muestra en táctil (ver .swipe-hint en news.css). -->
+          <!-- Los dos data-i18n van como hermanos, NO anidados: setLanguage
+               reescribe textContent, así que un data-i18n dentro de otro se
+               borraría al traducir el de fuera. -->
+          <p class="section-sub news-sub"><span data-i18n="news.sub">Top market and business stories from Bloomberg, with my read on each one.</span><span class="swipe-hint" data-i18n="news.swipe"> Swipe for more.</span></p>
+        </div>
+        <div class="news-rail-arrows" data-news-arrows>
+          <button class="news-arrow" type="button" data-news-prev aria-label="Previous headlines">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="news-arrow" type="button" data-news-next aria-label="More headlines">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <!--
+        La pista salía vacía del servidor y no se llenaba hasta que /api/news
+        contestaba. Estas cuatro tarjetas de carga le dan forma al bloque desde
+        el primer byte y evitan que el carrusel dé un salto de alto cuando
+        llegan las noticias de verdad.
+
+        Van SIN titulares: los titulares son de Bloomberg y llegan del feed;
+        inventar cuatro de relleno en un archivo estático sería publicar texto
+        que no es de nadie. Lo que se sirve es el andamio.
+
+        assets/news.js NO las pisa mientras no tenga datos (ver render()): las
+        reemplaza cuando llega la respuesta, o por el aviso de "no disponibles"
+        si la petición falla.
+      -->
+      <div class="news-rail" data-news-rail aria-busy="true">
+        <p class="solo-lector" data-i18n="news.cargando">Loading the latest headlines…</p>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
+        <div class="news-slide"><article class="news-card is-skel" aria-hidden="true"><div class="news-source-bar"><span class="news-outlet">Bloomberg</span></div><div class="news-thumb is-art economy"></div><div class="news-body"><h3><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></h3></div><div class="news-take is-placeholder"><span class="news-take-label">·····</span><span class="skel"></span><span class="skel"></span><span class="skel es-corta"></span></div><span class="news-link"><span class="skel es-mini"></span></span></article></div>
       </div>
     </div>
   </section>
