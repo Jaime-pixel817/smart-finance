@@ -118,3 +118,6 @@ module.exports = async function handler(req, res) {
     res.status(502).json({ error: 'upstream fetch failed' });
   }
 };
+
+// El User-Agent se comparte con api/world.js (mismo proveedor, misma cabecera).
+module.exports.USER_AGENT = USER_AGENT;
