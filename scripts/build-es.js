@@ -532,9 +532,9 @@ function construir() {
  * fechas reales de commit y no se pueden inventar.
  */
 const METADATOS = {
-  '/':  { changefreq: 'daily',   priority: '1.0', lastmod: '2026-08-02' },
-  '/market': { changefreq: 'hourly', priority: '0.9', lastmod: '2026-08-02' },
-  '/lessons': { changefreq: 'monthly', priority: '0.8', lastmod: '2026-07-31' }
+  '/':  { changefreq: 'daily',   priority: '1.0', lastmod: '2026-08-21' },
+  '/market': { changefreq: 'hourly', priority: '0.9', lastmod: '2026-08-21' },
+  '/lessons': { changefreq: 'monthly', priority: '0.8', lastmod: '2026-08-21' }
 };
 const META_LECCION = { changefreq: 'monthly', priority: '0.7', lastmod: '2026-07-31' };
 

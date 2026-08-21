@@ -37,6 +37,11 @@
      * cadencias distintas, cada una dicha con su número correcto.
      */
     session:  { en: 'latest session, 5-min bars',    es: 'última sesión, barras de 5 min' },
+    // Las dos tarjetas de cripto del home preguntan a CoinGecko directamente
+    // cada 60 s (index.html, fetchCrypto + REFRESH). Ojo: esta clave NO vale
+    // para las gráficas, que aunque repregunten cada minuto traen barras de
+    // cinco (ver "session").
+    minute:   { en: 'refreshed every minute',        es: 'se actualiza cada minuto' },
     // /api/markets y /api/sparklines cachean 15 min.
     quarter:  { en: 'refreshed every 15 minutes',    es: 'se actualiza cada 15 minutos' },
     // /api/news cachea 24 h; el cliente repregunta cada hora.

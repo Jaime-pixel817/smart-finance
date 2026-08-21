@@ -27,6 +27,8 @@
 <meta name="twitter:title" content="Todas las lecciones — Smart Finance">
 <meta name="twitter:description" content="Seis lecciones cortas de finanzas en palabras normales, para quien apenas empieza.">
 <meta name="twitter:image" content="https://smartfinance.lat/og-lessons-es.jpg">
+<link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
   OJO CON LAS RUTAS: vercel.json trae cleanUrls, así que esta página se sirve
@@ -74,6 +76,7 @@
 <link rel="stylesheet" href="/assets/lessons.css">
 </head>
 <body>
+<a class="skip-link" href="#main" data-i18n="a11y.skip">Saltar al contenido</a>
 
 <header class="site-nav">
   <div class="nav-inner">
@@ -104,7 +107,7 @@
   </div>
 </header>
 
-<main class="lessons">
+<main id="main" class="lessons">
   <div class="wrap">
 
     <a href="/es#tips" class="back-link" data-i18n="lessons.back">← Volver a Smart Finance</a>
@@ -266,6 +269,7 @@
 
 <script>
 window.ARTICLE_I18N = {
+  'a11y.skip': 'Saltar al contenido',
   'nav.tagline': 'Mercados y dinero, en claro',
   'nav.home': 'Inicio',
   'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.subscribe': 'Suscríbete',
