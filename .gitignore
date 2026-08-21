@@ -21,3 +21,7 @@ instrucciones.md
 # solo como respaldo local por si hay que regenerarlas con otro encuadre.
 assets/breakdowns/_originales/
 .env*
+
+# Salida de Astro (Vercel la genera en cada despliegue)
+dist/
+.astro/

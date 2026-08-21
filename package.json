@@ -1,13 +1,16 @@
 {
-  "name": "smartt_finance",
+  "name": "smart-finance",
   "version": "1.0.0",
-  "description": "",
+  "description": "SmartFinance.lat: educación financiera bilingüe (EN/ES) para jóvenes. Astro estático + funciones serverless en /api.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
     "build:es": "node scripts/build-es.js",
     "build:email-icons": "node scripts/build-email-icons.js",
-    "check-es": "node scripts/build-es.js && git diff --quiet -- es sitemap.xml || (echo /es esta desactualizado: corre npm run build:es y commitea el resultado. && exit 1)",
+    "check-es": "node scripts/build-es.js && git diff --quiet -- public/es public/sitemap.xml || (echo /es esta desactualizado: corre npm run build:es y commitea el resultado. && exit 1)",
     "build:og": "node scripts/build-og.js"
   },
   "repository": {
@@ -15,7 +18,7 @@
     "url": "git+https://github.com/Jaime-pixel817/smart-finance.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jaime Sandoval Ricaño",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
@@ -24,11 +27,17 @@
   "homepage": "https://github.com/Jaime-pixel817/smart-finance#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
+    "@astrojs/preact": "^5.1.5",
+    "astro": "^6.4.8",
+    "preact": "^10.29.8",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "sharp": "^0.35.3",
     "wawoff2": "^2.0.1"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

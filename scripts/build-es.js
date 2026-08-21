@@ -39,7 +39,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const RAIZ = path.join(__dirname, '..');
+// El sitio legacy vive en public/ desde la migración a Astro (rama feat/astro).
+const RAIZ = path.join(__dirname, '..', 'public');
 const SITIO = 'https://smartfinance.lat';
 
 // ---------------------------------------------------------------- las páginas
@@ -48,6 +49,10 @@ const SITIO = 'https://smartfinance.lat';
 // sitemap.
 const PAGINAS = [
   {
+    // La portada ya es una página Astro (src/pages/index.astro y
+    // src/pages/es/index.astro): no hay HTML legacy que traducir, pero sigue
+    // en esta lista para que el sitemap la incluya con sus hreflang.
+    astro: true,
     en: 'index.html', es: 'es/index.html',
     enUrl: '/', esUrl: '/es',
     imgAlt: 'Smart Finance — finanzas que sí se entienden, por Jaime Sandoval Ricaño',
@@ -475,6 +480,7 @@ function construir() {
   let escritas = 0;
 
   for (const pag of PAGINAS) {
+    if (pag.astro) continue;
     const html = leer(pag.en);
     const dic = extraerDiccionario(html);
 
