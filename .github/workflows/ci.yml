@@ -1,0 +1,49 @@
+# CI de SmartFinance.lat: corre en cada PR y en cada push a main.
+# Verifica que /es y sitemap.xml estén regenerados (check-es) y que no haya
+# enlaces internos rotos en el HTML (lychee en modo offline).
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: "/es y sitemap al día (npm run check-es)"
+        run: npm run check-es
+
+      - name: Enlaces internos (lychee --offline)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --offline
+            --no-progress
+            --root-dir "${{ github.workspace }}"
+            --fallback-extensions html
+            --exclude-path node_modules
+            --exclude-path docs
+            './**/*.html'
+          fail: true
