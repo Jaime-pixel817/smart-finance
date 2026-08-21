@@ -123,6 +123,44 @@
       <p data-i18n="l2.p7">El interés compuesto no es una línea recta, y justo por eso la gente se sale. Los primeros años el crecimiento se ve casi plano, indistinguible de nada más ahorrar. Casi todo el avance visible en ese tramo viene de tus propios depósitos, no de los rendimientos.</p>
       <p data-i18n="l2.p8">La parte interesante llega después, cuando los intereses que genera tu dinero empiezan a ser más grandes que lo que tú estás metiendo. Llegar a ese punto exige hacer algo poco glamoroso durante años mientras parece que no está pasando nada. Esa, y no las matemáticas, es la dificultad real.</p>
 
+      <!-- La calculadora de la curva. Tres párrafos hablaban de una curva que
+           no se veía; esta la pinta con los números del lector.
+           El widget vive COMPLETO en el HTML (sliders, canvas, leyenda,
+           resumen) para que sus textos lleven data-i18n y el generador de /es
+           los traduzca como al resto de la lección; assets/lesson-widgets.js
+           solo le da vida. Sin JavaScript queda el resumen con los valores del
+           ejemplo. La plantilla del resumen en inglés va en data-tpl-en; la de
+           español es la clave l2.widget.summary_tpl del diccionario. -->
+      <div class="lesson-widget" data-widget="compound">
+        <p class="lw-eyebrow" data-i18n="l2.widget.eyebrow">Mira la curva con tus números</p>
+        <div class="lw-controls">
+          <div class="lw-control">
+            <label for="lwMonthly" data-i18n="l2.widget.monthly">Aporte mensual (MXN)</label>
+            <output for="lwMonthly" id="lwMonthlyOut">$1,000</output>
+            <input type="range" id="lwMonthly" min="200" max="5000" step="100" value="1000" data-lw="monthly">
+          </div>
+          <div class="lw-control">
+            <label for="lwRate" data-i18n="l2.widget.rate">Tasa anual</label>
+            <output for="lwRate" id="lwRateOut">8%</output>
+            <input type="range" id="lwRate" min="4" max="12" step="0.5" value="8" data-lw="rate">
+          </div>
+          <div class="lw-control">
+            <label for="lwYears" data-i18n="l2.widget.years">Años</label>
+            <output for="lwYears" id="lwYearsOut">20</output>
+            <input type="range" id="lwYears" min="1" max="30" step="1" value="20" data-lw="years">
+          </div>
+        </div>
+        <div class="lw-chart">
+          <canvas id="lwCanvas" role="img" aria-label="Gráfica de líneas: tus aportes solos contra el mismo dinero componiéndose cada mes. El resultado se resume abajo." data-i18n-aria="l2.widget.chartAria"></canvas>
+        </div>
+        <p class="lw-legend">
+          <span class="lw-key"><span class="lw-dot lw-dot-contrib" aria-hidden="true"></span><span data-i18n="l2.widget.contrib">Solo tus aportes</span></span>
+          <span class="lw-key"><span class="lw-dot lw-dot-compound" aria-hidden="true"></span><span data-i18n="l2.widget.compound">Con interés compuesto</span></span>
+        </p>
+        <p class="lw-summary" data-lw-summary data-i18n="l2.widget.summary" data-tpl-en="After {years} years: {total} — of which only {contrib} came from you.">A los 20 años: $589,020 — de los cuales solo $240,000 los pusiste tú.</p>
+        <p class="lw-note" data-i18n="l2.widget.note">Un ejemplo educativo con tasa constante y capitalización mensual — los rendimientos reales varían año con año.</p>
+      </div>
+
       <div class="callout">
         <p data-i18n="l2.callout" data-i18n-html>Una regla que vale la pena memorizar: divide 72 entre tu tasa anual y te da más o menos los años que tardas en duplicar tu dinero. Al 8%, unos nueve años. Al 3%, veinticuatro. Es aproximada, y alcanza para checar cualquier promesa que te hagan.</p>
       </div>
@@ -145,7 +183,8 @@
 
     <div class="article-foot">
       <div class="article-cta">
-        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-primary" data-i18n="article.cta_primary">Conecta en LinkedIn</a>
+        <a href="/es#newsletter" class="btn btn-primary" data-i18n="article.cta_news">Recibe el boletín diario</a>
+        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="article.cta_linkedin">Conecta en LinkedIn</a>
         <a href="/es/lecciones" class="btn btn-outline" data-i18n="article.cta_secondary">Más lecciones</a>
       </div>
     </div>
@@ -160,9 +199,11 @@
       <p class="footer-tagline" data-i18n="footer.tagline">Finanzas que sí se entienden.</p>
     </div>
     <nav class="footer-links">
+      <a href="/es" data-i18n="nav.home">Inicio</a>
       <a href="/es#about" data-i18n="nav.about">Acerca de</a>
       <a href="/es/mercado" data-i18n="nav.market">Mercado</a>
       <a href="/es/lecciones" data-i18n="nav.lessons">Lecciones</a>
+      <a href="/es#newsletter" data-i18n="nav.subscribe">Suscríbete</a>
       <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok</a>
     </nav>
@@ -180,7 +221,8 @@ window.ARTICLE_I18N = {
   'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones', 'nav.subscribe': 'Suscríbete',
   'article.back': '← Volver a Smart Finance',
   'article.eyebrow': 'Lección 02 · Lo básico',
-  'article.cta_primary': 'Conecta en LinkedIn',
+  'article.cta_news': 'Recibe el boletín diario',
+  'article.cta_linkedin': 'Conecta en LinkedIn',
   'article.cta_secondary': 'Más lecciones',
   'footer.tagline': 'Finanzas que sí se entienden.',
   'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.',
@@ -203,6 +245,21 @@ window.ARTICLE_I18N = {
   'l2.p7': 'El interés compuesto no es una línea recta, y justo por eso la gente se sale. Los primeros años el crecimiento se ve casi plano, indistinguible de nada más ahorrar. Casi todo el avance visible en ese tramo viene de tus propios depósitos, no de los rendimientos.',
   'l2.p8': 'La parte interesante llega después, cuando los intereses que genera tu dinero empiezan a ser más grandes que lo que tú estás metiendo. Llegar a ese punto exige hacer algo poco glamoroso durante años mientras parece que no está pasando nada. Esa, y no las matemáticas, es la dificultad real.',
 
+  /* La calculadora de la curva (assets/lesson-widgets.js). summary trae los
+     valores del ejemplo inicial, para que la página se lea bien sin
+     JavaScript; summary_tpl es la plantilla que el script rellena en vivo —
+     {years}, {total} y {contrib} se sustituyen tal cual. */
+  'l2.widget.eyebrow': 'Mira la curva con tus números',
+  'l2.widget.monthly': 'Aporte mensual (MXN)',
+  'l2.widget.rate': 'Tasa anual',
+  'l2.widget.years': 'Años',
+  'l2.widget.contrib': 'Solo tus aportes',
+  'l2.widget.compound': 'Con interés compuesto',
+  'l2.widget.chartAria': 'Gráfica de líneas: tus aportes solos contra el mismo dinero componiéndose cada mes. El resultado se resume abajo.',
+  'l2.widget.summary': 'A los 20 años: $589,020 — de los cuales solo $240,000 los pusiste tú.',
+  'l2.widget.summary_tpl': 'A los {years} años: {total} — de los cuales solo {contrib} los pusiste tú.',
+  'l2.widget.note': 'Un ejemplo educativo con tasa constante y capitalización mensual — los rendimientos reales varían año con año.',
+
   'l2.callout': 'Una regla que vale la pena memorizar: divide 72 entre tu tasa anual y te da más o menos los años que tardas en duplicar tu dinero. Al 8%, unos nueve años. Al 3%, veinticuatro. Es aproximada, y alcanza para checar cualquier promesa que te hagan.',
 
   'l2.h4': 'La misma fuerza, apuntándote a ti',
@@ -219,5 +276,9 @@ window.ARTICLE_I18N = {
 };
 </script>
 <script src="/assets/article.js"></script>
+<!-- Chart.js solo en esta lección: es la única con gráfica. Misma URL y misma
+     versión que ya usa el home, para que el navegador la traiga de caché. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="/assets/lesson-widgets.js"></script>
 </body>
 </html>

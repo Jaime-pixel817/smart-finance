@@ -4,12 +4,6 @@
    tarjetas son una copia 1:1 de las que estaban en index.html para que se
    vean idénticas a como se veían en la home. */
 
-:root {
-  /* article.css no lo define porque ningún artículo lo usa; el fondo del
-     icono de cada tarjeta sí. Mismo valor que en index.html. */
-  --brand-soft: #0E211A;
-}
-
 /* ---------- Encabezado de la página ---------- */
 .lessons { padding: 44px 0 88px; }
 .lessons-eyebrow {

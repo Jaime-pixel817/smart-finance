@@ -107,7 +107,7 @@
   font-size: .74rem; color: var(--muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
 }
-.mkt-note { font-family: var(--font-mono); font-size: .62rem; color: var(--muted); opacity: .8; margin-left: auto; flex-shrink: 0; }
+.mkt-note { font-family: var(--font-mono); font-size: .68rem; color: var(--muted); margin-left: auto; flex-shrink: 0; }
 
 .mkt-price { font-family: var(--font-mono); font-size: 1.44rem; font-weight: 600; line-height: 1.1; }
 .mkt-change { font-family: var(--font-mono); font-size: .84rem; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }

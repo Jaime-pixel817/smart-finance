@@ -52,17 +52,17 @@ const PAGINAS = [
     enUrl: '/', esUrl: '/es',
     imgAlt: 'Smart Finance — finanzas que sí se entienden, por Jaime Sandoval Ricaño',
     title: 'Smart Finance — Finanzas actualizadas, por Jaime Sandoval',
-    desc: 'Educación financiera, mercados y dinero, explicados claro. Datos en vivo y explicaciones de verdad. Sigue a Smart Finance en LinkedIn y TikTok.',
+    desc: 'Educación financiera, mercados y dinero, explicados claro. Datos diarios y explicaciones de verdad. Sigue a Smart Finance en LinkedIn y TikTok.',
     ogTitle: 'Smart Finance — Finanzas actualizadas, por Jaime Sandoval',
-    ogDesc: 'Educación financiera en palabras normales. Datos de mercado en vivo, explicaciones claras, sin jerga.'
+    ogDesc: 'Educación financiera en palabras normales. Datos de mercado diarios, explicaciones claras, sin jerga.'
   },
   {
     en: 'market/index.html', es: 'es/mercado/index.html',
     enUrl: '/market', esUrl: '/es/mercado',
     imgAlt: 'Smart Finance — Mercado: acciones, divisas y cripto',
-    title: 'Mercados en vivo: acciones, divisas y cripto — Smart Finance',
+    title: 'Mercados hoy: acciones, divisas y cripto — Smart Finance',
     desc: 'Siete acciones y ETF de índices, seis pares de divisas, el VIX y cuatro criptomonedas grandes, cada uno con su gráfica de tendencia. Los precios se actualizan cada 15 minutos.',
-    ogTitle: 'Mercados en vivo: acciones, divisas y cripto — Smart Finance',
+    ogTitle: 'Mercados hoy: acciones, divisas y cripto — Smart Finance',
     ogDesc: 'Acciones, divisas y cripto en un solo lugar, cada cosa con su gráfica de tendencia. Se actualiza cada 15 minutos.'
   },
   {
@@ -271,6 +271,18 @@ function traducirAlt(html, dic, avisos) {
   });
 }
 
+// Los aria-label: mismo mecanismo que los alt, marcados con data-i18n-aria.
+// Solo los oye quien navega con lector de pantalla, pero en /es también
+// tienen que estar en español.
+function traducirAria(html, dic, avisos) {
+  return html.replace(/<[a-z0-9]+\b[^>]*\bdata-i18n-aria="[^"]+"[^>]*>/gi, (tag) => {
+    const m = tag.match(/\bdata-i18n-aria="([^"]+)"/);
+    const valor = dic[m[1]];
+    if (valor === undefined) { avisos.push('sin traducción (aria): ' + m[1]); return tag; }
+    return tag.replace(/\baria-label="[^"]*"/, 'aria-label="' + attr(valor) + '"');
+  });
+}
+
 // Enlaces internos → su equivalente en español.
 function reescribirEnlaces(html) {
   return html.replace(/\b(href)="([^"]*)"/gi, (todo, at, url) => {
@@ -474,6 +486,7 @@ function construir() {
     let out = html;
     out = traducirContenido(out, dic, avisos);
     out = traducirAlt(out, dic, avisos);
+    out = traducirAria(out, dic, avisos);
     out = reescribirEnlaces(out);
     out = absolutizarRecursos(out);
     out = traducirDatosEstructurados(out, pag, enTitle, enDesc);

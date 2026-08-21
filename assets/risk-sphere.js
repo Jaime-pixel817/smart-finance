@@ -587,7 +587,13 @@ async function initRiskSphere() {
   };
   const fovRad    = THREE.MathUtils.degToRad(camera.fov);
   const visibleHW = 2 * Math.tan(fovRad / 2) * camera.position.z;
-  const aspect    = container.clientWidth / container.clientHeight;
+  /* En el primer frame el contenedor puede medir 0 (el CSS del hero todavía
+     no le da alto): 0/0 es NaN, los sigmas de abajo salían NaN y ese NaN
+     acababa en computeBoundingSphere ("Computed radius is NaN" en consola).
+     Respaldo 1 — onResize ajusta cámara y renderer cuando ya hay tamaño. */
+  const aspect    = (container.clientWidth > 0 && container.clientHeight > 0)
+    ? container.clientWidth / container.clientHeight
+    : 1;
   const groupScale = Math.min(BASE_SCALE, (visibleHW * aspect * 0.85) / (2 * R));
   const visibleH = visibleHW / groupScale;
   const visibleW = visibleH * aspect;

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Finance — Finanzas actualizadas, por Jaime Sandoval</title>
-<meta name="description" content="Educación financiera, mercados y dinero, explicados claro. Datos en vivo y explicaciones de verdad. Sigue a Smart Finance en LinkedIn y TikTok.">
+<meta name="description" content="Educación financiera, mercados y dinero, explicados claro. Datos diarios y explicaciones de verdad. Sigue a Smart Finance en LinkedIn y TikTok.">
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://smartfinance.lat/es">
 <link rel="alternate" hreflang="en" href="https://smartfinance.lat/">
@@ -13,7 +13,7 @@
 <script src="/assets/lang.js"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23000000'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="Smart Finance — Finanzas actualizadas, por Jaime Sandoval">
-<meta property="og:description" content="Educación financiera en palabras normales. Datos de mercado en vivo, explicaciones claras, sin jerga.">
+<meta property="og:description" content="Educación financiera en palabras normales. Datos de mercado diarios, explicaciones claras, sin jerga.">
 <meta property="og:locale" content="es_MX">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:type" content="website">
@@ -25,7 +25,7 @@
 <meta property="og:image:alt" content="Smart Finance — finanzas que sí se entienden, por Jaime Sandoval Ricaño">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Smart Finance — Finanzas actualizadas, por Jaime Sandoval">
-<meta name="twitter:description" content="Educación financiera en palabras normales. Datos de mercado en vivo, explicaciones claras, sin jerga.">
+<meta name="twitter:description" content="Educación financiera en palabras normales. Datos de mercado diarios, explicaciones claras, sin jerga.">
 <meta name="twitter:image" content="https://smartfinance.lat/og-image-es.jpg">
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
@@ -66,7 +66,7 @@
       "name": "Smart Finance",
       "alternateName": "Smart Finance — Finanzas que sí se entienden",
       "url": "https://smartfinance.lat/es",
-      "description": "Financial education, markets, and money, explained clearly. Live data, real breakdowns.",
+      "description": "Financial education, markets, and money, explained clearly. Daily data, real breakdowns.",
       "inLanguage": ["en", "es-MX"],
       "publisher": { "@id": "https://smartfinance.lat/#organization" }
     }
@@ -1072,14 +1072,14 @@
           </div>
         </div>
       </div>
-      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Rotating globe of world markets"></div>
+      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Globo giratorio de los mercados del mundo" data-i18n-aria="aria.globe"></div>
       <!-- Señal de que hay más abajo. aria-hidden: no aporta nada a quien no la
            ve, y el contenido siguiente ya está en el DOM. -->
       <a class="scroll-cue" href="#about" aria-hidden="true" tabindex="-1">
         <span class="scroll-cue-line"></span>
       </a>
     </div>
-    <div class="ticker" aria-label="Live market ticker">
+    <div class="ticker" aria-label="Cinta de mercado (datos con retraso)" data-i18n-aria="aria.ticker">
       <div class="ticker-track" id="tickerTrack"></div>
     </div>
   </section>
@@ -1254,7 +1254,7 @@
 
   <section id="content" class="content reveal">
     <div class="wrap">
-      <p class="eyebrow" data-i18n="content.eyebrow">Últimas lecciones</p>
+      <p class="eyebrow" data-i18n="content.eyebrow">Mis publicaciones</p>
       <h2 class="section-title" data-i18n="content.title">Explicaciones recientes</h2>
       <!-- Decía "as you post more": le hablaba a mí, no a quien lee. -->
       <p class="section-sub" data-i18n="content.sub">Mis publicaciones reales de LinkedIn y TikTok — se actualiza conforme voy publicando.</p>
@@ -1403,10 +1403,10 @@
           <p class="section-sub news-sub"><span data-i18n="news.sub">Las noticias de mercado y negocios más importantes de Bloomberg, con mi lectura de cada una.</span><span class="swipe-hint" data-i18n="news.swipe"> Desliza para ver más.</span></p>
         </div>
         <div class="news-rail-arrows" data-news-arrows>
-          <button class="news-arrow" type="button" data-news-prev aria-label="Previous headlines">
+          <button class="news-arrow" type="button" data-news-prev aria-label="Titulares anteriores" data-i18n-aria="aria.newsPrev">
             <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
-          <button class="news-arrow" type="button" data-news-next aria-label="More headlines">
+          <button class="news-arrow" type="button" data-news-next aria-label="Más titulares" data-i18n-aria="aria.newsNext">
             <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
@@ -1552,6 +1552,11 @@
     'hero.title': 'Finanzas Que<br>Sí Se Entienden.',
     'hero.newsletter': 'Recibe el correo diario',
     'hero.linkedin': 'LinkedIn', 'hero.tiktok': 'TikTok',
+    // aria-labels: texto que solo oye quien navega con lector de pantalla. En
+    // el HTML van marcados con data-i18n-aria, que el generador aplica igual
+    // que data-i18n-alt.
+    'aria.globe': 'Globo giratorio de los mercados del mundo',
+    'aria.ticker': 'Cinta de mercado (datos con retraso)',
     // Los alt de las fotos: el HTML los trae en inglés y aquí está su versión
     // en español. El de la foto del "Acerca de" faltaba, así que en /es decía
     // "Jaime, founder of Smart Finance" dentro de una página en español.
@@ -1588,6 +1593,8 @@
     'news.eyebrow': 'Noticias financieras · Bloomberg', 'news.title': 'En los titulares',
     'news.sub': 'Las noticias de mercado y negocios más importantes de Bloomberg, con mi lectura de cada una.',
     'news.swipe': ' Desliza para ver más.',
+    'aria.newsPrev': 'Titulares anteriores',
+    'aria.newsNext': 'Más titulares',
     'news.cargando': 'Cargando los últimos titulares…',
     'news.cat.rates': 'Tasas',
     'news.cat.markets': 'Mercados',
@@ -1595,7 +1602,7 @@
     'news.cat.crypto': 'Cripto',
     'news.cat.policy': 'Política',
     'news.cat.economy': 'Economía',
-    'content.eyebrow': 'Últimas lecciones', 'content.title': 'Explicaciones recientes',
+    'content.eyebrow': 'Mis publicaciones', 'content.title': 'Explicaciones recientes',
     'content.sub': 'Mis publicaciones reales de LinkedIn y TikTok — se actualiza conforme voy publicando.',
     'content.watch': 'Ver en TikTok',
     'content.read': 'Ver en LinkedIn',

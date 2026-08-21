@@ -126,6 +126,45 @@ button { font-family: inherit; cursor: pointer; }
 }
 .callout p { margin-bottom: 0; }
 
+/* ---------- Widget interactivo de lección (assets/lesson-widgets.js) ----------
+   Misma superficie de tarjeta que el resto del sitio. Los <p> de dentro no
+   son párrafos de artículo: el reset de abajo les quita el margen que les da
+   .article-body p, y cada pieza separa con margin-top, que ese reset no toca. */
+.lesson-widget {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: var(--card-pad); margin: 26px 0;
+}
+.article-body .lesson-widget p { margin-bottom: 0; }
+.lesson-widget .lw-eyebrow {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+  font-weight: 600; color: var(--gold-text); text-transform: uppercase;
+}
+.lw-controls { display: grid; gap: 16px; margin: 16px 0 18px; }
+@media (min-width: 640px) { .lw-controls { grid-template-columns: repeat(3, 1fr); } }
+.lw-control { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 4px 10px; }
+.lw-control label { font-size: 0.78rem; color: var(--muted); }
+.lw-control output {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 0.85rem; font-weight: 600; color: var(--ink); text-align: right;
+}
+.lw-control input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--brand); }
+/* Alto fijo: Chart.js con maintainAspectRatio:false necesita que lo dé el
+   contenedor, y así la tarjeta no salta cuando la gráfica termina de montar. */
+.lw-chart { position: relative; height: 230px; }
+.lesson-widget .lw-legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  margin-top: 12px; font-size: 0.78rem; color: var(--muted);
+}
+.lw-key { display: inline-flex; align-items: center; gap: 7px; }
+.lw-dot { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.lw-dot-contrib { background: var(--muted); }
+.lw-dot-compound { background: var(--brand); }
+.lesson-widget .lw-summary {
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);
+  font-size: 0.95rem; color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.lesson-widget .lw-note { margin-top: 8px; font-size: 0.74rem; color: var(--muted); }
+
 .article-foot { margin-top: 46px; padding-top: 28px; border-top: 1px solid var(--line); }
 .article-foot .disclaimer { font-size: 0.78rem; color: var(--muted); margin-bottom: 22px; }
 .article-cta { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -147,4 +186,5 @@ button { font-family: inherit; cursor: pointer; }
      barra 5px fuera de la pantalla en /market y las lecciones. */
   .article { padding: 32px 0 60px; }
   .article-body h2 { margin-top: 32px; }
+  .lw-chart { height: 200px; }
 }
