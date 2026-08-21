@@ -14,7 +14,7 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 
 ## Stack
 
-- HTML estático + JS vanilla. Sin framework, sin bundler, sin build del sitio. Chart.js 4.4 y three.js por CDN.
+- HTML estático + JS vanilla. Sin framework, sin bundler, sin build del sitio. Chart.js 4.4 por CDN (con `defer`). Sin three.js: el globo del hero se quitó.
 - Funciones serverless CommonJS en `/api` (Vercel). Redis de Upstash vía `api/_lib/redis.js`.
 - Boletín diario: cron de Vercel a las 14:00 UTC → `/api/send-newsletter` (Resend, doble opt-in, gráfica del dólar dibujada server-side con `api/_lib/lienzo.js` + `grafica.js`). Modo ensayo: `?dry=1`.
 - Env vars (`.env.local`): `TWELVE_DATA_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `CRON_SECRET`, `KV_REST_API_URL`/`KV_REST_API_TOKEN`.
