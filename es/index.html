@@ -251,16 +251,16 @@
     position:relative; overflow:hidden;
     padding: 48px 0 0;
   }
-  /* Sin el globo (se quitó: three.js + risk-sphere.js eran ~650 KB de
-     decoración que no leía ningún dato), el hero es solo el bloque de texto.
-     En escritorio va centrado verticalmente en una caja que ya no tiene que
-     medir tres cuartos de pantalla: el ticker y el "Acerca de" se asoman sin
-     hacer scroll. En móvil (bloque de 767px) la caja se ajusta al contenido. */
+  /* En escritorio el bloque de texto va ARRIBA: el titular empieza justo
+     debajo del nav y el globo se queda con la mitad de abajo de la pantalla.
+     En móvil NO — ahí vuelve al centro vertical de la pantalla (ver el bloque
+     de 767px), porque el hero mide exactamente una pantalla y con el texto
+     pegado arriba quedaba un hueco grande entre los botones y el ticker. */
   .hero-grid {
     position:relative;
-    min-height: clamp(380px, 54vh, 600px);
+    min-height: clamp(520px, 76vh, 780px);
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     z-index:1;
   }
   .hero-inner {
@@ -269,7 +269,8 @@
     padding: 24px 0;
   }
   /* Fraunces se queda AQUÍ y en ningún otro lado del sitio.
-     El tope de 4.8rem se probó contra el caso apretado
+     El tamaño subió: el titular volvió a crecer para acompañar al globo, que
+     también es más grande. El tope de 4.8rem se probó contra el caso apretado
      —.hero-inner mide 600px y "Actually Clicks." es la línea más larga— y entra
      con margen; el suelo de 2.4rem es el de tablet, porque de 767px para abajo
      manda el bloque de móvil.
@@ -314,6 +315,29 @@
     white-space: nowrap;
     text-shadow: 0 1px 2px rgba(0,0,0,0.9);
   }
+  /* El globo, más grande.
+     El alto es lo que manda: la esfera ocupa siempre el 87 % del ALTO de esta
+     caja (el escalado del grupo topa en BASE_SCALE en cuanto la caja es más
+     ancha que alta), así que subir el alto es lo único que la hace crecer de
+     verdad. De 94vh a 118vh son 750px de esfera → 940px en una pantalla de
+     1080 de alto.
+     No cuesta más píxeles: assets/risk-sphere.js no dimensiona el lienzo por
+     la caja sino por un presupuesto de área (MAX_CANVAS_PX), y baja el DPR
+     solo para no pasarse. La caja crece 2.3× y el lienzo apenas 1.4×. */
+  /* El globo se corrió MÁS a la derecha (de -13vw a -22vw) por lo mismo que en
+     móvil bajó: la esfera monocromática es mucho más clara que el mapa que
+     había antes, y en escritorio se metía por debajo de "Actually Clicks."
+     dejando el titular en 3.5:1. Aquí la separación es horizontal en vez de
+     vertical, porque el texto vive a la izquierda y el globo a la derecha. */
+  .hero-globe-wrap {
+    position:absolute; z-index:0;
+    top:50%; right: clamp(-620px, -30vw, -260px);
+    transform: translateY(-50%);
+    width: min(1240px, 76vw);
+    height: min(1400px, 118vh);
+    touch-action: pan-y;
+    pointer-events:auto;
+  }
   /* ---------- Lo que sustituye al velo ----------
      Antes había un rectángulo con dos degradados: uno radial y otro lineal con
      bandas arriba y abajo. Las bandas terminaban en seco en el borde de la
@@ -350,6 +374,11 @@
       rgba(0,0,0,0.30) 62%,
       rgba(0,0,0,0) 90%);
   }
+  .hero-globe-wrap canvas {
+    display:block;
+    touch-action: pan-y;
+    pointer-events:auto;
+  }
   /* Los tres botones no ocupan el ancho: se quedan del tamaño de su texto y
      alineados a la izquierda, debajo del eyebrow. Ya no son más chicos que los
      .btn del resto del sitio — en el ajuste anterior se habían quedado
@@ -359,7 +388,13 @@
      gap que su padre, así que los tres botones se leen como una sola fila. */
   .hero-cta-social { display:flex; gap:12px; flex-wrap:wrap; }
   .hero-cta .btn { padding: 14px 28px; font-size: 1rem; }
-  /* Los dos de contorno llevan un relleno translúcido, sin backdrop-filter. */
+  /* Los dos de contorno van sobre el globo, no sobre el fondo: sin relleno, su
+     texto blanco queda contra las partículas igual que el titular. El relleno
+     translúcido lo resuelve con la forma que ya tiene el botón —una píldora—
+     en vez de con un rectángulo, que es justo lo que se quería quitar.
+     Sin backdrop-filter a propósito: desenfocar lo que hay detrás obliga al
+     navegador a mantener una superficie de composición aparte y a rehacerla en
+     CADA frame del globo. Por dos botones no vale ese precio en un teléfono. */
   .hero-cta .btn-outline { background: rgba(0,0,0,0.45); }
   .hero-cta .btn-outline:hover { background: var(--card-2); }
 
@@ -367,33 +402,62 @@
     .hero { padding-top: 32px; }
     .hero .hero-grid { flex-direction: column; align-items: stretch; min-height: 0; }
     .hero .hero-inner { max-width: 100%; }
+    .hero .hero-globe-wrap {
+      position: relative; right: auto; top: auto; transform: none;
+      width: 100%; height: 340px; order: 2; margin: 8px 0 0;
+    }
     .hero .hero-cta { margin-bottom: 32px; }
   }
 
-  /* ---------- Móvil ----------
-     Hasta 767px el hero ya NO mide una pantalla completa. Eso tenía sentido
-     cuando el globo llenaba el fondo; sin él, una pantalla entera con solo el
-     titular y tres botones era un hueco. Ahora la caja se ajusta al contenido,
-     con aire arriba y abajo, y el ticker y el "Acerca de" quedan a la vista. */
+  /* ---------- Móvil: el texto vuelve a ir ENCIMA del globo ----------
+     Hasta 767px se deshace el apilado del bloque de arriba. El globo conserva
+     su tamaño (100% de ancho × 340px de alto) pero pasa a capa de fondo, y el
+     titular, la línea pequeña y los botones se superponen igual que en
+     escritorio. El velo de .hero-grid::before es lo que mantiene el texto
+     legible sobre las partículas. */
   @media (max-width: 767px) {
+    /* El hero ocupa la pantalla completa al cargar, y el ticker va DENTRO de
+       esa pantalla: como .hero es flex en columna y el ticker es su último
+       hijo, queda pegado abajo sin cortarse. Así la siguiente sección (About)
+       empieza justo en el borde inferior y no se alcanza a ver sin scroll.
+       100vh primero como respaldo; 100dvh es el que descuenta la barra del
+       navegador en móvil, que es lo que hacía que el ticker quedara fuera. */
     .hero {
       padding-top: 12px;
+      /* Se resta el nav: es sticky pero ocupa lugar en el flujo, así que el
+         hero empieza debajo de él. Con 100dvh a secas el hero medía una
+         pantalla completa EMPEZANDO bajo el nav, y el ticker terminaba esa
+         misma altura por debajo del borde inferior.
+         El valor ya NO va a mano: assets/nav.js mide la barra y publica su
+         alto real en --nav-h sobre el <html>. Antes había aquí un 61px escrito
+         a pulso, con un comentario avisando de que había que actualizarlo si
+         cambiaba el padding del nav — que es exactamente lo que acaba de pasar
+         al rehacer la barra. Los 53px son solo el respaldo para el instante
+         anterior a que corra el JS (9 + 34 + 9 + 1 de borde). */
+      min-height: calc(100vh - var(--nav-h, 53px));
+      min-height: calc(100dvh - var(--nav-h, 53px));
       display: flex;
       flex-direction: column;
     }
-    /* El bloque de texto, centrado y a todo el ancho. */
+    /* justify-content: center. El bloque de texto se centra en el alto que
+       queda entre el nav y el ticker, alineado a la izquierda. El globo va
+       absoluto, así que no participa de este centrado: se coloca por su cuenta
+       unas líneas más abajo. */
     .hero .hero-grid {
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: stretch;
+      /* flex:1 se come el alto que sobra; min-height:0 evita que el contenido
+         empuje el hero más allá de la pantalla. */
+      flex: 1;
       min-height: 0;
       /* Solo el espaciado vertical: .hero-grid ES el .wrap, así que usar el
          atajo "padding" borraría los 20px de los lados y el titular quedaría
          pegado al borde de la pantalla. */
-      padding-top: 44px;
-      padding-bottom: 48px;
+      padding-top: 14px;
+      padding-bottom: 20px;
       /* ANULA EL margin:0 auto DE .wrap. Es lo que estaba impidiendo centrar
          nada: en un flex en columna, un margen lateral automático encoge la
          caja hasta su contenido en vez de estirarla. O sea que .hero-grid
@@ -401,7 +465,8 @@
          quedaba centrada como bloque, con el texto pegado a SU izquierda.
          Centrar el texto dentro de una caja que abraza al texto no hace nada.
          Con los márgenes a cero la caja ocupa el ancho completo y ya hay
-         dónde centrar. */
+         dónde centrar. De paso el globo, que se posiciona contra esta caja,
+         deja de depender del largo del titular. */
       margin-left: 0;
       margin-right: 0;
     }
@@ -417,9 +482,44 @@
        por omisión los manda a la izquierda. Por eso el titular y los botones
        se centraban y esta línea no. */
     .hero .eyebrow { justify-content: center; }
+    /* EL GLOBO: entero dentro de la pantalla, y centrado de verdad.
+       La esfera ocupa el 85 % del alto de esta caja cuando la caja es cuadrada,
+       así que una caja de 100vw deja una esfera del 85 % del ancho de la
+       pantalla, con el 7.5 % de margen a cada lado:
+         320px → caja 320, esfera 272, margen 24 a cada lado
+         390px → caja 390, esfera 331, margen 29 a cada lado
+       Antes la caja medía 128vw y la esfera se salía por los dos costados.
+       Sigue sin provocar scroll horizontal, y ahora ni siquiera hace falta el
+       overflow:hidden de .hero para eso.
+
+       El centro vuelve al 50 %: el texto va ENCIMA del globo otra vez, que es
+       la composición que se pidió. Estuvo en 72 % mientras la esfera llevaba
+       fronteras y semáforo encima —había que apartar el texto de todo aquel
+       ruido—, pero una esfera lisa y más chica ya no obliga a esquivarla.
+
+       left:50% se mide contra .hero-grid, que ahora ocupa el ancho completo
+       (ver el margin-left/right:0 de arriba), así que el 50 % es el centro de
+       la pantalla y no el centro del titular. */
+    .hero .hero-globe-wrap {
+      position: absolute; z-index: 0;
+      top: 50%; left: 50%; right: auto;
+      transform: translate(-50%, -50%);
+      width: min(100vw, 460px); height: min(100vw, 460px);
+      order: 0; margin: 0;
+    }
     /* El degradado de arriba, ajustado a móvil: el bloque de texto está
        centrado en la pantalla (no pegado a la izquierda como en escritorio),
-       así que el foco se va al 50 % de ancho. */
+       así que el foco se va al 50 % de ancho, y se abre un poco porque aquí la
+       esfera queda justo detrás. Sigue siendo UN radial, sin bandas y sobre
+       una caja de 100vw: ni un borde visible.
+
+       CUÁNTO PESA. Con el texto otra vez ENCIMA de la esfera, este degradado
+       vuelve a ser lo único que separa una cosa de la otra, y se nota: medido
+       sobre los píxeles del canvas, sin él el titular se queda en 3.6:1 y con
+       él pasa de 5.4:1. No se puede subir mucho más porque oscurece la esfera
+       justo donde tiene que verse blanca — de ahí que el ajuste fino se
+       reparta entre este 0.74 y el brillo del globo, en vez de cargarlo todo
+       aquí. Sigue sin borde visible: llega a cero al 90 % del radio. */
     .hero .hero-grid::before {
       top: 0;
       background: radial-gradient(100% 44% at 50% 38%,
@@ -432,8 +532,12 @@
       position: relative; z-index: 2;
       max-width: 100%;
       padding: 0;
+      /* El bloque de texto no intercepta el dedo: así el globo se sigue
+         pudiendo girar aunque esté debajo. Los botones lo recuperan abajo. */
+      pointer-events: none;
     }
     .hero .hero-cta { margin-bottom: 0; }
+    .hero .hero-cta .btn { pointer-events: auto; }
 
     /* Dos filas fijas: el boletín arriba, solo; LinkedIn y TikTok abajo,
        juntos. Con una sola fila que envolviera sola, el reparto dependía del
@@ -649,7 +753,8 @@
   .rate-stale { font-size:0.88rem; color: var(--muted); line-height:1.55; margin-top:10px; }
 
   /* ---------- Señal de scroll ----------
-     Una línea corta que baja y se desvanece. Va absoluta al fondo del hero. */
+     Una línea corta que baja y se desvanece. Va absoluta al fondo del hero y
+     sin pointer-events salvo en su propia área: no debe estorbarle al globo. */
   .scroll-cue {
     position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
     z-index: 3; width: 26px; height: 40px;
@@ -972,6 +1077,7 @@
           </div>
         </div>
       </div>
+      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Globo giratorio de los mercados del mundo" data-i18n-aria="aria.globe"></div>
       <!-- Señal de que hay más abajo. aria-hidden: no aporta nada a quien no la
            ve, y el contenido siguiente ya está en el DOM. -->
       <a class="scroll-cue" href="#about" aria-hidden="true" tabindex="-1">
@@ -1445,6 +1551,11 @@
   </div>
 </footer>
 
+<!-- three.js con defer: no bloquea el primer pintado. El globo del hero
+     (assets/risk-sphere.js, al final del body) no arranca hasta después del
+     evento load de la ventana, y si el sistema pide menos movimiento
+     (prefers-reduced-motion) pinta un solo fotograma y se queda quieto. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 <!-- Chart.js con defer: no bloquea el primer pintado. assets/charts.js
      tolera que la librería llegue después que la primera respuesta de
      /api/history (ver Panel.prototype.load). -->
@@ -1491,6 +1602,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // aria-labels: texto que solo oye quien navega con lector de pantalla. En
     // el HTML van marcados con data-i18n-aria, que el generador aplica igual
     // que data-i18n-alt.
+    'aria.globe': 'Globo giratorio de los mercados del mundo',
     'aria.ticker': 'Cinta de mercado (datos con retraso)',
     // Enlace de salto al contenido: invisible hasta que recibe el foco.
     'a11y.skip': 'Saltar al contenido',
@@ -2047,5 +2159,9 @@ document.addEventListener('DOMContentLoaded', function(){
   })();
 });
 </script>
+<!-- El globo. Es un módulo (diferido por naturaleza) y además espera al
+     evento load + requestIdleCallback antes de montar la escena: ver
+     arrancarDiferido() al final del archivo. -->
+<script type="module" src="/assets/risk-sphere.js"></script>
 </body>
 </html>
