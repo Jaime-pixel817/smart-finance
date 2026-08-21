@@ -188,7 +188,7 @@
         tooltip: {
           backgroundColor: '#0A0A0C', borderColor: '#1D1D1D', borderWidth: 1,
           titleColor: '#F5F5F2', bodyColor: '#F5F5F2',
-          titleFont: { family: 'Geist Mono', size: 11 }, bodyFont: { family: 'Geist Mono', size: 12 },
+          titleFont: { family: 'Geist Mono', size: 11, weight: 500 }, bodyFont: { family: 'Geist Mono', size: 12 },
           padding: 10, displayColors: false,
           callbacks: callbacks
         }
@@ -422,7 +422,22 @@
         self.animarCifras();
 
         var canvas = self.o.canvas;
-        if (!canvas || typeof Chart === 'undefined') return;
+        if (!canvas) return;
+        // Chart.js se carga con defer, así que la primera respuesta de
+        // /api/history puede llegar antes que la librería. En ese caso se
+        // guarda el turno y se vuelve a pintar cuando termine de cargar la
+        // página (para entonces el <script defer> ya corrió). Si Chart nunca
+        // llega (CDN caído), no hay nada que pintar y aquí se queda.
+        if (typeof Chart === 'undefined') {
+          if (!self.esperandoChart && document.readyState !== 'complete') {
+            self.esperandoChart = true;
+            window.addEventListener('load', function () {
+              self.esperandoChart = false;
+              self.load();
+            }, { once: true });
+          }
+          return;
+        }
         var chartData = lineDataset(
           points.map(function (p) { return p[1]; }),
           points.map(function (p) { return formatTimestamp(p[0], self.range); }),
