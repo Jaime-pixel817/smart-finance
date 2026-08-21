@@ -66,7 +66,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--muted);
-  font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+  font-family: var(--font-mono); font-size: 0.68rem; font-weight: 500;
   letter-spacing: 0.02em;
   transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
@@ -77,7 +77,7 @@
   color: var(--ink);
 }
 
-.nav-cta { background: var(--brand); color: var(--on-brand) !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 700; }
+.nav-cta { background: var(--brand); color: var(--on-brand) !important; padding: 9px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 600; }
 .nav-cta:hover { background: var(--brand-hover); }
 
 /* ---------- Botón de menú (hamburguesa → X) ----------
@@ -180,6 +180,14 @@
   .site-nav.has-mobile-menu .nav-links { display: none; }
   .site-nav.has-mobile-menu .nav-toggle { display: flex; }
   .site-nav.has-mobile-menu .nav-mobile { display: grid; }
+  /* html.js la pone assets/lang.js desde el <head>, antes del primer pintado.
+     nav.js va con defer, así que en una red lenta la página se pintaba con
+     los cinco enlaces envueltos en dos renglones (barra de 129 px) y, al
+     correr nav.js, la barra bajaba a 53 px y TODO lo de abajo saltaba 76 px:
+     un CLS de 0.32 en móvil, él solo. Con JavaScript los enlaces se esconden
+     desde el primer frame; el botón de menú llega unos milisegundos después.
+     Sin JavaScript no hay html.js y la regla de abajo sigue mandando. */
+  html.js .site-nav:not(.has-mobile-menu) .nav-links { display: none; }
 
   /* Sin JavaScript no se agrega .has-mobile-menu y los cinco enlaces se quedan
      en la barra. Eso ya empujaba la página a 540 px de ancho en un teléfono de
