@@ -1,0 +1,1030 @@
+<title>Smart Finance 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F7; --surface:#FFFFFF; --surface-2:#EAEEF2; --ink:#0F1B24; --muted:#58697A; --line:#D6DDE4;
+  --accent:#0E7C7B; --accent-ink:#0B5F5E; --accent-soft:#DCF0EE; --amber:#B86A12; --amber-soft:#FBEBD6;
+  --good:#1F8A5B; --good-soft:#DFF3E8; --warn:#B7791F; --warn-soft:#FBF0D9; --bad:#C0392B; --bad-soft:#F9E1DD; --info:#2D5BA9; --info-soft:#E1E9F7;
+  --code-bg:#EEF2F5; --shadow:0 1px 2px rgba(15,27,36,.06),0 8px 24px -16px rgba(15,27,36,.18);
+  --serif:"Fraunces",Georgia,"Times New Roman",serif; --sans:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --max:1040px; --read:72ch; --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1318; --surface:#121B22; --surface-2:#18232B; --ink:#E6EDF1; --muted:#93A3AE; --line:#24323B;
+    --accent:#3CC2B8; --accent-ink:#7ADBD3; --accent-soft:#12332F; --amber:#E0A04C; --amber-soft:#3A2A12;
+    --good:#3FBF7F; --good-soft:#123323; --warn:#E0B050; --warn-soft:#3A2F12; --bad:#F07A6C; --bad-soft:#3D1A16; --info:#7FA7EA; --info-soft:#162743;
+    --code-bg:#0F171D; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1318; --surface:#121B22; --surface-2:#18232B; --ink:#E6EDF1; --muted:#93A3AE; --line:#24323B;
+  --accent:#3CC2B8; --accent-ink:#7ADBD3; --accent-soft:#12332F; --amber:#E0A04C; --amber-soft:#3A2A12;
+  --good:#3FBF7F; --good-soft:#123323; --warn:#E0B050; --warn-soft:#3A2F12; --bad:#F07A6C; --bad-soft:#3D1A16; --info:#7FA7EA; --info-soft:#162743;
+  --code-bg:#0F171D; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-decoration-color:color-mix(in srgb,var(--accent) 45%,transparent);text-underline-offset:2px}
+a:hover{text-decoration-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+header.cover{padding:56px 0 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.05;margin:.35em 0 .3em;letter-spacing:-.01em;text-wrap:balance}
+.lede{font-size:1.1rem;color:var(--muted);max-width:var(--read);margin:0 0 22px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:26px 0 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow)}
+.kpi .v{font-family:var(--mono);font-size:1.45rem;font-weight:500;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:.78rem;color:var(--muted);margin-top:2px}
+.kpi.bad .v{color:var(--bad)} .kpi.good .v{color:var(--good)} .kpi.warn .v{color:var(--warn)}
+nav.toc{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav.toc ol{list-style:none;margin:0;padding:10px 0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+nav.toc ol::-webkit-scrollbar{display:none}
+nav.toc a{white-space:nowrap;font-family:var(--mono);font-size:.74rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--surface)}
+nav.toc a:hover{color:var(--ink);border-color:var(--accent)}
+main{padding:20px 0 80px}
+section.part{padding:44px 0 8px;border-bottom:1px solid var(--line)}
+section.part:last-of-type{border-bottom:0}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.2rem);line-height:1.12;margin:0 0 .25em;letter-spacing:-.01em;text-wrap:balance}
+h2 .n{font-family:var(--mono);font-weight:400;font-size:.8rem;color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:8px}
+h3{font-family:var(--sans);font-weight:600;font-size:1.12rem;margin:30px 0 8px;letter-spacing:-.005em}
+h4{font-family:var(--sans);font-weight:600;font-size:.98rem;margin:20px 0 6px}
+p,ul,ol{max-width:var(--read)}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 14px;padding-left:22px}
+li{margin:0 0 5px}
+li>ul{margin-top:4px}
+.lead{font-size:1.05rem;color:var(--muted);max-width:var(--read)}
+strong{font-weight:600}
+code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);padding:.1em .35em;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.5}
+pre.mermaid{background:var(--surface);text-align:center}
+.grid{display:grid;gap:12px;margin:14px 0 18px}
+.grid.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.grid.c3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.card h4{margin-top:0}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin:16px 0;max-width:none}
+.callout.decision{border-color:var(--amber);background:var(--amber-soft)}
+.callout.risk{border-color:var(--bad);background:var(--bad-soft)}
+.callout.good{border-color:var(--good);background:var(--good-soft)}
+.callout p{max-width:none}
+.callout .t{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tablewrap{overflow-x:auto;margin:12px 0 20px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--surface-2);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.pill.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.pill.accent{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent}
+.score{display:block;margin:10px 0 18px;max-width:680px}
+.score .bar{height:6px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin:6px 0 14px}
+.score .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.score .bar.bad i{background:var(--bad)} .score .bar.warn i{background:var(--warn)} .score .bar.good i{background:var(--good)}
+.score .k{display:block;font-weight:600;font-size:.95rem}
+.score .v{display:block;font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:2px}
+.checklist{list-style:none;padding:0}
+.checklist li{padding-left:26px;position:relative}
+.checklist li::before{content:"";position:absolute;left:0;top:.45em;width:14px;height:14px;border:1.5px solid var(--muted);border-radius:4px}
+.checklist li.done::before{background:var(--good);border-color:var(--good)}
+.two{columns:2;column-gap:28px}
+@media (max-width:720px){.two{columns:1}}
+.small{font-size:.85rem;color:var(--muted)}
+figure{margin:14px 0 20px}
+figcaption{font-size:.8rem;color:var(--muted);margin-top:6px}
+.phase{display:grid;grid-template-columns:92px 1fr;gap:12px;border-top:1px solid var(--line);padding:12px 0}
+.phase:last-child{border-bottom:1px solid var(--line)}
+.phase .w{font-family:var(--mono);font-size:.78rem;color:var(--accent-ink);padding-top:3px}
+.phase h4{margin:0 0 4px}
+.phase p{margin:0 0 4px;max-width:none;font-size:.92rem}
+.owner{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+footer.end{padding:30px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="eyebrow">SmartFinance.lat · Estrategia, arquitectura y roadmap · 21 agosto 2026</div>
+    <h1>Smart Finance 2.0</h1>
+    <p class="lede">De página personal a plataforma de inteligencia financiera para jóvenes: qué tenemos, qué sobra, qué falta, cómo se ve el producto nuevo, qué construimos primero y con qué empresa arranca Smart Finance Research.</p>
+    <div class="meta"><span>Para: <b>Jaime Sandoval</b></span><span>Estado: <b>propuesta para decisión</b> — nada se ha modificado en el repo</span><span>Evidencia: código, sitio en producción, Lighthouse, capturas móviles reales, búsquedas 2026</span></div>
+    <div class="kpis">
+      <div class="kpi bad"><div class="v">51/100</div><div class="l">Lighthouse rendimiento móvil (LCP 5.3 s)</div></div>
+      <div class="kpi good"><div class="v">100</div><div class="l">Accesibilidad · SEO 92 · Buenas prácticas 96</div></div>
+      <div class="kpi warn"><div class="v">766 KiB</div><div class="l">Peso del home; 122 KB es three.js sin usar</div></div>
+      <div class="kpi"><div class="v">18</div><div class="l">Rutas (9 EN + 9 ES) · 6 lecciones · 1 interactiva</div></div>
+      <div class="kpi bad"><div class="v">0</div><div class="l">Fuentes citadas en las lecciones</div></div>
+      <div class="kpi"><div class="v">54</div><div class="l">Commits en 29 días (91 % con Claude)</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Contenido"><div class="wrap"><ol>
+  <li><a href="#resumen">0 · Resumen</a></li>
+  <li><a href="#auditoria">1 · Auditoría</a></li>
+  <li><a href="#competidores">2 · Competidores</a></li>
+  <li><a href="#arquitectura">3 · Visión e IA</a></li>
+  <li><a href="#diseno">4 · Sistema de diseño</a></li>
+  <li><a href="#funciones">5 · Funciones y MVP</a></li>
+  <li><a href="#tecnologia">6 · Tecnología y datos</a></li>
+  <li><a href="#calidad">7 · Móvil, rendimiento, credibilidad</a></li>
+  <li><a href="#research">8 · Smart Finance Research</a></li>
+  <li><a href="#empresas">9 · Empresas</a></li>
+  <li><a href="#roadmap">10 · Roadmap</a></li>
+  <li><a href="#decisiones">11 · Decisiones</a></li>
+</ol></div></nav>
+
+<main class="wrap">
+
+<!-- ===================== 0 RESUMEN ===================== -->
+<section class="part" id="resumen">
+  <h2><span class="n">0 · Resumen ejecutivo</span>Lo que decidimos hoy</h2>
+  <p class="lead">El sitio actual es mejor de lo que parece por dentro (honestidad de datos, i18n real, boletín bien hecho) y peor de lo que parece por fuera (hero decorativo, producto escondido, móvil lento, sin fuentes). No hay que tirarlo: hay que <strong>reestructurarlo alrededor del producto</strong> y construir encima el pilar que lo diferencia, Smart Finance Research.</p>
+  <h3>Las 12 decisiones</h3>
+  <div class="grid c2">
+    <div class="card"><h4>1 · El home deja de ser una portada y pasa a ser el producto</h4><p>Fuera el globo (decorativo, 600 KB, ignora <code>reduced-motion</code>). La primera pantalla en móvil muestra el pulso del mercado, la noticia explicada del día y las puertas a Aprender y Research. "Sobre mí" baja al final y a <code>/about</code>.</p></div>
+    <div class="card"><h4>2 · Cinco puertas, no siete secciones</h4><p>Markets · News · Learn · Tools · Research, más About/Community y el boletín. Barra inferior de navegación en móvil, búsqueda global de activos y lecciones. Detalle en la sección 3.</p></div>
+    <div class="card"><h4>3 · Sistema de diseño 2.0 con modo claro y oscuro</h4><p>Conservamos lo que está bien (Geist + Geist Mono, contrastes medidos, honestidad de cadencia) y construimos tokens compartidos, componentes con estados y un elemento firma propio. Fraunces queda reservada a Research/editorial. Sección 4.</p></div>
+    <div class="card"><h4>4 · Migración incremental, no reescritura</h4><p>Mantener <code>/api</code> serverless y migrar el frontend a un framework estático con islas interactivas (recomendación en la sección 6) que elimine el nav duplicado ×18 y el generador de <code>/es</code> por regex. Ruta a ruta, sin romper SEO ni hreflang.</p></div>
+    <div class="card"><h4>5 · Capa de datos propia</h4><p>Caché compartida en Redis (ya conectado), proveedor abstracto con respaldo (Yahoo deja de ser fuente única), registro de símbolos dinámico, fundamentales desde SEC EDGAR, macro desde FRED y Banxico, todo etiquetado con fuente, retraso y hora.</p></div>
+    <div class="card"><h4>6 · Smart Finance Research es el nombre y el pilar</h4><p><code>/research</code> con metodología y disclaimers, y <code>/research/[empresa]</code> con reporte interactivo: DCF con sliders, escenarios bull/base/bear, comparables, gráficas de financieros, fuentes y fecha de datos. Sección 8.</p></div>
+    <div class="card"><h4>7 · Primera empresa: una sola, con tesis que responder</h4><p>Cinco candidatas evaluadas con datos recientes (sección 9). La recomendación y la pregunta de tesis están ahí; la decisión final es tuya.</p></div>
+    <div class="card"><h4>8 · Dos carriles en paralelo durante 12 semanas</h4><p>Carril plataforma (arreglos, diseño, markets, news, learn, tools) y carril research (empresa, modelo, reporte, interactividad, publicación, contenido). El research no espera al rediseño. Sección 10.</p></div>
+    <div class="card"><h4>9 · IA educativa acotada, no un chatbot</h4><p>"Explícame esto" sobre noticias, activos, conceptos y gráficas, siempre con datos del propio sistema, etiquetado como generado con IA y revisado, sin consejos personalizados. Lo abierto ("¿compro X?") se rechaza por diseño.</p></div>
+    <div class="card"><h4>10 · Credibilidad como proceso, no como footer</h4><p>Fuentes y fechas visibles en cada pieza, chip de retraso/fuente/hora en cada dato, separación opinión vs dato, disclosure de IA, página de metodología y checklist pre-deploy.</p></div>
+    <div class="card"><h4>11 · Proceso de producto real</h4><p>CI en GitHub Actions, <code>main</code> protegido, previews por PR, tests mínimos, README, agentes y skills versionados en el repo. Nada se despliega a producción sin pasar el checklist.</p></div>
+    <div class="card"><h4>12 · Lo que NO vamos a construir</h4><p>Feed de trading en tiempo real, cripto profundo, 30 calculadoras, cuentas de usuario, comentarios o red social, un clon de Bloomberg, una IA que responda cualquier cosa. Cada una de estas distrae del objetivo: que un admissions officer o un analista diga "esto es un producto real".</p></div>
+  </div>
+  <div class="callout decision"><div class="t">Cómo leer este documento</div><p>Las secciones 1–2 son evidencia; 3–9 son propuestas con recomendación explícita; 10 es el calendario; 11 es la lista de decisiones que te toca tomar. Todo lo marcado como <span class="pill warn">decisión</span> lo decides tú; lo marcado como <span class="pill accent">recomendación</span> es mi postura y puedes rechazarla.</p></div>
+</section>
+
+<!-- ===================== 1 AUDITORÍA ===================== -->
+<section class="part" id="auditoria">
+  <h2><span class="n">1 · Auditoría del Smart Finance actual</span>Qué tenemos, qué está escondido, qué sobra, qué falta</h2>
+  <p class="lead">Auditoría hecha sobre el repo (101 archivos, 54 commits), el sitio en producción (escritorio y móvil 390 px), Lighthouse y las APIs. Cada afirmación tiene referencia a archivo y línea.</p>
+
+  <h3>1.1 Scorecard</h3>
+  <div class="score">
+    <span class="k">Honestidad y credibilidad de datos</span><span class="v">7 / 10 — cadencias reales, disclaimers; pero 0 fuentes y IA sin disclosure</span><div class="bar good"><i style="width:70%"></i></div>
+    <span class="k">Contenido educativo</span><span class="v">6 / 10 — prosa buena; corta, sin fuentes, sin ruta, 1/6 interactiva</span><div class="bar"><i style="width:60%"></i></div>
+    <span class="k">Diseño visual</span><span class="v">5 / 10 — tokens cuidados, pero hero decorativo y producto escondido</span><div class="bar warn"><i style="width:50%"></i></div>
+    <span class="k">Experiencia móvil</span><span class="v">4 / 10 — primera pantalla sin producto, home de 7.400 px, LCP 5.3 s</span><div class="bar bad"><i style="width:40%"></i></div>
+    <span class="k">Rendimiento</span><span class="v">5 / 10 — 766 KiB, three.js sin usar, 1 MB de JPEG, 9 fuentes</span><div class="bar warn"><i style="width:50%"></i></div>
+    <span class="k">Arquitectura frontend</span><span class="v">4 / 10 — nav duplicado ×18, 49 KB CSS inline, build por regex</span><div class="bar bad"><i style="width:40%"></i></div>
+    <span class="k">Backend y datos</span><span class="v">5 / 10 — boletín sólido; Yahoo no oficial como única fuente, sin caché compartida</span><div class="bar warn"><i style="width:50%"></i></div>
+    <span class="k">SEO técnico</span><span class="v">7 / 10 — hreflang/JSON-LD correctos; sitemap y fechas stale, sin 404</span><div class="bar good"><i style="width:70%"></i></div>
+    <span class="k">Proceso (CI, tests, docs)</span><span class="v">2 / 10 — sin CI, sin tests, push a main = producción</span><div class="bar bad"><i style="width:20%"></i></div>
+  </div>
+
+  <h3>1.2 Diseño: lo que se ve</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Funciona y se queda</h4><ul>
+      <li><strong>Paleta con contrastes medidos</strong> (<code>tokens.css</code>): verde 9.2:1, rojo 6.4:1, texto 6.1:1; ▲▼ como canal redundante al color.</li>
+      <li><strong>Tipografía pensada</strong>: Geist + Geist Mono separadas por glifos ambiguos (0/O, l/I), <code>tabular-nums</code> en todo número.</li>
+      <li><strong>Honestidad como sistema</strong>: <code>source.js</code> prohíbe decir "en vivo" y obliga a mostrar la cadencia; <code>market-hours.js</code> detecta mercado cerrado.</li>
+      <li><strong>Esqueletos servidos en HTML</strong> (sin CLS) y un solo componente de gráfica (<code>SmartCharts.panel</code>) reutilizado.</li>
+      <li>Menú móvil clonado del nav (no hay dos listas), tema oscuro coherente, <code>/es</code> con URLs reales.</li>
+    </ul></div>
+    <div class="card"><h4>Amateur o contraproducente</h4><ul>
+      <li><strong>El globo es decoración de 600 KB.</strong> <code>risk-sphere.js</code> documenta que se borraron continentes, fronteras y el semáforo de riesgo: hoy no representa ningún dato. No respeta <code>prefers-reduced-motion</code>.</li>
+      <li><strong>El hero no enseña producto.</strong> En móvil la primera pantalla es un titular, tres botones y nada más; debajo viene "Hi, I'm Jaime" antes que los mercados.</li>
+      <li><strong>Bug CSS real</strong> (<code>index.html:356-361</code>): prosa fuera de comentario anula <code>.hero-grid::before</code>; el velo que subía el contraste del H1 de 3.6:1 a 5.4:1 no existe en producción.</li>
+      <li><strong>Sin modo claro</strong>, 6 breakpoints distintos, 6 definiciones del mismo patrón de tarjeta en 4 archivos, 49 KB de CSS inline que ninguna otra página puede reutilizar.</li>
+      <li>Atribución de fuente casi invisible (0.66 rem) y ausente en cripto y ticker (CoinGecko la exige en plan gratuito).</li>
+    </ul></div>
+  </div>
+
+  <h3>1.3 Arquitectura: lo que no se ve</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Capa</th><th>Estado</th><th>Riesgo / coste</th></tr></thead>
+    <tbody>
+      <tr><td>HTML + JS vanilla, sin build</td><td>9 páginas EN + 9 ES generadas por <code>scripts/build-es.js</code> (607 líneas de regex sobre HTML que reescriben los fuentes in place)</td><td><span class="pill bad">alto</span> Nav/footer/i18n duplicados a mano en 18–20 archivos, ya en 4 versiones distintas. Añadir una página = tocar 3 sitios + regenerar.</td></tr>
+      <tr><td>Datos de mercado</td><td>Twelve Data (7 símbolos, 672/800 créditos/día) + <strong>Yahoo Finance no oficial</strong> como única fuente de FX, VIX, historial, sparklines y boletín; CoinGecko sin key; Frankfurter desde el navegador</td><td><span class="pill bad">alto</span> Un cambio de Yahoo apaga la gráfica principal, el panel VIX y medio boletín a la vez. Lista blanca de 14 símbolos: cada activo nuevo es un deploy.</td></tr>
+      <tr><td>Caché</td><td>Memoria por instancia + CDN por región; <strong>Redis conectado y sin usar</strong> para nada cacheable</td><td><span class="pill warn">medio</span> La cuota de Twelve Data y el gasto de IA dependen de que haya un solo cold start; no hay contador ni circuit breaker.</td></tr>
+      <tr><td>IA</td><td>Una llamada a <code>claude-haiku-4-5</code> genera 4 "takes" + gancho del boletín (structured output, guardrails en el prompt)</td><td><span class="pill warn">medio</span> Texto generado etiquetado "My take" sin aviso de IA; caché no compartida.</td></tr>
+      <tr><td>Boletín</td><td>Doble opt-in, Resend, cron 14:00 UTC, gráfica PNG server-side, run log, RFC 8058</td><td><span class="pill good">bien</span> Lo mejor del backend. Riesgo: 100 correos/día compartidos entre confirmaciones y envío.</td></tr>
+      <tr><td>Proceso</td><td>Sin CI, sin tests, sin lint; <code>npm run check-es</code> existe pero nadie lo ejecuta; push a <code>main</code> despliega producción</td><td><span class="pill bad">alto</span> El guard contra drift es voluntario. Sin README; el equipo de agentes de <code>.claude/</code> está gitignored y perdido.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.4 Qué está escondido</h3>
+  <ul>
+    <li><strong>Los "breakdowns" (6 posts) y las noticias</strong> no existen en nav ni footer: solo se alcanzan tras ~5 pantallas de scroll.</li>
+    <li><strong>Dos superficies de mercado sin relación</strong>: el bloque <code>#market</code> del home y la página <code>/market</code> muestran activos distintos y no se enlazan entre sí.</li>
+    <li><strong>El grupo estudiantil Smart Finance no aparece en ninguna parte</strong>; LinkedIn y TikTok solo en hero y footer.</li>
+    <li>El contexto de cada lección vive en acordeones cerrados; las fechas de publicación solo en JSON-LD (y desactualizadas 20 días); el disclaimer solo en el footer.</li>
+  </ul>
+
+  <h3>1.5 Qué sobra</h3>
+  <ul class="two">
+    <li>three.js r128 + <code>risk-sphere.js</code> (globo decorativo).</li>
+    <li><code>assets/geoMasks.js</code> (538 KB, ya no se importa, se despliega).</li>
+    <li><code>desktop-check.png</code> (172 KB, captura de trabajo servida públicamente).</li>
+    <li>4 pesos de Geist Sans + 4 de Geist Mono + Fraunces (193 KB): con 2+2+1 basta.</li>
+    <li><code>jaime.jpg</code> a 1206×1074 para un círculo de 260 px; 6 JPEG de 900 px para miniaturas de 148 px.</li>
+    <li>La sección "Finance from zero" (una sola tarjeta promocional).</li>
+    <li>Los 4.300 líneas de <code>/es</code> commiteadas (deben generarse en build).</li>
+    <li>El diccionario <code>translations</code> muerto que viaja en <code>es/index.html</code>.</li>
+  </ul>
+
+  <h3>1.6 Qué falta</h3>
+  <ul class="two">
+    <li>Páginas por activo y búsqueda de símbolos.</li>
+    <li>Noticias explicadas (qué pasó → por qué importa → impacto) con filtros.</li>
+    <li>Fuentes citadas, fechas visibles y ruta de aprendizaje en las lecciones.</li>
+    <li>Módulos interactivos (hay 1 de 6) y herramientas.</li>
+    <li>Smart Finance Research: no existe.</li>
+    <li>Modo claro, skip-link, roles de tab.</li>
+    <li>Caché compartida, proveedor de respaldo, símbolos dinámicos, fundamentales, macro MX.</li>
+    <li>CI, tests, previews por rama, README, 404 propia, analítica.</li>
+  </ul>
+
+  <div class="callout risk"><div class="t">Arreglos inmediatos (semana 1, sin rediseño)</div><p>Corregir el comentario roto del hero · quitar three.js/globo y geoMasks · borrar <code>desktop-check.png</code> · WebP + <code>srcset</code> para las 7 imágenes · reducir fuentes a 5 archivos con <code>preload</code> · <code>Cache-Control: immutable</code> en <code>vercel.json</code> · atribución CoinGecko · fechas reales en sitemap y JSON-LD · 404 propia. Solo con esto el home debería bajar de 766 KiB a ~250 KiB y el LCP móvil a ~2.5 s.</p></div>
+</section>
+
+<!-- ===================== 2 COMPETIDORES ===================== -->
+<section class="part" id="competidores">
+  <h2><span class="n">2 · Competidores y referencias</span>Qué hacen mejor, qué adaptamos, qué evitamos</h2>
+  <p class="lead">Doce referencias revisadas con búsquedas de 2026 (Robinhood/Legend, Public, Yahoo AlphaSpace, Google Finance, Perplexity Finance, Koyfin, TradingView, Finviz, Morningstar/Seeking Alpha, Investopedia, FT/Economist, Revolut/Nu/Wise). No copiamos a ninguna: tomamos patrones y evitamos sus trampas.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Referencia</th><th>Qué hacen mejor</th><th>Qué adaptamos</th><th>Qué evitamos</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Robinhood</strong> + Legend</td><td>Gráfica que se "raspa" con el dedo y actualiza el número grande; línea coloreada por dirección; filas con sparkline; bottom tab bar de 5; Legend: multi-gráfica y screener IA</td><td>Readout de precio al arrastrar, línea por dirección, fila de activo con sparkline, tab bar inferior</td><td>Confeti y gamificación, jerga de órdenes, verde fluorescente como marca, la densidad de Legend en móvil</td></tr>
+      <tr><td><strong>Public.com</strong> (Alpha, Key Moments)</td><td>Resúmenes IA de "por qué se movió"; Earnings hub; UI blanco/negro con tipografía grande</td><td>Bloque "por qué se movió" con disclosure de IA y fuentes; búsqueda en lenguaje natural en fase 2</td><td>IA sin fuentes; producto que exige cuenta de inversión</td></tr>
+      <tr><td><strong>Yahoo Finance</strong> + AlphaSpace (2026)</td><td>Ficha por ticker completísima; dashboards con widgets (US$39.99/mes)</td><td>Ficha de activo por pestañas: Resumen · Gráfica · Stats · Noticias · Aprende · Research</td><td>Publicidad, menús infinitos, dashboards personalizables (sobre-ingeniería para nuestro tamaño)</td></tr>
+      <tr><td><strong>Google Finance</strong> (fuera de beta jun-2026)</td><td>"Key Moments" en la gráfica que explican el movimiento; comparar activos; claro/oscuro limpios</td><td>Marcadores de eventos ligados a <em>nuestra</em> noticia explicada (fase 2); comparador 2–3 activos en %</td><td>Estética Material genérica; dependencia de cuenta</td></tr>
+      <tr><td><strong>Perplexity Finance</strong></td><td>Ficha conversacional con citas, heatmap, screener NL, Earnings hub</td><td>"Preguntar sobre este activo" con citas y límites educativos (fase 2)</td><td>Conversación como navegación principal (un principiante no sabe qué preguntar)</td></tr>
+      <tr><td><strong>Koyfin</strong></td><td>10 años de financieros, gráficas de fundamentales, comps, gratis generoso</td><td>Gráficas de financieros 5 años y tabla de comps con primera columna fija</td><td>Densidad de terminal, miles de criterios</td></tr>
+      <tr><td><strong>TradingView</strong></td><td>La mejor gráfica interactiva; Lightweight Charts open source</td><td>Lightweight Charts; crosshair táctil; rangos 1D·1S·1M·3M·1A·5A·Máx</td><td>Indicadores técnicos, dibujar líneas, social trading</td></tr>
+      <tr><td><strong>Finviz</strong></td><td>Heatmap, screener rápido, HTML ligerísimo</td><td>La ligereza como estándar; heatmap sectorial más adelante</td><td>Estética 2005, rojo/verde saturado como único canal</td></tr>
+      <tr><td><strong>Morningstar</strong> + <strong>Seeking Alpha</strong></td><td>Research estructurado (tesis, foso, fair value, riesgos), disclosure</td><td>Esqueleto de reporte con supuestos editables y disclosure de estudiante; barra "precio vs valor estimado"</td><td>Muros de pago, estrellas/ratings (autoridad que no tenemos), 5 000 palabras sin visual</td></tr>
+      <tr><td><strong>Investopedia</strong></td><td>Definiciones claras, key takeaways, SEO educativo</td><td>Glosario al tacto (nuestra firma), "la versión corta", prev/next y rutas</td><td>Artículos de 2 000 palabras, tono enciclopédico sin ejemplos en pesos, simulador de trading</td></tr>
+      <tr><td><strong>FT / The Economist</strong></td><td>Jerarquía serif + sans; gráficos anotados con una idea; contención cromática</td><td>Serif para titulares editoriales (news, learn, research), sans para producto; "gráfica del día" en el boletín</td><td>Muro de pago, densidad, tono adulto que ahuyenta a un chico de 17</td></tr>
+      <tr><td><strong>Revolut / Nu / Wise</strong></td><td>Mobile-first de verdad: números grandes, una tarjeta = una acción, bottom sheets, modo claro excelente, lenguaje humano</td><td>Números grandes, bottom sheets, modo claro de primera, español humano</td><td>Copiar el morado de Nu o el lima de Wise (en LatAm se leen como ellos), recompensas, cualquier olor a apuesta</td></tr>
+    </tbody>
+  </table></div>
+  <h3>2.1 Patrón → decisión para Smart Finance</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Dimensión</th><th>Quién lo hace mejor</th><th>Decisión SF 2.0</th></tr></thead>
+    <tbody>
+      <tr><td>Navegación</td><td>Robinhood (tab bar), Nu (sheets)</td><td>Tab bar de 5 en móvil; barra superior + ⌘K en escritorio</td></tr>
+      <tr><td>Jerarquía visual</td><td>FT, Revolut</td><td>Número/título grande primero; eyebrow mono solo como etiqueta de dato</td></tr>
+      <tr><td>Dashboards</td><td>Yahoo AlphaSpace, Koyfin</td><td>Sin dashboards personalizables; un "Hoy" curado + watchlist local (fase 1.5)</td></tr>
+      <tr><td>Charts</td><td>TradingView, Robinhood</td><td>Lightweight Charts + readout táctil; línea por dirección; 3–4 ticks</td></tr>
+      <tr><td>Tipografía</td><td>FT/Economist, Revolut</td><td>Geist (UI) + Geist Mono (cifras) + Fraunces (editorial), reescopada</td></tr>
+      <tr><td>Densidad</td><td>Koyfin (alta) vs Nu (baja)</td><td>Media: una idea por tarjeta; listas densas solo en Mercados</td></tr>
+      <tr><td>Animaciones</td><td>Revolut (contención)</td><td>150–250 ms, solo cambios de estado; nada continuo</td></tr>
+      <tr><td>Dark/Light</td><td>Google Finance</td><td>Ambos desde tokens; auto + toggle; gráficas revalidadas por modo</td></tr>
+      <tr><td>Búsqueda y filtros</td><td>Perplexity, Finviz</td><td>Un overlay: activos + lecciones + noticias + herramientas; chips de una fila, nunca dropdowns anidados</td></tr>
+      <tr><td>IA</td><td>Public, Google (Key Moments)</td><td>IA solo para <em>explicar</em> con fuentes y etiqueta; nunca recomienda</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout good"><div class="t">La oportunidad específica para jóvenes (lo que nadie hace bien para un estudiante de 17 en México, LatAm o Canadá)</div>
+    <ul>
+      <li><strong>Explicar el dato en el momento y en pesos:</strong> "USD/MXN 18.45" no dice nada; "tu celular importado, tu viaje, tu beca en dólares" sí. Nadie une precio → consecuencia personal.</li>
+      <li><strong>Enseñar con el mercado real:</strong> en todos lados las lecciones viven lejos de los precios; aquí la lección de inflación enlaza al dato de Banxico de hoy y la noticia enlaza a la lección.</li>
+      <li><strong>Bilingüe de verdad ES/EN LatAm↔Canadá:</strong> CETES/Afore y TFSA/RESP, MXN/CAD/USD, ejemplos locales. Google y Perplexity traducen; no contextualizan.</li>
+      <li><strong>Research construido en público con supuestos que el lector mueve:</strong> Morningstar y Seeking Alpha entregan conclusiones cerradas; aquí el DCF es un juguete honesto.</li>
+      <li><strong>Sin cuenta, sin app, sin cuota, sin "invierte ya":</strong> los brokers quieren tu depósito y AlphaSpace tu suscripción; la confianza viene de un creador con cara + fuentes citadas.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== 3 VISIÓN E IA ===================== -->
+<section class="part" id="arquitectura">
+  <h2><span class="n">3 · Nueva visión y arquitectura de información</span>Un producto con cinco puertas, no una página con siete secciones</h2>
+  <p class="lead">Veredicto de diseño en cuatro líneas: el sitio de hoy es una landing de boletín con un dashboard pegado debajo (el producto empieza en el píxel ≈ 1 700 del móvil); el lenguaje visual es plantilla "crypto dashboard" (negro + verde + resplandores + globo); las gráficas son Chart.js por defecto (rejilla completa, 7 ticks, etiquetas giradas, sin lectura táctil del precio); y todo sigue el ritmo "eyebrow + H2 + párrafo + tarjeta" de landing, no el ritmo de una app que se <em>usa</em>.</p>
+
+  <h3>3.1 Sitemap</h3>
+  <pre class="mermaid">
+flowchart TD
+  H["/ · Hoy"] --> M["/market · Mercados"]
+  H --> N["/news · Noticias explicadas"]
+  H --> L["/lessons · Aprende"]
+  H --> T["/tools · Herramientas"]
+  H --> R["/research · Smart Finance Research"]
+  H --> A["/about · Quién hace esto"]
+  H --> C["/community · Grupo estudiantil + breakdowns"]
+  H --> NL["/newsletter · Boletín + archivo"]
+  M --> MS["/market/[symbol] · Ficha de activo"]
+  M --> MC["/market/compare · Comparador (fase 1.5)"]
+  N --> NS["/news/[slug]"]
+  L --> LP["/lessons/[ruta] · 3 rutas de aprendizaje"]
+  LP --> LL["/lessons/[leccion]"]
+  L --> G["/lessons/glossary · Glosario A–Z"]
+  T --> TT["/tools/[tool]"]
+  R --> RC["/research/[empresa] · Reporte interactivo"]
+  R --> RM["/methodology"]
+  H -.- ES["/es/… espejo completo"]
+  </pre>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Ruta</th><th>Qué es</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td><code>/</code> Hoy</td><td>Pulso, historia del día, seguir aprendiendo, herramienta, research destacado, breakdowns, boletín</td><td>Producto en los primeros 844 px</td></tr>
+      <tr><td><code>/market</code></td><td>Pulso completo + listas: Índices · Acciones (US/MX/CA) · Divisas · Cripto · Tasas/macro</td><td>Filas densas con sparkline; chips de filtro en una fila</td></tr>
+      <tr><td><code>/market/[symbol]</code></td><td>Ficha de activo (USDMXN, SPY, AAPL, BTC, CETES28…)</td><td>Pestañas: Resumen · Gráfica · Stats · Noticias · Aprende · Research</td></tr>
+      <tr><td><code>/news</code> · <code>/news/[slug]</code></td><td>Noticias explicadas (hasta 3/día + "la semana en 5 puntos")</td><td>Filtros: Peso · Fed/Banxico · Acciones · Cripto · Macro</td></tr>
+      <tr><td><code>/lessons</code> · <code>/lessons/[ruta]</code> · <code>/lessons/[leccion]</code></td><td>3 rutas (Desde cero · Cómo funcionan los mercados · Invertir con cabeza) + glosario</td><td>Progreso local, quiz, prev/next, fuentes</td></tr>
+      <tr><td><code>/tools</code> · <code>/tools/[tool]</code></td><td>Herramientas</td><td>Parámetros en la URL para compartir</td></tr>
+      <tr><td><code>/research</code> · <code>/research/[empresa]</code></td><td>Hub + reportes interactivos (LULU primero)</td><td>Metodología y disclosure</td></tr>
+      <tr><td><code>/about</code> · <code>/community</code></td><td>Jaime, misión, metodología, entrevistas, contacto · grupo estudiantil (qué es, cómo unirse, sesiones) + breakdowns de TikTok/LinkedIn</td><td>Aquí van la foto grande y las credenciales; única casa de los breakdowns</td></tr>
+      <tr><td><code>/newsletter</code> · <code>/search</code> · <code>/legal/*</code> · <code>/404</code></td><td>Alta + archivo web; página de búsqueda (sin JS); disclaimer y privacidad; 404 con buscador y pulso</td><td>Obligatorios por el boletín</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout decision"><div class="t">Decisión de rutas (reconcilia a los dos agentes)</div><p>El agente de diseño propuso <code>/markets</code> y <code>/learn</code>; el de planeación pidió no renombrar slugs para no romper SEO ni hreflang. Decido: <strong>se conservan <code>/market</code> y <code>/lessons</code></strong> (ya indexadas, con hreflang correcto) y las secciones nuevas estrenan ruta (<code>/news</code>, <code>/tools</code>, <code>/research</code>, <code>/community</code>, <code>/about</code>). Cero redirecciones innecesarias; toda la energía va al contenido.</p></div>
+
+  <h3>3.2 Navegación móvil: tres alternativas, una elegida</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Opción</th><th>Pros</th><th>Contras</th></tr></thead>
+    <tbody>
+      <tr><td>A · Hamburguesa + buscador (actual mejorado)</td><td>Cero cambio estructural</td><td>Todo a dos toques; el menú esconde el producto; es lo que tienen las landings</td></tr>
+      <tr><td>B · Pestañas bajo la barra superior</td><td>Visible, barato</td><td>Compite con los chips de filtro; se pierde al hacer scroll</td></tr>
+      <tr><td><strong>C · Bottom tab bar de 5</strong> <span class="pill good">elegida</span></td><td>Destinos siempre al pulgar; patrón que la audiencia ya usa (Robinhood, Nu, TikTok); deja la barra superior para idioma/tema/más</td><td>Obliga a elegir 5 destinos y un "Más"</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Tab bar:</strong> Hoy · Mercados · Noticias · Aprende · Buscar (abre el overlay). Son los cuatro hábitos diarios + la vía universal para llegar a todo. Herramientas y Research no son pestañas porque son de uso ocasional: viven como módulos en Hoy, dentro de Aprende, en la ficha de activo y en el menú <strong>Más</strong> (☰: Herramientas, Research, Comunidad, Boletín, Acerca de, Idioma, Tema). 56 px + safe-area, iconos 24 px con etiqueta 11 px, sin badges. <span class="pill warn">decisión</span> Si prefieres que Research sea pestaña (en lugar de Buscar), es un cambio de 10 minutos: mi recomendación es mantener Buscar porque Research llega por enlace directo y por el módulo destacado del home.</p>
+  <p><strong>Escritorio:</strong> barra de 64 px: wordmark · Hoy · Mercados · Noticias · Aprende · Herramientas · Research · buscador ⌘K · EN/ES · tema · botón "Boletín". Contenedor 1 200 px, 12 columnas.</p>
+  <p><strong>Búsqueda global:</strong> un solo overlay (tecla <code>/</code> o ⌘K; pestaña Buscar en móvil): activos (símbolo, nombre, precio, Δ, sparkline), lecciones, noticias, herramientas, research y términos del glosario; recientes y "tendencia hoy" al abrir; acepta "USD/MXN", "AAPL", "inflación", "¿qué es el VIX?". Fase 1: índice JSON estático (~300 símbolos + contenido, ~20 KB, fuzzy en cliente). Fase 2: símbolos por API.</p>
+
+  <h3>3.3 El home móvil, pantalla por pantalla (390 × 844)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Y (px)</th><th>Bloque</th><th>Qué ve y hace el usuario</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0–52</td><td>Barra superior</td><td>Wordmark · ES/EN (píldora única con el otro idioma) · tema · ☰ Más</td></tr>
+      <tr><td class="num">52–96</td><td>Línea "Hoy"</td><td>"Jue 21 ago · NYSE abierto · BMV abierto" (mono 12); primera visita: una frase "Mercados y dinero, explicados para jóvenes" con ×</td></tr>
+      <tr><td class="num">96–208</td><td><strong>Pulso</strong> (carrusel con snap)</td><td>4 tiles 128×96: USD/MXN · S&amp;P 500 · BTC · Tasa Banxico — precio mono 18, Δ con ▲▼, sparkline 1D; deslizar muestra IPC, Nasdaq, ETH, CETES, Oro; toque → ficha</td></tr>
+      <tr><td class="num">208–560</td><td><strong>La historia de hoy</strong></td><td>Kicker tema + hora + fuente · título Fraunces 22 · "Qué pasó" 2 líneas · "Por qué importa" 2 líneas · chips de impacto (USD/MXN ▼0.4 % · SPY ▲0.2 %) · mini gráfica 1D del activo principal · chip "Resumen IA revisado por Jaime · Bloomberg · 08:40" · "Leer explicación →"</td></tr>
+      <tr><td class="num">560–700</td><td><strong>Sigue aprendiendo</strong></td><td>Ruta "Desde cero · 2/6" con barra, siguiente lección, 5 min, botón Continuar (primera visita: "Empieza aquí: qué pasa cuando el peso se debilita")</td></tr>
+      <tr><td class="num">700–844</td><td><strong>Herramientas</strong></td><td>2 tiles: Interés compuesto · ¿Cuánto me come la inflación?</td></tr>
+      <tr><td>debajo</td><td>Resto</td><td>Research destacado (LULU: precio vs valor estimado, barra bear–base–bull) · "Mercados en 60 s" (5 filas) · Breakdowns (3 tarjetas en fila) · Boletín compacto · "Quién hace esto" (avatar 48 px + 2 líneas → /about) · footer. Largo total objetivo ≤ 3 200 px (hoy 7 378).</td></tr>
+    </tbody>
+  </table></div>
+  <p>En los primeros 844 px el usuario ve mercados, una noticia explicada y el inicio del aprendizaje: tres de los cuatro pilares sin leer un titular de marketing.</p>
+
+  <h3>3.4 Decisiones que dejaba abiertas la auditoría</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tema</th><th>Alternativas</th><th>Decisión y porqué</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Globo</strong></td><td>(a) dejarlo lazy · (b) hero con gráfica grande animada · (c) quitarlo y poner producto</td><td><strong>(c).</strong> No lee ningún dato, cuesta ≈ 175 KB gz y 100 vh de móvil, ignora reduced-motion. Lo sustituyen el pulso y la historia del día; el "wow" pasa a ser el readout táctil de la gráfica.</td></tr>
+      <tr><td><strong>About</strong></td><td>(a) seguir en home · (b) /about · (c) /about + presencia mínima</td><td><strong>(c).</strong> Foto y credenciales a <code>/about</code>; en home un "Quién hace esto" al final y bylines con avatar de 24 px en noticias y research. La cara da confianza junto al dato, no antes del dato.</td></tr>
+      <tr><td><strong>Breakdowns TikTok/LinkedIn</strong></td><td>(a) home · (b) /news · (c) /community + fila en home</td><td><strong>(c).</strong> Son contenido de creador, no producto; tarjetas estáticas con miniatura WebP ≤ 25 KB, fecha y 3 bullets de "qué aprendes" (SEO).</td></tr>
+      <tr><td><strong>Grupo estudiantil</strong></td><td>(a) enlace en footer · (b) /community</td><td><strong>(b).</strong> Qué es, cómo unirse, próximas sesiones; enlazado desde Más, About y footer.</td></tr>
+      <tr><td><strong>/es</strong></td><td>(a) ES como raíz · (b) EN raíz + /es (actual) · (c) auto-redirect por idioma</td><td><strong>(b) + sugerencia.</strong> No romper hreflang/SEO; banner único si el idioma del navegador no coincide; el toggle conserva la ruta; números y monedas por <code>Intl</code>. Si &gt; 60 % de sesiones son ES, reevaluar la raíz.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ===================== 4 DISEÑO ===================== -->
+<section class="part" id="diseno">
+  <h2><span class="n">4 · Sistema de diseño Smart Finance 2.0</span>Reconocible, rápido y honesto en claro y oscuro</h2>
+  <h3>4.1 Principios</h3>
+  <ol>
+    <li><strong>El dato antes que el adorno.</strong> Todo píxel del primer viewport es un número, una gráfica o una lección.</li>
+    <li><strong>Cada número trae su porqué</strong> a un toque (glosario, "por qué importa", "qué es esto").</li>
+    <li><strong>Honesto con la cadencia y la fuente.</strong> Chip fuente · hora en toda superficie de datos; nunca "en vivo"; IA siempre etiquetada.</li>
+    <li><strong>Pulgar primero.</strong> 44 px, acciones abajo, swipe, nada que dependa de hover.</li>
+    <li><strong>Una voz, dos idiomas, dos temas.</strong> Mismo layout ES/EN y claro/oscuro; strings, números y colores tokenizados.</li>
+  </ol>
+
+  <h3>4.2 Color (contraste WCAG sobre fondo / superficie)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Token</th><th>Dark</th><th>Contraste</th><th>Light</th><th>Contraste</th><th>Uso</th></tr></thead>
+    <tbody>
+      <tr><td><code>--bg-0</code></td><td>#09090B</td><td>—</td><td>#F7F7F4</td><td>—</td><td>Página (se abandona el #000 puro: menos halo en OLED, permite 4 escalones)</td></tr>
+      <tr><td><code>--bg-1</code> / <code>--bg-2</code> / <code>--bg-3</code></td><td>#111114 / #18181C / #202027</td><td>—</td><td>#FFFFFF / #F1F1ED / #E9E9E4</td><td>—</td><td>Tarjetas / chips, pestañas, inputs / sheets, popovers, hover</td></tr>
+      <tr><td><code>--line</code></td><td>rgba(244,244,241,.10)</td><td>—</td><td>rgba(18,19,22,.10)</td><td>—</td><td>Separación de 1 px (alfa, como hoy)</td></tr>
+      <tr><td><code>--ink</code> / <code>--ink-2</code> / <code>--ink-3</code></td><td>#F4F4F1 / #A3A3AB / #7E7E88</td><td>18.1 / 7.9 / 5.0</td><td>#121316 / #5B5E66 / #666A74</td><td>17.3 / 6.0 / 5.0</td><td>Principal / secundario / atribución y ejes (nunca &lt; 4.5)</td></tr>
+      <tr><td><code>--up</code></td><td>#16C47F</td><td>8.8</td><td>#0B8F5A marcas · #05734A texto</td><td>3.8 · 5.5</td><td>Sube; ▲ siempre</td></tr>
+      <tr><td><code>--down</code></td><td>#FF5A5F</td><td>6.5</td><td>#D6363E marcas · #B8262E texto</td><td>4.4 · 5.8</td><td>Baja; ▼ siempre</td></tr>
+      <tr><td><code>--neutral</code> / <code>--warn</code></td><td>#9BA3AF / #FFB84D</td><td>7.8 / 11.6</td><td>#5B5E66 / #9A6200 texto · #E0A030 punto</td><td>6.0 / 4.7</td><td>Sin cambio o cerrado / mercado cerrado, dato viejo, aviso</td></tr>
+      <tr><td><code>--brand-fill</code> + <code>--on-brand</code></td><td>#16C47F + #04140D</td><td>8.3</td><td>#16C47F + #04140D</td><td>8.2</td><td>Botón primario idéntico en ambos modos (texto oscuro sobre verde)</td></tr>
+      <tr><td><code>--brand-text</code> / <code>--brand-wash</code></td><td>#16C47F / rgba(22,196,127,.12)</td><td>8.8</td><td>#087248 / rgba(22,196,127,.14)</td><td>5.6</td><td>Subrayado de glosario, foco, pestaña activa / fondo de pestaña activa y callouts; <strong>sustituye a todos los gradientes</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Decisión de marca:</strong> se mantiene verde = marca = sube (coherencia con TikTok y con la decisión ya documentada en <code>tokens.css</code>), pero el verde deja de ser decoración: fuera eyebrows verdes, enlaces verdes, glows y gradientes. Queda en cuatro sitios: botón primario, ▲, pestaña/foco y el subrayado del glosario. Lima y violeta se descartan (Wise, Nu).</p>
+  <p><strong>Acentos de datos</strong> (6 series en orden fijo, validadas con el validador de la skill <code>dataviz</code> en ambos modos): azul #3D8BEF/#1F6FD6 · ámbar #C98500/#B8730A · teal #1FA7B0/#0A8FA0 · violeta #9085E9/#7C5CE6 · magenta #D55181/#D4397E · oliva #8F9A1E/#7D7A14 (dark/light). Reglas: verde y rojo <strong>nunca</strong> son serie (son estado); una sola serie de precio se pinta por dirección; bull/base/bear usan up/ink/down con etiqueta; secuencial = azul claro → oscuro; nunca doble eje Y; leyenda con ≥ 2 series y etiquetas directas.</p>
+
+  <h3>4.3 Tipografía, espaciado, forma</h3>
+  <p>Se mantienen las tres familias, <strong>reescopadas</strong>: Fraunces 600 pasa de "solo H1 del hero" a <strong>titular editorial</strong> (noticia explicada, lección, reporte de research, citas): el serif significa "esto se lee", la sans "esto se usa". Geist 400/500/600 (se elimina 700); Geist Mono 400/500 (se eliminan 600/700). Total 6 archivos ≈ 140 KB → ≈ 100 KB con subset latino; preload de Geist 400 y Mono 500.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Rol</th><th>Móvil</th><th>Escritorio</th><th>Fuente</th></tr></thead>
+    <tbody>
+      <tr><td>Display (titular editorial)</td><td>32/36</td><td>44/48</td><td>Fraunces 600, tracking −0.01em</td></tr>
+      <tr><td>H1 de UI (Mercados, Aprende)</td><td>24/30</td><td>30/36</td><td>Geist 600</td></tr>
+      <tr><td>H2 / H3</td><td>20/26 · 17/24</td><td>22/28 · 17/24</td><td>Geist 600</td></tr>
+      <tr><td>Cuerpo / lectura</td><td>16/25 · 17/27</td><td>igual, ancho 680</td><td>Geist 400</td></tr>
+      <tr><td>Small / caption / eyebrow</td><td>14/20 · 12/16 · 11/14 mayúsculas .08em</td><td>igual</td><td>Geist 400 / Mono 400 / Mono 500 (eyebrow solo como etiqueta de dato)</td></tr>
+      <tr><td>Números XL / L / M / S</td><td>32 · 20 · 16 · 13</td><td>40 · 22 · 16 · 13</td><td>Mono 500, <code>tnum</code> + cero barrado</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Espaciado</strong> (4 pt): 4·8·12·16·20·24·32·40·48·64; sección móvil 32 (hoy 96), escritorio 64; padding de tarjeta 16/20. <strong>Radios:</strong> 6 inputs/chips · 10 botones/tiles · 14 tarjetas · 20 sheets · 999 píldoras. <strong>Bordes y sombras:</strong> dark = 1 px <code>--line</code>, sin sombras, elevación por escalón de superficie; light = 1 px + sombra mínima, sheets con sombra suave. Foco: anillo 2 px <code>--brand-text</code>. <strong>Grid:</strong> 4/8/12 columnas, contenedor 1 200, lectura 680.</p>
+
+  <h3>4.4 Catálogo de componentes (estados: default · hover · pressed · activo · cargando · vacío · error · cerrado · retrasado)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Componente</th><th>Anatomía</th><th>Notas móviles y estados</th></tr></thead>
+    <tbody>
+      <tr><td>Market tile (pulso)</td><td>128×96: símbolo mono 12 · precio mono 18 · Δ ▲▼ 13 · sparkline 56×24</td><td>Cargando: 3 barras skeleton; cerrado: punto ámbar + "cierre"; error: "—" y chip de fuente en rojo apagado</td></tr>
+      <tr><td>Asset row</td><td>56 px: símbolo + nombre · sparkline 64×24 · precio · Δ</td><td>Lista virtual si &gt; 40; toque abre la ficha</td></tr>
+      <tr><td>Price chart panel</td><td>Readout (precio 32, Δ, fecha bajo el dedo) · rangos 1D·1S·1M·3M·1A·5A·Máx · lienzo 200 px · línea base punteada (cierre previo) · chip fuente</td><td>Arrastrar = crosshair + readout; <code>touch-action: pan-y</code>; cerrado/retrasado visible; vacío: "sin datos para este rango"</td></tr>
+      <tr><td>Stat tile</td><td>Etiqueta 12 · valor mono 20 · contexto 12 · "¿qué es?"</td><td>2 por fila en móvil; sin iconos decorativos</td></tr>
+      <tr><td>News story card</td><td>Kicker · título Fraunces · Qué pasó · Por qué importa · chips de impacto · mini gráfica · Aprende · chip IA/fuente/hora</td><td>Compacta (home) y completa (/news/[slug]); "¿te sirvió?" local</td></tr>
+      <tr><td>Lesson card</td><td>Nº y ruta · título · 1 línea · 5 min · progreso</td><td>Toda la tarjeta es el enlace; fuera "More context" + "Read more" duplicados</td></tr>
+      <tr><td>Learning-module widget</td><td>"Pruébalo con tus números" · 2–4 sliders con valor mono · gráfica SVG 180 px · frase resultado · "Qué estás viendo" · disclaimer</td><td>Thumb 28 px con área 44; <code>&lt;input type=range&gt;</code> nativo estilizado; resultado con <code>aria-live</code></td></tr>
+      <tr><td>Tool panel</td><td>Inputs arriba · resultado grande mono · desglose · "Copiar link" · "Qué aprendes"</td><td>Parámetros en URL; reactivo, sin botón "calcular"</td></tr>
+      <tr><td>Research header</td><td>Marca · nombre/ticker/bolsa · precio + Δ · "Valor estimado (base)" con barra bear–base–bull · switch de escenario sticky</td><td>Sticky 96 px; colapsa a 56 al hacer scroll</td></tr>
+      <tr><td>DCF control · Scenario switch</td><td>Slider con etiqueta, valor, "¿qué es?" y preset del escenario · segmented Bear · Base · Bull</td><td>Cambiar escenario anima los sliders 200 ms; "restablecer"; colores down/ink/up con texto; teclado ←→</td></tr>
+      <tr><td>Source/timestamp chip</td><td>"Retraso 15 min · Yahoo · 14:32" mono 12 + punto de frescura (verde ≤ 15 min, ámbar ≤ 1 h, gris más)</td><td>En toda superficie de datos; toque → sheet "de dónde sale este número"</td></tr>
+      <tr><td>Bottom nav · Search overlay · Skeleton · Empty/error · Disclaimer block</td><td>5 ítems 56 px + safe-area · campo 48 px con grupos, recientes y tendencias · barras con el ancho final · icono + 1 frase + acción · 1 línea + expandir</td><td>Activo: icono relleno + <code>--brand-wash</code>, oculto al abrir teclado · cierra con swipe-down/Esc, foco atrapado · sin shimmer con reduced-motion · error de dato: último valor conocido + chip "sin actualizar desde 14:32" · una sola definición reutilizada</td></tr>
+      <tr><td><strong>Glosario al tacto (firma)</strong></td><td>Término con subrayado punteado <code>--brand-text</code> · sheet: eyebrow TÉRMINO, palabra Fraunces 24, definición 2 líneas, "En pesos:" ejemplo, enlace a lección</td><td>Ver 4.6</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.5 Motion</h3>
+  <p><strong>Sí:</strong> entrada del número grande (600 ms, no 1.1 s); cambio de rango con crossfade 150 ms; readout que sigue el dedo sin transición; sheets 240 ms; subrayado de pestaña que se desliza 180 ms; sliders que actualizan en <code>input</code> vía rAF; pressed con escala 0.98. <strong>No:</strong> scroll-reveal en toda la página, parallax, marquesina continua del ticker (pasa a carrusel con swipe), globo/WebGL, confeti, contadores desde cero, animaciones de fondo. <strong>Reduced-motion:</strong> todo pasa a opacidad o instantáneo; sparklines sin dibujo progresivo.</p>
+
+  <h3>4.6 Elemento firma <span class="pill accent">recomendación</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Opción</th><th>Qué es</th><th>Juicio</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1 · Glosario al tacto</strong> <span class="pill good">elegida</span></td><td>Toda palabra técnica lleva subrayado punteado verde; al tocar, una sheet de 2 líneas con ejemplo en pesos y enlace a la lección; igual en ES/EN, en noticias, lecciones, research y herramientas</td><td>Propia, educativa, barata (JSON de ~150 términos + 1 componente), visible en cada pantalla; convierte el verde en "aquí hay explicación"</td></tr>
+      <tr><td>2 · Línea con marcadores</td><td>Marcadores numerados en la gráfica ligados a la noticia explicada</td><td>Buena función (fase 2), pero Google Finance ya la hizo suya</td></tr>
+      <tr><td>3 · Franja de pulso</td><td>Los 4 tiles como cabecera de todas las páginas</td><td>Útil como estructura, no como identidad</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Qué es decorativo y desaparece:</strong> globo y three.js; resplandores radiales y gradientes verdes en tarjetas y boletín; fondo de rejilla de las tarjetas de noticias; foto circular de 260 px en home; los tres pills del hero; la doble línea del wordmark; eyebrows y enlaces verdes como relleno; scroll-reveal generalizado; etiquetas X giradas y rejilla completa en gráficas; "← Back to Smart Finance"; iconos en cuadro verde de las lecciones; marquesina del ticker.</p>
+</section>
+
+<!-- ===================== 5 FUNCIONES ===================== -->
+<section class="part" id="funciones">
+  <h2><span class="n">5 · Las 10 funciones que importan</span>Qué entra al MVP y qué espera</h2>
+  <h3>5.1 Top 10 priorizadas</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Función</th><th>Para quién</th><th>Valor</th><th>Esfuerzo</th><th>Datos</th><th>MVP</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Ficha de activo</strong> <code>/market/[symbol]</code></td><td>Todos</td><td>El producto deja de ser 14 símbolos en una lista</td><td>M</td><td>Twelve Data/Yahoo (precio e historial), CoinGecko, Banxico</td><td><span class="pill good">sí</span></td></tr>
+      <tr><td>2</td><td><strong>Noticia explicada</strong> (4 bloques, hasta 3/día)</td><td>Quien llega de TikTok</td><td>Hábito diario; el hueco de mercado</td><td>M</td><td>Bloomberg RSS + Claude Haiku + revisión de Jaime</td><td><span class="pill good">sí</span></td></tr>
+      <tr><td>3</td><td><strong>"Hoy"</strong>: pulso + historia + continuar</td><td>Todos</td><td>Home con producto; −60 % de scroll</td><td>S</td><td>Reusa /api/markets y /api/sparklines</td><td><span class="pill good">sí</span></td></tr>
+      <tr><td>4</td><td><strong>Rutas de aprendizaje</strong> con progreso local y quiz</td><td>Principiante</td><td>Orden, retorno, sensación de avance</td><td>M</td><td>Sin datos externos</td><td><span class="pill good">sí</span></td></tr>
+      <tr><td>5</td><td><strong>Módulos interactivos</strong> (5)</td><td>Principiante / escuela</td><td>Lo que nos diferencia de Investopedia</td><td>M</td><td>Banxico (inflación); resto local</td><td><span class="pill warn">2 en MVP</span></td></tr>
+      <tr><td>6</td><td><strong>Herramientas</strong> (5–7)</td><td>Jóvenes MX/CA</td><td>Uso real y compartible</td><td>M</td><td>Banxico, tipo de cambio</td><td><span class="pill warn">3 en MVP</span></td></tr>
+      <tr><td>7</td><td><strong>Research interactivo</strong> (LULU)</td><td>Aplicación a U of T, curiosos</td><td>Pieza insignia; nadie la tiene</td><td>L</td><td>SEC XBRL + precios</td><td><span class="pill good">sí (1 empresa)</span></td></tr>
+      <tr><td>8</td><td><strong>Búsqueda global</strong></td><td>Todos</td><td>Llegar a todo en 2 toques</td><td>S</td><td>Índice JSON estático</td><td><span class="pill good">sí</span></td></tr>
+      <tr><td>9</td><td><strong>Glosario al tacto</strong></td><td>Todos</td><td>Firma + educación continua</td><td>S</td><td>JSON ~150 términos</td><td><span class="pill good">sí</span></td></tr>
+      <tr><td>10</td><td><strong>Modo claro + auto</strong></td><td>Quien lee de día o en la escuela</td><td>Accesibilidad y "premium"</td><td>S</td><td>—</td><td><span class="pill warn">tokens en S2; toggle si no retrasa</span></td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Siguientes (fase 1.5–2):</strong> watchlist local sin cuenta (S), comparador de 2–3 activos (M), marcadores de eventos en la gráfica (M), "Pregúntale" con citas (L), heatmap sectorial (M). <strong>No:</strong> alertas/cuentas, simulador de trading, screener. <strong>Qué hace MVP a cada una, en una línea:</strong> (1) encabezado precio + Δ, chart panel con rangos, stats (rango 52 s, cambio 1A, qué es), noticias relacionadas, lección ligada, research si existe; páginas pre-generadas para el registro de símbolos. (2) RSS → Claude con esquema fijo (qué pasó / por qué / impacto / aprende + símbolos afectados) → cola de revisión de un clic para ti → se publica; sin revisión no sale. (3) Pulso desde la caché de 15 min; historia del día = la noticia más reciente publicada; "continuar" lee localStorage. (4) 3 rutas × 5–6 lecciones en JSON (orden, tiempo, prerequisito), barra de progreso, quiz de 3 preguntas, prev/next, fuentes al pie. (8) Overlay con índice JSON y fuzzy propio ≤ 3 KB, atajos <code>/</code> y ⌘K. (9) <code>&lt;dfn data-term&gt;</code> en markdown → subrayado + sheet; glosario A–Z del mismo JSON. (10) <code>color-scheme</code> + <code>data-theme</code>, toggle en la barra superior, las gráficas leen tokens.</p>
+
+  <h3>5.2 Cinco módulos de aprendizaje interactivo</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Módulo</th><th>Controles</th><th>Qué cambia en pantalla</th><th>Qué aprende</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Inflación</strong> (MVP)</td><td>Precio de hoy (MX$50–5 000; default "tacos y refresco $100") · inflación anual 0–15 % (default: dato Banxico del mes) · años 1–30</td><td>Barra de "qué compras con los mismos $100" que se encoge; "para comprar lo mismo necesitarías $X"; toggle "dinero en cuenta al 0 % vs CETES al 7 %" dibuja nominal vs real</td><td>Poder adquisitivo; nominal vs real; por qué ahorrar "debajo del colchón" pierde</td></tr>
+      <tr><td><strong>Riesgo / retorno</strong> (MVP)</td><td>% en acciones 0–100 (resto CETES) · horizonte 1–30 años · "simular otra vez"</td><td>Abanico p10–p90 de 200 caminos (semilla fija), retorno esperado, "peor año" en rojo, caja "¿aguantarías ver −30 % un año?"</td><td>Volatilidad, horizonte, por qué más retorno exige aguantar caídas</td></tr>
+      <tr><td><strong>Diversificación</strong></td><td>Nº de empresas 1–20 · "mismo sector / sectores distintos"</td><td>Curva de volatilidad del portafolio que baja y se aplana; línea punteada "riesgo que no se va"</td><td>Riesgo específico vs de mercado; por qué un ETF de 500 ≠ 20 acciones del mismo sector</td></tr>
+      <tr><td><strong>P/E y DCF simplificado</strong></td><td>Parte 1: utilidad por acción · P/E 5–60 → precio implícito, comparado con el P/E real de AAPL/WALMEX/LULU. Parte 2: crecimiento 5 años 0–30 % · margen FCF 5–35 % · tasa de descuento 6–14 %</td><td>Termómetro "valor vs precio"; tabla 3×3 de sensibilidad (azul secuencial)</td><td>Precio ≠ valor; el valor depende de supuestos; ancla para el research</td></tr>
+      <tr><td><strong>Presupuesto 50/30/20</strong></td><td>Ingreso mensual 2 k–40 k (o mesada/beca) · "vivo con mis papás" · 3 sliders ligados que suman 100 %</td><td>Pesos por categoría; "si ahorras X al mes, en 5 años al 7 % tienes Y" (enlaza a interés compuesto)</td><td>La regla como punto de partida; ahorro automático primero</td></tr>
+    </tbody>
+  </table></div>
+  <p>El de interés compuesto ya existe y se conserva como isla.</p>
+
+  <h3>5.3 Herramientas: siete que sí, y las que no</h3>
+  <p><strong>Sí:</strong> <em>Convertidor contextual</em> (USD/MXN/CAD/EUR con tipo del día + "¿cuánto cuesta X en pesos?" + 1 año de historial) · <em>Interés compuesto</em> (el módulo, standalone) · <em>CETES vs cuenta vs inflación</em> (tasa Banxico real) · <em>Calculadora de inflación</em> ("¿cuánto valen hoy $100 de 2015?", INPC) · <em>Presupuesto 50/30/20</em> con "copiar plan" · <em>Deuda de tarjeta</em> (pago mínimo vs pagar X al 45 % típico: meses e intereses totales) · <em>"Estudiar en Canadá"</em> (costo en CAD × tipo de cambio × inflación → ahorro mensual requerido; el nicho exacto de la audiencia). MVP: las tres primeras. <strong>No:</strong> hipoteca (no es la audiencia), Afore/retiro detallado (regulatorio), simulador de trading (fomenta trading y cuesta mucho), screener, impuestos/ISR (cambia, riesgo), conversor cripto avanzado, DCF completo como "tool" (vive en Research), calculadoras de dividendos y de net worth (sin datos propios no aportan).</p>
+
+  <h3>5.4 La noticia explicada, anatomía</h3>
+  <p>Kicker (tema · hora · fuente) + chip "Resumen IA · revisado por Jaime" o "Escrito por Jaime" → <strong>Título</strong> en lenguaje claro (Fraunces, no el titular de agencia) → <strong>Qué pasó</strong> (2–3 frases con cifra, fecha y quién) → <strong>Por qué importa</strong> (2–3 frases para un estudiante en MX/CA: peso, tasas, precios, beca, empleo) → <strong>Impacto en mercados</strong> (chips de activos con Δ del día + mini gráfica del principal; "todavía no se sabe" está permitido) → <strong>Aprende más</strong> (1 lección, 1–2 términos del glosario, 1 pregunta para pensar) → pie con fuentes enlazadas, hora, disclaimer, "¿te sirvió?" local. 120–180 palabras; máximo 3 por día hábil; fin de semana "la semana en 5 puntos"; el boletín semanal las resume.</p>
+  <p>El diseño de interacción de la página de Research está en la sección 8.5.</p>
+</section>
+
+<!-- ===================== 6 TECNOLOGÍA ===================== -->
+<section class="part" id="tecnologia">
+  <h2><span class="n">6 · Tecnología, datos e IA</span>Cada pieza con una razón</h2>
+  <p class="lead">Regla: ninguna tecnología entra por sonar avanzada. Cada fila tiene un porqué y un coste. Hechos verificados el 21-ago-2026: Astro 6 estable desde marzo 2026 (Node ≥ 22); Vercel Hobby = 1 M invocaciones/mes, cron 1×/día, 100 deploys/día, uso no comercial; GitHub Actions gratis en repos públicos; Lightweight Charts v5 ≈ 35 KB gz (Apache-2.0, atribución obligatoria a TradingView); Resend 100 correos/día; Upstash 500 k comandos/mes.</p>
+
+  <h3>6.1 Stack: tres opciones, una recomendación <span class="pill accent">recomendación</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Criterio</th><th>(a) HTML + vanilla + Vite/11ty</th><th>(b) Astro 6 estático + islas Preact + MDX + i18n nativo, <code>/api</code> intacto</th><th>(c) Next.js</th></tr></thead>
+    <tbody>
+      <tr><td>Nav/footer duplicados ×18</td><td>A medias (solo con plantillas)</td><td><strong>Se resuelve de raíz</strong> (layouts + componentes)</td><td>Se resuelve</td></tr>
+      <tr><td>i18n con slugs traducidos (/market ↔ /es/mercado)</td><td>Otro build-es a mano</td><td><code>i18n.locales</code> + registro de rutas; hreflang en el layout</td><td>Middleware + carpetas <code>[lang]</code></td></tr>
+      <tr><td>Lecciones/research en MDX tipado</td><td>No</td><td>Content collections + Zod</td><td>MDX sí, sin colecciones nativas</td></tr>
+      <tr><td>JS en cliente</td><td>Lo que escribamos</td><td><strong>0 KB por defecto</strong>; islas solo en gráficas y DCF</td><td>Runtime React ≈ 90 KB + hidratación</td></tr>
+      <tr><td><code>/api</code> CommonJS actual</td><td>Intacto</td><td><strong>Intacto</strong> (estático sin adapter = zero-config en Vercel)</td><td>Hay que portar a route handlers</td></tr>
+      <tr><td>Coste de migración</td><td>1 semana (y seguimos con build-es)</td><td><strong>3 semanas incrementales, ≈ 40 h</strong></td><td>4–5 semanas, todo o nada</td></tr>
+      <tr><td>Riesgo</td><td>La deuda se queda</td><td>Bajo</td><td>Sobre-ingeniería para un sitio de contenido</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Recomendación: (b) Astro.</strong> Resuelve exactamente los tres dolores de la auditoría (duplicación, i18n por regex, peso JS) sin tocar el backend ni convertir el sitio en una app. Next.js solo tendría sentido con usuarios/auth, que están fuera del MVP. Si algún día hace falta SSR (páginas por ticker bajo demanda) se añade el adapter de Vercel y se portan los endpoints (≈ 2 días); no antes. Detalle técnico que importa: con el adapter de Astro, la carpeta raíz <code>/api</code> deja de servirse (issue withastro/astro #5451), por eso la migración es estática y tiene un gate de verificación en la semana 2.</p>
+
+  <h3>6.2 Decisiones secundarias</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tema</th><th>Decisión</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>Gráficas</td><td><strong>Lightweight Charts v5</strong> como isla perezosa para series de precio; <strong>SVG generado en build</strong> para las gráficas del research (barras, márgenes, football field); el DCF interactivo es una isla Preact que re-renderiza SVG. Chart.js se retira.</td><td>UX financiera (crosshair, táctil) a 35 KB; el SVG estático pesa 0 JS, se imprime y se reutiliza como PNG para LinkedIn/IG. uPlot (15 KB) es el plan B.</td></tr>
+      <tr><td>i18n</td><td><code>locales: ['en','es']</code>, textos de UI en <code>src/i18n/ui.ts</code>, rutas traducidas en <code>routes.ts</code>, contenido en <code>src/content/{lessons,research}/{en,es}/</code>, componente <code>&lt;Hreflang&gt;</code>, sitemap generado desde el mismo registro.</td><td>Sustituye <code>build-es.js</code>. Un test de paridad falla si a una página EN le falta su ES: ese es el nuevo <code>check-es</code>.</td></tr>
+      <tr><td><code>/es</code></td><td>Se borra del repo; Astro lo genera en <code>dist/</code>.</td><td>−4 300 líneas commiteadas, cero desincronía.</td></tr>
+      <tr><td>Tipografías</td><td>Geist Sans variable (1 woff2, subset latin) + Geist Mono variable + Fraunces subset solo para wordmark/editorial; <code>preload</code> de la sans.</td><td>De 9 archivos (≈ 193 KB) a 3 (≈ 70 KB).</td></tr>
+      <tr><td>Imágenes</td><td><code>&lt;Picture&gt;</code> de Astro (AVIF/WebP, srcset); og:images generadas en build.</td><td>jaime.jpg 279 KB → ≈ 15 KB a 260 px.</td></tr>
+      <tr><td>CI</td><td>GitHub Actions en cada PR: <code>astro check</code> → eslint → vitest → build → link check → <strong>Lighthouse CI</strong> con presupuestos (performance ≥ 0.9, LCP &lt; 2.5 s, TBT &lt; 200 ms, JS &lt; 150 KB) en <code>/</code>, <code>/market</code>, una lección y el research.</td><td>≈ 5 min por PR. Mide el presupuesto, no los datos.</td></tr>
+      <tr><td>Ramas y deploy</td><td><code>main</code> protegido (PR obligatorio, checks requeridos, historia lineal), ramas <code>feat/*</code> <code>fix/*</code> <code>content/*</code>, squash merge; producción solo desde <code>main</code>, preview por PR.</td><td>Elimina "push a main = producción". Coste: 30 minutos.</td></tr>
+      <tr><td>Tests</td><td>Vitest: <code>src/lib/finance/</code> (DCF, WACC, CAGR, interés compuesto, sensibilidad), formatos por locale, paridad i18n; smoke de <code>/api</code> con fetch stubbeado.</td><td>Un DCF con tests es lo que convence a un profesor.</td></tr>
+      <tr><td>Analítica y monitoreo</td><td>Vercel Web Analytics + Speed Insights (gratis, sin cookies); <code>healthcheck.yml</code> cada 6 h contra los 4 endpoints; nuevo <code>/api/health</code>.</td><td>Cubre Yahoo caído, cuota agotada y cron del boletín que no corrió.</td></tr>
+      <tr><td>Higiene</td><td>README EN/ES, LICENSE (código MIT, contenido CC BY-NC-ND 4.0), versionar <code>.claude/agents</code> y <code>.claude/skills</code>, borrar binarios huérfanos, <code>docs/</code> para planes y KPIs.</td><td>Quien abra el repo debe entenderlo en 2 minutos.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.3 Migración incremental sin romper URLs ni SEO</h3>
+  <ol>
+    <li><strong>Día 1</strong> (rama <code>feat/astro</code>): crear el proyecto Astro en la raíz y mover todo el sitio legacy a <code>public/</code>. Se sirve idéntico y <code>/api</code> sigue intacto. <strong>Gate:</strong> en el preview, <code>/api/markets</code> responde y <code>/es/mercado</code> abre.</li>
+    <li><strong>Regla de convivencia:</strong> una página legacy se borra de <code>public/</code> en el mismo PR en que nace su versión Astro con la misma URL. No se renombra ningún slug. Los 301 de <code>/articles/*</code> se quedan en <code>vercel.json</code>.</li>
+    <li><strong>Sitemap</strong> generado desde el registro de rutas (adiós al <code>lastmod</code> hardcodeado).</li>
+    <li><code>build-es.js</code> queda congelado desde el día 1 y se elimina al migrar la última página.</li>
+    <li><strong>Orden:</strong> layout + tokens + i18n + <code>/about</code> + <code>/methodology</code> → lecciones → <code>/market</code> → home → <code>/research</code> → boletín + 404.</li>
+  </ol>
+
+  <h3>6.4 Costes mensuales</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Servicio</th><th>Plan</th><th class="num">Coste</th><th>Límite que importa</th></tr></thead>
+    <tbody>
+      <tr><td>Vercel</td><td>Hobby</td><td class="num">$0</td><td>1 M invocaciones, cron 1×/día, no comercial</td></tr>
+      <tr><td>GitHub (repo público)</td><td>Free</td><td class="num">$0</td><td>Actions ilimitado</td></tr>
+      <tr><td>Upstash Redis</td><td>Free</td><td class="num">$0</td><td>500 k comandos/mes</td></tr>
+      <tr><td>Resend</td><td>Free</td><td class="num">$0</td><td><strong>100 correos/día</strong> → boletín semanal o Pro $20</td></tr>
+      <tr><td>Datos (Twelve Data, Yahoo, CoinGecko demo, Stooq, EDGAR, FRED, Banxico)</td><td>Free</td><td class="num">$0</td><td>Cuotas y atribución</td></tr>
+      <tr><td>Anthropic API (noticias, Haiku 4.5)</td><td>Uso</td><td class="num">≈ $0.1–1</td><td>Caché compartida pendiente</td></tr>
+      <tr><td><strong>Total recurrente</strong></td><td></td><td class="num"><strong>≈ $0</strong></td><td>El primer pago probable es Resend cuando el boletín crezca</td></tr>
+    </tbody>
+  </table></div>
+  <h3>6.5 Datos de mercado: proveedores, caché y el fin de Yahoo como fuente única</h3>
+  <div class="callout risk"><div class="t">Hallazgo nuevo (no estaba en la auditoría)</div><p>Los términos de Twelve Data prohíben usar el plan gratuito "for commercial purposes" y exigen un <em>Redistribution Rights Add-On</em> para mostrar datos en un sitio público (twelvedata.com/terms §2.3); Finnhub free es "personal, non-commercial"; Yahoo no tiene API pública. Mientras Smart Finance no tenga ingresos es defendible como proyecto personal y educativo, pero hay que (a) etiquetar fuente y retraso siempre, (b) no exponer endpoints a terceros ni revender, y (c) presupuestar US$20–50/mes para el primer plan de pago cuando haya tráfico real (EODHD All-World $19.99 cubre BMV/TSX a cierre; Massive Starter $29 da US con 15 min de retraso). Stooq ya no sirve sin key.</p></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tipo de dato</th><th>Recomendado (gratis)</th><th>Cuota</th><th>Riesgo</th><th>Respaldo</th></tr></thead>
+    <tbody>
+      <tr><td>Cotizaciones US con retraso (megacaps + ETFs de índice)</td><td>Twelve Data Basic (lo actual)</td><td>8 créditos/min, 800/día</td><td>Medio (cuota + ToS)</td><td>Finnhub free (60/min) · Massive EOD</td></tr>
+      <tr><td>Historial diario US (1–10 años)</td><td>Massive Basic (ex-Polygon, EOD, 2 años) · Tiingo Starter</td><td>$0</td><td>Bajo</td><td>EODHD free (20/día)</td></tr>
+      <tr><td>BMV (WALMEX, AMX, FEMSA…) y TSX (DOL, SHOP)</td><td>EODHD free para cierres (<code>WALMEX.MX</code>, <code>DOL.TO</code>); intradía BMV no hay gratis legal → "cierre anterior"</td><td>20 llamadas/día</td><td>Medio</td><td>Yahoo solo emergencia</td></tr>
+      <tr><td>Fundamentales</td><td>SEC EDGAR XBRL (US); FMP free para screener básico</td><td>EDGAR ≈ 10 req/s con User-Agent</td><td>Muy bajo</td><td>—</td></tr>
+      <tr><td>Macro US</td><td>FRED (DGS10, DGS2, FEDFUNDS, CPIAUCSL, UNRATE, VIXCLS)</td><td>120 req/min</td><td>Bajo</td><td>—</td></tr>
+      <tr><td>Macro México</td><td>Banxico SIE (FIX, TIIE 28, tasa objetivo, UDIS, INPC) · INEGI</td><td>80/min oportunas, 40 k/día</td><td>Bajo</td><td>—</td></tr>
+      <tr><td>FX intradía / diario oficial</td><td>Twelve Data (forex en Basic) · Frankfurter (BCE, sin key, uso comercial OK) + FIX Banxico</td><td>comparte 800/día · sin tope</td><td>Medio / muy bajo</td><td>—</td></tr>
+      <tr><td>Cripto</td><td>CoinGecko Demo (<strong>atribución obligatoria</strong>)</td><td>30/min, 10 k/mes</td><td>Bajo</td><td>—</td></tr>
+      <tr><td>Noticias</td><td>RSS Bloomberg (titular + enlace) · RSS El Economista / Expansión · Finnhub company news</td><td>$0</td><td>Medio</td><td>GDELT</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Cómo se etiqueta cada dato (lo calcula el servidor, lo pinta <code>source.js</code>)</h4>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Dato</th><th>Primario → respaldo</th><th>Refresco (TTL Redis)</th><th>Etiqueta</th></tr></thead>
+    <tbody>
+      <tr><td>Precio + cambio US</td><td>Twelve Data batch → Finnhub → Massive EOD</td><td>15 min con mercado abierto / 60 min cerrado</td><td>"Retraso ≥ 15 min · Twelve Data · 10:45 ET"</td></tr>
+      <tr><td>Historial 1M–5Y US</td><td>Massive EOD (cron nocturno) → Tiingo</td><td>24 h</td><td>"Cierres diarios · Massive · al 20 ago"</td></tr>
+      <tr><td>BMV precio/historial</td><td>EODHD EOD (cron 22:30 UTC) → Yahoo emergencia</td><td>24 h</td><td>"Cierre del día anterior · EODHD"</td></tr>
+      <tr><td>FX 6–7 pares</td><td>Twelve Data → Frankfurter</td><td>15 min</td><td>"Retraso 15 min · Twelve Data" / "Referencia BCE del día"</td></tr>
+      <tr><td>USD/MXN FIX · tasas MX</td><td>Banxico SIE</td><td>24 h</td><td>"FIX Banxico 21 ago: 16.90"</td></tr>
+      <tr><td>VIX · tasas US</td><td>Twelve Data <em>(verificar si Basic lo incluye)</em> → FRED VIXCLS</td><td>15 min / 24 h</td><td>"Cierre diario · FRED"</td></tr>
+      <tr><td>Cripto</td><td>CoinGecko</td><td>5 min</td><td>"CoinGecko · hace 3 min" + logo</td></tr>
+      <tr><td>Fundamentales del research</td><td>EDGAR companyfacts</td><td>7 días + al detectar filing nuevo</td><td>"10-K 17-mar-26 · SEC EDGAR"</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Capa de caché compartida (Upstash ya está conectado; 500 k comandos/mes sobran)</h4>
+  <ul>
+    <li>Claves <code>md:q:{id}</code>, <code>md:s:{id}:{range}</code>, <code>md:fx:{pair}</code>, <code>md:macro:{serie}</code>, <code>fund:{cik}</code>, <code>news:{feed}</code>, <code>ai:{hash}</code>; valor <code>{data, source, asOf, delayMin, fetchedAt}</code>.</li>
+    <li><strong>Copia stale</strong> con TTL 48 h: si el proveedor falla se sirve lo último conocido con <code>stale:true</code> y la UI dice "último dato conocido HH:MM". Nunca un 502 al usuario.</li>
+    <li><strong>Singleflight</strong> (<code>SET lock NX EX 20</code>): elimina el "un miss por instancia lambda" que hoy multiplica los créditos.</li>
+    <li><strong>Contadores de cuota</strong> por proveedor y día; al pasar de 700 créditos de Twelve Data el adaptador degrada solo al respaldo.</li>
+    <li><strong>Cron nocturno</strong> que precarga las series diarias (Massive/EODHD/FRED/Banxico): de día casi nunca se llama al proveedor.</li>
+  </ul>
+  <h4>Registro de símbolos (≈ 55 activos) y sustitución de Yahoo sin romper nada</h4>
+  <p><code>api/_lib/registry.js</code>: <code>id</code>, nombre EN/ES, tipo, bolsa, moneda, sesión, <code>providers[]</code> en orden de preferencia, clase de refresco, retraso, atribución, decimales, flags (home, market, research, newsletter). El registro ES la lista blanca: <code>/api/series?id=…</code> sustituye a <code>/api/history?pair=…</code>. Lista inicial: índices (SPY, QQQ, DIA, IWM, VIX, NAFTRAC, XIU.TO), ≈ 15 US (incl. LULU, CMG, DUOL), ≈ 10 BMV (WALMEX, AMX, FEMSA, GFNORTE, GMEXICO, BIMBO, CEMEX, GAP, KOF, ELEKTRA), 7 pares FX, 5 criptos, ≈ 11 series macro.</p>
+  <ol>
+    <li>Adaptadores <code>api/_lib/providers/*.js</code> con una misma salida <code>{points, currency, asOf, source, delayMin}</code>; <code>history</code>, <code>sparklines</code> y <code>markets</code> pasan a llamar <code>getSeries(id, range)</code> — misma respuesta que hoy, el front no cambia.</li>
+    <li>Caché Redis + singleflight + contadores <em>antes</em> de tocar proveedores.</li>
+    <li><em>Shadow mode</em> una semana: se sirve Yahoo, se consulta el nuevo proveedor en paralelo y se registra la diferencia de precio y latencia.</li>
+    <li>Cambio por clase con variables de entorno; Yahoo queda último en la cadena con circuit breaker (3 fallos → 30 min apagado).</li>
+    <li>El boletín pasa a Banxico FIX + Twelve Data; Yahoo sale del camino crítico del cron. Panel interno <code>/api/health</code> con cuota usada, hit-rate y fuente activa.</li>
+  </ol>
+
+  <h3>6.6 Smart Finance AI: alcance, guardrails y coste</h3>
+  <p><strong>Alcance v1 (solo esto):</strong> (1) explícame esta noticia (qué pasó / por qué importa / a quién afecta) sobre los titulares ya cacheados; (2) explícame este activo o gráfica (qué es, qué mueve el precio, qué pasó en el rango visible) con la serie y la ficha del registro; (3) concepto del glosario con ejemplo en pesos; (4) resumen de resultados de las empresas del research a partir del 8-K (batch, no en vivo); (5) comparar dos empresas con la tabla de comps del JSON; (6) generar 5 preguntas de estudio de una lección o del reporte.</p>
+  <p><strong>Guardrails concretos:</strong> grounding obligatorio — el servidor construye el bloque DATOS (con <code>asOf</code> y fuente) y el prompt exige responder solo con esas cifras o decir que no las tiene; salida estructurada con <code>answer</code>, <code>dataUsed[]</code>, <code>sources[]</code>, <code>asOf</code>; etiqueta fija "Educativo · generado con IA · revisado por Jaime" (y "no revisado" hasta que lo marques); clasificador previo que rechaza "¿compro/vendo X?", "¿qué hago con mis ahorros?" y predicciones de precio → respuesta fija con enlace a la lección de riesgo; sin memoria entre sesiones ni datos personales; máximo 180 palabras en móvil; límite por IP (10/día) y tope diario global en Redis que apaga la función al llegar a N; toda respuesta cacheada 24 h por <code>hash(función + id + rango + idioma + asOf)</code>.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Escenario (consultas/mes)</th><th class="num">Haiku 4.5 · explicar, glosario, preguntas</th><th class="num">Sonnet 5 · comparar, resumir resultados</th><th class="num">Opus 5 · solo uso interno</th></tr></thead>
+    <tbody>
+      <tr><td>Coste por consulta (system cacheado 2 000 tk + datos 1 500 + salida 350)</td><td class="num">≈ $0.004</td><td class="num">≈ $0.011</td><td class="num">≈ $0.018</td></tr>
+      <tr><td>100</td><td class="num">$0.40</td><td class="num">$1.10</td><td class="num">$1.80</td></tr>
+      <tr><td>1 000</td><td class="num">$4</td><td class="num">$11</td><td class="num">$18</td></tr>
+      <tr><td>10 000</td><td class="num">$36</td><td class="num">$107</td><td class="num">$178</td></tr>
+      <tr><td>Con caché en Redis (hit 50 %)</td><td class="num">÷ 2</td><td class="num">÷ 2</td><td class="num">÷ 2</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Precios Claude API (USD por millón de tokens): Haiku 4.5 $1/$5 · Sonnet 5 $3/$15 (intro $2/$10 hasta el 31-ago-26) · Opus 5 $5/$25; caché de prompt ≈ 0.1× en lectura; Batch −50 %. Los "takes" diarios actuales cuestan ≈ $0.30/mes. A 10 000 consultas/mes el techo realista es <strong>$40–60/mes</strong>; el riesgo no es el modelo, es no tener tope — por eso el contador en Redis.</p>
+  <p><strong>Qué NO construir todavía:</strong> chat con memoria o cuentas (datos personales + coste sin caché); "¿qué hago con mi portafolio?" o señales/predicciones (regulatorio y reputacional); screener en lenguaje natural (necesita fundamentales de pago y rompe el grounding); transcripción en vivo de llamadas de resultados (licencias y coste); un agente que "escribe el reporte" (destruye la prueba de autoría); voz o notificaciones personalizadas (sin usuarios); respuestas sobre activos fuera del registro (no hay datos que anclar → alucinación garantizada).</p>
+</section>
+
+<!-- ===================== 7 CALIDAD ===================== -->
+<section class="part" id="calidad">
+  <h2><span class="n">7 · Móvil primero, rendimiento y credibilidad</span>Reglas no negociables</h2>
+  <h3>7.1 Reglas mobile-first</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Regla</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Lienzo de diseño</td><td>375–430 px primero; escritorio = ensanchar a 12 columnas, nunca "otra versión"</td></tr>
+      <tr><td>Objetivos táctiles</td><td>Mínimo 44×44; tab bar 56 + safe-area; rangos 40 de alto × ≥ 48 de ancho; thumb de slider 28 con área de 44; 8 px entre objetivos</td></tr>
+      <tr><td>Gestos</td><td>Arrastre horizontal en la gráfica = scrub (<code>touch-action: pan-y</code>); swipe en carruseles (pulso, breakdowns, pestañas de ficha); rangos por pestañas (y ←→ en teclado); pinch-zoom desactivado en gráficas; las sheets se cierran con swipe-down</td></tr>
+      <tr><td>Gráficas responsive</td><td>Alto 200 px móvil / 280 tablet / 320 escritorio; 3–4 ticks Y ("números bonitos", ≤ 2 decimales en FX, 0 en índices); 4–5 ticks X, nunca giradas; rejilla solo horizontal de 1 px; línea 2 px; relleno 12 % → 0; tooltip = fila de lectura fija encima (precio, Δ, fecha), no burbujas; cierre previo punteado en 1D; <code>aspect-ratio</code> reservado para CLS 0</td></tr>
+      <tr><td>Datos</td><td>Una petición por superficie (batch), <code>AbortController</code>, último valor conocido en localStorage para pintar al instante + chip de frescura</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.2 Presupuesto de rendimiento (por página, comprimido)</h3>
+  <ul>
+    <li>HTML ≤ 30 KB (CSS fuera del HTML, cacheada) · CSS ≤ 25 KB total · JS del home ≤ 60 KB (gráficas ≈ 15 + app ≈ 25 + formato/i18n ≈ 5 + búsqueda ≈ 5); las gráficas cargan al entrar en viewport.</li>
+    <li>Fuentes ≤ 110 KB (6 archivos, 2 con preload) · avatar 48 px AVIF ≤ 4 KB, miniaturas ≤ 25 KB lazy, <code>srcset</code> obligatorio · primer viewport ≤ 300 KB · sin CDN de terceros (la librería de gráficas se autoaloja) · sin three.js.</li>
+    <li>Métricas objetivo: LCP ≤ 2.0 s y TTI ≤ 3 s en Android de gama media con 4G; INP ≤ 150 ms; CLS 0; Lighthouse móvil ≥ 90 (hoy 51). El CI lo impone (sección 6).</li>
+  </ul>
+  <h4>Librería de gráficas</h4>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Opción</th><th>Peso gz</th><th>A favor</th><th>En contra</th></tr></thead>
+    <tbody>
+      <tr><td>Chart.js 4 (actual)</td><td>≈ 60 KB</td><td>Conocida, gráficas de categorías</td><td>Aspecto genérico, sin eje temporal financiero, crosshair por plugin, tooltips flotantes</td></tr>
+      <tr><td><strong>Lightweight Charts v5</strong> <span class="pill good">elegida para precios</span></td><td>≈ 15 KB con tree-shaking (≈ 35 KB completa)</td><td>Hecha para finanzas: eje de tiempo, crosshair, táctil, área/línea/velas/baseline, marcadores de eventos, canvas rápido; Apache-2.0 con atribución a TradingView (encaja con nuestra política de fuentes)</td><td>Sin ejes de categorías ni leyenda propia (se hacen en HTML); requiere JS (se cubre con skeleton)</td></tr>
+      <tr><td>uPlot</td><td>≈ 16 KB</td><td>Muy rápido</td><td>API de bajo nivel; tooltips y táctil a mano. Plan B si el presupuesto aprieta</td></tr>
+      <tr><td><strong>SVG propio</strong> <span class="pill good">elegido para el resto</span></td><td>0 KB</td><td>Control total, accesible, sin CLS, imprimible, reutilizable como PNG; ideal para ≤ 400 puntos</td><td>No para históricos largos ni scrub fino</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Decisión:</strong> Lightweight Charts para todo precio/historial (pulso grande, ficha, research); SVG propio para sparklines, módulos de aprendizaje, herramientas y financieros del research (barras 5 años, sensibilidad); Chart.js se elimina. Ahorro ≈ 45 KB gz frente a hoy, interacción táctil nativa y una sola estética de datos.</p>
+  <h3>7.3 Credibilidad como proceso</h3>
+  <h4>Checklist pre-deploy (va en la plantilla de PR; ★ = lo verifica CI)</h4>
+  <ul class="checklist">
+    <li>★ Tests y <code>astro check</code> verdes · ★ Lighthouse móvil ≥ 90, LCP &lt; 2.5 s, JS ≤ 150 KB gz · ★ paridad EN/ES y hreflang · ★ links internos sin 404</li>
+    <li>Cada cifra con fuente y <code>asOf</code>; "retraso" o "último cierre" donde aplique; atribución de proveedores (TradingView, CoinGecko, Yahoo, Twelve Data, Banxico)</li>
+    <li>Opinión marcada como tesis, dato como dato; disclaimer educativo + "no es recomendación" en cada página financiera</li>
+    <li>Disclosure de IA donde intervino: los "takes" de noticias pasan a llamarse <em>"Why it matters — AI-assisted"</em>; en research, qué hizo Claude y qué hizo Jaime</li>
+    <li>Ningún dato inventado (si falta, se dice) · a11y: skip-link, roles, contraste, reduced-motion · fecha <code>updated</code> real en frontmatter y sitemap · og:image y JSON-LD</li>
+  </ul>
+  <h4>Página pública <code>/methodology</code> (EN/ES)</h4>
+  <p>Qué datos usamos y de quién; cadencia y retraso por superficie; cadena de respaldo y caché; qué hace la IA y qué no (ninguna cifra sale de la IA sin fuente; el research lo escribe Jaime con Claude como asistente de datos y redacción); política de correcciones con changelog público; conflictos de interés y posiciones declaradas (simulador Actinver); "esto no es asesoría"; contacto para errores.</p>
+  <h4>KPIs realistas a 3 meses (medir el 15-nov-2026)</h4>
+  <div class="tablewrap"><table>
+    <thead><tr><th>KPI</th><th>Hoy</th><th>Meta</th><th>Cómo</th></tr></thead>
+    <tbody>
+      <tr><td>Visitas únicas/mes</td><td>Sin medir (instrumentar semana 1)</td><td>1 500–3 000</td><td>Vercel Web Analytics</td></tr>
+      <tr><td>Suscriptores del boletín</td><td>Leer de Redis</td><td>+100 netos, bajas &lt; 5 %</td><td><code>/api/newsletter-log</code></td></tr>
+      <tr><td>Lectura del reporte</td><td>—</td><td>≥ 500 vistas en 2 semanas; ≥ 30 % llega a la tesis</td><td>WA (+ evento de scroll opcional)</td></tr>
+      <tr><td>Compartidos</td><td>—</td><td>LinkedIn ≥ 5 000 impresiones; 5 TikToks ≥ 2 000 vistas c/u; carrusel ≥ 50 guardados</td><td>Analíticas nativas</td></tr>
+      <tr><td>Validación externa</td><td>—</td><td>3 menciones (profesor, comunidad Actinver, escuela) + 1 revisor citado en el reporte</td><td>Registro manual</td></tr>
+      <tr><td>Salud técnica</td><td>LH 51</td><td>LH ≥ 90 en 4 rutas; 0 healthchecks rojos &gt; 24 h</td><td>CI + Actions</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ===================== 8 RESEARCH ===================== -->
+<section class="part" id="research">
+  <h2><span class="n">8 · Smart Finance Research</span>El pilar que nadie más tiene</h2>
+  <h3>8.1 El nombre <span class="pill accent">recomendación</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Opción</th><th>Qué comunica</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Smart Finance Research</strong></td><td>Serio, escalable (caben research de acciones, macro, sectores), suena a la división de research de una casa de bolsa; la URL <code>/research</code> es universal y funciona igual en EN y ES</td><td><span class="pill good">elegido</span></td></tr>
+      <tr><td>Smart Finance Equity Research</td><td>Preciso pero estrecho (te encierra en acciones) y largo para nav móvil</td><td><span class="pill warn">no</span></td></tr>
+      <tr><td>Student Research</td><td>Honesto pero se vende por debajo: el objetivo es que no parezca "de estudiante"; la honestidad va en la metodología, no en el nombre</td><td><span class="pill bad">no</span></td></tr>
+      <tr><td>Research Lab</td><td>Experimental y simpático; resta autoridad frente a un analista o un profesor</td><td><span class="pill warn">no</span></td></tr>
+      <tr><td>Insights</td><td>Genérico, suena a newsletter o a blog corporativo</td><td><span class="pill bad">no</span></td></tr>
+      <tr><td>Capital</td><td>Sugiere un fondo o una gestora: confuso y hasta regulatoriamente delicado</td><td><span class="pill bad">no</span></td></tr>
+    </tbody>
+  </table></div>
+  <p>Eslogan del hub: <em>"Research de estudiante, con estándares de analista. Construido en público."</em> Eso pone la honestidad donde toca: en el método.</p>
+
+  <h3>8.2 Arquitectura</h3>
+  <ul>
+    <li><code>/research</code> — portada del hub: último reporte destacado (ticker, fecha de datos, rango de valor por escenario, tesis en 3 líneas), lista de reportes, <strong>metodología</strong> (cómo se hace, qué hace la IA, política de correcciones), disclaimer, "qué viene".</li>
+    <li><code>/research/[empresa]</code> — el reporte interactivo: cabecera (nombre, ticker, precio a la fecha, fecha de análisis, última actualización, versión), resumen de una página, las 10 secciones de abajo con gráficas, el DCF interactivo, escenarios, comparables, fuentes numeradas, "cómo se usó la IA", changelog, botón PDF.</li>
+    <li><code>/research/[empresa]/model</code> (opcional, fase 2) — el modelo abierto: JSON de supuestos descargable y tabla de sensibilidad completa.</li>
+    <li>Datos: <code>content/research/[empresa]/</code> (meta, fuentes, <code>financials.json</code>, <code>model.json</code>, MDX EN/ES, charts, derivados, changelog). Las gráficas de financieros se generan en build como SVG; el DCF es una isla que recalcula en el navegador con las mismas funciones probadas de <code>src/lib/finance/</code>.</li>
+  </ul>
+
+  <h3>8.3 Qué necesita de verdad un primer reporte (de 22 secciones a 10 bloques)</h3>
+  <p>Las 22 secciones son el índice de un reporte de banco; para un estudiante producen 22 títulos con tres párrafos flojos cada uno. Referencia: los reportes del CFA Research Challenge tienen ≈ 10 páginas.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Bloque</th><th>Absorbe</th><th>Extensión</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Resumen de una página</strong>: tesis en 3 líneas, rango de valor por escenario, 3 catalizadores, 3 riesgos, fecha de datos, disclaimer</td><td>thesis · price target · conclusion</td><td>1 pág.</td></tr>
+      <tr><td>2</td><td><strong>Qué hace y cómo gana dinero</strong> (segmentos, unit economics por tienda/e-commerce/región)</td><td>overview · business model</td><td>1.5 pág.</td></tr>
+      <tr><td>3</td><td><strong>Industria y competencia</strong> (tamaño, crecimiento, quién gana cuota; el "moat" se demuestra con números: margen bruto, ROIC, ventas/tienda vs rivales)</td><td>industry · competitive landscape · moats</td><td>1.5 pág.</td></tr>
+      <tr><td>4</td><td><strong>Desempeño financiero 5 años</strong> (crecimiento, márgenes, FCF, balance, asignación de capital; 6–8 ratios, no 30)</td><td>financial performance · revenue · margins · balance sheet · cash flow · key ratios</td><td>2 pág. + tablas</td></tr>
+      <tr><td>5</td><td><strong>Palancas de crecimiento y management</strong> (qué mueve la aguja; track record de capital; incentivos)</td><td>growth drivers · management</td><td>1 pág.</td></tr>
+      <tr><td>6</td><td><strong>Riesgos rankeados</strong> (probabilidad × impacto, "cómo se vería en los números")</td><td>risks</td><td>1 pág.</td></tr>
+      <tr><td>7</td><td><strong>Valuación</strong>: DCF con supuestos explícitos + sensibilidad WACC × g + comparables → <strong>rango</strong>, no punto</td><td>valuation · DCF · comps · price target</td><td>2 pág.</td></tr>
+      <tr><td>8</td><td><strong>Escenarios bull/base/bear</strong> con drivers, probabilidades, valor por escenario y los KPIs que confirmarían cada uno</td><td>bull case · bear case</td><td>1 pág.</td></tr>
+      <tr><td>9</td><td><strong>Conclusión + "qué me haría cambiar de opinión" + "qué aprendí"</strong></td><td>conclusion</td><td>0.5 pág.</td></tr>
+      <tr><td>10</td><td><strong>Apéndice</strong>: fuentes con fecha, JSON de supuestos, glosario, historial de versiones, disclosure de IA</td><td>—</td><td>libre</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Se eliminan como secciones propias:</strong> price target (un punto único es falsa precisión), moats (se prueba dentro de competencia), key ratios (tabla dentro de financieros), growth drivers separado de management. <strong>Extensión:</strong> 10–12 páginas + apéndice (4 000–5 500 palabras); en la web, la página 1 arriba y el resto en secciones con gráficas interactivas.</p>
+  <p><strong>Qué lo hace creíble (no negociable):</strong> cada cifra con fuente primaria y fecha (10-K p. X, 8-K del 4-jun-26); sello "Datos al DD-MM-AAAA, precio de cierre"; tabla de supuestos con una línea de <em>por qué</em> cada uno; rango en vez de precio objetivo; sección "Lo que no sé"; disclaimer educativo; sin "Buy/Sell" — "escenario más probable"; versiones con changelog (la v1 equivocada y corregida vale más que una v1 perfecta); números que cuadran entre sí (el DCF y la tabla histórica usan el mismo JSON).</p>
+
+  <h3>8.4 Reparto: qué haces tú y qué hace la IA</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Jaime (autoría)</th><th>IA (herramienta)</th></tr></thead>
+    <tbody>
+      <tr><td>Elegir la empresa y la pregunta de tesis</td><td>Bajar EDGAR → JSON, tablas y gráficas</td></tr>
+      <tr><td>Leer el 10-K (Items 1, 1A, 7) y la última llamada de resultados; notas a mano</td><td>Resumir transcripciones <em>después</em> de que las leíste; generar preguntas de estudio</td></tr>
+      <tr><td>Escribir en primera persona qué hace la empresa y por qué gana dinero</td><td>Revisar claridad, ortografía y consistencia de cifras con las fuentes</td></tr>
+      <tr><td>Elegir comparables y justificar cada inclusión/exclusión</td><td>Traer los múltiplos con fecha y fuente</td></tr>
+      <tr><td>Fijar TODOS los supuestos del DCF con su razón (crecimiento, margen, WACC, g)</td><td>Calcular DCF, sensibilidades y escenarios; codificar la página interactiva</td></tr>
+      <tr><td>Tesis, bull/bear, riesgos, conclusión, "qué me haría cambiar de opinión"</td><td>Hacer de abogado del diablo: atacar la tesis, listar lo que falta</td></tr>
+      <tr><td>Grabar el video de 3–5 min explicando la tesis sin leer</td><td>Montar visuales y piezas para TikTok/LinkedIn a partir de tu guion</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Flujo en 3 semanas:</strong> S1 lectura + notas + tu propia hoja de cálculo con el histórico (debes poder explicar cada celda) mientras la IA arma el JSON de datos; S2 escribes <code>assumptions</code> con razones → la IA calcula y devuelve sensibilidades → ajustas → "¿por qué este margen?" en voz alta; S3 redacción, crítica cruzada (la IA ataca, tú respondes por escrito), diseño, publicación, video. Después: actualización por trimestre con diff visible.</p>
+  <p><strong>Pruebas de autoría:</strong> commits con tu nombre y fechas; <code>rationale</code> de cada supuesto escrito por ti; video sin guion leído; <em>decision log</em> (por qué LULU, por qué esos comps, qué cambió tras feedback); caja "Cómo se usó la IA" en el propio reporte; registro de errores corregidos; 10 preguntas difíciles publicadas con tus respuestas; tu hoja de cálculo que cuadra con el JSON; observaciones que una IA no puede tener (visita a tienda, precio de unos leggings en MX vs CA, la app).</p>
+
+  <h3>8.5 Modelo de datos e interactividad</h3>
+  <p>Un solo JSON alimenta tablas, gráficas, DCF y derivados. Campos principales de <code>content/research/[empresa]/model.json</code>:</p>
+  <pre>meta        ticker, nombre, bolsa, CIK, moneda, cierre fiscal, fecha de análisis, última actualización,
+            precio a la fecha (+ fecha), acciones diluidas, autor, versión, estado, disclosure de IA, fuentes[]
+historical  5–7 años: revenue, grossProfit, ebitda, ebit, netIncome, da, capex, cfo, fcf, sbc, tax,
+            cash, financialDebt, operatingLeases, equity, dilutedShares, buybacks, source
+kpis        por año: ventas por región/canal, comps, tiendas, inventarios (capturados a mano con página citada)
+dcf         horizonte 5 años, mid-year; supuestos: revenueGrowthPct[], ebitdaMarginPct[], da%, capex%,
+            nwc%, tasa impositiva, tratamiento de SBC, terminal (Gordon g o múltiplo de salida),
+            wacc {rf, beta, erp, prima país, Ke, Kd, pesos, wacc, rationale}; rationale por supuesto;
+            netDebtAtValuation {cash, financialDebt, leasesIncluded, minorities}
+scenarios   bear/base/bull: probabilidad + overrides de supuestos
+comps       asOf, fuente, peers[] {ticker, P/E, EV/EBITDA, EV/Sales, FCF yield, crecimiento, margen, por qué está}
+thesis      pregunta, resumen, bullCase[], bearCase[], catalysts[] (fecha, qué), risks[] (riesgo, prob, impacto, señal),
+            whatWouldChangeMyMind[], whatIDontKnow[]
+outputs     EV/equity/precio implícito por escenario, rango, % del valor terminal sobre EV, sensibilidad WACC × g</pre>
+  <h4>Fórmulas del DCF (por año t = 1…N)</h4>
+  <p><code>Rev_t = Rev_{t-1}·(1+g_t)</code> · <code>EBITDA_t = Rev_t·m_t</code> · <code>EBIT_t = EBITDA_t − D&amp;A_t</code> · <code>NOPAT_t = EBIT_t·(1−τ)</code> · <strong><code>UFCF_t = NOPAT_t + D&amp;A_t − Capex_t − ΔNWC_t</code></strong> (menos SBC si se trata como coste en efectivo: documentar la elección) · <code>DF_t = 1/(1+WACC)^(t−0.5)</code> con mid-year · <code>VP = Σ UFCF_t·DF_t</code> · <strong>Valor terminal</strong> Gordon <code>UFCF_N·(1+g)/(WACC−g)</code> o múltiplo <code>EBITDA_N·x</code>, descontado con <code>DF_N</code> · <code>EV = VP + VP(TV)</code> · <code>Equity = EV − deuda financiera + caja − minoritarios</code> (bajo US GAAP el EBITDA ya es post-renta: <em>no</em> restar arrendamientos; bajo IFRS 16 — DOL, WALMEX — sí, o usar EBITDA-renta; nunca mezclar) · <code>Precio = Equity / acciones diluidas</code> · <code>Ke = rf + β·ERP (+ prima país)</code> · valor ponderado <code>Σ prob_s·precio_s</code>.</p>
+  <h4>Controles de sanidad (el modelo debe fallar ruidosamente)</h4>
+  <ul>
+    <li>g &lt; WACC y g ≤ 3 % nominal en USD; WACC entre 7–11 % (alerta fuera de 6–14 %).</li>
+    <li>% del valor terminal sobre EV entre 50–75 % (alerta &gt; 80 %); múltiplo de salida implícito por Gordon coherente con los comps (y viceversa).</li>
+    <li>Margen del año N vs máximo histórico (alerta si supera el récord sin razón escrita); capex ≥ D&amp;A si hay crecimiento; ROIC vs WACC.</li>
+    <li>Probabilidades de escenarios suman 1; el precio de mercado cae dentro de la tabla de sensibilidad (si no, explicar); fecha de datos ≤ 90 días o banner "desactualizado".</li>
+  </ul>
+  <h4>Interacción en la página (móvil primero)</h4>
+  <ul>
+    <li><strong>DCF:</strong> sliders para crecimiento de ingresos (por fase), margen EBITDA, WACC y g terminal; al mover cualquiera se recalculan EV, equity, precio implícito y el % del valor terminal, con el precio de mercado marcado en la escala; botón "volver a los supuestos de Jaime".</li>
+    <li><strong>Escenarios:</strong> conmutador bull / base / bear que carga los overrides y muestra el rango ("football field") con el precio actual.</li>
+    <li><strong>Sensibilidad:</strong> tabla WACC × g con la celda del caso base resaltada, deslizable en móvil.</li>
+    <li><strong>Comparables:</strong> tabla ordenable (P/E, EV/EBITDA, EV/Sales, FCF yield) con la empresa destacada y el "por qué está" de cada par.</li>
+    <li><strong>Financieros:</strong> gráficas de ingresos, EBITDA, utilidad neta, FCF, márgenes y caja/deuda como SVG (0 JS), con la fuente al pie de cada una.</li>
+  </ul>
+
+  <h3>8.6 Fuentes gratis para LULU y qué va a mano</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Dato</th><th>Fuente</th><th>Cómo</th><th>A mano</th></tr></thead>
+    <tbody>
+      <tr><td>7 años de P&amp;L, balance y flujo</td><td>EDGAR XBRL <code>companyfacts/CIK0001397187.json</code> (User-Agent obligatorio)</td><td>Probado hoy: ingresos, EBIT, utilidad neta, D&amp;A, capex, CFO, SBC, arrendamientos, acciones diluidas</td><td>—</td></tr>
+      <tr><td>Lista de filings y fechas</td><td>EDGAR <code>submissions/CIK0001397187.json</code></td><td>JSON</td><td>—</td></tr>
+      <tr><td>Ingresos por región/canal, comps por región, tiendas, inventarios</td><td>10-K / 10-Q (Item 7) y 8-K de resultados</td><td>Las dimensiones XBRL no vienen en companyfacts</td><td><strong>Sí</strong> (tabla de KPIs con página citada)</td></tr>
+      <tr><td>Guía y comentarios del management</td><td>8-K + transcripción (IR / Motley Fool)</td><td>Lectura</td><td><strong>Sí</strong></td></tr>
+      <tr><td>Precio, beta, acciones en circulación</td><td>Registro de símbolos del sitio; portada del 10-Q; beta de Yahoo/stockanalysis o calculada con 5 años de cierres</td><td>—</td><td>Fecha y fuente</td></tr>
+      <tr><td>rf, ERP</td><td>FRED <code>DGS10</code> (4.65–4.71 % el 20-ago-26); Damodaran ERP ene-26 4.23 %</td><td>API / PDF</td><td>—</td></tr>
+      <tr><td>Múltiplos de comparables</td><td>stockanalysis / Yahoo por ticker</td><td>Captura fechada</td><td><strong>Sí</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Si fuera Dollarama: IFRS en PDF (SEDAR+, MD&amp;A, AIF), todo a mano. Si fuera Walmex: PDF trimestrales en walmex.mx y BMV, casi todo a mano. Es uno de los motivos de peso de la recomendación.</p>
+</section>
+
+<!-- ===================== 9 EMPRESAS ===================== -->
+<section class="part" id="empresas">
+  <h2><span class="n">9 · Las cinco empresas candidatas</span>Y cuál analizamos primero</h2>
+  <p class="lead">Datos al <strong>21-ago-2026</strong> (precios intradía ≈ 11:15 ET vía stockanalysis.com; fundamentales descargados hoy de SEC EDGAR XBRL para LULU, CMG y DUOL; FX del BCE: USD/MXN 16.90, USD/CAD 1.374). Lo que no se pudo verificar va marcado <em>(verificar)</em>. Todo se re-verifica el día que arranque el research.</p>
+
+  <h3>9.1 Datos duros</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>LULU · Nasdaq, Vancouver</th><th>DOL.TO · TSX, Montreal</th><th>WALMEX.MX · BMV</th><th>CMG · NYSE</th><th>DUOL · Nasdaq</th></tr></thead>
+    <tbody>
+      <tr><td>Precio · market cap</td><td>$120.94 · $13.7 B</td><td>C$185.85 · C$50.5 B (≈ US$37 B)</td><td>MXN 47.13 · MXN 820 B (≈ US$49 B)</td><td>$36.00 · $45.6 B</td><td>$146.51 · $6.9 B</td></tr>
+      <tr><td>Ingresos TTM (último FY)</td><td>$11.20 B (FY al 1-feb-26: $11.10 B)</td><td>C$7.58 B (FY: C$7.26 B)</td><td>MXN 1 020 B (FY25: 1 011 B)</td><td>$12.42 B (FY25: $11.93 B)</td><td>$1.145 B (FY25: $1.038 B)</td></tr>
+      <tr><td>Crecimiento de ingresos</td><td>TTM +4.2 % · FY +4.9 % (FY24 +10 %)</td><td>TTM +16 % · FY +13 %</td><td>TTM +2.9 % · FY +5.6 %</td><td>TTM +7.3 % · FY +5.4 %</td><td>TTM +29 % · FY +39 %</td></tr>
+      <tr><td>Margen operativo TTM</td><td>18.3 % (FY24 23.7 % → en caída)</td><td>23.5 %</td><td>7.6 %</td><td>15.3 % (FY24 17.3 %)</td><td>14.3 % (FY23 −2.5 %)</td></tr>
+      <tr><td>FCF TTM</td><td>$1.28 B (FY $0.92 B)</td><td>C$1.51 B</td><td>MXN 49.3 B</td><td>$1.57 B</td><td>$0.41 B (SBC ≈ 13 % de ventas)</td></tr>
+      <tr><td>Deuda / caja</td><td><strong>Sin deuda financiera</strong>; caja $1.51 B; arrendamientos $2.14 B</td><td>Deuda total C$6.18 B incl. IFRS 16 <em>(verificar)</em>; caja C$0.82 B</td><td>Deuda neta MXN 53 B, casi todo arrendamientos <em>(verificar)</em></td><td><strong>Sin deuda financiera</strong>; caja $0.68 B; arrendamientos $5.42 B</td><td>Caja neta $1.23 B; sin deuda</td></tr>
+      <tr><td>P/E trailing / forward</td><td>9.3x / 10.5x</td><td>38.5x / 35.9x</td><td>16.5x / 15.2x</td><td>32.7x / 27.9x</td><td>17.5x / 55.8x (trailing inflado por beneficio fiscal)</td></tr>
+      <tr><td>EV/EBITDA (incluye arrendamientos)</td><td>5.4x</td><td>22.7x</td><td>8.4x</td><td>21.7x</td><td>31.6x</td></tr>
+      <tr><td>52 semanas · beta</td><td>−38.6 % · 0.86</td><td>−4.9 % · 0.39</td><td>−17.6 % · 0.03</td><td>−16.2 % · 0.94</td><td>−56.8 % · 0.88</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Fuentes: stockanalysis.com (estadísticas por ticker, 21-ago-2026); EDGAR <code>companyfacts</code> CIK 1397187 / 1058090 / 1562088 (10-Q más recientes: LULU 4-jun-26, CMG 31-jul-26, DUOL 6-ago-26). Ojo: stockanalysis mete los arrendamientos operativos en "deuda"; LULU y CMG no tienen deuda bancaria según EDGAR.</p>
+
+  <h3>9.2 El debate del mercado hoy</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>Bull</th><th>Bear</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LULU</strong></td><td>≈ 9x utilidades, caja neta, recompra ≈ 4 %/año, China creciendo, nueva CEO Heidi O'Neill (ex Nike) desde el 8-sep-26 y dos consejeros nuevos tras el acuerdo con el fundador Chip Wilson (ex co-CEO de On, ex ESPN).</td><td>Comps Américas −5 % en 1T26, margen bruto −160 pb por aranceles, guía FY26 EPS $10.95–11.15 vs $13.26 (−17 %); riesgo de "marca que perdió el calor" (Alo, Vuori, On). 30 de 34 analistas en Hold.</td></tr>
+      <tr><td><strong>DOL</strong></td><td>Compounder "aburrido": margen bruto 45 %, FCF C$1.5 B, recompras, Dollarcity (LatAm) y Australia (The Reject Shop → 700 tiendas en 2034).</td><td>36x utilidades forward para comps de 3–4 %; costo de reconvertir Australia; recortes de precio objetivo en agosto.</td></tr>
+      <tr><td><strong>WALMEX</strong></td><td>Escala dominante (4 305 tiendas), e-commerce GMV +11.5 %, FCF yield 6 %, dividendo 2.5 %, múltiplo bajo vs su historia.</td><td>Tráfico −1.1 %, recuperación del consumo lenta, guía 2026 +3.5–4.5 % con margen algo menor; competencia (Costco, Chedraui, hard-discount).</td></tr>
+      <tr><td><strong>CMG</strong></td><td>Tráfico de vuelta (+1 %), guía de comps subida, 350–370 aperturas/año, recompra $1.3 B, 24 Buy / 0 Sell.</td><td>Margen operativo 15.3 % vs 17.3 %, 33x utilidades para comps de un dígito bajo, susto de salmonela (4-ago).</td></tr>
+      <tr><td><strong>DUOL</strong></td><td>DAU 58.7 M (+23 %, acelerando), margen bruto 73 %, EBITDA aj. 26.5 %, coste de IA colapsando, caja neta $1.2 B.</td><td>Bookings +10–12 % muy por debajo de los DAU (monetización), 56x forward, SBC 13 % de ventas, miedo a tutores-LLM; −57 % en 12 meses.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.3 Puntuación (1 = peor, 5 = mejor para un primer reporte de estudiante)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Criterio</th><th class="num">LULU</th><th class="num">DOL</th><th class="num">WALMEX</th><th class="num">CMG</th><th class="num">DUOL</th></tr></thead>
+    <tbody>
+      <tr><td>Disponibilidad y calidad de información (XBRL gratis, IR, cobertura)</td><td class="num">5</td><td class="num">3</td><td class="num">4</td><td class="num">5</td><td class="num">5</td></tr>
+      <tr><td>Facilidad de análisis (segmentos, contabilidad)</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num">3</td></tr>
+      <tr><td>Facilidad de DCF (FCF estable, deuda simple)</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num">2</td></tr>
+      <tr><td>Comparables disponibles</td><td class="num">5</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num">2</td></tr>
+      <tr><td>Atractivo para universidades / U of T</td><td class="num">5</td><td class="num">5</td><td class="num">2</td><td class="num">3</td><td class="num">4</td></tr>
+      <tr><td>Interés para jóvenes / TikTok</td><td class="num">5</td><td class="num">3</td><td class="num">3</td><td class="num">5</td><td class="num">5</td></tr>
+      <tr><td>Potencial de contenido (serie, catalizadores)</td><td class="num">5</td><td class="num">3</td><td class="num">3</td><td class="num">4</td><td class="num">5</td></tr>
+      <tr><td>Simplicidad de la industria</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">2</td></tr>
+      <tr><td><strong>Total / 40</strong></td><td class="num"><strong>36</strong></td><td class="num">30</td><td class="num">25</td><td class="num"><strong>36</strong></td><td class="num">28</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout decision"><div class="t">Recomendación <span class="pill accent">recomendación</span> · decisión tuya</div>
+    <p><strong>Lululemon (LULU)</strong>, con <strong>Chipotle (CMG)</strong> como suplente. Empatan en puntos; el desempate es lo que el reporte tiene que hacer por ti: LULU es una empresa canadiense que reporta a la SEC (XBRL gratis, 10-K en inglés, 7 años de historia descargados hoy en una sola llamada), con un debate real y binario a 9x utilidades, catalizadores antes de las fechas de admisión (2T26 ≈ 3-sep, CEO 8-sep, 3T en diciembre) y público joven. CMG es el DCF de libro de texto (un segmento, sin deuda, FCF estable): si quieres la ruta de <em>menor riesgo técnico</em>, CMG; si quieres la de <em>mayor impacto</em> (Canadá + historia viva), LULU. Mi voto: LULU, y CMG como segundo reporte para demostrar método repetible.</p>
+    <p><strong>Pregunta de tesis:</strong> "A US$121 (≈ 9x utilidades, caja neta), ¿qué está descontando el mercado: una erosión permanente del margen operativo hacia 14–15 % y ventas planas en América, o un bache de producto + aranceles que una nueva dirección puede corregir? ¿Qué tiene que creer uno para que LULU valga más (o menos) que hoy?" El entregable no es un precio: es un rango por escenario y la lista de señales (comps Américas, margen bruto, inventarios, China) que confirmarían cada uno.</p>
+    <p><strong>Tres riesgos de elegir LULU:</strong> (1) la historia se mueve rápido — la CEO nueva puede resetear guía y estrategia en semanas → versionar con fecha y actualizar por trimestre; (2) proyectar un turnaround exige juicio (¿el margen "normal" es 18 % o 23 %?) — riesgo de disfrazar deseos de supuestos; (3) sesgo de marca: a tu público le gusta el producto; el bear case merece la misma seriedad. Detalle operativo: el año fiscal cierra ≈ 1-feb y la empresa llama "fiscal 2025" al año que otros llaman FY2026 — etiquetar siempre por fecha de cierre.</p>
+    <p><strong>¿Algo mejor fuera de las cinco?</strong> No. Aritzia (canadiense y juvenil, pero IFRS/SEDAR+ sin XBRL y chica), Shopify (compleja, SBC, multi-segmento), Costco (consenso total), Nike (turnaround más grande y complejo) y Crocs (barata pero con deuda de HEYDUDE) sirven como <em>comparables</em>, no como sujeto.</p>
+  </div>
+</section>
+
+<!-- ===================== 10 ROADMAP ===================== -->
+<section class="part" id="roadmap">
+  <h2><span class="n">10 · Roadmap</span>12 semanas, dos carriles en paralelo</h2>
+  <p class="lead">Objetivo del MVP (15-nov-2026): que un profesor de finanzas o un admissions officer vea <strong>datos honestos con fuente, un análisis propio reproducible y un producto que funciona en el teléfono</strong>. Jaime ≈ 12 h/semana; Claude Code en sesiones asíncronas. El research arranca en la semana 3 y corre en paralelo al rediseño, no después.</p>
+
+  <h3>10.1 Dentro y fuera del MVP</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Dentro</h4><ul>
+      <li>Sitio Astro bilingüe con paridad EN/ES verificada por CI</li>
+      <li>Home mobile-first cuya primera pantalla es producto (markets + último research + noticia explicada), sin globo</li>
+      <li><code>/market</code> con Lightweight Charts, cadencia y atribución visibles, mercado cerrado señalado</li>
+      <li>6 lecciones en MDX con fuentes, fecha real, prev/next y ruta de aprendizaje; la calculadora de interés compuesto como isla</li>
+      <li><code>/research</code> hub + <strong>1 Equity Research Report interactivo</strong> (DCF con supuestos editables, sensibilidad, comparables, fuentes numeradas, PDF)</li>
+      <li><code>/actinver</code>: posiciones con tesis en JSON + snapshot diario + resultados</li>
+      <li><code>/methodology</code>, <code>/about</code>, 404, boletín semanal, CI + tests + Lighthouse ≥ 90 + healthcheck</li>
+    </ul></div>
+    <div class="card"><h4>Fuera (fase 2 o nunca)</h4><ul>
+      <li>Modo claro (fase 2), cuentas de usuario, comentarios</li>
+      <li>Screener, búsqueda de tickers arbitrarios, fundamentales BMV/TSX por API</li>
+      <li>Chat de IA abierto sobre activos</li>
+      <li>Más de 2 lecciones nuevas antes del 15-nov; segundo reporte (arranca en diciembre)</li>
+      <li>App nativa, notificaciones, portafolio personal real</li>
+    </ul></div>
+  </div>
+
+  <h3>10.2 Hitos duros (verificados el 21-ago-2026)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Fecha</th><th>Hito</th><th>Estado requerido del sitio</th></tr></thead>
+    <tbody>
+      <tr><td>17-sep-2026</td><td>OUAC 105 abre (otoño 2027)</td><td>Crear cuenta; nada que enviar aún</td></tr>
+      <tr><td>28-sep → 2-oct</td><td>Reto Actinver: práctica</td><td><code>/actinver</code> en preview</td></tr>
+      <tr><td>5-oct → 13-nov</td><td>Reto Actinver real (diario)</td><td><code>/actinver</code> en producción con cron</td></tr>
+      <tr><td>30-oct (objetivo) · <strong>15-nov (límite)</strong></td><td>Reporte publicado</td><td><code>/research/[empresa]</code> con checklist completo</td></tr>
+      <tr><td>7-nov-2026</td><td>Rotman Commerce: solicitud temprana (publicado); U of T general recomendaba ~7-nov en el ciclo 2026</td><td>Sitio demo-ready; URL del reporte lista</td></tr>
+      <tr><td>1-dic-2026</td><td>Rotman: suplementaria temprana (donde se cuenta el proyecto)</td><td>Reporte + KPIs + video de tesis</td></tr>
+      <tr><td>15-ene-2027 · 1-feb-2027</td><td>U of T límite general · Rotman suplementaria/documentos final</td><td>Reporte actualizado con resultados trimestrales</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Nota: la página oficial de OUAC devolvió 403 y la de U of T aún mostraba el ciclo 2026 el día de la verificación; las fechas generales 2027 (7-nov / 15-ene) son proyección del patrón 2026 y hay que reconfirmarlas el 1-oct en <code>future.utoronto.ca/deadlines</code>. Las de Rotman Commerce 2027 sí están publicadas.</p>
+
+  <h3>10.3 Calendario semanal</h3>
+  <pre class="mermaid">
+gantt
+  title Dos carriles · 24 ago → 15 nov 2026
+  dateFormat YYYY-MM-DD
+  axisFormat %d %b
+  section Plataforma
+  Cimientos, quick wins, CI, main protegido      :p1, 2026-08-24, 7d
+  Astro scaffold + sistema visual + /about /methodology :p2, 2026-08-31, 7d
+  Lecciones a MDX con fuentes                     :p3, 2026-09-07, 7d
+  /market en Astro (Lightweight Charts)           :p4, 2026-09-14, 7d
+  Home nuevo, adiós build-es                      :p5, 2026-09-21, 7d
+  /actinver + cron diario                         :p6, 2026-09-28, 7d
+  Boletín semanal, 404, hub /research             :p7, 2026-10-05, 14d
+  QA, buffer, /methodology final                  :p9, 2026-10-19, 7d
+  section Research
+  Spec, empresa elegida, datos EDGAR              :r3, 2026-09-07, 7d
+  Secciones 1-3 (empresa, industria, qué pasó)    :r4, 2026-09-14, 7d
+  Modelo DCF con tests + supuestos de Jaime       :r5, 2026-09-21, 7d
+  Gráficas SVG + isla DCF + secciones 4-5         :r6, 2026-09-28, 7d
+  Reporte v1 completo + revisor humano            :r7, 2026-10-05, 7d
+  Página interactiva /research/[empresa]          :r8, 2026-10-12, 7d
+  QA editorial, ES final                          :r9, 2026-10-19, 7d
+  Publicación + derivados (LinkedIn, TikTok, IG)  :r10, 2026-10-26, 7d
+  OUAC + difusión                                 :r11, 2026-11-02, 7d
+  Cierre Actinver, retro, plan fase 2             :r12, 2026-11-09, 7d
+  </pre>
+
+  <div class="phase"><div class="w">S1 · 24–30 ago</div><div><h4>Cimientos y quick wins</h4><p><code>main</code> protegido + flujo de PR + CI v0; PR de arreglos legacy (bug CSS del hero, fuera globo/three/geoMasks/<code>desktop-check.png</code>, reduced-motion, preload de fuentes, jaime.jpg ≤ 30 KB, cache headers) → <strong>Lighthouse móvil ≥ 75</strong>; README, LICENSE, <code>.claude/</code> versionado; <code>docs/vision.md</code>.</p><p class="owner">Jaime: decisiones de la sección 11, revisar PRs, escribir la visión (10 h) · Claude: gestor + creador</p></div></div>
+  <div class="phase"><div class="w">S2 · 31 ago–6 sep</div><div><h4>Astro scaffold + sistema visual</h4><p>Rama <code>feat/astro</code> con el legacy en <code>public/</code>; <strong>gate de <code>/api</code> en preview</strong>; tokens únicos, <code>BaseLayout</code>, Nav, Footer, i18n, <code>&lt;Hreflang&gt;</code>, sitemap; fuentes nuevas; <code>/about</code> y <code>/methodology</code> EN/ES en producción con LH ≥ 90; página <code>/design</code> (no indexada) con los componentes.</p><p class="owner">Jaime: aprobar tokens y copy de /methodology (12 h) · Claude: diseño ∥ creador</p></div></div>
+  <div class="phase"><div class="w">S3 · 7–13 sep</div><div><h4>Lecciones a MDX + arranque del Research</h4><p>Colección <code>lessons</code> (6 EN + 6 ES), ≥ 2 fuentes por lección (las añade Jaime), JSON-LD, prev/next, test de paridad. Research: plantilla del reporte, esquema <code>model.json</code>, <code>sources.yaml</code>, skill <code>research-report</code>; <strong>empresa elegida</strong>; <code>scripts/edgar-facts.mjs</code> → 5 años de financieros (Jaime verifica 3 cifras contra el 10-K).</p><p class="owner">Jaime: fuentes, elegir empresa, spot-check (13 h) · Claude: creador ∥ finanzas ∥ gestor</p></div></div>
+  <div class="phase"><div class="w">S4 · 14–20 sep</div><div><h4><code>/market</code> en Astro + Research secciones 1–3</h4><p><code>/market</code> con isla de Lightweight Charts (FX, cripto, VIX, tasas), atribución y cadencia, LH ≥ 90, 0 "en vivo"; fuera Chart.js y el market legacy. Research: empresa explicada, industria, "qué pasó" con ≥ 10 fuentes. OUAC abre el 17-sep: crear cuenta. Inscripción Actinver confirmada; esquema JSON de <code>/actinver</code>.</p><p class="owner">Jaime: leer 10-K y la llamada del Q2 (3 h), redactar notas (13 h) · Claude: creador ∥ finanzas</p></div></div>
+  <div class="phase"><div class="w">S5 · 21–27 sep</div><div><h4>Home nuevo + modelo financiero</h4><p>Home con primera pantalla de producto, noticias con disclosure de IA, breakdowns → research; eliminar <code>build-es.js</code> y <code>es/</code> legacy. <code>src/lib/finance/dcf.ts</code> con TDD (≥ 15 tests), <code>model.json</code> con supuestos de Jaime, sensibilidad, comparables; LH home ≥ 90.</p><p class="owner">Jaime: fijar supuestos (WACC, crecimiento, márgenes) y poder explicarlos en 60 s (13 h) · Claude: creador ∥ finanzas</p></div></div>
+  <div class="phase"><div class="w">S6 · 28 sep–4 oct</div><div><h4>Actinver práctica + gráficas del research</h4><p><code>/actinver</code> con posiciones/tesis, cron diario, disclaimer "simulador"; SVG en build (ingresos, márgenes, FCF, football field); isla DCF con sliders; secciones 4–5 (desempeño financiero, valuación).</p><p class="owner">Jaime: práctica 20 min/día, revisar gráficas (12 h) · Claude: creador ∥ finanzas ∥ diseño</p></div></div>
+  <div class="phase"><div class="w">S7 · 5–11 oct</div><div><h4>Reto real arranca + reporte v1 completo</h4><p>v1 EN completo (tesis, riesgos, "qué me haría cambiar de opinión"), QA de finanzas (cada cifra ↔ fuente), traducción ES; boletín pasa a semanal; páginas de boletín + 404 en Astro; v1 enviado a un revisor humano (profesor/mentor).</p><p class="owner">Jaime: escribir la tesis con su voz (4 h), log Actinver 10 min/día (13 h) · Claude: finanzas QA ∥ marketing</p></div></div>
+  <div class="phase"><div class="w">S8 · 12–18 oct</div><div><h4>Research interactivo + hub</h4><p><code>/research</code> y <code>/research/[empresa]</code> con índice, SVG, isla DCF, notas al pie, CSS de impresión/PDF, og image, JSON-LD; a11y 100; presupuesto Lighthouse en CI para la ruta; opcional: lección "DCF en 10 minutos" reutilizando la isla.</p><p class="owner">Jaime: probar en 390 px, leer en voz alta (12 h) · Claude: creador ∥ diseño ∥ gestor</p></div></div>
+  <div class="phase"><div class="w">S9 · 19–25 oct</div><div><h4>QA editorial + buffer</h4><p>Incorporar feedback del revisor, ES final, <code>/methodology</code> con políticas y registro de correcciones; checklist completo; 0 cifras sin fuente; margen para retrasos de S5–S8.</p><p class="owner">Jaime: correcciones (10 h) · Claude: gestor</p></div></div>
+  <div class="phase"><div class="w">S10 · 26 oct–1 nov</div><div><h4>Publicar el reporte + derivados v1</h4><p>Publicado ≤ 30-oct; post de LinkedIn + boletín especial; la skill <code>derive-content</code> produce 5 guiones de TikTok, carrusel de Instagram y newsletter; Jaime graba 2 videos.</p><p class="owner">Jaime: publicar, grabar (12 h) · Claude: marketing</p></div></div>
+  <div class="phase"><div class="w">S11 · 2–8 nov</div><div><h4>OUAC + difusión</h4><p>OUAC 105 enviado (Rotman temprana 7-nov); sitio demo-ready; 3 TikToks + carrusel publicados; Actinver semana 5.</p><p class="owner">Jaime: OUAC, grabar (12 h) · Claude: marketing ∥ gestor</p></div></div>
+  <div class="phase"><div class="w">S12 · 9–15 nov</div><div><h4>Cierre Actinver, retro, fase 2</h4><p>Post-mortem Actinver en <code>/actinver</code> y boletín; TikToks 4–5; <code>docs/kpis/2026-11.md</code>; reporte v1.1 si hubo correcciones; plan de fase 2.</p><p class="owner">Jaime: retro, KPIs (10 h) · Claude: finanzas ∥ marketing ∥ gestor</p></div></div>
+
+  <h3>10.4 Fase 2 (16-nov → 15-ene)</h3>
+  <ul>
+    <li><strong>16–30 nov:</strong> material para la suplementaria (1-dic); boletín semanal estable; lección interactiva #2.</li>
+    <li><strong>1–15 dic:</strong> actualización del reporte con resultados trimestrales (nota "Update" con changelog visible: research vivo).</li>
+    <li><strong>16 dic–5 ene:</strong> reporte #2 (empresa canadiense o mexicana) en borrador; caché compartida en Redis para <code>/api</code>; modo claro.</li>
+    <li><strong>6–15 ene:</strong> pulido, KPIs de 3 meses, envío a U of T.</li>
+  </ul>
+
+  <h3>10.5 Riesgos del plan</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Riesgo</th><th>Señal</th><th>Mitigación</th></tr></thead>
+    <tbody>
+      <tr><td>Sobre-alcance (12 fases en 12 semanas)</td><td>S5 termina sin home nuevo</td><td>MVP fijo; buffer en S9; regla: si una semana se atrasa, el recorte es del sitio (home/lecciones), nunca del research ni de CI</td></tr>
+      <tr><td>Dependencia de Yahoo</td><td>Healthcheck rojo, gráficas vacías</td><td>Capa <code>api/_lib/providers/</code> (Yahoo → Stooq EOD → Twelve Data) + caché compartida en Redis + degradación honesta "último cierre"</td></tr>
+      <tr><td>Tiempo escolar + Actinver diario</td><td>Semanas &lt; 8 h</td><td>Dos bloques fijos (sábado 4 h + dos tardes); plantilla de log de 10 min; Claude prepara PRs para revisar, no para escribir desde cero</td></tr>
+      <tr><td>Deuda de <code>build-es.js</code></td><td>Tentación de regenerar <code>/es</code></td><td>Congelado desde S2; paridad por test; se borra en S5</td></tr>
+      <tr><td>"Esto lo hizo la IA"</td><td>El revisor no ve la mano de Jaime</td><td>Supuestos y changelog firmados; <code>sources.yaml</code> con 10-K/transcripciones; sección "qué no sé"; video de tesis a cámara; revisión externa; disclosure específica de qué hizo cada quien</td></tr>
+      <tr><td>Tope de Resend (100/día)</td><td>&gt; 90 suscriptores</td><td>Boletín semanal desde S7; si crece, Resend Pro</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.6 Un análisis → toda la plataforma (sistema de contenido)</h3>
+  <pre>content/research/&lt;empresa&gt;/
+  meta.yaml            ticker, nombre, fecha, precio asOf, versión, autor, estado (draft/review/published)
+  sources.yaml         id, título, URL o página del 10-K, fecha de acceso, qué cifra respalda
+  data/financials.json EDGAR companyfacts normalizado (5 años) — generado por script
+  model.json           supuestos del DCF y comps firmados por Jaime (+ changelog de decisiones)
+  report.en.mdx / report.es.mdx
+  charts/*.svg         generados en build desde data + model
+  derivatives/
+    linkedin.{en,es}.md
+    tiktok/01-company-explained.md … 05-my-thesis.md   guion + b-roll + texto en pantalla + CTA
+    instagram/carousel.json (+ PNG 1080×1350)
+    newsletter.{en,es}.md
+  changelog.md         correcciones y actualizaciones públicas</pre>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Pieza</th><th>Skill en <code>.claude/skills/</code></th><th>Claude genera</th><th>Jaime aporta / revisa</th></tr></thead>
+    <tbody>
+      <tr><td>Reporte web</td><td><code>research-report</code> (secciones fijas: resumen, negocio, industria, qué pasó, desempeño, valuación, riesgos, tesis, qué me haría cambiar de opinión, metodología, fuentes)</td><td>Borrador con citas <code>[S3]</code>, tablas, SVG</td><td>Tesis y supuestos con su voz; spot-check de cifras; firma</td></tr>
+      <tr><td>LinkedIn</td><td><code>derive-content</code></td><td>Gancho + 3 hallazgos citados + PNG de una gráfica + CTA, EN/ES</td><td>Tono y gancho</td></tr>
+      <tr><td>TikTok ×5</td><td><code>derive-content</code></td><td>5 guiones de 45–60 s (company explained · what happened · financial performance · valuation · my thesis) con texto en pantalla y fuente visible</td><td>Graba a cámara, ajusta la jerga</td></tr>
+      <tr><td>Instagram</td><td><code>derive-content</code></td><td><code>carousel.json</code> → 5–8 slides PNG (título, dato, gráfica, fuente, disclaimer)</td><td>Orden y colores</td></tr>
+      <tr><td>Boletín semanal</td><td><code>newsletter-issue</code></td><td>Resumen, 1 gráfica, 1 lección, disclaimer, cadencia</td><td>Edita 15 min</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Equipo de agentes del repo (<code>.claude/agents/</code>, versionado)</h4>
+  <ul>
+    <li><strong>finanzas</strong> — datos (EDGAR/FRED/Banxico), <code>financials.json</code>, modelo, QA cifra↔fuente, Actinver. Se lanza S3–S9 en paralelo con creador.</li>
+    <li><strong>diseño</strong> — tokens, componentes, revisión visual en 390/768/1280 px, accesibilidad. S2, S6, S8.</li>
+    <li><strong>creador</strong> — páginas Astro, islas, endpoints; TDD y planes ejecutables. Cada semana.</li>
+    <li><strong>gestor</strong> — SEO, sitemap/hreflang, checklist pre-deploy, CI, healthcheck, KPIs. Antes de cada merge; S9 y S12.</li>
+    <li><strong>marketing</strong> — derivados, imágenes, boletín, calendario. S10–S12 y cada domingo.</li>
+  </ul>
+  <p>Flujo con superpowers por tema: <code>brainstorming</code> (spec) → <code>writing-plans</code> (tareas de 2–5 min, TDD) → <code>subagent-driven-development</code> → <code>requesting-code-review</code> + <code>/code-review</code> en el PR → <code>verification-before-completion</code> → <code>finishing-a-development-branch</code>. Paralelismo solo cuando las tareas no comparten archivos.</p>
+</section>
+
+<!-- ===================== 11 DECISIONES ===================== -->
+<section class="part" id="decisiones">
+  <h2><span class="n">11 · Decisiones y próximos pasos</span>Lo que necesito de ti para empezar a construir</h2>
+  <h3>11.1 Decisiones que te tocan <span class="pill warn">decisión</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Decisión</th><th>Opciones</th><th>Mi recomendación</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Stack</td><td>(a) vanilla + Vite · (b) Astro estático · (c) Next</td><td><strong>(b) Astro</strong></td></tr>
+      <tr><td>2</td><td>Empresa del primer reporte</td><td>Ver sección 9</td><td><strong>Lululemon</strong>; Dollarama como reporte #2 en diciembre (ángulo Canadá)</td></tr>
+      <tr><td>3</td><td>Boletín</td><td>Diario · semanal (domingo)</td><td><strong>Semanal</strong>: evita el tope de Resend y alimenta el "resumen semanal"</td></tr>
+      <tr><td>4</td><td>Globo 3D</td><td>Mantener · eliminar</td><td><strong>Eliminar</strong> (decorativo, 722 KB, LH 51)</td></tr>
+      <tr><td>5</td><td>Modo claro</td><td>Ahora · fase 2</td><td>Los tokens se diseñan para ambos modos desde la semana 2 (hacerlo después cuesta el doble); el toggle sale en el MVP solo si no retrasa nada, si no, en diciembre</td></tr>
+      <tr><td>5b</td><td>Pestaña de Research en la tab bar</td><td>Buscar · Research</td><td>Buscar en la barra; Research por enlace directo, módulo del home y menú Más</td></tr>
+      <tr><td>6</td><td>"My take" de noticias (IA)</td><td>Mantener · renombrar + disclosure</td><td>"Why it matters (AI-assisted)" + 1 take semanal escrito por ti</td></tr>
+      <tr><td>7</td><td>Programa de U of T</td><td>Rotman Commerce · Arts &amp; Science · otro</td><td>Dímelo: cambia las fechas de la fase 2 (Rotman tiene suplementaria 1-dic / 1-feb)</td></tr>
+      <tr><td>8</td><td>Licencias</td><td>Código MIT · contenido CC BY-NC-ND 4.0</td><td>Así</td></tr>
+      <tr><td>9</td><td>Analítica</td><td>Vercel Web Analytics · Plausible ($9)</td><td>Vercel WA</td></tr>
+      <tr><td>10</td><td>Nombre y ruta del hub</td><td><code>/research</code> en ambos idiomas · <code>/es/investigacion</code></td><td><code>/research</code> en ambos (es marca)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>11.2 Semana 1: cinco pasos concretos (todo por PR; <code>gh</code> ya está autenticado como Jaime-pixel817)</h3>
+  <ol>
+    <li><strong>Proteger <code>main</code> y activar el flujo de PR</strong> (PR obligatorio, checks requeridos, historia lineal, squash merge, borrar ramas al mergear). Cuando exista el job <code>lighthouse</code>, se añade a los checks requeridos.</li>
+    <li><strong>Rama <code>fix/quick-wins</code>:</strong> corregir <code>index.html:356-361</code> y <code>es/index.html:357</code>; quitar three.js, <code>risk-sphere.js</code>, <code>geoMasks.js</code>, <code>desktop-check.png</code>; <code>prefers-reduced-motion</code>; <code>preload</code> de la sans; <code>jaime.jpg</code> → 260 px WebP; headers de caché en <code>vercel.json</code>. Verificar Lighthouse móvil ≥ 75 en el preview antes de mergear.</li>
+    <li><strong>Rama <code>chore/ci</code>:</strong> <code>ci.yml</code> (check-es, links, Lighthouse CI), <code>healthcheck.yml</code> (cada 6 h contra los 4 endpoints) y plantilla de PR con el checklist de la sección 7.</li>
+    <li><strong>Rama <code>chore/repo-hygiene</code>:</strong> README, LICENSE, <code>package.json</code> (nombre, autor, <code>engines</code>), <code>.gitignore</code> → solo <code>.claude/settings.local.json</code>; crear <code>.claude/agents/{finanzas,diseno,creador,gestor,marketing}.md</code> y <code>.claude/skills/{research-report,derive-content,pre-deploy-check}/</code>; <code>docs/vision.md</code>.</li>
+    <li><strong>Preparar S2:</strong> spec y plan de la migración a Astro con brainstorming → writing-plans; en Vercel fijar Node 22, activar Web Analytics y Speed Insights, permitir compartir previews; reconfirmar fechas de U of T 2027.</li>
+  </ol>
+  <div class="callout good"><div class="t">Qué pasa en cuanto digas "adelante"</div><p>Empiezo por el paso 1 y 2 en ramas separadas con preview de Vercel para que veas cada cambio antes de que toque producción. Nada se mergea a <code>main</code> sin tu OK. En paralelo preparo la spec de la migración a Astro y el esqueleto de Smart Finance Research para que en la semana 3 solo tengas que elegir la empresa y leer el 10-K.</p></div>
+</section>
+
+</main>
+<footer class="end"><div class="wrap">Smart Finance 2.0 · Documento de trabajo del equipo fundador · Evidencia y capturas en el repo local (<code>docs/</code>) · Nada de este documento constituye asesoría financiera; el proyecto es educativo.</div></footer>
