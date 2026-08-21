@@ -61,6 +61,25 @@ function genGlobe(n, r) {
 
 
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ * CONVENCIÓN lat/lon → xyz (espacio local del grupo, antes de girarlo)
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * La esfera no tiene geografía, pero SÍ orientación, y toda la capa de
+ * mercados (marcadores de bolsas, día y noche) depende de que sea una sola:
+ *
+ *   - Eje polar = +Y. Polo norte arriba (lat +90 → y = +1). El giro del globo
+ *     es group.rotation.y, o sea alrededor del eje polar, como la Tierra.
+ *   - Meridiano 0 (Greenwich) = +X. Longitud este positiva hacia -Z.
+ *
+ *     x =  cos(lat) · cos(lon)
+ *     y =  sin(lat)
+ *     z = -cos(lat) · sin(lon)
+ *
+ *   Con rotation.y = 0 la cámara (en +Z) mira la longitud -90 (América).
+ *
+ * La fórmula de abajo es la original del port (theta = lon + 180) y da
+ * exactamente estos valores; se deja así para no mover focusCountry. */
 function latLonToDir(lat, lon) {
   const latR  = (lat * Math.PI) / 180;
   const theta = ((lon + 180) * Math.PI) / 180;
@@ -69,6 +88,29 @@ function latLonToDir(lat, lon) {
     y: Math.sin(latR),
     z: Math.cos(latR) * Math.sin(theta),
   };
+}
+
+/* Vector solar en el mismo espacio local: apunta desde el centro de la esfera
+ * al punto subsolar (donde el sol está en el cenit). Declinación por fecha y
+ * ángulo horario por la hora UTC, con la ecuación del tiempo para no errar el
+ * mediodía por un cuarto de hora. Precisión de ~1°, de sobra para pintar una
+ * mitad iluminada. Como el vector va en el espacio del grupo, gira con la
+ * esfera y el terminador se queda donde le toca sobre los marcadores. */
+function subsolarDir(date) {
+  const d = date || new Date();
+  const inicio = Date.UTC(d.getUTCFullYear(), 0, 0);
+  const N = (d.getTime() - inicio) / 86400000;            // día del año, fraccional
+  const g = (2 * Math.PI / 365) * (N - 1);
+  const decl = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g)
+    - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g)
+    - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);   // radianes
+  const eot = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g)
+    - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g)); // minutos
+  const utcMin = d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60;
+  // Mediodía solar en UTC → longitud subsolar: 0° a las 12:00 (menos la EoT),
+  // y 15° hacia el oeste por cada hora que pasa.
+  const lonSub = -(utcMin + eot - 720) / 4;
+  return latLonToDir(decl * 180 / Math.PI, lonSub);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -96,6 +138,8 @@ uniform float uBrightBase;
 uniform float uBrightScale;
 uniform float uShimmerSpeed;
 uniform float uPlano;
+uniform vec3  uSunDir;
+uniform float uNoche;
 varying vec3 vColor;
 
 void main() {
@@ -131,6 +175,13 @@ void main() {
    * El suelo de 0.05 evita que el limbo se apague del todo y deje un canto
    * duro entre la nube y el halo. */
   b *= mix(1.0, max(0.05, abs(vFacing)), uPlano);
+
+  /* Día y noche. uSunDir apunta al punto subsolar (ver subsolarDir). La cara
+     que mira al sol sube un poco, la opuesta baja; el terminador es una
+     franja suave de ±0.2 en el coseno (~23°) para que no se lea como un
+     corte. Sutil a propósito: es luz, no un mapa. */
+  float sol = dot(dir, uSunDir);
+  b *= mix(1.0 - uNoche, 1.0 + uNoche * 0.35, smoothstep(-0.2, 0.2, sol));
 
   vColor = vec3(b);
 
@@ -675,6 +726,9 @@ async function initRiskSphere() {
       // 1 = disco completamente parejo. Se deja un pelo por debajo para que
       // quede un rastro de aro y la esfera no se lea como un círculo plano.
       uPlano:         { value: 0.92 },
+      uSunDir:        { value: new THREE.Vector3(1, 0, 0) },
+      // 0.38: la noche queda al 62 % y el día al 113 % del brillo base.
+      uNoche:         { value: 0.38 },
     },
     vertexShader: GLOBE_VERTEX_SHADER,
     fragmentShader: GLOBE_FRAGMENT_SHADER,
@@ -710,6 +764,176 @@ async function initRiskSphere() {
   });
   const atmo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.06, 64, 48), atmoMat);
   group.add(atmo);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * GLOBO DE MERCADOS: el sol y las bolsas
+   * ═══════════════════════════════════════════════════════════════════════
+   *
+   * Dos cosas encima de la nube, las dos ancladas a la convención lat/lon de
+   * arriba:
+   *
+   *   1. EL SOL. uSunDir se recalcula al arrancar y cada 60 s (no cada frame:
+   *      el sol se mueve un cuarto de grado por minuto). Ver subsolarDir.
+   *   2. LAS BOLSAS. Un THREE.Points de ocho vértices a radio R·1.03 (un pelo
+   *      por fuera de la nube para que no se hundan en ella), con un shader
+   *      propio: punto + halo, color por el cambio del día (aColor), halo que
+   *      respira si la bolsa está abierta (aOpen), y se apagan al pasar a la
+   *      cara de atrás (vFacing). Los datos llegan del DOM: assets/
+   *      world-markets.js pide /api/world, calcula abierto/cerrado y avisa
+   *      con el evento "world:data"; aquí solo se pinta. Mientras no hay
+   *      datos los ocho puntos están en su sitio en gris neutro, así que el
+   *      globo ya enseña DÓNDE están las bolsas desde el primer frame.
+   *
+   * El toque/clic no usa raycast sobre sprites: se proyectan las ocho
+   * posiciones a píxeles y se busca la más cercana al dedo dentro de 22 px
+   * (área de 44 px, el mínimo táctil). Ocho puntos, cero coste. El resultado
+   * sale como evento "globe:marker" {id} para que la tarjeta (HTML) lo pinte.
+   */
+  const MARK_R = R * 1.03;
+  const MARK_PX = isSmall ? 26 : 24;      // diámetro del halo en px CSS
+  const HIT_PX = 22;                       // radio de toque (44 px de área)
+  const EXCHANGES_DEFAULT = [
+    { id: "nyc", lat: 40.71,  lon: -74.01 },
+    { id: "yto", lat: 43.65,  lon: -79.38 },
+    { id: "mex", lat: 19.43,  lon: -99.13 },
+    { id: "sao", lat: -23.55, lon: -46.63 },
+    { id: "lon", lat: 51.51,  lon: -0.13 },
+    { id: "fra", lat: 50.11,  lon: 8.68 },
+    { id: "tyo", lat: 35.68,  lon: 139.69 },
+    { id: "hkg", lat: 22.32,  lon: 114.17 },
+  ];
+  // Colores de --up / --down / neutro de assets/tokens.css, en lineal 0-1.
+  const COL_UP = [0.086, 0.769, 0.498], COL_DOWN = [1.0, 0.302, 0.302], COL_FLAT = [0.72, 0.72, 0.74];
+  let markers = EXCHANGES_DEFAULT.slice();
+  const NM = markers.length;
+  const mPos = new Float32Array(NM * 3), mCol = new Float32Array(NM * 3);
+  const mOpen = new Float32Array(NM), mIdx = new Float32Array(NM);
+  const setMarkerPos = () => {
+    for (let i = 0; i < NM; i++) {
+      const d = latLonToDir(markers[i].lat, markers[i].lon);
+      mPos[i*3] = d.x * MARK_R; mPos[i*3+1] = d.y * MARK_R; mPos[i*3+2] = d.z * MARK_R;
+      mCol[i*3] = COL_FLAT[0]; mCol[i*3+1] = COL_FLAT[1]; mCol[i*3+2] = COL_FLAT[2];
+      mIdx[i] = i;
+    }
+  };
+  setMarkerPos();
+  const mGeom = new THREE.BufferGeometry();
+  mGeom.setAttribute("position", new THREE.BufferAttribute(mPos, 3));
+  mGeom.setAttribute("aColor",   new THREE.BufferAttribute(mCol, 3));
+  mGeom.setAttribute("aOpen",    new THREE.BufferAttribute(mOpen, 1));
+  mGeom.setAttribute("aIdx",     new THREE.BufferAttribute(mIdx, 1));
+  const mMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uPx:   { value: MARK_PX * DPR },
+      uTime: { value: 0 },
+      uSel:  { value: -1 },
+      uFade: { value: 0 },
+    },
+    vertexShader: /* glsl */ `
+      attribute vec3 aColor; attribute float aOpen; attribute float aIdx;
+      uniform float uPx; uniform float uSel;
+      varying vec3 vCol; varying float vOpen; varying float vFacing; varying float vSel;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vFacing = dot(normalize(normalMatrix * normalize(position)), normalize(-mv.xyz));
+        vCol = aColor; vOpen = aOpen; vSel = (abs(aIdx - uSel) < 0.5) ? 1.0 : 0.0;
+        gl_PointSize = uPx * (1.0 + 0.35 * vSel);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */ `
+      precision highp float;
+      uniform float uTime; uniform float uFade;
+      varying vec3 vCol; varying float vOpen; varying float vFacing; varying float vSel;
+      void main() {
+        vec2 q = gl_PointCoord - 0.5;
+        float r = length(q) * 2.0;                 // 0 centro, 1 borde
+        // Punto sólido con borde suave…
+        float core = 1.0 - smoothstep(0.22, 0.34, r);
+        // …y halo: un anillo que respira si la bolsa está abierta, fijo y
+        // más tenue si está cerrada.
+        float pulso = mix(0.0, 0.5 + 0.5 * sin(uTime * 2.2), vOpen);
+        float rh = mix(0.55, 0.95, pulso);
+        float halo = (1.0 - smoothstep(rh - 0.25, rh + 0.08, r)) * smoothstep(0.30, 0.50, r);
+        halo *= mix(0.22, 0.55 - 0.3 * pulso, vOpen);
+        float anillo = vSel * (1.0 - smoothstep(0.0, 0.12, abs(r - 0.9)));
+        float a = max(max(core, halo), anillo);
+        // Se apagan al girar a la cara de atrás.
+        a *= smoothstep(-0.08, 0.22, vFacing) * uFade;
+        vec3 col = mix(vCol, vec3(1.0), 0.55 * core + 0.4 * anillo);
+        gl_FragColor = vec4(col, a);
+      }`,
+    transparent: true, depthWrite: false, depthTest: false,
+  });
+  const mPoints = new THREE.Points(mGeom, mMat);
+  mPoints.renderOrder = 2;
+  group.add(mPoints);
+
+  const sunDir = material.uniforms.uSunDir.value;
+  const actualizarSol = () => { const d = subsolarDir(); sunDir.set(d.x, d.y, d.z); };
+  actualizarSol();
+  // Ganchos que rellenan el bucle de animación o el modo quieto.
+  let repintar = null;
+
+  function aplicarMercados(data) {
+    if (!data || !Array.isArray(data.items)) return;
+    const byId = new Map(data.items.map((it) => [it.id, it]));
+    // Si el endpoint trae otras coordenadas (o más bolsas algún día) manda
+    // él, dentro de los NM huecos que hay.
+    for (let i = 0; i < NM; i++) {
+      const it = byId.get(markers[i].id);
+      if (!it) { mOpen[i] = 0; continue; }
+      if (typeof it.lat === "number" && typeof it.lon === "number") { markers[i].lat = it.lat; markers[i].lon = it.lon; }
+      const c = typeof it.changePct !== "number" ? COL_FLAT
+        : it.changePct > 0.0001 ? COL_UP : it.changePct < -0.0001 ? COL_DOWN : COL_FLAT;
+      mCol[i*3] = c[0]; mCol[i*3+1] = c[1]; mCol[i*3+2] = c[2];
+      mOpen[i] = it.open ? 1 : 0;
+    }
+    setMarkerPosOnly();
+    mGeom.attributes.position.needsUpdate = true;
+    mGeom.attributes.aColor.needsUpdate = true;
+    mGeom.attributes.aOpen.needsUpdate = true;
+    if (repintar) repintar();
+  }
+  function setMarkerPosOnly() {
+    for (let i = 0; i < NM; i++) {
+      const d = latLonToDir(markers[i].lat, markers[i].lon);
+      mPos[i*3] = d.x * MARK_R; mPos[i*3+1] = d.y * MARK_R; mPos[i*3+2] = d.z * MARK_R;
+    }
+  }
+  document.addEventListener("world:data", (e) => aplicarMercados(e.detail));
+  document.addEventListener("world:select", (e) => {
+    const id = e.detail && e.detail.id;
+    mMat.uniforms.uSel.value = markers.findIndex((m) => m.id === id);
+    if (repintar) repintar();
+  });
+  if (window.SmartWorld && window.SmartWorld.data) aplicarMercados(window.SmartWorld.data);
+
+  // Proyecta los marcadores y devuelve el id del más cercano al punto (px CSS
+  // relativos al contenedor), o null si ninguno cae dentro de HIT_PX.
+  const _v = new THREE.Vector3(), _n = new THREE.Vector3(), _c = new THREE.Vector3();
+  function marcadorEn(clientX, clientY) {
+    const rect = container.getBoundingClientRect();
+    const px = clientX - rect.left, py = clientY - rect.top;
+    group.updateMatrixWorld(true);
+    let mejor = null, mejorD = HIT_PX * HIT_PX;
+    for (let i = 0; i < NM; i++) {
+      _v.set(mPos[i*3], mPos[i*3+1], mPos[i*3+2]).applyMatrix4(group.matrixWorld);
+      _n.copy(_v).normalize();
+      _c.copy(camera.position).sub(_v).normalize();
+      if (_n.dot(_c) < 0.02) continue;                 // cara de atrás
+      _v.project(camera);
+      const sx = (_v.x + 1) / 2 * rect.width, sy = (1 - _v.y) / 2 * rect.height;
+      const d = (sx - px) * (sx - px) + (sy - py) * (sy - py);
+      if (d < mejorD) { mejorD = d; mejor = markers[i].id; }
+    }
+    return mejor;
+  }
+  function avisarToque(clientX, clientY) {
+    const id = marcadorEn(clientX, clientY);
+    if (!id) return false;
+    document.dispatchEvent(new CustomEvent("globe:marker", { detail: { id } }));
+    return true;
+  }
 
   group.scale.set(groupScale, groupScale, groupScale);
   scene.add(group);
@@ -790,6 +1014,19 @@ async function initRiskSphere() {
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   if (!isSmall) {
+    // Clic (sin arrastre) sobre una bolsa → tarjeta. Cursor de mano al pasar
+    // por encima de una, para que se note que se puede.
+    let cx0 = 0, cy0 = 0;
+    container.addEventListener("pointerdown", (e) => { cx0 = e.clientX; cy0 = e.clientY; });
+    container.addEventListener("click", (e) => {
+      const dx = e.clientX - cx0, dy = e.clientY - cy0;
+      if (dx * dx + dy * dy <= 36) avisarToque(e.clientX, e.clientY);
+    });
+    let cursorEs = "";
+    container.addEventListener("pointermove", (e) => {
+      const c = marcadorEn(e.clientX, e.clientY) ? "pointer" : "";
+      if (c !== cursorEs) { cursorEs = c; canvas.style.cursor = c; }
+    });
     container.addEventListener("pointermove", onPointerMove);
     container.addEventListener("pointerleave", onPointerLeave);
     container.addEventListener("pointerdown",   onPointerDown);
@@ -889,7 +1126,17 @@ async function initRiskSphere() {
       apuntarTacto(t.clientX, t.clientY);
     }, { passive: true });
 
-    zona.addEventListener("touchend", soltarTacto, { passive: true });
+    zona.addEventListener("touchend", (e) => {
+      /* Un TOQUE (no una caricia ni un scroll): el dedo no se movió más de
+         UMBRAL_PX y se levantó antes de 350 ms. Solo entonces se mira si
+         había una bolsa debajo. Mismo evento pasivo: el scroll no se toca. */
+      const t = e.changedTouches && e.changedTouches[0];
+      if (t && gestoTactil === null && performance.now() - tms0 < 350) {
+        const dx = t.clientX - tx0, dy = t.clientY - ty0;
+        if (dx * dx + dy * dy <= UMBRAL_PX * UMBRAL_PX) avisarToque(t.clientX, t.clientY);
+      }
+      soltarTacto();
+    }, { passive: true });
     zona.addEventListener("touchcancel", soltarTacto, { passive: true });
   }
 
@@ -915,6 +1162,7 @@ async function initRiskSphere() {
     }
   }
 
+  let ultimoSol = 0;
   function animate(ts = 0) {
     if (!visible) { animId = 0; return; }
     animId = requestAnimationFrame(animate);
@@ -933,6 +1181,7 @@ async function initRiskSphere() {
           renderer.setPixelRatio(DPR);
           renderer.setSize(container.clientWidth, container.clientHeight);
           material.uniforms.uPixelRatio.value = DPR;
+          mMat.uniforms.uPx.value = MARK_PX * DPR;
           canvas.dataset.dpr = String(DPR);
           if (DPR <= 1.5) qDone = true;
         } else {
@@ -979,6 +1228,9 @@ async function initRiskSphere() {
 
     atmoMat.uniforms.uIntensity.value = fade;
     atmoMat.uniforms.uTime.value      = elapsed;
+    mMat.uniforms.uFade.value = fade;
+    mMat.uniforms.uTime.value = elapsed;
+    if (ts - ultimoSol > 60000) { ultimoSol = ts; actualizarSol(); }
 
     if (mouseActive) {
       raycaster.setFromCamera(mouseNDC, camera);
@@ -1251,9 +1503,13 @@ async function initRiskSphere() {
     group.rotation.y = 0.6;
     material.uniforms.uTime.value = 0;
     atmoMat.uniforms.uIntensity.value = 1;
+    mMat.uniforms.uFade.value = 1;
     const pintarQuieto = () => renderer.render(scene, camera);
+    repintar = pintarQuieto;
     pintarQuieto();
     window.addEventListener("resize", pintarQuieto);
+    // El sol sí se mueve aunque el globo no: un fotograma nuevo por minuto.
+    setInterval(() => { actualizarSol(); pintarQuieto(); }, 60000);
     return;
   }
 
