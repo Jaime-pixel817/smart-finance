@@ -21,3 +21,6 @@ instrucciones.md
 # solo como respaldo local por si hay que regenerarlas con otro encuadre.
 assets/breakdowns/_originales/
 .env*
+
+# Respuestas crudas de EDGAR (scripts/edgar-facts.mjs --cache)
+.cache/
