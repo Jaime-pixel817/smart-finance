@@ -573,6 +573,105 @@
     .hero h1 { font-size: clamp(1.95rem, 9.6vw, 2.45rem); }
   }
 
+  /* ---------- Globo de mercados: leyenda y tarjeta ----------
+     La leyenda es una fila de ocho chips con scroll horizontal, debajo de los
+     botones del hero. Es la versión en HTML de los marcadores del globo
+     (assets/world-markets.js la pinta; assets/risk-sphere.js pinta los
+     puntos): sirve de acceso sin WebGL, para lectores de pantalla y, en
+     móvil, como lo que se toca cuando el punto del globo queda chico. Mide lo
+     mismo antes y después de que lleguen los datos (los chips nacen con "—"),
+     así que no mueve nada: cero CLS. En móvil ocupa ~58px del hero. */
+  .world-legend { margin-top: 22px; max-width: 100%; }
+  .world-legend-title {
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--muted-soft); margin: 0 0 8px;
+  }
+  .world-chips {
+    list-style: none; margin: 0; padding: 2px 0 6px;
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
+    /* El desvanecido de los lados dice "hay más": la fila no entra en 390px. */
+    mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 18px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 18px), transparent);
+  }
+  .world-chips::-webkit-scrollbar { display: none; }
+  .world-chips li { flex: none; scroll-snap-align: start; }
+  .wm-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    min-height: 34px; padding: 0 12px 0 10px;
+    font-family: var(--font-mono); font-size: 0.78rem; line-height: 1;
+    color: var(--ink); background: rgba(10,10,12,0.72);
+    border: 1px solid var(--line); border-radius: 999px;
+    cursor: pointer; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wm-chip:hover, .wm-chip:focus-visible { border-color: rgba(245,245,242,0.32); outline: none; }
+  .wm-chip:focus-visible { box-shadow: 0 0 0 2px var(--ink); }
+  /* El punto: gris = cerrada, verde-hueso = abierta. El estado también va en
+     texto para el lector de pantalla (.wm-sr), nunca solo en el color. */
+  .wm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-soft); flex: none; }
+  .wm-chip.is-open .wm-dot { background: var(--ink); box-shadow: 0 0 0 3px rgba(245,245,242,0.16); }
+  .wm-chg { color: var(--muted); min-width: 4.6em; text-align: right; }
+  .wm-chg.up { color: var(--up); }
+  .wm-chg.down { color: var(--down); }
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* La tarjeta: un bottom sheet fijo, en HTML (no en el lienzo). En móvil va
+     pegada abajo a todo el ancho; en escritorio se queda como tarjeta abajo a
+     la derecha. Entra deslizándose; con menos movimiento, aparece y ya. */
+  .world-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    display: flex; justify-content: center; pointer-events: none;
+    padding: 0 0 env(safe-area-inset-bottom, 0);
+  }
+  .world-sheet[hidden] { display: none; }
+  .world-sheet-card {
+    pointer-events: auto; position: relative;
+    width: 100%; max-width: 520px;
+    background: var(--card); border: 1px solid var(--line); border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    padding: 10px 18px 18px; box-shadow: 0 -12px 40px rgba(0,0,0,0.55);
+    transform: translateY(104%); transition: transform .22s ease-out;
+  }
+  .world-sheet.is-open .world-sheet-card { transform: translateY(0); }
+  .world-sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 12px; }
+  .world-sheet-close {
+    position: absolute; top: 10px; right: 10px; width: 36px; height: 36px;
+    border: 0; border-radius: 50%; background: transparent; color: var(--muted);
+    font-size: 1rem; cursor: pointer;
+  }
+  .world-sheet-close:hover, .world-sheet-close:focus-visible { color: var(--ink); background: var(--card-2); outline: none; }
+  .world-sheet-title { margin: 0 36px 6px 0; font-size: 0.95rem; color: var(--muted); }
+  .world-sheet-title [data-city] { color: var(--ink); font-weight: 600; }
+  .world-sheet-price { margin: 0 0 8px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .world-sheet-price [data-price] { font-size: 1.7rem; font-weight: 600; letter-spacing: -0.01em; }
+  .world-sheet-chg { font-family: var(--font-mono); font-size: 0.95rem; color: var(--muted); }
+  .world-sheet-chg.up { color: var(--up); }
+  .world-sheet-chg.down { color: var(--down); }
+  .world-sheet-hours {
+    display: inline-flex; align-items: center; gap: 7px; margin: 0 0 10px;
+    font-family: var(--font-mono); font-size: 0.76rem; color: var(--muted);
+  }
+  .world-sheet-hours::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--muted-soft); flex: none; }
+  .world-sheet-hours.is-open::before { background: var(--up); }
+  .world-sheet .src-line { display: block; margin: 0 0 12px; }
+  .world-sheet-link { font-size: 0.88rem; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  @media (min-width: 768px) {
+    .world-sheet { justify-content: flex-end; padding-right: 24px; padding-bottom: 24px; }
+    .world-sheet-card { max-width: 380px; border-radius: 18px; border-bottom: 1px solid var(--line); }
+    .world-sheet-grab { display: none; }
+  }
+  @media (max-width: 767px) {
+    /* Dentro de .hero-inner (que deja pasar el dedo al globo), los chips sí
+       se tocan. Centrada como el resto del bloque; el scroll sigue siendo
+       de la fila. */
+    .hero .world-legend { pointer-events: auto; margin-top: 16px; }
+    .hero .world-legend-title { text-align: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .world-sheet-card { transition: none; }
+  }
+
   .ticker {
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
@@ -1076,8 +1175,15 @@
             <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener" class="btn btn-outline" data-i18n="hero.tiktok">TikTok</a>
           </div>
         </div>
+        <!-- Globo de mercados: la leyenda. assets/world-markets.js rellena la
+             lista con ocho chips (ciudad · ▲▼Δ% · punto abierto/cerrado); los
+             mismos datos que pintan los marcadores del globo. -->
+        <div class="world-legend" id="worldLegend">
+          <p class="world-legend-title" data-i18n="world.title">Mercados del mundo · toca una ciudad</p>
+          <ul class="world-chips" id="worldChips" role="list" aria-label="Bolsas de valores en el globo" data-i18n-aria="aria.worldList"></ul>
+        </div>
       </div>
-      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Globo giratorio de los mercados del mundo" data-i18n-aria="aria.globe"></div>
+      <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Globo de mercados: día y noche, bolsas con el cambio del día" data-i18n-aria="aria.globe"></div>
       <!-- Señal de que hay más abajo. aria-hidden: no aporta nada a quien no la
            ve, y el contenido siguiente ya está en el DOM. -->
       <a class="scroll-cue" href="#about" aria-hidden="true" tabindex="-1">
@@ -1088,6 +1194,19 @@
       <div class="ticker-track" id="tickerTrack"></div>
     </div>
   </section>
+  <!-- Globo de mercados: la tarjeta que se abre al tocar una bolsa (en el globo
+       o en la leyenda). Fija abajo; la rellena assets/world-markets.js. -->
+  <div class="world-sheet" id="worldSheet" hidden role="dialog" aria-labelledby="worldSheetTitle">
+    <div class="world-sheet-card">
+      <div class="world-sheet-grab" aria-hidden="true"></div>
+      <button class="world-sheet-close" type="button" aria-label="Cerrar" data-i18n-aria="aria.worldClose">✕</button>
+      <p class="world-sheet-title" id="worldSheetTitle"><span data-city></span> · <span data-index></span></p>
+      <p class="world-sheet-price"><span class="num" data-price>—</span> <span class="world-sheet-chg num" data-chg>—</span></p>
+      <p class="world-sheet-hours" data-hours>—</p>
+      <p class="src-line" data-src></p>
+      <a class="world-sheet-link" data-link href="/es/lecciones" data-i18n="world.what">¿Qué es este índice? →</a>
+    </div>
+  </div>
 
   <section id="about" class="about reveal">
     <div class="wrap about-inner">
@@ -1569,6 +1688,10 @@
 <!-- market-hours.js antes que charts.js: es quien decide si el mercado está
      cerrado, y el panel lo pregunta ya en su primera carga. -->
 <script src="/assets/market-hours.js" defer></script>
+<!-- Globo de mercados: horarios de las bolsas y la leyenda/tarjeta en HTML.
+     El globo (risk-sphere.js) solo pinta lo que estos dos le avisan. -->
+<script src="/assets/exchange-hours.js" defer></script>
+<script src="/assets/world-markets.js" defer></script>
 <script src="/assets/news.js" defer></script>
 <script src="/assets/charts.js" defer></script>
 <script src="/assets/macro.js" defer></script>
@@ -1602,7 +1725,12 @@ document.addEventListener('DOMContentLoaded', function(){
     // aria-labels: texto que solo oye quien navega con lector de pantalla. En
     // el HTML van marcados con data-i18n-aria, que el generador aplica igual
     // que data-i18n-alt.
-    'aria.globe': 'Globo giratorio de los mercados del mundo',
+    'aria.globe': 'Globo de mercados: día y noche, bolsas con el cambio del día',
+    // Globo de mercados: leyenda y tarjeta.
+    'world.title': 'Mercados del mundo · toca una ciudad',
+    'world.what': '¿Qué es este índice? →',
+    'aria.worldList': 'Bolsas de valores en el globo',
+    'aria.worldClose': 'Cerrar',
     'aria.ticker': 'Cinta de mercado (datos con retraso)',
     // Enlace de salto al contenido: invisible hasta que recibe el foco.
     'a11y.skip': 'Saltar al contenido',
