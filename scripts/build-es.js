@@ -511,6 +511,7 @@ function construir() {
   // Las páginas en inglés también necesitan sus hreflang, su og:locale correcto
   // y el toggle como enlaces.
   for (const pag of PAGINAS) {
+    if (pag.astro) continue;
     let html = leer(pag.en);
     html = ponerHreflang(html, pag);
     html = quitarLocale(html);
