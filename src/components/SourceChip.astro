@@ -1,0 +1,22 @@
+---
+// Chip de fuente y frescura: "Delayed 15 min · Yahoo · 14:32" / "Retraso 15
+// min · Yahoo · 14:32". El punto se colorea según la edad del dato
+// (verde ≤ 15 min, ámbar ≤ 1 h, gris más; rojo si falló). El script del home
+// rellena data-ts y la hora con el updatedAt real del endpoint.
+import type { Locale } from '../i18n/routes';
+import { useT } from '../i18n/ui';
+interface Props { locale: Locale; source: string; delay?: number; id?: string; note?: string; class?: string }
+const { locale, source, delay, id, note, class: cls } = Astro.props;
+const t = useT(locale);
+const delayText = delay ? `${t('src.delayed')} ${delay} ${t('src.min')}` : '';
+---
+<span class:list={['src-chip', cls]} id={id} data-fresh="loading" data-source={source} data-delay={delay}>
+  <span class="dot" aria-hidden="true"></span>
+  {delayText && <span class="sc-delay">{delayText}</span>}
+  {delayText && <span aria-hidden="true">·</span>}
+  <span class="sc-source">{source}</span>
+  {note && <span aria-hidden="true">·</span>}
+  {note && <span class="sc-note">{note}</span>}
+  <span aria-hidden="true" class="sc-sep">·</span>
+  <span class="sc-time">{t('src.loading')}</span>
+</span>

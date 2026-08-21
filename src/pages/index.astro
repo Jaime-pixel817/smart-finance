@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import Home from '../components/home/Home.astro';
+import { useT } from '../i18n/ui';
+const t = useT('en');
+---
+<Base locale="en" routeId="home" active="today"
+  title="Smart Finance — Markets and money, explained for young people"
+  description={t('site.desc')}
+  ogImageAlt="Smart Finance — finance that actually clicks, by Jaime Sandoval Ricaño">
+  <h1 class="visually-hidden">Smart Finance — {t('site.tagline')}</h1>
+  <Home locale="en" />
+</Base>

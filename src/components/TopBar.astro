@@ -1,0 +1,67 @@
+---
+// Barra superior: wordmark · (escritorio) Hoy · Mercados · Noticias · Aprende ·
+// Herramientas · Research · EN/ES · tema · Boletín. En móvil solo wordmark,
+// idioma, tema y buscar; los destinos van en BottomNav.
+import type { Locale } from '../i18n/routes';
+import { route, otherLocale } from '../i18n/routes';
+import { useT } from '../i18n/ui';
+import ThemeToggle from './ThemeToggle.astro';
+const { locale, routeId, active } = Astro.props as { locale: Locale; routeId: string; active: string };
+const t = useT(locale);
+const other = otherLocale(locale);
+const home = route('home', locale);
+const links = [
+  { id: 'today', href: home, label: t('nav.today') },
+  { id: 'markets', href: route('market', locale), label: t('nav.markets') },
+  { id: 'news', href: home + '#story', label: t('nav.news') },
+  { id: 'learn', href: route('lessons', locale), label: t('nav.learn') },
+  { id: 'tools', href: home + '#tools', label: t('nav.tools') },
+  { id: 'research', href: home + '#research', label: t('nav.research') }
+];
+let altHref = '/';
+try { altHref = route(routeId, other); } catch { altHref = route('home', other); }
+---
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="wordmark" href={home} aria-label="Smart Finance">
+      <span class="wm-s" aria-hidden="true">S</span><span class="wm-text">Smart Finance</span>
+    </a>
+    <nav class="desk-nav" aria-label={locale === 'es' ? 'Principal' : 'Primary'}>
+      {links.map((l) => (
+        <a href={l.href} aria-current={l.id === active ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </nav>
+    <div class="topbar-actions">
+      <a class="lang-btn" data-lang={other} href={altHref} hreflang={other} lang={other} aria-label={t('nav.lang.aria')}>{other.toUpperCase()}</a>
+      <ThemeToggle locale={locale} />
+      <button class="search-btn desk-only" type="button" data-search-open aria-label={t('nav.search')} title={t('nav.search')}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <a class="btn btn-primary btn-sm desk-only" href={home + '#newsletter'}>{t('nav.newsletter')}</a>
+    </div>
+  </div>
+</header>
+<style>
+  .topbar { position: sticky; top: 0; z-index: 40; height: var(--topbar-h); background: color-mix(in srgb, var(--bg-0) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+  .topbar-inner { height: 100%; display: flex; align-items: center; gap: var(--sp-4); }
+  .wordmark { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; letter-spacing: -.01em; color: var(--ink); min-height: 44px; }
+  .wm-s { width: 26px; height: 26px; border-radius: 7px; background: var(--bg-1); border: 1px solid var(--line); color: var(--brand-text); display: inline-grid; place-items: center; font-size: 1rem; line-height: 1; }
+  .desk-nav { display: none; gap: 2px; margin-left: var(--sp-2); }
+  .desk-nav a { padding: 0 12px; min-height: 40px; display: inline-flex; align-items: center; border-radius: var(--r-btn); font-size: var(--fs-small); font-weight: 500; color: var(--ink-2); position: relative; }
+  .desk-nav a:hover { color: var(--ink); background: var(--bg-2); }
+  .desk-nav a[aria-current="page"] { color: var(--ink); }
+  .desk-nav a[aria-current="page"]::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--brand-text); border-radius: 2px; }
+  .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  .lang-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; letter-spacing: .06em; color: var(--ink-2); border-radius: var(--r-btn); }
+  .lang-btn:hover { color: var(--ink); background: var(--bg-2); }
+  .search-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--r-btn); color: var(--ink-2); }
+  .search-btn:hover { color: var(--ink); background: var(--bg-2); }
+  .desk-only { display: none; }
+  @media (min-width: 768px) {
+    .desk-nav { display: flex; }
+    .desk-only { display: inline-flex; }
+    .topbar-actions { gap: var(--sp-2); }
+    .btn.desk-only { margin-left: var(--sp-2); }
+  }
+  @media (min-width: 768px) and (max-width: 959px) { .desk-nav a { padding: 0 8px; } }
+</style>

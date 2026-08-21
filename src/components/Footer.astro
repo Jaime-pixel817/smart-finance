@@ -1,0 +1,47 @@
+---
+import type { Locale } from '../i18n/routes';
+import { route, otherLocale } from '../i18n/routes';
+import { useT } from '../i18n/ui';
+const { locale, routeId } = Astro.props as { locale: Locale; routeId: string };
+const t = useT(locale);
+const other = otherLocale(locale);
+let altHref = route('home', other);
+try { altHref = route(routeId, other); } catch {}
+const home = route('home', locale);
+---
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-brand">Smart Finance</p>
+        <p class="t-small muted">{t('site.tagline')}.</p>
+      </div>
+      <nav class="footer-nav" aria-label={locale === 'es' ? 'Pie de página' : 'Footer'}>
+        <a href={home}>{t('nav.today')}</a>
+        <a href={route('market', locale)}>{t('nav.markets')}</a>
+        <a href={route('lessons', locale)}>{t('nav.learn')}</a>
+        <a href={home + '#newsletter'}>{t('nav.newsletter')}</a>
+        <a href={home + '#who'}>{t('who.more')}</a>
+      </nav>
+      <nav class="footer-nav" aria-label={locale === 'es' ? 'Redes' : 'Social'}>
+        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a>
+        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">{t('footer.community')} ↗</a>
+        <a class="lang-btn" data-lang={other} href={altHref} hreflang={other} lang={other}>{t('footer.language')}: {t('nav.lang.switch')}</a>
+      </nav>
+    </div>
+    <p class="disclaimer">{t('footer.disclaimer')}</p>
+    <p class="t-caption faint">{t('footer.rights')} · {t('footer.made')}</p>
+  </div>
+</footer>
+<style>
+  .footer { border-top: 1px solid var(--line); padding: var(--sp-6) 0 var(--sp-6); margin-top: var(--sp-6); color: var(--ink-2); }
+  .footer-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr 1fr; margin-bottom: var(--sp-5); }
+  .footer-grid > div:first-child { grid-column: 1 / -1; }
+  @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } .footer-grid > div:first-child { grid-column: auto; } }
+  .footer-brand { font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; color: var(--ink); }
+  .footer-nav { display: flex; flex-direction: column; gap: 2px; }
+  .footer-nav a { min-height: 36px; display: inline-flex; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
+  .footer-nav a:hover { color: var(--ink); }
+  .disclaimer { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); max-width: var(--measure); margin-bottom: var(--sp-3); }
+</style>
