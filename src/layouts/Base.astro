@@ -74,7 +74,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <!-- Tema ANTES del primer pintado: dark por defecto; la elección guardada
        gana. Sin JS, :root queda sin data-theme y manda prefers-color-scheme. -->
   <script is:inline>
-    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');if(localStorage.getItem('sf-intro-seen')==='1')document.documentElement.classList.add('intro-seen');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
   </script>
   <!-- Idioma: recuerda la elección y, solo en la raíz, respeta lo guardado
        (mismo script que el sitio legacy, así las dos mitades coinciden). -->

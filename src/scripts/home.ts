@@ -56,9 +56,7 @@ function boot(root: HTMLElement) {
   // Frase de bienvenida, solo la primera visita.
   const intro = $('#today-intro');
   if (intro) {
-    let seen = false;
-    try { seen = localStorage.getItem('sf-intro-seen') === '1'; } catch {}
-    if (!seen) intro.hidden = false;
+    // Si ya la vio, el script inline del <head> puso html.intro-seen antes de pintar (sin CLS).
     $('#today-intro-x')?.addEventListener('click', () => { intro.hidden = true; try { localStorage.setItem('sf-intro-seen', '1'); } catch {} });
   }
 

@@ -28,7 +28,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   <!-- ── Línea "Hoy" ─────────────────────────────────────────────── -->
   <section class="container today" aria-label={t('today.label')}>
     <p id="today-line" class="today-line t-mono t-caption skel" aria-live="polite">Thu 21 Aug · NYSE open · BMV open</p>
-    <p id="today-intro" class="today-intro t-small muted" hidden>
+    <p id="today-intro" class="today-intro t-small muted">
       <span>{t('today.intro')}</span>
       <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
     </p>
@@ -44,7 +44,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       <ul class="rail pulse-rail">
         {PULSE.map((p) => (
           <li data-tile={p.id} data-kind={p.kind} hidden={p.kind === 'rate' && !showRates}>
-            <a class="tile" href={p.href ? (es && p.href === '/market' ? L('market') : p.href.startsWith('/lessons/') ? L('lesson.' + (p.href.includes('inflacion') ? 'inflacion' : 'sp500')) : p.href) : undefined} aria-label={(p.name ?? t(p.nameKey!)) + ' · ' + p.sym}>
+            <a class="tile" href={p.href ? (es && p.href === '/market' ? L('market') : p.href.startsWith('/lessons/') ? L('lesson.' + (p.href.includes('inflacion') ? 'inflacion' : 'sp500')) : p.href) : undefined}>
               <span class="tile-sym eyebrow">{p.sym}</span>
               <span class="tile-name t-caption faint">{p.name ?? t(p.nameKey!)}</span>
               <span class="tile-price num skel">00000.00</span>
@@ -279,6 +279,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   :global(.st-open) { color: var(--up-text); }
   :global(.st-closed) { color: var(--warn); }
   .today-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); }
+  :global(html.intro-seen) .today-intro { display: none; }
   .today-intro button { width: 36px; height: 36px; border-radius: var(--r-btn); color: var(--ink-3); font-size: 1.25rem; line-height: 1; }
   .today-intro button:hover { background: var(--bg-2); color: var(--ink); }
 
@@ -306,7 +307,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .story-title { font-size: 1.375rem; line-height: 1.75rem; }
   @media (min-width: 768px) { .story-title { font-size: 1.75rem; line-height: 2.125rem; } }
   .story-block { display: flex; flex-direction: column; gap: 4px; }
-  .story-text { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2); max-width: var(--measure); }
+  .story-text { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2); max-width: var(--measure); min-height: calc(3 * var(--lh-small)); }
   #story-title.skel, .story-text.skel { display: block; }
   .story-impact { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
   .story-impact .chip[hidden] { display: none; }
