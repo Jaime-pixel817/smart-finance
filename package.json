@@ -1,8 +1,22 @@
 {
-  "name": "smartt_finance",
+  "name": "smartfinance-lat",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "SmartFinance.lat — educación financiera bilingüe (EN/ES) para jóvenes: datos de mercado honestos, lecciones, boletín y research.",
+  "author": "Jaime Sandoval Ricaño",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://smartfinance.lat",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jaime-pixel817/smart-finance.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jaime-pixel817/smart-finance/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:es": "node scripts/build-es.js",
@@ -10,18 +24,6 @@
     "check-es": "node scripts/build-es.js && git diff --quiet -- es sitemap.xml || (echo /es esta desactualizado: corre npm run build:es y commitea el resultado. && exit 1)",
     "build:og": "node scripts/build-og.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Jaime-pixel817/smart-finance.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Jaime-pixel817/smart-finance/issues"
-  },
-  "homepage": "https://github.com/Jaime-pixel817/smart-finance#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
     "topojson-client": "^3.1.0",
