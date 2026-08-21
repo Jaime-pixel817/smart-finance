@@ -1,0 +1,5 @@
+# Archivos internos que no deben servirse en smartfinance.lat
+CLAUDE.md
+.claude
+ensayo.json
+instrucciones.md
