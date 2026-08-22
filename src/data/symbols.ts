@@ -47,6 +47,8 @@ export interface SymbolEntry {
   lesson: string;
   /** "¿Qué es?" en 1–2 líneas */
   what: Record<Locale, string>;
+  /** sinónimos para el buscador (EN y ES mezclados) */
+  keys?: string;
 }
 
 const us = (id: string, sym: string, name: string, what: Record<Locale, string>, extra: Partial<SymbolEntry> = {}): SymbolEntry => ({
@@ -55,16 +57,16 @@ const us = (id: string, sym: string, name: string, what: Record<Locale, string>,
   feed: 'markets', feedKey: sym, history: sym, lesson: 'lesson.sp500', what, ...extra
 });
 
-const fx = (id: string, sym: string, name: Record<Locale, string>, currency: string, what: Record<Locale, string>, decimals = 4): SymbolEntry => ({
+const fx = (id: string, sym: string, name: Record<Locale, string>, currency: string, what: Record<Locale, string>, keys: string, decimals = 4): SymbolEntry => ({
   id, sym, name, kind: 'fx', currency, session: 'fx',
   source: 'Yahoo Finance', delay: 15, decimals, axisDecimals: 2,
-  feed: 'quotes', feedKey: id.toUpperCase(), history: id.toUpperCase(), lesson: 'lesson.peso', what
+  feed: 'quotes', feedKey: id.toUpperCase(), history: id.toUpperCase(), lesson: 'lesson.peso', what, keys
 });
 
-const crypto = (id: string, sym: string, name: string, what: Record<Locale, string>, decimals = 0): SymbolEntry => ({
+const crypto = (id: string, sym: string, name: string, what: Record<Locale, string>, keys: string, decimals = 0): SymbolEntry => ({
   id, sym, name: { en: name, es: name }, kind: 'crypto', currency: 'USD', session: 'crypto',
   source: 'CoinGecko', delay: 15, decimals, axisDecimals: Math.min(decimals, 2),
-  feed: 'markets', feedKey: sym, history: sym, lesson: 'lesson.errores', what
+  feed: 'markets', feedKey: sym, history: sym, lesson: 'lesson.errores', what, keys
 });
 
 export const SYMBOLS: SymbolEntry[] = [
@@ -72,19 +74,20 @@ export const SYMBOLS: SymbolEntry[] = [
   us('spy', 'SPY', 'S&P 500', {
     en: 'An ETF that tracks the S&P 500: the 500 largest US companies in one price. When someone says “the market went up”, they usually mean this.',
     es: 'Un ETF que sigue al S&P 500: las 500 empresas más grandes de EE. UU. en un solo precio. Cuando dicen “el mercado subió”, casi siempre hablan de esto.'
-  }, { kind: 'index', note: { en: 'ETF SPY', es: 'ETF SPY' } }),
+  }, { kind: 'index', note: { en: 'ETF SPY', es: 'ETF SPY' }, keys: 'S&P SPX índice index ETF bolsa' }),
   us('qqq', 'QQQ', 'Nasdaq 100', {
     en: 'An ETF that tracks the Nasdaq 100: the 100 largest non-financial companies on the Nasdaq, heavy on tech like Apple, Microsoft and Nvidia.',
     es: 'Un ETF que sigue al Nasdaq 100: las 100 empresas no financieras más grandes del Nasdaq, con mucho peso en tecnología (Apple, Microsoft, Nvidia).'
-  }, { kind: 'index', note: { en: 'ETF QQQ', es: 'ETF QQQ' } }),
+  }, { kind: 'index', note: { en: 'ETF QQQ', es: 'ETF QQQ' }, keys: 'nasdaq tecnología tech índice index ETF' }),
   us('dia', 'DIA', 'Dow Jones', {
     en: 'An ETF that tracks the Dow Jones Industrial Average: 30 large, established US companies. Older and narrower than the S&P 500, but still in every headline.',
     es: 'Un ETF que sigue al Dow Jones: 30 empresas grandes y veteranas de EE. UU. Más viejo y más estrecho que el S&P 500, pero sale en todos los titulares.'
-  }, { kind: 'index', note: { en: 'ETF DIA', es: 'ETF DIA' } }),
+  }, { kind: 'index', note: { en: 'ETF DIA', es: 'ETF DIA' }, keys: 'dow industrial índice index ETF' }),
   {
     id: 'vix', sym: 'VIX', name: { en: 'Fear index', es: 'Índice del miedo' }, kind: 'vol', currency: 'USD', session: 'us',
     source: 'Yahoo Finance', delay: 15, decimals: 2, axisDecimals: 0,
     feed: 'quotes', feedKey: 'VIX', history: 'VIX', invert: true, lesson: 'lesson.sp500',
+    keys: 'índice del miedo fear index volatilidad volatility',
     what: {
       en: 'How much fear there is in the market: the size of the swing traders expect in the S&P 500 over the next 30 days. Under 20 is calm; over 30, people are nervous.',
       es: 'Qué tanto miedo hay en el mercado: el tamaño del movimiento que los operadores esperan en el S&P 500 en los próximos 30 días. Debajo de 20 es calma; arriba de 30, nervios.'
@@ -95,68 +98,69 @@ export const SYMBOLS: SymbolEntry[] = [
   us('aapl', 'AAPL', 'Apple', {
     en: 'iPhone, Mac and services. One of the most valuable companies in the world and the largest weight in the S&P 500, so when it moves, the index moves.',
     es: 'iPhone, Mac y servicios. Una de las empresas más valiosas del mundo y el mayor peso del S&P 500, así que cuando se mueve, mueve al índice.'
-  }),
+  }, { keys: 'apple iphone acción stock' }),
   us('msft', 'MSFT', 'Microsoft', {
     en: 'Windows, Office, the Azure cloud and a big stake in OpenAI. A bet on software that businesses pay for every month.',
     es: 'Windows, Office, la nube Azure y una participación grande en OpenAI. Una apuesta por software que las empresas pagan cada mes.'
-  }),
+  }, { keys: 'microsoft windows azure acción stock' }),
   us('nvda', 'NVDA', 'Nvidia', {
     en: 'Designs the chips that train and run AI models. Its price reacts to every AI headline, which is why it moves more than the other giants.',
     es: 'Diseña los chips con los que se entrenan y corren los modelos de IA. Su precio reacciona a cada titular de IA; por eso se mueve más que los otros gigantes.'
-  }),
+  }, { keys: 'nvidia chips IA AI acción stock' }),
   us('amzn', 'AMZN', 'Amazon', {
     en: 'Online retail, Prime and AWS, the cloud unit that makes most of the profit. A read on both consumers and the internet’s plumbing.',
     es: 'Tienda en línea, Prime y AWS, la nube que deja la mayor parte de la ganancia. Una lectura del consumidor y de la tubería de internet a la vez.'
-  }),
+  }, { keys: 'amazon aws prime acción stock' }),
 
   // ---- Divisas (Yahoo vía /api/quotes y /api/history) ----
   fx('usdmxn', 'USD/MXN', { en: 'US dollar in pesos', es: 'Dólar en pesos' }, 'MXN', {
     en: 'How many pesos one US dollar costs. Up means the peso weakened; down, it strengthened. It touches imported phones, trips and scholarships in dollars.',
     es: 'Cuántos pesos cuesta un dólar. Si sube, el peso se depreció; si baja, se apreció. Toca el celular importado, el viaje y la beca en dólares.'
-  }),
+  }, 'peso mexicano mexican peso dólar dollar tipo de cambio exchange rate'),
   fx('eurmxn', 'EUR/MXN', { en: 'Euro in pesos', es: 'Euro en pesos' }, 'MXN', {
     en: 'How many pesos one euro costs. Matters if you study, travel or buy from Europe; it moves with both the peso and the euro.',
     es: 'Cuántos pesos cuesta un euro. Importa si estudias, viajas o compras en Europa; se mueve con el peso y con el euro a la vez.'
-  }),
+  }, 'euro peso tipo de cambio exchange rate'),
   fx('chfmxn', 'CHF/MXN', { en: 'Swiss franc in pesos', es: 'Franco suizo en pesos' }, 'MXN', {
     en: 'How many pesos one Swiss franc costs. The franc is a classic “safe haven”: it tends to rise when markets get scared.',
     es: 'Cuántos pesos cuesta un franco suizo. El franco es un “refugio” clásico: suele subir cuando los mercados se asustan.'
-  }),
+  }, 'franco suizo swiss franc peso'),
   fx('eurusd', 'EUR/USD', { en: 'Euro in dollars', es: 'Euro en dólares' }, 'USD', {
     en: 'How many dollars one euro costs: the most traded currency pair in the world and a quick read on Europe versus the US.',
     es: 'Cuántos dólares cuesta un euro: el par de divisas más operado del mundo y una lectura rápida de Europa frente a EE. UU.'
-  }),
+  }, 'euro dólar dollar'),
   fx('gbpusd', 'GBP/USD', { en: 'British pound in dollars', es: 'Libra en dólares' }, 'USD', {
     en: 'How many dollars one British pound costs. Traders call it “cable”; it reacts to UK inflation, rates and politics.',
     es: 'Cuántos dólares cuesta una libra esterlina. Los operadores le dicen “cable”; reacciona a la inflación, las tasas y la política del Reino Unido.'
-  }),
+  }, 'libra pound sterling dólar dollar'),
   fx('usdjpy', 'USD/JPY', { en: 'US dollar in yen', es: 'Dólar en yenes' }, 'JPY', {
     en: 'How many yen one US dollar costs. Japan kept rates near zero for decades, so this pair moves a lot on US rates and on what the Bank of Japan does.',
     es: 'Cuántos yenes cuesta un dólar. Japón tuvo tasas casi en cero por décadas, así que este par se mueve mucho con las tasas de EE. UU. y con lo que haga el Banco de Japón.'
-  }, 2),
+  }, 'yen japón japan dólar dollar', 2),
 
   // ---- Cripto (CoinGecko vía /api/markets; historial Yahoo) ----
   crypto('btc', 'BTC', 'Bitcoin', {
     en: 'The first and largest cryptocurrency: a digital asset with a fixed supply of 21 million, traded 24/7. Very volatile; the price here is in US dollars.',
     es: 'La primera y más grande criptomoneda: un activo digital con oferta fija de 21 millones que se opera 24/7. Muy volátil; el precio aquí es en dólares.'
-  }),
+  }, 'bitcoin cripto crypto'),
   crypto('eth', 'ETH', 'Ethereum', {
     en: 'The coin of the Ethereum network, where apps, tokens and smart contracts run. Second-largest crypto; it moves with Bitcoin but swings harder.',
     es: 'La moneda de la red Ethereum, donde corren apps, tokens y contratos inteligentes. Segunda cripto más grande; se mueve con Bitcoin pero brinca más.'
-  }),
+  }, 'ethereum ether cripto crypto'),
   crypto('xrp', 'XRP', 'XRP', {
     en: 'The token of the XRP Ledger, built for fast, cheap cross-border payments. Its price has long been tied to Ripple’s legal fights with US regulators.',
     es: 'El token del XRP Ledger, pensado para pagos internacionales rápidos y baratos. Su precio ha dependido de las batallas legales de Ripple con los reguladores de EE. UU.'
-  }, 4),
+  }, 'ripple cripto crypto', 4),
   crypto('sol', 'SOL', 'Solana', {
     en: 'The coin of the Solana network, known for fast and cheap transactions. High growth, high risk: it has had huge rallies and huge crashes.',
     es: 'La moneda de la red Solana, conocida por transacciones rápidas y baratas. Mucho crecimiento y mucho riesgo: ha tenido subidas y caídas enormes.'
-  }, 2),
+  }, 'solana cripto crypto', 2),
 
   // ---- Tasas (verificadas a mano en src/data/home.ts; sin ficha ni gráfica) ----
   {
     id: 'banxico', sym: 'Banxico', name: { en: 'Banxico target rate', es: 'Tasa objetivo Banxico' }, kind: 'rate', currency: '%', session: 'none',
     source: 'Banxico', delay: 0, decimals: 2, axisDecimals: 2, feed: 'static', feedKey: 'BANXICO', lesson: 'lesson.inflacion',
+    keys: 'Banxico tasa de interés interest rate Banco de México',
     what: {
       en: 'Banco de México’s target rate: the reference for what banks charge and pay in pesos. Higher means pricier credit and better yields on savings.',
       es: 'La tasa objetivo del Banco de México: la referencia de lo que los bancos cobran y pagan en pesos. Más alta, crédito más caro y mejor rendimiento al ahorro.'
@@ -165,6 +169,7 @@ export const SYMBOLS: SymbolEntry[] = [
   {
     id: 'fed', sym: 'Fed', name: { en: 'Fed funds range', es: 'Rango de la Fed' }, kind: 'rate', currency: '%', session: 'none',
     source: 'Federal Reserve', delay: 0, decimals: 2, axisDecimals: 2, feed: 'static', feedKey: 'FED', lesson: 'lesson.inflacion',
+    keys: 'Reserva Federal fed funds tasa de interés interest rate',
     what: {
       en: 'The US Federal Reserve’s target range for overnight lending between banks. The most watched interest rate in the world; it moves the dollar and the peso.',
       es: 'El rango objetivo de la Reserva Federal de EE. UU. para préstamos entre bancos de un día. La tasa más vigilada del mundo; mueve al dólar y al peso.'

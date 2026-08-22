@@ -16,7 +16,9 @@ import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, type Loc } from './fo
 import { marketState, closedPhrase } from './hours';
 import type { Range, Point } from './market-data';
 
-type LWC = typeof import('lightweight-charts');
+// Solo lo que se usa de la librería, vía src/scripts/lwc.ts (re-exportación
+// estática que Rollup sí recorta).
+type LWC = typeof import('./lwc');
 type IChartApi = import('lightweight-charts').IChartApi;
 type ISeriesApi = import('lightweight-charts').ISeriesApi<'Area'>;
 type IPriceLine = import('lightweight-charts').IPriceLine;
@@ -111,7 +113,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   function ensureLib(): Promise<void> {
     if (lwc) return Promise.resolve();
     if (!loadingLib) {
-      loadingLib = import('lightweight-charts').then((m) => { lwc = m; buildChart(); }).catch(() => { loadingLib = null; });
+      loadingLib = import('./lwc').then((m) => { lwc = m; buildChart(); }).catch(() => { loadingLib = null; });
     }
     return loadingLib;
   }

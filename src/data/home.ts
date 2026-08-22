@@ -9,19 +9,19 @@ export interface PulseTile {
   name?: string;         // nombre fijo (activos)
   kind: 'fx' | 'stock' | 'crypto' | 'rate';
   source: string;        // proveedor para el chip
-  href?: string;         // a dónde lleva el toque (ficha legacy por ahora)
+  routeId: string;       // a dónde lleva el toque: ficha del activo (asset.<id>) o lección
   decimals: number;
 }
 
 export const PULSE: PulseTile[] = [
-  { id: 'USDMXN', sym: 'USD/MXN', name: 'Peso mexicano', kind: 'fx', source: 'Yahoo Finance', href: '/market', decimals: 2 },
-  { id: 'SPY', sym: 'S&P 500', name: 'ETF SPY', kind: 'stock', source: 'Yahoo Finance', href: '/market', decimals: 2 },
-  { id: 'BTC', sym: 'BTC', name: 'Bitcoin', kind: 'crypto', source: 'CoinGecko', href: '/market', decimals: 0 },
-  { id: 'BANXICO', sym: 'Banxico', nameKey: 'pulse.rate', kind: 'rate', source: 'Banxico', href: '/lessons/inflacion', decimals: 2 },
-  { id: 'QQQ', sym: 'Nasdaq 100', name: 'ETF QQQ', kind: 'stock', source: 'Yahoo Finance', href: '/market', decimals: 2 },
-  { id: 'ETH', sym: 'ETH', name: 'Ethereum', kind: 'crypto', source: 'CoinGecko', href: '/market', decimals: 0 },
-  { id: 'DIA', sym: 'Dow Jones', name: 'ETF DIA', kind: 'stock', source: 'Yahoo Finance', href: '/market', decimals: 2 },
-  { id: 'FED', sym: 'Fed', nameKey: 'pulse.fed', kind: 'rate', source: 'Federal Reserve', href: '/lessons/sp500', decimals: 2 }
+  { id: 'USDMXN', sym: 'USD/MXN', name: 'Peso mexicano', kind: 'fx', source: 'Yahoo Finance', routeId: 'asset.usdmxn', decimals: 2 },
+  { id: 'SPY', sym: 'S&P 500', name: 'ETF SPY', kind: 'stock', source: 'Yahoo Finance', routeId: 'asset.spy', decimals: 2 },
+  { id: 'BTC', sym: 'BTC', name: 'Bitcoin', kind: 'crypto', source: 'CoinGecko', routeId: 'asset.btc', decimals: 0 },
+  { id: 'BANXICO', sym: 'Banxico', nameKey: 'pulse.rate', kind: 'rate', source: 'Banxico', routeId: 'lesson.inflacion', decimals: 2 },
+  { id: 'QQQ', sym: 'Nasdaq 100', name: 'ETF QQQ', kind: 'stock', source: 'Yahoo Finance', routeId: 'asset.qqq', decimals: 2 },
+  { id: 'ETH', sym: 'ETH', name: 'Ethereum', kind: 'crypto', source: 'CoinGecko', routeId: 'asset.eth', decimals: 0 },
+  { id: 'DIA', sym: 'Dow Jones', name: 'ETF DIA', kind: 'stock', source: 'Yahoo Finance', routeId: 'asset.dia', decimals: 2 },
+  { id: 'FED', sym: 'Fed', nameKey: 'pulse.fed', kind: 'rate', source: 'Federal Reserve', routeId: 'lesson.inflacion', decimals: 2 }
 ];
 
 // Tasas de referencia: las mismas que public/assets/macro.js, verificadas a

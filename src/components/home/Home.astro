@@ -7,11 +7,11 @@ import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import { PULSE, RATES, LESSONS, BREAKDOWNS, ratesFresh } from '../../data/home';
+import { ASSETS, assetRouteId } from '../../data/symbols';
 import SourceChip from '../SourceChip.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
-const es = locale === 'es';
 const L = (id: string) => route(id, locale);
 const showRates = ratesFresh();
 const strings = {
@@ -19,10 +19,12 @@ const strings = {
   nlOk: t('nl.ok'), nlBadEmail: t('nl.badEmail'), nlNoConsent: t('nl.noConsent'), nlLimit: t('nl.limit'), nlError: t('nl.error'), nlSending: t('nl.sending')
 };
 const first = LESSONS[0];
+// Mercados en 60 s: de la clave del endpoint (SPY, BTC…) a la ficha del activo.
+const assetHrefs = Object.fromEntries(ASSETS.filter((a) => a.feed === 'markets').map((a) => [a.feedKey, L(assetRouteId(a.id))]));
 const SPARK = `<svg class="spark skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill" d=""/><path class="line" d=""/></svg>`;
 const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
 ---
-<div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)}
+<div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)} data-asset-hrefs={JSON.stringify(assetHrefs)}
   data-rates-verified={RATES.verificado} data-rates-max-days={RATES.maxDias} data-banxico={RATES.banxico} data-fed-min={RATES.fedMin} data-fed-max={RATES.fedMax}>
 
   <!-- ── Línea "Hoy" ─────────────────────────────────────────────── -->
@@ -44,7 +46,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       <ul class="rail pulse-rail">
         {PULSE.map((p) => (
           <li data-tile={p.id} data-kind={p.kind} hidden={p.kind === 'rate' && !showRates}>
-            <a class="tile" href={p.href ? (es && p.href === '/market' ? L('market') : p.href.startsWith('/lessons/') ? L('lesson.' + (p.href.includes('inflacion') ? 'inflacion' : 'sp500')) : p.href) : undefined}>
+            <a class="tile" href={L(p.routeId)}>
               <span class="tile-sym eyebrow">{p.sym}</span>
               <span class="tile-name t-caption faint">{p.name ?? t(p.nameKey!)}</span>
               <span class="tile-price num skel">00000.00</span>

@@ -62,6 +62,9 @@ const PAGINAS = [
     ogDesc: 'Educación financiera en palabras normales. Datos de mercado diarios, explicaciones claras, sin jerga.'
   },
   {
+    // /market y /es/mercado ya son páginas Astro (src/pages/market.astro y
+    // src/pages/es/mercado.astro): se queda aquí solo para el sitemap.
+    astro: true,
     en: 'market/index.html', es: 'es/mercado/index.html',
     enUrl: '/market', esUrl: '/es/mercado',
     imgAlt: 'Smart Finance — Mercado: acciones, divisas y cripto',

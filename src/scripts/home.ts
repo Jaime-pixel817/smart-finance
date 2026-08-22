@@ -3,6 +3,7 @@
 // último valor conocido en localStorage para pintar al instante, y chips de
 // frescura honestos (nunca "en vivo").
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, sparkPath, type Loc } from './format';
+import { nyseOpen, bmvOpen } from './hours';
 
 const root = document.getElementById('home') as HTMLElement | null;
 if (root) boot(root);
@@ -34,19 +35,10 @@ function boot(root: HTMLElement) {
     const el = $('#today-line');
     if (!el) return;
     const day = fmtDay(now, loc);
-    // Horario regular, sin feriados: NYSE 9:30–16:00 ET, BMV 8:30–15:00 CDMX,
-    // lunes a viernes. Es una orientación, no una promesa: el dato de cada
-    // tile trae su propio chip de frescura.
-    const open = (tz: string, h0: number, m0: number, h1: number, m1: number) => {
-      const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' }).formatToParts(now);
-      const get = (t: string) => p.find((x) => x.type === t)?.value || '';
-      const wd = get('weekday');
-      if (wd === 'Sat' || wd === 'Sun') return false;
-      const mins = (parseInt(get('hour'), 10) % 24) * 60 + parseInt(get('minute'), 10);
-      return mins >= h0 * 60 + m0 && mins < h1 * 60 + m1;
-    };
-    const nyse = open('America/New_York', 9, 30, 16, 0);
-    const bmv = open('America/Mexico_City', 8, 30, 15, 0);
+    // Horario regular, sin feriados (src/scripts/hours.ts). Es una orientación,
+    // no una promesa: el dato de cada tile trae su propio chip de frescura.
+    const nyse = nyseOpen(now);
+    const bmv = bmvOpen(now);
     const st = (b: boolean) => `<span class="${b ? 'st-open' : 'st-closed'}">${b ? T.open : T.closed}</span>`;
     el.innerHTML = `<span class="today-day">${day}</span> <span aria-hidden="true">·</span> NYSE ${st(nyse)} <span aria-hidden="true">·</span> BMV ${st(bmv)}`;
     el.classList.remove('skel');
@@ -167,8 +159,10 @@ function boot(root: HTMLElement) {
     const top: MarketItem[] = []; let nCrypto = 0;
     for (const i of sorted) { if (cryptoSyms.has(i.sym)) { if (nCrypto >= 2) continue; nCrypto++; } top.push(i); if (top.length === 5) break; }
     const rows = $$('.m60-row', list);
+    const hrefs = JSON.parse(root.dataset.assetHrefs || '{}') as Record<string, string>;
     top.forEach((i, k) => {
       const row = rows[k]; if (!row) return;
+      const a = row.querySelector('a'); if (a && hrefs[i.sym]) a.href = hrefs[i.sym];
       const dec = i.price < 100 ? 2 : i.price < 10000 ? 2 : 0;
       const sy = $('.m60-sym', row)!; sy.textContent = i.sym; sy.classList.remove('skel');
       const nm = $('.m60-name', row)!; nm.textContent = i.name || ''; nm.classList.remove('skel');

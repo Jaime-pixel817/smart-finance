@@ -1,0 +1,63 @@
+---
+// Price chart panel (sección C): readout (precio mono 32, Δ ▲▼, fecha bajo el
+// dedo), pestañas de rango con role=tablist, lienzo 200/280/320 px que
+// reserva su alto (CLS 0), línea de estado (cerrado · vacío · error), chip de
+// fuente y atribución a TradingView. El dibujo lo monta
+// src/scripts/chart-panel.ts (Lightweight Charts, import dinámico).
+import type { Locale } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { RANGES, type Range } from '../../scripts/market-data';
+import SourceChip from '../SourceChip.astro';
+
+interface Props { locale: Locale; id: string; ranges?: Range[]; range?: Range; source?: string; delay?: number; class?: string }
+const { locale, id, ranges = RANGES, range = '1D', source = 'Yahoo Finance', delay, class: cls } = Astro.props;
+const t = useT(locale);
+---
+<div class:list={['pp', cls]} id={id} data-price-panel data-range={range} data-state="loading" data-chart="pending">
+  <div class="pp-head">
+    <div class="pp-readout">
+      <p class="pp-price num skel">0,000.00</p>
+      <p class="pp-sub">
+        <span class="pp-chg num t-small skel">▲ 0.00 (0.00 %)</span>
+        <span class="pp-when t-caption faint skel">Thu 21 Aug · 1D</span>
+      </p>
+    </div>
+    <div class="pp-ranges" role="tablist" aria-label={t('range.aria')}>
+      {ranges.map((r) => (
+        <button type="button" role="tab" data-range={r} aria-selected={r === range ? 'true' : 'false'} tabindex={r === range ? 0 : -1}>{t(('range.' + r) as UIKey)}</button>
+      ))}
+    </div>
+  </div>
+  <p class="pp-state t-caption" role="status" hidden></p>
+  <div class="pp-canvas skel" aria-hidden="true"></div>
+  <div class="pp-foot">
+    <SourceChip locale={locale} class="pp-chip" source={source} delay={delay} note={t('src.bars5')} />
+    <a class="pp-tv t-caption" href="https://www.tradingview.com/" target="_blank" rel="noopener">{t('chart.by')} TradingView ↗</a>
+  </div>
+</div>
+<style>
+  .pp { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+  .pp-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--sp-3); }
+  .pp-readout { min-width: 0; }
+  .pp-price { font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-num-xl); line-height: 1.1; letter-spacing: -.01em; font-variant-numeric: tabular-nums slashed-zero; min-width: 6ch; white-space: nowrap; }
+  .pp-sub { display: flex; gap: var(--sp-2); align-items: baseline; flex-wrap: wrap; margin-top: 4px; min-height: 1.25rem; }
+  .pp-chg { min-width: 9ch; white-space: nowrap; }
+  .pp-when { min-width: 8ch; white-space: nowrap; }
+  .pp-ranges { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); }
+  .pp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: background .15s, color .15s; }
+  .pp-ranges [role="tab"]:hover { color: var(--ink); }
+  .pp-ranges [role="tab"][aria-selected="true"] { background: var(--brand-wash); color: var(--ink); }
+  .pp-state { color: var(--warn); }
+  .pp-state[hidden] { display: none; }
+  .pp[data-state="error"] .pp-state { color: var(--down-text); }
+  .pp[data-state="empty"] .pp-state { color: var(--ink-2); }
+  .pp-canvas { display: block; position: relative; width: 100%; height: 200px; border-radius: var(--r-input); touch-action: pan-y; overflow: hidden; }
+  .pp-canvas.skel { background: var(--bg-2); }
+  .pp[data-loading="1"] .pp-canvas { opacity: .7; transition: opacity .15s; }
+  @media (min-width: 768px) { .pp-canvas { height: 280px; } }
+  @media (min-width: 1024px) { .pp-canvas { height: 320px; } }
+  .pp-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2) var(--sp-4); }
+  .pp-tv { color: var(--ink-3); white-space: nowrap; min-height: 28px; display: inline-flex; align-items: center; }
+  .pp-tv:hover { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { .pp[data-loading="1"] .pp-canvas { transition: none; } }
+</style>
