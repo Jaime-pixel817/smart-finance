@@ -2,7 +2,7 @@
  *
  * QUÉ HACE. Pide /api/world UNA vez (y cada 15 min, que es lo que cachea),
  * calcula si cada bolsa está abierta con assets/exchange-hours.js, y:
- *   - pinta la fila de ocho chips bajo el titular (#worldChips): ciudad,
+ *   - rellena la fila de ocho chips bajo el titular (#worldChips): ciudad,
  *     ▲▼Δ% y punto abierto/cerrado. Es la leyenda del globo y también el
  *     acceso sin WebGL y para lectores de pantalla (lista semántica);
  *   - avisa al globo con el evento "world:data" (assets/risk-sphere.js pinta
@@ -10,7 +10,7 @@
  *   - abre la tarjeta inferior (#worldSheet) al tocar un chip o un marcador del
  *     globo (evento "globe:marker" que manda risk-sphere.js).
  *
- * Los ocho chips se pintan de entrada con "—" para que la fila mida lo mismo
+ * Los ocho chips están en el HTML con "—" para que la fila mida lo mismo
  * antes y después de que lleguen los datos: cero CLS. Sin datos (red caída) la
  * fila se queda así y la tarjeta dice que la fuente no está disponible.
  *
@@ -35,17 +35,18 @@
     lessons: '/lessons', sp500: '/lessons/sp500'
   };
   // Mismo orden e ids que api/world.js y que EXCHANGES_DEFAULT en risk-sphere.js.
+  // El nombre de la ciudad sale del chip del HTML (ya traducido en /es).
   var BASE = [
-    { id: 'nyc', city: es ? 'Nueva York' : 'New York', index: 'S&P 500', tz: 'America/New_York' },
-    { id: 'yto', city: 'Toronto', index: 'S&P/TSX', tz: 'America/Toronto' },
-    { id: 'mex', city: es ? 'Ciudad de México' : 'Mexico City', index: 'IPC', tz: 'America/Mexico_City' },
-    { id: 'sao', city: 'São Paulo', index: 'Bovespa', tz: 'America/Sao_Paulo' },
-    { id: 'lon', city: es ? 'Londres' : 'London', index: 'FTSE 100', tz: 'Europe/London' },
-    { id: 'fra', city: es ? 'Fráncfort' : 'Frankfurt', index: 'DAX', tz: 'Europe/Berlin' },
-    { id: 'tyo', city: es ? 'Tokio' : 'Tokyo', index: 'Nikkei 225', tz: 'Asia/Tokyo' },
-    { id: 'hkg', city: 'Hong Kong', index: 'Hang Seng', tz: 'Asia/Hong_Kong' }
+    { id: 'nyc', index: 'S&P 500', tz: 'America/New_York' },
+    { id: 'yto', index: 'S&P/TSX', tz: 'America/Toronto' },
+    { id: 'mex', index: 'IPC', tz: 'America/Mexico_City' },
+    { id: 'sao', index: 'Bovespa', tz: 'America/Sao_Paulo' },
+    { id: 'lon', index: 'FTSE 100', tz: 'Europe/London' },
+    { id: 'fra', index: 'DAX', tz: 'Europe/Berlin' },
+    { id: 'tyo', index: 'Nikkei 225', tz: 'Asia/Tokyo' },
+    { id: 'hkg', index: 'Hang Seng', tz: 'Asia/Hong_Kong' }
   ];
-  var items = BASE.map(function (b) { return Object.assign({ price: null, changePct: null, asOf: null, open: false }, b); });
+  var items = BASE.map(function (b) { return Object.assign({ city: b.id, price: null, changePct: null, asOf: null, open: false }, b); });
   var byId = {};
   items.forEach(function (it) { byId[it.id] = it; });
   var data = null, abierto = null, abiertoDesde = 0;
@@ -71,22 +72,22 @@
   }
 
   // ── Leyenda ─────────────────────────────────────────────────────────────
+  // Los ocho chips ya están en el HTML (index.html, #worldChips): aquí solo se
+  // adoptan. Así la fila mide lo mismo antes y después de los datos.
   var chipEls = {};
   items.forEach(function (it) {
-    var li = document.createElement('li');
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'wm-chip'; b.dataset.id = it.id;
-    b.innerHTML = '<span class="wm-dot" aria-hidden="true"></span>' +
-      '<span class="wm-city"></span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span>';
-    b.querySelector('.wm-city').textContent = it.city;
+    var b = chips.querySelector('.wm-chip[data-id="' + it.id + '"]');
+    if (!b) return;
+    var city = b.querySelector('.wm-city');
+    if (city) it.city = city.textContent.trim();
     b.addEventListener('click', function () { abrir(it.id); });
-    li.appendChild(b); chips.appendChild(li);
     chipEls[it.id] = b;
   });
 
   function pintarChips() {
     items.forEach(function (it) {
       var b = chipEls[it.id];
+      if (!b) return;
       var chg = b.querySelector('.wm-chg');
       chg.textContent = fmtPct(it.changePct);
       chg.className = 'wm-chg num ' + clasePct(it.changePct);

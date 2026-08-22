@@ -1180,7 +1180,19 @@
              mismos datos que pintan los marcadores del globo. -->
         <div class="world-legend" id="worldLegend">
           <p class="world-legend-title" data-i18n="world.title">Mercados del mundo · toca una ciudad</p>
-          <ul class="world-chips" id="worldChips" role="list" aria-label="Bolsas de valores en el globo" data-i18n-aria="aria.worldList"></ul>
+          <!-- Los ocho chips van en el HTML (no los crea el JS) para que la fila
+               mida lo mismo antes y después de los datos: cero CLS, y la
+               lista de bolsas se lee aunque el JS no cargue. -->
+          <ul class="world-chips" id="worldChips" role="list" aria-label="Bolsas de valores en el globo" data-i18n-aria="aria.worldList">
+            <li><button type="button" class="wm-chip" data-id="nyc"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city" data-i18n="world.city.nyc">Nueva York</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="yto"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city">Toronto</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="mex"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city" data-i18n="world.city.mex">Ciudad de México</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="sao"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city">São Paulo</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="lon"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city" data-i18n="world.city.lon">Londres</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="fra"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city" data-i18n="world.city.fra">Fráncfort</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="tyo"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city" data-i18n="world.city.tyo">Tokio</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+            <li><button type="button" class="wm-chip" data-id="hkg"><span class="wm-dot" aria-hidden="true"></span><span class="wm-city">Hong Kong</span><span class="wm-chg num">—</span><span class="sr-only wm-sr"></span></button></li>
+          </ul>
         </div>
       </div>
       <div class="hero-globe-wrap" id="globalRiskGlobe" role="img" aria-label="Globo de mercados: día y noche, bolsas con el cambio del día" data-i18n-aria="aria.globe"></div>
@@ -1728,6 +1740,11 @@ document.addEventListener('DOMContentLoaded', function(){
     'aria.globe': 'Globo de mercados: día y noche, bolsas con el cambio del día',
     // Globo de mercados: leyenda y tarjeta.
     'world.title': 'Mercados del mundo · toca una ciudad',
+    'world.city.nyc': 'Nueva York',
+    'world.city.mex': 'Ciudad de México',
+    'world.city.lon': 'Londres',
+    'world.city.fra': 'Fráncfort',
+    'world.city.tyo': 'Tokio',
     'world.what': '¿Qué es este índice? →',
     'aria.worldList': 'Bolsas de valores en el globo',
     'aria.worldClose': 'Cerrar',
