@@ -50,6 +50,12 @@
 (function () {
   'use strict';
 
+  // Marca "hay JavaScript" antes del primer pintado: assets/nav.css la usa
+  // para esconder los enlaces del nav en móvil desde el primer frame, sin
+  // esperar a que nav.js (defer) arme el menú. Este archivo va en el <head>
+  // sin defer en todas las páginas, así que es el sitio natural.
+  document.documentElement.classList.add('js');
+
   var CLAVE = 'sf-lang';               // misma clave que usaba el toggle viejo
 
   function guardado() {

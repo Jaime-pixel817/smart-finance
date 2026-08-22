@@ -45,8 +45,8 @@
 
 .tip-top { display: flex; align-items: center; gap: 9px; }
 .tip-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--brand-soft); color: var(--gold-text); font-size: 16px; }
-.tip-index { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--gold-text); }
-.tip-card h2 { font-family: var(--font-body); font-size: 1.04rem; font-weight: 700; line-height: 1.32; }
+.tip-index { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; color: var(--gold-text); }
+.tip-card h2 { font-family: var(--font-body); font-size: 1.04rem; font-weight: 600; line-height: 1.32; }
 .tip-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
 .tips-disclaimer { margin-top: 22px; }
 
@@ -61,7 +61,7 @@
 .tip-toggle {
   display: inline-flex; align-items: center; gap: 6px;
   background: none; border: none; padding: 6px 0;
-  font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600;
+  font-family: var(--font-mono); font-size: 0.74rem; font-weight: 500;
   letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
   transition: color .15s ease;
 }

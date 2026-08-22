@@ -102,15 +102,15 @@
 }
 
 .mkt-card-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.mkt-sym { font-family: var(--font-mono); font-weight: 700; font-size: .92rem; letter-spacing: .02em; }
+.mkt-sym { font-family: var(--font-mono); font-weight: 500; font-size: .92rem; letter-spacing: .02em; }
 .mkt-name {
   font-size: .74rem; color: var(--muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
 }
 .mkt-note { font-family: var(--font-mono); font-size: .68rem; color: var(--muted); margin-left: auto; flex-shrink: 0; }
 
-.mkt-price { font-family: var(--font-mono); font-size: 1.44rem; font-weight: 600; line-height: 1.1; }
-.mkt-change { font-family: var(--font-mono); font-size: .84rem; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.mkt-price { font-family: var(--font-mono); font-size: 1.44rem; font-weight: 500; line-height: 1.1; }
+.mkt-change { font-family: var(--font-mono); font-size: .84rem; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .mkt-change.up { color: var(--up); }
 .mkt-change.down { color: var(--down); }
 .mkt-change .arrow { font-size: .9em; }
@@ -161,19 +161,19 @@
   padding: 7px 14px; border-radius: 999px; transition: all .15s ease;
 }
 .fx-tab:hover { color: var(--ink); border-color: var(--muted); }
-.fx-tab.active { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 700; }
+.fx-tab.active { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 600; }
 .fx-range-tabs { display: flex; gap: 6px; margin-left: auto; }
 .fx-range-tab {
-  font-family: var(--font-mono); font-size: .72rem; font-weight: 600;
+  font-family: var(--font-mono); font-size: .72rem; font-weight: 500;
   background: var(--card-2); border: 1px solid var(--line); color: var(--muted);
   padding: 5px 11px; border-radius: 999px; transition: all .15s ease;
 }
 .fx-range-tab:hover { color: var(--ink); border-color: var(--muted); }
-.fx-range-tab.active { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 700; }
+.fx-range-tab.active { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 600; }
 .fx-chart-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
 .fx-chart-pair { font-family: var(--font-mono); color: var(--muted); font-size: .9rem; }
-.fx-chart-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; }
-.fx-chart-change { font-family: var(--font-mono); font-size: .95rem; font-weight: 600; }
+.fx-chart-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 500; }
+.fx-chart-change { font-family: var(--font-mono); font-size: .95rem; font-weight: 500; }
 .fx-chart-change.up { color: var(--up); }
 .fx-chart-change.down { color: var(--down); }
 /* min-width:0 es obligatorio: el canvas de Chart.js arranca en 300 px fijos y

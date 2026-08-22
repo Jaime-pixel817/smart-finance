@@ -62,7 +62,7 @@ button { font-family: inherit; cursor: pointer; }
   transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 .btn:active { transform: scale(0.95); }
-.btn-primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 700; }
+.btn-primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight: 600; }
 .btn-primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(22, 196, 127,0.75); }
 .btn-outline { border-color: var(--line); color: var(--ink); background: transparent; }
 .btn-outline:hover { background: var(--card-2); border-color: var(--muted); transform: translateY(-1px); }
@@ -91,7 +91,7 @@ button { font-family: inherit; cursor: pointer; }
 .article h1 {
   font-family: var(--font-body);
   font-size: clamp(2rem, 5vw, 2.9rem);
-  line-height: 1.1; font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.1; font-weight: 600; letter-spacing: -0.03em;
   margin-bottom: 18px;
 }
 .article-lede { color: var(--muted); font-size: 1.08rem; line-height: 1.6; margin-bottom: 20px; }
@@ -101,11 +101,11 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .article-body h2 {
-  font-family: var(--font-body); font-size: 1.42rem; font-weight: 700;
+  font-family: var(--font-body); font-size: 1.42rem; font-weight: 600;
   line-height: 1.25; letter-spacing: -0.02em; margin: 40px 0 12px;
 }
 .article-body h3 {
-  font-family: var(--font-body); font-size: 1.02rem; font-weight: 700;
+  font-family: var(--font-body); font-size: 1.02rem; font-weight: 600;
   margin: 26px 0 8px;
 }
 .article-body p { margin-bottom: 17px; color: #D8D8D4; }

@@ -56,28 +56,72 @@
  *
  * AUTOALOJADAS. Ya no hay ningún <link> a fonts.googleapis.com ni a
  * fonts.gstatic.com en el sitio: se fueron los dos preconnect y la hoja
- * externa de las nueve páginas. Nueve archivos woff2 en /assets/fonts/, 212 KB
+ * externa de las nueve páginas. Seis archivos woff2 en /assets/fonts/, ~140 KB
  * en total, servidos desde el mismo dominio — menos que las tres familias de
  * antes, y sin dos handshakes contra otro host antes de ver una letra.
  * Licencias OFL, copiadas junto a los archivos.
+ *
+ * PESOS. Geist Sans solo 400/500/600 y Geist Mono solo 400/500: los 700 de
+ * sans y los 600/700 de mono se quitaron (eran ~90 KB más para un grado de
+ * negrita que apenas se distinguía). Por eso en el CSS del sitio no hay ningún
+ * font-weight:700, ni mono por encima de 500: si se pide un peso que no
+ * existe, el navegador lo sintetiza y sale borroso. El home precarga
+ * geist-sans-400 y geist-mono-500, que son los que se ven primero.
  */
 
 /* font-display: swap en todas — el texto se ve desde el primer frame con la
    fuente de respaldo y cambia cuando llega la real. En un sitio donde lo que
    importa es el dato, es preferible leerlo feo un instante que no leerlo. */
 
+/* ───────────────────── Enlace de salto al contenido ─────────────────────
+ * Primer elemento del <body> en cada página: <a class="skip-link" href="#main">.
+ * Invisible (fuera de pantalla, no display:none, para que el lector de
+ * pantalla y el tabulador lo encuentren) hasta que recibe el foco; entonces
+ * aparece arriba a la izquierda, por encima del nav. */
+.skip-link {
+  position: absolute; left: 12px; top: -100px;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--brand, #16C47F); color: var(--on-brand, #000);
+  font-family: var(--font-body, system-ui, sans-serif); font-weight: 600; font-size: 0.9rem;
+  text-decoration: none;
+  transition: top .15s ease;
+}
+.skip-link:focus, .skip-link:focus-visible { top: 12px; outline: 2px solid var(--ink, #fff); outline-offset: 2px; }
+
 @font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
 @font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
 @font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
-@font-face { font-family:'Geist'; src:url('/assets/fonts/geist-sans-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
 
 @font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
 @font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
-@font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
-@font-face { font-family:'Geist Mono'; src:url('/assets/fonts/geist-mono-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
 
 /* Fraunces: un solo peso, porque solo lo usan el h1 del hero y el logo. */
 @font-face { font-family:'Fraunces'; src:url('/assets/fonts/fraunces-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
+
+/* ───────────────────── Respaldos con métricas ajustadas ─────────────────────
+ * font-display:swap pinta primero con la fuente del sistema y cambia cuando
+ * llega la de verdad. Si las dos no miden lo mismo, al cambiar se reacomoda
+ * toda la página (Lighthouse lo medía como CLS 0.32 en móvil, casi todo por
+ * esto). Estas caras son la fuente del sistema —Arial, Menlo/Courier New,
+ * Georgia— con size-adjust y ascent/descent/line-gap-override para que ocupen
+ * EXACTAMENTE lo que ocupará la fuente final: el texto cambia de dibujo, no
+ * de sitio. Van en segundo lugar de cada pila, justo detrás de la fuente real.
+ *
+ * Los números salen de medir el mismo texto en las dos fuentes con un canvas
+ * en Chrome (Geist 400 es 3.5 % más ancha que Arial, Geist 500 un 5.9 %,
+ * Geist 600 un 0.8 % más que Arial Bold; Geist Mono mide lo mismo que
+ * Courier New/Menlo; Fraunces 600 es 7 % más angosta que Georgia Bold), y las
+ * alturas son las de las tablas hhea de los woff2 (Geist 920/220/100 sobre
+ * 1000; Geist Mono 1005/295/0; Fraunces 1956/510/0 sobre 2000) divididas por
+ * ese size-adjust. En Android no hay Arial ni Georgia, así que ahí estas caras
+ * no se usan y todo sigue como antes. */
+@font-face { font-family:'Geist Fallback'; src:local('Arial'), local('ArialMT'); font-weight:400; size-adjust:103.5%; ascent-override:88.9%; descent-override:21.3%; line-gap-override:9.7%; }
+@font-face { font-family:'Geist Fallback'; src:local('Arial'), local('ArialMT'); font-weight:500; size-adjust:105.9%; ascent-override:86.9%; descent-override:20.8%; line-gap-override:9.4%; }
+@font-face { font-family:'Geist Fallback'; src:local('Arial Bold'), local('Arial-BoldMT'); font-weight:600; size-adjust:100.8%; ascent-override:91.3%; descent-override:21.8%; line-gap-override:9.9%; }
+@font-face { font-family:'Geist Mono Fallback'; src:local('Menlo'), local('Menlo-Regular'), local('Courier New'), local('CourierNewPSMT'); font-weight:400 500; size-adjust:100%; ascent-override:100.5%; descent-override:29.5%; line-gap-override:0%; }
+@font-face { font-family:'Fraunces Fallback'; src:local('Georgia Bold'), local('Georgia-Bold'); font-weight:600; size-adjust:92.9%; ascent-override:105.3%; descent-override:27.5%; line-gap-override:0%; }
 
 :root {
   /* ───────────────────────── Superficies ─────────────────────────
@@ -159,9 +203,9 @@
   --read-width: 720px;
 
   /* ───────────────────────── Fuentes ───────────────────────── */
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-body: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-display: 'Fraunces', 'Fraunces Fallback', Georgia, 'Times New Roman', serif;
+  --font-body: 'Geist', 'Geist Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 
 /* Texto que solo existe para quien no ve la pantalla.

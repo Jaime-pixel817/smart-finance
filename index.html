@@ -27,6 +27,9 @@
 <meta name="twitter:title" content="Smart Finance — Updated Finance, by Jaime Sandoval">
 <meta name="twitter:description" content="Financial education in plain English. Daily market data, clear breakdowns, no jargon.">
 <meta name="twitter:image" content="https://smartfinance.lat/og-image.jpg">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
   Datos estructurados. Organization + WebSite van solo en el home: son sobre el
@@ -202,7 +205,7 @@
   .section-title {
     font-family: var(--font-body);
     font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.03em;
     margin-bottom: 14px;
   }
@@ -222,7 +225,7 @@
     border: 1.5px solid transparent;
     transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
-  .btn-primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight:700; }
+  .btn-primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); font-weight:600; }
   .btn-primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(22, 196, 127,0.75); }
   .btn-outline { border-color: var(--line); color: var(--ink); background: transparent; }
   .btn-outline:hover { background: var(--card-2); border-color: var(--muted); transform: translateY(-1px); }
@@ -353,7 +356,8 @@
      fondo está en luminancia ≤ 0.084 —contraste 7:1, de sobra— pero hay
      partículas sueltas que llegan a 0.96, es decir, blanco. Contra esas no
      puede un degradado ancho: son puntos del tamaño de la letra. De eso se
-     encarga la sombra del texto; de bajar el nivel general, este radial. */
+     encarga la sombra del texto; de bajar el nivel general, este radial.
+
      El -48px de arriba es el padding superior de .hero: sube la caja hasta el
      borde del hero para que el degradado tenga sitio de sobrar por encima del
      titular, que en escritorio va pegado al techo. Con la caja empezando en el
@@ -598,7 +602,7 @@
     white-space:nowrap;
     transition: border-color .2s ease;
   }
-  .chip .sym { font-weight:600; color:var(--ink); }
+  .chip .sym { font-weight:500; color:var(--ink); }
   .chip .chg.up { color: var(--up); }
   .chip .chg.down { color: var(--down); }
   /* Mini-gráfica de 24 h dentro del chip: solo la forma, sin ejes ni números.
@@ -663,8 +667,8 @@
   .market-grid.compact .card-price { font-size: 1.08rem; margin-bottom: 0; }
   .market-grid.compact .card-change { font-size: 0.76rem; }
   .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-  .card-sym { font-family: var(--font-mono); font-weight:600; font-size:0.92rem; }
-  .card-price { font-family: var(--font-mono); font-size:1.5rem; font-weight:600; margin-bottom:4px; }
+  .card-sym { font-family: var(--font-mono); font-weight:500; font-size:0.92rem; }
+  .card-price { font-family: var(--font-mono); font-size:1.5rem; font-weight:500; margin-bottom:4px; }
   .card-change { font-family: var(--font-mono); font-size:0.88rem; font-weight:500; color: var(--muted); }
   .card-change.up { color: var(--up); }
   .card-change.down { color: var(--down); }
@@ -678,19 +682,19 @@
     padding: 7px 14px; border-radius:999px; transition: all .15s ease;
   }
   .fx-tab:hover { color: var(--ink); border-color: var(--muted); }
-  .fx-tab.active { background: var(--brand); color:var(--on-brand); border-color: var(--brand); font-weight:700; }
+  .fx-tab.active { background: var(--brand); color:var(--on-brand); border-color: var(--brand); font-weight:600; }
   .fx-range-tabs { display:flex; gap:6px; margin-left:auto; }
   .fx-range-tab {
-    font-family: var(--font-mono); font-size:0.72rem; font-weight:600;
+    font-family: var(--font-mono); font-size:0.72rem; font-weight:500;
     background: var(--card-2); border:1px solid var(--line); color: var(--muted);
     padding: 5px 11px; border-radius:999px; transition: all .15s ease;
   }
   .fx-range-tab:hover { color: var(--ink); border-color: var(--muted); }
-  .fx-range-tab.active { background: var(--brand); color:var(--on-brand); border-color: var(--brand); font-weight:700; }
+  .fx-range-tab.active { background: var(--brand); color:var(--on-brand); border-color: var(--brand); font-weight:600; }
   .fx-chart-head { display:flex; align-items:baseline; gap:14px; margin-bottom:6px; flex-wrap:wrap; }
   .fx-chart-pair { font-family: var(--font-mono); color: var(--muted); font-size:0.9rem; }
-  .fx-chart-value { font-family: var(--font-mono); font-size:2rem; font-weight:700; }
-  .fx-chart-change { font-family: var(--font-mono); font-size:0.95rem; font-weight:600; }
+  .fx-chart-value { font-family: var(--font-mono); font-size:2rem; font-weight:500; }
+  .fx-chart-change { font-family: var(--font-mono); font-size:0.95rem; font-weight:500; }
   .fx-chart-change.up { color: var(--up); } .fx-chart-change.down { color: var(--down); }
   .fx-chart-canvas-wrap { margin-top:14px; height:220px; position:relative; }
   /* ---------- El canvas no puede pasarse del panel ----------
@@ -720,13 +724,13 @@
      debajo de su contenido, y el canvas de Chart.js arranca en 300 px fijos.
      Sin esto, en móvil la pista se quedaba en 350 px y el panel se salía. */
   .macro-panel { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 24px; min-width: 0; }
-  .macro-panel h4 { font-family: var(--font-body); font-size: 1.05rem; font-weight:700; letter-spacing:-0.02em; margin-bottom:4px; }
+  .macro-panel h4 { font-family: var(--font-body); font-size: 1.05rem; font-weight:600; letter-spacing:-0.02em; margin-bottom:4px; }
   .macro-panel .as-of { font-family: var(--font-mono); font-size:0.72rem; color: var(--muted); margin-bottom:18px; display:block; }
   /* El panel del VIX reusa la maquinaria de la gráfica de FX (mismo /api/history,
      mismo Chart.js, mismas pestañas de rango) para que las dos se vean hermanas. */
   .vix-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:2px; }
-  .vix-value { font-family: var(--font-mono); font-size:1.7rem; font-weight:700; }
-  .vix-change { font-family: var(--font-mono); font-size:0.88rem; font-weight:600; color: var(--muted); }
+  .vix-value { font-family: var(--font-mono); font-size:1.7rem; font-weight:500; }
+  .vix-change { font-family: var(--font-mono); font-size:0.88rem; font-weight:500; color: var(--muted); }
   .vix-change.up { color: var(--down); }   /* VIX arriba = mas miedo: se pinta en rojo a proposito */
   .vix-change.down { color: var(--up); }
   .vix-canvas-wrap { margin-top:12px; height:170px; position:relative; min-width: 0; }
@@ -735,7 +739,7 @@
   .rate-row { display:flex; justify-content:space-between; align-items:baseline; gap: 14px; padding: 12px 0; border-bottom:1px solid var(--line); }
   .rate-row:last-of-type { border-bottom:none; }
   .rate-label { font-size:0.88rem; color: var(--muted); }
-  .rate-value { font-family: var(--font-mono); font-weight:600; font-size:1.05rem; white-space: nowrap; }
+  .rate-value { font-family: var(--font-mono); font-weight:500; font-size:1.05rem; white-space: nowrap; }
   /* Pie del panel de tasas: la misma atribución que el resto, más lo que hizo
      cada banco la última vez. */
   .rate-src.is-warn { color: var(--accent-orange); }
@@ -815,13 +819,13 @@
   .lessons-promo-text { display: block; }
   .lessons-promo-eyebrow {
     display: block;
-    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight:500;
     letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--gold-text); margin-bottom: 7px;
   }
   .lessons-promo-title {
     display: block;
-    font-family: var(--font-body); font-size: 1.34rem; font-weight: 700;
+    font-family: var(--font-body); font-size: 1.34rem; font-weight: 600;
     line-height: 1.22; letter-spacing: -0.025em; margin-bottom: 7px;
   }
   .lessons-promo-sub { display: block; color: var(--muted); font-size: 0.9rem; line-height: 1.5; max-width: 48ch; }
@@ -933,13 +937,13 @@
 
   .post-tag {
     align-self:flex-start; display:inline-flex; align-items:center; gap:6px;
-    font-family: var(--font-mono); font-size:0.7rem; font-weight:600;
+    font-family: var(--font-mono); font-size:0.7rem; font-weight:500;
     letter-spacing:0.06em; text-transform:uppercase; padding: 4px 10px; border-radius:999px;
   }
   .post-tag .ico { font-size:13px; }
   .post-tag.tiktok { background:#F2F2F2; color:#0A0A0A; }
   .post-tag.linkedin { background:#241F38; color:#B4A8F5; }
-  .post-card h3 { font-family: var(--font-body); font-size:1.12rem; line-height:1.35; font-weight:700; letter-spacing:-0.02em; }
+  .post-card h3 { font-family: var(--font-body); font-size:1.12rem; line-height:1.35; font-weight:600; letter-spacing:-0.02em; }
   .post-card p { color: var(--muted); font-size:0.92rem; flex-grow:1; }
   .post-card a.post-link { font-weight:600; color: var(--gold-text); font-size:0.9rem; display:inline-flex; align-items:center; gap:6px; }
   .post-card a.post-link .ico { font-size:14px; }
@@ -1004,11 +1008,12 @@
      más arriba decía que lo cargaban "las once páginas" y resulta que el home
      era justo la que no, así que sus seis secciones .reveal bajaban quietas
      desde que el archivo se sacó del <script> de aquí. -->
-<script src="/assets/motion.js"></script>
+<script src="/assets/motion.js" defer></script>
 <script src="/assets/reveal.js" defer></script>
 <link rel="stylesheet" href="/assets/news.css">
 </head>
 <body>
+<a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
 <header class="site-nav">
   <div class="nav-inner">
     <a href="#home" class="nav-brand">
@@ -1042,7 +1047,7 @@
   </div>
 </header>
 
-<main>
+<main id="main">
 
   <section id="home" class="hero">
     <div class="wrap hero-grid">
@@ -1087,7 +1092,14 @@
   <section id="about" class="about reveal">
     <div class="wrap about-inner">
       <div class="about-photos">
-        <img class="main" src="jaime.jpg" alt="Jaime, founder of Smart Finance" data-i18n-alt="alt.jaime" width="260" height="260" loading="lazy" decoding="async">
+        <!-- 520 px (2× los 260 que se muestran): WebP primero, JPG de respaldo.
+             Sin loading="lazy" a propósito: en móvil esta foto es el elemento
+             más grande de la primera pantalla (el LCP), y retrasarla costaba
+             medio segundo de métrica. -->
+        <picture>
+          <source srcset="/jaime.webp" type="image/webp">
+          <img class="main" src="/jaime.jpg" alt="Jaime, founder of Smart Finance" data-i18n-alt="alt.jaime" width="260" height="260" fetchpriority="high" decoding="async">
+        </picture>
       </div>
       <div class="about-text">
         <p class="eyebrow" data-i18n="about.eyebrow">About</p>
@@ -1187,6 +1199,10 @@
             <p class="card-change"><span class="skel skel-sm" aria-hidden="true">+0.00%</span></p>
           </div>
         </div>
+        <!-- Atribución: CoinGecko la exige en su plan gratuito, y el resto del
+             sitio ya dice de dónde sale cada dato. La pinta render() con
+             assets/source.js, igual que el pie de la gráfica de divisas. -->
+        <p class="src-line" id="cryptoSrc"></p>
       </div>
 
       <div class="market-group">
@@ -1267,7 +1283,8 @@
         su clave (post.<nombre>.title, post.<nombre>.desc, alt.<nombre>): hay
         que agregar las tres al diccionario `translations` de más abajo, o la
         tarjeta saldrá en inglés en /es. `npm run build:es` lo avisa.
-        La miniatura es la foto real del post, en assets/breakdowns/. Cada
+        La miniatura es la foto real del post, en assets/breakdowns/ (WebP de
+        600 px con el JPG de 900 como respaldo, para ~300 px en pantalla). Cada
         tarjeta lleva dos clases de miniatura: la del tema (thumb-markets /
         thumb-interview / thumb-data / thumb-podcast), que pinta el degradado de
         respaldo si la foto no carga, y una propia de la foto (thumb-japan,
@@ -1284,7 +1301,10 @@
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7653328531694439700" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-data thumb-japan has-play">
-              <img src="/assets/breakdowns/breakdown-japan.jpg" alt="Shibuya at night, while filming the video on Japan's economic data" data-i18n-alt="alt.japan" width="900" height="1601" loading="lazy" decoding="async">
+              <picture>
+                <source srcset="/assets/breakdowns/breakdown-japan.webp" type="image/webp">
+                <img src="/assets/breakdowns/breakdown-japan.jpg" alt="Shibuya at night, while filming the video on Japan's economic data" data-i18n-alt="alt.japan" width="900" height="1601" loading="lazy" decoding="async">
+              </picture>
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1301,7 +1321,10 @@
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7662781308988411156" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-interview thumb-andytoh has-play">
-              <img src="/assets/breakdowns/breakdown-andy-toh.jpg" alt="Interview recorded during the summer program in Singapore" data-i18n-alt="alt.andytoh" width="900" height="1582" loading="lazy" decoding="async">
+              <picture>
+                <source srcset="/assets/breakdowns/breakdown-andy-toh.webp" type="image/webp">
+                <img src="/assets/breakdowns/breakdown-andy-toh.jpg" alt="Interview recorded during the summer program in Singapore" data-i18n-alt="alt.andytoh" width="900" height="1582" loading="lazy" decoding="async">
+              </picture>
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1318,7 +1341,10 @@
         <a class="post-card-link" href="https://www.tiktok.com/@smart.financee/video/7655111359419387157" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-markets thumb-singapore has-play">
-              <img src="/assets/breakdowns/breakdown-singapore.jpg" alt="In front of Marina Bay Sands, Singapore" data-i18n-alt="alt.singapore" width="900" height="1543" loading="lazy" decoding="async">
+              <picture>
+                <source srcset="/assets/breakdowns/breakdown-singapore.webp" type="image/webp">
+                <img src="/assets/breakdowns/breakdown-singapore.jpg" alt="In front of Marina Bay Sands, Singapore" data-i18n-alt="alt.singapore" width="900" height="1543" loading="lazy" decoding="async">
+              </picture>
               <span class="post-play"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
             </div>
             <div class="post-body">
@@ -1335,7 +1361,10 @@
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-markets thumb-jpmorgan">
-              <img src="/assets/breakdowns/breakdown-jpmorgan-etf.jpg" alt="After the session with J.P. Morgan's Chief ETF Strategist" data-i18n-alt="alt.jpmorgan" width="900" height="737" loading="lazy" decoding="async">
+              <picture>
+                <source srcset="/assets/breakdowns/breakdown-jpmorgan-etf.webp" type="image/webp">
+                <img src="/assets/breakdowns/breakdown-jpmorgan-etf.jpg" alt="After the session with J.P. Morgan's Chief ETF Strategist" data-i18n-alt="alt.jpmorgan" width="900" height="737" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1351,7 +1380,10 @@
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-interview thumb-moris">
-              <img src="/assets/breakdowns/breakdown-moris-dieck.jpg" alt="At a financial education event in Mexico" data-i18n-alt="alt.moris" width="900" height="1200" loading="lazy" decoding="async">
+              <picture>
+                <source srcset="/assets/breakdowns/breakdown-moris-dieck.webp" type="image/webp">
+                <img src="/assets/breakdowns/breakdown-moris-dieck.jpg" alt="At a financial education event in Mexico" data-i18n-alt="alt.moris" width="900" height="1200" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1367,7 +1399,10 @@
         <a class="post-card-link" href="https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7" target="_blank" rel="noopener">
           <article class="post-card">
             <div class="post-thumb thumb-podcast thumb-tradingroom">
-              <img src="/assets/breakdowns/breakdown-trading-room-podcast.jpg" alt="Recording the Financial Trading Room podcast" data-i18n-alt="alt.tradingroom" width="900" height="506" loading="lazy" decoding="async">
+              <picture>
+                <source srcset="/assets/breakdowns/breakdown-trading-room-podcast.webp" type="image/webp">
+                <img src="/assets/breakdowns/breakdown-trading-room-podcast.jpg" alt="Recording the Financial Trading Room podcast" data-i18n-alt="alt.tradingroom" width="900" height="506" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="post-body">
               <span class="post-tag linkedin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</span>
@@ -1516,20 +1551,32 @@
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<!-- Antes del bloque de abajo: ese llama a SmartNews.init() y SmartCharts.panel()
-     al arrancar, así que los módulos tienen que estar ya cargados.
+<!-- three.js con defer: no bloquea el primer pintado. El globo del hero
+     (assets/risk-sphere.js, al final del body) no arranca hasta después del
+     evento load de la ventana, y si el sistema pide menos movimiento
+     (prefers-reduced-motion) pinta un solo fotograma y se queda quieto. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<!-- Chart.js con defer: no bloquea el primer pintado. assets/charts.js
+     tolera que la librería llegue después que la primera respuesta de
+     /api/history (ver Panel.prototype.load). -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
+<!-- Todos con defer: no bloquean el primer pintado y se ejecutan en este
+     mismo orden antes de DOMContentLoaded. El bloque de abajo llama a
+     SmartNews.init() y SmartCharts.panel() al arrancar, por eso espera a
+     DOMContentLoaded: para entonces todos estos ya corrieron.
      source.js va primero de todos: los demás lo usan para escribir su pie. -->
-<script src="/assets/source.js"></script>
+<script src="/assets/source.js" defer></script>
 <!-- market-hours.js antes que charts.js: es quien decide si el mercado está
      cerrado, y el panel lo pregunta ya en su primera carga. -->
-<script src="/assets/market-hours.js"></script>
-<script src="/assets/news.js"></script>
-<script src="/assets/charts.js"></script>
-<script src="/assets/macro.js"></script>
+<script src="/assets/market-hours.js" defer></script>
+<script src="/assets/news.js" defer></script>
+<script src="/assets/charts.js" defer></script>
+<script src="/assets/macro.js" defer></script>
 <script>
-(function(){
+// Espera a DOMContentLoaded porque los módulos de arriba van con defer (ver el
+// comentario junto a los <script>): así Chart.js, SmartCharts, SmartNews y
+// compañía ya existen cuando esto arranca.
+document.addEventListener('DOMContentLoaded', function(){
   // ============================================
   // LIVE MARKET DATA
   // ============================================
@@ -1557,6 +1604,8 @@
     // que data-i18n-alt.
     'aria.globe': 'Globo giratorio de los mercados del mundo',
     'aria.ticker': 'Cinta de mercado (datos con retraso)',
+    // Enlace de salto al contenido: invisible hasta que recibe el foco.
+    'a11y.skip': 'Saltar al contenido',
     // Los alt de las fotos: el HTML los trae en inglés y aquí está su versión
     // en español. El de la foto del "Acerca de" faltaba, así que en /es decía
     // "Jaime, founder of Smart Finance" dentro de una página en español.
@@ -1923,6 +1972,12 @@
         cryptoGrid.innerHTML = cardHTML('BTC') + cardHTML('ETH');
         chips.push(chipHTML('BTC'), chipHTML('ETH'));
       }
+      // Pie de fuente de las dos tarjetas. fetchCrypto pregunta a CoinGecko
+      // cada 60 s (ver REFRESH abajo), y esa es la cadencia que se promete.
+      if (window.SmartSource) {
+        window.SmartSource.paint(document.getElementById('cryptoSrc'),
+          cryptoData ? 'CoinGecko' : '', cryptoData ? 'minute' : 'loading');
+      }
       // Los precios de las dos tarjetas entran deslizándose desde abajo,
       // escalonados. Se llama en cada pintado a propósito: el primero es de
       // esqueletos y motion.js no se engancha hasta que hay números de verdad.
@@ -2102,8 +2157,11 @@
       }
     });
   })();
-})();
+});
 </script>
+<!-- El globo. Es un módulo (diferido por naturaleza) y además espera al
+     evento load + requestIdleCallback antes de montar la escena: ver
+     arrancarDiferido() al final del archivo. -->
 <script type="module" src="/assets/risk-sphere.js"></script>
 </body>
 </html>

@@ -27,6 +27,9 @@
 <meta name="twitter:title" content="Markets today: stocks, currencies and crypto — Smart Finance">
 <meta name="twitter:description" content="Stocks, currencies and crypto in one place, each with its own trend chart. Refreshed every 15 minutes.">
 <meta name="twitter:image" content="https://smartfinance.lat/og-market.jpg">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/tokens.css">
 <!--
   OJO CON LAS RUTAS: vercel.json trae cleanUrls, así que esta página se sirve
@@ -37,7 +40,7 @@
 -->
 <link rel="stylesheet" href="/assets/nav.css">
 <script src="/assets/nav.js" defer></script>
-<script src="/assets/motion.js"></script>
+<script src="/assets/motion.js" defer></script>
 <script src="/assets/reveal.js" defer></script>
 <link rel="stylesheet" href="/assets/article.css">
 <link rel="stylesheet" href="/assets/market.css">
@@ -54,6 +57,7 @@
 </script>
 </head>
 <body>
+<a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
 
 <header class="site-nav">
   <div class="nav-inner">
@@ -84,7 +88,7 @@
   </div>
 </header>
 
-<main>
+<main id="main">
 
   <section class="mkt-head">
     <div class="wrap">
@@ -283,6 +287,7 @@ window.ARTICLE_I18N = {
   'nav.home': 'Inicio',
   'nav.about': 'Acerca de', 'nav.market': 'Mercado', 'nav.lessons': 'Lecciones',
   'nav.subscribe': 'Suscríbete',
+  'a11y.skip': 'Saltar al contenido',
   'mkt.back': '← Volver a Smart Finance',
   'mkt.eyebrow': 'Datos de mercado',
   'mkt.title': 'Acciones, divisas y cripto',
@@ -303,16 +308,16 @@ window.ARTICLE_I18N = {
   'footer.disclaimer': 'El contenido de Smart Finance es solo para fines educativos y no constituye asesoría financiera, de inversión o fiscal.'
 };
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
 <!-- article.js primero: guarda el texto original de cada [data-i18n] y aplica
      el idioma guardado antes de que market.js pinte nada. -->
-<script src="/assets/article.js"></script>
+<script src="/assets/article.js" defer></script>
 <!-- source.js antes que los demás: es quien redacta el pie de cada bloque. -->
-<script src="/assets/source.js"></script>
+<script src="/assets/source.js" defer></script>
 <!-- market-hours.js antes que charts.js: es quien decide si el mercado está
      cerrado, y el panel lo pregunta ya en su primera carga. -->
-<script src="/assets/market-hours.js"></script>
-<script src="/assets/charts.js"></script>
-<script src="/assets/market.js"></script>
+<script src="/assets/market-hours.js" defer></script>
+<script src="/assets/charts.js" defer></script>
+<script src="/assets/market.js" defer></script>
 </body>
 </html>

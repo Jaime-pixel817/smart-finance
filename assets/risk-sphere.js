@@ -439,6 +439,11 @@ const ATTRACT_RAMP       = 1.5;
 const SPRING_K           = 9;
 const DAMPING            = 0.88;
 
+// Si el sistema pide menos movimiento, el globo se pinta una vez y se queda
+// quieto (ver el final de initRiskSphere). Se lee una sola vez al cargar.
+const REDUCED_MOTION = typeof window.matchMedia === "function"
+  && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 function whenThree() {
   if (window.THREE) return Promise.resolve(window.THREE);
   return new Promise((resolve, reject) => {
@@ -1218,6 +1223,40 @@ async function initRiskSphere() {
     renderer.render(scene, camera);
   }
 
+  const onResize = () => {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    const newScale = Math.min(BASE_SCALE, (visibleHW * camera.aspect * 0.85) / (2 * R));
+    group.scale.set(newScale, newScale, newScale);
+    updatePixelsPerUnit();
+  };
+  window.addEventListener("resize", onResize);
+
+  /* ── prefers-reduced-motion ───────────────────────────────────────────
+   *
+   * Si el sistema pide menos movimiento, el globo NO se anima: ni la entrada
+   * de partículas dispersas, ni el giro, ni el efecto del puntero. Se pinta
+   * UN solo fotograma con la esfera ya formada (las partículas directamente
+   * en su sitio, el halo encendido) y se deja quieto. Sigue siendo el mismo
+   * globo, solo que inmóvil; al cambiar de tamaño se vuelve a pintar ese
+   * mismo fotograma. No se arranca el bucle de requestAnimationFrame ni el
+   * IntersectionObserver que lo pausa: no hay nada que pausar. */
+  if (REDUCED_MOTION) {
+    for (let i = 0; i < N * 3; i++) { baseNow[i] = currHome[i]; effHome[i] = currHome[i]; }
+    posAttr.updateRange.offset = 0;
+    posAttr.updateRange.count = -1;
+    posAttr.needsUpdate = true;
+    morphT = 1; settled = true; asentadoUnaVez = true; fadeExtras = 1;
+    group.rotation.y = 0.6;
+    material.uniforms.uTime.value = 0;
+    atmoMat.uniforms.uIntensity.value = 1;
+    const pintarQuieto = () => renderer.render(scene, camera);
+    pintarQuieto();
+    window.addEventListener("resize", pintarQuieto);
+    return;
+  }
+
   animate();
 
   const vio = new IntersectionObserver(([entry]) => {
@@ -1228,24 +1267,38 @@ async function initRiskSphere() {
     }
   }, { threshold: 0.02 });
   vio.observe(container);
-
-  const onResize = () => {
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    const newScale = Math.min(BASE_SCALE, (visibleHW * camera.aspect * 0.85) / (2 * R));
-    group.scale.set(newScale, newScale, newScale);
-    updatePixelsPerUnit();
-  };
-  window.addEventListener("resize", onResize);
 }
 
 function boot() {
   initRiskSphere().catch((err) => console.error("RiskSphere:", err));
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", boot);
-} else {
-  boot();
+/* ── Arranque diferido ──────────────────────────────────────────────────
+ *
+ * El globo es decoración: no tiene por qué competir con el titular, las
+ * fuentes ni los datos de mercado por el primer pintado. Por eso ya no
+ * arranca en DOMContentLoaded sino DESPUÉS del evento load de la ventana (con
+ * todo lo demás ya descargado), y dentro de un requestIdleCallback para
+ * colarse en el primer hueco libre del hilo principal. El tope de 1.5 s es
+ * para que en una página que nunca queda ociosa (el ticker, las gráficas) el
+ * globo aparezca de todos modos. three.js va con defer en index.html, así que
+ * para entonces window.THREE ya existe; whenThree() sigue ahí de red.
+ *
+ * El contenedor .hero-globe-wrap tiene su tamaño fijado por CSS, así que el
+ * lienzo aparece tarde pero no mueve nada: cero CLS. */
+function arrancarDiferido() {
+  const enHueco = () => {
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(boot, { timeout: 1500 });
+    } else {
+      setTimeout(boot, 0);
+    }
+  };
+  if (document.readyState === "complete") {
+    enHueco();
+  } else {
+    window.addEventListener("load", enHueco, { once: true });
+  }
 }
+
+arrancarDiferido();
