@@ -25,3 +25,8 @@ Fuente: `docs/2026-08-21-estrategia/03-agente-planeacion.md` (secciones B.2 y E)
 - [ ] Elegir empresa (ver decisiones) y crear `content/research/<empresa>/` con `meta.yaml`, `sources.yaml`, `model.json` (schema)
 - [ ] Script `scripts/edgar-facts.mjs` → `data/financials.json` (5 años, EDGAR companyfacts); Jaime verifica 3 cifras contra el 10-K
 - [ ] Revisar fechas U of T 2027 en future.utoronto.ca/deadlines y anotar en `docs/calendar.md`
+- [ ] (pending) Mergear en orden: #2 → #1 → #3 → #5; luego #4 (home Astro) y #6 (market) tras revisar previews
+- [ ] (pending) Portar el Globo de mercados (PR #5: world-markets.js, leyenda/tarjeta, i18n) al home Astro (src/components/home) después de mergear #4
+- [ ] (pending) Vercel: desactivar Deployment Protection en previews; fijar Node 22; activar Web Analytics + Speed Insights
+- [ ] (pending) Proteger main (PR obligatorio + CI) después de mergear #1
+- [ ] (pending) Siguientes PRs: /news explicadas, lecciones MDX + /about + /methodology, /research página interactiva, búsqueda global completa, glosario al tacto
