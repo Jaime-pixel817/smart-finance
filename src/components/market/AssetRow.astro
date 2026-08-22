@@ -1,0 +1,54 @@
+---
+// Asset row (sección C): 56 px, símbolo + nombre · sparkline 64×24 · precio ·
+// Δ con color y ▲▼. Nace con esqueletos del ancho final (sin CLS) y el script
+// de la página la rellena por data-row. Toda la fila es el enlace a la ficha.
+// Las tasas (sin cotización) se pintan ya en el servidor: valor y fecha de
+// verificación, sin sparkline.
+import type { Locale } from '../../i18n/routes';
+import { sectionOf, type SymbolEntry } from '../../data/symbols';
+
+interface Props { locale: Locale; s: SymbolEntry; href: string; rate?: { value: string; note: string; verified: string } }
+const { locale, s, href, rate } = Astro.props;
+const name = s.name[locale] + (s.note ? ' · ' + s.note[locale] : '');
+---
+<li class="ar" data-row={s.id} data-kind={sectionOf(s)} data-state={rate ? 'ready' : 'loading'}>
+  <a class="ar-link" href={href}>
+    <span class="ar-id">
+      <span class="ar-sym num">{s.sym}</span>
+      <span class="ar-name t-caption faint">{name}</span>
+    </span>
+    {rate ? (
+      <span class="ar-spark ar-rate-note t-caption faint">{rate.note}</span>
+    ) : (
+      <span class="ar-spark" aria-hidden="true"><svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg></span>
+    )}
+    {rate ? (
+      <span class="ar-price num">{rate.value}</span>
+    ) : (
+      <span class="ar-price num skel">0,000.00</span>
+    )}
+    {rate ? (
+      <span class="ar-chg t-caption faint ar-verified">{rate.verified}</span>
+    ) : (
+      <span class="ar-chg num t-caption skel">▲ 0.00 %</span>
+    )}
+  </a>
+</li>
+<style>
+  .ar-link { display: grid; grid-template-columns: minmax(0, 1fr) 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; padding: 0 var(--sp-2); border-bottom: 1px solid var(--line); color: var(--ink); transition: background .15s; }
+  .ar:last-child .ar-link { border-bottom: 0; }
+  .ar-link:hover, .ar[aria-current] .ar-link { background: var(--bg-2); border-radius: var(--r-input); }
+  .ar-link:active { transform: scale(.995); }
+  .ar[aria-current] .ar-sym { color: var(--brand-text); }
+  .ar-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ar-sym { font-size: var(--fs-small); }
+  .ar-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ar-spark { width: 64px; height: 24px; display: block; }
+  .ar-rate-note { height: auto; white-space: nowrap; text-align: right; justify-self: end; }
+  .ar-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; white-space: nowrap; }
+  .ar-chg { text-align: right; min-width: 8ch; white-space: nowrap; }
+  .ar-verified { min-width: 0; }
+  @media (min-width: 768px) { .ar-price { min-width: 9ch; } .ar-chg { min-width: 9ch; } }
+  /* Al estrecharse mucho (≤ 360 px), la sparkline de las filas cede antes que el precio. */
+  @media (max-width: 359px) { .ar-link { grid-template-columns: minmax(0, 1fr) auto auto; } .ar-spark:not(.ar-rate-note) { display: none; } }
+</style>

@@ -1,0 +1,91 @@
+---
+// Bottom sheet del glosario al tacto: una por página, vacía hasta que se toca
+// un <Term>. role=dialog + aria-modal, cierra con ✕, con el fondo y con Esc,
+// atrapa el foco mientras está abierta y lo devuelve al término al cerrar.
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+---
+<div class="gsheet" id="gsheet" role="dialog" aria-modal="true" aria-labelledby="gsheet-word" hidden>
+  <div class="gsheet-backdrop" data-gsheet-close></div>
+  <div class="gsheet-panel" tabindex="-1">
+    <button type="button" class="gsheet-close" data-gsheet-close aria-label={t('glossary.close')}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <p class="eyebrow">{t('glossary.term')}</p>
+    <h2 id="gsheet-word" class="gsheet-word"></h2>
+    <p class="gsheet-def"></p>
+    <p class="gsheet-pesos"><strong>{t('glossary.pesos')}</strong> <span></span></p>
+    <div class="gsheet-actions">
+      <a class="btn btn-ghost btn-sm gsheet-link" href="#">{t('glossary.lesson')} →</a>
+      <span class="t-caption faint gsheet-here">{t('glossary.here')}</span>
+    </div>
+  </div>
+</div>
+<style>
+  .gsheet { position: fixed; inset: 0; z-index: 70; display: flex; align-items: flex-end; justify-content: center; }
+  .gsheet[hidden] { display: none; }
+  .gsheet-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+  .gsheet-panel { position: relative; width: 100%; max-width: 560px; background: var(--bg-3); border: 1px solid var(--line); border-bottom: 0; border-radius: var(--r-sheet) var(--r-sheet) 0 0; box-shadow: var(--shadow-sheet); padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: var(--sp-2); outline: none; animation: gsheet-in .24s var(--ease-sheet); }
+  @keyframes gsheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (min-width: 768px) { .gsheet { align-items: center; } .gsheet-panel { border-radius: var(--r-sheet); border-bottom: 1px solid var(--line); padding-bottom: var(--sp-5); } }
+  .gsheet-close { position: absolute; top: var(--sp-2); right: var(--sp-2); width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: var(--r-btn); color: var(--ink-2); }
+  .gsheet-close:hover { background: var(--bg-2); color: var(--ink); }
+  .gsheet-word { font-family: var(--font-serif); font-weight: 600; font-size: 1.5rem; line-height: 1.25; letter-spacing: -.01em; padding-right: 44px; }
+  .gsheet-def { color: var(--ink); }
+  .gsheet-pesos { color: var(--ink-2); font-size: var(--fs-small); line-height: var(--lh-small); }
+  .gsheet-pesos strong { color: var(--brand-text); font-weight: 500; }
+  .gsheet-actions { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-1); flex-wrap: wrap; }
+  .gsheet-here { display: none; }
+  .gsheet.is-here .gsheet-link { display: none; }
+  .gsheet.is-here .gsheet-here { display: inline; }
+</style>
+<script>
+  const sheet = document.getElementById('gsheet');
+  if (sheet) {
+    const panel = sheet.querySelector<HTMLElement>('.gsheet-panel')!;
+    const word = sheet.querySelector<HTMLElement>('.gsheet-word')!;
+    const def = sheet.querySelector<HTMLElement>('.gsheet-def')!;
+    const pesos = sheet.querySelector<HTMLElement>('.gsheet-pesos span')!;
+    const link = sheet.querySelector<HTMLAnchorElement>('.gsheet-link')!;
+    const closeBtn = sheet.querySelector<HTMLButtonElement>('.gsheet-close')!;
+    let opener: HTMLElement | null = null;
+
+    function open(btn: HTMLElement) {
+      opener = btn;
+      word.textContent = btn.dataset.termName || '';
+      def.textContent = btn.dataset.termDef || '';
+      pesos.textContent = btn.dataset.termPesos || '';
+      const href = btn.dataset.termHref || '#';
+      link.href = href;
+      sheet!.classList.toggle('is-here', href === location.pathname);
+      sheet!.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+    function close() {
+      sheet!.hidden = true;
+      document.body.style.overflow = '';
+      if (opener) opener.focus();
+      opener = null;
+    }
+    document.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest<HTMLElement>('.term[data-term]');
+      if (t) { e.preventDefault(); open(t); }
+    });
+    sheet.querySelectorAll('[data-gsheet-close]').forEach((b) => b.addEventListener('click', close));
+    document.addEventListener('keydown', (e) => {
+      if (sheet!.hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (e.key === 'Tab') {
+        // Foco atrapado dentro del panel.
+        const f = Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')).filter((el) => el.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+  }
+</script>

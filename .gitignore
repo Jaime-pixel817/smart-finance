@@ -23,3 +23,7 @@ assets/breakdowns/_originales/
 
 # Respuestas crudas de EDGAR (scripts/edgar-facts.mjs --cache)
 .cache/
+
+# Salida de Astro (Vercel la genera en cada despliegue)
+dist/
+.astro/

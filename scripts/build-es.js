@@ -28,7 +28,8 @@
  * -----------
  *   node scripts/build-es.js
  *
- * Escribe /es/**. La salida se commitea: así lo que hay en el repo es
+ * Escribe /es/**. (El sitemap.xml lo genera Astro desde src/i18n/routes.ts.)
+ * La salida se commitea: así lo que hay en el repo es
  * exactamente lo que se sirve, y se puede revisar en local. Hay que volver a
  * correrlo cuando se cambie texto de una página en inglés; `npm run check-es`
  * avisa si se olvidó.
@@ -39,7 +40,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const RAIZ = path.join(__dirname, '..');
+// El sitio legacy vive en public/ desde la migración a Astro (rama feat/astro).
+const RAIZ = path.join(__dirname, '..', 'public');
 const SITIO = 'https://smartfinance.lat';
 
 // ---------------------------------------------------------------- las páginas
@@ -48,6 +50,10 @@ const SITIO = 'https://smartfinance.lat';
 // sitemap.
 const PAGINAS = [
   {
+    // La portada ya es una página Astro (src/pages/index.astro y
+    // src/pages/es/index.astro): no hay HTML legacy que traducir, pero sigue
+    // en esta lista para que el sitemap la incluya con sus hreflang.
+    astro: true,
     en: 'index.html', es: 'es/index.html',
     enUrl: '/', esUrl: '/es',
     imgAlt: 'Smart Finance — finanzas que sí se entienden, por Jaime Sandoval Ricaño',
@@ -57,6 +63,9 @@ const PAGINAS = [
     ogDesc: 'Educación financiera en palabras normales. Datos de mercado diarios, explicaciones claras, sin jerga.'
   },
   {
+    // /market y /es/mercado ya son páginas Astro (src/pages/market.astro y
+    // src/pages/es/mercado.astro): se queda aquí solo para el sitemap.
+    astro: true,
     en: 'market/index.html', es: 'es/mercado/index.html',
     enUrl: '/market', esUrl: '/es/mercado',
     imgAlt: 'Smart Finance — Mercado: acciones, divisas y cripto',
@@ -65,7 +74,11 @@ const PAGINAS = [
     ogTitle: 'Mercados hoy: acciones, divisas y cripto — Smart Finance',
     ogDesc: 'Acciones, divisas y cripto en un solo lugar, cada cosa con su gráfica de tendencia. Se actualiza cada 15 minutos.'
   },
+  // /lessons, las seis lecciones y su /es ya son páginas Astro (MDX en
+  // src/content/lessons, páginas en src/pages/lessons y src/pages/es/lecciones):
+  // se quedan aquí solo como registro; no hay HTML legacy que traducir.
   {
+    astro: true,
     en: 'lessons/index.html', es: 'es/lecciones/index.html',
     enUrl: '/lessons', esUrl: '/es/lecciones',
     imgAlt: 'Smart Finance — Lecciones: finanzas desde cero, en palabras normales',
@@ -75,6 +88,7 @@ const PAGINAS = [
     ogDesc: 'Seis lecciones cortas de finanzas en palabras normales, para quien apenas empieza.'
   },
   {
+    astro: true,
     en: 'lessons/peso-tipo-de-cambio.html', es: 'es/lecciones/peso-tipo-de-cambio.html',
     enUrl: '/lessons/peso-tipo-de-cambio', esUrl: '/es/lecciones/peso-tipo-de-cambio',
     title: '¿Qué significa que el peso se deprecie? — Smart Finance',
@@ -83,6 +97,7 @@ const PAGINAS = [
     ogDesc: 'Quién mueve el tipo de cambio, por qué brinca y qué significa para tu dinero.'
   },
   {
+    astro: true,
     en: 'lessons/interes-compuesto.html', es: 'es/lecciones/interes-compuesto.html',
     enUrl: '/lessons/interes-compuesto', esUrl: '/es/lecciones/interes-compuesto',
     title: 'Interés simple vs. compuesto — Smart Finance',
@@ -91,6 +106,7 @@ const PAGINAS = [
     ogDesc: 'Por qué el tiempo pesa más que el monto con el que empiezas.'
   },
   {
+    astro: true,
     en: 'lessons/sp500.html', es: 'es/lecciones/sp500.html',
     enUrl: '/lessons/sp500', esUrl: '/es/lecciones/sp500',
     title: '¿Por qué sube o baja el S&P 500? — Smart Finance',
@@ -99,6 +115,7 @@ const PAGINAS = [
     ogDesc: 'Qué mide en realidad, qué lo mueve y por qué el día a día es ruido.'
   },
   {
+    astro: true,
     en: 'lessons/presupuesto-50-30-20.html', es: 'es/lecciones/presupuesto-50-30-20.html',
     enUrl: '/lessons/presupuesto-50-30-20', esUrl: '/es/lecciones/presupuesto-50-30-20',
     title: 'La regla 50/30/20 para tu primer presupuesto — Smart Finance',
@@ -107,6 +124,7 @@ const PAGINAS = [
     ogDesc: 'De lo que de verdad te llega libre a un plan que sobrevive un mes normal.'
   },
   {
+    astro: true,
     en: 'lessons/inflacion.html', es: 'es/lecciones/inflacion.html',
     enUrl: '/lessons/inflacion', esUrl: '/es/lecciones/inflacion',
     title: '¿Qué es la inflación y cómo te afecta? — Smart Finance',
@@ -115,6 +133,7 @@ const PAGINAS = [
     ogDesc: 'Por qué el mismo dinero compra menos, y cómo un aumento puede ser un recorte.'
   },
   {
+    astro: true,
     en: 'lessons/errores-al-invertir.html', es: 'es/lecciones/errores-al-invertir.html',
     enUrl: '/lessons/errores-al-invertir', esUrl: '/es/lecciones/errores-al-invertir',
     title: '3 errores comunes al empezar a invertir — Smart Finance',
@@ -475,6 +494,7 @@ function construir() {
   let escritas = 0;
 
   for (const pag of PAGINAS) {
+    if (pag.astro) continue;
     const html = leer(pag.en);
     const dic = extraerDiccionario(html);
 
@@ -505,6 +525,7 @@ function construir() {
   // Las páginas en inglés también necesitan sus hreflang, su og:locale correcto
   // y el toggle como enlaces.
   for (const pag of PAGINAS) {
+    if (pag.astro) continue;
     let html = leer(pag.en);
     html = ponerHreflang(html, pag);
     html = quitarLocale(html);
@@ -593,8 +614,10 @@ function generarSitemap() {
 
 if (require.main === module) {
   const { escritas, avisos } = construir();
-  escribir('sitemap.xml', generarSitemap());
-  console.log('sitemap.xml regenerado con ' + (PAGINAS.length * 2) + ' URLs');
+  // El sitemap ya NO se escribe aquí: lo genera Astro en el build desde
+  // src/i18n/routes.ts (src/pages/sitemap.xml.ts), que es la única lista que
+  // conoce también las fichas de activo. generarSitemap() queda como
+  // referencia hasta que migre la última página legacy.
   console.log('páginas en español escritas: ' + escritas);
   if (avisos.length) {
     console.log('\nAVISOS (' + avisos.length + '):');
@@ -604,4 +627,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { construir, PAGINAS, SITIO };
+module.exports = { construir, generarSitemap, PAGINAS, SITIO };

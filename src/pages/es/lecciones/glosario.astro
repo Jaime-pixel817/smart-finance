@@ -1,0 +1,20 @@
+---
+import Base from '../../../layouts/Base.astro';
+import GlossaryPage from '../../../components/learn/GlossaryPage.astro';
+import { SITE } from '../../../i18n/routes';
+import glossary from '../../../data/glossary.json';
+const title = 'Glosario: ' + glossary.length + ' términos de finanzas en palabras normales, con ejemplos en pesos — Smart Finance';
+const description = 'Cada palabra técnica que usa Smart Finance, explicada en dos líneas con un ejemplo en pesos y el enlace a la lección que profundiza: inflación, tipo de cambio, interés compuesto, ETF, CETES y más.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  name: 'Glosario de Smart Finance',
+  description,
+  url: SITE + '/es/lecciones/glosario',
+  inLanguage: 'es-MX',
+  hasDefinedTerm: glossary.map((g) => ({ '@type': 'DefinedTerm', name: g.es.term, description: g.es.def, url: SITE + '/es/lecciones/glosario#term-' + g.id }))
+};
+---
+<Base locale="es" routeId="lessons.glossary" active="learn" title={title} description={description} ogImage={SITE + '/og-lessons-es.jpg'} ogImageAlt="Smart Finance — Glosario" jsonLd={jsonLd}>
+  <GlossaryPage locale="es" />
+</Base>

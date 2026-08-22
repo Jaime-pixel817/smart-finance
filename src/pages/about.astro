@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import About from '../components/about/About.astro';
+import { SITE } from '../i18n/routes';
+const title = 'About Jaime Sandoval Ricaño, who makes Smart Finance — Smart Finance';
+const description = 'Student and content creator from Mexico explaining markets and money for young people on TikTok, LinkedIn and smartfinance.lat: mission, who he has learned from, how he works and how to reach him.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  name: title,
+  description,
+  url: SITE + '/about',
+  inLanguage: 'en',
+  mainEntity: {
+    '@type': 'Person', '@id': SITE + '/about#jaime', name: 'Jaime Sandoval Ricaño', url: SITE + '/about', image: SITE + '/jaime-320.webp',
+    jobTitle: 'Student and content creator', knowsLanguage: ['es', 'en'],
+    sameAs: ['https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401', 'https://www.tiktok.com/@smart.financee', 'https://github.com/Jaime-pixel817/smart-finance'],
+    worksFor: { '@type': 'Organization', name: 'Smart Finance', url: SITE + '/', '@id': SITE + '/#organization' }
+  }
+};
+---
+<Base locale="en" routeId="about" active="today" title={title} description={description} jsonLd={jsonLd}>
+  <About locale="en" />
+</Base>

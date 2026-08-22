@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import About from '../../components/about/About.astro';
+import { SITE } from '../../i18n/routes';
+const title = 'Acerca de Jaime Sandoval Ricaño, quien hace Smart Finance — Smart Finance';
+const description = 'Estudiante y creador de contenido desde México que explica mercados y dinero para jóvenes en TikTok, LinkedIn y smartfinance.lat: misión, de quién ha aprendido, cómo trabaja y cómo contactarlo.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  name: title,
+  description,
+  url: SITE + '/es/acerca',
+  inLanguage: 'es-MX',
+  mainEntity: {
+    '@type': 'Person', '@id': SITE + '/about#jaime', name: 'Jaime Sandoval Ricaño', url: SITE + '/es/acerca', image: SITE + '/jaime-320.webp',
+    jobTitle: 'Estudiante y creador de contenido', knowsLanguage: ['es', 'en'],
+    sameAs: ['https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401', 'https://www.tiktok.com/@smart.financee', 'https://github.com/Jaime-pixel817/smart-finance'],
+    worksFor: { '@type': 'Organization', name: 'Smart Finance', url: SITE + '/', '@id': SITE + '/#organization' }
+  }
+};
+---
+<Base locale="es" routeId="about" active="today" title={title} description={description} jsonLd={jsonLd}>
+  <About locale="es" />
+</Base>

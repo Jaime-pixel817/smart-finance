@@ -1,0 +1,20 @@
+---
+// Glosario al tacto (elemento firma): un término dentro del texto con
+// subrayado punteado verde. Al tocarlo, GlossarySheet.astro abre una bottom
+// sheet con la definición, el ejemplo "En pesos:" y el enlace a su lección.
+// Se usa desde los MDX como <Term id="inflacion">inflación</Term>; la
+// definición viaja en data-* (se resuelve en build desde glossary.json), así
+// que no hay fetch ni registro global: la sheet solo lee el botón tocado.
+// El idioma sale de la URL de la página que se está renderizando.
+import glossary from '../../data/glossary.json';
+import { route, type Locale } from '../../i18n/routes';
+interface Props { id: string }
+const { id } = Astro.props;
+const p = Astro.url.pathname;
+const locale: Locale = p === '/es' || p.startsWith('/es/') ? 'es' : 'en';
+const t = glossary.find((g) => g.id === id);
+if (!t) throw new Error('Término de glosario desconocido en <Term>: ' + id);
+const d = t[locale];
+const href = route(t.lesson, locale);
+---
+<button type="button" class="term" data-term={t.id} data-term-name={d.term} data-term-def={d.def} data-term-pesos={d.pesos} data-term-href={href} aria-haspopup="dialog"><slot /></button>

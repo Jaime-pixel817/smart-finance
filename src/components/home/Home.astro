@@ -1,0 +1,412 @@
+---
+// Home "Hoy" (sección B del documento de diseño): barra → línea Hoy → Pulso →
+// La historia de hoy → Sigue aprendiendo → Herramientas → Globo → Research →
+// Mercados en 60 s → Breakdowns → Boletín → Quién hace esto. En escritorio
+// la misma estructura se ensancha a 12 columnas (story + globo lado a lado).
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { PULSE, RATES, BREAKDOWNS, ratesFresh } from '../../data/home';
+import { ASSETS, assetRouteId } from '../../data/symbols';
+import { getLessons } from '../../data/lessons';
+import SourceChip from '../SourceChip.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const showRates = ratesFresh();
+const strings = {
+  open: t('today.open'), closed: t('today.closed'), loading: t('src.loading'), unavailable: t('src.unavailable'),
+  nlOk: t('nl.ok'), nlBadEmail: t('nl.badEmail'), nlNoConsent: t('nl.noConsent'), nlLimit: t('nl.limit'), nlError: t('nl.error'), nlSending: t('nl.sending')
+};
+// Lecciones desde la colección MDX: la tarjeta grande es la primera de la ruta
+// "Desde cero"; el script de progreso la cambia por la siguiente sin leer.
+const lessons = await getLessons(locale);
+const first = lessons.find((l) => l.path.id === 'desde-cero' && l.pathIndex === 1) ?? lessons[0];
+const nextList = lessons.map((l) => ({ slug: l.slug, href: l.href, title: l.entry.data.title, desc: l.entry.data.description, min: l.entry.data.readingMinutes, path: l.path.name[locale], i: l.pathIndex, n: l.pathTotal }));
+// Mercados en 60 s: de la clave del endpoint (SPY, BTC…) a la ficha del activo.
+const assetHrefs = Object.fromEntries(ASSETS.filter((a) => a.feed === 'markets').map((a) => [a.feedKey, L(assetRouteId(a.id))]));
+const SPARK = `<svg class="spark skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill" d=""/><path class="line" d=""/></svg>`;
+const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
+---
+<div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)} data-asset-hrefs={JSON.stringify(assetHrefs)}
+  data-rates-verified={RATES.verificado} data-rates-max-days={RATES.maxDias} data-banxico={RATES.banxico} data-fed-min={RATES.fedMin} data-fed-max={RATES.fedMax}>
+
+  <!-- ── Línea "Hoy" ─────────────────────────────────────────────── -->
+  <section class="container today" aria-label={t('today.label')}>
+    <p id="today-line" class="today-line t-mono t-caption skel" aria-live="polite">Thu 21 Aug · NYSE open · BMV open</p>
+    <p id="today-intro" class="today-intro t-small muted">
+      <span>{t('today.intro')}</span>
+      <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
+    </p>
+  </section>
+
+  <div class="container grid">
+    <!-- ── Pulso ─────────────────────────────────────────────────── -->
+    <section id="market" class="pulse col-12" aria-labelledby="pulse-h">
+      <div class="section-head">
+        <h2 id="pulse-h" class="t-h3">{t('pulse.title')}</h2>
+        <a class="more" href={L('market')}>{t('pulse.all')} →</a>
+      </div>
+      <ul class="rail pulse-rail">
+        {PULSE.map((p) => (
+          <li data-tile={p.id} data-kind={p.kind} hidden={p.kind === 'rate' && !showRates}>
+            <a class="tile" href={L(p.routeId)}>
+              <span class="tile-sym eyebrow">{p.sym}</span>
+              <span class="tile-name t-caption faint">{p.name ?? t(p.nameKey!)}</span>
+              <span class="tile-price num skel">00000.00</span>
+              <span class="tile-chg t-caption num skel">▲ 0.00 %</span>
+              {p.kind !== 'rate' ? <span class="tile-spark" set:html={SPARK} /> : <span class="tile-spark tile-spark-rate t-caption faint">{p.id === 'FED' ? '% ' + t('pulse.rate.note') : t('pulse.rate.note')}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="chips-row">
+        <SourceChip locale={locale} id="chip-pulse" source="Yahoo Finance · CoinGecko" delay={15} />
+        {showRates && <SourceChip locale={locale} id="chip-rates" source="Banxico · Fed" note={t('src.manual')} />}
+      </div>
+    </section>
+
+    <!-- ── La historia de hoy ────────────────────────────────────── -->
+    <section id="story" class="story col-7" aria-labelledby="story-h" data-state="loading">
+      <div class="section-head">
+        <h2 id="story-h" class="t-h3">{t('story.title')}</h2>
+      </div>
+      <article class="card story-card">
+        <p class="kicker eyebrow"><span>{t('story.kicker')}</span> <span aria-hidden="true">·</span> <span>Bloomberg</span> <span aria-hidden="true">·</span> <span id="story-time">—</span>{t('story.lang') && <span aria-hidden="true">·</span>}{t('story.lang') && <span>{t('story.lang')}</span>}</p>
+        <h3 id="story-title" class="t-display story-title skel">Placeholder headline that spans about two lines on a phone screen</h3>
+        <div class="story-block">
+          <p class="story-label eyebrow">{t('story.what')}</p>
+          <p id="story-what" class="story-text skel">Placeholder text for what happened, two lines long, replaced when the feed arrives on the page.</p>
+        </div>
+        <div class="story-block">
+          <p class="story-label eyebrow">{t('story.why')}</p>
+          <p id="story-why" class="story-text skel">Placeholder text for why it matters for a student in Mexico or Canada, two lines long.</p>
+        </div>
+        <p id="story-error" class="t-small muted" hidden>{t('story.unavailable')}</p>
+        <div class="story-impact">
+          <span class="eyebrow">{t('story.impact')}</span>
+          <span class="chip" data-impact="USDMXN" hidden>USD/MXN <span class="num"></span></span>
+          <span class="chip" data-impact="SPY" hidden>S&amp;P 500 <span class="num"></span></span>
+          <span class="chip" data-impact="BTC" hidden>BTC <span class="num"></span></span>
+        </div>
+        <div class="story-foot">
+          <details class="ai-disclosure">
+            <summary class="src-chip" id="chip-story" data-fresh="loading"><span class="dot" aria-hidden="true"></span>{t('story.ai')} <span aria-hidden="true">·</span> Bloomberg <span aria-hidden="true">·</span> <span class="sc-time">{t('src.loading')}</span></summary>
+            <p class="t-caption muted">{t('story.ai.disclosure')}</p>
+          </details>
+          <a id="story-link" class="btn btn-ghost btn-sm" href="#" target="_blank" rel="noopener" hidden>{t('story.read')} ↗</a>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── Globo (escritorio: junto a la historia; móvil: más abajo) ── -->
+    <section id="globe" class="globe col-5" aria-labelledby="globe-h">
+      <div class="section-head">
+        <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
+      </div>
+      <div class="card globe-card">
+        <div id="globalRiskGlobe" class="globe-host" role="img" aria-label={t('globe.aria')}></div>
+        <p class="t-caption faint globe-note">{t('globe.sub')}</p>
+        <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
+      </div>
+    </section>
+
+    <!-- ── Sigue aprendiendo ─────────────────────────────────────── -->
+    <section id="learn" class="learn col-8" aria-labelledby="learn-h">
+      <span id="tips" class="anchor-alias" aria-hidden="true"></span>
+      <div class="section-head">
+        <h2 id="learn-h" class="t-h3">{t('learn.title')}</h2>
+        <a class="more" href={L('lessons')}>{t('learn.all')} →</a>
+      </div>
+      <a class="card card-link learn-card" href={first.href} data-learn-next data-lessons={JSON.stringify(nextList)} data-start={t('learn.start')} data-continue={t('learn.continue')}>
+        <p class="eyebrow"><span data-learn-kicker>{t('learn.start')}</span> <span aria-hidden="true">·</span> <span data-learn-path>{first.path.name[locale]}</span> <span aria-hidden="true">·</span> <span data-learn-pos>1/{first.pathTotal}</span></p>
+        <h3 class="t-h2 learn-title" data-learn-title>{first.entry.data.title}</h3>
+        <p class="t-small muted" data-learn-desc>{first.entry.data.description}</p>
+        <span class="learn-cta"><span class="btn btn-primary btn-sm" data-learn-cta>{t('learn.continue')}</span> <span class="t-caption faint"><span data-learn-min>{first.entry.data.readingMinutes}</span> {t('learn.min')}</span></span>
+      </a>
+      <ol class="rail lesson-rail">
+        {lessons.map((l) => (
+          <li>
+            <a class="card card-link lesson-card" href={l.href} data-lesson={l.slug}>
+              <span class="eyebrow">{l.path.name[locale]} <span aria-hidden="true">·</span> {l.entry.data.readingMinutes} {t('learn.min')}</span>
+              <span class="t-small lesson-title">{l.entry.data.title}</span>
+              <span class="lesson-check t-caption" aria-hidden="true">✓</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- ── Herramientas ──────────────────────────────────────────── -->
+    <section id="tools" class="tools col-4" aria-labelledby="tools-h">
+      <div class="section-head"><h2 id="tools-h" class="t-h3">{t('tools.title')}</h2></div>
+      <div class="tools-grid">
+        <a class="card card-link tool" href={L('lesson.interes')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 19c4-1 6-3 8-7s4-7 10-8"/><path d="M3 19h18"/></svg>
+          <span class="t-h3">{t('tools.compound')}</span>
+          <span class="t-caption muted">{t('tools.compound.desc')}</span>
+        </a>
+        <a class="card card-link tool" href={L('lesson.inflacion')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+          <span class="t-h3">{t('tools.inflation')}</span>
+          <span class="t-caption muted">{t('tools.inflation.desc')}</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Research destacado ────────────────────────────────────── -->
+    <section id="research" class="research col-6" aria-labelledby="research-h">
+      <div class="section-head">
+        <h2 id="research-h" class="t-h3">{t('research.title')}</h2>
+        <span class="chip"><span class="dot-warn" aria-hidden="true"></span>{t('research.building')}</span>
+      </div>
+      <article class="card research-card">
+        <p class="eyebrow">{t('research.card.kicker')} <span aria-hidden="true">·</span> {t('research.soon')}</p>
+        <h3 class="t-display research-title">{t('research.card.title')}</h3>
+        <p class="t-small muted">{t('research.card.desc')}</p>
+        <div class="scen" aria-label={t('research.scenarios')}>
+          <p class="eyebrow">{t('research.scenarios')}</p>
+          <div class="scen-bar" aria-hidden="true"><span class="scen-fill"></span><span class="scen-mark"></span></div>
+          <div class="scen-labels t-caption num">
+            <span class="down">{t('research.bear')} <span class="skel">$000</span></span>
+            <span>{t('research.base')} <span class="skel">$000</span></span>
+            <span class="up">{t('research.bull')} <span class="skel">$000</span></span>
+          </div>
+        </div>
+        <p class="t-caption faint">{t('research.note')}</p>
+      </article>
+    </section>
+
+    <!-- ── Mercados en 60 s ──────────────────────────────────────── -->
+    <section id="m60" class="m60 col-6" aria-labelledby="m60-h">
+      <div class="section-head">
+        <h2 id="m60-h" class="t-h3">{t('m60.title')}</h2>
+        <a class="more" href={L('market')}>{t('m60.all')} →</a>
+      </div>
+      <div class="card m60-card">
+        <ol id="m60-list" class="m60-list" aria-label={t('m60.title')}>
+          {[0, 1, 2, 3, 4].map(() => (
+            <li class="m60-row is-loading" data-state="loading">
+              <a href={L('market')}>
+                <span class="m60-id"><span class="m60-sym num skel">SPY</span><span class="m60-name t-caption faint skel">Name</span></span>
+                <span class="m60-spark" set:html={SPARK64} />
+                <span class="m60-price num skel">000.00</span>
+                <span class="m60-chg num t-caption skel">▲ 0.00 %</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <SourceChip locale={locale} id="chip-m60" source="Yahoo Finance · CoinGecko" delay={15} />
+      </div>
+    </section>
+
+    <!-- ── Breakdowns ────────────────────────────────────────────── -->
+    <section id="breakdowns" class="breakdowns col-12" aria-labelledby="bd-h">
+      <div class="section-head">
+        <h2 id="bd-h" class="t-h3">{t('breakdowns.title')}</h2>
+        <span class="t-caption faint">{t('breakdowns.sub')}</span>
+      </div>
+      <ul class="rail bd-rail">
+        {BREAKDOWNS.map((b) => (
+          <li>
+            <a class="card card-link bd-card" href={b.href} target="_blank" rel="noopener">
+              <span class="bd-thumb"><img src={b.img} alt={t(b.altKey)} width={b.w} height={b.h} loading="lazy" decoding="async" /></span>
+              <span class="bd-body">
+                <span class="eyebrow">{b.net === 'tiktok' ? 'TikTok' : 'LinkedIn'}</span>
+                <span class="t-small bd-title">{t(b.titleKey)}</span>
+                <span class="t-caption faint">{b.net === 'tiktok' ? t('breakdowns.watch') : t('breakdowns.read')} ↗</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ── Boletín ───────────────────────────────────────────────── -->
+    <section id="newsletter" class="newsletter col-8" aria-labelledby="nl-h">
+      <div class="card nl-card">
+        <p class="eyebrow">{t('nl.eyebrow')}</p>
+        <h2 id="nl-h" class="t-h2">{t('nl.title')}</h2>
+        <p class="t-small muted nl-sub">{t('nl.sub')}</p>
+        <form class="nl-form" id="newsletterForm" novalidate>
+          <div class="nl-row">
+            <label class="visually-hidden" for="newsletterEmail">{t('nl.label')}</label>
+            <input class="nl-input" id="newsletterEmail" name="email" type="email" inputmode="email" autocomplete="email" required placeholder={t('nl.placeholder')}>
+            <button class="btn btn-primary" type="submit">{t('nl.button')}</button>
+          </div>
+          <!-- Honeypot: invisible para una persona; el servidor descarta el alta si llega lleno. -->
+          <div class="nl-trap" aria-hidden="true">
+            <label for="newsletterWebsite">Website</label>
+            <input id="newsletterWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <label class="nl-consent t-small">
+            <input type="checkbox" id="newsletterConsent" name="consent" required>
+            <span>{t('nl.consent')}</span>
+          </label>
+          <p class="nl-status" id="newsletterEstado" role="status" aria-live="polite"></p>
+          <p class="t-caption faint">{t('nl.note')}</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ── Quién hace esto ───────────────────────────────────────── -->
+    <section id="who" class="who col-4" aria-labelledby="who-h">
+      <span id="about" class="anchor-alias" aria-hidden="true"></span>
+      <div class="card who-card">
+        <img class="who-avatar" src="/assets/jaime-96.jpg" alt={t('alt.jaime')} width="48" height="48" loading="lazy" decoding="async">
+        <div>
+          <h2 id="who-h" class="eyebrow">{t('who.title')}</h2>
+          <p class="t-small who-name">{t('who.name')}</p>
+          <p class="t-caption muted">{t('who.line')}</p>
+          <p class="who-links t-caption"><a href={L('about')}>{t('who.more')} →</a> <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a> <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="../../scripts/home.ts"></script>
+<script src="../../scripts/home-learn.ts"></script>
+
+<style>
+  .home { padding-top: var(--sp-3); }
+  .anchor-alias { display: block; position: relative; top: calc(-1 * var(--topbar-h) - 8px); }
+  section[id] { scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); margin-top: var(--sp-4); }
+  .grid > section { min-width: 0; }
+  @media (min-width: 960px) {
+    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
+    .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; }
+    .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
+  }
+
+  /* Línea Hoy */
+  .today { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .today-line { color: var(--ink-2); min-height: 1rem; }
+  .today-line.skel { color: transparent; }
+  :global(.st-open) { color: var(--up-text); }
+  :global(.st-closed) { color: var(--warn); }
+  .today-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); }
+  :global(html.intro-seen) .today-intro { display: none; }
+  .today-intro button { width: 36px; height: 36px; border-radius: var(--r-btn); color: var(--ink-3); font-size: 1.25rem; line-height: 1; }
+  .today-intro button:hover { background: var(--bg-2); color: var(--ink); }
+
+  /* Pulso */
+  .pulse-rail li { width: 128px; }
+  .pulse-rail li[hidden] { display: none; }
+  .tile { display: flex; flex-direction: column; width: 128px; height: 96px; padding: 10px 12px; background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); position: relative; transition: border-color .15s; }
+  .tile:hover { border-color: var(--ink-3); }
+  .tile:active { transform: scale(.98); }
+  .tile-sym { color: var(--ink-2); }
+  .tile-name { position: absolute; left: 12px; top: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 104px; }
+  .tile-price { margin-top: 16px; font-size: 1.125rem; line-height: 1.25rem; letter-spacing: -.01em; white-space: nowrap; }
+  [data-tile="FED"] .tile-price { font-size: 1rem; }
+  .tile-chg { margin-top: 2px; line-height: 1rem; }
+  .tile-spark { position: absolute; right: 10px; bottom: 10px; width: 56px; height: 24px; }
+  .tile-spark-rate { position: absolute; right: 12px; bottom: 10px; width: auto; height: auto; }
+  .tile .skel { min-width: 2ch; }
+  .chips-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin-top: var(--sp-3); }
+  @media (min-width: 768px) { .pulse-rail { gap: var(--sp-3); } }
+  @media (min-width: 1100px) { .pulse-rail li, .tile { width: calc((var(--container) - 2 * var(--gutter) - 7 * var(--sp-3)) / 8); max-width: 140px; } }
+
+  /* Historia */
+  .story-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .kicker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .story-title { font-size: 1.375rem; line-height: 1.75rem; }
+  @media (min-width: 768px) { .story-title { font-size: 1.75rem; line-height: 2.125rem; } }
+  .story-block { display: flex; flex-direction: column; gap: 4px; }
+  .story-text { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2); max-width: var(--measure); min-height: calc(3 * var(--lh-small)); }
+  #story-title.skel, .story-text.skel { display: block; }
+  .story-impact { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+  .story-impact .chip[hidden] { display: none; }
+  .story-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: var(--sp-3); }
+  .ai-disclosure summary { cursor: pointer; list-style: none; }
+  .ai-disclosure summary::-webkit-details-marker { display: none; }
+  .ai-disclosure summary::after { content: ' ⓘ'; color: var(--ink-3); }
+  .ai-disclosure p { margin-top: var(--sp-2); max-width: 52ch; }
+  #story-link[hidden] { display: none; }
+
+  /* Globo */
+  .globe-card { padding: 0; overflow: hidden; position: relative; }
+  /* El globo son partículas hueso: su fondo se queda oscuro en los dos temas. */
+  .globe-host { width: 100%; height: 220px; touch-action: pan-y; background: radial-gradient(circle at 50% 55%, #18181C, #0C0C0F 70%); }
+  @media (min-width: 960px) { .globe-card { display: flex; flex-direction: column; height: 100%; } .globe-host { flex: 1; min-height: 360px; height: auto; } }
+  .globe-note, .globe-motion { padding: var(--sp-3) var(--sp-4); }
+  .globe-motion { display: none; }
+  .globe-host.globe-static + .globe-note { display: none; }
+  .globe-host.globe-static ~ .globe-motion { display: block; }
+  .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
+  @media (prefers-reduced-motion: reduce) { .globe-note { display: none; } .globe-motion { display: block; } }
+
+  /* Aprender */
+  .learn-card { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+  .learn-cta { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-1); }
+  .lesson-rail li { width: 180px; }
+  .lesson-card { display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 96px; padding: var(--sp-3); position: relative; }
+  .lesson-check { display: none; position: absolute; top: var(--sp-2); right: var(--sp-3); color: var(--brand-text); font-weight: 500; }
+  .lesson-card.is-read .lesson-check { display: inline; }
+  .lesson-card.is-read { border-color: color-mix(in srgb, var(--brand-fill) 45%, var(--line)); }
+  .lesson-title { font-weight: 500; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  @media (min-width: 768px) { .lesson-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .lesson-rail li { width: auto; } }
+
+  /* Herramientas */
+  .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+  .tool { display: flex; flex-direction: column; gap: 6px; min-height: 120px; color: var(--ink); }
+  .tool svg { color: var(--brand-text); margin-bottom: 4px; }
+  @media (min-width: 960px) { .tools-grid { grid-template-columns: 1fr; } .tool { flex-direction: row; align-items: center; flex-wrap: wrap; min-height: 0; } .tool svg { margin: 0 var(--sp-2) 0 0; } .tool .t-caption { flex-basis: 100%; padding-left: 32px; } }
+
+  /* Research */
+  .research-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .research-title { font-size: 1.375rem; line-height: 1.75rem; }
+  .dot-warn { width: 6px; height: 6px; border-radius: 50%; background: var(--warn-dot); display: inline-block; }
+  .scen { display: flex; flex-direction: column; gap: 6px; }
+  .scen-bar { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--down), var(--ink-3) 50%, var(--up)); opacity: .55; }
+  .scen-mark { position: absolute; left: 42%; top: -3px; width: 2px; height: 14px; background: var(--ink); border-radius: 1px; }
+  .scen-labels { display: flex; justify-content: space-between; }
+  .scen-labels .skel { min-width: 3ch; }
+
+  /* Mercados en 60 s */
+  .m60-card { padding: var(--sp-2) var(--sp-3) var(--sp-3); }
+  .m60-row a { display: grid; grid-template-columns: 1fr 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; border-bottom: 1px solid var(--line); padding: 0 4px; }
+  .m60-row:last-child a { border-bottom: 0; }
+  .m60-row a:hover { background: var(--bg-2); border-radius: var(--r-input); }
+  .m60-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .m60-sym { font-size: var(--fs-small); }
+  .m60-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m60-spark { width: 64px; height: 24px; }
+  .m60-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; }
+  .m60-chg { text-align: right; min-width: 8ch; }
+  .m60-card .src-chip { margin-top: var(--sp-3); padding-left: 4px; }
+
+  /* Breakdowns */
+  .bd-rail li { width: 160px; }
+  .bd-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
+  .bd-thumb { display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-2); }
+  .bd-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+  .bd-body { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3); }
+  .bd-title { font-weight: 500; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  @media (min-width: 768px) { .bd-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .bd-rail li { width: auto; } }
+  @media (min-width: 960px) { .bd-rail { grid-template-columns: repeat(6, 1fr); } }
+
+  /* Boletín */
+  .nl-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .nl-sub { max-width: 56ch; }
+  .nl-form { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-1); }
+  .nl-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+  .nl-input { flex: 1 1 200px; height: 44px; padding: 0 var(--sp-3); background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); color: var(--ink); -webkit-appearance: none; }
+  .nl-input:focus { outline: none; box-shadow: var(--focus-ring); }
+  .nl-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .nl-consent { display: flex; gap: var(--sp-2); align-items: flex-start; color: var(--ink-2); }
+  .nl-consent input { margin-top: 4px; accent-color: var(--brand-fill); width: 18px; height: 18px; }
+  .nl-status { font-size: var(--fs-small); min-height: 1.25rem; }
+  .nl-status.ok { color: var(--up-text); } .nl-status.error { color: var(--down-text); }
+
+  /* Quién */
+  .who-card { display: flex; gap: var(--sp-3); align-items: flex-start; }
+  .who-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: none; }
+  .who-name { font-weight: 500; color: var(--ink); margin-top: 2px; }
+  .who-links { display: flex; gap: var(--sp-3); margin-top: var(--sp-2); }
+  .who-links a { color: var(--ink-2); min-height: 32px; display: inline-flex; align-items: center; }
+  .who-links a:hover { color: var(--ink); }
+</style>
