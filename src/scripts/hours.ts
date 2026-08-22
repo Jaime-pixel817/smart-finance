@@ -1,0 +1,57 @@
+// Horario de mercado para el sitio nuevo (TypeScript). Dos preguntas:
+//
+//  1. ¿Está abierta la bolsa AHORA? (línea "Hoy" del home y de /market):
+//     horario regular, lunes a viernes, sin feriados. Es una orientación, no
+//     una promesa: cada dato trae su propio chip de frescura.
+//
+//  2. ¿Está cerrado el mercado según el ÚLTIMO DATO? (gráficas 1D): mismo
+//     criterio que public/assets/market-hours.js, que también usa el boletín:
+//     si el último punto tiene más de 40 minutos, el mercado está cerrado, sea
+//     fin de semana, feriado o caída de la fuente. Solo vale para series
+//     intradía; en cierres diarios el último punto siempre es viejo.
+import type { Loc } from './format';
+
+export function sessionOpen(tz: string, h0: number, m0: number, h1: number, m1: number, now = new Date()): boolean {
+  const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' }).formatToParts(now);
+  const get = (t: string) => p.find((x) => x.type === t)?.value || '';
+  const wd = get('weekday');
+  if (wd === 'Sat' || wd === 'Sun') return false;
+  const mins = (parseInt(get('hour'), 10) % 24) * 60 + parseInt(get('minute'), 10);
+  return mins >= h0 * 60 + m0 && mins < h1 * 60 + m1;
+}
+/** NYSE 9:30–16:00 ET, lunes a viernes. */
+export const nyseOpen = (now = new Date()) => sessionOpen('America/New_York', 9, 30, 16, 0, now);
+/** BMV 8:30–15:00 CDMX, lunes a viernes. */
+export const bmvOpen = (now = new Date()) => sessionOpen('America/Mexico_City', 8, 30, 15, 0, now);
+
+export const GAP_MS = 40 * 60 * 1000;
+
+export interface MarketState { closed: boolean; last: Date | null; today: boolean }
+
+/** lastTs en SEGUNDOS (como /api/history y /api/quotes). */
+export function marketState(lastTs: number | null | undefined, now = Date.now()): MarketState {
+  if (typeof lastTs !== 'number' || !isFinite(lastTs) || lastTs <= 0) return { closed: false, last: null, today: false };
+  const last = new Date(lastTs * 1000);
+  const gap = now - last.getTime();
+  const key = (d: Date) => d.toLocaleDateString('en-CA');
+  return { closed: gap > GAP_MS, last, today: key(last) === key(new Date(now)) };
+}
+
+/** "hoy, 03:00 p.m." | "viernes 7 de agosto" / "Friday, August 7" */
+export function whenText(st: MarketState, loc: Loc, T: { today: string }): string {
+  if (!st.last) return '';
+  const tag = loc === 'es' ? 'es-MX' : 'en-US';
+  if (st.today) {
+    const hora = st.last.toLocaleTimeString(tag, { hour: '2-digit', minute: '2-digit' });
+    return T.today + ', ' + hora;
+  }
+  const dia = st.last.toLocaleDateString(tag, { weekday: 'long' });
+  const resto = st.last.toLocaleDateString(tag, { day: 'numeric', month: 'long' });
+  return loc === 'es' ? dia + ' ' + resto : dia + ', ' + resto;
+}
+
+/** "Mercado cerrado · último cierre: viernes 7 de agosto" */
+export function closedPhrase(st: MarketState, loc: Loc, T: { closed: string; lastClose: string; today: string }): string {
+  const q = whenText(st, loc, T);
+  return q ? `${T.closed} · ${T.lastClose}: ${q}` : T.closed;
+}

@@ -29,6 +29,7 @@
     "@anthropic-ai/sdk": "^0.71.0",
     "@astrojs/preact": "^5.1.5",
     "astro": "^6.4.8",
+    "lightweight-charts": "^5.2.1",
     "preact": "^10.29.8",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"

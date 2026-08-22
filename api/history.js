@@ -1,7 +1,8 @@
 // Vercel serverless function: proxies Yahoo Finance chart data server-side
 // (the browser can't call Yahoo directly — no CORS headers on their API).
 //
-// Sirve a dos gráficas del sitio: la de tipo de cambio (6 pares) y la del VIX.
+// Sirve a las gráficas del sitio: divisas, VIX, acciones e índices y cripto
+// (la ficha de cada activo en /market/[symbol] y el panel de /market).
 
 const SYMBOLS = {
   USDMXN: { yahoo: 'MXN=X', intradayPoints: 288 },
@@ -29,7 +30,16 @@ const SYMBOLS = {
   AAPL: { yahoo: 'AAPL', intradayPoints: 78 },
   MSFT: { yahoo: 'MSFT', intradayPoints: 78 },
   NVDA: { yahoo: 'NVDA', intradayPoints: 78 },
-  AMZN: { yahoo: 'AMZN', intradayPoints: 78 }
+  AMZN: { yahoo: 'AMZN', intradayPoints: 78 },
+
+  // Cripto (fichas /market/[symbol]). El precio y el cambio de 24 h siguen
+  // saliendo de CoinGecko vía /api/markets; aquí solo va el HISTORIAL 1D–5A,
+  // que CoinGecko no da gratis con esta granularidad. Opera 24/7: 288 barras
+  // de 5 minutos son un día entero, como el FX.
+  BTC: { yahoo: 'BTC-USD', intradayPoints: 288 },
+  ETH: { yahoo: 'ETH-USD', intradayPoints: 288 },
+  XRP: { yahoo: 'XRP-USD', intradayPoints: 288 },
+  SOL: { yahoo: 'SOL-USD', intradayPoints: 288 }
 };
 
 const RANGE_MAP = {
@@ -41,7 +51,10 @@ const RANGE_MAP = {
   '1D': { range: '5d', interval: '5m', intraday: true },
   '1M': { range: '1mo', interval: '1d' },
   '3M': { range: '3mo', interval: '1d' },
-  '1Y': { range: '1y', interval: '1d' }
+  '1Y': { range: '1y', interval: '1d' },
+  // Cinco años en barras semanales: ~260 puntos, suficiente para la forma y
+  // liviano para el teléfono (en diarias serían ~1 250).
+  '5Y': { range: '5y', interval: '1wk' }
 };
 
 const USER_AGENT =

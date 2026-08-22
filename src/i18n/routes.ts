@@ -1,6 +1,8 @@
 // Registro de rutas EN ↔ ES. Es la única fuente para canonical, hreflang,
 // navegación y (más adelante) el sitemap. Las rutas legacy que siguen en
 // public/ también se listan para que el nav y el hreflang apunten bien.
+import { ASSETS } from '../data/symbols';
+
 export type Locale = 'en' | 'es';
 export const LOCALES: Locale[] = ['en', 'es'];
 export const DEFAULT_LOCALE: Locale = 'en';
@@ -16,7 +18,9 @@ export interface RouteEntry {
 
 export const ROUTES: RouteEntry[] = [
   { id: 'home', en: '/', es: '/es' },
-  { id: 'market', en: '/market', es: '/es/mercado', legacy: true },
+  { id: 'market', en: '/market', es: '/es/mercado' },
+  // Fichas de activo: una ruta por símbolo del registro (src/data/symbols.ts).
+  ...ASSETS.map((s) => ({ id: 'asset.' + s.id, en: '/market/' + s.id, es: '/es/mercado/' + s.id })),
   { id: 'lessons', en: '/lessons', es: '/es/lecciones', legacy: true },
   { id: 'lesson.peso', en: '/lessons/peso-tipo-de-cambio', es: '/es/lecciones/peso-tipo-de-cambio', legacy: true },
   { id: 'lesson.interes', en: '/lessons/interes-compuesto', es: '/es/lecciones/interes-compuesto', legacy: true },
