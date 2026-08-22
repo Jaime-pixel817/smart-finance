@@ -83,7 +83,10 @@ function pickThumbnail(block) {
   return '';
 }
 
-function parseFeed(xml) {
+// max: cuántos items devolver. El carrusel del home usa los 4 más recientes;
+// /api/news-draft pide más para poder descartar los videos del fin de semana
+// antes de gastar tokens en ellos.
+function parseFeed(xml, max = MAX_ITEMS) {
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || [];
   return blocks
     .map((block) => ({
@@ -95,7 +98,7 @@ function parseFeed(xml) {
     }))
     // Sin título o sin link la tarjeta no sirve de nada.
     .filter((it) => it.title && /^https?:\/\//i.test(it.link))
-    .slice(0, MAX_ITEMS);
+    .slice(0, max);
 }
 
 // ---- Mi lectura de cada titular ----------------------------------------
@@ -389,7 +392,59 @@ async function withTakes(items) {
   return { items: withTake, impulso, gancho, principal, degraded };
 }
 
+// ---- Noticias explicadas y REVISADAS (/api/news?estado=aprobadas) --------
+//
+// Es la otra mitad de este endpoint, y no comparte nada con la de arriba: no
+// llama a Anthropic ni lee el feed, solo devuelve lo que una persona ya aprobó
+// en /api/news-review. El sitio es estático, así que esta es la vía por la que
+// una noticia aprobada a las 8:00 se ve a las 8:01 sin volver a construir.
+//
+// SOLO SE SIRVEN LAS APROBADAS. Pedir borradores por aquí devuelve 403 a
+// propósito: un borrador es texto de IA que nadie ha leído todavía, y la
+// promesa del sitio es que eso no se publica. Para verlos está
+// /api/news-review, detrás de CRON_SECRET.
+const noticias = require('./_lib/noticias');
+
+async function servirRevisadas(req, res, pedido) {
+  if (pedido !== 'aprobada') {
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(403).json({
+      error: 'solo_aprobadas',
+      detalle: 'Los borradores no son públicos. Se leen en /api/news-review con CRON_SECRET.'
+    });
+    return;
+  }
+
+  try {
+    const items = await noticias.listar({ estado: 'aprobada', limite: (req.query && req.query.limite) || 20 });
+    // Un minuto de caché: lo bastante corto para que aprobar se note casi al
+    // instante, lo bastante largo para que un día de tráfico no sean miles de
+    // lecturas a Redis.
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    res.status(200).json({
+      fuente: 'revisadas',
+      actualizadoEn: new Date().toISOString(),
+      items: items.map(noticias.publica)
+    });
+  } catch (err) {
+    const noConfigurado = err && err.code === 'REDIS_NO_CONFIGURADO';
+    console.error('news: no se pudieron leer las aprobadas:', err && err.message ? err.message : err);
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(noConfigurado ? 500 : 502).json({
+      error: noConfigurado ? 'redis_no_configurado' : 'noticias_ilegibles'
+    });
+  }
+}
+
 module.exports = async function handler(req, res) {
+  const pedido = noticias.estadoPedido(req.query && req.query.estado);
+  if (pedido === undefined) {
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(400).json({ error: 'estado_desconocido', valores: ['aprobadas'] });
+    return;
+  }
+  if (pedido !== null) return servirRevisadas(req, res, pedido);
+
   if (cache && cache.expires > Date.now()) {
     res.setHeader('Cache-Control', cache.cacheControl);
     res.status(200).json(cache.body);
