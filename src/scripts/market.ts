@@ -50,7 +50,7 @@ function boot(root: HTMLElement) {
     const stockSrc = m.stocks?.source || undefined;
     setChip($('#chip-stock'), when, state, loc, chipT, m.refreshMinutes, stockSrc);
     // El chip de Índices cubre a los tres ETF (Twelve Data) y al VIX (Yahoo).
-    setChip($('#chip-index'), when, state, loc, chipT, m.refreshMinutes, stockSrc ? stockSrc + ' · Yahoo Finance' : undefined);
+    setChip($('#chip-index'), when, state, loc, chipT, m.refreshMinutes, stockSrc ? (stockSrc.includes('Yahoo') ? stockSrc : stockSrc + ' · Yahoo Finance') : undefined);
     setChip($('#chip-crypto'), when, state, loc, chipT, m.refreshMinutes, m.crypto?.source || undefined);
     bump(when);
     maybeRefreshPanel();

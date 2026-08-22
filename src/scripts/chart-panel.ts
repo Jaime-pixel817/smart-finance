@@ -142,11 +142,11 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
         attributionLogo: false
       },
       grid: { vertLines: { visible: false }, horzLines: { color: theme.line, style: L.LineStyle.Solid } },
-      rightPriceScale: { borderVisible: false, ticksVisible: false, entireTextOnly: true, scaleMargins: { top: 0.12, bottom: 0.06 } },
+      rightPriceScale: { borderVisible: false, ticksVisible: false, entireTextOnly: true, scaleMargins: { top: 0.12, bottom: 0.1 } },
       leftPriceScale: { visible: false },
       timeScale: {
         borderVisible: false, timeVisible: range === '1D', secondsVisible: false,
-        fixLeftEdge: true, fixRightEdge: true, lockVisibleTimeRangeOnResize: true, rightOffset: 0,
+        fixLeftEdge: true, fixRightEdge: true, lockVisibleTimeRangeOnResize: true, rightOffset: 0, allowBoldLabels: false,
         tickMarkFormatter: (t: unknown, type: number) => tickFormatter(t, type)
       },
       crosshair: {

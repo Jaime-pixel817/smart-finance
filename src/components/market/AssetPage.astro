@@ -116,6 +116,8 @@ const stats: [string, string][] = [
   .asset-chg { min-width: 12ch; white-space: nowrap; }
   .asset-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; margin-top: var(--sp-1); }
 
+  /* La cabecera ya lleva el precio grande: el readout del panel baja un escalón. */
+  .asset-chart :global(.pp-price) { font-size: 1.5rem; }
   .asset-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); margin-top: var(--sp-4); }
   .asset-main, .asset-side { display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0; }
   @media (min-width: 960px) {
