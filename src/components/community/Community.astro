@@ -1,0 +1,208 @@
+---
+// /community y /es/comunidad: la comunidad estudiantil Smart Finance, el grupo
+// que Jaime fundó y preside. Texto en primera persona donde le corresponde a
+// él; solo lo que Jaime contó (grupo de finanzas y finanzas personales,
+// visitas a la Bolsa Mexicana de Valores, pláticas y talleres, voluntariados).
+// Nada de cifras de miembros, fechas ni nombres de escuela: eso no lo tenemos.
+//
+// Las próximas actividades salen de src/data/community.json para poder
+// publicar una fecha sin tocar código.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import GroupPhoto from './GroupPhoto.astro';
+import community from '../../data/community.json';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
+
+interface Actividad {
+  id: string; fecha: string; hora?: string; tipo: 'bolsa' | 'taller' | 'voluntariado';
+  lugar: Record<Locale, string>; titulo: Record<Locale, string>; detalle: Record<Locale, string>; url?: string;
+}
+// Solo lo que todavía no ha pasado, más cercano primero. Las actividades viejas
+// se quedan en el JSON como registro y desaparecen solas de la página.
+const hoy = new Date().toISOString().slice(0, 10);
+const proximas = ((community.proximas ?? []) as Actividad[])
+  .filter((a) => a.fecha >= hoy)
+  .sort((a, b) => a.fecha.localeCompare(b.fecha));
+const fechaLarga = new Intl.DateTimeFormat(locale === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+
+// Iconos de línea propios (sin emojis), uno por línea de actividad.
+const ICONOS: Record<string, string> = {
+  bolsa: '<path d="M2 10 12 3l10 7"/><path d="M4 10v11M9 10v11M15 10v11M20 10v11"/><path d="M2 21h20"/>',
+  taller: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 12l3-3 2.5 2.5L17 7"/><path d="M12 16v4"/><path d="M8 20h8"/>',
+  voluntariado: '<path d="M12 8.6c1.2-1.7 4-1.7 4.9 0 .8 1.5-.2 3.2-1.6 4.3L12 15.6l-3.3-2.7C7.3 11.8 6.3 10.1 7.1 8.6c.9-1.7 3.7-1.7 4.9 0Z"/><path d="M3 17.5c2.7 2.3 5.7 3.5 9 3.5s6.3-1.2 9-3.5"/>'
+};
+
+const copy = {
+  en: {
+    eyebrow: 'Student community',
+    title: 'The Smart Finance student community',
+    lede: 'I founded this student group because finance is easier to learn with other people in the room. We meet to understand how money works — personal finance included — we visit the Mexican Stock Exchange, we run talks and workshops, and we volunteer for our community and the environment. I lead it, and it keeps growing.',
+    photoAlt: 'Group photo of the members of the Smart Finance student community',
+    photoPending: 'The group photo goes here. Jaime is adding it from LinkedIn.',
+    photoCaption: 'The community, at one of our activities.',
+    joinCta: 'Ask me how to join',
+    newsletterCta: 'Get the newsletter',
+    doH: 'What we do',
+    doSub: 'Three lines of work, and every member ends up touching all three.',
+    cards: [
+      { id: 'bolsa', title: 'Visits to the Mexican Stock Exchange', body: 'We go to the Bolsa Mexicana de Valores to see up close the place the headlines talk about. It is one thing to read that “the market fell”; it is another to stand in the building where those orders are matched and ask the people who work there how it actually happens.' },
+      { id: 'taller', title: 'Finance talks and workshops', body: 'Short sessions on finance and personal finance: one idea at a time, in plain words, with the numbers in pesos. A workshop means you leave with something done — your own budget, your own calculation — not just with notes.' },
+      { id: 'voluntariado', title: 'Volunteering', body: 'We also do work that has nothing to do with returns: activities that benefit our community and the environment. Part of the point of the group is that finance is a tool for something, and that the something is bigger than us.' }
+    ],
+    sessionH: 'What a session looks like',
+    session: [
+      'One topic per session, explained from zero. Nobody is expected to arrive knowing anything.',
+      'Numbers in pesos, on real examples, so the idea lands on something you recognize.',
+      'Questions out loud, at any point. The dumb question is the one everyone else also has.',
+      'Sometimes we leave the room: a visit to the stock exchange, a volunteering day.'
+    ],
+    whoH: 'Who it is for',
+    who: 'High school and university students, whatever they are studying. You do not need to know anything about finance to walk in — the sessions start from zero, which is exactly where I started. If you are already investing, you will still find people to argue with about it.',
+    nextH: 'Next activities',
+    nextEmpty: 'There is no date published right now. When the next visit, workshop or volunteering day is set, it shows up here first and goes out in the newsletter.',
+    nextNote: 'Dates and places for the activities that are already scheduled.',
+    joinH: 'How to join',
+    join: 'Message me on LinkedIn and I will tell you when the next session is and how to come. There is no sign-up form for the group yet: the newsletter is the way to hear about each new activity, and it takes an email and one click.',
+    joinNote: 'The newsletter is the daily Smart Finance email; the community activities go out in it too.',
+    tipos: { bolsa: 'Stock exchange', taller: 'Workshop', voluntariado: 'Volunteering' },
+    aboutCta: 'About Jaime'
+  },
+  es: {
+    eyebrow: 'Comunidad estudiantil',
+    title: 'La comunidad estudiantil Smart Finance',
+    lede: 'Fundé este grupo estudiantil porque las finanzas se entienden mejor acompañado. Nos juntamos a entender cómo funciona el dinero —finanzas personales incluidas—, visitamos la Bolsa Mexicana de Valores, damos pláticas y talleres, y hacemos voluntariados por la comunidad y por el medio ambiente. Yo lo presido, y sigue creciendo.',
+    photoAlt: 'Foto grupal de los integrantes de la comunidad estudiantil Smart Finance',
+    photoPending: 'Aquí va la foto del grupo. Jaime la va a subir desde LinkedIn.',
+    photoCaption: 'La comunidad, en una de nuestras actividades.',
+    joinCta: 'Pregúntame cómo entrar',
+    newsletterCta: 'Recibir el boletín',
+    doH: 'Qué hacemos',
+    doSub: 'Tres líneas de trabajo, y todos los que entran acaban pasando por las tres.',
+    cards: [
+      { id: 'bolsa', title: 'Visitas a la Bolsa Mexicana de Valores', body: 'Vamos a la Bolsa Mexicana de Valores a ver de cerca el lugar del que hablan las noticias. Una cosa es leer que “el mercado cayó” y otra es estar en el edificio donde se cruzan esas órdenes y preguntarle a quien trabaja ahí cómo pasa de verdad.' },
+      { id: 'taller', title: 'Pláticas y talleres de finanzas', body: 'Sesiones cortas de finanzas y finanzas personales: una idea a la vez, en palabras normales y con los números en pesos. Que sea taller significa que sales con algo hecho —tu presupuesto, tu cálculo—, no nada más con apuntes.' },
+      { id: 'voluntariado', title: 'Voluntariados', body: 'También hacemos cosas que no tienen nada que ver con rendimientos: actividades en beneficio de la comunidad y del medio ambiente. Parte del punto del grupo es que las finanzas son una herramienta para algo, y que ese algo es más grande que nosotros.' }
+    ],
+    sessionH: 'Cómo es una sesión',
+    session: [
+      'Un tema por sesión, explicado desde cero. Nadie tiene que llegar sabiendo.',
+      'Números en pesos, sobre ejemplos reales, para que la idea caiga en algo que reconoces.',
+      'Preguntas en voz alta, en cualquier momento. La pregunta tonta es la que todos los demás también tienen.',
+      'A veces salimos del salón: una visita a la Bolsa, un día de voluntariado.'
+    ],
+    whoH: 'Para quién es',
+    who: 'Estudiantes de prepa y de universidad, estudien lo que estudien. No hace falta saber nada de finanzas para llegar: las sesiones empiezan desde cero, que es exactamente donde empecé yo. Y si ya inviertes, vas a encontrar con quién discutirlo.',
+    nextH: 'Próximas actividades',
+    nextEmpty: 'Por ahora no hay ninguna fecha publicada. Cuando se cierre la siguiente visita, taller o voluntariado, aparece aquí primero y se avisa por el boletín.',
+    nextNote: 'Fechas y lugares de las actividades que ya están agendadas.',
+    joinH: 'Cómo unirte',
+    join: 'Escríbeme por LinkedIn y te digo cuándo es la siguiente sesión y cómo llegar. Todavía no hay formulario de inscripción del grupo: el boletín es la forma de enterarte de cada actividad nueva, y es un correo y un clic.',
+    joinNote: 'El boletín es el correo diario de Smart Finance; por ahí también salen las actividades de la comunidad.',
+    tipos: { bolsa: 'Bolsa', taller: 'Taller', voluntariado: 'Voluntariado' },
+    aboutCta: 'Acerca de Jaime'
+  }
+}[locale];
+---
+<article class="community">
+  <div class="container cm-wrap">
+    <header class="cm-head">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1 class="t-display">{copy.title}</h1>
+      <p class="cm-lede">{copy.lede}</p>
+      <GroupPhoto alt={copy.photoAlt} pendiente={copy.photoPending}>{copy.photoCaption}</GroupPhoto>
+      <p class="cm-ctas">
+        <a class="btn btn-primary btn-sm" href={LINKEDIN} target="_blank" rel="noopener">{copy.joinCta} ↗</a>
+        <a class="btn btn-ghost btn-sm" href={L('home') + '#newsletter'}>{copy.newsletterCta}</a>
+      </p>
+    </header>
+
+    <section class="cm-sec" aria-labelledby="cm-do">
+      <h2 id="cm-do" class="t-h2">{copy.doH}</h2>
+      <p class="muted">{copy.doSub}</p>
+      <ul class="cm-cards">
+        {copy.cards.map((c) => (
+          <li class="card cm-card">
+            <span class="cm-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={ICONOS[c.id]} />
+            </span>
+            <h3 class="t-h3">{c.title}</h3>
+            <p class="t-small muted">{c.body}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="cm-sec" aria-labelledby="cm-session">
+      <h2 id="cm-session" class="t-h2">{copy.sessionH}</h2>
+      <ul class="cm-list">
+        {copy.session.map((s) => <li>{s}</li>)}
+      </ul>
+    </section>
+
+    <section class="cm-sec" aria-labelledby="cm-who">
+      <h2 id="cm-who" class="t-h2">{copy.whoH}</h2>
+      <p>{copy.who}</p>
+    </section>
+
+    <section class="cm-sec" aria-labelledby="cm-next">
+      <h2 id="cm-next" class="t-h2">{copy.nextH}</h2>
+      {proximas.length === 0 ? (
+        <p class="card cm-empty t-small muted">{copy.nextEmpty}</p>
+      ) : (
+        <>
+          <p class="t-caption faint">{copy.nextNote}</p>
+          <ul class="cm-next">
+            {proximas.map((a) => (
+              <li class="card cm-act">
+                <p class="cm-act-when">
+                  <span class="chip">{copy.tipos[a.tipo]}</span>
+                  <time class="num t-small" datetime={a.fecha}>{fechaLarga.format(new Date(a.fecha + 'T12:00:00Z'))}{a.hora ? ' · ' + a.hora : ''}</time>
+                </p>
+                <h3 class="t-h3">{a.titulo[locale]}</h3>
+                <p class="t-small muted">{a.detalle[locale]}</p>
+                <p class="t-caption faint">{a.lugar[locale]}</p>
+                {a.url && <a class="btn btn-ghost btn-sm" href={a.url} target="_blank" rel="noopener">{copy.joinCta} ↗</a>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </section>
+
+    <section class="cm-sec" aria-labelledby="cm-join">
+      <h2 id="cm-join" class="t-h2">{copy.joinH}</h2>
+      <p>{copy.join}</p>
+      <p class="cm-ctas">
+        <a class="btn btn-primary btn-sm" href={LINKEDIN} target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a class="btn btn-ghost btn-sm" href={L('home') + '#newsletter'}>{copy.newsletterCta}</a>
+        <a class="btn btn-ghost btn-sm" href={L('about')}>{copy.aboutCta}</a>
+      </p>
+      <p class="t-caption faint">{copy.joinNote}</p>
+    </section>
+  </div>
+</article>
+<style>
+  .community { padding-top: var(--sp-4); }
+  .cm-wrap { max-width: calc(var(--measure) + 2 * var(--gutter)); display: flex; flex-direction: column; gap: var(--sp-8); }
+  .cm-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .cm-lede { font-size: var(--fs-read); line-height: var(--lh-read); }
+  .cm-ctas { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .cm-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .cm-sec p { max-width: var(--measure); }
+  .cm-cards { display: grid; gap: var(--sp-3); }
+  @media (min-width: 860px) { .cm-cards { grid-template-columns: repeat(3, 1fr); } }
+  .cm-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cm-icon { width: 40px; height: 40px; border-radius: var(--r-btn); display: grid; place-items: center; background: var(--brand-wash); color: var(--brand-text); }
+  .cm-list { list-style: disc; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+  .cm-list li::marker { color: var(--brand-text); }
+  .cm-empty { max-width: var(--measure); }
+  .cm-next { display: grid; gap: var(--sp-3); }
+  .cm-act { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cm-act-when { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; color: var(--ink-2); }
+  .cm-act .btn { align-self: flex-start; }
+</style>

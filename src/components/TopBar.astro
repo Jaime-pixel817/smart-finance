@@ -10,13 +10,15 @@ const { locale, routeId, active } = Astro.props as { locale: Locale; routeId: st
 const t = useT(locale);
 const other = otherLocale(locale);
 const home = route('home', locale);
-const links = [
+const links: { id: string; href: string; label: string; wide?: boolean }[] = [
   { id: 'today', href: home, label: t('nav.today') },
   { id: 'markets', href: route('market', locale), label: t('nav.markets') },
   { id: 'news', href: home + '#story', label: t('nav.news') },
   { id: 'learn', href: route('lessons', locale), label: t('nav.learn') },
   { id: 'tools', href: home + '#tools', label: t('nav.tools') },
-  { id: 'research', href: home + '#research', label: t('nav.research') }
+  { id: 'research', href: home + '#research', label: t('nav.research') },
+  // Séptimo destino: solo desde 1024 px. En pantallas menores vive en el pie.
+  { id: 'community', href: route('community', locale), label: t('nav.community'), wide: true }
 ];
 let altHref = '/';
 try { altHref = route(routeId, other); } catch { altHref = route('home', other); }
@@ -28,7 +30,7 @@ try { altHref = route(routeId, other); } catch { altHref = route('home', other);
     </a>
     <nav class="desk-nav" aria-label={locale === 'es' ? 'Principal' : 'Primary'}>
       {links.map((l) => (
-        <a href={l.href} aria-current={l.id === active ? 'page' : undefined}>{l.label}</a>
+        <a href={l.href} class:list={{ 'nav-wide': l.wide }} aria-current={l.id === active ? 'page' : undefined}>{l.label}</a>
       ))}
     </nav>
     <div class="topbar-actions">
@@ -63,5 +65,7 @@ try { altHref = route(routeId, other); } catch { altHref = route('home', other);
     .topbar-actions { gap: var(--sp-2); }
     .btn.desk-only { margin-left: var(--sp-2); }
   }
-  @media (min-width: 768px) and (max-width: 959px) { .desk-nav a { padding: 0 8px; } }
+  @media (min-width: 768px) and (max-width: 1023px) { .desk-nav a { padding: 0 8px; } }
+  .desk-nav .nav-wide { display: none; }
+  @media (min-width: 1024px) { .desk-nav .nav-wide { display: inline-flex; } }
 </style>

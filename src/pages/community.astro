@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import Community from '../components/community/Community.astro';
+import { SITE } from '../i18n/routes';
+const title = 'The Smart Finance student community — Smart Finance';
+const description = 'The student group Jaime Sandoval Ricaño founded and leads: finance and personal finance, visits to the Mexican Stock Exchange, talks and workshops, and volunteering for the community and the environment. Open to high school and university students.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + '/community',
+  inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  about: {
+    '@type': 'Organization',
+    name: 'Smart Finance student community',
+    description: 'Student group on finance and personal finance: visits to the Mexican Stock Exchange, talks and workshops, and volunteering.',
+    url: SITE + '/community',
+    founder: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
+    parentOrganization: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+  }
+};
+---
+<Base locale="en" routeId="community" active="community" title={title} description={description} jsonLd={jsonLd}>
+  <Community locale="en" />
+</Base>
