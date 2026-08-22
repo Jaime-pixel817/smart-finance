@@ -21,7 +21,9 @@ const d = lesson.entry.data;
 const { Content } = await render(lesson.entry);
 const { prev, next } = prevNext(all, lesson);
 const related = d.related.map((slug) => all.find((l) => l.slug === slug)).filter((l): l is Lesson => !!l && l.slug !== prev?.slug && l.slug !== next?.slug);
-const fmt = new Intl.DateTimeFormat(locale === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+// Las fechas del frontmatter son días (YYYY-MM-DD) parseados como medianoche UTC:
+// se formatean en UTC para que no retrocedan un día en una máquina al oeste de Greenwich.
+const fmt = new Intl.DateTimeFormat(locale === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const iso = (x: Date) => x.toISOString().slice(0, 10);
 const day = (x: Date) => fmt.format(x).replace(/\./g, '');
 const levelKey = ('learn.level.' + d.level) as UIKey;
