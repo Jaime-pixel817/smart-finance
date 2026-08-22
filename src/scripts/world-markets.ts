@@ -23,6 +23,8 @@ interface WorldItem {
   id: string; city: string; index: string; tz: string; href: string;
   price: number | null; changePct: number | null; asOf: string | null;
   lat?: number; lon?: number; open: boolean; state: ExchangeState | null;
+  /** id en public/assets/geo/country.bin: el país que el globo enciende */
+  countryId: number; country: string;
 }
 interface WorldResponse {
   updatedAt: string; refreshMinutes: number;
@@ -46,6 +48,7 @@ function boot(root: HTMLElement) {
   const items: WorldItem[] = chips.map((b) => ({
     id: b.dataset.id || '', city: q('.wm-city', b)?.textContent?.trim() || b.dataset.id || '',
     index: b.dataset.index || '', tz: b.dataset.tz || '', href: b.dataset.href || '#',
+    countryId: Number(b.dataset.countryId || 0), country: b.dataset.country || '',
     price: null, changePct: null, asOf: null, open: false, state: null
   }));
   const byId = new Map(items.map((it) => [it.id, it]));
@@ -95,6 +98,10 @@ function boot(root: HTMLElement) {
     const it = byId.get(id); if (!it) return;
     q('[data-city]')!.textContent = it.city;
     q('[data-index]')!.textContent = it.index;
+    // El país que el globo acaba de encender, con su color de dirección.
+    const cl = q('[data-country-line]')!;
+    q('[data-country]')!.textContent = it.country;
+    cl.className = 'world-sheet-country t-caption' + (it.changePct == null ? '' : ' ' + dirClass(it.changePct));
     q('[data-price]')!.textContent = it.price != null ? fmtNum(it.price, loc, 2) : '—';
     paintChange(q('[data-chg]')!, it.changePct, 'num ws-chg muted');
     const hours = q('[data-hours]')!;

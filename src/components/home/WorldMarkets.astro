@@ -30,7 +30,7 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
   <ul id="world-chips" class="world-chips" role="list" aria-label={t('aria.worldList')}>
     {EXCHANGES.map((ex) => (
       <li>
-        <button type="button" class="wm-chip" data-id={ex.id} data-index={ex.index} data-tz={ex.tz} data-href={hrefOf(ex.asset)} aria-haspopup="dialog" aria-expanded="false">
+        <button type="button" class="wm-chip" data-id={ex.id} data-index={ex.index} data-tz={ex.tz} data-href={hrefOf(ex.asset)} data-country-id={ex.countryId} data-country={ex.country[locale === 'es' ? 'es' : 'en']} aria-haspopup="dialog" aria-expanded="false">
           <span class="wm-dot" aria-hidden="true"></span>
           <span class="wm-city">{t(ex.cityKey)}</span>
           <span class="wm-chg num muted">—</span>
@@ -49,6 +49,9 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
     <p class="world-sheet-title t-small" id="world-sheet-title"><span class="ws-city" data-city></span> <span aria-hidden="true">·</span> <span data-index></span></p>
+    <!-- El país encendido en el globo, dicho también con palabras: el color
+         solo no vale, y quien no ve el lienzo tiene que enterarse igual. -->
+    <p class="world-sheet-country t-caption" data-country-line><span data-country></span></p>
     <p class="world-sheet-price"><span class="num ws-price" data-price>—</span> <span class="num ws-chg muted" data-chg>—</span></p>
     <p class="world-sheet-hours t-caption" data-hours>—</p>
     <SourceChip locale={locale} id="chip-world-sheet" source="Yahoo Finance" delay={15} />
@@ -114,6 +117,12 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
   .world-sheet-close:hover { background: var(--bg-2); color: var(--ink); }
   .world-sheet-title { margin-right: 48px; color: var(--ink-2); }
   .ws-city { color: var(--ink); font-weight: 600; }
+  /* El punto toma el color de la dirección del día, el mismo con el que se
+     enciende el país en el globo. */
+  .world-sheet-country { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); margin-top: -4px; }
+  .world-sheet-country::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--neutral); flex: none; }
+  .world-sheet-country.up::before { background: var(--up); }
+  .world-sheet-country.down::before { background: var(--down); }
   .world-sheet-price { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; }
   .ws-price { font-size: 1.5rem; line-height: 1.75rem; letter-spacing: -.01em; }
   .world-sheet-hours { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); }
