@@ -5,6 +5,10 @@
     {
       "path": "/api/send-newsletter",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/news-draft",
+      "schedule": "30 11 * * *"
     }
   ],
   "functions": {
@@ -13,6 +17,9 @@
     },
     "api/news.js": {
       "maxDuration": 30
+    },
+    "api/news-draft.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -88,6 +95,16 @@
       "source": "/articles/:path*",
       "destination": "/#tips",
       "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/news/:slug",
+      "destination": "/news-read"
+    },
+    {
+      "source": "/es/noticias/:slug",
+      "destination": "/es/noticias-leer"
     }
   ]
 }

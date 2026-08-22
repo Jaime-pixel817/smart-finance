@@ -4,13 +4,14 @@
 // páginas legacy; al nacer las fichas de activo (una ruta por símbolo) la
 // única lista completa es la de routes.ts.
 //
-// NO se incluyen a propósito: /newsletter/* (pantallas de estado con noindex)
-// ni /articles/* (redirecciones 301 de vercel.json).
+// NO se incluyen a propósito: /newsletter/* (pantallas de estado con noindex),
+// /articles/* (redirecciones 301 de vercel.json) ni las rutas con
+// sitemap: false (hoy la página de lectura de una noticia recién aprobada).
 import type { APIRoute } from 'astro';
 import { ROUTES, SITE } from '../i18n/routes';
 
 export const GET: APIRoute = () => {
-  const urls = ROUTES.map((r) => {
+  const urls = ROUTES.filter((r) => r.sitemap !== false).map((r) => {
     const alts = [
       `    <xhtml:link rel="alternate" hreflang="en" href="${SITE + r.en}"/>`,
       `    <xhtml:link rel="alternate" hreflang="es" href="${SITE + r.es}"/>`,

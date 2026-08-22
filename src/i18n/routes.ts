@@ -2,6 +2,7 @@
 // navegación y el sitemap (src/pages/sitemap.xml.ts). Si alguna página
 // volviera a servirse desde public/ (HTML legacy) se marca legacy: true.
 import { ASSETS } from '../data/symbols';
+import { NEWS, newsRouteId, newsLastmod } from '../data/news';
 
 export type Locale = 'en' | 'es';
 export const LOCALES: Locale[] = ['en', 'es'];
@@ -18,6 +19,10 @@ export interface RouteEntry {
   lastmod?: string;
   changefreq?: 'hourly' | 'daily' | 'weekly' | 'monthly';
   priority?: string;
+  /** false = existe y necesita canonical/hreflang, pero no va al sitemap.
+      Hoy solo la página de lectura de una noticia recién aprobada, que es
+      transitoria y lleva noindex (ver src/pages/news-read.astro). */
+  sitemap?: boolean;
 }
 
 // Lecciones: MDX en src/content/lessons (ya no legacy). lastmod = última edición real del contenido.
@@ -27,6 +32,18 @@ export const ROUTES: RouteEntry[] = [
   { id: 'market', en: '/market', es: '/es/mercado', lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.9' },
   // Fichas de activo: una ruta por símbolo del registro (src/data/symbols.ts).
   ...ASSETS.map((s): RouteEntry => ({ id: 'asset.' + s.id, en: '/market/' + s.id, es: '/es/mercado/' + s.id, lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.8' })),
+  // Noticias explicadas. El índice se pinta en el navegador desde
+  // /api/news?estado=aprobadas; cada noticia aprobada y sincronizada al repo
+  // (src/data/news/*.json) tiene además su página estática.
+  { id: 'news', en: '/news', es: '/es/noticias', lastmod: newsLastmod(), changefreq: 'daily', priority: '0.9' },
+  ...NEWS.map((n): RouteEntry => ({
+    id: newsRouteId(n.slug), en: '/news/' + n.slug, es: '/es/noticias/' + n.slug,
+    lastmod: n.fecha.slice(0, 10), changefreq: 'monthly', priority: '0.6'
+  })),
+  // Lectura de una noticia aprobada que todavía no tiene página propia. No se
+  // llega a ella por su URL: la sirve la reescritura de vercel.json cuando
+  // /news/<slug> no existe como archivo.
+  { id: 'news.read', en: '/news-read', es: '/es/noticias-leer', sitemap: false },
   { id: 'lessons', en: '/lessons', es: '/es/lecciones', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.8' },
   { id: 'lesson.peso', en: '/lessons/peso-tipo-de-cambio', es: '/es/lecciones/peso-tipo-de-cambio', ...LESSON_META },
   { id: 'lesson.interes', en: '/lessons/interes-compuesto', es: '/es/lecciones/interes-compuesto', ...LESSON_META },

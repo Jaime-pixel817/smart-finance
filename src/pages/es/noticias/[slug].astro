@@ -1,0 +1,33 @@
+---
+// Una noticia en español: /es/noticias/<slug>. Mismo slug que la inglesa.
+import Base from '../../../layouts/Base.astro';
+import NewsStory from '../../../components/news/NewsStory.astro';
+import { NEWS, newsRouteId, type NewsItem } from '../../../data/news';
+import { SITE } from '../../../i18n/routes';
+
+export async function getStaticPaths() {
+  return NEWS.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props as { item: NewsItem };
+const texto = item.es;
+const description = texto.que.length > 180 ? texto.que.slice(0, 177).trimEnd() + '…' : texto.que;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: texto.titulo,
+  description,
+  datePublished: item.fecha,
+  dateModified: item.revisadoEn || item.fecha,
+  inLanguage: 'es-MX',
+  url: SITE + '/es/noticias/' + item.slug,
+  mainEntityOfPage: SITE + '/es/noticias/' + item.slug,
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/es/acerca' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' },
+  isBasedOn: item.fuente.url,
+  citation: { '@type': 'CreativeWork', name: item.fuente.titular, url: item.fuente.url, publisher: { '@type': 'Organization', name: item.fuente.nombre } }
+};
+---
+<Base locale="es" routeId={newsRouteId(item.slug)} active="news" ogType="article"
+  title={texto.titulo + ' — Smart Finance'} description={description} jsonLd={jsonLd}>
+  <NewsStory locale="es" item={item} />
+</Base>
