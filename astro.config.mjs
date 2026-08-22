@@ -5,8 +5,13 @@
 // de servirse). El sitio legacy vive en public/ y Astro lo copia a dist/ sin
 // tocarlo; cada página legacy se borra de public/ en el PR en que nace su
 // versión Astro con la misma URL.
+//
+// MDX: las lecciones viven en src/content/lessons/{en,es}/*.mdx (content
+// collection tipada en src/content.config.ts) y usan componentes como <Term>
+// (glosario al tacto) y <CompoundCalculator /> desde el propio texto.
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
+import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   site: 'https://smartfinance.lat',
@@ -20,7 +25,7 @@ export default defineConfig({
     defaultLocale: 'en',
     routing: { prefixDefaultLocale: false }
   },
-  integrations: [preact()],
+  integrations: [preact(), mdx()],
   vite: {
     build: { assetsInlineLimit: 0 }
   }

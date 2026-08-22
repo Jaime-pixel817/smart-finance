@@ -27,6 +27,7 @@
   "homepage": "https://github.com/Jaime-pixel817/smart-finance#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
+    "@astrojs/mdx": "^6.0.3",
     "@astrojs/preact": "^5.1.5",
     "astro": "^6.4.8",
     "lightweight-charts": "^5.2.1",
