@@ -1,16 +1,23 @@
-# Archivos internos que no deben servirse en smartfinance.lat
-CLAUDE.md
-.claude
-.github
-docs
-scripts
-README.md
-LICENSE
-ensayo.json
-instrucciones.md
+# Archivos internos que no deben servirse en smartfinance.lat.
+#
+# OJO: los patrones sin "/" inicial coinciden a CUALQUIER nivel, igual que en
+# .gitignore. "scripts" y "content" a secas también excluían src/scripts y
+# src/content, y el build de Vercel se cayó ("Could not resolve
+# ../../scripts/format" y "No files found matching **/*.mdx"). Por eso todo va
+# anclado a la raíz con "/".
+/CLAUDE.md
+/.claude
+/.github
+/docs
+/scripts
+/README.md
+/LICENSE
+/ensayo.json
+/instrucciones.md
+
 # Datos geográficos del globo (538 KB) que risk-sphere.js ya no importa; se
 # guardan en el repo por si vuelve el mapa, pero no se despliegan.
-assets/geoMasks.js
+/assets/geoMasks.js
 
-# Datos y plantillas del research: se usan en el build, no se sirven
-content/
+# Datos y plantillas del research: se usan para escribir el reporte, no se sirven
+/content
