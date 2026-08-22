@@ -1,0 +1,26 @@
+# Metadatos del reporte de research — lululemon athletica inc.
+# Lo que está en null lo llena Jaime el día del análisis.
+ticker: LULU
+name: lululemon athletica inc.
+exchange: NASDAQ
+cik: "0001397187"
+currency: USD
+fiscalYearEnd: "~Feb-01 (domingo más cercano al 31 de enero; la empresa llama 'fiscal 2025' al año cerrado el 2026-02-01)"
+analysisDate: null
+priceAtAnalysis: null
+priceDate: null
+author: Jaime Sandoval
+version: "0.1"
+status: draft
+dataAsOf: "2026-08-21"
+aiDisclosure: >-
+  Qué hizo la IA (Claude, agente de datos de SmartFinance.lat): descargó los
+  datos XBRL de SEC EDGAR (10-K y 10-Q) con scripts/edgar-facts.mjs, los
+  organizó en data/financials.json, verificó las cifras del último 10-K
+  (data/VERIFICACION.md), preparó las plantillas vacías (model.json,
+  sources.yaml) y escribió el motor de cálculo del DCF con pruebas
+  (src/lib/finance/dcf.mjs). Qué hace Jaime: leer el 10-K (Items 1, 1A y 7) y
+  la última llamada de resultados, tomar notas propias, fijar TODOS los
+  supuestos del DCF con su razón escrita, elegir y justificar los comparables,
+  escribir la tesis, los escenarios, los riesgos, la conclusión y grabar el
+  video. Ningún supuesto ni texto de tesis de este reporte fue escrito por la IA.

@@ -1,0 +1,520 @@
+{
+  "meta": {
+    "ticker": "LULU",
+    "name": "lululemon athletica inc.",
+    "exchange": "NASDAQ",
+    "cik": "0001397187",
+    "currency": "USD",
+    "fiscalYearEnd": "~Feb-01",
+    "analysisDate": null,
+    "lastUpdated": null,
+    "priceAtAnalysis": null,
+    "priceDate": null,
+    "sharesDiluted": null,
+    "sharesOutstanding": null,
+    "author": "Jaime Sandoval",
+    "version": "0.1",
+    "status": "draft",
+    "aiDisclosure": "Ver meta.yaml → aiDisclosure.",
+    "sources": [
+      {
+        "id": "10K-FY25",
+        "title": "10-K FY ended 2026-02-01",
+        "url": "https://www.sec.gov/Archives/edgar/data/1397187/000139718726000020/lulu-20260201.htm",
+        "retrieved": "2026-08-21",
+        "type": "primary"
+      },
+      {
+        "id": "EDGAR-companyfacts",
+        "title": "SEC EDGAR XBRL companyfacts",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001397187.json",
+        "retrieved": "2026-08-21",
+        "type": "primary"
+      }
+    ],
+    "sourcesFile": "sources.yaml"
+  },
+  "historical": [
+    {
+      "fy": "FY2019",
+      "periodEnd": "2020-02-02",
+      "revenue": 3979.3,
+      "grossProfit": 2223.4,
+      "ebitda": 1051,
+      "ebit": 889.1,
+      "netIncome": 645.6,
+      "da": 161.9,
+      "capex": 283,
+      "cfo": 669.3,
+      "fcf": 386.3,
+      "sbc": 45.6,
+      "taxExpense": 251.8,
+      "pretaxIncome": 897.4,
+      "cash": 1093.5,
+      "financialDebt": 0,
+      "operatingLeases": 740,
+      "equity": 1952.2,
+      "dilutedShares": 131,
+      "buybacks": 173.4,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-20-000012"
+    },
+    {
+      "fy": "FY2020",
+      "periodEnd": "2021-01-31",
+      "revenue": 4401.9,
+      "grossProfit": 2464,
+      "ebitda": 1005.5,
+      "ebit": 820,
+      "netIncome": 588.9,
+      "da": 185.5,
+      "capex": 229.2,
+      "cfo": 803.3,
+      "fcf": 574.1,
+      "sbc": 50.8,
+      "taxExpense": 230.4,
+      "pretaxIncome": 819.4,
+      "cash": 1150.5,
+      "financialDebt": 0,
+      "operatingLeases": 798.7,
+      "equity": 2558.6,
+      "dilutedShares": 130.9,
+      "buybacks": 63.7,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-21-000009"
+    },
+    {
+      "fy": "FY2021",
+      "periodEnd": "2022-01-30",
+      "revenue": 6256.6,
+      "grossProfit": 3608.6,
+      "ebitda": 1557.6,
+      "ebit": 1333.4,
+      "netIncome": 975.3,
+      "da": 224.2,
+      "capex": 394.5,
+      "cfo": 1389.1,
+      "fcf": 994.6,
+      "sbc": 69.1,
+      "taxExpense": 358.5,
+      "pretaxIncome": 1333.9,
+      "cash": 1259.9,
+      "financialDebt": 0,
+      "operatingLeases": 881.1,
+      "equity": 2740,
+      "dilutedShares": 130.3,
+      "buybacks": 812.6,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-22-000014"
+    },
+    {
+      "fy": "FY2022",
+      "periodEnd": "2023-01-29",
+      "revenue": 8110.5,
+      "grossProfit": 4492.3,
+      "ebitda": 1620.2,
+      "ebit": 1328.4,
+      "netIncome": 854.8,
+      "da": 291.8,
+      "capex": 638.7,
+      "cfo": 966.5,
+      "fcf": 327.8,
+      "sbc": 78.1,
+      "taxExpense": 477.8,
+      "pretaxIncome": 1332.6,
+      "cash": 1154.9,
+      "financialDebt": 0,
+      "operatingLeases": 1070.3,
+      "equity": 3148.8,
+      "dilutedShares": 128,
+      "buybacks": 444,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-23-000012"
+    },
+    {
+      "fy": "FY2023",
+      "periodEnd": "2024-01-28",
+      "revenue": 9619.3,
+      "grossProfit": 5609.4,
+      "ebitda": 2512.1,
+      "ebit": 2132.7,
+      "netIncome": 1550.2,
+      "da": 379.4,
+      "capex": 651.9,
+      "cfo": 2296.2,
+      "fcf": 1644.3,
+      "sbc": 93.6,
+      "taxExpense": 625.5,
+      "pretaxIncome": 2175.7,
+      "cash": 2244,
+      "financialDebt": 0,
+      "operatingLeases": 1403.3,
+      "equity": 4232.1,
+      "dilutedShares": 127.1,
+      "buybacks": 558.7,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-24-000010"
+    },
+    {
+      "fy": "FY2024",
+      "periodEnd": "2025-02-02",
+      "revenue": 10588.1,
+      "grossProfit": 6270.8,
+      "ebitda": 2952.2,
+      "ebit": 2505.7,
+      "netIncome": 1814.6,
+      "da": 446.5,
+      "capex": 689.2,
+      "cfo": 2272.7,
+      "fcf": 1583.5,
+      "sbc": 90,
+      "taxExpense": 761.5,
+      "pretaxIncome": 2576.1,
+      "cash": 1984.3,
+      "financialDebt": 0,
+      "operatingLeases": 1575.8,
+      "equity": 4324,
+      "dilutedShares": 123.9,
+      "buybacks": 1636.9,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-25-000013"
+    },
+    {
+      "fy": "FY2025",
+      "periodEnd": "2026-02-01",
+      "revenue": 11102.6,
+      "grossProfit": 6284.1,
+      "ebitda": 2706.8,
+      "ebit": 2210.6,
+      "netIncome": 1579.2,
+      "da": 496.2,
+      "capex": 680.8,
+      "cfo": 1602.5,
+      "fcf": 921.7,
+      "sbc": 62.2,
+      "taxExpense": 659.8,
+      "pretaxIncome": 2239,
+      "cash": 1807.2,
+      "financialDebt": 0,
+      "operatingLeases": 1798.4,
+      "equity": 4961.8,
+      "dilutedShares": 119.1,
+      "buybacks": 1178.3,
+      "unitsMM": "USD millions",
+      "source": "EDGAR-companyfacts",
+      "filingAccession": "0001397187-26-000020"
+    }
+  ],
+  "kpis": [
+    {
+      "fy": "FY2021",
+      "storesTotal": null,
+      "compsAmericasPct": null,
+      "compsTotalPct": null,
+      "revenueByRegion": {
+        "americas": null,
+        "china": null,
+        "row": null
+      },
+      "revenueByChannel": {
+        "stores": null,
+        "ecommerce": null,
+        "other": null
+      },
+      "grossMarginPct": 57.7,
+      "inventoryDays": null,
+      "source": "10-K p.__ (TODO Jaime)",
+      "capturedBy": "manual"
+    },
+    {
+      "fy": "FY2022",
+      "storesTotal": null,
+      "compsAmericasPct": null,
+      "compsTotalPct": null,
+      "revenueByRegion": {
+        "americas": null,
+        "china": null,
+        "row": null
+      },
+      "revenueByChannel": {
+        "stores": null,
+        "ecommerce": null,
+        "other": null
+      },
+      "grossMarginPct": 55.4,
+      "inventoryDays": null,
+      "source": "10-K p.__ (TODO Jaime)",
+      "capturedBy": "manual"
+    },
+    {
+      "fy": "FY2023",
+      "storesTotal": null,
+      "compsAmericasPct": null,
+      "compsTotalPct": null,
+      "revenueByRegion": {
+        "americas": null,
+        "china": null,
+        "row": null
+      },
+      "revenueByChannel": {
+        "stores": null,
+        "ecommerce": null,
+        "other": null
+      },
+      "grossMarginPct": 58.3,
+      "inventoryDays": null,
+      "source": "10-K p.__ (TODO Jaime)",
+      "capturedBy": "manual"
+    },
+    {
+      "fy": "FY2024",
+      "storesTotal": null,
+      "compsAmericasPct": null,
+      "compsTotalPct": null,
+      "revenueByRegion": {
+        "americas": null,
+        "china": null,
+        "row": null
+      },
+      "revenueByChannel": {
+        "stores": null,
+        "ecommerce": null,
+        "other": null
+      },
+      "grossMarginPct": 59.2,
+      "inventoryDays": null,
+      "source": "10-K p.__ (TODO Jaime)",
+      "capturedBy": "manual"
+    },
+    {
+      "fy": "FY2025",
+      "storesTotal": null,
+      "compsAmericasPct": null,
+      "compsTotalPct": null,
+      "revenueByRegion": {
+        "americas": null,
+        "china": null,
+        "row": null
+      },
+      "revenueByChannel": {
+        "stores": null,
+        "ecommerce": null,
+        "other": null
+      },
+      "grossMarginPct": 56.6,
+      "inventoryDays": null,
+      "source": "10-K p.__ (TODO Jaime)",
+      "capturedBy": "manual"
+    }
+  ],
+  "dcf": {
+    "method": "unlevered-fcf",
+    "horizonYears": 5,
+    "midYear": true,
+    "baseYear": "FY2025",
+    "assumptions": {
+      "revenueGrowthPct": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitdaMarginPct": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "daPctRevenue": null,
+      "capexPctRevenue": null,
+      "nwcPctDeltaRevenue": null,
+      "taxRatePct": null,
+      "sbcTreatment": null,
+      "terminal": {
+        "type": null,
+        "g": null,
+        "exitMultipleEVEBITDA": null
+      },
+      "wacc": {
+        "rf": 4.65,
+        "beta": null,
+        "erp": 4.23,
+        "sizeOrCountryPremium": 0,
+        "costOfEquity": null,
+        "costOfDebtPreTax": 0,
+        "weightEquity": null,
+        "weightDebt": null,
+        "wacc": null,
+        "rationale": "rf = FRED DGS10 4.65 % al 2026-08-19 (verificado 2026-08-21); ERP = Damodaran implícita EE. UU. inicio 2026, 4.23 % (verificado 2026-08-21). Beta, pesos y WACC: ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      }
+    },
+    "rationale": {
+      "revenueGrowthPct": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "ebitdaMarginPct": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "daPctRevenue": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "capexPctRevenue": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "nwcPctDeltaRevenue": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "taxRatePct": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "sbcTreatment": "ESCRIBE AQUÍ POR QUÉ (Jaime)",
+      "terminal": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+    },
+    "netDebtAtValuation": {
+      "asOf": null,
+      "cash": null,
+      "financialDebt": null,
+      "leasesIncluded": false,
+      "minorities": 0,
+      "preferred": 0,
+      "source": "10-Q más reciente (TODO Jaime)"
+    }
+  },
+  "scenarios": {
+    "bear": {
+      "prob": null,
+      "overrides": {},
+      "rationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+    },
+    "base": {
+      "prob": null,
+      "overrides": {},
+      "rationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+    },
+    "bull": {
+      "prob": null,
+      "overrides": {},
+      "rationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+    }
+  },
+  "comps": {
+    "asOf": null,
+    "source": null,
+    "peers": [
+      {
+        "ticker": "NKE",
+        "name": "Nike",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "líder global de la categoría; mismo canal (DTC + mayoreo) y mismo cliente",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      },
+      {
+        "ticker": "ONON",
+        "name": "On Holding",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "crecimiento premium en calzado/ropa deportiva; múltiplo de crecimiento",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      },
+      {
+        "ticker": "DECK",
+        "name": "Deckers (HOKA, UGG)",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "marca premium con FCF alto y sin deuda; comparable de rentabilidad",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      },
+      {
+        "ticker": "ADS.DE",
+        "name": "adidas",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "segundo jugador global; referencia europea (IFRS, ajustar arrendamientos)",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      },
+      {
+        "ticker": "UAA",
+        "name": "Under Armour",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "caso bear: marca athleisure que perdió el premium",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      },
+      {
+        "ticker": "ATZ.TO",
+        "name": "Aritzia",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "canadiense, moda premium para mujer, misma base de tiendas; IFRS",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      },
+      {
+        "ticker": "GPS",
+        "name": "Gap Inc. (Athleta)",
+        "pe": null,
+        "evEbitda": null,
+        "evSales": null,
+        "fcfYieldPct": null,
+        "revGrowthPct": null,
+        "ebitMarginPct": null,
+        "why": "dueño de Athleta, competidor directo en EE. UU.; múltiplo de retail maduro",
+        "includeDecision": null,
+        "includeRationale": "ESCRIBE AQUÍ POR QUÉ (Jaime)"
+      }
+    ]
+  },
+  "thesis": {
+    "question": "",
+    "summary": "",
+    "bullCase": [],
+    "bearCase": [],
+    "catalysts": [],
+    "risks": [],
+    "whatWouldChangeMyMind": [],
+    "whatIDontKnow": []
+  },
+  "outputs": {
+    "computedAt": null,
+    "evBase": null,
+    "equityBase": null,
+    "impliedPriceBase": null,
+    "rangeLowHigh": [
+      null,
+      null
+    ],
+    "tvShareOfEVPct": null,
+    "sensitivity": {
+      "waccPcts": [],
+      "gPcts": [],
+      "prices": []
+    },
+    "alerts": []
+  }
+}

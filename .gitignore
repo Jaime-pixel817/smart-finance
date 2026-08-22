@@ -20,3 +20,6 @@ instrucciones.md
 # usa las versiones de 900px que estan junto a esta carpeta; estas se guardan
 # solo como respaldo local por si hay que regenerarlas con otro encuadre.
 assets/breakdowns/_originales/
+
+# Respuestas crudas de EDGAR (scripts/edgar-facts.mjs --cache)
+.cache/

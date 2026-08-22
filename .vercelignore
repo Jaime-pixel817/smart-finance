@@ -11,3 +11,6 @@ instrucciones.md
 # Datos geográficos del globo (538 KB) que risk-sphere.js ya no importa; se
 # guardan en el repo por si vuelve el mapa, pero no se despliegan.
 assets/geoMasks.js
+
+# Datos y plantillas del research: se usan en el build, no se sirven
+content/
