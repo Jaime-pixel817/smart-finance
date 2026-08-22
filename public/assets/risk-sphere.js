@@ -1494,6 +1494,22 @@ async function initRiskSphere() {
     updatePixelsPerUnit();
   };
   window.addEventListener("resize", onResize);
+  /* En el home Astro el contenedor no tiene alto fijo en escritorio: es una
+     columna de la rejilla y crece cuando la tarjeta de al lado (la historia
+     del día) pasa del esqueleto al texto. Si eso ocurre después de arrancar,
+     el CSS estira el lienzo (width/height 100 %) y la esfera sale ovalada.
+     Un ResizeObserver sobre el contenedor vuelve a medir y, en el modo
+     quieto, repinta. */
+  if (typeof ResizeObserver === "function") {
+    let ancho = container.clientWidth, alto = container.clientHeight;
+    new ResizeObserver(() => {
+      if (container.clientWidth === ancho && container.clientHeight === alto) return;
+      ancho = container.clientWidth; alto = container.clientHeight;
+      if (!ancho || !alto) return;
+      onResize();
+      if (repintar) repintar();
+    }).observe(container);
+  }
 
   /* ── prefers-reduced-motion ───────────────────────────────────────────
    *
