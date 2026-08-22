@@ -69,13 +69,16 @@ async function fetchIndex(ex) {
   const price = typeof meta.regularMarketPrice === 'number' ? meta.regularMarketPrice : bars[bars.length - 1][1];
   const asOfSec = typeof meta.regularMarketTime === 'number' ? meta.regularMarketTime : bars[bars.length - 1][0];
 
-  let prev = null;
-  if (bars.length) {
-    const ultima = bars[bars.length - 1];
-    const esHoy = claveDia(ultima[0], ex.tz) === claveDia(asOfSec, ex.tz);
-    if (esHoy) prev = bars.length > 1 ? bars[bars.length - 2][1] : (meta.chartPreviousClose || null);
-    else prev = ultima[1];
-  }
+  // Cierre previo = último cierre de un día ANTERIOR al del precio vigente,
+  // contando los días por el reloj de la bolsa. Se agrupa por día porque
+  // Yahoo a veces manda dos barras del mismo día (la sesión y una barra "en
+  // curso" con la hora del último dato: Bovespa, por ejemplo); comparar la
+  // penúltima barra a secas daba entonces un cambio de 0,00 %.
+  const porDia = new Map();
+  bars.forEach(([t, c]) => porDia.set(claveDia(t, ex.tz), c));
+  const hoy = claveDia(asOfSec, ex.tz);
+  const previos = [...porDia.keys()].filter((d) => d < hoy);
+  let prev = previos.length ? porDia.get(previos[previos.length - 1]) : null;
   if (prev === null && typeof meta.chartPreviousClose === 'number') prev = meta.chartPreviousClose;
 
   const changePct = (typeof prev === 'number' && prev > 0) ? ((price - prev) / prev) * 100 : null;
