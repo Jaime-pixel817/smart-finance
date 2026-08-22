@@ -1,0 +1,35 @@
+---
+// Hueco marcado: aquí escribe Jaime, no la IA.
+//
+// DECISIÓN (documentada en el PR y en el README del reporte): el bloque se ve
+// SIEMPRE, también en producción, porque el reporte se publica a propósito con
+// estado "borrador · en preparación" y esconder los huecos daría la impresión
+// de que el reporte está completo. En desarrollo se añade la ruta exacta
+// dentro de model.json para que Jaime sepa dónde escribir.
+import type { Locale } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+interface Props { locale: Locale; field: string; compact?: boolean }
+const { locale, field, compact = false } = Astro.props;
+const r = useR(locale);
+const dev = import.meta.env.DEV;
+---
+<div class:list={['pending', compact && 'is-compact']} role="note">
+  <p class="pending-h">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 8v5"/><path d="M12 16.5v.01"/><circle cx="12" cy="12" r="9"/></svg>
+    {r.pendingH}
+  </p>
+  {!compact && <p class="t-small muted">{r.pendingP}</p>}
+  {dev && <p class="pending-path t-mono t-caption">{r.pendingField}: {field}</p>}
+</div>
+<style>
+  .pending {
+    border: 1px dashed var(--line); border-radius: var(--r-card);
+    background: var(--bg-2); padding: var(--card-pad);
+    display: flex; flex-direction: column; gap: var(--sp-2);
+  }
+  .pending.is-compact { padding: var(--sp-2) var(--sp-3); }
+  .pending-h { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-small); font-weight: 500; color: var(--warn); }
+  .pending-h svg { flex: none; }
+  .pending p { max-width: var(--measure); }
+  .pending-path { color: var(--ink-3); word-break: break-all; }
+</style>

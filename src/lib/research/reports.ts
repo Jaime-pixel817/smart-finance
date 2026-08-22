@@ -6,8 +6,14 @@
 // El registro de abajo (REPORTS) es lo que decide qué URLs existen: un reporte
 // con `page: true` genera /research/<slug> y /es/research/<slug>; los demás
 // solo aparecen en la lista del hub como "qué viene".
-import { readFileSync } from 'node:fs';
+// Los ficheros se inlinean con import.meta.glob(?raw) en vez de leerse con
+// node:fs: así Vite los mete en el grafo del build (recarga en caliente al
+// editarlos) y no hace falta @types/node solo para esto.
 import { parseYaml } from './yaml.mjs';
+
+const RAW = import.meta.glob('../../../content/research/**/*.{yaml,json}', {
+  query: '?raw', import: 'default', eager: true
+}) as Record<string, string>;
 
 export type ReportStatus = 'draft' | 'review' | 'published';
 
@@ -103,8 +109,11 @@ export const REPORTS: ReportEntry[] = [
   { slug: 'chipotle', dir: 'chipotle', routeId: '', page: false, ticker: 'CMG', name: 'Chipotle Mexican Grill' }
 ];
 
-const ROOT = new URL('../../../content/research/', import.meta.url);
-const read = (rel: string) => readFileSync(new URL(rel, ROOT), 'utf8');
+function read(rel: string): string {
+  const want = '/content/research/' + rel;
+  for (const [k, v] of Object.entries(RAW)) if (k.endsWith(want)) return v;
+  throw new Error('research: falta el fichero content/research/' + rel);
+}
 const MM = (x: unknown): number | null => (typeof x === 'number' && Number.isFinite(x) ? Math.round((x / 1e6) * 10) / 10 : null);
 const div = (a: number | null, b: number | null): number | null =>
   a !== null && b !== null && b !== 0 ? Math.round((a / b) * 1000) / 10 : null;

@@ -16,7 +16,7 @@ const links = [
   { id: 'news', href: home + '#story', label: t('nav.news') },
   { id: 'learn', href: route('lessons', locale), label: t('nav.learn') },
   { id: 'tools', href: home + '#tools', label: t('nav.tools') },
-  { id: 'research', href: home + '#research', label: t('nav.research') }
+  { id: 'research', href: route('research', locale), label: t('nav.research') }
 ];
 let altHref = '/';
 try { altHref = route(routeId, other); } catch { altHref = route('home', other); }

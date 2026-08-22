@@ -35,6 +35,10 @@ export const ROUTES: RouteEntry[] = [
   { id: 'lesson.inflacion', en: '/lessons/inflacion', es: '/es/lecciones/inflacion', ...LESSON_META },
   { id: 'lesson.errores', en: '/lessons/errores-al-invertir', es: '/es/lecciones/errores-al-invertir', ...LESSON_META },
   { id: 'lessons.glossary', en: '/lessons/glossary', es: '/es/lecciones/glosario', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.6' },
+  // Research: /research es marca y se usa igual en los dos idiomas (como
+  // "Smart Finance Research"); lo que cambia es el idioma del contenido.
+  { id: 'research', en: '/research', es: '/es/research', lastmod: '2026-08-22', changefreq: 'weekly', priority: '0.8' },
+  { id: 'research.lululemon', en: '/research/lululemon', es: '/es/research/lululemon', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.7' },
   { id: 'about', en: '/about', es: '/es/acerca', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' },
   { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' }
 ];

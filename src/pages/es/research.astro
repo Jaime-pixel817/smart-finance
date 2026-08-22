@@ -1,0 +1,24 @@
+---
+// /es/research — hub de Smart Finance Research (español). La ruta se llama
+// igual en los dos idiomas porque "Research" es el nombre de la sección.
+import Base from '../../layouts/Base.astro';
+import Hub from '../../components/research/Hub.astro';
+import { SITE } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+const r = useR('es');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Smart Finance Research',
+  description: r.hubDesc,
+  url: SITE + '/es/research',
+  inLanguage: 'es-MX',
+  dateModified: '2026-08-22',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/es/acerca' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="es" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}>
+  <Hub locale="es" />
+</Base>

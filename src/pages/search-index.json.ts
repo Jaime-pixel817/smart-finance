@@ -8,6 +8,7 @@ import { getLessons } from '../data/lessons';
 import glossary from '../data/glossary.json';
 import { LOCALES, route, type Locale } from '../i18n/routes';
 import { ui } from '../i18n/ui';
+import { PAGED_REPORTS, loadReport } from '../lib/research/reports';
 
 type Item = { t: 'asset' | 'lesson' | 'term' | 'tool' | 'page'; name: string; sym?: string; keys?: string; href: string; lang: Locale };
 
@@ -37,7 +38,11 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['nav.about'], keys: lang === 'es' ? 'Jaime Sandoval quién hace esto contacto' : 'Jaime Sandoval who makes this contact', href: route('about', lang), lang });
     items.push({ t: 'page', name: t['nav.methodology'], keys: lang === 'es' ? 'metodología fuentes datos IA correcciones' : 'methodology sources data AI corrections', href: route('methodology', lang), lang });
     items.push({ t: 'page', name: t['nav.newsletter'], keys: lang === 'es' ? 'suscribirme correo boletín' : 'subscribe email', href: route('home', lang) + '#newsletter', lang });
-    items.push({ t: 'page', name: t['research.title'], keys: 'LULU Lululemon equity report reporte', href: route('home', lang) + '#research', lang });
+    items.push({ t: 'page', name: t['research.title'], keys: lang === 'es' ? 'research reportes acciones DCF valuación fuentes' : 'research reports equity DCF valuation sources', href: route('research', lang), lang });
+    for (const rep of PAGED_REPORTS) {
+      const meta = loadReport(rep.slug).meta;
+      items.push({ t: 'page', name: meta.name, sym: meta.ticker, keys: rep.ticker + ' ' + (lang === 'es' ? 'reporte equity research DCF valuación' : 'equity research report DCF valuation'), href: route(rep.routeId, lang), lang });
+    }
   }
   return new Response(JSON.stringify(items), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 };
