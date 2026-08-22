@@ -229,9 +229,15 @@ function boot(root: HTMLElement) {
     });
   }
 
-  // ---- 6. Globo (diferido, respeta reduced-motion) -------------------------
+  // ---- 6. Globo de mercados (diferido) -------------------------------------
+  // Carga three.js + public/assets/risk-sphere.js cuando la tarjeta se acerca
+  // al viewport y el hilo está libre. Con prefers-reduced-motion también se
+  // carga (las ocho bolsas son contenido, no decoración): el propio
+  // risk-sphere.js pinta UN fotograma quieto con los marcadores y no arranca
+  // el bucle; aquí solo se marca la tarjeta para cambiar la nota de pie.
   const globe = document.getElementById('globalRiskGlobe');
-  if (globe && !matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+  if (globe && 'IntersectionObserver' in window) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) globe.classList.add('globe-static');
     let loaded = false;
     const load = () => {
       if (loaded) return; loaded = true;
@@ -241,10 +247,12 @@ function boot(root: HTMLElement) {
       s1.onload = () => { const s2 = document.createElement('script'); s2.type = 'module'; s2.src = '/assets/risk-sphere.js'; document.body.appendChild(s2); };
       document.body.appendChild(s1);
     };
-    const io = new IntersectionObserver((entries) => { if (entries.some((en) => en.isIntersecting)) { io.disconnect(); const idle = (window as any).requestIdleCallback || ((f: () => void) => setTimeout(f, 600)); idle(load); } }, { rootMargin: '200px 0px' });
+    // requestIdleCallback CON tope: sin él, una página que nunca queda ociosa
+    // (esqueletos animados mientras llegan los datos, un teléfono justo) no
+    // llama nunca y el globo no aparece. Es el mismo tope del arranque legacy.
+    const idle = (f: () => void) => ((window as any).requestIdleCallback ? (window as any).requestIdleCallback(f, { timeout: 1500 }) : setTimeout(f, 600));
+    const io = new IntersectionObserver((entries) => { if (entries.some((en) => en.isIntersecting)) { io.disconnect(); idle(load); } }, { rootMargin: '200px 0px' });
     // Espera al evento load para no competir con el primer pintado.
     if (document.readyState === 'complete') io.observe(globe); else window.addEventListener('load', () => io.observe(globe), { once: true });
-  } else if (globe) {
-    globe.classList.add('globe-static');
   }
 }

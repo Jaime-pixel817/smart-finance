@@ -10,6 +10,7 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 - Nunca decir "en vivo" en datos de mercado: chip de fuente/retraso/hora (`src/components/SourceChip.astro`) con la cadencia real de actualización.
 - Disclaimer educativo obligatorio en el footer de cada página con contenido financiero.
 - **No añadir símbolos a `/api/markets`** (Twelve Data): la cuota gratis ya va en 672 de 800 créditos/día. Datos nuevos van por `/api/history` (Yahoo Finance, caché 60 s, gratis) o `/api/quotes` (divisas y VIX, Yahoo, caché 15 min). El registro de activos del sitio es `src/data/symbols.ts`.
+- Los ocho índices del globo del home salen de `/api/world` (Yahoo Finance, caché 15 min, UNA llamada por visita); abierto/cerrado lo decide `src/scripts/exchange-hours.ts` (horario regular, sin festivos) y la leyenda/tarjeta las pinta `src/scripts/world-markets.ts` (`src/components/home/WorldMarkets.astro`). El globo (`public/assets/risk-sphere.js`) solo escucha los eventos `world:data` / `world:select` y emite `globe:marker`.
 - Responsive se verifica con iframes locales de distintos anchos (resize_window no sirve en la pestaña automatizada).
 
 ## Stack
