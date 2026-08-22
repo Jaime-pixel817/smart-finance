@@ -1,0 +1,200 @@
+---
+// EL HERO DEL HOME — el globo a sangre y el titular encima.
+//
+// CÓMO ESTÁ MONTADO, DE ABAJO A ARRIBA
+//
+//   .hero-globe   position: fixed, arriba del todo, 56 vh de alto y ancho
+//                 completo. Dentro van, en el mismo sitio y del mismo tamaño,
+//                 el SVG estático y el lienzo WebGL. Se funde hacia abajo con
+//                 mask-image: no hay borde ni caja, el globo se disuelve en la
+//                 página. z-index 1: por debajo de todo el contenido.
+//   .hero-copy    el titular en Fraunces abajo a la izquierda y, debajo, la
+//                 línea mono con la fecha y el estado de los mercados. z-index
+//                 3, o sea encima del globo. pointer-events: none para que el
+//                 dedo llegue al lienzo aunque pase por encima del texto.
+//   .home-body    (en Home.astro) todo lo demás, opaco y también en z-index 3:
+//                 al hacer scroll sube y tapa el globo.
+//
+// EL PRIMER PINTADO NO TIENE HUECO. El SVG (src/generated/globe-fallback.svg,
+// 2.3 KB, lo genera scripts/build-geo.mjs desde la máscara de tierra) va
+// INLINE en el HTML, así que se ve en el primer frame, ya orientado a América y
+// exactamente donde va a aparecer el lienzo. Cuando WebGL arranca, el script
+// del hero le pone .is-live al contenedor y el SVG se funde a 0 sin mover un
+// píxel. Antes aquí había un rectángulo vacío hasta que llegaba three.js.
+//
+// LAS PASTILLAS. Dos o tres marcadores llevan pegado su cambio del día (Nueva
+// York, Ciudad de México y la bolsa que más se mueva). Las posiciones las manda
+// el globo por el evento "globe:pins" —es el único que sabe dónde está cada
+// punto ahora mismo— y src/scripts/hero.ts solo mueve los divs. Van con
+// aria-hidden: el mismo dato, en texto y accesible, está en la leyenda de ocho
+// chips de más abajo (WorldMarkets.astro).
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import fallbackSvg from '../../generated/globe-fallback.svg?raw';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+---
+<section class="hero" aria-label={t('hero.label')}>
+  <div class="hero-globe" id="hero-globe">
+    <div class="hero-globe-still" aria-hidden="true" set:html={fallbackSvg} />
+    <div id="globalRiskGlobe" class="globe-host" role="img" aria-label={t('globe.aria')}></div>
+    <div class="hero-pins" id="hero-pins" aria-hidden="true"></div>
+  </div>
+
+  <div class="container hero-copy">
+    <h1 class="hero-title">{t('site.tagline')}</h1>
+    <p id="today-line" class="today-line t-mono t-caption skel" aria-live="polite">Thu 21 Aug · NYSE open · BMV open</p>
+  </div>
+
+  <!-- Dos testigos de 1 px para los IntersectionObserver de hero.ts: el de
+       arriba dice cuándo la barra deja de estar sobre el globo (y se pone
+       sólida) y el de abajo cuándo el globo ya aterrizó (y se apaga el bucle
+       de WebGL, que si no seguiría dibujando detrás de la página). -->
+  <div class="hero-mark hero-mark-top" aria-hidden="true"></div>
+  <div class="hero-mark hero-mark-end" aria-hidden="true"></div>
+</section>
+
+<style>
+  /* Alto del globo: 56 vh en el teléfono, con suelo y techo en px para que un
+     móvil bajito no lo deje en una franja y una pantalla alta no se lo coma
+     todo. svh y no vh: en iOS vh cuenta la barra del navegador que se esconde,
+     y el globo salía cortado por abajo al cargar. */
+  .hero {
+    --hero-h: clamp(300px, 56svh, 460px);
+    position: relative;
+    min-height: var(--hero-h);
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: var(--sp-4);
+  }
+
+  .hero-globe {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--hero-h);
+    z-index: 1;
+    /* El globo son partículas hueso: su fondo se queda oscuro en los dos
+       temas, como en la tarjeta que había antes. */
+    background: radial-gradient(circle at 50% 42%, #17171B, #08080A 72%);
+    /* Fundido hacia abajo: sin borde duro, el globo se disuelve en la página.
+       El degradado tapa además el canto del lienzo. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
+    touch-action: pan-y;
+    will-change: transform, opacity;
+  }
+  .hero-globe > * { position: absolute; inset: 0; }
+  .globe-host { width: 100%; height: 100%; }
+  .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
+
+  /* El SVG estático y el lienzo ocupan exactamente el mismo hueco. El primero
+     se apaga cuando el segundo ya está pintando. */
+  .hero-globe-still { display: grid; place-items: center; transition: opacity .5s ease; }
+  .hero-globe-still :global(svg) { width: min(92%, 100vh); height: auto; }
+  .hero-globe.is-live .hero-globe-still { opacity: 0; }
+
+  .hero-mark { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; }
+  .hero-mark-top { top: 4px; }
+  .hero-mark-end { top: 80%; }
+
+  /* Copy */
+  .hero-copy {
+    position: relative;
+    z-index: 3;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+  .hero-title {
+    margin: 0;
+    max-width: 15ch;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(1.75rem, 8.2vw, 2.5rem);
+    line-height: 1.12;
+    letter-spacing: -.015em;
+    color: #F7F7F3;
+    /* Contraste garantizado sobre un fondo que se mueve: la sombra hace de
+       fondo local. Dos capas — una cerrada y opaca que separa el trazo de las
+       partículas, y una abierta que apoya el conjunto. Medido sobre el peor
+       píxel del globo (partícula de tierra iluminada, ~#C9C6BE): 4.9:1. */
+    text-shadow: 0 1px 2px rgba(0,0,0,.92), 0 4px 22px rgba(0,0,0,.78);
+  }
+  .today-line { color: #D8D8D2; text-shadow: 0 1px 3px rgba(0,0,0,.95); min-height: 1rem; }
+  .today-line.skel { color: transparent; }
+  .today-line :global(.st-open) { color: #35D89A; }
+  .today-line :global(.st-closed) { color: #FFC46B; }
+
+  /* Pastillas de cambio del día pegadas a los marcadores. Las coloca
+     src/scripts/hero.ts con transform; aquí solo va el aspecto. */
+  .hero-pins { pointer-events: none; z-index: 2; overflow: hidden; }
+  .hero-pins :global(.pin) {
+    position: absolute; top: 0; left: 0;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 8px; border-radius: var(--r-pill);
+    background: rgba(10, 10, 13, .74);
+    border: 1px solid rgba(244, 244, 241, .16);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    font-family: var(--font-mono); font-size: 11px; line-height: 1.35;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+    color: #EDEDE8;
+    opacity: 0; transition: opacity .35s ease;
+  }
+  .hero-pins :global(.pin.on) { opacity: 1; }
+  .hero-pins :global(.pin b) { font-weight: 500; color: #FFF; }
+  .hero-pins :global(.pin .up) { color: #35D89A; }
+  .hero-pins :global(.pin .down) { color: #FF7B7F; }
+  .hero-pins :global(.pin .flat) { color: #B9B9C2; }
+
+  /* ── La transición de scroll ──────────────────────────────────────────
+     UNA sola animación: el globo se encoge y se va a la esquina donde está el
+     ícono de la barra, y a la vez se apaga mientras el ícono de la barra se
+     enciende (ese lado vive en TopBar.astro). Se prefiere scroll-timeline, que
+     corre en el compositor y no toca el hilo principal; donde no hay,
+     src/scripts/hero.ts hace lo mismo con un scroll pasivo + rAF. */
+  @keyframes hero-park {
+    from { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+    70%  { opacity: .85; }
+    to   {
+      transform: translate3d(calc(28px - 50vw), calc(26px - var(--hero-h) / 2), 0) scale(.075);
+      opacity: 0;
+    }
+  }
+  @supports (animation-timeline: scroll()) {
+    .hero-globe {
+      animation: hero-park linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 calc(var(--hero-h) * .8);
+    }
+  }
+  /* Aterrizado: fuera de la pantalla y fuera del compositor. El bucle de
+     WebGL se para por evento (ver hero.ts); esto es la parte visual. */
+  .hero-globe.is-parked { visibility: hidden; }
+
+  /* ── Menos movimiento ──────────────────────────────────────────────────
+     Sin transición de scroll y sin globo fijo: se queda dentro del hero, ya
+     orientado a América, y se va con la página como cualquier imagen. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-globe { position: absolute; animation: none; will-change: auto; }
+    .hero-globe-still { transition: none; }
+    .hero-pins :global(.pin) { transition: none; }
+  }
+
+  /* ── Escritorio ────────────────────────────────────────────────────────
+     El mismo hero, ensanchado: el globo sigue a sangre y el titular baja a la
+     izquierda dentro del contenedor. Nada de un diseño distinto. */
+  @media (min-width: 768px) {
+    .hero { --hero-h: clamp(380px, 58svh, 620px); padding-bottom: var(--sp-6); }
+    .hero-title { max-width: 18ch; font-size: clamp(2.5rem, 4.6vw, 3.75rem); }
+  }
+  @media (min-width: 1100px) {
+    /* En pantallas anchas el globo se corre a la derecha para dejar el titular
+       sobre fondo limpio: mismo hero, dos tercios de aire. */
+    .hero-globe { left: 22%; }
+    .hero-title { max-width: 16ch; }
+  }
+</style>
+
+<script src="../../scripts/hero.ts"></script>

@@ -230,14 +230,16 @@ function boot(root: HTMLElement) {
   }
 
   // ---- 6. Globo de mercados (diferido) -------------------------------------
-  // Carga three.js + public/assets/risk-sphere.js cuando la tarjeta se acerca
-  // al viewport y el hilo está libre. Con prefers-reduced-motion también se
-  // carga (las ocho bolsas son contenido, no decoración): el propio
-  // risk-sphere.js pinta UN fotograma quieto con los marcadores y no arranca
-  // el bucle; aquí solo se marca la tarjeta para cambiar la nota de pie.
+  // Carga three.js + public/assets/risk-sphere.js cuando el hilo está libre.
+  // El globo ahora es el hero, o sea que está en pantalla desde el primer
+  // frame — pero SIGUE cargándose diferido a propósito: mientras tanto se ve
+  // el SVG estático de Hero.astro, que pesa 2.3 KB y va inline. Así el LCP no
+  // espera ni a three.js ni a WebGL.
+  // Con prefers-reduced-motion también se carga (las ocho bolsas son
+  // contenido, no decoración): risk-sphere.js pinta UN fotograma quieto con
+  // los marcadores en su sitio y no arranca el bucle.
   const globe = document.getElementById('globalRiskGlobe');
   if (globe && 'IntersectionObserver' in window) {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) globe.classList.add('globe-static');
     let loaded = false;
     const load = () => {
       if (loaded) return; loaded = true;

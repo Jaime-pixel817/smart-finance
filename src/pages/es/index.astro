@@ -4,10 +4,9 @@ import Home from '../../components/home/Home.astro';
 import { useT } from '../../i18n/ui';
 const t = useT('es');
 ---
-<Base locale="es" routeId="home" active="today"
+<Base locale="es" routeId="home" active="today" heroOverlay
   title="Smart Finance — Mercados y dinero, explicados para jóvenes"
   description={t('site.desc')}
   ogImageAlt="Smart Finance — finanzas que sí se entienden, por Jaime Sandoval Ricaño">
-  <h1 class="visually-hidden">Smart Finance — {t('site.tagline')}</h1>
   <Home locale="es" />
 </Base>

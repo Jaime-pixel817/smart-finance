@@ -6,7 +6,11 @@ import type { Locale } from '../i18n/routes';
 import { route, otherLocale } from '../i18n/routes';
 import { useT } from '../i18n/ui';
 import ThemeToggle from './ThemeToggle.astro';
-const { locale, routeId, active } = Astro.props as { locale: Locale; routeId: string; active: string };
+// `overlay` lo pone solo el home: la barra se sale del flujo y va TRANSPARENTE
+// sobre el globo a sangre del hero; src/scripts/hero.ts le añade .is-solid en
+// cuanto el hero deja de estar debajo, y .is-parked cuando el globo termina de
+// encogerse hasta esta barra (ahí la "S" del wordmark se cambia por el globo).
+const { locale, routeId, active, overlay = false } = Astro.props as { locale: Locale; routeId: string; active: string; overlay?: boolean };
 const t = useT(locale);
 const other = otherLocale(locale);
 const home = route('home', locale);
@@ -21,10 +25,19 @@ const links = [
 let altHref = '/';
 try { altHref = route(routeId, other); } catch { altHref = route('home', other); }
 ---
-<header class="topbar">
+<header class:list={['topbar', overlay && 'is-overlay']}>
   <div class="container topbar-inner">
     <a class="wordmark" href={home}>
-      <span class="wm-s" aria-hidden="true">S</span><span class="wm-text">Smart Finance</span>
+      <span class="wm-mark" aria-hidden="true">
+        <span class="wm-s">S</span>
+        {overlay && (
+          <svg class="wm-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <ellipse cx="12" cy="12" rx="4" ry="9"/>
+            <path d="M3.6 9h16.8M3.6 15h16.8"/>
+          </svg>
+        )}
+      </span><span class="wm-text">Smart Finance</span>
     </a>
     <nav class="desk-nav" aria-label={locale === 'es' ? 'Principal' : 'Primary'}>
       {links.map((l) => (
@@ -43,9 +56,51 @@ try { altHref = route(routeId, other); } catch { altHref = route('home', other);
 </header>
 <style>
   .topbar { position: sticky; top: 0; z-index: 40; height: var(--topbar-h); background: color-mix(in srgb, var(--bg-0) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+
+  /* ── Modo sobre el globo (solo el home) ────────────────────────────────
+     position: fixed y no sticky porque sticky sigue OCUPANDO su hueco en el
+     flujo, y entonces el hero empezaría 52 px más abajo y el globo no llegaría
+     al borde de arriba. Fuera del flujo, el hero arranca en y = 0 y la barra
+     flota encima.
+     Sobre el globo la tinta es siempre clara —el fondo del globo es oscuro en
+     los dos temas—; al ponerse sólida vuelven los tokens normales. */
+  .topbar.is-overlay {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: transparent; border-bottom-color: transparent;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    color: #F4F4F1;
+    transition: background .25s ease, border-color .25s ease, backdrop-filter .25s ease;
+  }
+  .topbar.is-overlay .wordmark { color: #F7F7F3; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+  .topbar.is-overlay .wm-s { background: rgba(10,10,13,.5); border-color: rgba(244,244,241,.22); color: #35D89A; }
+  .topbar.is-overlay .wm-globe { color: #35D89A; }
+  .topbar.is-overlay .desk-nav a, .topbar.is-overlay .lang-btn, .topbar.is-overlay .search-btn { color: #E4E4DE; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+  .topbar.is-overlay :global(.theme-toggle) { color: #E4E4DE; }
+  .topbar.is-overlay.is-solid {
+    background: color-mix(in srgb, var(--bg-0) 92%, transparent);
+    border-bottom-color: var(--line);
+    backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    color: var(--ink);
+  }
+  .topbar.is-overlay.is-solid .wordmark { color: var(--ink); text-shadow: none; }
+  .topbar.is-overlay.is-solid .wm-s { background: var(--bg-1); border-color: var(--line); color: var(--brand-text); }
+  .topbar.is-overlay.is-solid .wm-globe { color: var(--brand-text); }
+  .topbar.is-overlay.is-solid .desk-nav a, .topbar.is-overlay.is-solid .lang-btn, .topbar.is-overlay.is-solid .search-btn { color: var(--ink-2); text-shadow: none; }
+  .topbar.is-overlay.is-solid :global(.theme-toggle) { color: var(--ink-2); }
+  @media (prefers-reduced-motion: reduce) {
+    .topbar.is-overlay { transition: none; }
+    .wm-s, .wm-globe { transition: none; }
+  }
   .topbar-inner { height: 100%; display: flex; align-items: center; gap: var(--sp-4); }
   .wordmark { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; letter-spacing: -.01em; color: var(--ink); min-height: 44px; }
+  /* La "S" y el globo comparten el mismo hueco de 26 px y se cruzan: el globo
+     del hero "aterriza" justo aquí. */
+  .wm-mark { position: relative; width: 26px; height: 26px; flex: none; }
+  .wm-s, .wm-globe { position: absolute; inset: 0; transition: opacity .28s ease, transform .28s ease; }
   .wm-s { width: 26px; height: 26px; border-radius: 7px; background: var(--bg-1); border: 1px solid var(--line); color: var(--brand-text); display: inline-grid; place-items: center; font-size: 1rem; line-height: 1; }
+  .wm-globe { width: 26px; height: 26px; color: var(--brand-text); opacity: 0; transform: scale(1.5); }
+  .topbar.is-parked .wm-s { opacity: 0; transform: scale(.7); }
+  .topbar.is-parked .wm-globe { opacity: 1; transform: none; }
   .desk-nav { display: none; gap: 2px; margin-left: var(--sp-2); }
   .desk-nav a { padding: 0 12px; min-height: 40px; display: inline-flex; align-items: center; border-radius: var(--r-btn); font-size: var(--fs-small); font-weight: 500; color: var(--ink-2); position: relative; }
   .desk-nav a:hover { color: var(--ink); background: var(--bg-2); }

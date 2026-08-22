@@ -1,8 +1,15 @@
 ---
-// Home "Hoy" (sección B del documento de diseño): barra → línea Hoy → Pulso →
-// La historia de hoy → Sigue aprendiendo → Herramientas → Globo → Research →
-// Mercados en 60 s → Breakdowns → Boletín → Quién hace esto. En escritorio
-// la misma estructura se ensancha a 12 columnas (story + globo lado a lado).
+// Home "Hoy": HERO (globo a sangre + titular + línea Hoy) → Pulso → La
+// historia de hoy → Mercado global (la leyenda del globo) → Sigue aprendiendo
+// → Herramientas → Research → Mercados en 60 s → Breakdowns → Boletín → Quién
+// hace esto. En escritorio la misma estructura se ensancha a 12 columnas.
+//
+// EL GLOBO YA NO VIVE EN UNA TARJETA. Su lienzo está arriba, en el hero
+// (Hero.astro), a sangre y detrás del titular. Lo que queda aquí abajo con el
+// título "Mercado global" es su LEYENDA: los ocho chips con ciudad, cambio del
+// día y abierto/cerrado. No es un adorno duplicado — es el mismo dato en texto,
+// que es lo que leen un lector de pantalla y quien no tiene WebGL, y es donde
+// se toca para abrir la tarjeta de cada bolsa.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
@@ -11,6 +18,7 @@ import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
 import SourceChip from '../SourceChip.astro';
 import WorldMarkets from './WorldMarkets.astro';
+import Hero from './Hero.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -33,9 +41,12 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 <div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)} data-asset-hrefs={JSON.stringify(assetHrefs)}
   data-rates-verified={RATES.verificado} data-rates-max-days={RATES.maxDias} data-banxico={RATES.banxico} data-fed-min={RATES.fedMin} data-fed-max={RATES.fedMax}>
 
-  <!-- ── Línea "Hoy" ─────────────────────────────────────────────── -->
+  <Hero locale={locale} />
+
+  <div class="home-body">
+  <!-- Frase de bienvenida, solo la primera visita. La línea Hoy (fecha ·
+       NYSE · BMV) se fue al hero: es lo primero que hay que saber. -->
   <section class="container today" aria-label={t('today.label')}>
-    <p id="today-line" class="today-line t-mono t-caption skel" aria-live="polite">Thu 21 Aug · NYSE open · BMV open</p>
     <p id="today-intro" class="today-intro t-small muted">
       <span>{t('today.intro')}</span>
       <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
@@ -101,16 +112,17 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       </article>
     </section>
 
-    <!-- ── Globo de mercados (escritorio: junto a la historia; móvil: más abajo).
-         El lienzo (public/assets/risk-sphere.js, carga diferida desde home.ts)
-         pinta día/noche y las ocho bolsas; WorldMarkets pone la leyenda de
-         chips y la tarjeta al toque, y le pasa los datos por eventos. ── -->
+    <!-- ── Mercado global: la LEYENDA del globo del hero ────────────────
+         El lienzo está arriba (Hero.astro). Aquí van los ocho chips con
+         ciudad · cambio del día · abierto/cerrado, que son el mismo dato en
+         texto y el acceso para lectores de pantalla y para quien no tiene
+         WebGL. Tocar un chip abre la tarjeta y enciende ese país en el globo
+         (evento world:select). -->
     <section id="globe" class="globe col-5" aria-labelledby="globe-h">
       <div class="section-head">
         <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
       </div>
       <div class="card globe-card">
-        <div id="globalRiskGlobe" class="globe-host" role="img" aria-label={t('globe.aria')}></div>
         <WorldMarkets locale={locale} />
         <p class="t-caption faint globe-note">{t('globe.sub')}</p>
         <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
@@ -269,13 +281,17 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       </div>
     </section>
   </div>
+  </div>
 </div>
 
 <script src="../../scripts/home.ts"></script>
 <script src="../../scripts/home-learn.ts"></script>
 
 <style>
-  .home { padding-top: var(--sp-3); }
+  /* El hero va a sangre desde y = 0; lo de después empieza aquí, y es OPACO
+     (z-index 3) porque al hacer scroll tiene que tapar el globo, que está fijo
+     en z-index 1. Sin fondo propio se vería el globo detrás del pulso. */
+  .home-body { position: relative; z-index: 3; background: var(--bg-0); padding-top: var(--sp-4); }
   .anchor-alias { display: block; position: relative; top: calc(-1 * var(--topbar-h) - 8px); }
   section[id] { scroll-margin-top: calc(var(--topbar-h) + 8px); }
   .grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); margin-top: var(--sp-4); }
@@ -286,12 +302,9 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
   }
 
-  /* Línea Hoy */
+  /* Frase de bienvenida */
   .today { display: flex; flex-direction: column; gap: var(--sp-2); }
-  .today-line { color: var(--ink-2); min-height: 1rem; }
-  .today-line.skel { color: transparent; }
-  :global(.st-open) { color: var(--up-text); }
-  :global(.st-closed) { color: var(--warn); }
+  :global(html.intro-seen) .today { display: none; }
   .today-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); }
   :global(html.intro-seen) .today-intro { display: none; }
   .today-intro button { width: 36px; height: 36px; border-radius: var(--r-btn); color: var(--ink-3); font-size: 1.25rem; line-height: 1; }
@@ -332,16 +345,10 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .ai-disclosure p { margin-top: var(--sp-2); max-width: 52ch; }
   #story-link[hidden] { display: none; }
 
-  /* Globo */
-  .globe-card { padding: 0; overflow: hidden; position: relative; }
-  /* El globo son partículas hueso: su fondo se queda oscuro en los dos temas. */
-  .globe-host { width: 100%; height: 220px; touch-action: pan-y; background: radial-gradient(circle at 50% 55%, #18181C, #0C0C0F 70%); }
-  @media (min-width: 960px) { .globe-card { display: flex; flex-direction: column; height: 100%; } .globe-host { flex: 1; min-height: 360px; height: auto; } }
-  .globe-note, .globe-motion { padding: var(--sp-3) var(--sp-4); }
+  /* Mercado global (la leyenda del globo del hero) */
+  .globe-card { padding: 0 0 var(--sp-1); overflow: hidden; position: relative; }
+  .globe-note, .globe-motion { padding: var(--sp-2) var(--sp-4) var(--sp-3); }
   .globe-motion { display: none; }
-  .globe-host.globe-static ~ .globe-note { display: none; }
-  .globe-host.globe-static ~ .globe-motion { display: block; }
-  .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
   @media (prefers-reduced-motion: reduce) { .globe-note { display: none; } .globe-motion { display: block; } }
 
   /* Aprender */
