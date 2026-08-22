@@ -1,0 +1,316 @@
+---
+// Bloque 7–8 del reporte: el DCF que se puede mover, la tabla de sensibilidad
+// WACC × g, el rango tipo "football field" y el control de escenarios.
+//
+// Se calcula DOS veces: aquí en el build (para que la página tenga números
+// reales sin JavaScript, y para imprimirla) y otra vez en el navegador cuando
+// alguien mueve un control. Las dos usan EL MISMO motor, src/lib/finance/dcf.mjs:
+// no hay una segunda copia de las fórmulas.
+import type { Locale } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import type { Report } from '../../lib/research/reports';
+import { runDCF, sensitivity, sanityChecks, defaultRanges } from '../../lib/finance/dcf.mjs';
+import { labStart, authorControls, modelWith, LIMITS } from '../../lib/research/lab.mjs';
+import { footballField } from '../../lib/research/charts.mjs';
+import { millions, money, pct, times } from '../../lib/research/format.mjs';
+import Pending from './Pending.astro';
+
+const { locale, report } = Astro.props as { locale: Locale; report: Report };
+const r = useR(locale);
+const model = report.model;
+
+const { controls: start, derivation } = labStart(model);
+const author = authorControls(model);
+const initial = author || start;
+const isLab = !author;
+
+const live = modelWith(model, initial);
+const result = runDCF(live);
+const ranges = defaultRanges(initial.w, initial.g);
+const sens = sensitivity(live, ranges.waccRange, ranges.gRange);
+const alerts = sanityChecks(live, { ...result, sensitivity: sens }).filter((a: any) => a.code !== 'RATIONALE_PENDING');
+
+const flat = sens.prices.flat().filter((x: number | null) => typeof x === 'number') as number[];
+const gridLow = Math.min(...flat), gridHigh = Math.max(...flat);
+
+// Escenarios: solo entran los que Jaime ya escribió (overrides con contenido).
+const scenarioNames = ['bear', 'base', 'bull'] as const;
+const scenarios = scenarioNames.map((name) => {
+  const s = model.scenarios?.[name] || {};
+  const ready = s.overrides && Object.keys(s.overrides).length > 0;
+  return { name, ready: !!ready, prob: s.prob ?? null, label: name === 'bear' ? r.ffBear : name === 'base' ? r.ffBase : r.ffBull };
+});
+const anyScenario = scenarios.some((s) => s.ready);
+
+const ffRows = [
+  { label: r.ffLab, low: gridLow, high: gridHigh, mid: result.impliedPrice, color: 'var(--s1)' },
+  ...scenarios.map((s) => ({ label: s.label, low: NaN, high: NaN, color: 'var(--s4)', empty: r.ffEmpty })),
+  { label: r.ffComps, low: NaN, high: NaN, color: 'var(--s3)', empty: r.ffEmpty }
+];
+const ffSvg = footballField({
+  rows: ffRows, mark: null, fmt: (v: number) => money(v, locale, 0),
+  ariaLabel: `${r.ffH}: ${r.ffLab} ${money(gridLow, locale, 0)}–${money(gridHigh, locale, 0)}`
+});
+
+const CTL = [
+  { k: 'g1', label: r.ctl.g1, unit: '%' },
+  { k: 'g2', label: r.ctl.g2, unit: '%' },
+  { k: 'm', label: r.ctl.m, unit: '%' },
+  { k: 'w', label: r.ctl.w, unit: '%' },
+  { k: 'g', label: r.ctl.g, unit: '%' }
+] as const;
+const ADV = [
+  { k: 'da', label: r.ctl.da, unit: '%' },
+  { k: 'capex', label: r.ctl.capex, unit: '%' },
+  { k: 'nwc', label: r.ctl.nwc, unit: '%' },
+  { k: 'tax', label: r.ctl.tax, unit: '%' }
+] as const;
+
+const DERIV = [
+  { k: 'g1', label: r.ctl.g1 }, { k: 'g2', label: r.ctl.g2 }, { k: 'm', label: r.ctl.m },
+  { k: 'w', label: r.ctl.w }, { k: 'g', label: r.ctl.g }, { k: 'da', label: r.ctl.da },
+  { k: 'capex', label: r.ctl.capex }, { k: 'nwc', label: r.ctl.nwc }, { k: 'tax', label: r.ctl.tax }
+] as const;
+
+// Lo que necesita el script en el navegador. El modelo va recortado: solo el
+// histórico, los supuestos y lo que el motor lee.
+const payload = {
+  locale,
+  model: { historical: model.historical, dcf: model.dcf, meta: { ...model.meta, sources: undefined }, scenarios: model.scenarios },
+  start, author, initial, limits: LIMITS,
+  history: report.meta.ticker,
+  t: {
+    price: r.out.price, ff: { lab: r.ffLab, comps: r.ffComps, mark: r.ffMark, empty: r.ffEmpty, aria: r.ffH },
+    scen: { bear: r.ffBear, base: r.ffBase, bull: r.ffBull },
+    copied: r.btnCopied, copy: r.btnCopy, alertsOk: r.alertsOk, vsMarket: r.out.vsMarket
+  }
+};
+---
+<div class="lab" data-lab>
+  <div class:list={['card', 'lab-note', isLab && 'is-lab']}>
+    <p class="eyebrow">{isLab ? r.labH : r.assumpH}</p>
+    <p class="t-small">{isLab ? r.labP : r.labPAuthor}</p>
+  </div>
+
+  <div class="lab-grid">
+    <form class="lab-controls" data-lab-form aria-label={r.dcfH}>
+      {CTL.map((c) => (
+        <div class="lab-ctl">
+          <label for={'ctl-' + c.k}>{c.label}</label>
+          <output for={'ctl-' + c.k} class="num" data-out={c.k}>{millions(initial[c.k], locale, 1)}{c.unit}</output>
+          <input type="range" id={'ctl-' + c.k} data-ctl={c.k}
+            min={LIMITS[c.k].min} max={LIMITS[c.k].max} step={LIMITS[c.k].step} value={initial[c.k]} />
+        </div>
+      ))}
+      <details class="lab-adv">
+        <summary>{r.ctl.advanced}</summary>
+        <div class="lab-adv-inner">
+          {ADV.map((c) => (
+            <div class="lab-ctl">
+              <label for={'ctl-' + c.k}>{c.label}</label>
+              <output for={'ctl-' + c.k} class="num" data-out={c.k}>{millions(initial[c.k], locale, 1)}{c.unit}</output>
+              <input type="range" id={'ctl-' + c.k} data-ctl={c.k}
+                min={LIMITS[c.k].min} max={LIMITS[c.k].max} step={LIMITS[c.k].step} value={initial[c.k]} />
+            </div>
+          ))}
+          <div class="lab-ctl lab-ctl-select">
+            <label for="ctl-t">{r.ctl.t}</label>
+            <select id="ctl-t" data-ctl="t">
+              <option value="gordon" selected={initial.t === 'gordon'}>{r.ctl.tGordon}</option>
+              <option value="exit-multiple" selected={initial.t === 'exit-multiple'}>{r.ctl.tExit}</option>
+            </select>
+          </div>
+          <div class="lab-ctl" data-x-wrap hidden={initial.t !== 'exit-multiple'}>
+            <label for="ctl-x">{r.ctl.x}</label>
+            <output for="ctl-x" class="num" data-out="x">{millions(initial.x, locale, 1)}x</output>
+            <input type="range" id="ctl-x" data-ctl="x" min={LIMITS.x.min} max={LIMITS.x.max} step={LIMITS.x.step} value={initial.x} />
+          </div>
+        </div>
+      </details>
+
+      <div class="lab-buttons">
+        <button type="button" class="btn btn-ghost btn-sm" data-lab-author disabled={!author}
+          title={author ? undefined : r.btnAuthorOff}>{r.btnAuthor}</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-lab-start>{r.btnStart}</button>
+        <button type="button" class="btn btn-primary btn-sm" data-lab-copy>{r.btnCopy}</button>
+      </div>
+      {!author && <p class="t-caption faint">{r.btnAuthorOff}.</p>}
+    </form>
+
+    <div class="lab-out" aria-live="polite">
+      <div class="card lab-price">
+        <p class="eyebrow">{r.out.price}</p>
+        <p class="num lab-price-v" data-out-price>{money(result.impliedPrice, locale, 2)}</p>
+        <p class="t-caption faint" data-out-vs hidden></p>
+      </div>
+      <dl class="lab-stats">
+        <div><dt>{r.out.ev}</dt><dd class="num" data-out-ev>{millions(result.ev, locale, 0)}</dd><dd class="t-caption faint">{r.mm}</dd></div>
+        <div><dt>{r.out.equity}</dt><dd class="num" data-out-equity>{millions(result.equity, locale, 0)}</dd><dd class="t-caption faint">{r.mm}</dd></div>
+        <div><dt>{r.out.tv}</dt><dd class="num" data-out-tv>{pct(result.tvShareOfEVPct, locale, 1)}</dd><dd class="t-caption faint">&nbsp;</dd></div>
+        <div><dt>{r.out.exit}</dt><dd class="num" data-out-exit>{times(result.impliedExitMultiple, locale, 1)}</dd><dd class="t-caption faint">&nbsp;</dd></div>
+        <div><dt>{r.out.shares}</dt><dd class="num">{millions(result.shares, locale, 1)}</dd><dd class="t-caption faint">{report.model.historical.at(-1)?.fy}</dd></div>
+      </dl>
+      <div class="lab-alerts" data-lab-alerts>
+        <p class="eyebrow">{r.alertsH}</p>
+        {alerts.length === 0 && <p class="t-small muted">{r.alertsOk}</p>}
+        <ul>
+          {alerts.map((a: any) => (
+            <li class={'al al-' + a.level}><span class="al-dot" aria-hidden="true"></span><span class="t-small">{a.message}</span></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <section class="lab-sec" aria-labelledby="sens-h">
+    <h3 id="sens-h" class="t-h3">{r.sensH}</h3>
+    <p class="t-small muted">{r.sensP}</p>
+    <div class="sens-wrap">
+      <table class="sens" data-sens>
+        <caption class="visually-hidden">{r.sensH}</caption>
+        <thead>
+          <tr>
+            <th scope="col"><span class="t-caption faint">{r.sensWacc} \ {r.sensG}</span></th>
+            {sens.gPcts.map((g: number) => <th scope="col" class="num" data-g={g}>{millions(g, locale, 2)}%</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {sens.prices.map((row: (number | null)[], i: number) => (
+            <tr>
+              <th scope="row" class="num" data-w={sens.waccPcts[i]}>{millions(sens.waccPcts[i], locale, 1)}%</th>
+              {row.map((v, j) => (
+                <td class:list={['num', Math.abs(sens.waccPcts[i] - initial.w) < 1e-9 && Math.abs(sens.gPcts[j] - initial.g) < 1e-9 && 'is-on']}>
+                  {v === null ? '—' : money(v, locale, 0)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lab-sec" aria-labelledby="ff-h">
+    <h3 id="ff-h" class="t-h3">{r.ffH}</h3>
+    <div class="scen-tabs" role="group" aria-label={r.scenH}>
+      {scenarios.map((s) => (
+        <button type="button" class="scen-tab" data-scen={s.name} disabled={!s.ready}
+          aria-pressed={s.name === 'base' && s.ready ? 'true' : 'false'}>{s.label}</button>
+      ))}
+      <button type="button" class="scen-tab is-on" data-scen="lab" aria-pressed="true">{r.ffLab}</button>
+    </div>
+    {!anyScenario && <Pending locale={locale} field="model.json → scenarios.{bear,base,bull}.overrides / prob / rationale" />}
+    {!anyScenario && <p class="t-small muted">{r.scenPending}</p>}
+    <div class="ff" data-ff set:html={ffSvg} />
+    <p class="t-small muted">{r.ffP}</p>
+  </section>
+
+  <section class="lab-sec" aria-labelledby="deriv-h">
+    <h3 id="deriv-h" class="t-h3">{isLab ? r.derivH : r.assumpH}</h3>
+    <div class="table-wrap">
+      <table class="deriv">
+        <thead>
+          <tr>
+            <th scope="col">{r.derivCols.field}</th>
+            <th scope="col">{r.derivCols.value}</th>
+            <th scope="col">{isLab ? r.derivCols.from : r.assumpCols.why}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {DERIV.map((d) => {
+            const dv = (derivation as any)[d.k];
+            return (
+              <tr>
+                <th scope="row">{d.label}</th>
+                <td class="num">{millions(start[d.k], locale, 1)}%</td>
+                <td>
+                  <span class="deriv-code">{(r.derivCode as any)[dv.code]}</span>
+                  {dv.fy && <span class="t-caption faint"> · {dv.fy}</span>}
+                  <span class="t-caption num deriv-detail">{dv.detail}</span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <p class="t-caption faint">{r.derivWaccNote}</p>
+    <p class="t-caption faint">{r.derivGNote}</p>
+  </section>
+
+  <script type="application/json" data-lab-data set:html={JSON.stringify(payload)}></script>
+</div>
+
+<script src="../../scripts/research-lab.ts"></script>
+
+<style>
+  .lab { display: flex; flex-direction: column; gap: var(--sp-5); }
+  .lab-note { display: flex; flex-direction: column; gap: var(--sp-2); border-left: 3px solid var(--line); }
+  .lab-note.is-lab { border-left-color: var(--warn); }
+  .lab-note.is-lab .eyebrow { color: var(--warn); }
+  .lab-note p { max-width: var(--measure); }
+
+  .lab-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .lab-grid { grid-template-columns: 1fr 1fr; align-items: start; } }
+
+  .lab-controls { display: flex; flex-direction: column; gap: var(--sp-4); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--card-pad); }
+  .lab-ctl { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; }
+  .lab-ctl label { font-size: var(--fs-small); color: var(--ink-2); }
+  .lab-ctl output { font-size: var(--fs-small); color: var(--ink); text-align: right; }
+  .lab-ctl input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--brand-fill); height: 40px; }
+  .lab-ctl-select { grid-template-columns: 1fr; }
+  .lab-ctl select { grid-column: 1 / -1; min-height: 44px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-input); padding: 0 var(--sp-2); }
+  .lab-adv summary { font-size: var(--fs-small); color: var(--ink-2); cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+  .lab-adv summary:hover { color: var(--ink); }
+  .lab-adv-inner { display: flex; flex-direction: column; gap: var(--sp-4); padding-top: var(--sp-2); }
+  .lab-buttons { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .lab-buttons .btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+  .lab-out { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .lab-price { display: flex; flex-direction: column; gap: 2px; }
+  .lab-price-v { font-size: var(--fs-num-xl); line-height: 1.1; color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+  .lab-stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin: 0; }
+  .lab-stats > div { display: flex; flex-direction: column; gap: 1px; padding: var(--sp-2) 0; border-top: 1px solid var(--line); }
+  .lab-stats dt { font-size: var(--fs-caption); color: var(--ink-3); }
+  .lab-stats dd { margin: 0; font-size: var(--fs-num-m); color: var(--ink); }
+  .lab-stats dd.t-caption { color: var(--ink-3); font-family: var(--font-sans); }
+
+  .lab-alerts { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .lab-alerts ul { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .al { display: grid; grid-template-columns: 10px 1fr; gap: var(--sp-2); align-items: start; }
+  .al-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--warn-dot); }
+  .al-error .al-dot { background: var(--down); }
+
+  .lab-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .lab-sec > p { max-width: var(--measure); }
+  .sens-wrap, .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1); }
+  .sens { border-collapse: collapse; font-size: var(--fs-caption); min-width: 100%; }
+  .sens th, .sens td { padding: 7px 9px; text-align: right; white-space: nowrap; border-top: 1px solid var(--line); color: var(--ink-2); font-weight: 400; }
+  .sens thead th { border-top: 0; color: var(--ink-3); }
+  .sens th[scope="row"] { position: sticky; left: 0; background: var(--bg-1); text-align: left; color: var(--ink-3); }
+  .sens td.is-on { background: var(--brand-wash); color: var(--ink); font-weight: 500; box-shadow: inset 0 0 0 1px var(--brand-text); border-radius: 4px; }
+
+  .scen-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--bg-2); border-radius: var(--r-pill); align-self: flex-start; }
+  .scen-tab { min-height: 36px; padding: 0 14px; border-radius: var(--r-pill); font-size: var(--fs-small); color: var(--ink-2); }
+  .scen-tab.is-on, .scen-tab[aria-pressed="true"] { background: var(--bg-1); color: var(--ink); box-shadow: var(--shadow-1); }
+  .scen-tab[disabled] { opacity: .4; cursor: not-allowed; }
+
+  .ff :global(svg) { width: 100%; height: auto; display: block; }
+  .ff :global(.fc-grid) { stroke: var(--line); }
+  .ff :global(.fc-xtick) { fill: var(--ink-3); font-family: var(--font-mono); font-size: 10px; }
+  .ff :global(.fc-ff-label) { fill: var(--ink-2); font-size: 11px; }
+  .ff :global(.fc-ff-num) { fill: var(--ink-3); font-family: var(--font-mono); font-size: 10px; }
+  .ff :global(.fc-ff-empty) { fill: var(--ink-3); font-size: 11px; font-style: italic; }
+  .ff :global(.fc-ff-bar) { opacity: .55; }
+  .ff :global(.fc-ff-mid) { stroke: var(--ink); stroke-width: 2; }
+  .ff :global(.fc-ff-mark) { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .ff :global(.fc-ff-marktext) { fill: var(--ink); font-family: var(--font-mono); font-size: 10px; }
+
+  .deriv { border-collapse: collapse; font-size: var(--fs-small); min-width: 100%; }
+  .deriv th, .deriv td { padding: 8px 10px; text-align: left; border-top: 1px solid var(--line); font-weight: 400; color: var(--ink-2); vertical-align: top; }
+  .deriv thead th { border-top: 0; color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .deriv th[scope="row"] { color: var(--ink); min-width: 150px; }
+  .deriv td.num { white-space: nowrap; }
+  .deriv-code { color: var(--ink); }
+  .deriv-detail { display: block; color: var(--ink-3); font-family: var(--font-mono); }
+</style>

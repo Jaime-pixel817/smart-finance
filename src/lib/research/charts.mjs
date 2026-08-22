@@ -13,6 +13,8 @@ const M = { top: 26, right: 10, bottom: 34, left: 46 };
 const IW = W - M.left - M.right;
 const IH = H - M.top - M.bottom;
 
+/** Formateador por defecto (con firma de numero, no el constructor String). */
+const str = (v) => String(v);
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const n2 = (x) => Math.round(x * 100) / 100;
 
@@ -53,7 +55,7 @@ function wrap({ inner, ariaLabel, cls = '' }) {
  * Barras verticales (ingresos, FCF, recompras). Valores negativos permitidos.
  * opts: { labels[], values[], fmtY, fmtVal, ariaLabel, color, highlight (índice) }
  */
-export function barChart({ labels, values, fmtY = String, fmtVal = String, ariaLabel = '', color = 'var(--s1)', highlight = -1 }) {
+export function barChart({ labels, values, fmtY = str, fmtVal = str, ariaLabel = '', color = 'var(--s1)', highlight = -1 }) {
   const vals = values.map((v) => (Number.isFinite(v) ? v : 0));
   const scale = niceScale(Math.min(0, ...vals), Math.max(0, ...vals));
   const { y, grid, xlabels, step } = frame({ scale, labels, fmtY });
@@ -74,7 +76,7 @@ export function barChart({ labels, values, fmtY = String, fmtVal = String, ariaL
  * Barras agrupadas (caja vs. deuda vs. arrendamientos).
  * opts: { labels[], series: [{ name, values[], color }], ... }
  */
-export function groupedBarChart({ labels, series, fmtY = String, ariaLabel = '' }) {
+export function groupedBarChart({ labels, series, fmtY = str, ariaLabel = '' }) {
   const all = series.flatMap((s) => s.values.filter(Number.isFinite));
   const scale = niceScale(Math.min(0, ...all), Math.max(0, ...all));
   const { y, grid, xlabels, step } = frame({ scale, labels, fmtY });
@@ -95,7 +97,7 @@ export function groupedBarChart({ labels, series, fmtY = String, ariaLabel = '' 
  * Líneas (márgenes). opts: { labels[], series: [{ name, values[], color }], ... }
  * Dibuja punto por año y la etiqueta del último valor de cada serie.
  */
-export function lineChart({ labels, series, fmtY = String, fmtVal = String, ariaLabel = '', zeroBase = false }) {
+export function lineChart({ labels, series, fmtY = str, fmtVal = str, ariaLabel = '', zeroBase = false }) {
   const all = series.flatMap((s) => s.values.filter(Number.isFinite));
   const scale = niceScale(zeroBase ? 0 : Math.min(...all), Math.max(...all));
   const { y, grid, xlabels, step } = frame({ scale, labels, fmtY, showZero: zeroBase });
@@ -118,8 +120,10 @@ export function lineChart({ labels, series, fmtY = String, fmtVal = String, aria
  * "Football field": barras horizontales de rango con una marca de precio.
  * rows: [{ label, low, high, mid?, color }], mark: { value, label } | null.
  * Este sí se redibuja en el navegador (mismo código, importado por el script).
+ * @param {{ rows: any[], mark?: { value: number, label: string } | null, fmt?: (v: number) => string, ariaLabel?: string, width?: number }} opts
  */
-export function footballField({ rows, mark = null, fmt = String, ariaLabel = '', width = 400 }) {
+export function footballField(opts) {
+  const { rows, mark = null, fmt = str, ariaLabel = '', width = 400 } = opts;
   const h = 34;
   const top = 8, left = 82, right = 12, bottom = 26;
   const height = top + rows.length * h + bottom;

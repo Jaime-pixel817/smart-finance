@@ -181,6 +181,8 @@ export function scenarioValues(model) {
 /**
  * Controles de sanidad. Devuelve [{ level: 'error'|'warn', code, message }].
  * Se puede llamar con el modelo crudo (antes de calcular) y con `result` de runDCF.
+ * @param {any} model
+ * @param {any} [result]
  */
 export function sanityChecks(model, result = null) {
   const alerts = [];

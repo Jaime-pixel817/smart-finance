@@ -161,7 +161,12 @@ export function encodeControls(controls, start) {
   return p.toString();
 }
 
-/** Query string → controles, cayendo al arranque en lo que falte o no valga. */
+/**
+ * Query string → controles, cayendo al arranque en lo que falte o no valga.
+ * @param {string|URLSearchParams} search
+ * @param {any} start
+ * @param {any} [limits]
+ */
 export function decodeControls(search, start, limits = LIMITS) {
   const p = typeof search === 'string' ? new URLSearchParams(search.replace(/^\?/, '')) : search;
   const out = { ...start };

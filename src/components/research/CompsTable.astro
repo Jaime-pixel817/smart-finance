@@ -1,0 +1,111 @@
+---
+// Comparables (bloque 3 y parte del 7). La lista de candidatas y el "por qué
+// está" salen de model.json → comps.peers, el fichero de trabajo del reporte.
+// Los múltiplos y la decisión de dejar o sacar a cada par están en null: los
+// llena Jaime con fecha y fuente. La fila de la propia empresa se calcula con
+// los datos ya verificados (crecimiento y margen EBIT del último año fiscal);
+// sus múltiplos también esperan precio y fecha.
+import type { Locale } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import type { Report } from '../../lib/research/reports';
+import { millions, day } from '../../lib/research/format.mjs';
+
+const { locale, report } = Astro.props as { locale: Locale; report: Report };
+const r = useR(locale);
+const comps = report.model.comps || {};
+const peers = comps.peers || [];
+const last = report.annual[report.annual.length - 1];
+const selfGrowth = last.revenueGrowthPct;
+const selfMargin = last.operatingIncome !== null && last.revenue ? Math.round((last.operatingIncome / last.revenue) * 1000) / 10 : null;
+
+type Cell = number | null;
+interface Row {
+  ticker: string; name: string; pe: Cell; evEbitda: Cell; evSales: Cell; fcf: Cell;
+  growth: Cell; margin: Cell; why: string; decision: boolean | null; self?: boolean;
+}
+const rows: Row[] = [
+  {
+    ticker: report.meta.ticker, name: report.meta.name, pe: null, evEbitda: null, evSales: null, fcf: null,
+    growth: selfGrowth, margin: selfMargin,
+    why: locale === 'es'
+      ? `La empresa del reporte. Crecimiento y margen salen del ${last.fy} verificado; los múltiplos necesitan precio y fecha.`
+      : `The company this report is about. Growth and margin come from the verified ${last.fy}; the multiples need a price and a date.`,
+    decision: true, self: true
+  },
+  ...peers.map((p: any): Row => ({
+    ticker: p.ticker, name: p.name, pe: p.pe ?? null, evEbitda: p.evEbitda ?? null, evSales: p.evSales ?? null,
+    fcf: p.fcfYieldPct ?? null, growth: p.revGrowthPct ?? null, margin: p.ebitMarginPct ?? null,
+    why: p.why || '', decision: p.includeDecision ?? null
+  }))
+];
+
+const n = (v: Cell, unit = '') => (v === null ? '—' : millions(v, locale, 1) + unit);
+const cols = [
+  { key: 'pe', label: r.compsCols.pe, unit: 'x' },
+  { key: 'evEbitda', label: r.compsCols.evEbitda, unit: 'x' },
+  { key: 'evSales', label: r.compsCols.evSales, unit: 'x' },
+  { key: 'fcf', label: r.compsCols.fcf, unit: '%' },
+  { key: 'growth', label: r.compsCols.growth, unit: '%' },
+  { key: 'margin', label: r.compsCols.margin, unit: '%' }
+] as const;
+---
+<div class="comps">
+  <p class="t-small muted">{r.compsP}</p>
+  <p class="t-caption faint">
+    {r.compsAsOf}: <span class="num">{comps.asOf ? day(comps.asOf, locale) : r.hdr.pending}</span>
+    {comps.source && <span> · {comps.source}</span>}
+  </p>
+  <div class="comps-wrap">
+    <table class="comps-table" data-comps>
+      <caption class="visually-hidden">{r.compsH}</caption>
+      <thead>
+        <tr>
+          <th scope="col" data-sort data-col="0" aria-sort="none"><button type="button">{r.compsCols.ticker}</button></th>
+          <th scope="col">{r.compsCols.name}</th>
+          {cols.map((c, i) => (
+            <th scope="col" class="num" data-sort data-col={i + 2} aria-sort="none"><button type="button">{c.label}</button></th>
+          ))}
+          <th scope="col" class="comps-why">{r.compsCols.why}</th>
+          <th scope="col">{r.compsCols.decision}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr class={row.self ? 'is-self' : undefined}>
+            <th scope="row" class="num" data-v={row.ticker}>{row.ticker}</th>
+            <td>{row.name}</td>
+            {cols.map((c) => (
+              <td class="num" data-v={(row as any)[c.key] ?? ''}>{n((row as any)[c.key], c.unit)}</td>
+            ))}
+            <td class="comps-why t-caption">{row.why}</td>
+            <td>
+              {row.decision === true && <span class="chip comps-in">{r.compsIn}</span>}
+              {row.decision === false && <span class="chip comps-out">{r.compsOut}</span>}
+              {row.decision === null && <span class="chip comps-pend">{r.compsUndecided}</span>}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .comps { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .comps > p { max-width: var(--measure); }
+  .comps-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1); margin-top: var(--sp-2); }
+  .comps-table { border-collapse: collapse; font-size: var(--fs-small); min-width: 100%; }
+  .comps-table th, .comps-table td { padding: 8px 10px; text-align: left; border-top: 1px solid var(--line); font-weight: 400; color: var(--ink-2); vertical-align: top; }
+  .comps-table td.num, .comps-table th.num { text-align: right; white-space: nowrap; }
+  .comps-table thead th { border-top: 0; color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .comps-table thead th button { font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; min-height: 32px; }
+  .comps-table thead th button::after { content: ' ⇅'; opacity: .5; }
+  .comps-table thead th[aria-sort="ascending"] button::after { content: ' ↑'; opacity: 1; }
+  .comps-table thead th[aria-sort="descending"] button::after { content: ' ↓'; opacity: 1; }
+  .comps-table tbody th[scope="row"] { position: sticky; left: 0; background: var(--bg-1); color: var(--ink); font-weight: 500; }
+  .comps-table tr.is-self th[scope="row"], .comps-table tr.is-self td { background: var(--brand-wash); color: var(--ink); }
+  .comps-why { max-width: 34ch; min-width: 24ch; white-space: normal; line-height: var(--lh-caption); }
+  .chip.comps-in { color: var(--up-text); }
+  .chip.comps-out { color: var(--down-text); }
+  .chip.comps-pend { color: var(--warn); }
+</style>
