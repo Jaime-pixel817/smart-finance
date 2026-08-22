@@ -1,12 +1,12 @@
 # Código fuente de referencia (original React de Mauricio) — solo local
 reference/
 
-# Config local de Claude Code (permisos de esta máquina) — no va al repo público
-.claude/
+# Config local de Claude Code (permisos de esta máquina) — no va al repo público.
+# Los agentes y skills en .claude/ SI se versionan.
+.claude/settings.local.json
 
 # Variables de entorno: las API keys nunca deben llegar a git
-.env
-.env.local
+.env*
 .vercel
 
 # Dependencias: se instalan desde package.json (Vercel corre npm install en cada
@@ -20,4 +20,3 @@ instrucciones.md
 # usa las versiones de 900px que estan junto a esta carpeta; estas se guardan
 # solo como respaldo local por si hay que regenerarlas con otro encuadre.
 assets/breakdowns/_originales/
-.env*

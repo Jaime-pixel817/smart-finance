@@ -1,0 +1,31 @@
+# Healthcheck de producción: cada 6 h pide los 4 endpoints de /api en
+# https://smartfinance.lat y valida que respondan 200 con JSON. Si falla,
+# GitHub Actions manda el aviso por correo al dueño del repo.
+name: healthcheck
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  healthcheck:
+    name: healthcheck
+    runs-on: ubuntu-latest
+    env:
+      BASE: https://smartfinance.lat
+    steps:
+      - name: /api/markets
+        run: curl -fsS --max-time 30 "$BASE/api/markets" | jq -e 'type == "object" or type == "array"' > /dev/null
+
+      - name: /api/news
+        run: curl -fsS --max-time 30 "$BASE/api/news" | jq -e 'type == "object" or type == "array"' > /dev/null
+
+      - name: /api/sparklines
+        run: curl -fsS --max-time 30 "$BASE/api/sparklines" | jq -e 'type == "object" or type == "array"' > /dev/null
+
+      - name: /api/history?pair=USDMXN&range=1D
+        run: curl -fsS --max-time 30 "$BASE/api/history?pair=USDMXN&range=1D" | jq -e 'type == "object" or type == "array"' > /dev/null

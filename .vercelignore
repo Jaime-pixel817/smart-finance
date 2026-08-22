@@ -1,6 +1,11 @@
 # Archivos internos que no deben servirse en smartfinance.lat
 CLAUDE.md
 .claude
+.github
+docs
+scripts
+README.md
+LICENSE
 ensayo.json
 instrucciones.md
 # Datos geográficos del globo (538 KB) que risk-sphere.js ya no importa; se
