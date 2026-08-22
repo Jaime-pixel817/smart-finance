@@ -35,9 +35,10 @@ if (root) boot(root);
 function boot(root: HTMLElement) {
   const loc: Loc = root.dataset.locale === 'es' ? 'es' : 'en';
   const T = JSON.parse(root.dataset.strings || '{}') as Record<string, string>;
-  const sheet = document.getElementById('world-sheet');
+  const sheetEl = document.getElementById('world-sheet');
   const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('.wm-chip'));
-  if (!sheet || !chips.length) return;
+  if (!sheetEl || !chips.length) return;
+  const sheet: HTMLElement = sheetEl;
   const q = <E extends Element = HTMLElement>(sel: string, from: ParentNode = sheet) => from.querySelector<E>(sel);
 
   // Lo que se sabe de cada bolsa sale del HTML (ya traducido): id, índice,
