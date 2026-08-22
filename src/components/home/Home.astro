@@ -9,6 +9,7 @@ import { useT } from '../../i18n/ui';
 import { PULSE, RATES, LESSONS, BREAKDOWNS, ratesFresh } from '../../data/home';
 import { ASSETS, assetRouteId } from '../../data/symbols';
 import SourceChip from '../SourceChip.astro';
+import WorldMarkets from './WorldMarkets.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -95,13 +96,17 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       </article>
     </section>
 
-    <!-- ── Globo (escritorio: junto a la historia; móvil: más abajo) ── -->
+    <!-- ── Globo de mercados (escritorio: junto a la historia; móvil: más abajo).
+         El lienzo (public/assets/risk-sphere.js, carga diferida desde home.ts)
+         pinta día/noche y las ocho bolsas; WorldMarkets pone la leyenda de
+         chips y la tarjeta al toque, y le pasa los datos por eventos. ── -->
     <section id="globe" class="globe col-5" aria-labelledby="globe-h">
       <div class="section-head">
         <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
       </div>
       <div class="card globe-card">
         <div id="globalRiskGlobe" class="globe-host" role="img" aria-label={t('globe.aria')}></div>
+        <WorldMarkets locale={locale} />
         <p class="t-caption faint globe-note">{t('globe.sub')}</p>
         <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
       </div>
@@ -327,7 +332,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   @media (min-width: 960px) { .globe-card { display: flex; flex-direction: column; height: 100%; } .globe-host { flex: 1; min-height: 360px; height: auto; } }
   .globe-note, .globe-motion { padding: var(--sp-3) var(--sp-4); }
   .globe-motion { display: none; }
-  .globe-host.globe-static + .globe-note { display: none; }
+  .globe-host.globe-static ~ .globe-note { display: none; }
   .globe-host.globe-static ~ .globe-motion { display: block; }
   .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
   @media (prefers-reduced-motion: reduce) { .globe-note { display: none; } .globe-motion { display: block; } }
