@@ -247,7 +247,11 @@ function boot(root: HTMLElement) {
       s1.onload = () => { const s2 = document.createElement('script'); s2.type = 'module'; s2.src = '/assets/risk-sphere.js'; document.body.appendChild(s2); };
       document.body.appendChild(s1);
     };
-    const io = new IntersectionObserver((entries) => { if (entries.some((en) => en.isIntersecting)) { io.disconnect(); const idle = (window as any).requestIdleCallback || ((f: () => void) => setTimeout(f, 600)); idle(load); } }, { rootMargin: '200px 0px' });
+    // requestIdleCallback CON tope: sin él, una página que nunca queda ociosa
+    // (esqueletos animados mientras llegan los datos, un teléfono justo) no
+    // llama nunca y el globo no aparece. Es el mismo tope del arranque legacy.
+    const idle = (f: () => void) => ((window as any).requestIdleCallback ? (window as any).requestIdleCallback(f, { timeout: 1500 }) : setTimeout(f, 600));
+    const io = new IntersectionObserver((entries) => { if (entries.some((en) => en.isIntersecting)) { io.disconnect(); idle(load); } }, { rootMargin: '200px 0px' });
     // Espera al evento load para no competir con el primer pintado.
     if (document.readyState === 'complete') io.observe(globe); else window.addEventListener('load', () => io.observe(globe), { once: true });
   }
