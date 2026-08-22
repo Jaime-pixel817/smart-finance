@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Revisar noticias — Smart Finance</title>
+<!--
+  La mesa de revisión de las noticias explicadas.
+
+  POR QUÉ UNA PÁGINA Y NO SOLO CURL
+  ---------------------------------
+  Esto se usa una vez al día, a las siete de la mañana, desde el teléfono,
+  antes de clase. Un flujo que pida abrir la laptop y escribir un curl con el
+  secreto pegado a mano acabaría en que nadie aprueba nada y /news se queda
+  vacío para siempre. El curl equivalente sigue existiendo y está documentado
+  en el encabezado de api/news-review.js y en CLAUDE.md, para automatizar o
+  para cuando esta página falle.
+
+  LO QUE ESTA PÁGINA NO HACE
+  --------------------------
+  No guarda el secreto más allá de la pestaña (sessionStorage, y hay botón de
+  salir), no lo manda a ningún sitio que no sea /api/ de este mismo dominio, y
+  no publica nada sola: cada botón es una decisión que se toma aquí.
+
+  Es HTML suelto a propósito, sin build ni framework: es una herramienta
+  interna de una persona, y su valor es que siempre funcione.
+-->
+<style>
+  :root {
+    --bg: #09090B; --card: #111114; --line: rgba(244,244,241,.12);
+    --ink: #F4F4F1; --ink-2: #A3A3AB; --ink-3: #7E7E88;
+    --ok: #16C47F; --no: #FF5A5F; --warn: #FFB84D; --on-brand: #04140D;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 64px; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  .sub { color: var(--ink-2); font-size: .875rem; margin: 0 0 20px; }
+  fieldset { border: 0; margin: 0; padding: 0; }
+  label { display: block; font-size: .75rem; color: var(--ink-2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; }
+  input[type=password], textarea, select {
+    width: 100%; background: #18181C; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; font: inherit; font-size: .9375rem;
+  }
+  textarea { resize: vertical; min-height: 74px; }
+  input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--ok); outline-offset: 2px; }
+  button { font: inherit; font-weight: 500; border: 1px solid var(--line); background: #18181C; color: var(--ink); border-radius: 10px; padding: 0 16px; min-height: 44px; cursor: pointer; }
+  button:hover { background: #202027; }
+  button.primary { background: var(--ok); color: var(--on-brand); border-color: transparent; }
+  button.danger { color: var(--no); }
+  button[disabled] { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row > * { flex: 0 0 auto; }
+  .grow { flex: 1 1 200px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .kicker { font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin: 0 0 6px; }
+  .card h2 { font-size: 1.0625rem; margin: 0 0 10px; }
+  .campo { margin-bottom: 12px; }
+  .meta { font-size: .8125rem; color: var(--ink-2); margin: 10px 0; word-break: break-word; }
+  .meta a { color: var(--ok); }
+  .aviso { border-radius: 10px; padding: 10px 12px; font-size: .875rem; margin-bottom: 16px; }
+  .aviso.error { background: rgba(255,90,95,.12); color: #FFB3B5; }
+  .aviso.ok { background: rgba(22,196,127,.12); color: #7FE3BC; }
+  .aviso.info { background: rgba(255,184,77,.10); color: #FFD79A; }
+  .lang { display: grid; gap: 12px; }
+  @media (min-width: 720px) { .lang { grid-template-columns: 1fr 1fr; } }
+  .lang section { border-top: 1px solid var(--line); padding-top: 12px; }
+  .nota { font-size: .75rem; color: var(--ink-3); margin-top: 4px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Revisar noticias</h1>
+  <p class="sub">Nada de esto está publicado. Una noticia solo aparece en smartfinance.lat cuando le das a aprobar.</p>
+
+  <div id="aviso" role="status" aria-live="polite"></div>
+
+  <!-- ---- Puerta ---- -->
+  <form id="puerta" class="card">
+    <fieldset>
+      <div class="campo">
+        <label for="secreto">CRON_SECRET</label>
+        <input type="password" id="secreto" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+        <p class="nota">Se guarda solo en esta pestaña. Al cerrarla desaparece.</p>
+      </div>
+      <button type="submit" class="primary">Entrar</button>
+    </fieldset>
+  </form>
+
+  <!-- ---- Mesa ---- -->
+  <div id="mesa" hidden>
+    <div class="row" style="margin-bottom:16px">
+      <select id="filtro" class="grow" aria-label="Qué noticias ver">
+        <option value="borrador">Borradores por revisar</option>
+        <option value="aprobadas">Aprobadas</option>
+        <option value="rechazadas">Rechazadas</option>
+        <option value="todas">Todas</option>
+      </select>
+      <button type="button" id="recargar">Recargar</button>
+      <button type="button" id="generar">Generar hoy</button>
+      <button type="button" id="salir" class="danger">Salir</button>
+    </div>
+    <div id="lista"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var LLAVE = 'sf-review-secreto';
+  var $ = function (id) { return document.getElementById(id); };
+  var secreto = '';
+
+  function avisar(texto, clase) {
+    $('aviso').innerHTML = texto ? '<p class="aviso ' + (clase || 'info') + '"></p>' : '';
+    if (texto) $('aviso').firstChild.textContent = texto;
+  }
+
+  function pedir(ruta, opciones) {
+    var o = opciones || {};
+    o.headers = Object.assign({ Authorization: 'Bearer ' + secreto }, o.headers || {});
+    o.cache = 'no-store';
+    return fetch(ruta, o).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok) throw Object.assign(new Error(d.error || ('HTTP ' + r.status)), { datos: d, status: r.status });
+        return d;
+      });
+    });
+  }
+
+  // ---- Puerta -------------------------------------------------------------
+  $('puerta').addEventListener('submit', function (e) {
+    e.preventDefault();
+    secreto = $('secreto').value.trim();
+    if (!secreto) return;
+    avisar('Comprobando…');
+    pedir('/api/news-review?limite=1').then(function () {
+      try { sessionStorage.setItem(LLAVE, secreto); } catch (err) {}
+      abrir();
+    }).catch(function (err) {
+      secreto = '';
+      avisar(err.status === 401 ? 'Ese secreto no es el bueno.' : 'No se pudo entrar: ' + err.message, 'error');
+    });
+  });
+
+  function abrir() {
+    $('puerta').hidden = true;
+    $('mesa').hidden = false;
+    $('secreto').value = '';
+    cargar();
+  }
+
+  $('salir').addEventListener('click', function () {
+    try { sessionStorage.removeItem(LLAVE); } catch (e) {}
+    location.reload();
+  });
+  $('recargar').addEventListener('click', cargar);
+  $('filtro').addEventListener('change', cargar);
+
+  $('generar').addEventListener('click', function () {
+    if (!confirm('Pide borradores nuevos a la IA (cuesta unos centavos y hay tope de 3 al día). ¿Seguir?')) return;
+    $('generar').disabled = true;
+    avisar('Generando… puede tardar medio minuto.');
+    pedir('/api/news-draft', { method: 'POST' }).then(function (d) {
+      avisar(d.generadas + ' borrador(es) nuevo(s)' + (d.motivo ? ' — ' + d.motivo : '') + '.', d.generadas ? 'ok' : 'info');
+      $('filtro').value = 'borrador';
+      cargar();
+    }).catch(function (err) {
+      avisar('No se pudieron generar: ' + err.message, 'error');
+    }).then(function () { $('generar').disabled = false; });
+  });
+
+  // ---- La cola ------------------------------------------------------------
+  function cargar() {
+    avisar('Cargando…');
+    $('lista').innerHTML = '';
+    pedir('/api/news-review?estado=' + encodeURIComponent($('filtro').value)).then(function (d) {
+      avisar(d.total ? '' : 'No hay nada en ese estado.', 'info');
+      d.items.forEach(pintar);
+    }).catch(function (err) {
+      avisar('No se pudo leer la cola: ' + err.message, 'error');
+    });
+  }
+
+  function campo(padre, etiqueta, valor, clave, filas) {
+    var d = document.createElement('div'); d.className = 'campo';
+    var l = document.createElement('label'); l.textContent = etiqueta;
+    var t = document.createElement('textarea');
+    t.value = valor || ''; t.dataset.campo = clave; t.rows = filas || 3;
+    l.htmlFor = t.id = 'c-' + Math.random().toString(36).slice(2);
+    d.appendChild(l); d.appendChild(t); padre.appendChild(d);
+    return t;
+  }
+
+  function pintar(n) {
+    var card = document.createElement('article'); card.className = 'card';
+    var k = document.createElement('p'); k.className = 'kicker';
+    k.textContent = n.estado.toUpperCase() + ' · ' + n.tema + ' · ' + n.id;
+    card.appendChild(k);
+
+    var langs = document.createElement('div'); langs.className = 'lang';
+    var campos = {};
+    ['es', 'en'].forEach(function (loc) {
+      var s = document.createElement('section');
+      var h = document.createElement('h2'); h.textContent = loc === 'es' ? 'Español' : 'English';
+      s.appendChild(h);
+      campos[loc] = {
+        titulo: campo(s, 'Título', n[loc].titulo, 'titulo', 2),
+        que: campo(s, 'Qué pasó', n[loc].que, 'que', 4),
+        porque: campo(s, 'Por qué importa', n[loc].porque, 'porque', 4),
+        impacto: campo(s, 'Impacto en mercados', n[loc].impacto, 'impacto', 2)
+      };
+      langs.appendChild(s);
+    });
+    card.appendChild(langs);
+
+    var meta = document.createElement('p'); meta.className = 'meta';
+    meta.appendChild(document.createTextNode('Activos: ' + ((n.simbolos || []).join(', ') || '—') +
+      ' · Lección: ' + (n.leccion || '—') + ' · Glosario: ' + ((n.terminos || []).join(', ') || '—')));
+    meta.appendChild(document.createElement('br'));
+    var a = document.createElement('a');
+    a.href = n.fuente.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = 'Leer el original en ' + n.fuente.nombre + ' ↗';
+    meta.appendChild(a);
+    meta.appendChild(document.createElement('br'));
+    meta.appendChild(document.createTextNode('Publicado: ' + new Date(n.fuente.publicado).toLocaleString('es-MX')));
+    card.appendChild(meta);
+
+    var fila = document.createElement('div'); fila.className = 'row';
+    var estado = document.createElement('p'); estado.className = 'nota';
+
+    function decidir(nuevoEstado, conCambios) {
+      var cuerpo = { id: n.id, estado: nuevoEstado };
+      if (conCambios) {
+        ['es', 'en'].forEach(function (loc) {
+          cuerpo[loc] = {
+            titulo: campos[loc].titulo.value.trim(), que: campos[loc].que.value.trim(),
+            porque: campos[loc].porque.value.trim(), impacto: campos[loc].impacto.value.trim()
+          };
+        });
+      }
+      Array.prototype.forEach.call(fila.querySelectorAll('button'), function (b) { b.disabled = true; });
+      estado.textContent = 'Guardando…';
+      pedir('/api/news-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cuerpo)
+      }).then(function () {
+        estado.textContent = nuevoEstado === 'aprobada'
+          ? 'Aprobada. Ya se ve en /news (puede tardar un minuto en salir del caché).'
+          : 'Marcada como ' + nuevoEstado + '.';
+        card.style.opacity = '.6';
+      }).catch(function (err) {
+        var d = err.datos || {};
+        estado.textContent = d.errores ? 'No se puede aprobar así: ' + d.errores.join('; ') : 'Error: ' + err.message;
+        Array.prototype.forEach.call(fila.querySelectorAll('button'), function (b) { b.disabled = false; });
+      });
+    }
+
+    [['Aprobar', 'primary', function () { decidir('aprobada', false); }],
+     ['Aprobar con mis cambios', '', function () { decidir('aprobada', true); }],
+     ['Rechazar', 'danger', function () { decidir('rechazada', false); }]
+    ].forEach(function (b) {
+      var el = document.createElement('button');
+      el.type = 'button'; el.textContent = b[0]; if (b[1]) el.className = b[1];
+      el.addEventListener('click', b[2]);
+      fila.appendChild(el);
+    });
+    card.appendChild(fila);
+    card.appendChild(estado);
+    document.getElementById('lista').appendChild(card);
+  }
+
+  // Si ya se entró en esta pestaña, no se vuelve a pedir el secreto.
+  try {
+    var guardado = sessionStorage.getItem(LLAVE);
+    if (guardado) { secreto = guardado; abrir(); }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
