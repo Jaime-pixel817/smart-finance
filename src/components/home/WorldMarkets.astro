@@ -1,0 +1,130 @@
+---
+// Globo de mercados, la parte en HTML: la leyenda de ocho chips (ciudad ·
+// ▲▼Δ % · punto abierto/cerrado) y la tarjeta que se abre al tocar un chip o
+// un marcador del globo. Los chips van en el HTML desde el primer pintado
+// (cero CLS y lista legible sin JS); src/scripts/world-markets.ts los rellena
+// con /api/world y habla con el globo por eventos (world:data, world:select,
+// globe:marker). La tarjeta es un bottom sheet sobre el bottom nav en móvil y
+// una tarjeta abajo a la derecha en escritorio; cierra con ✕, Esc, toque
+// fuera o deslizando hacia abajo.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { EXCHANGES } from '../../data/world';
+import { bySymbolId, assetRouteId } from '../../data/symbols';
+import SourceChip from '../SourceChip.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const strings = {
+  open: t('world.open'), closed: t('world.closed'), regular: t('world.regular'),
+  openSr: t('world.openSr'), closedSr: t('world.closedSr'),
+  loading: t('src.loading'), unavailable: t('src.unavailable')
+};
+// "¿Qué es este índice?": la ficha del activo si el índice está en el registro
+// (S&P 500 → /market/spy); si no, la lista de /market.
+const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRouteId(asset), locale) : route('market', locale));
+---
+<div id="world" class="world" data-locale={locale} data-strings={JSON.stringify(strings)}>
+  <p class="eyebrow world-title" id="world-title">{t('world.title')}</p>
+  <ul id="world-chips" class="world-chips" role="list" aria-label={t('aria.worldList')}>
+    {EXCHANGES.map((ex) => (
+      <li>
+        <button type="button" class="wm-chip" data-id={ex.id} data-index={ex.index} data-tz={ex.tz} data-href={hrefOf(ex.asset)} aria-haspopup="dialog" aria-expanded="false">
+          <span class="wm-dot" aria-hidden="true"></span>
+          <span class="wm-city">{t(ex.cityKey)}</span>
+          <span class="wm-chg num muted">—</span>
+          <span class="visually-hidden wm-sr"></span>
+        </button>
+      </li>
+    ))}
+  </ul>
+  <SourceChip locale={locale} id="chip-world" source="Yahoo Finance" delay={15} />
+</div>
+
+<div class="world-sheet" id="world-sheet" hidden role="dialog" aria-labelledby="world-sheet-title">
+  <div class="world-sheet-card">
+    <div class="world-sheet-grab" aria-hidden="true"></div>
+    <button class="world-sheet-close" type="button" aria-label={t('aria.worldClose')}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <p class="world-sheet-title t-small" id="world-sheet-title"><span class="ws-city" data-city></span> <span aria-hidden="true">·</span> <span data-index></span></p>
+    <p class="world-sheet-price"><span class="num ws-price" data-price>—</span> <span class="num ws-chg muted" data-chg>—</span></p>
+    <p class="world-sheet-hours t-caption" data-hours>—</p>
+    <SourceChip locale={locale} id="chip-world-sheet" source="Yahoo Finance" delay={15} />
+    <a class="world-sheet-link t-small" data-link href={route('market', locale)}>{t('world.what')}</a>
+  </div>
+</div>
+
+<style>
+  /* Leyenda: dentro de la tarjeta del globo, bajo el lienzo. */
+  .world { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4) 0; }
+  .world-chips {
+    display: flex; gap: var(--sp-2); overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    padding: 4px 0; margin: -4px 0;
+    /* El desvanecido del borde dice "hay más": la fila no entra en 390 px. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+  .world-chips::-webkit-scrollbar { display: none; }
+  .world-chips li { flex: none; scroll-snap-align: start; }
+  .wm-chip {
+    position: relative; display: inline-flex; align-items: center; gap: 6px;
+    min-height: 36px; padding: 0 10px 0 9px; border-radius: var(--r-pill);
+    background: var(--bg-2); border: 1px solid var(--line);
+    font-size: var(--fs-caption); line-height: 1; color: var(--ink); white-space: nowrap;
+    -webkit-tap-highlight-color: transparent; transition: border-color .15s, background .15s;
+  }
+  /* 44 px de alto para el dedo sin engordar el chip a la vista. */
+  .wm-chip::after { content: ''; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
+  .wm-chip:hover { border-color: var(--ink-3); }
+  .wm-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .wm-chip.is-selected { background: var(--bg-3); border-color: var(--ink-2); }
+  /* El punto: gris = cerrada, verde = abierta. El estado también va en texto
+     para el lector de pantalla (.wm-sr), nunca solo en el color. */
+  .wm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; }
+  .wm-chip.is-open .wm-dot { background: var(--up); box-shadow: 0 0 0 3px var(--brand-wash); }
+  .wm-chg { min-width: 8ch; text-align: right; }
+  @media (min-width: 768px) {
+    .world-chips { flex-wrap: wrap; overflow: visible; mask-image: none; -webkit-mask-image: none; }
+  }
+
+  /* La tarjeta: bottom sheet fijo sobre el bottom nav en móvil; tarjeta abajo
+     a la derecha en escritorio. Entra deslizándose; con menos movimiento
+     aparece y ya (base.css anula las transiciones). z-index 50: encima del
+     bottom nav (40), debajo de la búsqueda (60). */
+  .world-sheet {
+    position: fixed; left: 0; right: 0; bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px));
+    z-index: 50; display: flex; justify-content: center; pointer-events: none;
+  }
+  .world-sheet[hidden] { display: none; }
+  .world-sheet-card {
+    pointer-events: auto; position: relative; width: 100%; max-width: 520px;
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    background: var(--bg-3); border: 1px solid var(--line); border-bottom: 0;
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+    padding: var(--sp-2) var(--sp-4) var(--sp-4);
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet);
+    transform: translateY(104%); transition: transform .22s var(--ease-sheet);
+  }
+  .world-sheet.is-open .world-sheet-card { transform: none; }
+  .world-sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto var(--sp-1); }
+  .world-sheet-close { position: absolute; top: var(--sp-2); right: var(--sp-2); width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: var(--r-btn); color: var(--ink-2); }
+  .world-sheet-close:hover { background: var(--bg-2); color: var(--ink); }
+  .world-sheet-title { margin-right: 48px; color: var(--ink-2); }
+  .ws-city { color: var(--ink); font-weight: 600; }
+  .world-sheet-price { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; }
+  .ws-price { font-size: 1.5rem; line-height: 1.75rem; letter-spacing: -.01em; }
+  .world-sheet-hours { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); }
+  .world-sheet-hours::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; }
+  .world-sheet-hours.is-open::before { background: var(--up); }
+  .world-sheet-link { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .world-sheet-link:hover { color: var(--brand-text); }
+  @media (min-width: 768px) {
+    .world-sheet { left: auto; right: var(--sp-6); bottom: var(--sp-6); }
+    .world-sheet-card { width: 360px; border-bottom: 1px solid var(--line); border-radius: var(--r-card); box-shadow: 0 12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet); }
+    .world-sheet-grab { display: none; }
+  }
+</style>
+<script src="../../scripts/world-markets.ts"></script>

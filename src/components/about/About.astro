@@ -1,0 +1,153 @@
+---
+// /about y /es/acerca: quién hace Smart Finance, misión, con quién ha
+// conversado (el texto del #about legacy, sin añadir nada que no estuviera),
+// cómo trabaja y contacto. Foto a 160 px (WebP, 2x a 320).
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { BREAKDOWNS } from '../../data/home';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
+const TIKTOK = 'https://www.tiktok.com/@smart.financee';
+const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
+
+const copy = {
+  en: {
+    eyebrow: 'About',
+    title: "Hi, I'm Jaime.",
+    p1: "I'm Jaime Sandoval Ricaño, a student and content creator passionate about finance, business, and entrepreneurship. Through TikTok and LinkedIn, I share financial news, educational content, and insights to make finance easier to understand, especially for young people.",
+    p2: 'My goal is to keep learning, share valuable knowledge, and help more people become interested in the world of finance.',
+    missionH: 'What Smart Finance is',
+    mission: 'Markets and money, explained for young people, in English and Spanish. A home page with today’s pulse and one story explained, a markets section with delayed prices and a source chip on every number, six short lessons with their sources, a glossary with examples in pesos, and a daily newsletter. Free, with no account and no ads, built in public from Mexico.',
+    credH: 'Who I have learned from',
+    cred: 'Through my work in financial education and content creation, I have had the opportunity to speak with leading figures in the financial sector, including <strong>Margaret Franklin</strong>, CEO of CFA Institute; <strong>Jon Maier</strong>, Chief ETF Strategist at J.P. Morgan Asset Management; <strong>Moris Dieck</strong>, one of Mexico’s most prominent financial educators; <strong>Andy Toh</strong>, CEO of Bluesky Education; and many other industry professionals.',
+    postsH: 'Some of it, on record',
+    workH: 'How I work',
+    work: [
+      'Every lesson lists its sources at the bottom, with the date I checked them. When a number has no source, it is a worked example and it says so.',
+      'Market data is delayed, and every surface says by how much and from whom. Nothing here is “live”.',
+      'When AI helps, it is labeled: the “why it matters” of the daily story is generated with Claude and marked as an AI summary. The lessons are written by me.',
+      'Mistakes get fixed in public. The methodology page keeps the changelog and explains where each number comes from.',
+      'No ads, no affiliate links, no sponsors, no accounts. And none of this is financial advice.'
+    ],
+    workCta: 'Read the full methodology',
+    contactH: 'Contact',
+    contact: 'The fastest way to reach me is a message on LinkedIn or TikTok. Found an error? Tell me and I will fix it and log it. The code is public on GitHub.',
+    community: t('footer.community'),
+    newsletter: t('nav.newsletter'),
+    alt: 'Jaime Sandoval Ricaño, founder of Smart Finance',
+    tiktok: 'Watch on TikTok', linkedin: 'Read on LinkedIn'
+  },
+  es: {
+    eyebrow: 'Acerca de',
+    title: 'Hola, soy Jaime.',
+    p1: 'Soy Jaime Sandoval Ricaño, estudiante y creador de contenido apasionado por las finanzas, los negocios y el emprendimiento. En TikTok y LinkedIn comparto noticias financieras, contenido educativo e ideas para que las finanzas sean más fáciles de entender, sobre todo para los jóvenes.',
+    p2: 'Mi meta es seguir aprendiendo, compartir conocimiento de valor y ayudar a que más personas se interesen en el mundo de las finanzas.',
+    missionH: 'Qué es Smart Finance',
+    mission: 'Mercados y dinero, explicados para jóvenes, en español y en inglés. Una portada con el pulso de hoy y una noticia explicada, una sección de mercados con precios con retraso y un chip de fuente en cada número, seis lecciones cortas con sus fuentes, un glosario con ejemplos en pesos y un boletín diario. Gratis, sin cuenta y sin anuncios, construido en público desde México.',
+    credH: 'De quién he aprendido',
+    cred: 'A través de mi trabajo en educación financiera y creación de contenido, he tenido la oportunidad de conversar con figuras destacadas del sector financiero, entre ellas <strong>Margaret Franklin</strong>, CEO de CFA Institute; <strong>Jon Maier</strong>, Chief ETF Strategist de J.P. Morgan Asset Management; <strong>Moris Dieck</strong>, uno de los educadores financieros más conocidos de México; <strong>Andy Toh</strong>, CEO de Bluesky Education; y muchos otros profesionales de la industria.',
+    postsH: 'Algo de eso, publicado',
+    workH: 'Cómo trabajo',
+    work: [
+      'Cada lección lista sus fuentes al pie, con la fecha en que las revisé. Cuando una cifra no tiene fuente, es un ejemplo trabajado y lo dice.',
+      'Los datos de mercado llegan con retraso, y cada superficie dice cuánto y de quién. Aquí nada es “en vivo”.',
+      'Cuando la IA ayuda, se etiqueta: el “por qué importa” de la noticia del día se genera con Claude y va marcado como resumen de IA. Las lecciones las escribo yo.',
+      'Los errores se corrigen en público. La página de metodología lleva el registro de cambios y explica de dónde sale cada número.',
+      'Sin anuncios, sin enlaces de afiliado, sin patrocinios, sin cuentas. Y nada de esto es asesoría financiera.'
+    ],
+    workCta: 'Leer la metodología completa',
+    contactH: 'Contacto',
+    contact: 'La forma más rápida de encontrarme es un mensaje en LinkedIn o TikTok. ¿Encontraste un error? Dímelo y lo corrijo y lo registro. El código es público en GitHub.',
+    community: t('footer.community'),
+    newsletter: t('nav.newsletter'),
+    alt: 'Jaime Sandoval Ricaño, fundador de Smart Finance',
+    tiktok: 'Ver en TikTok', linkedin: 'Ver en LinkedIn'
+  }
+}[locale];
+---
+<article class="about">
+  <div class="container about-wrap">
+    <header class="about-head">
+      <img class="about-photo" src="/jaime-160.webp" srcset="/jaime-160.webp 1x, /jaime-320.webp 2x" width="160" height="160" alt={copy.alt} decoding="async" fetchpriority="high">
+      <div class="about-intro">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1 class="t-display">{copy.title}</h1>
+        <p class="about-lede">{copy.p1}</p>
+        <p class="muted">{copy.p2}</p>
+        <p class="about-links t-small">
+          <a class="btn btn-ghost btn-sm" href={LINKEDIN} target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a class="btn btn-ghost btn-sm" href={TIKTOK} target="_blank" rel="noopener">TikTok ↗</a>
+        </p>
+      </div>
+    </header>
+
+    <section class="about-sec" aria-labelledby="mission-h">
+      <h2 id="mission-h" class="t-h2">{copy.missionH}</h2>
+      <p>{copy.mission}</p>
+    </section>
+
+    <section class="about-sec" aria-labelledby="cred-h">
+      <h2 id="cred-h" class="t-h2">{copy.credH}</h2>
+      <p set:html={copy.cred} />
+      <h3 class="t-h3 about-posts-h">{copy.postsH}</h3>
+      <ul class="about-posts">
+        {BREAKDOWNS.map((b) => (
+          <li>
+            <a class="card card-link about-post" href={b.href} target="_blank" rel="noopener">
+              <span class="eyebrow">{b.net === 'tiktok' ? 'TikTok' : 'LinkedIn'}</span>
+              <span class="t-small about-post-title">{t(b.titleKey)}</span>
+              <span class="t-caption faint">{b.net === 'tiktok' ? copy.tiktok : copy.linkedin} ↗</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="about-sec" aria-labelledby="work-h">
+      <h2 id="work-h" class="t-h2">{copy.workH}</h2>
+      <ul class="about-work">
+        {copy.work.map((w) => <li>{w}</li>)}
+      </ul>
+      <a class="btn btn-primary btn-sm" href={L('methodology')}>{copy.workCta} →</a>
+    </section>
+
+    <section class="about-sec" aria-labelledby="contact-h">
+      <h2 id="contact-h" class="t-h2">{copy.contactH}</h2>
+      <p>{copy.contact}</p>
+      <p class="about-contact-links t-small">
+        <a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href={TIKTOK} target="_blank" rel="noopener">TikTok ↗</a>
+        <a href={GITHUB} target="_blank" rel="noopener">GitHub ↗</a>
+        <a href={LINKEDIN} target="_blank" rel="noopener">{copy.community} ↗</a>
+        <a href={L('home') + '#newsletter'}>{copy.newsletter}</a>
+      </p>
+    </section>
+  </div>
+</article>
+<style>
+  .about { padding-top: var(--sp-4); }
+  .about-wrap { max-width: calc(var(--measure) + 2 * var(--gutter)); display: flex; flex-direction: column; gap: var(--sp-8); }
+  .about-head { display: flex; flex-direction: column; gap: var(--sp-4); }
+  @media (min-width: 600px) { .about-head { flex-direction: row; align-items: flex-start; gap: var(--sp-6); } }
+  .about-photo { width: 160px; height: 160px; border-radius: var(--r-card); object-fit: cover; flex: none; border: 1px solid var(--line); }
+  .about-intro { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .about-lede { font-size: var(--fs-read); line-height: var(--lh-read); }
+  .about-links { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+  .about-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .about-sec p { max-width: var(--measure); }
+  .about-sec :global(strong) { font-weight: 600; }
+  .about-posts-h { margin-top: var(--sp-2); }
+  .about-posts { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
+  @media (min-width: 600px) { .about-posts { grid-template-columns: 1fr 1fr; } }
+  .about-post { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3); color: var(--ink); }
+  .about-post-title { font-weight: 500; }
+  .about-work { list-style: disc; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); color: var(--ink); }
+  .about-work li::marker { color: var(--brand-text); }
+  .about-sec .btn { align-self: flex-start; }
+  .about-contact-links { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
+  .about-contact-links a { color: var(--ink-2); min-height: 36px; display: inline-flex; align-items: center; }
+  .about-contact-links a:hover { color: var(--ink); }
+</style>

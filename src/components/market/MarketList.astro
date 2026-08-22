@@ -1,0 +1,123 @@
+---
+// /market (vista lista, sección B): "Mercados" + línea de estado (NYSE/BMV,
+// última actualización, cadencia) → chips de filtro en una fila → Asset rows
+// de 56 px agrupadas por sección (Índices con el VIX, Acciones, Divisas,
+// Cripto, Tasas). Toque → ficha. En escritorio (≥ 960 px) el panel de gráfica
+// del activo seleccionado queda fijo a la izquierda y las filas lo cambian.
+// Una petición por superficie: /api/markets (acciones + cripto) y /api/quotes
+// (divisas + VIX); tasas estáticas verificadas a mano (src/data/home.ts).
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { SYMBOLS, KINDS, sectionOf, runtimeOf, assetRouteId, type Kind, type SymbolEntry } from '../../data/symbols';
+import { RATES, ratesFresh } from '../../data/home';
+import { fmtNum, fmtDay } from '../../scripts/format';
+import AssetRow from './AssetRow.astro';
+import PricePanel from './PricePanel.astro';
+import SourceChip from '../SourceChip.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const showRates = ratesFresh();
+const sections = KINDS.map((k: Kind) => ({ kind: k, items: SYMBOLS.filter((s) => sectionOf(s) === k) }));
+const first = SYMBOLS[0];
+const hrefOf = (s: SymbolEntry) => (s.kind === 'rate' ? L(s.lesson) : L(assetRouteId(s.id)));
+const sourcesOf = (items: SymbolEntry[]) => Array.from(new Set(items.map((s) => s.source))).join(' · ');
+const verified = new Date(RATES.verificado + 'T12:00:00Z');
+const rateRow = (s: SymbolEntry) => ({
+  value: s.id === 'fed' ? `${fmtNum(RATES.fedMin, locale, 2)}–${fmtNum(RATES.fedMax, locale, 2)} %` : `${fmtNum(RATES.banxico, locale, 2)} %`,
+  note: t(s.id === 'fed' ? 'rates.fed.note' : 'rates.banxico.note'),
+  verified: `${t('rates.verified')} ${fmtDay(verified, locale)}`
+});
+const strings = {
+  open: t('today.open'), closed: t('today.closed'), updated: t('mkt.status.updated'), every: t('mkt.status.every'),
+  loading: t('src.loading'), unavailable: t('src.unavailable'), chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'),
+  today: t('chart.today'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'), bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
+  openCard: t('mkt.panel.open')
+};
+const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.name[locale] }));
+---
+<div id="market-page" class="mkt" data-locale={locale} data-strings={JSON.stringify(strings)} data-symbols={JSON.stringify(runtime)}
+  data-rates-verified={RATES.verificado} data-rates-max-days={RATES.maxDias}>
+  <header class="container mkt-head">
+    <h1 class="t-h1">{t('mkt.title')}</h1>
+    <p class="t-small muted mkt-sub">{t('mkt.sub')}</p>
+    <p id="mkt-status" class="t-mono t-caption mkt-status" aria-live="polite"><span class="skel">Thu 21 Aug · NYSE open · BMV open · updated 14:32</span></p>
+  </header>
+
+  <div class="container">
+    <div class="mkt-filters rail" role="group" aria-label={t('mkt.filter.aria')}>
+      <button class="chip" type="button" data-filter="all" aria-pressed="true">{t('mkt.filter.all')}</button>
+      {KINDS.map((k) => (
+        <button class="chip" type="button" data-filter={k} aria-pressed="false" hidden={k === 'rate' && !showRates}>{t(('sec.' + k) as UIKey)}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="container mkt-grid">
+    <!-- Panel de escritorio: el activo seleccionado en las filas. En móvil no se muestra (la fila lleva a la ficha). -->
+    <section class="mkt-panel card" aria-labelledby="mkt-panel-h" data-panel-for={first.id}>
+      <div class="mkt-panel-head">
+        <h2 id="mkt-panel-h" class="t-h3"><span class="mkt-panel-name">{first.name[locale]}</span> <span class="mkt-panel-sym eyebrow">{first.sym}</span></h2>
+        <a class="btn btn-ghost btn-sm mkt-panel-open" href={hrefOf(first)}>{t('mkt.panel.open')} →</a>
+      </div>
+      <PricePanel locale={locale} id="mkt-pp" />
+    </section>
+
+    <div class="mkt-sections">
+      {sections.map((sec) => (
+        <section class="mkt-sec" data-section={sec.kind} aria-labelledby={'sec-' + sec.kind} hidden={sec.kind === 'rate' && !showRates}>
+          <div class="section-head mkt-sec-head">
+            <h2 id={'sec-' + sec.kind} class="t-h3">{t(('sec.' + sec.kind) as UIKey)}</h2>
+          </div>
+          <p class="t-caption faint mkt-sec-note">{t(('sec.' + sec.kind + '.note') as UIKey)}</p>
+          <div class="card mkt-list-card">
+            <ul class="mkt-rows">
+              {sec.items.map((s) => (
+                <AssetRow locale={locale} s={s} href={hrefOf(s)} rate={s.kind === 'rate' ? rateRow(s) : undefined} />
+              ))}
+            </ul>
+            {sec.kind === 'rate'
+              ? <SourceChip locale={locale} id={'chip-' + sec.kind} source={sourcesOf(sec.items)} note={t('src.manual')} />
+              : <SourceChip locale={locale} id={'chip-' + sec.kind} source={sourcesOf(sec.items)} delay={15} />}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script src="../../scripts/market.ts"></script>
+
+<style>
+  .mkt { padding-top: var(--sp-4); }
+  .mkt-head { display: flex; flex-direction: column; gap: var(--sp-1); }
+  .mkt-sub { max-width: var(--measure); }
+  .mkt-status { color: var(--ink-2); margin-top: var(--sp-1); min-height: 1rem; }
+  :global(.st-open) { color: var(--up-text); }
+  :global(.st-closed) { color: var(--warn); }
+
+  .mkt-filters { margin-top: var(--sp-4); gap: var(--sp-2); scroll-snap-type: none; }
+  .mkt-filters .chip { min-height: 36px; padding: 0 14px; color: var(--ink-2); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .mkt-filters .chip:hover { color: var(--ink); border-color: var(--ink-3); }
+  .mkt-filters .chip[aria-pressed="true"] { background: var(--brand-wash); color: var(--ink); border-color: transparent; }
+  .mkt-filters .chip[hidden] { display: none; }
+
+  .mkt-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); margin-top: var(--sp-4); }
+  .mkt-panel { display: none; }
+  .mkt-sections { display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0; }
+  .mkt-sec[hidden] { display: none; }
+  .mkt-sec-head { margin-bottom: 0; min-height: 36px; }
+  .mkt-sec-note { margin-bottom: var(--sp-2); max-width: var(--measure); }
+  .mkt-list-card { padding: var(--sp-1) var(--sp-2) var(--sp-3); }
+  .mkt-rows { display: flex; flex-direction: column; }
+  .mkt-list-card :global(.src-chip) { margin-top: var(--sp-3); padding-left: var(--sp-2); flex-wrap: wrap; row-gap: 2px; }
+
+  @media (min-width: 960px) {
+    .mkt-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--sp-6); margin-top: var(--sp-6); align-items: start; }
+    .mkt-panel { display: flex; flex-direction: column; gap: var(--sp-3); position: sticky; top: calc(var(--topbar-h) + var(--sp-4)); }
+    .mkt-panel-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+    .mkt-panel-sym { margin-left: 6px; }
+  }
+</style>

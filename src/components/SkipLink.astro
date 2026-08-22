@@ -1,0 +1,11 @@
+---
+import type { Locale } from '../i18n/routes';
+import { useT } from '../i18n/ui';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+---
+<a class="skip" href="#main">{t('skip')}</a>
+<style>
+  .skip { position: absolute; left: var(--sp-4); top: -48px; z-index: 100; padding: 10px 14px; background: var(--brand-fill); color: var(--on-brand); border-radius: var(--r-btn); font-weight: 500; transition: top .15s; }
+  .skip:focus { top: var(--sp-2); }
+</style>

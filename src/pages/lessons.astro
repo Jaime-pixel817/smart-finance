@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import LessonsIndex from '../components/learn/LessonsIndex.astro';
+import { SITE } from '../i18n/routes';
+import { getLessons } from '../data/lessons';
+const lessons = await getLessons('en');
+const title = 'Learn: six short finance lessons in three paths — Smart Finance';
+const description = 'Three learning paths (From zero, How markets work, Invest with a clear head), six short lessons in plain words with sources on every page, and a glossary with examples in pesos.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Learn',
+  description,
+  url: SITE + '/lessons',
+  inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: lessons.length,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    itemListElement: lessons.map((l, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + l.href, name: l.entry.data.title }))
+  }
+};
+---
+<Base locale="en" routeId="lessons" active="learn" title={title} description={description}
+  ogImage={SITE + '/og-lessons.jpg'} ogImageAlt="Smart Finance — Lessons: finance from zero, in plain words" jsonLd={jsonLd}>
+  <LessonsIndex locale="en" />
+</Base>

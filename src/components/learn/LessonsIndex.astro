@@ -1,0 +1,77 @@
+---
+// Índice /lessons (sección B): "Aprende" → progreso total (local) → las tres
+// rutas de aprendizaje con sus Lesson cards → glosario → disclaimer.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { PATHS, getLessons } from '../../data/lessons';
+import glossary from '../../data/glossary.json';
+import LessonCard from './LessonCard.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const lessons = await getLessons(locale);
+const allSlugs = lessons.map((l) => l.slug).join(',');
+---
+<div class="learn-page">
+  <header class="container learn-head">
+    <h1 class="t-h1">{t('learn.h1')}</h1>
+    <p class="t-small muted learn-sub">{t('learn.sub')}</p>
+    <div class="card learn-progress" data-progress-of={allSlugs}>
+      <p class="t-small"><span class="num" data-progress-read>0</span>/<span class="num">{lessons.length}</span> <span class="muted">{t('learn.progress')}</span></p>
+      <div class="pbar" aria-hidden="true"><span class="pbar-fill" data-progress-bar></span></div>
+    </div>
+  </header>
+
+  <div class="container learn-paths">
+    {PATHS.map((p, i) => {
+      const items = lessons.filter((l) => l.path.id === p.id);
+      return (
+        <section class="learn-path" aria-labelledby={'path-' + p.id} data-progress-of={items.map((l) => l.slug).join(',')}>
+          <div class="section-head learn-path-head">
+            <div>
+              <p class="eyebrow">{t('learn.path.label')} {i + 1} <span aria-hidden="true">·</span> {items.length} {items.length === 1 ? t('learn.lesson.one') : t('learn.lesson.many')}</p>
+              <h2 id={'path-' + p.id} class="t-h2">{p.name[locale]}</h2>
+            </div>
+            <span class="chip"><span class="num" data-progress-read>0</span>/<span class="num">{items.length}</span></span>
+          </div>
+          <p class="t-small muted learn-path-blurb">{p.blurb[locale]}</p>
+          <ol class="learn-grid">
+            {items.map((l) => <li><LessonCard locale={locale} lesson={l} /></li>)}
+          </ol>
+        </section>
+      );
+    })}
+
+    <section class="learn-glossary" aria-labelledby="gl-h">
+      <a class="card card-link glossary-card" href={route('lessons.glossary', locale)}>
+        <span class="eyebrow">{t('glossary.h1')} <span aria-hidden="true">·</span> A–Z</span>
+        <span id="gl-h" class="t-h3">{glossary.length} {t('glossary.terms')}</span>
+        <span class="t-small muted">{t('learn.glossary.desc')}</span>
+        <span class="t-small glossary-cta">{t('glossary.open')} →</span>
+      </a>
+    </section>
+
+    <p class="t-caption faint learn-disclaimer">{t('learn.disclaimer')}</p>
+  </div>
+</div>
+<script src="../../scripts/lessons-progress.ts"></script>
+<style>
+  .learn-page { padding-top: var(--sp-4); }
+  .learn-head { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .learn-sub { max-width: var(--measure); }
+  .learn-progress { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); margin-top: var(--sp-2); max-width: 420px; }
+  .pbar { height: 6px; border-radius: 3px; background: var(--bg-2); overflow: hidden; }
+  .pbar-fill { display: block; height: 100%; width: 0; background: var(--brand-fill); border-radius: 3px; transition: width .3s var(--ease-sheet); }
+  .learn-paths { display: flex; flex-direction: column; gap: var(--sp-8); margin-top: var(--sp-6); }
+  .learn-path-head { align-items: flex-start; }
+  .learn-path-head .chip { margin-top: 4px; }
+  :global(.learn-path.is-complete) .chip { background: var(--brand-wash); color: var(--brand-text); border-color: transparent; }
+  .learn-path-blurb { max-width: var(--measure); margin-bottom: var(--sp-3); }
+  .learn-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
+  @media (min-width: 600px) { .learn-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 960px) { .learn-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .glossary-card { display: flex; flex-direction: column; gap: 6px; color: var(--ink); }
+  .glossary-cta { color: var(--brand-text); font-weight: 500; margin-top: 2px; }
+  .learn-disclaimer { max-width: var(--measure); }
+</style>

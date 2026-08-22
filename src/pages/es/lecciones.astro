@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import LessonsIndex from '../../components/learn/LessonsIndex.astro';
+import { SITE } from '../../i18n/routes';
+import { getLessons } from '../../data/lessons';
+const lessons = await getLessons('es');
+const title = 'Aprende: seis lecciones cortas de finanzas en tres rutas — Smart Finance';
+const description = 'Tres rutas de aprendizaje (Desde cero, Cómo funcionan los mercados, Invertir con cabeza), seis lecciones cortas en palabras normales con fuentes en cada página, y un glosario con ejemplos en pesos.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Aprende',
+  description,
+  url: SITE + '/es/lecciones',
+  inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: lessons.length,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    itemListElement: lessons.map((l, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + l.href, name: l.entry.data.title }))
+  }
+};
+---
+<Base locale="es" routeId="lessons" active="learn" title={title} description={description}
+  ogImage={SITE + '/og-lessons-es.jpg'} ogImageAlt="Smart Finance — Lecciones: finanzas desde cero, en palabras normales" jsonLd={jsonLd}>
+  <LessonsIndex locale="es" />
+</Base>

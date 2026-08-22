@@ -71,7 +71,7 @@ function svg(trazos) {
 }
 
 (async () => {
-  const destino = path.join(__dirname, '..', 'assets', 'email');
+  const destino = path.join(__dirname, '..', 'public', 'assets', 'email');
   fs.mkdirSync(destino, { recursive: true });
 
   for (const nombre of Object.keys(ICONOS)) {

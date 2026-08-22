@@ -1,0 +1,142 @@
+---
+// Ficha de activo /market/[symbol] (sección B): cabecera (tipo, símbolo,
+// moneda, nombre, precio grande + Δ + chip de fuente/retraso/hora) → Price
+// chart panel con rangos → Stat tiles (rango del periodo, cambio 1M/3M/1A,
+// máximo y mínimo de 52 semanas) → "¿Qué es?" → Aprende (lección del registro)
+// → Relacionados (3 filas) → disclaimer. Sin noticias por activo todavía (TODO).
+// Todo lo que cambia con el mercado lo rellena src/scripts/asset.ts.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { relatedTo, runtimeOf, assetRouteId, type SymbolEntry } from '../../data/symbols';
+import { getLessonByRoute, getLessons } from '../../data/lessons';
+import AssetRow from './AssetRow.astro';
+import PricePanel from './PricePanel.astro';
+import SourceChip from '../SourceChip.astro';
+
+interface Props { locale: Locale; s: SymbolEntry }
+const { locale, s } = Astro.props;
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const related = relatedTo(s, 3);
+const lesson = (await getLessonByRoute(locale, s.lesson)) ?? (await getLessons(locale))[0];
+const sessionText = t(('asset.session.' + s.session) as UIKey);
+const strings = {
+  loading: t('src.loading'), unavailable: t('src.unavailable'), today: t('chart.today'),
+  chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
+  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
+  r1D: t('range.1D'), r1M: t('range.1M'), r3M: t('range.3M'), r1Y: t('range.1Y'), r5Y: t('range.5Y')
+};
+const runtime = runtimeOf(s);
+const relatedRT = related.map((r) => ({ ...runtimeOf(r), href: L(assetRouteId(r.id)) }));
+const stats: [string, string][] = [
+  ['range', t('asset.stat.range')], ['chg1M', t('asset.stat.1M')], ['chg3M', t('asset.stat.3M')],
+  ['chg1Y', t('asset.stat.1Y')], ['high52', t('asset.stat.high52')], ['low52', t('asset.stat.low52')]
+];
+---
+<article id="asset" class="asset" data-locale={locale} data-strings={JSON.stringify(strings)} data-symbol={JSON.stringify(runtime)} data-related={JSON.stringify(relatedRT)}>
+  <div class="container">
+    <nav class="asset-crumb" aria-label={locale === 'es' ? 'Ruta' : 'Breadcrumb'}>
+      <a class="t-small" href={L('market')}>← {t('asset.back')}</a>
+    </nav>
+
+    <header class="asset-head">
+      <p class="eyebrow">{t(('kind.' + s.kind) as UIKey)} <span aria-hidden="true">·</span> {s.sym}{s.note && <> <span aria-hidden="true">·</span> {s.note[locale]}</>} <span aria-hidden="true">·</span> {s.currency}</p>
+      <h1 class="t-h1">{s.name[locale]}</h1>
+      <div class="asset-quote">
+        <p class="asset-price num skel" id="asset-price">0,000.00</p>
+        <p class="asset-chg num t-small skel" id="asset-chg">▲ 0.00 (0.00 %) · today</p>
+      </div>
+      <div class="asset-meta">
+        <SourceChip locale={locale} id="asset-chip" source={s.source} delay={s.delay} />
+        {sessionText && <span class="t-caption faint">{sessionText}</span>}
+      </div>
+    </header>
+
+    <div class="asset-grid">
+      <div class="asset-main">
+        <section class="card asset-chart" aria-label={t('chart.aria')}>
+          <PricePanel locale={locale} id="asset-pp" source="Yahoo Finance" />
+        </section>
+
+        <section class="asset-stats" aria-labelledby="stats-h">
+          <h2 id="stats-h" class="t-h3">{t('asset.stats')}</h2>
+          <ul class="stat-grid">
+            {stats.map(([k, label]) => (
+              <li class="stat" data-stat={k}>
+                <span class="stat-l t-caption faint">{label}{k === 'range' && <> <span data-stat-range-label>{t('range.1D')}</span></>}</span>
+                <span class="stat-v num skel">0,000.00</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <p class="t-caption faint asset-disc">{t('asset.disclaimer')}</p>
+      </div>
+
+      <aside class="asset-side">
+        <section class="card asset-what" aria-labelledby="what-h">
+          <h2 id="what-h" class="eyebrow">{t('asset.what')}</h2>
+          <p class="t-small asset-what-text">{s.what[locale]}</p>
+        </section>
+
+        <section class="asset-learn" aria-labelledby="learn-h">
+          <h2 id="learn-h" class="t-h3">{t('asset.learn')}</h2>
+          <a class="card card-link asset-lesson" href={lesson.href}>
+            <span class="eyebrow">{lesson.path.name[locale]} <span aria-hidden="true">·</span> {lesson.entry.data.readingMinutes} {t('learn.min')}</span>
+            <span class="t-h3 asset-lesson-title">{lesson.entry.data.title}</span>
+            <span class="t-caption muted">{lesson.entry.data.description}</span>
+            <span class="asset-lesson-cta t-small">{t('asset.learn.cta')} →</span>
+          </a>
+        </section>
+
+        <section class="asset-related" aria-labelledby="rel-h">
+          <h2 id="rel-h" class="t-h3">{t('asset.related')}</h2>
+          <div class="card asset-rel-card">
+            <ul class="asset-rel-rows">
+              {related.map((r) => <AssetRow locale={locale} s={r} href={L(assetRouteId(r.id))} />)}
+            </ul>
+          </div>
+        </section>
+        <!-- TODO: noticias por activo (siguiente PR: /news). -->
+      </aside>
+    </div>
+  </div>
+</article>
+
+<script src="../../scripts/asset.ts"></script>
+
+<style>
+  .asset { padding-top: var(--sp-3); }
+  .asset-crumb a { display: inline-flex; align-items: center; min-height: 36px; color: var(--ink-2); }
+  .asset-crumb a:hover { color: var(--ink); }
+  .asset-head { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-1); }
+  .asset-quote { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-2); }
+  .asset-price { font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-num-xl); line-height: 1.1; letter-spacing: -.01em; font-variant-numeric: tabular-nums slashed-zero; min-width: 6ch; white-space: nowrap; }
+  .asset-chg { min-width: 12ch; white-space: nowrap; }
+  .asset-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; margin-top: var(--sp-1); }
+  .asset-meta :global(.src-chip) { flex-wrap: wrap; row-gap: 2px; }
+
+  /* La cabecera ya lleva el precio grande: el readout del panel baja un escalón. */
+  .asset-chart :global(.pp-price) { font-size: 1.5rem; }
+  .asset-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); margin-top: var(--sp-4); }
+  .asset-main, .asset-side { display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0; }
+  @media (min-width: 960px) {
+    .asset-grid { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: var(--sp-6); margin-top: var(--sp-6); align-items: start; }
+  }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin-top: var(--sp-3); }
+  @media (min-width: 600px) { .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .stat { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); min-width: 0; }
+  .stat-l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-v { font-size: var(--fs-num-l); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 5ch; }
+  .asset-disc { max-width: var(--measure); }
+
+  .asset-what { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .asset-what-text { color: var(--ink); }
+  .asset-lesson { display: flex; flex-direction: column; gap: 6px; margin-top: var(--sp-3); }
+  .asset-lesson-title { color: var(--ink); }
+  .asset-lesson-cta { color: var(--brand-text); font-weight: 500; margin-top: 2px; }
+  .asset-related .card { margin-top: var(--sp-3); padding: var(--sp-1) var(--sp-2); }
+  .asset-rel-rows { display: flex; flex-direction: column; }
+</style>

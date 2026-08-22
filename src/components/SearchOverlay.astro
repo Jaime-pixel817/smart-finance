@@ -1,0 +1,113 @@
+---
+// Búsqueda global, versión mínima: un overlay con un índice JSON estático
+// (/search-index.json: activos, lecciones, términos del glosario, herramientas, páginas) y
+// coincidencia por subcadena sin acentos. Abre con la pestaña Buscar, el botón
+// de la barra o las teclas "/" y ⌘K; cierra con Esc o el fondo.
+import type { Locale } from '../i18n/routes';
+import { useT } from '../i18n/ui';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+---
+<div class="search-overlay" id="search" role="dialog" aria-modal="true" aria-labelledby="search-title" hidden data-locale={locale}>
+  <div class="search-backdrop" data-search-close></div>
+  <div class="search-panel">
+    <div class="search-row">
+      <h2 id="search-title" class="visually-hidden">{t('search.title')}</h2>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search-input" type="search" autocomplete="off" spellcheck="false" placeholder={t('search.placeholder')} aria-label={t('search.title')}>
+      <button type="button" class="search-close" data-search-close aria-label={t('search.close')}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <p class="search-hint t-caption faint" id="search-hint">{t('search.hint')}</p>
+    <div id="search-results" class="search-results" aria-live="polite"
+      data-empty={t('search.empty')}
+      data-g-assets={t('search.group.assets')} data-g-lessons={t('search.group.lessons')}
+      data-g-tools={t('search.group.tools')} data-g-pages={t('search.group.pages')} data-g-terms={t('search.group.terms')}></div>
+  </div>
+</div>
+<style>
+  .search-overlay { position: fixed; inset: 0; z-index: 60; }
+  .search-overlay[hidden] { display: none; }
+  .search-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+  .search-panel { position: relative; margin: 0 auto; max-width: 640px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 0 0 var(--r-sheet) var(--r-sheet); box-shadow: var(--shadow-sheet); padding: var(--sp-3) var(--sp-4) var(--sp-4); max-height: 80vh; display: flex; flex-direction: column; }
+  @media (min-width: 768px) { .search-panel { margin-top: 10vh; border-radius: var(--r-sheet); } }
+  .search-row { display: flex; align-items: center; gap: var(--sp-3); color: var(--ink-2); }
+  #search-input { flex: 1; height: 48px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); padding: 0 var(--sp-3); color: var(--ink); font-size: 1rem; -webkit-appearance: none; }
+  #search-input:focus { outline: none; box-shadow: var(--focus-ring); }
+  .search-close { width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: var(--r-btn); }
+  .search-close:hover { background: var(--bg-2); color: var(--ink); }
+  .search-hint { margin: var(--sp-2) 0 0; }
+  .search-results { overflow-y: auto; margin-top: var(--sp-3); }
+  .search-results :global(h3) { font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; margin: var(--sp-3) 0 var(--sp-1); }
+  .search-results :global(a) { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); min-height: 44px; padding: 6px 10px; border-radius: var(--r-btn); color: var(--ink); font-size: var(--fs-small); }
+  .search-results :global(a:hover), .search-results :global(a:focus-visible) { background: var(--bg-2); }
+  .search-results :global(a .sym) { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-3); }
+  .search-results :global(p.empty) { color: var(--ink-2); font-size: var(--fs-small); padding: var(--sp-2) 10px; }
+</style>
+<script>
+  type Item = { t: 'asset' | 'lesson' | 'term' | 'tool' | 'page'; name: string; sym?: string; href: string; lang?: string; keys?: string };
+  const overlayEl = document.getElementById('search') as HTMLElement | null;
+  if (overlayEl) {
+    const overlay: HTMLElement = overlayEl;
+    const input = overlay.querySelector<HTMLInputElement>('#search-input')!;
+    const results = overlay.querySelector<HTMLElement>('#search-results')!;
+    const locale = overlay.dataset.locale || 'en';
+    let index: Item[] | null = null;
+    let lastFocus: Element | null = null;
+    const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+    async function load() {
+      if (index) return index;
+      try {
+        const r = await fetch('/search-index.json');
+        const all = (await r.json()) as Item[];
+        index = all.filter((i) => !i.lang || i.lang === locale);
+      } catch { index = []; }
+      return index;
+    }
+    function render(q: string) {
+      const items = index || [];
+      const nq = norm(q.trim());
+      results.innerHTML = '';
+      if (!nq) return;
+      const hits = items.filter((i) => norm(i.name + ' ' + (i.sym || '') + ' ' + (i.keys || '')).includes(nq)).slice(0, 24);
+      if (!hits.length) { results.innerHTML = '<p class="empty">' + results.dataset.empty + '</p>'; return; }
+      const groups: Record<string, Item[]> = {};
+      hits.forEach((h) => { (groups[h.t] ||= []).push(h); });
+      const label: Record<string, string> = { asset: results.dataset.gAssets!, lesson: results.dataset.gLessons!, term: results.dataset.gTerms!, tool: results.dataset.gTools!, page: results.dataset.gPages! };
+      for (const k of ['asset', 'lesson', 'term', 'tool', 'page']) {
+        if (!groups[k]) continue;
+        const h3 = document.createElement('h3'); h3.textContent = label[k]; results.appendChild(h3);
+        groups[k].forEach((it) => {
+          const a = document.createElement('a'); a.href = it.href;
+          a.innerHTML = '<span></span><span class="sym"></span>';
+          (a.firstChild as HTMLElement).textContent = it.name;
+          (a.lastChild as HTMLElement).textContent = it.sym || '';
+          results.appendChild(a);
+        });
+      }
+    }
+    function open() {
+      lastFocus = document.activeElement;
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      input.value = ''; results.innerHTML = '';
+      input.focus();
+      load();
+    }
+    function close() {
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocus instanceof HTMLElement) lastFocus.focus();
+    }
+    document.querySelectorAll('[data-search-open]').forEach((b) => b.addEventListener('click', open));
+    overlay.querySelectorAll('[data-search-close]').forEach((b) => b.addEventListener('click', close));
+    input.addEventListener('input', () => { load().then(() => render(input.value)); });
+    document.addEventListener('keydown', (e) => {
+      if (!overlay.hidden && e.key === 'Escape') { e.preventDefault(); close(); return; }
+      const typing = (e.target as HTMLElement)?.closest('input, textarea, [contenteditable]');
+      if (overlay.hidden && !typing && (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'))) { e.preventDefault(); open(); }
+    });
+  }
+</script>

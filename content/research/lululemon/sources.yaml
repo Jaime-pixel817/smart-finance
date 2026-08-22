@@ -1,0 +1,145 @@
+# Fuentes primarias del reporte LULU. Cada cifra del reporte debe apuntar a un `id` de esta lista.
+# retrieved = fecha en que se consultó. Los TODO los llena Jaime.
+sources:
+  - id: 10K-FY25
+    type: primary
+    title: "Form 10-K, año fiscal cerrado el 2026-02-01"
+    form: 10-K
+    filed: "2026-03-17"
+    accession: "0001397187-26-000020"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000020/lulu-20260201.htm
+    index: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000020/0001397187-26-000020-index.htm
+    retrieved: "2026-08-21"
+    notes: "Leer Item 1 (negocio), 1A (riesgos), 7 (MD&A). KPIs por región/canal van a mano desde aquí."
+  - id: 10K-FY24
+    type: primary
+    title: "Form 10-K, año fiscal cerrado el 2025-02-02"
+    form: 10-K
+    filed: "2025-03-27"
+    accession: "0001397187-25-000013"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718725000013/lulu-20250202.htm
+    retrieved: "2026-08-21"
+  - id: 10Q-Q1FY26
+    type: primary
+    title: "Form 10-Q, trimestre cerrado el 2026-05-03 (1T fiscal 2026)"
+    form: 10-Q
+    filed: "2026-06-04"
+    accession: "0001397187-26-000078"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000078/lulu-20260503.htm
+    retrieved: "2026-08-21"
+    notes: "Portada: acciones en circulación a la fecha del 10-Q (para el precio implícito)."
+  - id: 10Q-Q3FY25
+    type: primary
+    title: "Form 10-Q, trimestre cerrado el 2025-11-02"
+    form: 10-Q
+    filed: "2025-12-11"
+    accession: "0001397187-25-000055"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718725000055/lulu-20251102.htm
+    retrieved: "2026-08-21"
+  - id: 10Q-Q2FY25
+    type: primary
+    title: "Form 10-Q, trimestre cerrado el 2025-08-03"
+    form: 10-Q
+    filed: "2025-09-04"
+    accession: "0001397187-25-000039"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718725000039/lulu-20250803.htm
+    retrieved: "2026-08-21"
+  - id: 10Q-Q1FY25
+    type: primary
+    title: "Form 10-Q, trimestre cerrado el 2025-05-04"
+    form: 10-Q
+    filed: "2025-06-05"
+    accession: "0001397187-25-000027"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718725000027/lulu-20250504.htm
+    retrieved: "2026-08-21"
+  - id: 8K-Q1FY26-resultados
+    type: primary
+    title: "8-K Item 2.02, resultados 1T fiscal 2026 (press release Ex. 99.1)"
+    form: 8-K
+    filed: "2026-06-04"
+    accession: "0001397187-26-000077"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000077/lulu-20260604.htm
+    retrieved: "2026-08-21"
+    notes: "Aquí está la guía del año y los comps por región."
+  - id: 8K-FY25-resultados
+    type: primary
+    title: "8-K Item 2.02, resultados 4T y año fiscal 2025"
+    form: 8-K
+    filed: "2026-03-17"
+    accession: "0001397187-26-000019"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000019/lulu-20260317.htm
+    retrieved: "2026-08-21"
+  - id: 8K-Q3FY25-resultados
+    type: primary
+    title: "8-K Item 2.02, resultados 3T fiscal 2025 (incluye 5.02 cambio de directivos)"
+    form: 8-K
+    filed: "2025-12-11"
+    accession: "0001397187-25-000054"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718725000054/lulu-20251203.htm
+    retrieved: "2026-08-21"
+  - id: 8K-2026-06-26-junta
+    type: primary
+    title: "8-K Items 5.02/5.07, resultados de la junta anual de accionistas"
+    form: 8-K
+    filed: "2026-06-26"
+    accession: "0001397187-26-000088"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000088/lulu-20260624.htm
+    retrieved: "2026-08-21"
+  - id: 8K-2026-08-13
+    type: primary
+    title: "8-K Item 8.01 (otros eventos) — revisar contenido"
+    form: 8-K
+    filed: "2026-08-13"
+    accession: "0001397187-26-000120"
+    url: https://www.sec.gov/Archives/edgar/data/1397187/000139718726000120/lulu-20260813.htm
+    retrieved: "2026-08-21"
+  - id: EDGAR-companyfacts
+    type: primary
+    title: "SEC EDGAR XBRL companyfacts (base de data/financials.json)"
+    url: https://data.sec.gov/api/xbrl/companyfacts/CIK0001397187.json
+    retrieved: "2026-08-21"
+  - id: EDGAR-submissions
+    type: primary
+    title: "SEC EDGAR lista de filings"
+    url: https://data.sec.gov/submissions/CIK0001397187.json
+    retrieved: "2026-08-21"
+  - id: IR
+    type: company
+    title: "Página de relación con inversionistas de lululemon"
+    url: https://corporate.lululemon.com/investors
+    retrieved: "2026-08-21"
+  - id: FRED-DGS10
+    type: macro
+    title: "Treasury 10 años (DGS10), FRED"
+    url: https://fred.stlouisfed.org/series/DGS10
+    retrieved: "2026-08-21"
+    value: "4.65 % al 2026-08-19 (último dato publicado)"
+  - id: Damodaran-ERP
+    type: macro
+    title: "Damodaran, Data Update 2 for 2026: ERP implícita EE. UU."
+    url: https://aswathdamodaran.substack.com/p/data-update-2-for-2026-a-testing
+    retrieved: "2026-08-21"
+    value: "4.23 % (inicio de 2026)"
+  - id: TODO-transcripcion-Q1FY26
+    type: secondary
+    title: "TODO (Jaime): transcripción de la llamada de resultados del 1T fiscal 2026 (4-jun-2026)"
+    url: null
+    retrieved: null
+    notes: "Buscar en IR (webcast) o Motley Fool. Leer completa ANTES de pedir resúmenes a la IA."
+  - id: TODO-proxy-2026
+    type: primary
+    title: "TODO (Jaime): proxy statement (DEF 14A) 2026 — compensación e incentivos del management"
+    url: null
+    retrieved: null
+    notes: "No apareció en los últimos filings de submissions bajo el CIK de la empresa; buscar en EDGAR full-text por 'lululemon DEF 14A 2026'."
+  - id: TODO-precio-beta
+    type: market
+    title: "TODO (Jaime): precio de cierre, beta 5a y acciones en circulación a la fecha del análisis"
+    url: null
+    retrieved: null
+    notes: "Precio: registro de símbolos del sitio; acciones: portada del 10-Q más reciente; beta: stockanalysis/Yahoo o calcularla con 5 años de cierres."
+  - id: TODO-comps
+    type: market
+    title: "TODO (Jaime): múltiplos de comparables con fecha (stockanalysis.com por ticker)"
+    url: null
+    retrieved: null

@@ -1,0 +1,29 @@
+---
+// Ficha de activo en inglés: una página estática por símbolo del registro.
+import Base from '../../layouts/Base.astro';
+import AssetPage from '../../components/market/AssetPage.astro';
+import { ASSETS, assetRouteId, type SymbolEntry } from '../../data/symbols';
+import { SITE, route } from '../../i18n/routes';
+
+export function getStaticPaths() {
+  return ASSETS.map((s) => ({ params: { symbol: s.id }, props: { s } }));
+}
+const { s } = Astro.props as { s: SymbolEntry };
+const routeId = assetRouteId(s.id);
+const title = `${s.name.en} (${s.sym}) today: price, chart and what it is — Smart Finance`;
+const description = `${s.sym} price with a touch chart from 1 day to 5 years, key numbers, what it is in plain words and a lesson to understand it. Delayed data, educational only.`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + route(routeId, 'en'),
+  inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  about: { '@type': 'Thing', name: s.name.en, alternateName: s.sym }
+};
+---
+<Base locale="en" routeId={routeId} active="markets" title={title} description={description}
+  ogImage={SITE + '/og-market.jpg'} ogImageAlt={`${s.name.en} (${s.sym}) — Smart Finance Markets`} jsonLd={jsonLd}>
+  <AssetPage locale="en" s={s} />
+</Base>

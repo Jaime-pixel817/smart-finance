@@ -56,7 +56,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const RAIZ = path.join(__dirname, '..');
+// El sitio legacy (fuentes, og:images) vive en public/ desde la migración a Astro.
+const RAIZ = path.join(__dirname, '..', 'public');
 const FUENTES = path.join(RAIZ, 'assets', 'fonts');
 const TMP = path.join(os.tmpdir(), 'smartfinance-og-fuentes');
 

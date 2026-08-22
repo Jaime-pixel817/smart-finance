@@ -1,0 +1,236 @@
+---
+// /methodology y /es/metodologia (sección D del plan): qué datos usamos y de
+// quién, cadencia y retraso por superficie, cadena de respaldo y caché, qué
+// hace la IA y qué no, política de correcciones con changelog, conflictos de
+// interés, "esto no es asesoría" y contacto para errores. Las cadencias salen
+// de los propios endpoints de /api (caché en memoria + CDN) y de src/data.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { RATES } from '../../data/home';
+const { locale } = Astro.props as { locale: Locale };
+const L = (id: string) => route(id, locale);
+const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
+const ISSUES = GITHUB + '/issues';
+const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
+
+type Row = { surface: string; source: string; cadence: string; delay: string };
+const copy = {
+  en: {
+    eyebrow: 'Methodology',
+    title: 'How Smart Finance is made',
+    lede: 'Where every number comes from, how fresh it is, what the AI does and does not do, and how mistakes get fixed. This page changes whenever the site does.',
+    updated: 'Last updated 21 Aug 2026',
+    dataH: 'Data: what we use and from whom',
+    dataIntro: 'Every surface shows a source chip with the provider, the delay and the time of the last refresh. These are the real cadences, taken from the code that serves the data (the /api folder of the public repository).',
+    cols: ['Surface', 'Source', 'Refresh', 'Delay / notes'],
+    rows: [
+      { surface: 'Stocks and index ETFs (SPY, QQQ, DIA, AAPL, MSFT, NVDA, AMZN) on the home pulse, /market and asset cards', source: 'Twelve Data, one batched request (Yahoo Finance as backup)', cadence: 'Every 15 minutes (server and CDN cache)', delay: 'Prices delayed at least 15 minutes; change is against the previous close' },
+      { surface: 'Crypto (BTC, ETH, XRP, SOL)', source: 'CoinGecko', cadence: 'Every 15 minutes', delay: 'Change is the last 24 hours; price in US dollars' },
+      { surface: 'Currencies (USD/MXN, EUR/MXN, CHF/MXN, EUR/USD, GBP/USD, USD/JPY) and the VIX', source: 'Yahoo Finance', cadence: 'Every 15 minutes', delay: 'Delayed at least 15 minutes' },
+      { surface: 'Price charts 1D to 5Y and sparklines', source: 'Yahoo Finance', cadence: 'Charts cached 60 seconds; sparklines 15 minutes', delay: '1D uses 5-minute bars; “market closed” appears when the last bar is older than 40 minutes' },
+      { surface: 'Reference rates (Banxico target rate, Fed funds range)', source: 'Banco de México and Federal Reserve announcements, entered by hand', cadence: 'After each decision; verification date shown (currently ' + RATES.verificado + ')', delay: 'Hidden automatically if the verification is older than ' + RATES.maxDias + ' days' },
+      { surface: 'Today’s story (headline, “what happened”)', source: 'Bloomberg Markets RSS feed', cadence: 'Once a day (24-hour cache)', delay: 'The “why it matters” paragraph is generated with Claude and labeled as an AI summary' },
+      { surface: 'Market open / closed labels', source: 'Computed from NYSE (9:30–16:00 ET) and BMV (8:30–15:00 CDMX) regular hours', cadence: 'On every page load', delay: 'Monday to Friday, holidays not included: a guide, not a promise' },
+      { surface: 'Daily newsletter', source: 'Same data as the site; sent with Resend', cadence: 'Once a day at 8:00 CDMX (14:00 UTC)', delay: 'Double opt-in; unsubscribe link in every email' }
+    ] as Row[],
+    fallbackH: 'Fallback chain and cache',
+    fallback: [
+      'Each endpoint caches in memory and at the CDN. If a provider fails, the last good copy is served for a shorter time (3 minutes instead of 15) so the next visitor retries soon.',
+      'If there is no previous copy, the page says “unavailable, retrying” instead of showing a made-up number. Charts keep the last known value and say so.',
+      'Stocks fall back from Twelve Data to Yahoo Finance. Currencies, the VIX and the charts have no second provider yet; that is a known gap.',
+      'Twelve Data’s free quota (800 credits a day) is why requests are batched and why no symbol is added without reviewing it.'
+    ],
+    aiH: 'What the AI does, and what it does not',
+    aiDoes: 'The “why it matters” of today’s story is generated with Claude (claude-haiku-4-5) from Bloomberg’s headline and description, and it is always labeled “AI summary” with a disclosure. I also use Claude as an assistant to draft and edit code and text; the repository is public.',
+    aiDoesNot: 'No figure on this site comes from an AI without a source. The lessons are written by me and list their sources with the date they were checked. Research reports, when they come, will be written by me with Claude as an assistant for data handling and drafting, and every number will link to a filing or a dataset. The AI never recommends anything, and neither do I.',
+    corrH: 'Corrections',
+    corrIntro: 'If something is wrong, it gets fixed and logged here, with the date.',
+    changelog: [
+      ['2026-08-21', 'Lessons moved to the new design with two or more verified sources each, learning paths and local progress; glossary with examples in pesos; /about and /methodology published.'],
+      ['2026-08-21', 'Markets: one card per asset with a touch chart, source chip and “what is it”; sitemap generated from the route registry.'],
+      ['2026-07-31', 'Lessons: last edit of the legacy versions; reading-time and metadata fixes.'],
+      ['2026-07-26', 'Six lessons published in English and Spanish.']
+    ],
+    coiH: 'Conflicts of interest',
+    coi: 'Smart Finance has no sponsors, ads, affiliate links or paid placements. I am a student and I do not manage anyone’s money. If I ever hold a position in an asset I write about, the piece itself will say so. Any portfolio or challenge published here will state whether the money is real or simulated.',
+    adviceH: 'This is not advice',
+    advice: 'Everything on Smart Finance is educational. It is not financial, investment or tax advice, and it is not a recommendation to buy or sell anything. Market data is delayed and comes from third parties; verify at the source before deciding anything. Your situation is yours; if you need advice, talk to a licensed professional.',
+    errH: 'Found an error?',
+    err: 'Open an issue on GitHub or send me a message on LinkedIn. Say which page and which number; I will fix it and add it to the changelog.',
+    errIssues: 'Report on GitHub', errLinkedin: 'Message on LinkedIn',
+    attribH: 'Attribution',
+    attrib: 'Charts by TradingView Lightweight Charts (Apache 2.0). Data: Yahoo Finance, CoinGecko, Twelve Data, Bloomberg, Banco de México, Federal Reserve. Fonts: Geist (Vercel) and Fraunces (Undercase Type), both under the SIL Open Font License.',
+    about: 'About Jaime', glossary: 'Glossary'
+  },
+  es: {
+    eyebrow: 'Metodología',
+    title: 'Cómo se hace Smart Finance',
+    lede: 'De dónde sale cada número, qué tan fresco está, qué hace y qué no hace la IA, y cómo se corrigen los errores. Esta página cambia cada vez que cambia el sitio.',
+    updated: 'Última actualización: 21 ago 2026',
+    dataH: 'Datos: qué usamos y de quién',
+    dataIntro: 'Cada superficie muestra un chip de fuente con el proveedor, el retraso y la hora de la última actualización. Estas son las cadencias reales, tomadas del código que sirve los datos (la carpeta /api del repositorio público).',
+    cols: ['Superficie', 'Fuente', 'Actualización', 'Retraso / notas'],
+    rows: [
+      { surface: 'Acciones y ETF de índices (SPY, QQQ, DIA, AAPL, MSFT, NVDA, AMZN) en el pulso del home, /mercado y las fichas', source: 'Twelve Data, una sola petición en lote (Yahoo Finance como respaldo)', cadence: 'Cada 15 minutos (caché en servidor y CDN)', delay: 'Precios con al menos 15 minutos de retraso; el cambio es contra el cierre anterior' },
+      { surface: 'Cripto (BTC, ETH, XRP, SOL)', source: 'CoinGecko', cadence: 'Cada 15 minutos', delay: 'El cambio son las últimas 24 horas; precio en dólares' },
+      { surface: 'Divisas (USD/MXN, EUR/MXN, CHF/MXN, EUR/USD, GBP/USD, USD/JPY) y el VIX', source: 'Yahoo Finance', cadence: 'Cada 15 minutos', delay: 'Al menos 15 minutos de retraso' },
+      { surface: 'Gráficas de 1D a 5A y sparklines', source: 'Yahoo Finance', cadence: 'Gráficas con caché de 60 segundos; sparklines de 15 minutos', delay: '1D usa barras de 5 minutos; “mercado cerrado” aparece cuando la última barra tiene más de 40 minutos' },
+      { surface: 'Tasas de referencia (tasa objetivo de Banxico, rango de la Fed)', source: 'Anuncios del Banco de México y de la Reserva Federal, capturados a mano', cadence: 'Tras cada decisión; se muestra la fecha de verificación (hoy ' + RATES.verificado + ')', delay: 'Se ocultan solas si la verificación tiene más de ' + RATES.maxDias + ' días' },
+      { surface: 'La historia de hoy (titular, “qué pasó”)', source: 'RSS de Bloomberg Markets', cadence: 'Una vez al día (caché de 24 horas)', delay: 'El párrafo “por qué importa” se genera con Claude y va etiquetado como resumen de IA' },
+      { surface: 'Etiquetas de mercado abierto / cerrado', source: 'Calculadas con el horario regular de NYSE (9:30–16:00 ET) y BMV (8:30–15:00 CDMX)', cadence: 'En cada carga de página', delay: 'Lunes a viernes, sin feriados: una orientación, no una promesa' },
+      { surface: 'Boletín diario', source: 'Los mismos datos del sitio; se envía con Resend', cadence: 'Una vez al día a las 8:00 CDMX (14:00 UTC)', delay: 'Doble confirmación; enlace para darse de baja en cada correo' }
+    ] as Row[],
+    fallbackH: 'Cadena de respaldo y caché',
+    fallback: [
+      'Cada endpoint guarda caché en memoria y en el CDN. Si un proveedor falla, se sirve la última copia buena por menos tiempo (3 minutos en vez de 15) para que el siguiente visitante reintente pronto.',
+      'Si no hay copia previa, la página dice “no disponible, se reintenta” en vez de enseñar un número inventado. Las gráficas conservan el último valor conocido y lo dicen.',
+      'Las acciones pasan de Twelve Data a Yahoo Finance como respaldo. Divisas, VIX y gráficas todavía no tienen segundo proveedor; es un hueco conocido.',
+      'La cuota gratuita de Twelve Data (800 créditos al día) es la razón de que las peticiones vayan en lote y de que no se agregue ningún símbolo sin revisarlo.'
+    ],
+    aiH: 'Qué hace la IA y qué no',
+    aiDoes: 'El “por qué importa” de la historia de hoy se genera con Claude (claude-haiku-4-5) a partir del titular y la descripción de Bloomberg, y siempre va etiquetado como “Resumen IA” con su aviso. También uso Claude como asistente para redactar y editar código y texto; el repositorio es público.',
+    aiDoesNot: 'Ninguna cifra de este sitio sale de una IA sin fuente. Las lecciones las escribo yo y listan sus fuentes con la fecha en que las revisé. Los reportes de research, cuando lleguen, los escribiré yo con Claude como asistente para manejar datos y redactar, y cada número enlazará a un reporte oficial o a un conjunto de datos. La IA nunca recomienda nada, y yo tampoco.',
+    corrH: 'Correcciones',
+    corrIntro: 'Si algo está mal, se corrige y se registra aquí, con fecha.',
+    changelog: [
+      ['2026-08-21', 'Las lecciones pasan al diseño nuevo con dos o más fuentes verificadas cada una, rutas de aprendizaje y progreso local; glosario con ejemplos en pesos; se publican /acerca y /metodologia.'],
+      ['2026-08-21', 'Mercados: una ficha por activo con gráfica táctil, chip de fuente y “qué es”; sitemap generado desde el registro de rutas.'],
+      ['2026-07-31', 'Lecciones: última edición de las versiones anteriores; ajustes de tiempo de lectura y metadatos.'],
+      ['2026-07-26', 'Se publican seis lecciones en español e inglés.']
+    ],
+    coiH: 'Conflictos de interés',
+    coi: 'Smart Finance no tiene patrocinadores, anuncios, enlaces de afiliado ni menciones pagadas. Soy estudiante y no manejo el dinero de nadie. Si algún día tengo una posición en un activo del que escribo, la propia pieza lo dirá. Cualquier portafolio o reto que se publique aquí dirá si el dinero es real o simulado.',
+    adviceH: 'Esto no es asesoría',
+    advice: 'Todo en Smart Finance es educativo. No es asesoría financiera, de inversión ni fiscal, y no es una recomendación de comprar o vender nada. Los datos de mercado llegan con retraso y vienen de terceros; verifícalos en la fuente antes de decidir cualquier cosa. Tu situación es tuya; si necesitas asesoría, habla con un profesional con licencia.',
+    errH: '¿Encontraste un error?',
+    err: 'Abre un issue en GitHub o mándame un mensaje en LinkedIn. Di qué página y qué número; lo corrijo y lo agrego al registro de cambios.',
+    errIssues: 'Reportar en GitHub', errLinkedin: 'Mensaje en LinkedIn',
+    attribH: 'Atribuciones',
+    attrib: 'Gráficas con TradingView Lightweight Charts (Apache 2.0). Datos: Yahoo Finance, CoinGecko, Twelve Data, Bloomberg, Banco de México, Reserva Federal. Tipografías: Geist (Vercel) y Fraunces (Undercase Type), ambas bajo la SIL Open Font License.',
+    about: 'Acerca de Jaime', glossary: 'Glosario'
+  }
+}[locale];
+---
+<article class="meth">
+  <div class="container meth-wrap">
+    <header class="meth-head">
+      <p class="eyebrow">{copy.eyebrow} <span aria-hidden="true">·</span> {copy.updated}</p>
+      <h1 class="t-display">{copy.title}</h1>
+      <p class="meth-lede">{copy.lede}</p>
+      <nav class="meth-toc rail" aria-label={locale === 'es' ? 'Secciones' : 'Sections'}>
+        <a class="chip" href="#data">{copy.dataH}</a>
+        <a class="chip" href="#fallback">{copy.fallbackH}</a>
+        <a class="chip" href="#ai">{copy.aiH}</a>
+        <a class="chip" href="#corrections">{copy.corrH}</a>
+        <a class="chip" href="#coi">{copy.coiH}</a>
+        <a class="chip" href="#advice">{copy.adviceH}</a>
+        <a class="chip" href="#errors">{copy.errH}</a>
+      </nav>
+    </header>
+
+    <section id="data" class="meth-sec" aria-labelledby="data-h">
+      <h2 id="data-h" class="t-h2">{copy.dataH}</h2>
+      <p class="muted">{copy.dataIntro}</p>
+      <div class="meth-table-wrap">
+        <table class="meth-table">
+          <thead><tr>{copy.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
+          <tbody>
+            {copy.rows.map((r) => (
+              <tr>
+                <th scope="row" data-label={copy.cols[0]}>{r.surface}</th>
+                <td data-label={copy.cols[1]}>{r.source}</td>
+                <td data-label={copy.cols[2]}>{r.cadence}</td>
+                <td data-label={copy.cols[3]}>{r.delay}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fallback" class="meth-sec" aria-labelledby="fb-h">
+      <h2 id="fb-h" class="t-h2">{copy.fallbackH}</h2>
+      <ul class="meth-list">{copy.fallback.map((f) => <li>{f}</li>)}</ul>
+    </section>
+
+    <section id="ai" class="meth-sec" aria-labelledby="ai-h">
+      <h2 id="ai-h" class="t-h2">{copy.aiH}</h2>
+      <div class="meth-two">
+        <div class="card"><p class="eyebrow">{locale === 'es' ? 'Sí' : 'Does'}</p><p>{copy.aiDoes}</p></div>
+        <div class="card"><p class="eyebrow">{locale === 'es' ? 'No' : 'Does not'}</p><p>{copy.aiDoesNot}</p></div>
+      </div>
+    </section>
+
+    <section id="corrections" class="meth-sec" aria-labelledby="corr-h">
+      <h2 id="corr-h" class="t-h2">{copy.corrH}</h2>
+      <p class="muted">{copy.corrIntro}</p>
+      <ol class="changelog">
+        {copy.changelog.map(([date, text]) => (
+          <li><time class="num t-caption" datetime={date}>{date}</time><span class="t-small">{text}</span></li>
+        ))}
+      </ol>
+    </section>
+
+    <section id="coi" class="meth-sec" aria-labelledby="coi-h">
+      <h2 id="coi-h" class="t-h2">{copy.coiH}</h2>
+      <p>{copy.coi}</p>
+    </section>
+
+    <section id="advice" class="meth-sec" aria-labelledby="adv-h">
+      <h2 id="adv-h" class="t-h2">{copy.adviceH}</h2>
+      <p>{copy.advice}</p>
+    </section>
+
+    <section id="errors" class="meth-sec" aria-labelledby="err-h">
+      <h2 id="err-h" class="t-h2">{copy.errH}</h2>
+      <p>{copy.err}</p>
+      <p class="meth-actions">
+        <a class="btn btn-primary btn-sm" href={ISSUES} target="_blank" rel="noopener">{copy.errIssues} ↗</a>
+        <a class="btn btn-ghost btn-sm" href={LINKEDIN} target="_blank" rel="noopener">{copy.errLinkedin} ↗</a>
+      </p>
+    </section>
+
+    <section class="meth-sec" aria-labelledby="attr-h">
+      <h2 id="attr-h" class="t-h3">{copy.attribH}</h2>
+      <p class="t-small muted">{copy.attrib}</p>
+      <p class="t-small meth-more"><a href={L('about')}>{copy.about} →</a> <a href={L('lessons.glossary')}>{copy.glossary} →</a></p>
+    </section>
+  </div>
+</article>
+<style>
+  .meth { padding-top: var(--sp-4); }
+  .meth-wrap { max-width: calc(var(--measure) + 2 * var(--gutter)); display: flex; flex-direction: column; gap: var(--sp-8); }
+  .meth-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .meth-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); }
+  .meth-toc { gap: var(--sp-2); scroll-snap-type: none; margin-top: var(--sp-2); }
+  .meth-toc .chip { color: var(--ink-2); }
+  .meth-toc .chip:hover { color: var(--ink); border-color: var(--ink-3); }
+  .meth-sec { display: flex; flex-direction: column; gap: var(--sp-3); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .meth-sec p { max-width: var(--measure); }
+  .meth-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .meth-table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); line-height: var(--lh-small); }
+  .meth-table thead { display: none; }
+  .meth-table tr { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+  .meth-table th, .meth-table td { text-align: left; padding: 0; font-weight: 400; color: var(--ink-2); vertical-align: top; }
+  .meth-table th[scope="row"] { color: var(--ink); font-weight: 600; }
+  .meth-table td::before { content: attr(data-label) ': '; color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  @media (min-width: 768px) {
+    .meth-table thead { display: table-header-group; }
+    .meth-table tr { display: table-row; }
+    .meth-table th, .meth-table td { display: table-cell; padding: var(--sp-3) var(--sp-3) var(--sp-3) 0; border-top: 1px solid var(--line); }
+    .meth-table thead th { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; font-weight: 500; border-top: 0; }
+    .meth-table td::before { content: none; }
+  }
+  .meth-list { list-style: disc; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .meth-list li::marker { color: var(--brand-text); }
+  .meth-two { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
+  @media (min-width: 768px) { .meth-two { grid-template-columns: 1fr 1fr; } }
+  .meth-two .card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .changelog { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .changelog li { display: grid; grid-template-columns: 9ch 1fr; gap: var(--sp-3); padding: var(--sp-2) 0; border-top: 1px solid var(--line); }
+  .changelog time { color: var(--ink-3); }
+  .meth-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+  .meth-more { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+  .meth-more a { color: var(--ink-2); min-height: 36px; display: inline-flex; align-items: center; }
+  .meth-more a:hover { color: var(--ink); }
+</style>

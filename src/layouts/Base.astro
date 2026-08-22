@@ -1,0 +1,97 @@
+---
+// Layout base de Smart Finance 2.0: head completo (title, description,
+// canonical, hreflang EN/ES/x-default desde src/i18n/routes.ts, Open Graph,
+// JSON-LD), preload de fuentes, tema antes del primer pintado, barra superior,
+// bottom nav móvil, overlay de búsqueda y footer con disclaimer.
+import '../styles/base.css';
+import type { Locale } from '../i18n/routes';
+import { alternates, route, SITE } from '../i18n/routes';
+import { useT } from '../i18n/ui';
+import SkipLink from '../components/SkipLink.astro';
+import TopBar from '../components/TopBar.astro';
+import BottomNav from '../components/BottomNav.astro';
+import SearchOverlay from '../components/SearchOverlay.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  locale: Locale;
+  routeId: string;
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  /** id de la pestaña activa del nav: today | markets | news | learn */
+  active?: string;
+  jsonLd?: Record<string, unknown>;
+  /** og:type: website (por defecto) o article en lecciones y research */
+  ogType?: 'website' | 'article';
+}
+const { locale, routeId, title, description, active = 'today', jsonLd, ogType = 'website' } = Astro.props;
+const t = useT(locale);
+const alts = alternates(routeId);
+const canonical = SITE + route(routeId, locale);
+const ogImage = Astro.props.ogImage ?? (locale === 'es' ? SITE + '/og-image-es.jpg' : SITE + '/og-image.jpg');
+const ogImageAlt = Astro.props.ogImageAlt ?? title;
+const ld = jsonLd ?? {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Smart Finance',
+  url: SITE + '/',
+  description,
+  inLanguage: locale === 'es' ? 'es-MX' : 'en',
+  publisher: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/#who' }
+};
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E";
+---
+<!doctype html>
+<html lang={locale === 'es' ? 'es' : 'en'}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <meta name="theme-color" content="#09090B" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F7F7F4" media="(prefers-color-scheme: light)">
+  <link rel="canonical" href={canonical}>
+  {alts.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+  <link rel="icon" href={FAVICON}>
+  <meta property="og:type" content={ogType}>
+  <meta property="og:site_name" content="Smart Finance">
+  <meta property="og:locale" content={locale === 'es' ? 'es_MX' : 'en_US'}>
+  <meta property="og:locale:alternate" content={locale === 'es' ? 'en_US' : 'es_MX'}>
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={ogImage}>
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content={ogImageAlt}>
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+  <meta name="twitter:image" content={ogImage}>
+  <!-- Preload de las dos fuentes del primer pintado (Geist 400 y Mono 500). -->
+  <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Tema ANTES del primer pintado: dark por defecto; la elección guardada
+       gana. Sin JS, :root queda sin data-theme y manda prefers-color-scheme. -->
+  <script is:inline>
+    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');if(localStorage.getItem('sf-intro-seen')==='1')document.documentElement.classList.add('intro-seen');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+  </script>
+  <!-- Idioma: recuerda la elección y, solo en la raíz, respeta lo guardado
+       (mismo script que el sitio legacy, así las dos mitades coinciden). -->
+  <script is:inline src="/assets/lang.js"></script>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)}></script>
+  <slot name="head" />
+</head>
+<body>
+  <SkipLink locale={locale} />
+  <TopBar locale={locale} routeId={routeId} active={active} />
+  <main id="main" tabindex="-1">
+    <slot />
+  </main>
+  <Footer locale={locale} routeId={routeId} />
+  <BottomNav locale={locale} active={active} />
+  <SearchOverlay locale={locale} />
+</body>
+</html>
