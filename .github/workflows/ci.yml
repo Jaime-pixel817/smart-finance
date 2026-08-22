@@ -32,18 +32,29 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: "/es y sitemap al día (npm run check-es)"
+      - name: "/es legacy al día (npm run check-es)"
         run: npm run check-es
 
-      - name: Enlaces internos (lychee --offline)
+      - name: Tipos (astro check)
+        run: npx astro check
+
+      - name: Tests (motor DCF y utilidades)
+        run: npm test
+
+      - name: Build del sitio
+        run: npm run build
+
+      # El check de enlaces corre sobre dist/, no sobre el repo: la raíz web es
+      # lo que genera el build (public/ + páginas Astro). Contra el repo, un
+      # href="/assets/tokens.css" o "/lessons" da falso positivo porque esos
+      # archivos viven en public/ o los crea Astro.
+      - name: Enlaces internos del sitio construido (lychee --offline)
         uses: lycheeverse/lychee-action@v2
         with:
           args: >-
             --offline
             --no-progress
-            --root-dir "${{ github.workspace }}"
+            --root-dir "${{ github.workspace }}/dist"
             --fallback-extensions html
-            --exclude-path node_modules
-            --exclude-path docs
-            './**/*.html'
+            './dist/**/*.html'
           fail: true
