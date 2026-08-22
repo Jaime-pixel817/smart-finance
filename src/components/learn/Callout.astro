@@ -1,0 +1,8 @@
+---
+// Nota destacada dentro de una lección (lo que el legacy llamaba .callout).
+---
+<aside class="callout"><slot /></aside>
+<style is:global>
+  .callout { background: var(--bg-1); border: 1px solid var(--line); border-left: 3px solid var(--brand-fill); border-radius: var(--r-card); padding: var(--sp-4); margin: var(--sp-6) 0; color: var(--ink); }
+  .callout > :last-child { margin-bottom: 0; }
+</style>

@@ -1,0 +1,17 @@
+---
+// Lección en español: misma URL de siempre (/es/lecciones/<slug>) desde el MDX de src/content/lessons/es.
+import Base from '../../../layouts/Base.astro';
+import LessonArticle from '../../../components/learn/LessonArticle.astro';
+import { getLessons, type Lesson } from '../../../data/lessons';
+import { lessonJsonLd } from '../../../data/lesson-jsonld';
+
+export async function getStaticPaths() {
+  const all = await getLessons('es');
+  return all.map((lesson) => ({ params: { slug: lesson.slug }, props: { lesson, all } }));
+}
+const { lesson, all } = Astro.props as { lesson: Lesson; all: Lesson[] };
+const d = lesson.entry.data;
+---
+<Base locale="es" routeId={lesson.routeId} active="learn" title={d.title + ' — Smart Finance'} description={d.description} ogType="article" jsonLd={lessonJsonLd('es', lesson)}>
+  <LessonArticle locale="es" lesson={lesson} all={all} />
+</Base>

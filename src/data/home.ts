@@ -1,5 +1,5 @@
 // Datos estáticos del home: tiles del pulso, tasas verificadas a mano,
-// lecciones y breakdowns. Lo que cambia con el mercado llega por /api.
+// breakdowns. Lo que cambia con el mercado llega por /api.
 import type { UIKey } from '../i18n/ui';
 
 export interface PulseTile {
@@ -35,15 +35,8 @@ export const RATES = {
   maxDias: 60
 };
 
-export interface LessonMeta { id: string; titleKey: UIKey; descKey: UIKey; minutes: number; n: number }
-export const LESSONS: LessonMeta[] = [
-  { id: 'lesson.peso', titleKey: 'lesson.peso.title', descKey: 'lesson.peso.desc', minutes: 5, n: 1 },
-  { id: 'lesson.interes', titleKey: 'lesson.interes.title', descKey: 'lesson.interes.desc', minutes: 6, n: 2 },
-  { id: 'lesson.sp500', titleKey: 'lesson.sp500.title', descKey: 'lesson.sp500.desc', minutes: 5, n: 3 },
-  { id: 'lesson.presupuesto', titleKey: 'lesson.presupuesto.title', descKey: 'lesson.presupuesto.desc', minutes: 4, n: 4 },
-  { id: 'lesson.inflacion', titleKey: 'lesson.inflacion.title', descKey: 'lesson.inflacion.desc', minutes: 5, n: 5 },
-  { id: 'lesson.errores', titleKey: 'lesson.errores.title', descKey: 'lesson.errores.desc', minutes: 4, n: 6 }
-];
+// Las lecciones ya no se listan aquí: viven en src/content/lessons (MDX) y se
+// leen con getLessons() de src/data/lessons.ts.
 
 export interface Breakdown { id: string; titleKey: UIKey; altKey: UIKey; href: string; net: 'tiktok' | 'linkedin'; img: string; w: number; h: number }
 export const BREAKDOWNS: Breakdown[] = [

@@ -1,0 +1,68 @@
+---
+// Glosario A–Z desde el mismo JSON que el glosario al tacto. Letras como
+// chips de ancla, cada término con su definición, "En pesos:" y la lección.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { getLessons } from '../../data/lessons';
+import glossary from '../../data/glossary.json';
+import GlossarySheet from './GlossarySheet.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const lessons = await getLessons(locale);
+const titleOf = (routeId: string) => lessons.find((l) => l.routeId === routeId)?.entry.data.title || '';
+const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+const sorted = glossary.slice().sort((a, b) => norm(a[locale].term).localeCompare(norm(b[locale].term)));
+const letters = Array.from(new Set(sorted.map((g) => norm(g[locale].term)[0])));
+const groups = letters.map((L) => ({ L, items: sorted.filter((g) => norm(g[locale].term)[0] === L) }));
+---
+<div class="gloss">
+  <header class="container gloss-head">
+    <nav class="gloss-crumb" aria-label={locale === 'es' ? 'Ruta' : 'Breadcrumb'}><a class="t-small" href={route('lessons', locale)}>← {t('learn.backAll')}</a></nav>
+    <h1 class="t-h1">{t('glossary.h1')}</h1>
+    <p class="t-small muted gloss-sub">{glossary.length} {t('glossary.terms')}. {t('glossary.sub')}</p>
+    <nav class="rail gloss-letters" aria-label={t('glossary.az')}>
+      {letters.map((L) => <a class="chip" href={'#' + L}>{L}</a>)}
+    </nav>
+  </header>
+  <div class="container gloss-body">
+    {groups.map((g) => (
+      <section class="gloss-group" id={g.L} aria-labelledby={'gl-' + g.L}>
+        <h2 id={'gl-' + g.L} class="gloss-letter t-display">{g.L}</h2>
+        <dl class="gloss-list">
+          {g.items.map((it) => (
+            <div class="gloss-item card" id={'term-' + it.id}>
+              <dt class="t-h3">{it[locale].term}</dt>
+              <dd class="t-small">{it[locale].def}</dd>
+              <dd class="t-small gloss-pesos"><strong>{t('glossary.pesos')}</strong> {it[locale].pesos}</dd>
+              <dd class="t-caption"><a class="gloss-link" href={route(it.lesson, locale)}>{t('glossary.lesson')}: {titleOf(it.lesson)} →</a></dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))}
+    <p class="t-caption faint gloss-disclaimer">{t('learn.disclaimer')}</p>
+  </div>
+</div>
+<GlossarySheet locale={locale} />
+<style>
+  .gloss { padding-top: var(--sp-3); }
+  .gloss-head { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .gloss-crumb a { display: inline-flex; align-items: center; min-height: 36px; color: var(--ink-2); }
+  .gloss-sub { max-width: var(--measure); }
+  .gloss-letters { margin-top: var(--sp-2); gap: var(--sp-2); scroll-snap-type: none; }
+  .gloss-letters .chip { min-width: 36px; min-height: 36px; justify-content: center; font-family: var(--font-mono); color: var(--ink); }
+  .gloss-letters .chip:hover { border-color: var(--ink-3); }
+  .gloss-body { display: flex; flex-direction: column; gap: var(--sp-8); margin-top: var(--sp-6); }
+  .gloss-group { scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .gloss-letter { color: var(--ink-3); margin-bottom: var(--sp-3); }
+  .gloss-list { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
+  @media (min-width: 768px) { .gloss-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .gloss-item { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .gloss-item dd { margin: 0; color: var(--ink-2); }
+  .gloss-pesos strong { color: var(--brand-text); font-weight: 500; }
+  .gloss-link { color: var(--ink-2); }
+  .gloss-link:hover { color: var(--brand-text); }
+  .gloss-disclaimer { max-width: var(--measure); }
+</style>

@@ -23,8 +23,10 @@ interface Props {
   /** id de la pestaña activa del nav: today | markets | news | learn */
   active?: string;
   jsonLd?: Record<string, unknown>;
+  /** og:type: website (por defecto) o article en lecciones y research */
+  ogType?: 'website' | 'article';
 }
-const { locale, routeId, title, description, active = 'today', jsonLd } = Astro.props;
+const { locale, routeId, title, description, active = 'today', jsonLd, ogType = 'website' } = Astro.props;
 const t = useT(locale);
 const alts = alternates(routeId);
 const canonical = SITE + route(routeId, locale);
@@ -53,7 +55,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <link rel="canonical" href={canonical}>
   {alts.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
   <link rel="icon" href={FAVICON}>
-  <meta property="og:type" content="website">
+  <meta property="og:type" content={ogType}>
   <meta property="og:site_name" content="Smart Finance">
   <meta property="og:locale" content={locale === 'es' ? 'es_MX' : 'en_US'}>
   <meta property="og:locale:alternate" content={locale === 'es' ? 'en_US' : 'es_MX'}>

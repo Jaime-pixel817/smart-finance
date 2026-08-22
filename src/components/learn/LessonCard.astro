@@ -1,0 +1,31 @@
+---
+// Lesson card del catálogo (sección C): Nº dentro de la ruta · título · 1 línea
+// · minutos · estado leído. Una sola acción: toda la tarjeta es el enlace.
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import type { Lesson } from '../../data/lessons';
+interface Props { locale: Locale; lesson: Lesson; current?: boolean }
+const { locale, lesson, current = false } = Astro.props;
+const t = useT(locale);
+const d = lesson.entry.data;
+---
+<a class:list={['card card-link lcard', { 'is-current': current }]} href={lesson.href} data-lesson={lesson.slug} aria-current={current ? 'page' : undefined}>
+  <span class="lcard-top">
+    <span class="eyebrow">{lesson.pathIndex}/{lesson.pathTotal} <span aria-hidden="true">·</span> {d.readingMinutes} {t('learn.min')}</span>
+    <span class="lcard-check t-caption" aria-hidden="true">✓ {t('learn.read.done')}</span>
+    <span class="visually-hidden lcard-check-sr">{t('learn.read.done')}</span>
+  </span>
+  <span class="t-h3 lcard-title">{d.title}</span>
+  <span class="t-small muted lcard-desc">{d.description}</span>
+</a>
+<style>
+  .lcard { display: flex; flex-direction: column; gap: 6px; min-height: 120px; height: 100%; color: var(--ink); }
+  .lcard-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+  .lcard-check, .lcard-check-sr { display: none; color: var(--brand-text); font-weight: 500; white-space: nowrap; }
+  :global(.lcard.is-read) .lcard-check { display: inline; }
+  :global(.lcard.is-read) .lcard-check-sr { display: inline; }
+  :global(.lcard.is-read) { border-color: color-mix(in srgb, var(--brand-fill) 45%, var(--line)); }
+  .lcard.is-current { border-color: var(--brand-text); }
+  .lcard-title { color: var(--ink); }
+  .lcard-desc { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+</style>

@@ -74,7 +74,11 @@ const PAGINAS = [
     ogTitle: 'Mercados hoy: acciones, divisas y cripto — Smart Finance',
     ogDesc: 'Acciones, divisas y cripto en un solo lugar, cada cosa con su gráfica de tendencia. Se actualiza cada 15 minutos.'
   },
+  // /lessons, las seis lecciones y su /es ya son páginas Astro (MDX en
+  // src/content/lessons, páginas en src/pages/lessons y src/pages/es/lecciones):
+  // se quedan aquí solo como registro; no hay HTML legacy que traducir.
   {
+    astro: true,
     en: 'lessons/index.html', es: 'es/lecciones/index.html',
     enUrl: '/lessons', esUrl: '/es/lecciones',
     imgAlt: 'Smart Finance — Lecciones: finanzas desde cero, en palabras normales',
@@ -84,6 +88,7 @@ const PAGINAS = [
     ogDesc: 'Seis lecciones cortas de finanzas en palabras normales, para quien apenas empieza.'
   },
   {
+    astro: true,
     en: 'lessons/peso-tipo-de-cambio.html', es: 'es/lecciones/peso-tipo-de-cambio.html',
     enUrl: '/lessons/peso-tipo-de-cambio', esUrl: '/es/lecciones/peso-tipo-de-cambio',
     title: '¿Qué significa que el peso se deprecie? — Smart Finance',
@@ -92,6 +97,7 @@ const PAGINAS = [
     ogDesc: 'Quién mueve el tipo de cambio, por qué brinca y qué significa para tu dinero.'
   },
   {
+    astro: true,
     en: 'lessons/interes-compuesto.html', es: 'es/lecciones/interes-compuesto.html',
     enUrl: '/lessons/interes-compuesto', esUrl: '/es/lecciones/interes-compuesto',
     title: 'Interés simple vs. compuesto — Smart Finance',
@@ -100,6 +106,7 @@ const PAGINAS = [
     ogDesc: 'Por qué el tiempo pesa más que el monto con el que empiezas.'
   },
   {
+    astro: true,
     en: 'lessons/sp500.html', es: 'es/lecciones/sp500.html',
     enUrl: '/lessons/sp500', esUrl: '/es/lecciones/sp500',
     title: '¿Por qué sube o baja el S&P 500? — Smart Finance',
@@ -108,6 +115,7 @@ const PAGINAS = [
     ogDesc: 'Qué mide en realidad, qué lo mueve y por qué el día a día es ruido.'
   },
   {
+    astro: true,
     en: 'lessons/presupuesto-50-30-20.html', es: 'es/lecciones/presupuesto-50-30-20.html',
     enUrl: '/lessons/presupuesto-50-30-20', esUrl: '/es/lecciones/presupuesto-50-30-20',
     title: 'La regla 50/30/20 para tu primer presupuesto — Smart Finance',
@@ -116,6 +124,7 @@ const PAGINAS = [
     ogDesc: 'De lo que de verdad te llega libre a un plan que sobrevive un mes normal.'
   },
   {
+    astro: true,
     en: 'lessons/inflacion.html', es: 'es/lecciones/inflacion.html',
     enUrl: '/lessons/inflacion', esUrl: '/es/lecciones/inflacion',
     title: '¿Qué es la inflación y cómo te afecta? — Smart Finance',
@@ -124,6 +133,7 @@ const PAGINAS = [
     ogDesc: 'Por qué el mismo dinero compra menos, y cómo un aumento puede ser un recorte.'
   },
   {
+    astro: true,
     en: 'lessons/errores-al-invertir.html', es: 'es/lecciones/errores-al-invertir.html',
     enUrl: '/lessons/errores-al-invertir', esUrl: '/es/lecciones/errores-al-invertir',
     title: '3 errores comunes al empezar a invertir — Smart Finance',

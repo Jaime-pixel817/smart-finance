@@ -1,0 +1,78 @@
+---
+// Calculadora de interés compuesto de la lección "Interés simple vs.
+// compuesto" (antes public/assets/lesson-widgets.js con Chart.js por CDN).
+// Mismo comportamiento: tres sliders (aporte mensual, tasa anual, años), la
+// curva "solo tus aportes" contra "con interés compuesto" y la frase resumen.
+// La gráfica ahora es SVG propio (sección E del diseño: sin CDN, sin Chart.js)
+// y la pinta src/scripts/compound.ts. Sin JavaScript queda el resumen con los
+// valores del ejemplo.
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+const p = Astro.url.pathname;
+const locale: Locale = p === '/es' || p.startsWith('/es/') ? 'es' : 'en';
+const t = useT(locale);
+---
+<div class="lesson-widget" data-widget="compound" data-locale={locale} data-tpl={t('calc.summary_tpl')} data-years-unit={t('calc.years')}>
+  <p class="eyebrow">{t('calc.eyebrow')}</p>
+  <div class="lw-controls">
+    <div class="lw-control">
+      <label for="lwMonthly">{t('calc.monthly')}</label>
+      <output for="lwMonthly" id="lwMonthlyOut" class="num">$1,000</output>
+      <input type="range" id="lwMonthly" min="200" max="5000" step="100" value="1000" data-lw="monthly">
+    </div>
+    <div class="lw-control">
+      <label for="lwRate">{t('calc.rate')}</label>
+      <output for="lwRate" id="lwRateOut" class="num">8%</output>
+      <input type="range" id="lwRate" min="4" max="12" step="0.5" value="8" data-lw="rate">
+    </div>
+    <div class="lw-control">
+      <label for="lwYears">{t('calc.years')}</label>
+      <output for="lwYears" id="lwYearsOut" class="num">20</output>
+      <input type="range" id="lwYears" min="1" max="30" step="1" value="20" data-lw="years">
+    </div>
+  </div>
+  <div class="lw-chart">
+    <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={t('calc.chartAria')} data-lw-svg>
+      <g class="lw-grid" data-lw-grid></g>
+      <path class="lw-area" data-lw-area d=""></path>
+      <path class="lw-line lw-contrib" data-lw-contrib d=""></path>
+      <path class="lw-line lw-compound" data-lw-compound d=""></path>
+    </svg>
+    <div class="lw-yticks t-caption num" data-lw-yticks aria-hidden="true"></div>
+    <div class="lw-xticks t-caption num" data-lw-xticks aria-hidden="true"></div>
+  </div>
+  <p class="lw-legend t-caption">
+    <span class="lw-key"><span class="lw-dot lw-dot-contrib" aria-hidden="true"></span>{t('calc.contrib')}</span>
+    <span class="lw-key"><span class="lw-dot lw-dot-compound" aria-hidden="true"></span>{t('calc.compound')}</span>
+  </p>
+  <p class="lw-summary" data-lw-summary aria-live="polite">{t('calc.summary')}</p>
+  <p class="lw-note t-caption faint">{t('calc.note')}</p>
+</div>
+<script src="../../scripts/compound.ts"></script>
+<style is:global>
+  .lesson-widget { background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--card-pad); margin: var(--sp-6) 0; box-shadow: var(--shadow-1); }
+  .lesson-body .lesson-widget p { margin: 0; }
+  .lw-controls { display: grid; gap: var(--sp-4); margin: var(--sp-4) 0 var(--sp-4); }
+  @media (min-width: 640px) { .lw-controls { grid-template-columns: repeat(3, 1fr); } }
+  .lw-control { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 4px 10px; }
+  .lw-control label { font-size: var(--fs-small); color: var(--ink-2); }
+  .lw-control output { font-size: var(--fs-small); color: var(--ink); text-align: right; }
+  .lw-control input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--brand-fill); height: 44px; }
+  .lw-chart { position: relative; height: 200px; padding: 0 0 18px 0; }
+  .lw-chart svg { width: 100%; height: calc(100% - 18px); display: block; overflow: visible; }
+  .lw-grid line { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .lw-area { fill: var(--brand-fill); opacity: .12; }
+  .lw-line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+  .lw-contrib { stroke: var(--ink-3); stroke-dasharray: 5 4; stroke-width: 1.5; }
+  .lw-compound { stroke: var(--brand-text); }
+  .lw-yticks { position: absolute; left: 0; top: 0; height: calc(100% - 18px); width: 100%; pointer-events: none; color: var(--ink-3); }
+  .lw-yticks span { position: absolute; left: 0; transform: translateY(-100%); padding: 0 0 2px; background: color-mix(in srgb, var(--bg-1) 85%, transparent); }
+  .lw-xticks { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; color: var(--ink-3); }
+  .lw-legend { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-top: var(--sp-3) !important; color: var(--ink-2); }
+  .lw-key { display: inline-flex; align-items: center; gap: 7px; }
+  .lw-dot { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .lw-dot-contrib { background: var(--ink-3); }
+  .lw-dot-compound { background: var(--brand-text); }
+  .lesson-body .lw-summary { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); font-size: var(--fs-body); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .lesson-body .lw-note { margin-top: var(--sp-2); }
+</style>

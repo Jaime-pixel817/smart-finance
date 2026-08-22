@@ -6,8 +6,9 @@
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
-import { PULSE, RATES, LESSONS, BREAKDOWNS, ratesFresh } from '../../data/home';
+import { PULSE, RATES, BREAKDOWNS, ratesFresh } from '../../data/home';
 import { ASSETS, assetRouteId } from '../../data/symbols';
+import { getLessons } from '../../data/lessons';
 import SourceChip from '../SourceChip.astro';
 
 const { locale } = Astro.props as { locale: Locale };
@@ -18,7 +19,11 @@ const strings = {
   open: t('today.open'), closed: t('today.closed'), loading: t('src.loading'), unavailable: t('src.unavailable'),
   nlOk: t('nl.ok'), nlBadEmail: t('nl.badEmail'), nlNoConsent: t('nl.noConsent'), nlLimit: t('nl.limit'), nlError: t('nl.error'), nlSending: t('nl.sending')
 };
-const first = LESSONS[0];
+// Lecciones desde la colección MDX: la tarjeta grande es la primera de la ruta
+// "Desde cero"; el script de progreso la cambia por la siguiente sin leer.
+const lessons = await getLessons(locale);
+const first = lessons.find((l) => l.path.id === 'desde-cero' && l.pathIndex === 1) ?? lessons[0];
+const nextList = lessons.map((l) => ({ slug: l.slug, href: l.href, title: l.entry.data.title, desc: l.entry.data.description, min: l.entry.data.readingMinutes, path: l.path.name[locale], i: l.pathIndex, n: l.pathTotal }));
 // Mercados en 60 s: de la clave del endpoint (SPY, BTC…) a la ficha del activo.
 const assetHrefs = Object.fromEntries(ASSETS.filter((a) => a.feed === 'markets').map((a) => [a.feedKey, L(assetRouteId(a.id))]));
 const SPARK = `<svg class="spark skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill" d=""/><path class="line" d=""/></svg>`;
@@ -114,18 +119,19 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
         <h2 id="learn-h" class="t-h3">{t('learn.title')}</h2>
         <a class="more" href={L('lessons')}>{t('learn.all')} →</a>
       </div>
-      <a class="card card-link learn-card" href={L(first.id)}>
-        <p class="eyebrow">{t('learn.start')} <span aria-hidden="true">·</span> {t('learn.path')} <span aria-hidden="true">·</span> 1/{LESSONS.length}</p>
-        <h3 class="t-h2 learn-title">{t(first.titleKey)}</h3>
-        <p class="t-small muted">{t(first.descKey)}</p>
-        <span class="learn-cta"><span class="btn btn-primary btn-sm">{t('learn.continue')}</span> <span class="t-caption faint">{first.minutes} {t('learn.min')}</span></span>
+      <a class="card card-link learn-card" href={first.href} data-learn-next data-lessons={JSON.stringify(nextList)} data-start={t('learn.start')} data-continue={t('learn.continue')}>
+        <p class="eyebrow"><span data-learn-kicker>{t('learn.start')}</span> <span aria-hidden="true">·</span> <span data-learn-path>{first.path.name[locale]}</span> <span aria-hidden="true">·</span> <span data-learn-pos>1/{first.pathTotal}</span></p>
+        <h3 class="t-h2 learn-title" data-learn-title>{first.entry.data.title}</h3>
+        <p class="t-small muted" data-learn-desc>{first.entry.data.description}</p>
+        <span class="learn-cta"><span class="btn btn-primary btn-sm" data-learn-cta>{t('learn.continue')}</span> <span class="t-caption faint"><span data-learn-min>{first.entry.data.readingMinutes}</span> {t('learn.min')}</span></span>
       </a>
       <ol class="rail lesson-rail">
-        {LESSONS.map((l) => (
+        {lessons.map((l) => (
           <li>
-            <a class="card card-link lesson-card" href={L(l.id)}>
-              <span class="eyebrow">{String(l.n).padStart(2, '0')} <span aria-hidden="true">·</span> {l.minutes} {t('learn.min')}</span>
-              <span class="t-small lesson-title">{t(l.titleKey)}</span>
+            <a class="card card-link lesson-card" href={l.href} data-lesson={l.slug}>
+              <span class="eyebrow">{l.path.name[locale]} <span aria-hidden="true">·</span> {l.entry.data.readingMinutes} {t('learn.min')}</span>
+              <span class="t-small lesson-title">{l.entry.data.title}</span>
+              <span class="lesson-check t-caption" aria-hidden="true">✓</span>
             </a>
           </li>
         ))}
@@ -253,7 +259,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
           <h2 id="who-h" class="eyebrow">{t('who.title')}</h2>
           <p class="t-small who-name">{t('who.name')}</p>
           <p class="t-caption muted">{t('who.line')}</p>
-          <p class="who-links t-caption"><a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a> <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a></p>
+          <p class="who-links t-caption"><a href={L('about')}>{t('who.more')} →</a> <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a> <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a></p>
         </div>
       </div>
     </section>
@@ -261,6 +267,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 </div>
 
 <script src="../../scripts/home.ts"></script>
+<script src="../../scripts/home-learn.ts"></script>
 
 <style>
   .home { padding-top: var(--sp-3); }
@@ -336,7 +343,10 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .learn-card { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-3); }
   .learn-cta { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-1); }
   .lesson-rail li { width: 180px; }
-  .lesson-card { display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 96px; padding: var(--sp-3); }
+  .lesson-card { display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 96px; padding: var(--sp-3); position: relative; }
+  .lesson-check { display: none; position: absolute; top: var(--sp-2); right: var(--sp-3); color: var(--brand-text); font-weight: 500; }
+  .lesson-card.is-read .lesson-check { display: inline; }
+  .lesson-card.is-read { border-color: color-mix(in srgb, var(--brand-fill) 45%, var(--line)); }
   .lesson-title { font-weight: 500; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   @media (min-width: 768px) { .lesson-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .lesson-rail li { width: auto; } }
 

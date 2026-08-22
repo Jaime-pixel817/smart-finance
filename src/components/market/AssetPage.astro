@@ -9,7 +9,7 @@ import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT, type UIKey } from '../../i18n/ui';
 import { relatedTo, runtimeOf, assetRouteId, type SymbolEntry } from '../../data/symbols';
-import { LESSONS } from '../../data/home';
+import { getLessonByRoute, getLessons } from '../../data/lessons';
 import AssetRow from './AssetRow.astro';
 import PricePanel from './PricePanel.astro';
 import SourceChip from '../SourceChip.astro';
@@ -19,7 +19,7 @@ const { locale, s } = Astro.props;
 const t = useT(locale);
 const L = (id: string) => route(id, locale);
 const related = relatedTo(s, 3);
-const lesson = LESSONS.find((l) => l.id === s.lesson) ?? LESSONS[0];
+const lesson = (await getLessonByRoute(locale, s.lesson)) ?? (await getLessons(locale))[0];
 const sessionText = t(('asset.session.' + s.session) as UIKey);
 const strings = {
   loading: t('src.loading'), unavailable: t('src.unavailable'), today: t('chart.today'),
@@ -82,10 +82,10 @@ const stats: [string, string][] = [
 
         <section class="asset-learn" aria-labelledby="learn-h">
           <h2 id="learn-h" class="t-h3">{t('asset.learn')}</h2>
-          <a class="card card-link asset-lesson" href={L(lesson.id)}>
-            <span class="eyebrow">{String(lesson.n).padStart(2, '0')} <span aria-hidden="true">·</span> {lesson.minutes} {t('learn.min')}</span>
-            <span class="t-h3 asset-lesson-title">{t(lesson.titleKey)}</span>
-            <span class="t-caption muted">{t(lesson.descKey)}</span>
+          <a class="card card-link asset-lesson" href={lesson.href}>
+            <span class="eyebrow">{lesson.path.name[locale]} <span aria-hidden="true">·</span> {lesson.entry.data.readingMinutes} {t('learn.min')}</span>
+            <span class="t-h3 asset-lesson-title">{lesson.entry.data.title}</span>
+            <span class="t-caption muted">{lesson.entry.data.description}</span>
             <span class="asset-lesson-cta t-small">{t('asset.learn.cta')} →</span>
           </a>
         </section>

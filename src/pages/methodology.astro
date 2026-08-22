@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Methodology from '../components/about/Methodology.astro';
+import { SITE } from '../i18n/routes';
+const title = 'Methodology: where the data comes from, what the AI does, how errors get fixed — Smart Finance';
+const description = 'The sources, refresh cadence and delay of every number on Smart Finance, the fallback chain and cache, what is AI-generated and labeled, the corrections changelog, conflicts of interest and how to report an error.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + '/methodology',
+  inLanguage: 'en',
+  dateModified: '2026-08-21',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="en" routeId="methodology" active="today" title={title} description={description} jsonLd={jsonLd}>
+  <Methodology locale="en" />
+</Base>

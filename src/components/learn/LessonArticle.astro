@@ -1,0 +1,166 @@
+---
+// Layout de lectura de una lección (sección C): ancho 680, título Fraunces,
+// entradilla, byline con avatar de 24 px, "Publicado / Actualizado", tiempo de
+// lectura, cuerpo MDX con glosario al tacto, marcar como leída, prev/next
+// dentro de la ruta, lecciones relacionadas, fuentes numeradas y disclaimer.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { prevNext, type Lesson } from '../../data/lessons';
+import { render } from 'astro:content';
+import Term from './Term.astro';
+import Callout from './Callout.astro';
+import CompoundCalculator from './CompoundCalculator.astro';
+import GlossarySheet from './GlossarySheet.astro';
+import LessonCard from './LessonCard.astro';
+
+interface Props { locale: Locale; lesson: Lesson; all: Lesson[] }
+const { locale, lesson, all } = Astro.props;
+const t = useT(locale);
+const d = lesson.entry.data;
+const { Content } = await render(lesson.entry);
+const { prev, next } = prevNext(all, lesson);
+const related = d.related.map((slug) => all.find((l) => l.slug === slug)).filter((l): l is Lesson => !!l && l.slug !== prev?.slug && l.slug !== next?.slug);
+const fmt = new Intl.DateTimeFormat(locale === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+const iso = (x: Date) => x.toISOString().slice(0, 10);
+const day = (x: Date) => fmt.format(x).replace(/\./g, '');
+const levelKey = ('learn.level.' + d.level) as UIKey;
+---
+<article class="lesson" data-lesson-page={lesson.slug}>
+  <div class="container lesson-wrap">
+    <nav class="lesson-crumb" aria-label={locale === 'es' ? 'Ruta' : 'Breadcrumb'}>
+      <a class="t-small" href={route('lessons', locale)}>← {t('learn.backAll')}</a>
+    </nav>
+
+    <header class="lesson-head">
+      <p class="eyebrow">{lesson.path.name[locale]} <span aria-hidden="true">·</span> {t('learn.lesson')} {lesson.pathIndex} {t('learn.of')} {lesson.pathTotal} <span aria-hidden="true">·</span> {t(levelKey)}</p>
+      <h1 class="t-display lesson-title">{d.title}</h1>
+      <p class="lesson-lede">{d.lede}</p>
+      {d.heroStat && (
+        <p class="lesson-stat">
+          <span class="num lesson-stat-v">{d.heroStat.value}</span>
+          <span class="t-caption muted">{d.heroStat.label}</span>
+        </p>
+      )}
+      <div class="byline t-caption">
+        <img class="byline-avatar" src="/assets/jaime-96.jpg" alt="" width="24" height="24" loading="lazy" decoding="async">
+        <span><a class="byline-name" href={route('about', locale)}>{t('learn.by')} Jaime Sandoval Ricaño</a></span>
+        <span aria-hidden="true">·</span>
+        <span>{t('learn.published')} <time datetime={iso(d.publishedAt)}>{day(d.publishedAt)}</time></span>
+        <span aria-hidden="true">·</span>
+        <span>{t('learn.updated')} <time datetime={iso(d.updatedAt)}>{day(d.updatedAt)}</time></span>
+        <span aria-hidden="true">·</span>
+        <span>{d.readingMinutes} {t('learn.minread')}</span>
+      </div>
+    </header>
+
+    <div class="lesson-body">
+      <Content components={{ Term, Callout, CompoundCalculator }} />
+    </div>
+
+    <div class="lesson-end" data-lesson-end>
+      <button type="button" class="btn btn-ghost btn-sm" data-mark-read data-label-read={t('learn.markRead')} data-label-done={t('learn.marked')} aria-pressed="false">{t('learn.markRead')}</button>
+      <span class="t-caption faint">{t('learn.progress.note')}</span>
+    </div>
+
+    <nav class="lesson-nav" aria-label={locale === 'es' ? 'Siguiente lección' : 'Next lesson'}>
+      {prev ? (
+        <a class="card card-link lnav" href={prev.href}>
+          <span class="eyebrow">← {t('learn.prev')}</span>
+          <span class="t-small lnav-title">{prev.entry.data.title}</span>
+        </a>
+      ) : <span class="lnav-empty" aria-hidden="true"></span>}
+      {next ? (
+        <a class="card card-link lnav lnav-next" href={next.href}>
+          <span class="eyebrow">{t('learn.next')} →</span>
+          <span class="t-small lnav-title">{next.entry.data.title}</span>
+        </a>
+      ) : (
+        <a class="card card-link lnav lnav-next" href={route('lessons', locale)}>
+          <span class="eyebrow">{t('learn.pathDone')}</span>
+          <span class="t-small lnav-title">{t('learn.allPaths')} →</span>
+        </a>
+      )}
+    </nav>
+
+    {related.length > 0 && (
+      <section class="lesson-related" aria-labelledby="rel-h">
+        <h2 id="rel-h" class="t-h3">{t('learn.related')}</h2>
+        <ul class="lesson-related-list">
+          {related.map((r) => <li><LessonCard locale={locale} lesson={r} /></li>)}
+        </ul>
+      </section>
+    )}
+
+    <section class="lesson-sources" aria-labelledby="src-h">
+      <h2 id="src-h" class="t-h3">{t('learn.sources')}</h2>
+      <ol class="sources">
+        {d.sources.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener">{s.title} ↗</a>
+            <span class="t-caption muted"> — {s.publisher} <span aria-hidden="true">·</span> {t('learn.consulted')} <time datetime={s.date}>{day(new Date(s.date + 'T12:00:00Z'))}</time></span>
+          </li>
+        ))}
+      </ol>
+      <p class="t-caption faint">{t('learn.sources.note')}</p>
+    </section>
+
+    <p class="lesson-disclaimer t-caption">{t('learn.disclaimer')}</p>
+  </div>
+</article>
+<GlossarySheet locale={locale} />
+<script src="../../scripts/lesson-page.ts"></script>
+
+<style>
+  .lesson { padding-top: var(--sp-3); }
+  .lesson-wrap { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .lesson-crumb a { display: inline-flex; align-items: center; min-height: 36px; color: var(--ink-2); }
+  .lesson-crumb a:hover { color: var(--ink); }
+  .lesson-head { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-1); padding-bottom: var(--sp-5); border-bottom: 1px solid var(--line); }
+  .lesson-title { margin-top: var(--sp-1); }
+  .lesson-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); }
+  .lesson-stat { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3) var(--sp-4); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); align-self: flex-start; }
+  .lesson-stat-v { font-size: var(--fs-num-xl); line-height: 1.1; letter-spacing: -.01em; }
+  .byline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--ink-2); }
+  .byline-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 2px; }
+  .byline-name { color: var(--ink); font-weight: 500; }
+  .byline-name:hover { color: var(--brand-text); }
+  .lesson-end { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--line); }
+  .lesson-end .btn[aria-pressed="true"] { background: var(--brand-wash); border-color: transparent; color: var(--brand-text); }
+  .lesson-nav { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); margin-top: var(--sp-5); }
+  @media (min-width: 600px) { .lesson-nav { grid-template-columns: 1fr 1fr; } }
+  .lnav { display: flex; flex-direction: column; gap: 6px; color: var(--ink); min-height: 80px; }
+  .lnav-next { text-align: right; align-items: flex-end; }
+  .lnav-title { font-weight: 500; }
+  .lnav-empty { display: none; }
+  @media (min-width: 600px) { .lnav-empty { display: block; } }
+  .lesson-related { margin-top: var(--sp-8); }
+  .lesson-related-list { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); margin-top: var(--sp-3); }
+  @media (min-width: 600px) { .lesson-related-list { grid-template-columns: 1fr 1fr; } }
+  .lesson-sources { margin-top: var(--sp-8); }
+  .sources { list-style: decimal; padding-left: 1.4em; margin-top: var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-2); font-size: var(--fs-small); line-height: var(--lh-small); }
+  .sources li { padding-left: 4px; overflow-wrap: anywhere; }
+  .sources li::marker { color: var(--ink-3); font-family: var(--font-mono); }
+  .sources a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--ink-3); text-underline-offset: 3px; }
+  .sources a:hover { color: var(--brand-text); }
+  .lesson-sources .t-caption { margin-top: var(--sp-3); }
+  .lesson-disclaimer { margin-top: var(--sp-6); color: var(--ink-3); }
+</style>
+<style is:global>
+  /* Tipografía de lectura del cuerpo MDX (sección C: 17/27, ancho 680). */
+  .lesson-body { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink); padding-top: var(--sp-5); }
+  .lesson-body > * + * { margin-top: var(--sp-4); }
+  .lesson-body h2 { font-weight: 600; font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: -.01em; margin-top: var(--sp-8); }
+  .lesson-body h3 { font-weight: 600; font-size: var(--fs-h3); line-height: var(--lh-h3); margin-top: var(--sp-6); }
+  .lesson-body p { color: var(--ink); }
+  .lesson-body ul, .lesson-body ol { padding-left: 1.35em; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .lesson-body ul { list-style: disc; }
+  .lesson-body ol { list-style: decimal; }
+  .lesson-body li { padding-left: 4px; }
+  .lesson-body li::marker { color: var(--ink-3); }
+  .lesson-body strong { font-weight: 600; color: var(--ink); }
+  .lesson-body em { font-style: italic; }
+  .lesson-body a:not(.btn) { color: var(--brand-text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .lesson-body a:not(.btn):hover { color: var(--ink); }
+  .lesson-body .callout { font-size: var(--fs-body); line-height: var(--lh-body); }
+</style>

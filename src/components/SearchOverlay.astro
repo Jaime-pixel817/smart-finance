@@ -1,6 +1,6 @@
 ---
 // Búsqueda global, versión mínima: un overlay con un índice JSON estático
-// (public/search-index.json: activos, lecciones, herramientas, páginas) y
+// (/search-index.json: activos, lecciones, términos del glosario, herramientas, páginas) y
 // coincidencia por subcadena sin acentos. Abre con la pestaña Buscar, el botón
 // de la barra o las teclas "/" y ⌘K; cierra con Esc o el fondo.
 import type { Locale } from '../i18n/routes';
@@ -23,7 +23,7 @@ const t = useT(locale);
     <div id="search-results" class="search-results" aria-live="polite"
       data-empty={t('search.empty')}
       data-g-assets={t('search.group.assets')} data-g-lessons={t('search.group.lessons')}
-      data-g-tools={t('search.group.tools')} data-g-pages={t('search.group.pages')}></div>
+      data-g-tools={t('search.group.tools')} data-g-pages={t('search.group.pages')} data-g-terms={t('search.group.terms')}></div>
   </div>
 </div>
 <style>
@@ -46,7 +46,7 @@ const t = useT(locale);
   .search-results :global(p.empty) { color: var(--ink-2); font-size: var(--fs-small); padding: var(--sp-2) 10px; }
 </style>
 <script>
-  type Item = { t: 'asset' | 'lesson' | 'tool' | 'page'; name: string; sym?: string; href: string; lang?: string; keys?: string };
+  type Item = { t: 'asset' | 'lesson' | 'term' | 'tool' | 'page'; name: string; sym?: string; href: string; lang?: string; keys?: string };
   const overlayEl = document.getElementById('search') as HTMLElement | null;
   if (overlayEl) {
     const overlay: HTMLElement = overlayEl;
@@ -75,8 +75,8 @@ const t = useT(locale);
       if (!hits.length) { results.innerHTML = '<p class="empty">' + results.dataset.empty + '</p>'; return; }
       const groups: Record<string, Item[]> = {};
       hits.forEach((h) => { (groups[h.t] ||= []).push(h); });
-      const label: Record<string, string> = { asset: results.dataset.gAssets!, lesson: results.dataset.gLessons!, tool: results.dataset.gTools!, page: results.dataset.gPages! };
-      for (const k of ['asset', 'lesson', 'tool', 'page']) {
+      const label: Record<string, string> = { asset: results.dataset.gAssets!, lesson: results.dataset.gLessons!, term: results.dataset.gTerms!, tool: results.dataset.gTools!, page: results.dataset.gPages! };
+      for (const k of ['asset', 'lesson', 'term', 'tool', 'page']) {
         if (!groups[k]) continue;
         const h3 = document.createElement('h3'); h3.textContent = label[k]; results.appendChild(h3);
         groups[k].forEach((it) => {
