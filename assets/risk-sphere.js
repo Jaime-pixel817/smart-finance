@@ -177,11 +177,13 @@ void main() {
   b *= mix(1.0, max(0.05, abs(vFacing)), uPlano);
 
   /* Día y noche. uSunDir apunta al punto subsolar (ver subsolarDir). La cara
-     que mira al sol sube un poco, la opuesta baja; el terminador es una
-     franja suave de ±0.2 en el coseno (~23°) para que no se lea como un
-     corte. Sutil a propósito: es luz, no un mapa. */
+     que mira al sol sube un pelo, la opuesta baja bastante; el terminador es
+     una franja suave de -0.15..0.25 en el coseno (~23°) para que no se lea
+     como un corte. Casi todo el contraste va a la noche y no al día, a
+     propósito: subir el día pelea con el titular que va encima del globo
+     (ver .hero-grid::before en index.html), bajar la noche no. */
   float sol = dot(dir, uSunDir);
-  b *= mix(1.0 - uNoche, 1.0 + uNoche * 0.35, smoothstep(-0.2, 0.2, sol));
+  b *= mix(1.0 - uNoche, 1.0 + uNoche * 0.15, smoothstep(-0.15, 0.25, sol));
 
   vColor = vec3(b);
 
@@ -727,8 +729,8 @@ async function initRiskSphere() {
       // quede un rastro de aro y la esfera no se lea como un círculo plano.
       uPlano:         { value: 0.92 },
       uSunDir:        { value: new THREE.Vector3(1, 0, 0) },
-      // 0.38: la noche queda al 62 % y el día al 113 % del brillo base.
-      uNoche:         { value: 0.38 },
+      // 0.58: la noche queda al 42 % y el día al 109 % del brillo base.
+      uNoche:         { value: 0.58 },
     },
     vertexShader: GLOBE_VERTEX_SHADER,
     fragmentShader: GLOBE_FRAGMENT_SHADER,
@@ -783,6 +785,13 @@ async function initRiskSphere() {
    *      con el evento "world:data"; aquí solo se pinta. Mientras no hay
    *      datos los ocho puntos están en su sitio en gris neutro, así que el
    *      globo ya enseña DÓNDE están las bolsas desde el primer frame.
+   *
+   * TODO (v2, no entró en esta tanda): arcos desde Ciudad de México a las
+   * otras siete bolsas — curvas sobre R·1.05 (quadratic Bézier por el punto
+   * medio elevado, ~40 segmentos cada una, UNA sola geometría LineSegments
+   * con fundido por vFacing como el de los marcadores), encendidas solo con
+   * el marcador de México seleccionado para no ensuciar el globo. Medir el
+   * costo en el teléfono antes: son 280 segmentos más por frame.
    *
    * El toque/clic no usa raycast sobre sprites: se proyectan las ocho
    * posiciones a píxeles y se busca la más cercana al dedo dentro de 22 px
@@ -848,13 +857,13 @@ async function initRiskSphere() {
         vec2 q = gl_PointCoord - 0.5;
         float r = length(q) * 2.0;                 // 0 centro, 1 borde
         // Punto sólido con borde suave…
-        float core = 1.0 - smoothstep(0.22, 0.34, r);
+        float core = 1.0 - smoothstep(0.27, 0.40, r);
         // …y halo: un anillo que respira si la bolsa está abierta, fijo y
         // más tenue si está cerrada.
         float pulso = mix(0.0, 0.5 + 0.5 * sin(uTime * 2.2), vOpen);
         float rh = mix(0.55, 0.95, pulso);
-        float halo = (1.0 - smoothstep(rh - 0.25, rh + 0.08, r)) * smoothstep(0.30, 0.50, r);
-        halo *= mix(0.22, 0.55 - 0.3 * pulso, vOpen);
+        float halo = (1.0 - smoothstep(rh - 0.25, rh + 0.08, r)) * smoothstep(0.36, 0.55, r);
+        halo *= mix(0.28, 0.55 - 0.3 * pulso, vOpen);
         float anillo = vSel * (1.0 - smoothstep(0.0, 0.12, abs(r - 0.9)));
         float a = max(max(core, halo), anillo);
         // Se apagan al girar a la cara de atrás.
