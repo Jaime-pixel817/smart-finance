@@ -23,7 +23,7 @@ const lesson = LESSONS.find((l) => l.id === s.lesson) ?? LESSONS[0];
 const sessionText = t(('asset.session.' + s.session) as UIKey);
 const strings = {
   loading: t('src.loading'), unavailable: t('src.unavailable'), today: t('chart.today'),
-  chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'), empty: t('chart.empty'), error: t('chart.error'),
+  chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
   bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
   r1D: t('range.1D'), r1M: t('range.1M'), r3M: t('range.3M'), r1Y: t('range.1Y'), r5Y: t('range.5Y')
 };
@@ -115,6 +115,7 @@ const stats: [string, string][] = [
   .asset-price { font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-num-xl); line-height: 1.1; letter-spacing: -.01em; font-variant-numeric: tabular-nums slashed-zero; min-width: 6ch; white-space: nowrap; }
   .asset-chg { min-width: 12ch; white-space: nowrap; }
   .asset-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; margin-top: var(--sp-1); }
+  .asset-meta :global(.src-chip) { flex-wrap: wrap; row-gap: 2px; }
 
   /* La cabecera ya lleva el precio grande: el readout del panel baja un escalón. */
   .asset-chart :global(.pp-price) { font-size: 1.5rem; }

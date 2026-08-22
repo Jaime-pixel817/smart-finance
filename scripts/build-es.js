@@ -28,7 +28,8 @@
  * -----------
  *   node scripts/build-es.js
  *
- * Escribe /es/**. La salida se commitea: así lo que hay en el repo es
+ * Escribe /es/**. (El sitemap.xml lo genera Astro desde src/i18n/routes.ts.)
+ * La salida se commitea: así lo que hay en el repo es
  * exactamente lo que se sirve, y se puede revisar en local. Hay que volver a
  * correrlo cuando se cambie texto de una página en inglés; `npm run check-es`
  * avisa si se olvidó.
@@ -603,8 +604,10 @@ function generarSitemap() {
 
 if (require.main === module) {
   const { escritas, avisos } = construir();
-  escribir('sitemap.xml', generarSitemap());
-  console.log('sitemap.xml regenerado con ' + (PAGINAS.length * 2) + ' URLs');
+  // El sitemap ya NO se escribe aquí: lo genera Astro en el build desde
+  // src/i18n/routes.ts (src/pages/sitemap.xml.ts), que es la única lista que
+  // conoce también las fichas de activo. generarSitemap() queda como
+  // referencia hasta que migre la última página legacy.
   console.log('páginas en español escritas: ' + escritas);
   if (avisos.length) {
     console.log('\nAVISOS (' + avisos.length + '):');
@@ -614,4 +617,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { construir, PAGINAS, SITIO };
+module.exports = { construir, generarSitemap, PAGINAS, SITIO };

@@ -5,7 +5,7 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 ## Reglas críticas
 
 - **Push a `main` despliega DIRECTO a producción** (Vercel). Verificar todo localmente antes de subir; los previews de Vercel no sirven para probar.
-- **Nunca editar `/es` ni `sitemap.xml` a mano** — se generan con `npm run build:es`; verificar con `npm run check-es`.
+- **Nunca editar `/es` ni `sitemap.xml` a mano** — `/es` (legacy) se genera con `npm run build:es` (verificar con `npm run check-es`); `sitemap.xml` lo genera Astro en el build desde `src/i18n/routes.ts`.
 - El nav está duplicado en las 9 páginas inglesas: un cambio de nav se hace en TODAS.
 - Nunca decir "en vivo" en datos de mercado: chip de fuente/retraso/hora (`src/components/SourceChip.astro`) con la cadencia real de actualización.
 - Disclaimer educativo obligatorio en el footer de cada página con contenido financiero.
@@ -21,14 +21,14 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 
 ## Comandos
 
-- `npm run build:es` — regenera todo `/es` + `sitemap.xml` desde las páginas inglesas
-- `npm run check-es` — corre el generador y falla si `/es` o el sitemap quedaron desactualizados
+- `npm run build:es` — regenera todo `/es` legacy desde las páginas inglesas
+- `npm run check-es` — corre el generador y falla si `/es` quedó desactualizado
 - `npm run build:og` — genera las og:images en español
 
 ## Checklist para una página nueva
 
 1. Crear `x/index.html` copiando la estructura de `market/index.html` (diccionario `window.ARTICLE_I18N` + textos marcados con `data-i18n`).
-2. Registrar el par EN/ES en el array `PAGINAS` de `scripts/build-es.js` (title/desc/ogTitle/ogDesc en español) y su entrada en `METADATOS`.
+2. Registrar el par EN/ES en el array `PAGINAS` de `scripts/build-es.js` (title/desc/ogTitle/ogDesc en español) y la ruta en `src/i18n/routes.ts` (nav, hreflang y sitemap).
 3. `npm run build:es` y luego `npm run check-es`.
 4. Añadir el enlace al nav de las 9 páginas inglesas y al footer.
 5. og:image 1200×630 + variante `-es` (`scripts/build-og.js`).

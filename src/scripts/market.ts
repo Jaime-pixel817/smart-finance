@@ -125,7 +125,7 @@ function boot(root: HTMLElement) {
     if (!panel) {
       const host = $('#mkt-pp');
       if (!host) return;
-      panel = mountPricePanel(host, { locale: loc, strings: { closed: T.chartClosed, lastClose: T.lastClose, today: T.today, empty: T.empty, error: T.error, bars5: T.bars5, daily: T.daily, weekly: T.weekly } });
+      panel = mountPricePanel(host, { locale: loc, strings: { closed: T.chartClosed, lastClose: T.lastClose, today: T.today, empty: T.empty, error: T.error, errorEmpty: T.errorEmpty, unavailable: T.unavailable, bars5: T.bars5, daily: T.daily, weekly: T.weekly } });
     }
     const pair = s.history;
     panel.setSource({

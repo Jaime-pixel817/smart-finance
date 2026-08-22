@@ -40,7 +40,7 @@ export interface PanelStats {
   base: number; changePct: number; prevClose: number | null; lastTs: number; closed: boolean;
 }
 export interface PanelStrings {
-  closed: string; lastClose: string; today: string; empty: string; error: string; bars5: string; daily: string; weekly: string;
+  closed: string; lastClose: string; today: string; empty: string; error: string; errorEmpty: string; unavailable: string; bars5: string; daily: string; weekly: string;
 }
 export interface PanelOpts {
   locale: Loc;
@@ -274,7 +274,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   function paintSource(failed: boolean, lastTs: number | null) {
     if (chip) chip.dataset.fresh = failed ? 'error' : 'fresh';
     if (srcNote) srcNote.textContent = range === '1D' ? T.bars5 : range === '5Y' ? T.weekly : T.daily;
-    if (srcTime && lastTs) srcTime.textContent = fmtTime(new Date(lastTs * 1000), loc);
+    if (srcTime) srcTime.textContent = lastTs ? fmtTime(new Date(lastTs * 1000), loc) : failed ? T.unavailable : srcTime.textContent;
   }
 
   // ---- Carga ----
@@ -309,7 +309,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
       if (id !== reqId || destroyed) return;
       delete root.dataset.loading;
       // Último valor conocido: lo que haya en pantalla se queda; solo se avisa.
-      setState('error', T.error);
+      setState('error', stats ? T.error : T.errorEmpty);
       paintSource(true, stats?.lastTs ?? null);
       if (!stats) { priceEl.textContent = '—'; priceEl.classList.remove('skel'); chgEl.textContent = ''; whenEl.textContent = ''; whenEl.classList.remove('skel'); }
       opts.onError?.(mySrc.key, myRange);

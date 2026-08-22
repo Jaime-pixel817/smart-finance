@@ -33,7 +33,7 @@ const rateRow = (s: SymbolEntry) => ({
 const strings = {
   open: t('today.open'), closed: t('today.closed'), updated: t('mkt.status.updated'), every: t('mkt.status.every'),
   loading: t('src.loading'), unavailable: t('src.unavailable'), chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'),
-  today: t('chart.today'), empty: t('chart.empty'), error: t('chart.error'), bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
+  today: t('chart.today'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'), bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
   openCard: t('mkt.panel.open')
 };
 const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.name[locale] }));
@@ -112,7 +112,7 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
   .mkt-sec-note { margin-bottom: var(--sp-2); max-width: var(--measure); }
   .mkt-list-card { padding: var(--sp-1) var(--sp-2) var(--sp-3); }
   .mkt-rows { display: flex; flex-direction: column; }
-  .mkt-list-card :global(.src-chip) { margin-top: var(--sp-3); padding-left: var(--sp-2); }
+  .mkt-list-card :global(.src-chip) { margin-top: var(--sp-3); padding-left: var(--sp-2); flex-wrap: wrap; row-gap: 2px; }
 
   @media (min-width: 960px) {
     .mkt-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--sp-6); margin-top: var(--sp-6); align-items: start; }

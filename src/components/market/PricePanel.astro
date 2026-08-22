@@ -57,6 +57,7 @@ const t = useT(locale);
   @media (min-width: 768px) { .pp-canvas { height: 280px; } }
   @media (min-width: 1024px) { .pp-canvas { height: 320px; } }
   .pp-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2) var(--sp-4); }
+  .pp-foot :global(.src-chip) { flex-wrap: wrap; row-gap: 2px; }
   .pp-tv { color: var(--ink-3); white-space: nowrap; min-height: 28px; display: inline-flex; align-items: center; }
   .pp-tv:hover { color: var(--ink); }
   @media (prefers-reduced-motion: reduce) { .pp[data-loading="1"] .pp-canvas { transition: none; } }

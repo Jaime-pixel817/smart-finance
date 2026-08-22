@@ -105,13 +105,13 @@ function boot(root: HTMLElement) {
     const pair = s.history;
     const panel = mountPricePanel(host, {
       locale: loc,
-      strings: { closed: T.chartClosed, lastClose: T.lastClose, today: T.today, empty: T.empty, error: T.error, bars5: T.bars5, daily: T.daily, weekly: T.weekly },
+      strings: { closed: T.chartClosed, lastClose: T.lastClose, today: T.today, empty: T.empty, error: T.error, errorEmpty: T.errorEmpty, unavailable: T.unavailable, bars5: T.bars5, daily: T.daily, weekly: T.weekly },
       onData: (st) => {
         paintRangeStat(st);
         // Sin endpoint de cotización (o caído): la serie 1D hace de cabecera.
         if (!headerPainted && st.range === '1D') { const q = quoteFromHistory({ pair, range: '1D', points: st.points }, s.source); if (q) paintHeader(q, false); }
       },
-      onError: () => { if (!headerPainted) headerError(); }
+      onError: () => { if (!headerPainted) headerError(); const v = $('[data-stat="range"] .stat-v'); if (v && v.classList.contains('skel')) paintStat('range', '—'); }
     });
     panel.setSource({
       key: s.id, decimals: s.decimals, axisDecimals: s.axisDecimals, invert: s.invert, session: s.session,
