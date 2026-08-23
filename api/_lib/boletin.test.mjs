@@ -646,3 +646,30 @@ test('el plan de Vercel sigue cabiendo: 12 funciones y ni una más', () => {
   const log = readFileSync(new URL('api/newsletter-log.js', RAIZ), 'utf8');
   assert.match(log, /accion !== 'nota'/, 'la línea de Jaime se escribe desde newsletter-log');
 });
+
+// ---------------------------------------- el asunto, que es lo primero
+
+test('el asunto no llega a la bandeja pareciendo spam', () => {
+  // Nada de signos repetidos ni de titulares gritados. Un "!" suelto se
+  // respeta: es puntuación normal.
+  assert.equal(boletin.limpiarAsunto('¡¡El peso se dispara!!!'), '¡El peso se dispara!');
+  assert.equal(boletin.limpiarAsunto('BANXICO BAJA LA TASA OTRA VEZ'), 'Banxico baja la tasa otra vez');
+  assert.equal(boletin.limpiarAsunto('El dólar cerró abajo, y una lección'), 'El dólar cerró abajo, y una lección');
+  // Las siglas cortas no son un grito.
+  assert.equal(boletin.limpiarAsunto('El VIX subió'), 'El VIX subió');
+  // Y sigue con el tope de 65, que es lo que enseña Gmail antes de cortar.
+  const largo = boletin.recortarGancho('Los aranceles de soja suben tu carrito de compras, y la regla para controlar gastos');
+  assert.ok(largo.length <= 65, 'el asunto mide ' + largo.length);
+});
+
+test('el asunto de cada semana es distinto aunque no haya noticia', () => {
+  // Antes el respaldo era una frase fija: dos domingos seguidos con el mismo
+  // asunto es la señal más clara de correo automático que no hace falta abrir.
+  const asuntos = new Set();
+  for (let i = 0; i < 6; i++) {
+    const fecha = new Date(Date.parse('2026-08-23T14:00:00.000Z') + i * 7 * 86400000);
+    const c = contenidoDePrueba({ noticia: null, fecha, tip: tips.tipDeLaSemana(fecha) });
+    asuntos.add(pintar(c, 'es').asunto);
+  }
+  assert.equal(asuntos.size, 6, 'seis domingos deberían dar seis asuntos distintos');
+});

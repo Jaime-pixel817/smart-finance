@@ -776,7 +776,7 @@ function bloqueMovimientos(movs, idioma, t) {
     const borde = ultima ? '' : `border-bottom:1px solid ${LINEA};`;
     const claseBorde = ultima ? '' : ' sf-linea';
     return `<tr>
-      <td width="18" valign="middle" class="${clase}${claseBorde}" style="${borde}padding:9px 0 9px 12px;font-family:${FUENTE};font-size:12px;line-height:1.2;color:${color};">${sube ? '&#9650;' : '&#9660;'}</td>
+      <td width="18" valign="middle" aria-hidden="true" class="${clase}${claseBorde}" style="${borde}padding:9px 0 9px 12px;font-family:${FUENTE};font-size:12px;line-height:1.2;color:${color};">${sube ? '&#9650;' : '&#9660;'}</td>
       <td valign="middle" class="sf-tinta${claseBorde}" style="${borde}padding:9px 8px;font-family:${FUENTE};font-size:14px;line-height:1.3;color:${TINTA};">
         ${escapar(m[idioma === 'es' ? 'es' : 'en'])}
         <span class="sf-gris" style="color:${GRIS};font-size:11px;">${escapar(m.sym)}</span>
@@ -925,8 +925,36 @@ function boton(texto, url) {
  * al principio: lo que sobreviva al corte es lo de delante.
  */
 const GANCHO_MAX = 65;
+
+/*
+ * Lo que un filtro de spam mira en el asunto, y que no se puede confiar a que
+ * quien escribió el titular se acuerde.
+ *
+ * No reescribe el texto: solo quita lo que NUNCA quiere decir nada y sí puntúa
+ * como correo basura — signos repetidos ("¡¡GRATIS!!"), el titular gritado
+ * entero en mayúsculas y los espacios de más. Un "!" suelto se respeta: es
+ * puntuación normal y quitarlo sería corregirle la redacción a una persona.
+ *
+ * Las mayúsculas se arreglan bajándolas y devolviendo la inicial, no
+ * rechazando el asunto: un boletín no puede quedarse sin salir porque un
+ * titular venga en caja alta.
+ */
+function limpiarAsunto(texto) {
+  let t = String(texto || '').replace(/\s+/g, ' ').trim();
+  t = t.replace(/([!?¡¿])\1+/g, '$1');
+
+  const letras = t.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, '');
+  const mayusculas = letras.replace(/[^A-ZÁÉÍÓÚÜÑ]/g, '').length;
+  // Más de ocho letras y todas en alta: es un grito, no un titular.
+  if (letras.length > 8 && mayusculas === letras.length) {
+    t = t.toLocaleLowerCase('es-MX');
+    t = t.charAt(0).toLocaleUpperCase('es-MX') + t.slice(1);
+  }
+  return t;
+}
+
 function recortarGancho(texto) {
-  const t = String(texto || '').replace(/\s+/g, ' ').trim();
+  const t = limpiarAsunto(texto);
   if (t.length <= GANCHO_MAX) return t;
 
   const zona = t.slice(0, GANCHO_MAX + 1);
@@ -1401,7 +1429,7 @@ function paraArchivo(contenido) {
 
 module.exports = {
   construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura,
-  teaserLeccion, recortarGancho, rangoSemana, resumenSemana, numeroDeEdicion,
+  teaserLeccion, recortarGancho, limpiarAsunto, rangoSemana, resumenSemana, numeroDeEdicion,
   paraArchivo, diaLocal,
   // IMPULSO_RESPALDO y GANCHO_RESPALDO los importa api/news.js para el
   // carrusel del sitio; el boletín semanal ya no los usa salvo como último

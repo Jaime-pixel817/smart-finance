@@ -71,8 +71,14 @@ const A_LA_VEZ = 4;
 
 // Tope de todo el bloque. Es un adorno del correo, no el correo: si la semana
 // tarda más que esto en llegar, sale sin tabla y con todo lo demás intacto.
-const PRESUPUESTO_MS = 12000;
-const MS_POR_PETICION = 6000;
+//
+// Las cuentas importan porque esto corre DENTRO del envío, que tiene 60 s de
+// función y un presupuesto de 50 s para escribirle a la lista. El plazo se mira
+// entre tandas, así que lo peor que puede pasar es cruzarlo justo al empezar
+// una: 8 s + los 5 de esa tanda = 13 s. En la práctica son dos o tres segundos,
+// porque /api/history contesta en menos de uno.
+const PRESUPUESTO_MS = 8000;
+const MS_POR_PETICION = 5000;
 
 async function pedirSerie(base, pair, pedirJSON) {
   const datos = await pedirJSON(base + '/api/history?pair=' + pair + '&range=1W', MS_POR_PETICION);
