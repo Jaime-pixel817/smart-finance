@@ -1,0 +1,173 @@
+---
+// Módulo interactivo "Riesgo y retorno" de la lección "3 errores comunes al
+// empezar a invertir": dos controles (cuánto va en acciones, cuántos años),
+// un abanico p10–p90 de 200 caminos dibujado en SVG propio, el retorno típico,
+// el peor año en rojo y la caja que hace la única pregunta que importa.
+//
+// La cuenta NO vive aquí: está en src/lib/finance/risk.mjs (con tests) y la
+// pinta src/scripts/tools/risk.ts. Este archivo es HTML y textos.
+//
+// La tasa de CETES sale de RATES.banxico (src/data/home.ts), la misma copia
+// verificada a mano que usa el home, y viaja en un data-* hasta el módulo:
+// aquí no se escribe ningún número de mercado.
+import '../../styles/lesson-widget.css';
+import type { Locale } from '../../i18n/routes';
+import { RATES } from '../../data/home';
+interface Props { locale?: Locale }
+const p = Astro.url.pathname;
+// Dentro de un MDX el componente se usa sin props: el idioma sale de la ruta.
+const locale: Locale = Astro.props.locale ?? (p === '/es' || p.startsWith('/es/') ? 'es' : 'en');
+const region = locale === 'es' ? 'es-MX' : 'en-US';
+const fechaTasa = new Intl.DateTimeFormat(region, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  .format(new Date(RATES.verificado + 'T12:00:00Z'));
+const tasaTxt = new Intl.NumberFormat(region, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(RATES.banxico) + ' %';
+
+const CAMINOS = 200;
+const INICIAL = 10000;
+
+const copy = {
+  en: {
+    eyebrow: 'Two hundred versions of the same twenty years',
+    resultLabel_tpl: 'After {years} years, the typical run ends at',
+    range_tpl: 'Eight of every ten runs land between {low} and {high}. Same mix, same years — only luck changed.',
+    stocks: 'How much goes into stocks',
+    stocksOut_tpl: '{stocks} stocks · {cetes} Cetes',
+    years: 'Years you leave it alone',
+    start_tpl: 'Starting with {amount}, once, and never touching it again.',
+    chartTitle: 'Where the 200 runs land',
+    aria: 'Fan chart: the shaded band covers where eight of every ten simulated paths end up each year, the line inside it is the typical path, and the dashed line is what you started with. The numbers are summarized below.',
+    legendBand: '8 of every 10 runs',
+    legendMedian: 'The typical run',
+    legendStart: 'What you put in',
+    expected: 'Typical return',
+    perYear_tpl: '{rate} a year',
+    worst: 'Worst single year',
+    worstNote_tpl: 'across the {n} years this drew',
+    again: 'Run it again',
+    againNote: 'Same rules, new luck. The first run is always the same one, so the page opens the same for everybody.',
+    boxTitle: 'Could you watch −30 % in one year?',
+    box: 'That is the real question, and it is not a maths question. A portfolio that is all stocks has lost about a third of its value inside a single year more than once — and then recovered, for whoever was still holding it. If seeing that number would make you sell, you do not need a better forecast: you need fewer stocks and more years ahead of you.',
+    assumptions_tpl: 'Assumptions written out: stocks return 10.9 % a year with a 15 % swing around it, Cetes return {rate} with no swing inside the year, and every year is drawn on its own. The 10.9 % is what the SPY ETF (S&P 500) has returned per year since January 1993, per State Street with data to July 2026; {rate} is Banxico’s target rate, checked by hand on {date}. Real returns are not a bell curve and bad years arrive together, so this shows the shape of risk, not your future.'
+  },
+  es: {
+    eyebrow: 'Doscientas versiones de los mismos veinte años',
+    resultLabel_tpl: 'A los {years} años, la corrida típica termina en',
+    range_tpl: 'Ocho de cada diez corridas caen entre {low} y {high}. La misma mezcla y los mismos años — lo único que cambió fue la suerte.',
+    stocks: 'Cuánto va en acciones',
+    stocksOut_tpl: '{stocks} acciones · {cetes} CETES',
+    years: 'Años que lo dejas quieto',
+    start_tpl: 'Empezando con {amount}, una sola vez, y sin volver a tocarlo.',
+    chartTitle: 'Dónde acaban las 200 corridas',
+    aria: 'Abanico: la banda sombreada cubre dónde termina cada año ocho de cada diez caminos simulados, la línea de en medio es el camino típico y la línea punteada es con lo que empezaste. Los números se resumen abajo.',
+    legendBand: '8 de cada 10 corridas',
+    legendMedian: 'La corrida típica',
+    legendStart: 'Lo que pusiste',
+    expected: 'Retorno típico',
+    perYear_tpl: '{rate} al año',
+    worst: 'Peor año suelto',
+    worstNote_tpl: 'de los {n} años que sorteó',
+    again: 'Simular otra vez',
+    againNote: 'Las mismas reglas, otra suerte. La primera corrida siempre es la misma, para que la página abra igual para todos.',
+    boxTitle: '¿Aguantarías ver −30 % en un año?',
+    box: 'Esa es la pregunta de verdad, y no es una pregunta de matemáticas. Una cartera puesta toda en acciones ya perdió como un tercio de su valor dentro de un solo año más de una vez — y luego se recuperó, para quien seguía adentro. Si ver ese número te haría vender, no necesitas un mejor pronóstico: necesitas menos acciones y más años por delante.',
+    assumptions_tpl: 'Los supuestos, escritos: las acciones rinden 10.9 % al año con un vaivén de 15 % alrededor, los CETES rinden {rate} sin vaivén dentro del año, y cada año se sortea por su cuenta. El 10.9 % es lo que ha rendido al año el ETF SPY (S&P 500) desde enero de 1993, según State Street con datos a julio de 2026; {rate} es la tasa objetivo de Banxico, verificada a mano el {date}. Los rendimientos reales no son una campana y los años malos llegan juntos, así que esto enseña la forma del riesgo, no tu futuro.'
+  }
+}[locale];
+
+const pesos0 = new Intl.NumberFormat(region, { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
+const inicialTxt = pesos0.format(INICIAL);
+---
+<div class="lesson-widget rr" data-widget="risk" data-locale={locale}
+  data-caminos={String(CAMINOS)} data-inicial={String(INICIAL)} data-cetes={String(RATES.banxico)}
+  data-result-tpl={copy.resultLabel_tpl} data-range-tpl={copy.range_tpl}
+  data-stocks-tpl={copy.stocksOut_tpl} data-year-tpl={copy.perYear_tpl} data-worst-tpl={copy.worstNote_tpl}>
+  <p class="eyebrow rr-eyebrow">{copy.eyebrow}</p>
+
+  <div class="rr-result">
+    <p class="eyebrow" data-rr-label>{copy.resultLabel_tpl.replace('{years}', '20')}</p>
+    <p class="num rr-big" data-rr-median aria-live="polite">—</p>
+    <p class="t-small muted" data-rr-range>&nbsp;</p>
+  </div>
+
+  <div class="lw-controls rr-controls">
+    <div class="lw-control">
+      <label for="rrStocks">{copy.stocks}</label>
+      <output for="rrStocks" id="rrStocksOut" class="num">70 % · 30 %</output>
+      <input type="range" id="rrStocks" min="0" max="100" step="5" value="70" data-param="a">
+    </div>
+    <div class="lw-control">
+      <label for="rrYears">{copy.years}</label>
+      <output for="rrYears" id="rrYearsOut" class="num">20</output>
+      <input type="range" id="rrYears" min="1" max="30" step="1" value="20" data-param="h">
+    </div>
+  </div>
+
+  <h3 class="t-h3 rr-h">{copy.chartTitle}</h3>
+  <div class="lw-chart">
+    <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={copy.aria} data-rr-svg>
+      <g class="lw-grid" data-rr-grid></g>
+      <path class="rr-band" data-rr-band d=""></path>
+      <path class="rr-start" data-rr-start d=""></path>
+      <path class="rr-median" data-rr-median-path d=""></path>
+    </svg>
+    <div class="lw-yticks t-caption num" data-rr-yticks aria-hidden="true"></div>
+    <div class="lw-xticks t-caption num" data-rr-xticks aria-hidden="true"></div>
+  </div>
+  <p class="lw-legend t-caption">
+    <span class="lw-key"><span class="lw-dot rr-dot-band" aria-hidden="true"></span>{copy.legendBand}</span>
+    <span class="lw-key"><span class="lw-dot rr-dot-median" aria-hidden="true"></span>{copy.legendMedian}</span>
+    <span class="lw-key"><span class="lw-dot rr-dot-start" aria-hidden="true"></span>{copy.legendStart}</span>
+  </p>
+
+  <div class="rr-stats">
+    <div class="rr-stat">
+      <p class="t-caption muted">{copy.expected}</p>
+      <p class="num rr-stat-v" data-rr-expected>—</p>
+    </div>
+    <div class="rr-stat rr-stat-bad">
+      <p class="t-caption muted">{copy.worst}</p>
+      <p class="num rr-stat-v rr-bad" data-rr-worst>—</p>
+      <p class="t-caption faint" data-rr-worst-note>&nbsp;</p>
+    </div>
+  </div>
+
+  <div class="rr-again">
+    <button type="button" class="btn btn-ghost btn-sm" data-rr-again>{copy.again}</button>
+    <p class="t-caption faint">{copy.againNote}</p>
+  </div>
+
+  <aside class="rr-box">
+    <p class="rr-box-h">{copy.boxTitle}</p>
+    <p class="t-small">{copy.box}</p>
+  </aside>
+
+  <p class="lw-note t-caption faint">{copy.start_tpl.replace('{amount}', inicialTxt)} {copy.assumptions_tpl.replaceAll('{rate}', tasaTxt).replace('{date}', fechaTasa)}</p>
+</div>
+<script src="../../scripts/tools/risk.ts"></script>
+
+<style>
+  .rr { margin: var(--sp-6) 0; }
+  .rr-eyebrow { margin-bottom: var(--sp-3); }
+  .rr-result { display: flex; flex-direction: column; gap: 2px; margin-bottom: var(--sp-2); }
+  .rr-big { font-size: var(--fs-num-xl); line-height: 1.1; letter-spacing: -.02em; color: var(--ink); overflow-wrap: anywhere; }
+  .rr-h { font-size: var(--fs-body); margin: var(--sp-2) 0 var(--sp-2); }
+  @media (min-width: 640px) { .rr-controls { grid-template-columns: 1fr 1fr; } }
+  .rr-stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+  .rr-stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .rr-stat-v { font-size: var(--fs-num-l); line-height: 1.15; color: var(--ink); overflow-wrap: anywhere; }
+  .rr-bad { color: var(--down-text); }
+  .rr-again { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; margin-top: var(--sp-4); }
+  .rr-box { margin-top: var(--sp-4); padding: var(--sp-4); background: var(--bg-2); border-radius: var(--r-btn); border-left: 3px solid var(--down); }
+  .rr-box-h { font-weight: 600; color: var(--ink); margin-bottom: 6px !important; }
+  .rr-box .t-small { color: var(--ink-2); }
+  .rr .lw-note { margin-top: var(--sp-4); }
+</style>
+<style is:global>
+  /* El abanico: banda p10–p90, la corrida típica y la raya de lo que pusiste. */
+  .rr-band { fill: var(--brand-fill); opacity: .16; }
+  .rr-median { fill: none; stroke: var(--brand-text); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+  .rr-start { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+  .rr-dot-band { background: var(--brand-fill); opacity: .45; height: 8px; border-radius: 2px; }
+  .rr-dot-median { background: var(--brand-text); }
+  .rr-dot-start { background: var(--ink-3); }
+</style>

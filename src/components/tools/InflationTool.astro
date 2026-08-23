@@ -1,20 +1,30 @@
 ---
-// Herramienta "¿Cuánto me come la inflación?" (/tools/inflacion).
+// Herramienta "¿Cuánto me come la inflación?".
 // Tres controles (precio de hoy, inflación anual, años), el precio futuro en
 // grande, la barra de poder adquisitivo encogiéndose y la comparación entre
 // dejar el dinero parado y ponerlo a la tasa de referencia.
 //
-// La cuenta vive en src/lib/finance/inflation.mjs (con tests); aquí solo está
-// el HTML y los textos. Los pinta src/scripts/tools/inflation.ts.
+// La comparten DOS superficies, igual que la calculadora de interés compuesto:
+//   - la herramienta /tools/inflacion (variante "tool");
+//   - la lección "Qué es la inflación" (<InflationTool /> desde el MDX,
+//     variante "lesson").
+// No hay dos copias del widget ni dos copias de la fórmula: la cuenta vive en
+// src/lib/finance/inflation.mjs (con tests) y la pinta
+// src/scripts/tools/inflation.ts. Aquí solo están el HTML y los textos.
 //
 // La tasa de referencia es la de Banxico verificada a mano en src/data/home.ts
 // (la misma que usa el home). Si lleva más de RATES.maxDias sin verificar, el
 // bloque de comparación no se pinta: mejor no decir nada que decir algo viejo.
+import '../../styles/tools.css';
+import '../../styles/lesson-widget.css';
 import type { Locale } from '../../i18n/routes';
-import { useT } from '../../i18n/ui';
 import { RATES, ratesFresh } from '../../data/home';
-const { locale } = Astro.props as { locale: Locale };
-const t = useT(locale);
+interface Props { locale?: Locale; variant?: 'lesson' | 'tool' }
+const p = Astro.url.pathname;
+// Dentro de un MDX el componente se usa sin props: el idioma sale de la ruta.
+const locale: Locale = Astro.props.locale ?? (p === '/es' || p.startsWith('/es/') ? 'es' : 'en');
+const variant = Astro.props.variant ?? 'tool';
+const esLeccion = variant === 'lesson';
 const region = locale === 'es' ? 'es-MX' : 'en-US';
 const hayTasa = ratesFresh();
 const verificado = new Intl.DateTimeFormat(region, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
@@ -23,6 +33,7 @@ const tasa = RATES.banxico;
 
 const copy = {
   en: {
+    eyebrow: 'Move the numbers to something you actually buy',
     resultLabel: 'To buy the same thing you would need',
     power_tpl: 'Put the other way round: your {price} would then buy {power} of today’s things — {lost} less.',
     price: 'What it costs today (MXN)',
@@ -44,6 +55,7 @@ const copy = {
     aria: 'Two bars: what your money buys today and what the same money buys after the years you chose.'
   },
   es: {
+    eyebrow: 'Mueve los números a algo que de verdad compres',
     resultLabel: 'Para comprar lo mismo necesitarías',
     power_tpl: 'Al revés: tus {price} comprarían entonces {power} de las cosas de hoy — {lost} menos.',
     price: 'Lo que cuesta hoy (MXN)',
@@ -67,9 +79,11 @@ const copy = {
 }[locale];
 const tasaTxt = new Intl.NumberFormat(region, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tasa) + ' %';
 ---
-<div class="tool-widget" data-widget="inflation" data-locale={locale} data-url-state
+<div class="tool-widget" class:list={{ 'lesson-widget': esLeccion }} data-widget="inflation" data-locale={locale}
+  data-url-state={esLeccion ? undefined : ''}
   data-power-tpl={copy.power_tpl} data-now-tpl={copy.now_tpl} data-later-tpl={copy.later_tpl}
   data-win={copy.win} data-lose={copy.lose} data-rate={hayTasa ? String(tasa) : ''}>
+  {esLeccion && <p class="eyebrow lw-eyebrow">{copy.eyebrow}</p>}
   <div class="tool-result">
     <p class="eyebrow">{copy.resultLabel}</p>
     <p class="tool-big" data-if-need aria-live="polite">$148</p>
@@ -135,4 +149,9 @@ const tasaTxt = new Intl.NumberFormat(region, { minimumFractionDigits: 2, maximu
 <style>
   .tool-widget h3 { margin-bottom: var(--sp-2); }
   .tool-compare { margin-top: var(--sp-5); }
+  /* Dentro de la lección el módulo ya vive en su tarjeta (.lesson-widget) y
+     los títulos del cuerpo MDX arrancan mucho más arriba: se recortan. */
+  .lesson-widget { margin: var(--sp-6) 0; }
+  .lesson-widget .lw-eyebrow { margin-bottom: var(--sp-3); }
+  .lesson-widget h3 { font-size: var(--fs-body); margin-top: var(--sp-5); }
 </style>

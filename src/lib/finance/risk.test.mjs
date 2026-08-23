@@ -30,8 +30,18 @@ test('mezcla: interpola entre CETES y acciones, y el 50/50 cae justo en medio', 
   cerca(mezcla(100).desviacionPct, SUPUESTOS.acciones.volatilidadPct);
   cerca(mezcla(50).mediaPct, (SUPUESTOS.acciones.retornoPct + SUPUESTOS.cetes.retornoPct) / 2);
   cerca(mezcla(50).desviacionPct, SUPUESTOS.acciones.volatilidadPct / 2);
+  // La tasa de CETES se puede pasar: la verdad vive en src/data/home.ts, no aquí.
+  cerca(mezcla(0, 9).mediaPct, 9);
+  cerca(mezcla(50, 9).mediaPct, (SUPUESTOS.acciones.retornoPct + 9) / 2);
   assert.throws(() => mezcla(120), /0 a 100/);
   assert.throws(() => mezcla(null), /número/);
+  assert.throws(() => mezcla(50, 'x'), /cetesPct/);
+});
+
+test('simular: la tasa de CETES que se pasa es la que se usa', () => {
+  const r = simular({ pctAcciones: 0, anios: 5, cetesPct: 10 });
+  cerca(r.finalP50, 10000 * Math.pow(1.1, 5), 1e-6);
+  cerca(r.anualizadoP50Pct, 10, 1e-9);
 });
 
 test('componer y percentil: las dos piezas de aritmética, a mano', () => {

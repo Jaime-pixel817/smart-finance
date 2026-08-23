@@ -26,10 +26,10 @@
 //   - Volatilidad de las acciones: 15 % anual, la desviación estándar típica
 //     de un año del S&P 500 — redondeada a propósito, porque el punto es el
 //     tamaño del vaivén, no el decimal.
-//   - CETES: 6.50 % anual y sin vaivén dentro del año. Es la tasa objetivo de
-//     Banxico verificada a mano en src/data/home.ts (RATES.banxico).
-// Si alguno cambia, se cambia AQUÍ y en el texto de los supuestos, en ningún
-// otro lado.
+//   - CETES: 6.50 % anual y sin vaivén dentro del año. Ese número NO se
+//     escribe aquí como verdad: es solo el valor por omisión. La tasa que se
+//     usa en pantalla se la pasa el componente desde RATES.banxico
+//     (src/data/home.ts), que es la única copia verificada a mano del sitio.
 
 const esNum = (x) => typeof x === 'number' && Number.isFinite(x);
 
@@ -45,13 +45,15 @@ export const SUPUESTOS = {
  * tienen vaivén dentro del año (σ = 0): con dos activos volátiles habría que
  * meter la correlación, y no la hay que meter.
  * @param {number} pctAcciones 0…100; el resto va a CETES
+ * @param {number} [cetesPct] tasa de CETES a usar (por omisión, la del módulo)
  */
-export function mezcla(pctAcciones) {
+export function mezcla(pctAcciones, cetesPct = SUPUESTOS.cetes.retornoPct) {
   if (!esNum(pctAcciones)) throw new Error('mezcla: pctAcciones debe ser un número');
+  if (!esNum(cetesPct)) throw new Error('mezcla: cetesPct debe ser un número');
   if (pctAcciones < 0 || pctAcciones > 100) throw new Error('mezcla: pctAcciones va de 0 a 100');
   const w = pctAcciones / 100;
   return {
-    mediaPct: w * SUPUESTOS.acciones.retornoPct + (1 - w) * SUPUESTOS.cetes.retornoPct,
+    mediaPct: w * SUPUESTOS.acciones.retornoPct + (1 - w) * cetesPct,
     desviacionPct: w * SUPUESTOS.acciones.volatilidadPct + (1 - w) * SUPUESTOS.cetes.volatilidadPct
   };
 }
@@ -113,7 +115,7 @@ export function percentil(ordenados, p) {
  * Simula `caminos` trayectorias de la cartera durante `anios` años.
  *
  * @param {{ pctAcciones: number, anios: number, inicial?: number,
- *   caminos?: number, semilla?: number }} v
+ *   caminos?: number, semilla?: number, cetesPct?: number }} v
  * @returns {{
  *   anios: number, caminos: number, inicial: number, semilla: number,
  *   mezcla: { mediaPct: number, desviacionPct: number },
@@ -125,11 +127,11 @@ export function percentil(ordenados, p) {
  *   `inicial`) y el índice a es el fin del año a.
  */
 export function simular(v) {
-  const { pctAcciones, anios, inicial = 10000, caminos = 200, semilla = 20260823 } = v || {};
+  const { pctAcciones, anios, inicial = 10000, caminos = 200, semilla = 20260823, cetesPct } = v || {};
   if (!esNum(anios) || anios < 1 || !Number.isInteger(anios)) throw new Error('simular: anios debe ser un entero ≥ 1');
   if (!esNum(caminos) || caminos < 1) throw new Error('simular: caminos debe ser ≥ 1');
   if (!esNum(inicial) || inicial <= 0) throw new Error('simular: inicial debe ser > 0');
-  const m = mezcla(pctAcciones);
+  const m = mezcla(pctAcciones, cetesPct);
   const rnd = generador(semilla);
 
   // valores[a][k] = valor del camino k al final del año a.
