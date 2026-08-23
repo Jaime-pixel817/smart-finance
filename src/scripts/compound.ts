@@ -1,15 +1,13 @@
-// Calculadora de interés compuesto (CompoundCalculator.astro). Puerto de
-// public/assets/lesson-widgets.js sin Chart.js: misma fórmula, mismos
-// controles, misma frase; la curva se dibuja en SVG con los tokens del sitio.
+// Calculadora de interés compuesto (CompoundCalculator.astro, usada por la
+// lección "Interés simple vs. compuesto" y por /tools/interes-compuesto).
+// Puerto de public/assets/lesson-widgets.js sin Chart.js: mismos controles,
+// misma frase; la curva se dibuja en SVG con los tokens del sitio.
 //
-// Valor futuro de una serie de aportes mensuales con capitalización mensual:
-// aporte * (((1+i)^n − 1) / i), con i la tasa mensual y n los meses
-// (anualidad ordinaria: el aporte entra al final de cada mes).
-function valorFuturo(aporte: number, tasaAnualPct: number, meses: number): number {
-  const i = tasaAnualPct / 100 / 12;
-  if (i === 0) return aporte * meses;
-  return aporte * (Math.pow(1 + i, meses) - 1) / i;
-}
+// La fórmula NO vive aquí: está en src/lib/finance/compound.mjs, que es lo
+// que cubren los tests de node --test. Este archivo solo lee los sliders,
+// pinta y comparte el enlace.
+import { valorFuturo, totalAportado, seriesAnuales } from '../lib/finance/compound.mjs';
+import { conectar } from './tools/url-state';
 
 function montar(raiz: HTMLElement) {
   const locale = raiz.dataset.locale === 'es' ? 'es' : 'en';
@@ -23,6 +21,8 @@ function montar(raiz: HTMLElement) {
   const sl = { aporte: q<HTMLInputElement>('[data-lw="monthly"]'), tasa: q<HTMLInputElement>('[data-lw="rate"]'), anios: q<HTMLInputElement>('[data-lw="years"]') };
   const out = { aporte: q<HTMLElement>('#lwMonthlyOut'), tasa: q<HTMLElement>('#lwRateOut'), anios: q<HTMLElement>('#lwYearsOut') };
   const resumen = q<HTMLElement>('[data-lw-summary]');
+  const grande = q<HTMLElement>('[data-lw-big]');
+  const grandeNota = q<HTMLElement>('[data-lw-gain]');
   const svg = q<SVGSVGElement>('[data-lw-svg]');
   const area = q<SVGPathElement>('[data-lw-area]'), lContrib = q<SVGPathElement>('[data-lw-contrib]'), lComp = q<SVGPathElement>('[data-lw-compound]');
   const grid = q<SVGGElement>('[data-lw-grid]'), yticks = q<HTMLElement>('[data-lw-yticks]'), xticks = q<HTMLElement>('[data-lw-xticks]');
@@ -31,11 +31,6 @@ function montar(raiz: HTMLElement) {
 
   const W = 600, H = 200;
   function leer() { return { aporte: Number(sl.aporte!.value), tasa: Number(sl.tasa!.value), anios: Number(sl.anios!.value) }; }
-  function series(v: { aporte: number; tasa: number; anios: number }) {
-    const aportes: number[] = [], comp: number[] = [];
-    for (let a = 0; a <= v.anios; a++) { aportes.push(v.aporte * 12 * a); comp.push(Math.round(valorFuturo(v.aporte, v.tasa, a * 12))); }
-    return { aportes, comp };
-  }
   // "Números bonitos" para 3–4 ticks del eje Y.
   function niceStep(max: number, ticks = 4): number {
     const raw = max / ticks, mag = Math.pow(10, Math.floor(Math.log10(raw)));
@@ -52,15 +47,18 @@ function montar(raiz: HTMLElement) {
     out.tasa!.textContent = numero.format(v.tasa) + '%';
     out.anios!.textContent = String(v.anios);
     const total = Math.round(valorFuturo(v.aporte, v.tasa, v.anios * 12));
-    const aportado = v.aporte * 12 * v.anios;
+    const aportado = totalAportado(v.aporte, v.anios * 12);
     resumen!.textContent = tpl.replace('{years}', String(v.anios)).replace('{total}', pesos.format(total)).replace('{contrib}', pesos.format(aportado));
+    // Resultado grande (solo en la página de la herramienta).
+    if (grande) grande.textContent = pesos.format(total);
+    if (grandeNota) grandeNota.textContent = (raiz.dataset.gainTpl || '').replace('{gain}', pesos.format(total - aportado)).replace('{contrib}', pesos.format(aportado));
     if (!svg || !area || !lContrib || !lComp) return;
-    const s = series(v);
+    const s = seriesAnuales({ aporte: v.aporte, tasaAnualPct: v.tasa, anios: v.anios });
     const step = niceStep(Math.max(total, 1));
     const max = Math.max(step, Math.ceil(total / step) * step);
-    lComp.setAttribute('d', path(s.comp, max));
+    lComp.setAttribute('d', path(s.compuesto, max));
     lContrib.setAttribute('d', path(s.aportes, max));
-    const p = path(s.comp, max);
+    const p = path(s.compuesto, max);
     area.setAttribute('d', p ? p + ` L${W} ${H} L0 ${H} Z` : '');
     if (grid && yticks) {
       let g = '', labels = '';
@@ -79,8 +77,9 @@ function montar(raiz: HTMLElement) {
       xticks.innerHTML = marks.map((m) => `<span>${m}</span>`).join('');
     }
   }
-  Object.values(sl).forEach((el) => el!.addEventListener('input', pintar));
-  pintar();
+  // Escuchar sliders, aplicar/guardar los parámetros de la URL y montar el
+  // botón "Copiar enlace" (todo eso vive en tools/url-state.ts).
+  conectar(raiz, pintar);
 }
 
 document.querySelectorAll<HTMLElement>('[data-widget="compound"]').forEach(montar);

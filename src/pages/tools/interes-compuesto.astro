@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolPage from '../../components/tools/ToolPage.astro';
+import CompoundCalculator from '../../components/tools/CompoundCalculator.astro';
+import { SITE } from '../../i18n/routes';
+const title = 'Compound interest calculator, in pesos — Smart Finance';
+const description = 'Move the monthly contribution, the annual rate and the years and see what compound interest does: your contributions alone against the same money compounding every month, with the number you would end up with.';
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'WebPage', name: title, description,
+  url: SITE + '/tools/interes-compuesto', inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: { '@type': 'WebApplication', name: 'Compound interest calculator', applicationCategory: 'FinanceApplication', operatingSystem: 'Any', browserRequirements: 'Requires JavaScript', offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' } }
+};
+const learn = [
+  'Time does more work than the amount. The same contribution started ten years earlier ends up far ahead of a bigger one started late.',
+  'The first years look flat, and almost all of the growth there is your own deposits. The interesting part starts when the interest is bigger than what you put in.',
+  'A constant rate is a teaching device, not a promise: real returns move every single year, and the curve is never this smooth.'
+];
+---
+<Base locale="en" routeId="tool.interes" active="tools" title={title} description={description} jsonLd={jsonLd}>
+  <ToolPage locale="en" eyebrow="Tool" title="Compound interest" lessonRouteId="lesson.interes" lessonLabel="Simple vs. compound interest"
+    lede="Choose what you could put away every month, a rate and how many years. The dotted line is your money alone; the green one is the same money earning on itself."
+    learn={learn}>
+    <CompoundCalculator locale="en" variant="tool" />
+  </ToolPage>
+</Base>

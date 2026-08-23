@@ -1,0 +1,26 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ToolPage from '../../../components/tools/ToolPage.astro';
+import CompoundCalculator from '../../../components/tools/CompoundCalculator.astro';
+import { SITE } from '../../../i18n/routes';
+const title = 'Calculadora de interés compuesto, en pesos — Smart Finance';
+const description = 'Mueve el aporte mensual, la tasa anual y los años y mira qué hace el interés compuesto: tus aportes solos contra el mismo dinero componiéndose cada mes, con el número con el que terminarías.';
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'WebPage', name: title, description,
+  url: SITE + '/es/herramientas/interes-compuesto', inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: { '@type': 'WebApplication', name: 'Calculadora de interés compuesto', applicationCategory: 'FinanceApplication', operatingSystem: 'Any', browserRequirements: 'Requiere JavaScript', offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' } }
+};
+const learn = [
+  'El tiempo trabaja más que la cantidad. El mismo aporte empezado diez años antes termina muy por delante de uno más grande empezado tarde.',
+  'Los primeros años se ven planos, y casi todo lo que crece ahí son tus propios depósitos. Lo interesante empieza cuando los intereses son más grandes que lo que tú metes.',
+  'La tasa constante es un recurso para explicar, no una promesa: los rendimientos reales se mueven cada año y la curva nunca sale así de lisa.'
+];
+---
+<Base locale="es" routeId="tool.interes" active="tools" title={title} description={description} jsonLd={jsonLd}>
+  <ToolPage locale="es" eyebrow="Herramienta" title="Interés compuesto" lessonRouteId="lesson.interes" lessonLabel="Interés simple vs. interés compuesto"
+    lede="Elige cuánto podrías guardar cada mes, una tasa y cuántos años. La línea punteada es tu dinero solo; la verde es el mismo dinero ganando sobre sí mismo."
+    learn={learn}>
+    <CompoundCalculator locale="es" variant="tool" />
+  </ToolPage>
+</Base>

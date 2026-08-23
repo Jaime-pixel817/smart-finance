@@ -21,6 +21,7 @@ const home = route('home', locale);
         <a href={route('market', locale)}>{t('nav.markets')}</a>
         <a href={route('lessons', locale)}>{t('nav.learn')}</a>
         <a href={route('lessons.glossary', locale)}>{t('nav.glossary')}</a>
+        <a href={route('tools', locale)}>{t('nav.tools')}</a>
         <a href={home + '#newsletter'}>{t('nav.newsletter')}</a>
       </nav>
       <nav class="footer-nav" aria-label={locale === 'es' ? 'Sitio y redes' : 'Site and social'}>
@@ -28,7 +29,7 @@ const home = route('home', locale);
         <a href={route('methodology', locale)}>{t('nav.methodology')}</a>
         <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">LinkedIn ↗</a>
         <a href="https://www.tiktok.com/@smart.financee" target="_blank" rel="noopener">TikTok ↗</a>
-        <a href="https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401" target="_blank" rel="noopener">{t('footer.community')} ↗</a>
+        <a href={route('community', locale)}>{t('footer.community')}</a>
         <a class="lang-btn" data-lang={other} href={altHref} hreflang={other} lang={other}>{t('footer.language')}: {t('nav.lang.switch')}</a>
       </nav>
     </div>

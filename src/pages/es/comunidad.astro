@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import Community from '../../components/community/Community.astro';
+import { SITE } from '../../i18n/routes';
+const title = 'La comunidad estudiantil Smart Finance — Smart Finance';
+const description = 'El grupo estudiantil que fundó y preside Jaime Sandoval Ricaño: finanzas y finanzas personales, visitas a la Bolsa Mexicana de Valores, pláticas y talleres, y voluntariados por la comunidad y el medio ambiente. Para estudiantes de prepa y universidad.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + '/es/comunidad',
+  inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  about: {
+    '@type': 'Organization',
+    name: 'Comunidad estudiantil Smart Finance',
+    description: 'Grupo estudiantil de finanzas y finanzas personales: visitas a la Bolsa Mexicana de Valores, pláticas y talleres, y voluntariados.',
+    url: SITE + '/es/comunidad',
+    founder: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
+    parentOrganization: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+  }
+};
+---
+<Base locale="es" routeId="community" active="community" title={title} description={description} jsonLd={jsonLd}>
+  <Community locale="es" />
+</Base>

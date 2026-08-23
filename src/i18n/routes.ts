@@ -22,6 +22,8 @@ export interface RouteEntry {
 
 // Lecciones: MDX en src/content/lessons (ya no legacy). lastmod = última edición real del contenido.
 const LESSON_META = { lastmod: '2026-08-21', changefreq: 'monthly' as const, priority: '0.7' };
+// Herramientas: mismo trato que las lecciones (contenido que cambia poco).
+const TOOL_META = { lastmod: '2026-08-22', changefreq: 'monthly' as const, priority: '0.7' };
 export const ROUTES: RouteEntry[] = [
   { id: 'home', en: '/', es: '/es', lastmod: '2026-08-21', changefreq: 'daily', priority: '1.0' },
   { id: 'market', en: '/market', es: '/es/mercado', lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.9' },
@@ -35,6 +37,13 @@ export const ROUTES: RouteEntry[] = [
   { id: 'lesson.inflacion', en: '/lessons/inflacion', es: '/es/lecciones/inflacion', ...LESSON_META },
   { id: 'lesson.errores', en: '/lessons/errores-al-invertir', es: '/es/lecciones/errores-al-invertir', ...LESSON_META },
   { id: 'lessons.glossary', en: '/lessons/glossary', es: '/es/lecciones/glosario', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.6' },
+  // Herramientas: el índice y una página por calculadora. El slug es el mismo
+  // en los dos idiomas (igual que las lecciones), solo cambia el segmento.
+  { id: 'tools', en: '/tools', es: '/es/herramientas', ...TOOL_META, priority: '0.8' },
+  { id: 'tool.interes', en: '/tools/interes-compuesto', es: '/es/herramientas/interes-compuesto', ...TOOL_META },
+  { id: 'tool.inflacion', en: '/tools/inflacion', es: '/es/herramientas/inflacion', ...TOOL_META },
+  { id: 'tool.cetes', en: '/tools/cetes-vs-cuenta', es: '/es/herramientas/cetes-vs-cuenta', ...TOOL_META },
+  { id: 'community', en: '/community', es: '/es/comunidad', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.6' },
   { id: 'about', en: '/about', es: '/es/acerca', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' },
   { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' }
 ];

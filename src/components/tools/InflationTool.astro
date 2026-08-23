@@ -1,0 +1,138 @@
+---
+// Herramienta "¿Cuánto me come la inflación?" (/tools/inflacion).
+// Tres controles (precio de hoy, inflación anual, años), el precio futuro en
+// grande, la barra de poder adquisitivo encogiéndose y la comparación entre
+// dejar el dinero parado y ponerlo a la tasa de referencia.
+//
+// La cuenta vive en src/lib/finance/inflation.mjs (con tests); aquí solo está
+// el HTML y los textos. Los pinta src/scripts/tools/inflation.ts.
+//
+// La tasa de referencia es la de Banxico verificada a mano en src/data/home.ts
+// (la misma que usa el home). Si lleva más de RATES.maxDias sin verificar, el
+// bloque de comparación no se pinta: mejor no decir nada que decir algo viejo.
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { RATES, ratesFresh } from '../../data/home';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const region = locale === 'es' ? 'es-MX' : 'en-US';
+const hayTasa = ratesFresh();
+const verificado = new Intl.DateTimeFormat(region, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  .format(new Date(RATES.verificado + 'T12:00:00Z'));
+const tasa = RATES.banxico;
+
+const copy = {
+  en: {
+    resultLabel: 'To buy the same thing you would need',
+    power_tpl: 'Put the other way round: your {price} would then buy {power} of today’s things — {lost} less.',
+    price: 'What it costs today (MXN)',
+    priceHint: 'Default: tacos and a soda, $100.',
+    inflation: 'Annual inflation',
+    inflationHint: 'Banxico aims for 3 %, give or take a point. Move it to whatever you believe.',
+    years: 'Years',
+    barsTitle: 'What your money buys',
+    now_tpl: 'Today',
+    later_tpl: 'In {years} years',
+    compareTitle: 'Money sitting still vs money at the reference rate',
+    parked: 'Sitting still (0 %)',
+    invested_tpl: 'At {rate} a year',
+    colNominal: 'In pesos',
+    colReal: 'What it buys',
+    win: 'At that rate your money keeps up with prices: the same pesos still buy the same things.',
+    lose: 'Even at that rate prices win — but you lose far less than sitting still.',
+    rateNote_tpl: 'Banxico target rate, {rate}, verified by hand on {date}. CETES move close to it; check the rate of the day at cetesdirecto before deciding anything.',
+    aria: 'Two bars: what your money buys today and what the same money buys after the years you chose.'
+  },
+  es: {
+    resultLabel: 'Para comprar lo mismo necesitarías',
+    power_tpl: 'Al revés: tus {price} comprarían entonces {power} de las cosas de hoy — {lost} menos.',
+    price: 'Lo que cuesta hoy (MXN)',
+    priceHint: 'Por defecto: tacos y refresco, $100.',
+    inflation: 'Inflación anual',
+    inflationHint: 'Banxico apunta a 3 %, más o menos un punto. Muévela a lo que tú creas.',
+    years: 'Años',
+    barsTitle: 'Lo que compra tu dinero',
+    now_tpl: 'Hoy',
+    later_tpl: 'En {years} años',
+    compareTitle: 'Dinero parado vs dinero a la tasa de referencia',
+    parked: 'Parado (0 %)',
+    invested_tpl: 'Al {rate} anual',
+    colNominal: 'En pesos',
+    colReal: 'Lo que compra',
+    win: 'A esa tasa tu dinero le sigue el paso a los precios: los mismos pesos siguen comprando lo mismo.',
+    lose: 'Ni a esa tasa le ganas a los precios — pero pierdes muchísimo menos que parado.',
+    rateNote_tpl: 'Tasa objetivo de Banxico, {rate}, verificada a mano el {date}. Los CETES se mueven cerca de ella; consulta la tasa del día en cetesdirecto antes de decidir nada.',
+    aria: 'Dos barras: lo que compra tu dinero hoy y lo que compra el mismo dinero después de los años que elegiste.'
+  }
+}[locale];
+const tasaTxt = new Intl.NumberFormat(region, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tasa) + ' %';
+---
+<div class="tool-widget" data-widget="inflation" data-locale={locale} data-url-state
+  data-power-tpl={copy.power_tpl} data-now-tpl={copy.now_tpl} data-later-tpl={copy.later_tpl}
+  data-win={copy.win} data-lose={copy.lose} data-rate={hayTasa ? String(tasa) : ''}>
+  <div class="tool-result">
+    <p class="eyebrow">{copy.resultLabel}</p>
+    <p class="tool-big" data-if-need aria-live="polite">$148</p>
+    <p class="t-small muted" data-if-power set:html="&nbsp;"></p>
+  </div>
+
+  <div class="tool-controls">
+    <div class="tool-control">
+      <label for="ifPrice">{copy.price}</label>
+      <output for="ifPrice" id="ifPriceOut">$100</output>
+      <input type="range" id="ifPrice" min="50" max="5000" step="50" value="100" data-param="p">
+      <p class="t-caption tool-hint">{copy.priceHint}</p>
+    </div>
+    <div class="tool-control">
+      <label for="ifRate">{copy.inflation}</label>
+      <output for="ifRate" id="ifRateOut">4 %</output>
+      <input type="range" id="ifRate" min="0" max="15" step="0.5" value="4" data-param="i">
+      <p class="t-caption tool-hint">{copy.inflationHint}</p>
+    </div>
+    <div class="tool-control">
+      <label for="ifYears">{copy.years}</label>
+      <output for="ifYears" id="ifYearsOut">10</output>
+      <input type="range" id="ifYears" min="1" max="30" step="1" value="10" data-param="y">
+    </div>
+  </div>
+
+  <h3 class="t-h3">{copy.barsTitle}</h3>
+  <div class="tool-bars" role="img" aria-label={copy.aria}>
+    <div class="tool-bar-row">
+      <p class="tool-bar-label t-caption"><span data-if-now-label>{copy.now_tpl}</span><span class="num" data-if-now-val>$100</span></p>
+      <svg class="tool-bar" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="12"></rect></svg>
+    </div>
+    <div class="tool-bar-row">
+      <p class="tool-bar-label t-caption"><span data-if-later-label>{copy.later_tpl}</span><span class="num" data-if-later-val>$68</span></p>
+      <svg class="tool-bar tool-bar-warn" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="68" height="12" data-if-bar></rect></svg>
+    </div>
+  </div>
+
+  {hayTasa && (
+    <div class="tool-compare">
+      <h3 class="t-h3">{copy.compareTitle}</h3>
+      <table class="tool-table">
+        <thead>
+          <tr><th scope="col"><span class="visually-hidden">—</span></th><th scope="col">{copy.colNominal}</th><th scope="col">{copy.colReal}</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><span class="dot dot-3" aria-hidden="true"></span>{copy.parked}</th>
+            <td data-if-parked-nom>$100</td><td data-if-parked-real>$68</td>
+          </tr>
+          <tr>
+            <th scope="row"><span class="dot dot-1" aria-hidden="true"></span>{copy.invested_tpl.replace('{rate}', tasaTxt)}</th>
+            <td data-if-inv-nom>$188</td><td data-if-inv-real>$127</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="tool-conclusion t-small" data-if-verdict aria-live="polite">{copy.win}</p>
+      <p class="t-caption faint tool-note">{copy.rateNote_tpl.replace('{rate}', tasaTxt).replace('{date}', verificado)}</p>
+    </div>
+  )}
+</div>
+<script src="../../scripts/tools/inflation.ts"></script>
+<style>
+  .tool-widget h3 { margin-bottom: var(--sp-2); }
+  .tool-compare { margin-top: var(--sp-5); }
+</style>

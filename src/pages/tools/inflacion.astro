@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolPage from '../../components/tools/ToolPage.astro';
+import InflationTool from '../../components/tools/InflationTool.astro';
+import { SITE } from '../../i18n/routes';
+const title = 'How much does inflation eat? Calculator in pesos — Smart Finance';
+const description = 'Put in what something costs you today, an annual inflation rate and the years: see what the same thing will cost, how much of your purchasing power is gone, and how money sitting still compares with money at the reference rate.';
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'WebPage', name: title, description,
+  url: SITE + '/tools/inflacion', inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: { '@type': 'WebApplication', name: 'Inflation calculator', applicationCategory: 'FinanceApplication', operatingSystem: 'Any', browserRequirements: 'Requires JavaScript', offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' } }
+};
+const learn = [
+  'Inflation does not take money out of your account: it takes things out of your money. The bill is the same, the shopping cart is smaller.',
+  'Money sitting still at 0 % is not neutral, it is a slow loss — and that loss compounds exactly like interest does, only against you.',
+  'What matters is the rate minus inflation. A number that grows while prices grow faster is still going backwards.'
+];
+---
+<Base locale="en" routeId="tool.inflacion" active="tools" title={title} description={description} jsonLd={jsonLd}>
+  <ToolPage locale="en" eyebrow="Tool" title="How much does inflation eat?" lessonRouteId="lesson.inflacion" lessonLabel="What inflation is, and how it hits you"
+    lede="Start with something you actually buy — tacos and a soda, $100 — and see what the same thing costs later, and what your money would still buy."
+    learn={learn}>
+    <InflationTool locale="en" />
+  </ToolPage>
+</Base>

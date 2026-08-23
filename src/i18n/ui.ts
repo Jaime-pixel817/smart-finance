@@ -282,7 +282,27 @@ const en = {
   'asset.session.crypto': 'Trades 24/7',
   'asset.session.none': '',
   'asset.back': 'All markets',
-  'asset.news.todo': 'News for this asset is coming soon.'
+  'asset.news.todo': 'News for this asset is coming soon.',
+
+  // ---- Comunidad estudiantil (/community) y herramientas (/tools) ----
+  'nav.community': 'Community',
+  'community.h1': 'The Smart Finance student community',
+  'community.desc': 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
+  'tools.h1': 'Tools',
+  'tools.sub': 'Small calculators with your own numbers. Move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
+  'tools.cetes': 'CETES vs account vs inflation',
+  'tools.cetes.desc': 'Where the same money keeps what it buys.',
+  'tools.all': 'All tools',
+  'tool.learn': 'What you learn here',
+  'tool.lesson': 'Read the full lesson',
+  'tool.copy': 'Copy link',
+  'tool.copied': 'Link copied',
+  'tool.copy.failed': 'Copy it from the address bar',
+  'tool.copy.note': 'The link carries the numbers you moved, so whoever opens it sees this same result.',
+  'tool.disclaimer': 'Educational tool. It assumes constant rates and ignores taxes, fees and any surprise; real returns and real inflation change every year. It is here to show the shape of the idea, not to plan your money with it, and it is not financial advice.',
+  'tool.compound.result': 'You would end up with',
+  'tool.compound.gain': 'Of that, $240,000 you put in and $349,020 is interest.',
+  'tool.compound.gain_tpl': 'Of that, {contrib} you put in and {gain} is interest.',
 };
 
 const es: typeof en = {
@@ -564,7 +584,27 @@ const es: typeof en = {
   'asset.session.crypto': 'Opera 24/7',
   'asset.session.none': '',
   'asset.back': 'Todos los mercados',
-  'asset.news.todo': 'Las noticias de este activo vienen pronto.'
+  'asset.news.todo': 'Las noticias de este activo vienen pronto.',
+
+  // ---- Comunidad estudiantil (/es/comunidad) y herramientas (/es/herramientas) ----
+  'nav.community': 'Comunidad',
+  'community.h1': 'La comunidad estudiantil Smart Finance',
+  'community.desc': 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
+  'tools.h1': 'Herramientas',
+  'tools.sub': 'Calculadoras chicas con tus propios números. Mueve un slider, lee el número, guarda el enlace. No se guarda nada ni se manda nada a ningún lado.',
+  'tools.cetes': 'CETES vs cuenta vs inflación',
+  'tools.cetes.desc': 'Dónde el mismo dinero conserva lo que compra.',
+  'tools.all': 'Todas las herramientas',
+  'tool.learn': 'Qué aprendes aquí',
+  'tool.lesson': 'Leer la lección completa',
+  'tool.copy': 'Copiar enlace',
+  'tool.copied': 'Enlace copiado',
+  'tool.copy.failed': 'Cópialo de la barra de direcciones',
+  'tool.copy.note': 'El enlace se lleva los números que moviste: quien lo abra ve este mismo resultado.',
+  'tool.disclaimer': 'Herramienta educativa. Supone tasas constantes e ignora impuestos, comisiones y cualquier sorpresa; los rendimientos y la inflación reales cambian cada año. Está para que veas la forma de la idea, no para planear tu dinero con ella, y no es asesoría financiera.',
+  'tool.compound.result': 'Terminarías con',
+  'tool.compound.gain': 'De eso, $240,000 los pusiste tú y $349,020 son intereses.',
+  'tool.compound.gain_tpl': 'De eso, {contrib} los pusiste tú y {gain} son intereses.',
 };
 
 export type UIKey = keyof typeof en;
