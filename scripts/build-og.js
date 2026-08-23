@@ -39,6 +39,12 @@
  * librería arranca, antes de que este archivo pueda tocarla, así que el
  * script se relanza a sí mismo una vez con el entorno ya puesto.
  *
+ * Y hace falta una segunda: PANGOCAIRO_BACKEND=fc. En macOS pango se compila
+ * con el backend de CoreText y entonces IGNORA fontconfig: pide "Fraunces
+ * SemiBold", no la encuentra instalada en el sistema y dibuja con la de
+ * respaldo sin decir nada — el texto sale en una sans genérica y el fallo no
+ * da error. En Linux el backend ya es fontconfig y la variable no cambia nada.
+ *
  * Los tamaños y el tracking (abajo, en TIPOGRAFÍA) se sacaron midiendo el JPG
  * en inglés: son los que reproducen su ancho con menos de 2 px de diferencia.
  *
@@ -323,6 +329,7 @@ if (require.main === module) {
         stdio: 'inherit',
         env: Object.assign({}, process.env, {
           FONTCONFIG_PATH: TMP,
+          PANGOCAIRO_BACKEND: 'fc',
           SMARTFINANCE_OG_FUENTES: '1'
         })
       });
