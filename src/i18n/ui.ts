@@ -8,6 +8,9 @@ const en = {
   'site.tagline': 'Markets and money, explained for young people',
   'site.desc': 'Markets and money, explained for young people. Today\'s pulse, one story explained, short lessons and tools. Bilingual EN/ES, by Jaime Sandoval Ricaño.',
   'skip': 'Skip to content',
+  // Primera miga del BreadcrumbList (src/lib/jsonld.ts). No es "Today": en un
+  // rastro de migas lo que se lee es de dónde cuelga la página.
+  'seo.home': 'Home',
   'nav.today': 'Today',
   'nav.markets': 'Markets',
   'nav.news': 'News',
@@ -475,6 +478,7 @@ const es: typeof en = {
   'site.tagline': 'Mercados y dinero, explicados para jóvenes',
   'site.desc': 'Mercados y dinero, explicados para jóvenes. El pulso de hoy, una noticia explicada, lecciones cortas y herramientas. Bilingüe ES/EN, por Jaime Sandoval Ricaño.',
   'skip': 'Saltar al contenido',
+  'seo.home': 'Inicio',
   'nav.today': 'Hoy',
   'nav.markets': 'Mercados',
   'nav.news': 'Noticias',

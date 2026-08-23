@@ -6,6 +6,7 @@
 import '../styles/base.css';
 import type { Locale } from '../i18n/routes';
 import { alternates, route, SITE } from '../i18n/routes';
+import { grafo } from '../lib/jsonld';
 import { useT } from '../i18n/ui';
 import SkipLink from '../components/SkipLink.astro';
 import TopBar from '../components/TopBar.astro';
@@ -38,15 +39,19 @@ const alts = alternates(routeId);
 const canonical = SITE + route(routeId, locale);
 const ogImage = Astro.props.ogImage ?? (locale === 'es' ? SITE + '/og-image-es.jpg' : SITE + '/og-image.jpg');
 const ogImageAlt = Astro.props.ogImageAlt ?? title;
-const ld = jsonLd ?? {
-  '@context': 'https://schema.org',
+// JSON-LD: el nodo de la página (el que ella pasa, o un WebSite por defecto)
+// dentro de un @graph con la Organization y la Person del sitio, más las migas
+// si la ruta cuelga de una sección. Ver src/lib/jsonld.ts: hasta ahora cuarenta
+// páginas apuntaban a un '#organization' que no existía en ningún documento.
+const nodoPagina = jsonLd ?? {
   '@type': 'WebSite',
   name: 'Smart Finance',
   url: SITE + '/',
   description,
   inLanguage: locale === 'es' ? 'es-MX' : 'en',
-  publisher: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/#who' }
+  publisher: { '@id': SITE + '/#organization' }
 };
+const ld = grafo(locale, routeId, title, nodoPagina);
 const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E";
 ---
 <!doctype html>
