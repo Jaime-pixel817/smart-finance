@@ -98,13 +98,16 @@ const fmtV = (v: any) => {
       <p class="rep-back"><a href={L('research')}>← {r.back}</a></p>
       <p class="eyebrow">{r.reportKicker} <span aria-hidden="true">·</span> {m.exchange}: {m.ticker}</p>
       <h1 class="t-display">{m.name}</h1>
+      <!-- El precio de mercado va en su propia fila y con hueco reservado: lo
+           rellena JavaScript al volver /api/history y, si compartiera fila con
+           el resto de los metadatos, al cambiar de ancho los movería (CLS). -->
+      <div class="rep-price">
+        <span class="rep-price-k eyebrow">{r.hdr.price}</span>
+        <span class="num rep-price-v" data-market-price>—</span>
+        <span class="rep-price-src" data-market-chip><SourceChip locale={locale} source="Yahoo" delay={15} /></span>
+        <span class="rep-note">{r.hdr.priceNote}</span>
+      </div>
       <dl class="rep-meta">
-        <div>
-          <dt>{r.hdr.price}</dt>
-          <dd><span class="num" data-market-price>—</span></dd>
-          <dd class="rep-chip" data-market-chip><SourceChip locale={locale} source="Yahoo" delay={15} /></dd>
-          <dd class="rep-note">{r.hdr.priceNote}</dd>
-        </div>
         <div>
           <dt>{r.hdr.analysisDate}</dt>
           <dd class:list={['num', pending(m.analysisDate) && 'is-pending']}>{pending(m.analysisDate) ? r.hdr.pending : day(m.analysisDate, locale)}</dd>
@@ -328,8 +331,14 @@ const fmtV = (v: any) => {
   .rep-meta dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
   .rep-meta dd { margin: 0; color: var(--ink); font-size: var(--fs-small); }
   .rep-meta dd.is-pending { color: var(--warn); }
-  .rep-chip { margin-top: 2px !important; }
-  .rep-meta dd.rep-note { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
+  .rep-price {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--sp-3);
+    min-height: 46px; padding-top: var(--sp-2);
+  }
+  .rep-price-k { align-self: center; }
+  .rep-price-v { font-size: var(--fs-num-l); color: var(--ink); min-width: 7ch; }
+  .rep-price-src { align-self: center; min-width: 22ch; }
+  .rep-note { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
 
   .rep-draft { display: flex; flex-direction: column; gap: var(--sp-2); border-left: 3px solid var(--warn); }
   .rep-draft-h { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: var(--fs-small); color: var(--warn); }
@@ -338,7 +347,8 @@ const fmtV = (v: any) => {
 
   .rep-toc { gap: var(--sp-2); scroll-snap-type: none; }
   .rep-toc .chip { color: var(--ink-2); gap: 8px; }
-  .rep-toc .chip .num { color: var(--ink-3); font-size: var(--fs-eyebrow); }
+  /* --ink-3 sobre --bg-2 a 11 px se queda en 4.4:1 (Lighthouse): sube a --ink-2. */
+  .rep-toc .chip .num { color: var(--ink-2); font-size: var(--fs-eyebrow); }
   .rep-toc .chip:hover { color: var(--ink); border-color: var(--ink-3); }
   .rep-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
 
