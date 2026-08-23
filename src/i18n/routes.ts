@@ -53,6 +53,10 @@ export const ROUTES: RouteEntry[] = [
   { id: 'lesson.presupuesto', en: '/lessons/presupuesto-50-30-20', es: '/es/lecciones/presupuesto-50-30-20', ...LESSON_META },
   { id: 'lesson.inflacion', en: '/lessons/inflacion', es: '/es/lecciones/inflacion', ...LESSON_META },
   { id: 'lesson.errores', en: '/lessons/errores-al-invertir', es: '/es/lecciones/errores-al-invertir', ...LESSON_META },
+  { id: 'lesson.tarjeta', en: '/lessons/tarjeta-de-credito', es: '/es/lecciones/tarjeta-de-credito', ...LESSON_META, lastmod: '2026-08-23' },
+  { id: 'lesson.accion', en: '/lessons/que-es-una-accion', es: '/es/lecciones/que-es-una-accion', ...LESSON_META, lastmod: '2026-08-23' },
+  { id: 'lesson.bolsa', en: '/lessons/como-funciona-la-bolsa', es: '/es/lecciones/como-funciona-la-bolsa', ...LESSON_META, lastmod: '2026-08-23' },
+  { id: 'lesson.etfs', en: '/lessons/etfs', es: '/es/lecciones/etfs', ...LESSON_META, lastmod: '2026-08-23' },
   { id: 'lessons.glossary', en: '/lessons/glossary', es: '/es/lecciones/glosario', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.6' },
   // Herramientas: el índice y una página por calculadora. El slug es el mismo
   // en los dos idiomas (igual que las lecciones), solo cambia el segmento.
