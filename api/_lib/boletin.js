@@ -1,13 +1,39 @@
-// Arma el contenido del boletín diario y lo pinta en la plantilla de correo.
+// Arma el contenido del boletín SEMANAL y lo pinta en la plantilla de correo.
 //
-// REUTILIZA, NO DUPLICA: las noticias y los precios se piden a /api/news y
-// /api/history del propio sitio en vez de repetir aquí su lógica. Eso importa
-// sobre todo con las noticias: /api/news ya cachea el resultado del día junto
-// con las opiniones, así que pedírselo por HTTP aprovecha ese caché y NO
-// dispara una segunda llamada a Anthropic. Si en cambio importáramos su código,
-// cada envío generaría las opiniones otra vez, con otro costo y otro texto.
+// POR QUÉ SEMANAL Y NO DIARIO
+// ---------------------------
+// El plan gratuito de Resend da 100 correos AL DÍA, y esos 100 son los mismos
+// que usan las confirmaciones de alta. Con ~90 suscriptores el boletín diario
+// se comía la cuota entera todos los días: bastaba que se dieran de alta once
+// personas para que a alguien no le llegara su correo de confirmación —o sea,
+// para que no pudiera suscribirse— y eso no se ve desde fuera. El sistema se
+// rompía solo con crecer, que es la peor forma de romperse.
+//
+// Sale los DOMINGOS a las 14:00 UTC (8:00 de la mañana en Ciudad de México),
+// configurado en vercel.json con "0 14 * * 0". Un envío por semana deja el
+// resto de la cuota libre para las altas de los siete días.
+//
+// QUÉ TRAE
+// --------
+//   1. Lo que hizo el mercado EN LA SEMANA (USD/MXN y VIX, de lunes a viernes)
+//   2. La noticia de la semana — la más reciente ya APROBADA por Jaime
+//   3. La lección de la semana
+//   4. El research, solo si hubo novedad en los últimos días
+//
+// REUTILIZA, NO DUPLICA: los precios se piden a /api/history y las noticias a
+// /api/news?estado=aprobadas del propio sitio, en vez de repetir aquí su
+// lógica.
+//
+// SOLO SALE TEXTO APROBADO POR UNA PERSONA. La versión diaria tomaba los
+// titulares de Bloomberg con la opinión que escribía Anthropic y los mandaba
+// tal cual: texto de IA que nadie había leído, en la bandeja de entrada de
+// noventa personas. El sitio promete lo contrario (ver CLAUDE.md), y /news ya
+// tiene el circuito de revisión — así que el correo pide las APROBADAS y punto.
+// De paso desaparece la dependencia de Anthropic dentro del envío, que es de
+// donde venía el fallo de "sin_contenido" que dejó al boletín sin salir varios
+// días.
 
-const { tipDelDia } = require('./tips');
+const { tipDeLaSemana } = require('./tips');
 // El MISMO módulo que usa la gráfica del sitio para decidir si el mercado está
 // cerrado. No es una copia: si el correo y la web usaran criterios distintos,
 // un domingo el sitio diría "último cierre: viernes" y el boletín seguiría
@@ -17,24 +43,31 @@ const horario = require('../../assets/market-hours');
 // nada que ver con armar texto: es rasterizar píxeles.
 const graficaDolar = require('./grafica');
 
-// Respaldo del consejo motivacional que abre el correo. La sección nunca puede
-// salir vacía: un hueco arriba de todo rompe el correo visualmente y es peor
-// que una frase fija. Genérica a propósito — sirve cualquier día, sin depender
-// de la fecha ni del mercado. /api/news la importa de aquí para que no existan
-// dos copias que se puedan desincronizar.
+// Respaldo del consejo motivacional. Desde que el boletín es semanal, el bloque
+// que abre el correo lo escribe `resumenSemana()` con los datos de la semana en
+// vez de con una frase de IA: siempre es cierto, siempre es distinto y no
+// depende de que nadie conteste. Estas dos constantes se quedan porque
+// /api/news las importa para el carrusel del sitio, y porque siguen siendo el
+// último recurso si la semana se queda sin un solo dato de mercado.
 const IMPULSO_RESPALDO = {
   en: 'Starting early beats starting perfect. What you put away this month has more time to grow than anything you save later, and the habit is worth more than the amount.',
   es: 'Empezar temprano vale más que empezar perfecto. Lo que guardes este mes tiene más tiempo para crecer que cualquier cantidad que ahorres después, y el hábito pesa más que el monto.'
 };
 
-// Respaldo del gancho, que es además el asunto del correo. Genérico pero cierto
-// de cualquier edición: siempre lleva el dólar y siempre lleva una lección. Un
-// asunto vacío o con la fecha dentro es un correo que nadie abre, así que aquí
-// no puede quedar hueco. /api/news lo importa de aquí por lo mismo que el
-// consejo: una sola copia que no se pueda desincronizar.
+// Respaldo del gancho, que es además el asunto del correo. /api/news lo importa
+// de aquí para el carrusel del sitio.
 const GANCHO_RESPALDO = {
   en: 'How the dollar opened, and a lesson in two minutes',
   es: 'Así amaneció el dólar, y una lección en dos minutos'
+};
+
+// El asunto del boletín semanal cuando no hay noticia aprobada de la que
+// tirar. Genérico pero cierto de cualquier edición: siempre lleva la semana del
+// dólar y siempre lleva una lección. Un asunto vacío o con la fecha dentro es
+// un correo que nadie abre, así que aquí no puede quedar hueco.
+const GANCHO_SEMANAL = {
+  en: 'The dollar\u2019s week, and a lesson in two minutes',
+  es: 'La semana del dólar, y una lección en dos minutos'
 };
 
 // Dominio público del sitio. Es el que va en los links del correo, incluido el
@@ -80,37 +113,35 @@ async function pedirJSON(url, ms = 8000) {
 }
 
 /*
- * EL PRESUPUESTO DE /api/news, Y POR QUÉ NO ES EL DE POR DEFECTO.
+ * EL PRESUPUESTO DE LAS LLAMADAS AL PROPIO SITIO.
  *
- * ESTE ERA EL FALLO QUE DEJÓ AL BOLETÍN SIN ENVIARSE.
+ * AQUÍ ESTUVO EL FALLO QUE DEJÓ AL BOLETÍN SIN ENVIARSE, y conviene que quede
+ * escrito para no repetirlo.
  *
- * /api/news tarda unos milisegundos cuando su caché está caliente y unos OCHO
- * SEGUNDOS cuando está frío, porque en frío tiene que bajar el RSS de Bloomberg
- * y esperar a que Anthropic escriba las opiniones, el consejo y el gancho. El
- * presupuesto de aquí eran 8 s exactos: medido en local, la corrida en frío da
- * 8.1 s. Se pasaba por menos de dos décimas.
+ * El boletín diario pedía /api/news SIN filtro, que es la ruta cara: en frío
+ * baja el RSS de Bloomberg y espera a que Anthropic escriba las opiniones —unos
+ * OCHO segundos— y el presupuesto de aquí eran 8 s exactos. Si alguien había
+ * entrado al sitio antes, el caché estaba caliente y el correo salía; si el
+ * cron era la primera visita del día, que a las 8:00 es lo normal, la petición
+ * se abortaba, el boletín se quedaba sin titulares y moría con "sin_contenido".
+ * Un correo que sale unos días sí y otros no, sin tocar una línea de código, y
+ * sin rastro porque los logs de Vercel duran 30 minutos.
  *
- * Lo que hacía eso: el cron corre a las 8:00 de la mañana. Si alguien había
- * entrado al sitio antes, el caché estaba caliente y el boletín salía sin
- * enterarse. Si el cron era la primera visita del día —que es lo normal a esa
- * hora— la petición se abortaba, el boletín se quedaba sin titulares y abortaba
- * con "sin_contenido". Un correo que sale unos días sí y otros no, sin tocar
- * una línea de código, y sin rastro porque los logs de Vercel duran 30 minutos.
- *
- * De dónde salió: el commit d97a250 subió el plazo de la llamada a Anthropic de
- * 8 a 20 segundos para que el consejo del inicio dejara de perderse. Arregló
- * /api/news y dejó a su consumidor con el presupuesto viejo.
- *
- * 30 s cubre el peor caso de /api/news (20 s de Anthropic más el feed) con
- * holgura, y cabe de sobra: los datos de mercado se piden EN PARALELO, no
- * después, y send-newsletter tiene 60 s de función con un tope propio de 50 s
- * para el envío.
+ * EL BOLETÍN SEMANAL YA NO PUEDE CAER EN ESO: pide /api/news?estado=aprobadas,
+ * que no llama a Anthropic ni lee ningún feed — solo lee de Redis lo que una
+ * persona ya aprobó. Es una petición de milisegundos, así que 10 s sobran y no
+ * hay ninguna dependencia lenta escondida detrás.
  */
-const MS_NOTICIAS = 30000;
+const MS_SITIO = 10000;
+
+// Cuántos días atrás cuenta como "novedad" del research. Diez y no siete: si el
+// reporte se actualiza un lunes y el correo sale el domingo siguiente, con
+// siete justos se quedaría fuera por horas.
+const DIAS_NOVEDAD_RESEARCH = 10;
 
 // ---- Datos de mercado ------------------------------------------------------
-// De la serie intradía se toma el primer y el último punto: ese es el cambio de
-// la sesión, el mismo criterio que usa la gráfica del sitio.
+// De la serie se toma el primer y el último punto: con `range=1W` eso es el
+// cambio DE LA SEMANA, medido igual que la gráfica del sitio mide el del día.
 function resumirSerie(datos) {
   const puntos = (datos && datos.points) || [];
   if (puntos.length < 2) return null;
@@ -127,15 +158,19 @@ function resumirSerie(datos) {
   };
 }
 
+// `range=1W` y no `1D`: el correo sale el domingo y habla de la SEMANA. Con 1D
+// un domingo se enseñaría la sesión del viernes sola, que no es lo que dice el
+// título de la sección. La ventana la define api/history.js (5 días en barras
+// de una hora), no este archivo: así el correo y el sitio miden lo mismo.
 async function datosDeMercado(base) {
   // En paralelo y tolerante a fallos: si Yahoo no responde para uno de los dos,
   // el boletín sale igual sin ese dato en vez de no salir.
   const [fx, vix] = await Promise.all([
-    pedirJSON(base + '/api/history?pair=USDMXN&range=1D').catch((e) => {
+    pedirJSON(base + '/api/history?pair=USDMXN&range=1W', MS_SITIO).catch((e) => {
       console.error('boletín: falló USD/MXN:', e.message);
       return null;
     }),
-    pedirJSON(base + '/api/history?pair=VIX&range=1D').catch((e) => {
+    pedirJSON(base + '/api/history?pair=VIX&range=1W', MS_SITIO).catch((e) => {
       console.error('boletín: falló VIX:', e.message);
       return null;
     })
@@ -145,48 +180,98 @@ async function datosDeMercado(base) {
     mercado: { usdmxn: resumirSerie(fx), vix: resumirSerie(vix) },
     // La serie completa del dólar, que es la que dibuja la gráfica del correo.
     // Va aparte del resumen y no dentro de él porque `mercado` se devuelve
-    // entero en la respuesta del ensayo: meter aquí 288 puntos convertiría esa
+    // entero en la respuesta del ensayo: meter aquí ~120 puntos convertiría esa
     // respuesta en un muro de números cada vez que se quiere revisar el correo
-    // del día.
+    // de la semana.
     serieFx: fx && Array.isArray(fx.points) ? fx.points : null
+  };
+}
+
+// ---- La noticia de la semana -----------------------------------------------
+//
+// De /api/news?estado=aprobadas, que devuelve SOLO lo que una persona revisó y
+// aprobó. La más reciente primero: es la que llega el domingo con la semana
+// todavía fresca.
+//
+// Se normaliza a la forma que pinta la plantilla, con los dos idiomas dentro:
+// el contenido se arma UNA vez por envío y de ahí salen los correos en inglés y
+// en español, así que aquí no se puede elegir idioma todavía.
+async function noticiaDeLaSemana(base, sitio) {
+  const datos = await pedirJSON(base + '/api/news?estado=aprobadas&limite=1', MS_SITIO)
+    .catch((e) => {
+      console.error('boletín: falló /api/news?estado=aprobadas:', e.message);
+      return null;
+    });
+
+  const n = datos && Array.isArray(datos.items) ? datos.items[0] : null;
+  if (!n || !n.slug || !n.es || !n.en) return null;
+
+  // El enlace va a NUESTRA página, no al artículo original: ahí está la versión
+  // explicada, en el idioma del lector, con el enlace a la fuente al lado. El
+  // original a secas suele estar en inglés y detrás de un muro de pago.
+  const texto = (lang) => ({
+    titulo: String(n[lang].titulo || '').trim(),
+    // `impacto` es la línea de "y esto a ti qué te toca", que es exactamente lo
+    // que cabe en el correo. Si falta, las primeras frases del porqué.
+    take: String(n[lang].impacto || '').trim() || teaserLeccion(n[lang].porque)
+  });
+
+  return {
+    slug: n.slug,
+    en: Object.assign(texto('en'), { link: sitio + '/news/' + n.slug }),
+    es: Object.assign(texto('es'), { link: sitio + '/es/noticias/' + n.slug }),
+    fuente: (n.fuente && n.fuente.nombre) || null,
+    // 'humana' si Jaime reescribió el texto, 'ia-revisada' si lo aprobó tal
+    // cual. La plantilla lo usa para etiquetar honestamente quién escribió eso.
+    autoria: n.autoria || 'ia-revisada'
+  };
+}
+
+// ---- El research, solo si hay novedad --------------------------------------
+//
+// /research-latest.json es una página ESTÁTICA de Astro (src/pages), no una
+// función: el plan de Vercel admite 12 funciones y el sitio está en 12. Trae la
+// cabecera de cada reporte con su fecha; aquí solo se decide si esa fecha es lo
+// bastante reciente como para que valga la pena contarlo.
+async function researchConNovedad(base, fecha) {
+  const datos = await pedirJSON(base + '/research-latest.json', MS_SITIO).catch((e) => {
+    console.error('boletín: falló /research-latest.json:', e.message);
+    return null;
+  });
+
+  const lista = datos && Array.isArray(datos.reportes) ? datos.reportes : [];
+  // Solo los que tienen página propia: enlazar a un reporte que todavía no
+  // existe como URL sería mandar a la gente a un 404.
+  const r = lista.find((x) => x && x.tienePagina && x.actualizado && x.enlaces && x.enlaces.en);
+  if (!r) return null;
+
+  const dias = (fecha.getTime() - Date.parse(r.actualizado + 'T00:00:00Z')) / 86400000;
+  if (!isFinite(dias) || dias < 0 || dias > DIAS_NOVEDAD_RESEARCH) return null;
+
+  return {
+    ticker: r.ticker,
+    name: r.name,
+    exchange: r.exchange || null,
+    status: r.status || null,
+    actualizado: r.actualizado,
+    en: { link: r.enlaces.en },
+    es: { link: r.enlaces.es || r.enlaces.en }
   };
 }
 
 // ---- Contenido completo ----------------------------------------------------
 
-// Un par {en, es} sirve solo si las dos versiones traen texto. Si falta una, se
-// usa el respaldo entero en vez de mezclar: media pareja deja a la mitad de la
-// lista sin esa sección, y eso no se nota hasta que alguien se queja.
-function parBilingue(crudo, respaldo) {
-  return crudo && typeof crudo.es === 'string' && crudo.es.trim() &&
-    typeof crudo.en === 'string' && crudo.en.trim()
-    ? { en: crudo.en.trim(), es: crudo.es.trim() }
-    : respaldo;
-}
-
 async function construirContenido(fecha = new Date()) {
   const base = urlBase();
+  const sitio = urlSitio();
 
-  // Una sola petición trae el titular, su opinión, el consejo del inicio y el
-  // gancho: los cuatro salen de la misma llamada a Anthropic que /api/news ya
-  // cachea, así que el boletín no dispara ni una generación extra.
-  const [deNoticias, deMercado] = await Promise.all([
-    pedirJSON(base + '/api/news', MS_NOTICIAS)
-      .then((d) => {
-        const items = d && Array.isArray(d.items) ? d.items : [];
-        // El índice viene elegido por el modelo con el criterio que está
-        // escrito en el prompt de /api/news; aquí solo se comprueba que apunte
-        // a algo. Fuera de rango cae al primero, que es el más reciente.
-        const i = Number.isInteger(d && d.principal) && d.principal >= 0 && d.principal < items.length
-          ? d.principal
-          : 0;
-        return { noticia: items[i] || null, impulso: d && d.impulso, gancho: d && d.gancho };
-      })
-      .catch((e) => {
-        console.error('boletín: falló /api/news:', e.message);
-        return { noticia: null, impulso: null, gancho: null };
-      }),
-    datosDeMercado(base)
+  // Las tres piezas van EN PARALELO y fallan por separado: el research caído no
+  // debe dejar al correo sin la noticia, ni la noticia sin el mercado. Ninguna
+  // de las tres llama a Anthropic ni a un tercero — todo sale del propio sitio.
+  const [deMercado, noticia, research] = await Promise.all([
+    datosDeMercado(base),
+    noticiaDeLaSemana(base, sitio),
+    researchConNovedad(base, fecha)
   ]);
 
   /*
@@ -195,7 +280,7 @@ async function construirContenido(fecha = new Date()) {
    * Aquí es donde acaban de llegar los puntos, y son los mismos con los que se
    * calculó el resumen numérico de arriba. Dibujar en este punto es lo que
    * garantiza que la curva y las cifras impresas al lado cuenten la misma
-   * sesión — que es todo el motivo por el que no se genera bajo demanda.
+   * semana — que es todo el motivo por el que no se genera bajo demanda.
    *
    * Se dibuja UNA vez por envío aunque el boletín salga en dos idiomas: la
    * imagen no lleva texto, así que la misma sirve para los dos. Y como la URL
@@ -203,17 +288,16 @@ async function construirContenido(fecha = new Date()) {
    * para todos los destinatarios.
    */
   const grafica = deMercado.serieFx
-    ? await graficaDolar.publicar(deMercado.serieFx, fecha, urlSitio())
+    ? await graficaDolar.publicar(deMercado.serieFx, fecha, sitio)
     : null;
 
   return {
     fecha,
-    noticia: deNoticias.noticia,
+    noticia,
+    research,
     mercado: deMercado.mercado,
     grafica,
-    impulso: parBilingue(deNoticias.impulso, IMPULSO_RESPALDO),
-    gancho: parBilingue(deNoticias.gancho, GANCHO_RESPALDO),
-    tip: tipDelDia(fecha)
+    tip: tipDeLaSemana(fecha)
   };
 }
 
@@ -259,53 +343,79 @@ function fmt(n, dec = 4) {
 
 const TEXTOS = {
   en: {
-    impulsoTitulo: 'To start your day',
-    noticiaTitulo: "Today's story",
+    impulsoTitulo: 'The week in one line',
+    noticiaTitulo: "The week's story",
     miLectura: 'My take',
+    // Etiqueta honesta de quién escribió el texto de la noticia. Es la misma
+    // distinción que hace /news: aprobada tal cual o reescrita por Jaime.
+    miLecturaIA: 'AI summary · reviewed by Jaime',
     leerMas: 'Read the full story →',
-    mercadoTitulo: 'How the dollar opened',
-    // El título de repuesto para cuando el mercado de divisas está cerrado.
-    // "How the dollar opened" un domingo es falso de entrada: no abrió. No se
-    // pide perdón por ello —el mercado cierra el fin de semana, es lo normal—,
-    // simplemente se dice qué se está mirando.
-    mercadoTituloCerrado: 'The dollar at its last close',
+    mercadoTitulo: 'The dollar this week',
+    // El título de repuesto para cuando el mercado de divisas está cerrado, que
+    // un domingo es SIEMPRE. No se pide perdón por ello —el mercado cierra el
+    // fin de semana, es lo normal—, simplemente se dice hasta cuándo llega el
+    // número que se está enseñando.
+    mercadoTituloCerrado: "The dollar's week, through Friday's close",
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Fear index (VIX)',
-    tipTitulo: "Today you'll learn",
+    tipTitulo: "This week you'll learn",
     tipCta: 'Read the lesson →',
+    researchTitulo: 'New in research',
+    researchCta: 'Open the report →',
+    researchPie: 'Equity research — sources cited, assumptions written out.',
     // Texto alternativo de la gráfica. Lleva los números DENTRO a propósito:
     // Outlook bloquea las imágenes por defecto y lo que se lee entonces es
     // esto, así que tiene que decir lo mismo que dice la curva.
     graficaAlt: 'Chart of the dollar against the peso {periodo}: from {inicio} to {fin} ({cambio}).',
-    graficaPeriodoAbierto: 'over the last 24 hours',
-    graficaPeriodoCerrado: 'in its last session',
-    despedida: 'Until tomorrow,',
+    graficaPeriodoAbierto: 'over the past week',
+    graficaPeriodoCerrado: "over the past week, through Friday's close",
+    despedida: 'See you next Sunday,',
     seguir: 'Follow along',
     baja: 'Unsubscribe',
-    bajaFrase: 'You are getting this because you confirmed your subscription to the Smart Finance daily.',
+    bajaFrase: 'You are getting this because you confirmed your subscription to the Smart Finance weekly.',
     aviso: 'Educational content only — not financial, investment, or tax advice.',
-    sinDatos: 'Not available right now.'
+    sinDatos: 'Not available right now.',
+    sinNoticia: 'No story was reviewed and published this week. Nothing gets sent here before a human reads it.',
+    // La frase de la semana en una línea. Se rellena con los datos reales; si
+    // no llegó ninguno, se cae al respaldo de siempre.
+    semanaFx: 'The dollar ended the week at {valor} pesos, {direccion} {pct}.',
+    semanaFxSube: 'up',
+    semanaFxBaja: 'down',
+    semanaVix: 'Fear in the market ({vix}) {direccion} {pct}.',
+    semanaVixSube: 'rose',
+    semanaVixBaja: 'eased'
   },
   es: {
-    impulsoTitulo: 'Para arrancar el día',
-    noticiaTitulo: 'La noticia de hoy',
+    impulsoTitulo: 'La semana en una línea',
+    noticiaTitulo: 'La noticia de la semana',
     miLectura: 'Mi lectura',
+    miLecturaIA: 'Resumen IA · revisado por Jaime',
     leerMas: 'Leer la nota completa →',
-    mercadoTitulo: 'Así amaneció el dólar',
-    mercadoTituloCerrado: 'El dólar, en su último cierre',
+    mercadoTitulo: 'El dólar esta semana',
+    mercadoTituloCerrado: 'La semana del dólar, al cierre del viernes',
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Índice del miedo (VIX)',
-    tipTitulo: 'Hoy aprenderás',
+    tipTitulo: 'Esta semana aprenderás',
     tipCta: 'Leer la lección →',
+    researchTitulo: 'Novedad en research',
+    researchCta: 'Abrir el reporte →',
+    researchPie: 'Equity research — con las fuentes citadas y los supuestos escritos.',
     graficaAlt: 'Gráfica del dólar frente al peso {periodo}: de {inicio} a {fin} ({cambio}).',
-    graficaPeriodoAbierto: 'en las últimas 24 horas',
-    graficaPeriodoCerrado: 'en su última sesión',
-    despedida: 'Hasta mañana,',
+    graficaPeriodoAbierto: 'en la última semana',
+    graficaPeriodoCerrado: 'en la última semana, hasta el cierre del viernes',
+    despedida: 'Nos leemos el próximo domingo,',
     seguir: 'Sígueme',
     baja: 'Darse de baja',
-    bajaFrase: 'Recibes este correo porque confirmaste tu suscripción al boletín diario de Smart Finance.',
+    bajaFrase: 'Recibes este correo porque confirmaste tu suscripción al boletín semanal de Smart Finance.',
     aviso: 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal.',
-    sinDatos: 'No disponible por ahora.'
+    sinDatos: 'No disponible por ahora.',
+    sinNoticia: 'Esta semana no hubo ninguna noticia revisada y publicada. Aquí no sale nada que una persona no haya leído antes.',
+    semanaFx: 'El dólar cerró la semana en {valor} pesos, {direccion} {pct}.',
+    semanaFxSube: 'arriba',
+    semanaFxBaja: 'abajo',
+    semanaVix: 'El miedo en el mercado ({vix}) {direccion} {pct}.',
+    semanaVixSube: 'subió',
+    semanaVixBaja: 'bajó'
   }
 };
 
@@ -323,6 +433,67 @@ function fechaLarga(fecha, idioma) {
   // Solo la primera letra: en español los días y meses van en minúscula, y un
   // text-transform:capitalize dejaba "Jueves, 30 De Julio".
   return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/*
+ * El renglón de fecha del boletín SEMANAL: el rango de los siete días que
+ * resume, no el día en que salió.
+ *
+ * "Domingo, 23 de agosto" encabezando un correo que habla de lunes a viernes es
+ * la fecha del sobre, no la del contenido. "17–23 de agosto" dice de qué semana
+ * es esto, que es lo que el lector necesita saber cuando lo abre el martes.
+ *
+ * La semana se cuenta hacia atrás desde la fecha del envío: seis días antes del
+ * domingo es el lunes anterior.
+ */
+function rangoSemana(fecha, idioma) {
+  const es = idioma === 'es';
+  const local = (d) => d.toLocaleDateString('en-CA', { timeZone: HUSO });   // 2026-08-23
+  const fin = new Date(local(fecha) + 'T12:00:00Z');
+  const inicio = new Date(fin.getTime() - 6 * 86400000);
+
+  const mes = (d) => d.toLocaleDateString(es ? 'es-MX' : 'en-US', { timeZone: 'UTC', month: 'long' });
+  const dia = (d) => d.toLocaleDateString(es ? 'es-MX' : 'en-US', { timeZone: 'UTC', day: 'numeric' });
+
+  // Dentro del mismo mes el mes se dice una vez: "17–23 de agosto".
+  const texto = mes(inicio) === mes(fin)
+    ? (es ? dia(inicio) + '–' + dia(fin) + ' de ' + mes(fin) : mes(fin) + ' ' + dia(inicio) + '–' + dia(fin))
+    : (es ? dia(inicio) + ' de ' + mes(inicio) + ' – ' + dia(fin) + ' de ' + mes(fin)
+          : mes(inicio) + ' ' + dia(inicio) + ' – ' + mes(fin) + ' ' + dia(fin));
+
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/*
+ * LA SEMANA EN UNA LÍNEA — el bloque que abre el correo.
+ *
+ * Antes ahí iba una frase motivacional que escribía Anthropic. Se cambió por
+ * esto y el cambio es a mejor por dos razones: es siempre cierto (sale de los
+ * mismos números que están impresos tres bloques más abajo) y no puede fallar
+ * ni costar nada. Un boletín semanal necesita además decir en el primer renglón
+ * qué pasó, y una frase de ánimo genérica no lo dice.
+ *
+ * Si no llegó ni un dato de mercado se cae al respaldo de siempre: el bloque
+ * nunca sale vacío, que era la regla original y sigue siéndolo.
+ */
+function resumenSemana(mercado, t, es) {
+  const partes = [];
+  const pct = (n) => Math.abs(n).toFixed(2) + '%';
+
+  if (mercado.usdmxn) {
+    partes.push(t.semanaFx
+      .replace('{valor}', fmt(mercado.usdmxn.valor, 2))
+      .replace('{direccion}', mercado.usdmxn.cambioPct >= 0 ? t.semanaFxSube : t.semanaFxBaja)
+      .replace('{pct}', pct(mercado.usdmxn.cambioPct)));
+  }
+  if (mercado.vix) {
+    partes.push(t.semanaVix
+      .replace('{vix}', fmt(mercado.vix.valor, 2))
+      .replace('{direccion}', mercado.vix.cambioPct >= 0 ? t.semanaVixSube : t.semanaVixBaja)
+      .replace('{pct}', pct(mercado.vix.cambioPct)));
+  }
+
+  return partes.length ? partes.join(' ') : IMPULSO_RESPALDO[es ? 'es' : 'en'];
 }
 
 // Quien firma el correo. Una sola constante para el HTML y para la versión de
@@ -440,31 +611,65 @@ function bloqueMercado(mercado, t, pies) {
   </table>`;
 }
 
-// UNA noticia, no cuatro. La elige el modelo en /api/news con el criterio que
-// está escrito en su prompt: lo que más le mueve el dinero a una persona normal
-// en México, y a igualdad de eso lo que alcanza a más gente. El titular es más
-// grande que antes porque ahora carga con toda la sección él solo.
+// UNA noticia, no cuatro: la más reciente que Jaime ya aprobó en /news. El
+// titular es grande porque carga con toda la sección él solo.
+//
+// SIN NOTICIA APROBADA NO SE INVENTA NADA. El bloque dice que esta semana no
+// hubo ninguna revisada, y eso es información, no un error: es exactamente la
+// promesa del sitio funcionando. Antes aquí entraba un titular de Bloomberg con
+// una opinión que había escrito Anthropic y que nadie había leído.
 function bloqueNoticia(n, idioma, t) {
   if (!n) {
-    return `<p style="font-family:${FUENTE};font-size:14px;color:${GRIS};margin:0;">${escapar(t.sinDatos)}</p>`;
+    return `<p style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:${GRIS};margin:0;">${escapar(t.sinNoticia)}</p>`;
   }
 
-  const take = (n.take && (idioma === 'es' ? n.take.es : n.take.en)) || '';
-  const pendiente = !take || (n.take && n.take.pending);
-  const link = urlSegura(n.link);
+  const lado = idioma === 'es' ? n.es : n.en;
+  const take = lado.take || '';
+  const link = urlSegura(lado.link);
+  // Quién escribió el texto: si Jaime lo reescribió es suyo y va como "Mi
+  // lectura"; si lo aprobó tal cual, se dice que es un resumen de IA revisado.
+  const firmaTake = n.autoria === 'humana' ? t.miLectura : t.miLecturaIA;
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr><td style="padding:0 0 10px;font-family:${FUENTE_TITULO};font-size:20px;line-height:1.3;font-weight:700;color:${TINTA};">
-      ${link ? `<a href="${link}" style="color:${TINTA};text-decoration:none;">${escapar(n.title)}</a>` : escapar(n.title)}
+      ${link ? `<a href="${link}" style="color:${TINTA};text-decoration:none;">${escapar(lado.titulo)}</a>` : escapar(lado.titulo)}
     </td></tr>
-    ${pendiente ? '' : `<tr><td style="padding:0 0 6px 12px;border-left:3px solid ${VERDE};font-family:${FUENTE};font-size:15px;line-height:1.6;color:#39404A;">
-      <span style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:3px;">${escapar(t.miLectura)}</span>
+    ${take ? `<tr><td style="padding:0 0 6px 12px;border-left:3px solid ${VERDE};font-family:${FUENTE};font-size:15px;line-height:1.6;color:#39404A;">
+      <span style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:3px;">${escapar(firmaTake)}</span>
       ${escapar(take)}
-    </td></tr>`}
+    </td></tr>` : ''}
     ${link ? `<tr><td style="padding:10px 0 0;font-family:${FUENTE};font-size:13px;">
       <a href="${link}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.leerMas)}</a>
     </td></tr>` : ''}
   </table>`;
+}
+
+/*
+ * EL BLOQUE DE RESEARCH, que solo aparece si hubo novedad.
+ *
+ * Es la única sección CONDICIONAL del correo, y a propósito: un reporte de
+ * research no se actualiza cada semana, y anunciar "nada nuevo" siete veces
+ * seguidas entrena al lector a saltarse esa parte para siempre. Cuando aparece,
+ * aparece porque hay algo.
+ */
+function bloqueResearch(r, idioma, t, sitio) {
+  if (!r) return '';
+  const lado = idioma === 'es' ? r.es : r.en;
+  const link = urlSegura(lado.link);
+  const titulo = r.name + (r.ticker ? ' (' + r.ticker + ')' : '');
+
+  return `<tr><td style="padding:26px 24px 6px;">
+    ${etiqueta(t.researchTitulo, 'research', sitio, { abajo: 10 })}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${LINEA};border-radius:10px;background:#FFFFFF;">
+      <tr><td style="padding:14px 16px;">
+        <div style="font-family:${FUENTE_TITULO};font-size:18px;line-height:1.3;font-weight:700;color:${TINTA};">${escapar(titulo)}</div>
+        <div style="font-family:${FUENTE};font-size:13px;line-height:1.6;color:${GRIS};padding-top:4px;">${escapar(t.researchPie)}</div>
+        ${link ? `<div style="padding-top:10px;font-family:${FUENTE};font-size:13px;">
+          <a href="${link}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.researchCta)}</a>
+        </div>` : ''}
+      </td></tr>
+    </table>
+  </td></tr>`;
 }
 
 // Teaser de la lección: las primeras frases enteras de su resumen, hasta llegar
@@ -551,18 +756,19 @@ function bloqueBotones(t) {
  * EL ORDEN DEL CORREO, de arriba a abajo:
  *
  *   1. La marca    — el nombre, tratado como en el sitio. Solo tipografía.
- *   2. Gancho      — titular corto y distinto cada día. Es también el asunto.
- *   3. Impulso     — la frase motivacional.
- *   4. La noticia  — UNA, la más relevante, con mi lectura.
- *   5. El dólar    — USD/MXN y el VIX al lado, y la gráfica de la sesión.
- *   6. La lección  — teaser de la lección del día, con su link.
- *   7. Botones     — LinkedIn y TikTok.
- *   8. La firma    — quién escribe esto.
- *   9. La baja     — obligatoria por ley, en todos los envíos.
+ *   2. Gancho      — titular corto, distinto cada semana. Es también el asunto.
+ *   3. La semana   — lo que hizo el mercado, en una línea y con sus números.
+ *   4. La noticia  — UNA, la más reciente ya aprobada, con mi lectura.
+ *   5. El dólar    — USD/MXN y el VIX al lado, y la gráfica de la semana.
+ *   6. La lección  — teaser de la lección de la semana, con su link.
+ *   7. Research    — SOLO si hubo novedad. Es la única sección condicional.
+ *   8. Botones     — LinkedIn y TikTok.
+ *   9. La firma    — quién escribe esto.
+ *  10. La baja     — obligatoria por ley, en todos los envíos.
  *
- * Nada más. Las otras tres noticias salieron: un correo diario se lee en la
- * fila del transporte, y cuatro titulares con opinión cada uno era ya un
- * artículo. Con uno solo, ese uno se lee.
+ * Nada más. Un boletín semanal tiene la tentación de meter las cinco noticias
+ * de la semana y las tres lecciones; con eso se convierte en un archivo que
+ * nadie termina. Una de cada, elegidas, se leen.
  */
 function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const es = idioma === 'es';
@@ -571,17 +777,25 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const tip = contenido.tip[es ? 'es' : 'en'];
   const urlTip = sitio + contenido.tip.url;
   const teaser = teaserLeccion(tip.resumen);
-  // construirContenido ya garantiza que esto viene lleno; los respaldos de aquí
-  // cubren a quien llame a renderizarCorreo por su cuenta (por ejemplo el ensayo).
-  const impulso = (contenido.impulso && contenido.impulso[es ? 'es' : 'en']) ||
-    IMPULSO_RESPALDO[es ? 'es' : 'en'];
-  // Un solo valor recortado para los tres sitios donde aparece: el asunto, el
-  // titular de arriba y la versión de texto. Si el asunto y el titular no
-  // coincidieran, abrir el correo se sentiría como abrir otro distinto.
-  const gancho = recortarGancho(
-    (contenido.gancho && contenido.gancho[es ? 'es' : 'en']) || GANCHO_RESPALDO[es ? 'es' : 'en']
-  );
   const noticia = contenido.noticia || null;
+  const research = contenido.research || null;
+  // La semana en una línea: sale de los mismos números que se imprimen abajo.
+  const resumen = resumenSemana(contenido.mercado, t, es);
+  /*
+   * El gancho —que es también el asunto— es el TITULAR DE LA NOTICIA APROBADA.
+   *
+   * Antes lo escribía Anthropic dentro de /api/news. Se dejó de usar porque el
+   * modelo lo redactaba a partir de los titulares del DÍA, y en un correo
+   * semanal eso prometía en la bandeja de entrada una noticia que dentro del
+   * correo no estaba. El titular de la noticia que sí va dentro no puede
+   * desincronizarse de nada, y además ya pasó por una persona.
+   *
+   * Sin noticia aprobada esta semana, el respaldo semanal: siempre cierto,
+   * porque el correo siempre lleva el dólar y siempre lleva una lección.
+   */
+  const gancho = recortarGancho(
+    (noticia && (es ? noticia.es.titulo : noticia.en.titulo)) || GANCHO_SEMANAL[es ? 'es' : 'en']
+  );
 
   /*
    * ¿ESTÁ CERRADO EL MERCADO? Lo decide assets/market-hours.js con la marca de
@@ -644,51 +858,53 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     </div>
   </td></tr>
 
-  <!-- 2. EL GANCHO. La fecha se queda pequeña encima: quien abre el correo ya
-          sabe de quién es —lo acaba de leer arriba—, así que lo grande tiene
-          que ser de qué va el de hoy. -->
+  <!-- 2. EL GANCHO. El RANGO de la semana se queda pequeño encima: quien abre
+          el correo ya sabe de quién es —lo acaba de leer arriba—, así que lo
+          grande tiene que ser de qué va el de esta semana. Y el rango, y no el
+          día del envío, porque el correo habla de siete días: quien lo abre el
+          martes tiene que saber de qué semana es. -->
   <tr><td style="padding:20px 24px 20px;border-bottom:1px solid ${LINEA};">
     <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${GRIS};">
-      ${escapar(fechaLarga(contenido.fecha, idioma))}
+      ${escapar(rangoSemana(contenido.fecha, idioma))}
     </div>
     <div style="font-family:${FUENTE_TITULO};font-size:25px;line-height:1.28;font-weight:700;color:${TINTA};padding-top:10px;">
       ${escapar(gancho)}
     </div>
   </td></tr>
 
-  <!-- 3. Arranque motivacional. Es el único bloque del correo con fondo propio:
-          el tinte, la comilla y la cursiva lo separan del resto sin usar
-          imágenes, que la mayoría de los clientes bloquea hasta que el lector
-          las permite. Maquetado en tabla de dos celdas porque flexbox no
-          existe en correo. -->
+  <!-- 3. La semana en una línea. Es el único bloque del correo con fondo
+          propio: el tinte lo separa del resto sin usar imágenes, que la mayoría
+          de los clientes bloquea hasta que el lector las permite. Ya no lleva
+          la comilla grande de cuando aquí iba una frase motivacional: esto no
+          es una cita, son los números de la semana escritos en palabras. -->
   <tr><td style="padding:20px 24px 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${VERDE_TENUE};border:1px solid ${VERDE_BORDE};border-radius:12px;">
       <tr>
-        <td width="34" valign="top" style="padding:14px 0 16px 16px;font-family:${FUENTE_TITULO};font-size:38px;line-height:32px;color:${VERDE};">&ldquo;</td>
-        <td valign="top" style="padding:16px 18px 16px 4px;">
-          ${etiqueta(t.impulsoTitulo, 'consejo', sitio, { tamano: 10, espaciado: '.12em', abajo: 6 })}
-          <div style="font-family:${FUENTE_TITULO};font-style:italic;font-size:16px;line-height:1.5;color:${TINTA};">${escapar(impulso)}</div>
+        <td valign="top" style="padding:16px 18px;">
+          ${etiqueta(t.impulsoTitulo, 'semana', sitio, { tamano: 10, espaciado: '.12em', abajo: 6 })}
+          <div style="font-family:${FUENTE_TITULO};font-size:16px;line-height:1.55;color:${TINTA};">${escapar(resumen)}</div>
         </td>
       </tr>
     </table>
   </td></tr>
 
-  <!-- 4. La noticia del día. Una. -->
+  <!-- 4. La noticia de la semana. Una, y aprobada por una persona. -->
   <tr><td style="padding:26px 24px 6px;">
     ${etiqueta(t.noticiaTitulo, 'noticia', sitio, { abajo: 12 })}
     ${bloqueNoticia(noticia, idioma, t)}
   </td></tr>
 
-  <!-- 5. Así amaneció el dólar: USD/MXN y el VIX al lado, en la misma fila, y
-          debajo la gráfica de la sesión. Con el mercado cerrado el título
-          cambia y cada celda dice de qué sesión es su número. -->
+  <!-- 5. La semana del dólar: USD/MXN y el VIX al lado, en la misma fila, y
+          debajo la gráfica de los cinco días. Con el mercado cerrado —que un
+          domingo es siempre— el título cambia y cada celda dice de qué sesión
+          es su número. -->
   <tr><td style="padding:26px 24px 6px;">
     ${etiqueta(tituloMercado, 'dolar', sitio, {})}
     ${bloqueMercado(contenido.mercado, t, pies)}
     ${bloqueGrafica(contenido.grafica, altGrafica)}
   </td></tr>
 
-  <!-- 6. Hoy aprenderás: el título de la lección del día y un teaser corto. -->
+  <!-- 6. Esta semana aprenderás: la lección de la semana y un teaser corto. -->
   <tr><td style="padding:26px 24px 6px;">
     ${etiqueta(t.tipTitulo, 'leccion', sitio, { abajo: 8 })}
     <div style="font-family:${FUENTE_TITULO};font-size:19px;line-height:1.3;font-weight:700;color:${TINTA};padding-bottom:6px;">${escapar(tip.titulo)}</div>
@@ -698,12 +914,15 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     </div>
   </td></tr>
 
-  <!-- 7. Los botones de redes. -->
+  <!-- 7. Research: SOLO si hubo novedad en los últimos días. -->
+  ${bloqueResearch(research, idioma, t, sitio)}
+
+  <!-- 8. Los botones de redes. -->
   <tr><td style="padding:26px 24px 22px;">
     ${bloqueBotones(t)}
   </td></tr>
 
-  <!-- 8. La firma. Texto, no imagen: es un nombre, y una imagen para un nombre
+  <!-- 9. La firma. Texto, no imagen: es un nombre, y una imagen para un nombre
           se ve rota justo en los clientes que bloquean imágenes. Discreta a
           propósito — cierra el correo, no lo encabeza. -->
   <tr><td style="padding:0 24px 24px;">
@@ -713,7 +932,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     </div>
   </td></tr>
 
-  <!-- 9. La baja. Va en TODOS los envíos: es obligatoria por ley, no una
+  <!-- 10. La baja. Va en TODOS los envíos: es obligatoria por ley, no una
           cortesía, y por eso no depende de ninguna condición de arriba. -->
   <tr><td style="padding:16px 24px 24px;border-top:1px solid ${LINEA};">
     <div style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};">
@@ -736,21 +955,23 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   // Mismo orden que el HTML, para que quien lea la versión de texto lea el
   // mismo correo y no otro.
   const lineas = [
-    'SMART FINANCE — ' + fechaLarga(contenido.fecha, idioma),
+    'SMART FINANCE — ' + rangoSemana(contenido.fecha, idioma),
     '',
     gancho,
     '',
-    t.impulsoTitulo.toUpperCase(), impulso, '',
+    t.impulsoTitulo.toUpperCase(), resumen, '',
     t.noticiaTitulo.toUpperCase()
   ];
 
   if (noticia) {
-    const take = (noticia.take && (es ? noticia.take.es : noticia.take.en)) || '';
-    lineas.push(noticia.title);
-    if (take && !(noticia.take && noticia.take.pending)) lineas.push(t.miLectura + ': ' + take);
-    if (noticia.link) lineas.push(noticia.link);
+    const lado = es ? noticia.es : noticia.en;
+    lineas.push(lado.titulo);
+    if (lado.take) {
+      lineas.push((noticia.autoria === 'humana' ? t.miLectura : t.miLecturaIA) + ': ' + lado.take);
+    }
+    if (lado.link) lineas.push(lado.link);
   } else {
-    lineas.push(t.sinDatos);
+    lineas.push(t.sinNoticia);
   }
 
   // Misma información que en el HTML, incluido el aviso de cierre: quien lee la
@@ -769,7 +990,22 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     contenido.mercado.vix
       ? conPie(`VIX ${fmt(contenido.mercado.vix.valor, 2)} (${contenido.mercado.vix.cambioPct >= 0 ? '+' : ''}${contenido.mercado.vix.cambioPct.toFixed(2)}%)`, cierreVix)
       : 'VIX ' + t.sinDatos,
-    '', t.tipTitulo.toUpperCase(), tip.titulo, teaser, urlTip,
+    '', t.tipTitulo.toUpperCase(), tip.titulo, teaser, urlTip
+  );
+
+  // El research solo si lo hay, igual que en el HTML: las dos versiones tienen
+  // que ser el mismo correo.
+  if (research) {
+    const lado = es ? research.es : research.en;
+    lineas.push(
+      '', t.researchTitulo.toUpperCase(),
+      research.name + (research.ticker ? ' (' + research.ticker + ')' : ''),
+      t.researchPie,
+      lado.link
+    );
+  }
+
+  lineas.push(
     '', t.seguir.toUpperCase(),
     'LinkedIn: ' + URL_LINKEDIN,
     'TikTok: ' + URL_TIKTOK,
@@ -781,10 +1017,8 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     '', t.aviso
   );
 
-  // El asunto ES el gancho: ese es todo el punto de generarlo. Antes iba
-  // "Smart Finance · <título de la lección>", que era el mismo molde todos los
-  // días y decía lo mismo del correo del lunes que del correo del viernes. El
-  // remitente ya se llama Smart Finance, así que repetirlo aquí solo gastaba
+  // El asunto ES el gancho, o sea el titular de la noticia aprobada. El
+  // remitente ya se llama Smart Finance, así que repetirlo aquí solo gastaría
   // los caracteres que la bandeja muestra antes de cortar.
   const asunto = gancho;
 
@@ -793,5 +1027,9 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
 
 module.exports = {
   construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura,
-  teaserLeccion, recortarGancho, IMPULSO_RESPALDO, GANCHO_RESPALDO
+  teaserLeccion, recortarGancho, rangoSemana, resumenSemana,
+  // IMPULSO_RESPALDO y GANCHO_RESPALDO los importa api/news.js para el
+  // carrusel del sitio; el boletín semanal ya no los usa salvo como último
+  // recurso si la semana entera se queda sin un dato de mercado.
+  IMPULSO_RESPALDO, GANCHO_RESPALDO, GANCHO_SEMANAL, TEXTOS
 };

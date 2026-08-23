@@ -32,14 +32,16 @@ const copy = {
       { surface: 'Reference rates (Banxico target rate, Fed funds range)', source: 'Banco de México and Federal Reserve announcements, entered by hand', cadence: 'After each decision; verification date shown (currently ' + RATES.verificado + ')', delay: 'Hidden automatically if the verification is older than ' + RATES.maxDias + ' days' },
       { surface: 'News, explained (/news) and today’s story on the home', source: 'Bloomberg Markets RSS feed; the explanation is drafted with Claude and reviewed by me', cadence: 'Drafts once a day at 5:30 CDMX (11:30 UTC), up to three; published when I approve them', delay: 'Nothing appears on the site until a person approves it. Every story links to the original and shows its time' },
       { surface: 'Market open / closed labels', source: 'Computed from NYSE (9:30–16:00 ET) and BMV (8:30–15:00 CDMX) regular hours', cadence: 'On every page load', delay: 'Monday to Friday, holidays not included: a guide, not a promise' },
-      { surface: 'Daily newsletter', source: 'Same data as the site; sent with Resend', cadence: 'Once a day at 8:00 CDMX (14:00 UTC)', delay: 'Double opt-in; unsubscribe link in every email' }
+      { surface: 'Weekly newsletter', source: 'The same data as the site plus the story I approved that week; sent with Resend', cadence: 'Sundays at 8:00 CDMX (14:00 UTC)', delay: 'Double opt-in; unsubscribe link in every email. It was daily until August 2026 — the free Resend plan allows 100 emails a day, shared with the sign-up confirmations, so a daily send left almost no room for new subscribers' }
     ] as Row[],
     fallbackH: 'Fallback chain and cache',
     fallback: [
-      'Each endpoint caches in memory and at the CDN. If a provider fails, the last good copy is served for a shorter time (3 minutes instead of 15) so the next visitor retries soon.',
-      'If there is no previous copy, the page says “unavailable, retrying” instead of showing a made-up number. Charts keep the last known value and say so.',
+      'The cache is SHARED, in Redis, and no longer one copy per server instance. That distinction is the whole point: the site runs on serverless functions, and every cold start used to begin with an empty cache and ask the provider again, so the same data was paid for many times over on a busy day.',
+      'Every cached value is kept twice: the fresh copy for its normal window (15 minutes, or 60 seconds for charts) and a second copy for 48 hours. When a provider fails, that second copy is what you see, marked as the last known value instead of a gap.',
+      'When a window expires, only ONE instance calls the provider (a 20-second lock in Redis) while the rest wait or serve the last copy. Otherwise every expiry would be a burst of identical requests.',
+      'If there is no previous copy, the page says “unavailable, retrying” instead of showing a made-up number.',
       'Stocks fall back from Twelve Data to Yahoo Finance. Currencies, the VIX and the charts have no second provider yet; that is a known gap.',
-      'Twelve Data’s free quota (800 credits a day) is why requests are batched and why no symbol is added without reviewing it.'
+      'Twelve Data’s free quota (800 credits a day) is counted per provider per day. Past 700 credits the site stops calling it until midnight UTC and serves stocks from Yahoo Finance instead — automatically, without anyone watching.'
     ],
     aiH: 'What the AI does, and what it does not',
     aiDoes: 'Claude (claude-haiku-4-5) writes the FIRST DRAFT of each news explainer from a real Bloomberg headline and its summary: what happened, why it matters, which assets it touches and which lesson helps. Those drafts are labeled “AI summary · reviewed by Jaime” and are never published on their own. I also use Claude as an assistant to draft and edit code and text; the repository is public.',
@@ -89,14 +91,16 @@ const copy = {
       { surface: 'Tasas de referencia (tasa objetivo de Banxico, rango de la Fed)', source: 'Anuncios del Banco de México y de la Reserva Federal, capturados a mano', cadence: 'Tras cada decisión; se muestra la fecha de verificación (hoy ' + RATES.verificado + ')', delay: 'Se ocultan solas si la verificación tiene más de ' + RATES.maxDias + ' días' },
       { surface: 'Noticias explicadas (/es/noticias) y la historia de hoy en el inicio', source: 'RSS de Bloomberg Markets; la explicación la redacta Claude y la reviso yo', cadence: 'Borradores una vez al día a las 5:30 CDMX (11:30 UTC), hasta tres; se publican cuando los apruebo', delay: 'Nada aparece en el sitio hasta que una persona lo aprueba. Cada noticia enlaza al original y muestra su hora' },
       { surface: 'Etiquetas de mercado abierto / cerrado', source: 'Calculadas con el horario regular de NYSE (9:30–16:00 ET) y BMV (8:30–15:00 CDMX)', cadence: 'En cada carga de página', delay: 'Lunes a viernes, sin feriados: una orientación, no una promesa' },
-      { surface: 'Boletín diario', source: 'Los mismos datos del sitio; se envía con Resend', cadence: 'Una vez al día a las 8:00 CDMX (14:00 UTC)', delay: 'Doble confirmación; enlace para darse de baja en cada correo' }
+      { surface: 'Boletín semanal', source: 'Los mismos datos del sitio más la noticia que aprobé esa semana; se envía con Resend', cadence: 'Domingos a las 8:00 CDMX (14:00 UTC)', delay: 'Doble confirmación; enlace para darse de baja en cada correo. Fue diario hasta agosto de 2026: el plan gratuito de Resend da 100 correos al día, los mismos que usan las confirmaciones de alta, así que un envío diario casi no dejaba sitio para quien se quisiera suscribir' }
     ] as Row[],
     fallbackH: 'Cadena de respaldo y caché',
     fallback: [
-      'Cada endpoint guarda caché en memoria y en el CDN. Si un proveedor falla, se sirve la última copia buena por menos tiempo (3 minutos en vez de 15) para que el siguiente visitante reintente pronto.',
-      'Si no hay copia previa, la página dice “no disponible, se reintenta” en vez de enseñar un número inventado. Las gráficas conservan el último valor conocido y lo dicen.',
+      'La caché es COMPARTIDA, en Redis, y ya no una copia por instancia del servidor. La diferencia es todo el asunto: el sitio corre en funciones serverless, y cada arranque en frío empezaba con la caché vacía y volvía a pedirle al proveedor, así que un día con tráfico pagaba el mismo dato muchas veces.',
+      'De cada dato se guardan DOS copias: la fresca durante su ventana normal (15 minutos, o 60 segundos en las gráficas) y otra que dura 48 horas. Cuando el proveedor falla, esa segunda copia es lo que ves, marcada como último dato conocido en vez de un hueco.',
+      'Al caducar una ventana, solo UNA instancia le pide al proveedor (un candado de 20 segundos en Redis) mientras las demás esperan o sirven la copia anterior. Si no, cada caducidad sería una ráfaga de peticiones idénticas.',
+      'Si no hay copia previa, la página dice “no disponible, se reintenta” en vez de enseñar un número inventado.',
       'Las acciones pasan de Twelve Data a Yahoo Finance como respaldo. Divisas, VIX y gráficas todavía no tienen segundo proveedor; es un hueco conocido.',
-      'La cuota gratuita de Twelve Data (800 créditos al día) es la razón de que las peticiones vayan en lote y de que no se agregue ningún símbolo sin revisarlo.'
+      'La cuota gratuita de Twelve Data (800 créditos al día) se cuenta por proveedor y por día. Pasando los 700 créditos el sitio deja de llamarlo hasta la medianoche UTC y sirve las acciones desde Yahoo Finance — solo, sin que nadie esté mirando.'
     ],
     aiH: 'Qué hace la IA y qué no',
     aiDoes: 'Claude (claude-haiku-4-5) escribe el PRIMER BORRADOR de cada noticia explicada a partir de un titular real de Bloomberg y su resumen: qué pasó, por qué importa, qué activos toca y qué lección ayuda a entenderla. Esos borradores van etiquetados como “Resumen IA · revisado por Jaime” y nunca se publican solos. También uso Claude como asistente para redactar y editar código y texto; el repositorio es público.',

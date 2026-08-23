@@ -7,6 +7,14 @@
 // La rotación usa el día del año: el mismo tip para todos los suscriptores de
 // ese día, sin estado que guardar y sin pedirle nada a la IA. Con 6 tips y 365
 // días cada uno cae cada seis días, siempre en el mismo orden.
+//
+// EL BOLETÍN USA `tipDeLaSemana` desde que sale los domingos. La diferencia no
+// es cosmética: el correo la anuncia como "la lección de esta semana", y con la
+// rotación por día eso sería falso — sería la lección del domingo, y el lunes
+// ya estaría enseñando otra. Con la rotación por semana, lo que dice el correo
+// y lo que el lector encuentra si entra el miércoles son lo mismo.
+//
+// `tipDelDia` se queda: /api/news lo usa para el carrusel del sitio.
 
 const TIPS = [
   {
@@ -89,4 +97,27 @@ function tipDelDia(fecha = new Date()) {
   return TIPS[diaDelAnio(fecha) % TIPS.length];
 }
 
-module.exports = { TIPS, tipDelDia, diaDelAnio };
+// Semana ISO-8601 (1–53): la que empieza en lunes. Se usa la ISO y no
+// "diaDelAnio/7" porque esta no se descuadra en el cambio de año — el 1 de
+// enero cae en la semana 52 o 53 del año anterior cuando toca, y así la lección
+// no salta dos veces en la misma semana del 31 de diciembre al 1 de enero.
+function semanaDelAnio(fecha = new Date()) {
+  const enMexico = new Date(fecha.toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
+  const d = new Date(Date.UTC(enMexico.getFullYear(), enMexico.getMonth(), enMexico.getDate()));
+  // Al jueves de esa semana: el año al que pertenece la semana ISO es el del
+  // jueves. (getUTCDay() da 0 el domingo; el || 7 lo manda al final.)
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const enero1 = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d - enero1) / 86400000 + 1) / 7);
+}
+
+/**
+ * La lección de la semana. Con 6 lecciones, la rotación se repite cada 6
+ * semanas y va en el mismo orden para todos los suscriptores, sin estado que
+ * guardar y sin pedirle nada a la IA.
+ */
+function tipDeLaSemana(fecha = new Date()) {
+  return TIPS[semanaDelAnio(fecha) % TIPS.length];
+}
+
+module.exports = { TIPS, tipDelDia, tipDeLaSemana, diaDelAnio, semanaDelAnio };

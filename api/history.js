@@ -53,6 +53,15 @@ const RANGE_MAP = {
   // dias y nos quedamos con los ultimos N puntos (una sesion), asi el sabado se
   // ve la sesion del viernes.
   '1D': { range: '5d', interval: '5m', intraday: true },
+  // Una semana en barras de una hora: ~120 puntos en divisas (operan casi 24 h)
+  // y ~35 en el VIX. Lo pide el boletín SEMANAL, que resume lo que hizo el
+  // mercado de lunes a viernes; con barras diarias serían cinco puntos y la
+  // curva del correo saldría como una escalera.
+  //
+  // No lleva `intraday`: recortar a `intradayPoints` (78 o 288, pensados para
+  // UNA sesión) se comería justo los días de atrás que esta vista existe para
+  // enseñar.
+  '1W': { range: '5d', interval: '1h' },
   '1M': { range: '1mo', interval: '1d' },
   '3M': { range: '3mo', interval: '1d' },
   '1Y': { range: '1y', interval: '1d' },

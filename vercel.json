@@ -4,7 +4,7 @@
   "crons": [
     {
       "path": "/api/send-newsletter",
-      "schedule": "0 14 * * *"
+      "schedule": "0 14 * * 0"
     }
   ],
   "functions": {
