@@ -72,6 +72,8 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
     <p class="reto-desafio" data-reto-desafio hidden></p>
 
     <div class="card reto-card">
+      <p class="visually-hidden" role="status" aria-live="polite" data-reto-live></p>
+
       <!-- Cargando -->
       <div class="reto-estado" data-reto-cargando>
         <span class="reto-spinner" aria-hidden="true"></span>
@@ -87,7 +89,6 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
 
       <!-- La partida -->
       <div class="reto-juego" data-reto-juego hidden>
-        <p class="visually-hidden" role="status" aria-live="polite" data-reto-live></p>
         <div class="reto-top">
           <p class="t-caption faint" data-reto-ronda>{ronda1}</p>
           <div class="reto-progreso" data-reto-progreso role="img" aria-label={t('reto.progress')}></div>
@@ -147,7 +148,7 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
         <div class="reto-marcador" tabindex="-1">
           <p class="eyebrow">{t('reto.final.eyebrow')}</p>
           <p class="reto-puntos" data-reto-total></p>
-          <p class="reto-emojis" data-reto-emojis></p>
+          <p class="reto-emojis" data-reto-emojis aria-hidden="true"></p>
           <p class="reto-etiqueta" data-reto-etiqueta></p>
         </div>
 
@@ -159,8 +160,8 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
           </div>
           <div class="reto-barra-fila">
             <span data-reto-azar></span>
-            <svg class="reto-barra reto-barra-azar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="37.5" height="10"></rect></svg>
-            <span class="num">3.75</span>
+            <svg class="reto-barra reto-barra-azar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="0" height="10" data-reto-barra-azar></rect></svg>
+            <span class="num" data-reto-barra-azar-n></span>
           </div>
         </div>
         <p class="t-small muted">{t('reto.final.random_note')}</p>

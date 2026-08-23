@@ -125,3 +125,35 @@ La B y la C se guardan: la B tiene sentido cuando exista el portafolio personal
 Reglas del sitio que aplican aquí: chip de fuente y frescura en la gráfica (nunca
 "en vivo"), disclaimer educativo, SVG propio (nada de librerías nuevas),
 `prefers-reduced-motion` respetado, `aria-live` en el resultado y foco visible.
+
+---
+
+## Cómo quedó (capturas de `capturas/`, 390×844 a 2×)
+
+| Archivo | Qué es |
+|---|---|
+| `movil-1-pregunta.png` | La ronda antes de contestar: gráfica ciega, zona tapada con su `?` y las cuatro respuestas con el umbral del propio activo. |
+| `movil-2-revelado.png` | Después de contestar: el lienzo se abre, la parte tapada entra en verde o rojo, y salen el veredicto, el movimiento real, las fechas y el activo (enlazado a su ficha). |
+| `movil-3-resultado.png` | El resultado, la cuadrícula de emojis, tu puntuación al lado de la del azar y la lección. |
+| `movil-tema-claro-en.png` | Lo mismo en inglés, tema claro y `prefers-reduced-motion`. |
+| `escritorio-1280.png` | Escritorio, con "Reto" ya en la barra superior. |
+| `herramientas-tarjeta.png` | Cómo entra el reto en `/es/herramientas`. |
+
+## Comprobado con datos reales, no de oído
+
+Con 600 rondas generadas de 120 días distintos sobre las series de verdad
+(`/api/history`, 5 años semanales de los doce activos):
+
+- **El umbral de cada activo sale donde tiene que salir**: EUR/MXN 2 %,
+  USD/MXN 2.5 %, Dow 3.5 %, S&P 500 4 %, Nasdaq 100 6 %, Microsoft 7 %,
+  Apple 8 %, Amazon 9 %, Nvidia 14 %, Bitcoin 15 %, Ethereum 20 %, Solana 25 %.
+  Sin esto, las mismas cuatro respuestas no se podrían usar para el dólar y
+  para Solana.
+- **El reparto de las cuatro bandas** en esas 600 rondas: subió fuerte 191,
+  subió 171, bajó 150, cayó fuerte 88. Es decir: **el mercado subió más veces
+  de las que bajó**, y contestar siempre "subió" saca ~4.6 de 10, por encima
+  del 3.75 del azar. Eso NO se esconde: se dice en la pantalla final, porque
+  es exactamente la lección que sostiene invertir a largo plazo.
+- **El zoom del revelado nunca deja la curva fuera del lienzo**: en el peor de
+  los 600 casos la línea queda entre y=21.7 y y=238.3 de un lienzo de 0 a 260,
+  con un factor de apertura de hasta 0.20.

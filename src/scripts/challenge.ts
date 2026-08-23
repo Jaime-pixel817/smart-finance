@@ -16,7 +16,7 @@
 // de golpe: la información es la misma.
 import {
   fechaLocal, planDelReto, armarRonda, puntosDeRonda, resumen, cuadricula, nuevaRacha,
-  RONDAS, VENTANA, OCULTAS, ESPERADO_AL_AZAR
+  RONDAS, VENTANA, OCULTAS
 } from '../lib/challenge/reto.mjs';
 import { fmtNum, type Loc } from './format';
 
@@ -95,6 +95,8 @@ function montar(raiz: HTMLElement) {
   const plan = planDelReto(hoy, activos.map((a) => a.id));
   let rondas: Ronda[] = [];
   let i = 0;
+  /** Cómo se abre el lienzo al revelar la ronda que está en pantalla. */
+  let zoomRonda = { a: 1, b: 0 };
   const respuestas: { elegida: number; real: number }[] = [];
 
   q<HTMLElement>('[data-reto-fecha]')!.textContent = limpia(fDia.format(new Date(hoy + 'T12:00:00Z')));
@@ -218,7 +220,7 @@ function montar(raiz: HTMLElement) {
     elY.innerHTML = niveles
       .map((n) => `<span data-v="${n.v}" style="top:${((yEn(n.v, dv) / H) * 100).toFixed(2)}%">${n.txt}</span>`)
       .join('');
-    elY.dataset.zoom = JSON.stringify(z);
+    zoomRonda = z;
 
     // Textos de la ronda.
     q<HTMLElement>('[data-reto-ronda]')!.textContent = rellena(T.round, { n: i + 1, total: RONDAS });
@@ -249,7 +251,7 @@ function montar(raiz: HTMLElement) {
 
     elFig.dataset.fase = 'revelado';
     elFig.dataset.dir = r.cambio >= 0 ? 'up' : 'down';
-    const z = JSON.parse(elY.dataset.zoom || '{"a":1,"b":0}') as { a: number; b: number };
+    const z = zoomRonda;
     gZoom.setAttribute('transform', `translate(0 ${z.b.toFixed(2)}) scale(1 ${z.a.toFixed(4)})`);
     for (const s of Array.from(elY.children) as HTMLElement[]) {
       const top = parseFloat(s.style.top);
@@ -324,6 +326,10 @@ function montar(raiz: HTMLElement) {
     q<HTMLElement>('[data-reto-azar]')!.textContent = T.random;
     q<SVGRectElement>('[data-reto-barra-tu]')!.setAttribute('width', String((res.puntos / res.max) * 100));
     q<HTMLElement>('[data-reto-barra-tu-n]')!.textContent = String(res.puntos);
+    // El 3.75 no está escrito a mano en ningún sitio: sale de las reglas del
+    // juego, así que si algún día cambian las bandas, la comparación no miente.
+    q<SVGRectElement>('[data-reto-barra-azar]')!.setAttribute('width', String((res.azar / res.max) * 100));
+    q<HTMLElement>('[data-reto-barra-azar-n]')!.textContent = fmtNum(res.azar, loc, 2);
 
     // Racha, solo en este teléfono.
     let racha = 1;
@@ -344,16 +350,12 @@ function montar(raiz: HTMLElement) {
       url
     ].join('\n');
     q<HTMLTextAreaElement>('[data-reto-texto]')!.value = texto;
-    q<HTMLElement>('[data-reto-total]')!.setAttribute('aria-label', res.puntos + ' / ' + res.max);
     elLive.textContent = res.puntos + ' / ' + res.max + '. ' + T.labels[clave];
     // El foco va al marcador (para quien navega con teclado) pero SIN mover la
     // página con él: la vista la coloca el bloque entero, que así entra con su
     // "Tu resultado" arriba y no cortado por la barra superior.
     (q<HTMLElement>('.reto-marcador') as HTMLElement).focus({ preventScroll: true });
     elFinal.scrollIntoView({ block: 'start', behavior: suave ? 'smooth' : 'auto' });
-    // El número del azar sale de la librería: si algún día cambian las bandas,
-    // este texto no se queda mintiendo.
-    void ESPERADO_AL_AZAR;
   }
 
   // ---- Escuchas ----
