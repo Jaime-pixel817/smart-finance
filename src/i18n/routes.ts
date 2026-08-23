@@ -64,6 +64,9 @@ export const ROUTES: RouteEntry[] = [
   { id: 'tool.interes', en: '/tools/interes-compuesto', es: '/es/herramientas/interes-compuesto', ...TOOL_META },
   { id: 'tool.inflacion', en: '/tools/inflacion', es: '/es/herramientas/inflacion', ...TOOL_META },
   { id: 'tool.cetes', en: '/tools/cetes-vs-cuenta', es: '/es/herramientas/cetes-vs-cuenta', ...TOOL_META },
+  // El reto del día: /challenge y /es/reto. La página es estática; lo que cambia
+  // cada día es la partida, que se arma en el navegador con /api/history.
+  { id: 'challenge', en: '/challenge', es: '/es/reto', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.8' },
   { id: 'community', en: '/community', es: '/es/comunidad', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.6' },
   // Research: /research es marca y se usa igual en los dos idiomas (como
   // "Smart Finance Research"); lo que cambia es el idioma del contenido.

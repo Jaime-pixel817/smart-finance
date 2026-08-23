@@ -1,0 +1,206 @@
+---
+// El reto del día: "¿Y luego qué pasó?" (/challenge y /es/reto).
+//
+// Aquí solo vive el cascarón: el encabezado, el esqueleto de la partida y el
+// pie (fuente, "qué aprendes" y disclaimer). Las reglas del juego están en
+// src/lib/challenge/reto.mjs (puras, con pruebas) y quien las mueve en el
+// navegador es src/scripts/challenge.ts.
+//
+// POR QUÉ NO HAY BACKEND: las 12 funciones serverless del plan de Vercel están
+// ocupadas (CLAUDE.md). El reto se arma en el teléfono con /api/history, que ya
+// existe, y la racha vive en localStorage. Nada sale del dispositivo.
+//
+// El catálogo de activos y todos los textos viajan como JSON en dos <script
+// type="application/json">: así el script no repite ni una cadena traducida y
+// no hay inglés suelto dentro de /es.
+import '../../styles/challenge.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { bySymbolId, assetRouteId } from '../../data/symbols';
+import SourceChip from '../SourceChip.astro';
+import { RONDAS, VENTANA, OCULTAS } from '../../lib/challenge/reto.mjs';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+
+// Los doce activos del sorteo: reconocibles para alguien de 16–20 y todos con
+// serie en /api/history. Fuera el VIX (sube cuando todo baja: la intuición de
+// "subir es bueno" se rompe y el reto dejaría de enseñar lo que quiere enseñar)
+// y fuera los cruces sin peso en México (USD/JPY, GBP/USD, EUR/USD).
+const POOL = ['spy', 'qqq', 'dia', 'aapl', 'msft', 'nvda', 'amzn', 'usdmxn', 'eurmxn', 'btc', 'eth', 'sol'];
+const catalogo = POOL.map((id) => {
+  const s = bySymbolId(id);
+  if (!s || !s.history) throw new Error('Reto: el activo ' + id + ' no tiene serie en /api/history');
+  return { id, pair: s.history, sym: s.sym, name: s.name[locale], href: route(assetRouteId(id), locale) };
+});
+
+// Todo lo que el script escribe en pantalla, en el idioma de la página.
+const textos = {
+  loading: t('reto.loading'), error: t('reto.error'), retry: t('reto.retry'),
+  round: t('reto.round_tpl'), question: t('reto.question'), blind: t('reto.blind'),
+  op: { '-2': t('reto.opt.down2'), '-1': t('reto.opt.down1'), '1': t('reto.opt.up1'), '2': t('reto.opt.up2') },
+  aria: t('reto.chart.aria'), ariaDone: t('reto.chart.aria.done'), base: t('reto.axis.base'),
+  verdict: { 2: t('reto.verdict.2'), 1: t('reto.verdict.1'), 0: t('reto.verdict.0') },
+  points: t('reto.points'), point: t('reto.point'), reveal: t('reto.reveal'),
+  next: t('reto.next'), see: t('reto.see'),
+  tips: [t('reto.tip.1'), t('reto.tip.2'), t('reto.tip.3'), t('reto.tip.4'), t('reto.tip.5')],
+  you: t('reto.final.you'), random: t('reto.final.random'),
+  labels: { low: t('reto.final.label.low'), mid: t('reto.final.label.mid'), high: t('reto.final.label.high'), top: t('reto.final.label.top') },
+  streak: t('reto.streak'), streakOne: t('reto.streak.one'),
+  copied: t('reto.copied'), copyFailed: t('reto.copy.failed'),
+  shareTitle: t('reto.share.title'), shareLine: t('reto.share.line'),
+  challenged: t('reto.challenged'), asOf: t('reto.src.asof')
+};
+const json = (x: unknown) => JSON.stringify(x).replace(/</g, '\\u003c');
+const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String(RONDAS));
+---
+<article class="reto">
+  <div class="container reto-wrap"
+    data-reto
+    data-locale={locale}
+    data-rondas={RONDAS}
+    data-ventana={VENTANA}
+    data-ocultas={OCULTAS}>
+
+    <header class="reto-head">
+      <p class="eyebrow">{t('reto.eyebrow')} · <span data-reto-fecha class="num"></span></p>
+      <h1 class="t-display">{t('reto.h1')}</h1>
+      <p class="reto-lede">{t('reto.lede')}</p>
+    </header>
+
+    <p class="reto-desafio" data-reto-desafio hidden></p>
+
+    <div class="card reto-card">
+      <!-- Cargando -->
+      <div class="reto-estado" data-reto-cargando>
+        <span class="reto-spinner" aria-hidden="true"></span>
+        <p class="t-small muted">{t('reto.loading')}</p>
+        <noscript><p class="t-small muted">{t('reto.error')}</p></noscript>
+      </div>
+
+      <!-- No llegaron los datos -->
+      <div class="reto-estado" data-reto-error hidden>
+        <p class="t-small">{t('reto.error')}</p>
+        <button class="btn btn-ghost" type="button" data-reto-reintentar>{t('reto.retry')}</button>
+      </div>
+
+      <!-- La partida -->
+      <div class="reto-juego" data-reto-juego hidden>
+        <p class="visually-hidden" role="status" aria-live="polite" data-reto-live></p>
+        <div class="reto-top">
+          <p class="t-caption faint" data-reto-ronda>{ronda1}</p>
+          <div class="reto-progreso" data-reto-progreso role="img" aria-label={t('reto.progress')}></div>
+        </div>
+
+        <figure class="reto-fig" data-reto-fig data-fase="pregunta">
+          <div class="reto-plot">
+            <div class="reto-canvas">
+              <svg class="reto-svg" viewBox="0 0 640 260" preserveAspectRatio="none" role="img" data-reto-svg aria-label="">
+                <defs>
+                  <clipPath id="reto-clip" clipPathUnits="userSpaceOnUse">
+                    <rect class="reto-clip" data-reto-clip x="0" y="-400" width="640" height="1060"></rect>
+                  </clipPath>
+                </defs>
+                <rect class="reto-tapa" data-reto-tapa x="0" y="-400" width="0" height="1060"></rect>
+                <line class="reto-corte" data-reto-corte x1="0" y1="-400" x2="0" y2="660"></line>
+                <g class="reto-zoom" data-reto-zoom>
+                  <g class="reto-grid" data-reto-grid></g>
+                  <path class="reto-linea" data-reto-linea d=""></path>
+                  <g clip-path="url(#reto-clip)">
+                    <path class="reto-oculta" data-reto-oculta d=""></path>
+                  </g>
+                </g>
+              </svg>
+              <span class="reto-q" data-reto-q aria-hidden="true">?</span>
+            </div>
+            <div class="reto-ylabels" data-reto-ylabels aria-hidden="true"></div>
+          </div>
+          <figcaption class="reto-cap t-caption faint">
+            <span data-reto-cap-izq></span>
+            <span data-reto-cap-der></span>
+          </figcaption>
+        </figure>
+
+        <p class="reto-pregunta" id="reto-pregunta">{t('reto.question')}</p>
+        <div class="reto-opciones" role="group" aria-labelledby="reto-pregunta" data-reto-opciones>
+          <button class="reto-op" type="button" data-banda="-2"><span class="reto-flecha" aria-hidden="true">▼▼</span><span data-etiqueta></span></button>
+          <button class="reto-op" type="button" data-banda="-1"><span class="reto-flecha" aria-hidden="true">▼</span><span data-etiqueta></span></button>
+          <button class="reto-op" type="button" data-banda="1"><span class="reto-flecha" aria-hidden="true">▲</span><span data-etiqueta></span></button>
+          <button class="reto-op" type="button" data-banda="2"><span class="reto-flecha" aria-hidden="true">▲▲</span><span data-etiqueta></span></button>
+        </div>
+
+        <div class="reto-revelado" data-reto-revelado hidden>
+          <p class="reto-veredicto">
+            <strong data-reto-veredicto></strong>
+            <span class="reto-gan num" data-reto-gan></span>
+          </p>
+          <p class="reto-cifra num" data-reto-cifra></p>
+          <p class="t-small muted" data-reto-detalle></p>
+          <p class="t-small reto-tip" data-reto-tip></p>
+          <button class="btn btn-primary" type="button" data-reto-siguiente>{t('reto.next')}</button>
+        </div>
+      </div>
+
+      <!-- Resultado -->
+      <div class="reto-final" data-reto-final hidden>
+        <div class="reto-marcador" tabindex="-1">
+          <p class="eyebrow">{t('reto.final.eyebrow')}</p>
+          <p class="reto-puntos" data-reto-total></p>
+          <p class="reto-emojis" data-reto-emojis></p>
+          <p class="reto-etiqueta" data-reto-etiqueta></p>
+        </div>
+
+        <div class="reto-barras">
+          <div class="reto-barra-fila">
+            <span data-reto-tu></span>
+            <svg class="reto-barra" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="0" height="10" data-reto-barra-tu></rect></svg>
+            <span class="num" data-reto-barra-tu-n></span>
+          </div>
+          <div class="reto-barra-fila">
+            <span data-reto-azar></span>
+            <svg class="reto-barra reto-barra-azar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="37.5" height="10"></rect></svg>
+            <span class="num">3.75</span>
+          </div>
+        </div>
+        <p class="t-small muted">{t('reto.final.random_note')}</p>
+        <p class="t-small">{t('reto.final.takeaway')}</p>
+
+        <p class="reto-racha" data-reto-racha hidden></p>
+
+        <div class="reto-acciones">
+          <button class="btn btn-primary" type="button" data-reto-copiar data-copiar-label>{t('reto.copy')}</button>
+          <button class="btn btn-ghost" type="button" data-reto-otra>{t('reto.again')}</button>
+        </div>
+        <label class="visually-hidden" for="reto-texto">{t('reto.copy')}</label>
+        <textarea class="reto-compartir" id="reto-texto" data-reto-texto rows="4" readonly hidden></textarea>
+        <p class="t-caption faint">{t('reto.tomorrow')}</p>
+
+        <div class="reto-acciones">
+          <a class="btn btn-ghost btn-sm" href={route('lesson.errores', locale)}>{t('reto.lesson')} →</a>
+          <a class="btn btn-ghost btn-sm" href={route('market', locale)}>{t('reto.market')} →</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="reto-fuente">
+      <SourceChip locale={locale} source="Yahoo Finance" note={t('reto.src.note')} id="reto-chip" />
+    </p>
+
+    <section class="card reto-learn" aria-labelledby="reto-learn-h">
+      <h2 id="reto-learn-h" class="t-h3">{t('reto.learn')}</h2>
+      <ul>
+        <li class="t-small">{t('reto.learn.1')}</li>
+        <li class="t-small">{t('reto.learn.2')}</li>
+        <li class="t-small">{t('reto.learn.3')}</li>
+      </ul>
+      <a class="btn btn-ghost btn-sm" href={route('lesson.errores', locale)}>{t('reto.lesson')} →</a>
+    </section>
+
+    <p class="reto-disclaimer">{t('reto.disclaimer')}</p>
+
+    <script type="application/json" data-reto-activos set:html={json(catalogo)}></script>
+    <script type="application/json" data-reto-textos set:html={json(textos)}></script>
+  </div>
+</article>
+<script src="../../scripts/challenge.ts"></script>

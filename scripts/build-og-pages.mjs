@@ -615,12 +615,21 @@ const TARJETAS_FIJAS = [
   },
   {
     nombre: 'tools',
-    en: { etiqueta: 'Tools', titular: 'Three calculators with your own numbers',
+    en: { etiqueta: 'Tools', titular: 'A daily challenge and three calculators',
       bajada: 'Move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
-      pie: 'Compound interest · Inflation · CETES' },
-    es: { etiqueta: 'Herramientas', titular: 'Tres calculadoras con tus propios números',
+      pie: 'Challenge · Compound interest · Inflation · CETES' },
+    es: { etiqueta: 'Herramientas', titular: 'Un reto diario y tres calculadoras',
       bajada: 'Mueve un control, lee el número, guarda el enlace. No se guarda nada ni se manda a ningún lado.',
-      pie: 'Interés compuesto · Inflación · CETES' }
+      pie: 'Reto · Interés compuesto · Inflación · CETES' }
+  },
+  {
+    nombre: 'challenge',
+    en: { etiqueta: 'Daily challenge', titular: 'What happened next?',
+      bajada: 'Five real charts with the last eight weeks covered. Call what happened, then see the real move and the real dates.',
+      pie: 'Two minutes · No account · A new one every day' },
+    es: { etiqueta: 'Reto del día', titular: '¿Y luego qué pasó?',
+      bajada: 'Cinco gráficas reales con las últimas ocho semanas tapadas. Di qué pasó y mira el movimiento y las fechas de verdad.',
+      pie: 'Dos minutos · Sin cuenta · Uno nuevo cada día' }
   },
   {
     nombre: 'tool-interes-compuesto',
