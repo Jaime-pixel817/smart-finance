@@ -34,8 +34,13 @@
 # entrada de `node scripts/build-photos.mjs`, que escribe lo que sí se sirve en
 # public/assets/fotos/ con huella de contenido en el nombre. Se quedan en el
 # repo para poder reencuadrar sin volver a pedirle la foto a nadie, pero no
-# tienen por qué viajar al despliegue (4.8 MB entre las dos).
-#   /public/assets/community/  = grupo-original.jpg (3797x2848, 3.6 MB)
-#   /public/assets/breakdowns/ = breakdown-<id>.jpg, los seis a resolución media
+# tienen por qué viajar al despliegue. Lo que AHORRA cada línea, medido:
+#   /public/assets/community/  = grupo-original.jpg (3797x2848, 3 545 281 B).
+#       Ahorro nuevo: CERO. Ya estaba excluido por su propia línea; excluir la
+#       carpeta entera solo cubre lo que se deje ahí en el futuro. Y ojo:
+#       grupo.webp, grupo-800.webp y grupo.jpg no desaparecen del despliegue,
+#       se MUDARON a public/assets/fotos/ con huella y se siguen sirviendo.
+#   /public/assets/breakdowns/ = los seis breakdown-<id>.jpg a resolución media
+#       (777 954 B). Este es el ahorro nuevo de verdad de este bloque.
 /public/assets/community
 /public/assets/breakdowns
