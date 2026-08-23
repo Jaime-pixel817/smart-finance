@@ -1,0 +1,21 @@
+---
+// Destino de la reescritura de /newsletter/<fecha> cuando ese número todavía no
+// existe en el build (ver src/components/newsletter/IssueRead.astro y
+// vercel.json). No se enlaza desde ningún sitio y lleva noindex: la URL buena
+// es la que el visitante ya tiene en la barra.
+import Base from '../layouts/Base.astro';
+import IssueRead from '../components/newsletter/IssueRead.astro';
+import { useT } from '../i18n/ui';
+import { ogPropia } from '../lib/og';
+const t = useT('en');
+---
+<!-- og:image: la del ÍNDICE del boletín, no la del número. Esta página pinta en
+     el navegador el número que pida la URL, así que en el build no se sabe cuál
+     es y no puede haber una tarjeta propia. El número que sí tiene página
+     (src/pages/newsletter/[fecha].astro) usa la suya. -->
+<Base locale="en" routeId="newsletter.read" active="today"
+  title={t('boletin.h1') + ' — Smart Finance'} description={t('boletin.sub')}
+  ogImage={ogPropia('newsletter', 'en')} ogImageAlt="Smart Finance — the weekly newsletter">
+  <meta slot="head" name="robots" content="noindex, follow">
+  <IssueRead locale="en" />
+</Base>

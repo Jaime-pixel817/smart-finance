@@ -33,7 +33,7 @@
 // donde venía el fallo de "sin_contenido" que dejó al boletín sin salir varios
 // días.
 
-const { tipDeLaSemana } = require('./tips');
+const { tipDeLaSemana, urlDelTip } = require('./tips');
 // El MISMO módulo que usa la gráfica del sitio para decidir si el mercado está
 // cerrado. No es una copia: si el correo y la web usaran criterios distintos,
 // un domingo el sitio diría "último cierre: viernes" y el boletín seguiría
@@ -42,6 +42,12 @@ const horario = require('../../assets/market-hours');
 // Dibuja la gráfica del dólar y la deja publicada. Vive aparte porque no tiene
 // nada que ver con armar texto: es rasterizar píxeles.
 const graficaDolar = require('./grafica');
+// "Qué se movió": los que más subieron y bajaron del registro de activos del
+// sitio, de /api/history. Vive aparte porque es doce peticiones con su propio
+// presupuesto de tiempo, y eso no tiene que estorbar la lectura de esto.
+const movimientos = require('./movimientos');
+// La línea de Jaime: el único texto del correo que escribe una persona a mano.
+const nota = require('./nota');
 
 // Respaldo del consejo motivacional. Desde que el boletín es semanal, el bloque
 // que abre el correo lo escribe `resumenSemana()` con los datos de la semana en
@@ -265,13 +271,18 @@ async function construirContenido(fecha = new Date()) {
   const base = urlBase();
   const sitio = urlSitio();
 
-  // Las tres piezas van EN PARALELO y fallan por separado: el research caído no
-  // debe dejar al correo sin la noticia, ni la noticia sin el mercado. Ninguna
-  // de las tres llama a Anthropic ni a un tercero — todo sale del propio sitio.
-  const [deMercado, noticia, research] = await Promise.all([
+  // Las piezas van EN PARALELO y fallan por separado: el research caído no debe
+  // dejar al correo sin la noticia, ni la noticia sin el mercado. Ninguna llama
+  // a Anthropic ni a un tercero — todo sale del propio sitio o de Redis.
+  const [deMercado, noticia, research, movs, linea] = await Promise.all([
     datosDeMercado(base),
     noticiaDeLaSemana(base, sitio),
-    researchConNovedad(base, fecha)
+    researchConNovedad(base, fecha),
+    movimientos.delaSemana(base, pedirJSON).catch((e) => {
+      console.error('boletín: falló "qué se movió":', e.message);
+      return null;
+    }),
+    nota.leer(fecha)
   ]);
 
   /*
@@ -293,35 +304,107 @@ async function construirContenido(fecha = new Date()) {
 
   return {
     fecha,
+    numero: numeroDeEdicion(fecha),
     noticia,
     research,
     mercado: deMercado.mercado,
+    movimientos: movs,
+    // La línea de Jaime en los dos idiomas, o null. Es texto suyo tal cual: ni
+    // pasa por una IA ni se recorta aquí (nota.js ya le puso el tope al
+    // guardarla). Si solo escribió el español, `en` viene en null y el correo
+    // en inglés sale sin ese bloque — ver el encabezado de nota.js.
+    nota: linea ? { es: linea.es, en: linea.en } : null,
     grafica,
+    // La serie completa del dólar. La usa el ARCHIVO —de ahí sale la gráfica de
+    // la versión web, que se dibuja como SVG y no caduca a los 30 días como el
+    // PNG del correo—, no la plantilla.
+    serieFx: deMercado.serieFx,
     tip: tipDeLaSemana(fecha)
   };
 }
 
 // ---- Plantilla del correo --------------------------------------------------
-// Reglas de correo, distintas a las de la web: fondo claro (el modo oscuro se
-// rompe en muchos clientes), tipografía del sistema con serif de respaldo para
-// los títulos (Fraunces no carga en correo), maquetado con <table> y estilos en
-// línea (Gmail borra el <style> del <head> en varios casos), y 600px de ancho
-// máximo, que es lo que muestran sin recortar los clientes de escritorio.
+// Reglas de correo, distintas a las de la web: maquetado con <table> y estilos
+// EN LÍNEA (Gmail borra el <style> del <head> en varios casos), tipografía del
+// sistema con serif de respaldo para los títulos (Fraunces no carga en correo),
+// y 600px de ancho máximo, que es lo que muestran sin recortar los clientes de
+// escritorio.
+//
+// EL MODO OSCURO, que es donde lee media bandeja de entrada, se resuelve con
+// las dos únicas cosas que funcionan de verdad:
+//
+//   1. Colores en línea para el modo claro (lo que ve quien no tiene nada raro)
+//      + una clase `sf-*` en CADA elemento coloreado, y un bloque <style> con
+//      `prefers-color-scheme: dark` que solo repinta esas clases. Apple Mail,
+//      iOS y Outlook para Mac lo respetan; el resto se queda en claro, que es
+//      un correo correcto y no uno roto.
+//   2. La cabecera es OSCURA SIEMPRE. Es la parte que peor sobrevive a la
+//      inversión automática de Gmail —una marca en tinta negra sobre blanco
+//      invertida a blanco sobre negro se ve sucia—, así que se dibuja ya
+//      oscura: invertida o no, se ve igual.
+//
+// Y una regla que manda sobre las dos: NINGÚN dato vive solo dentro de una
+// imagen. Con las imágenes bloqueadas el correo se lee entero.
 
+// -- Modo claro: los colores en línea ----------------------------------------
 const VERDE = '#0F8A5F';
 const ROJO = '#A32D2D';
 const TINTA = '#14161A';
 const GRIS = '#5B6470';
 const LINEA = '#E4E7EC';
 const FONDO = '#F4F6F8';
-// Tinte del bloque motivacional que abre el correo. Es la única sección con
-// fondo propio: así se lee como el arranque y no como una noticia más. Verde
-// muy lavado para que el texto oscuro encima siga teniendo contraste de sobra.
+const BLANCO = '#FFFFFF';
+// Tinte del bloque que abre el correo. Verde muy lavado para que el texto
+// oscuro encima siga teniendo contraste de sobra.
 const VERDE_TENUE = '#F1F8F4';
 const VERDE_BORDE = '#D7EAE0';
+// La cabecera, que va oscura en los dos modos. Es la misma tinta de la barra
+// superior del sitio: quien abre el correo ve lo mismo que ve en la web.
+const CABECERA = '#14161A';
+const VERDE_BRILLANTE = '#3ECF8E';
 
 const FUENTE = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 const FUENTE_TITULO = "Georgia,'Times New Roman',serif";
+
+/*
+ * El <style> del modo oscuro.
+ *
+ * Solo repinta clases, nunca etiquetas: un selector como `td { }` lo aplican
+ * algunos clientes a tablas que no son nuestras (las que envuelve el propio
+ * cliente) y descuadra el correo entero.
+ *
+ * `[data-ogsc]` es lo que le pone Outlook.com al cuerpo cuando el lector tiene
+ * el tema oscuro; no entiende prefers-color-scheme, así que lleva su propia
+ * copia de las reglas. Son cuatro líneas repetidas y es más barato que la
+ * alternativa, que es un correo ilegible para quien use Outlook.com de noche.
+ */
+const ESTILOS_OSCURO = `
+  :root { color-scheme: light dark; supported-color-schemes: light dark; }
+  @media (prefers-color-scheme: dark) {
+    .sf-fondo   { background:#0B0D10 !important; }
+    .sf-tarjeta { background:#15181D !important; border-color:#2B313A !important; }
+    .sf-caja    { background:#1B1F26 !important; border-color:#2B313A !important; }
+    .sf-tinta   { color:#EDEFF2 !important; }
+    .sf-cuerpo  { color:#C7CDD6 !important; }
+    .sf-gris    { color:#A2ABB6 !important; }
+    .sf-linea   { border-color:#2B313A !important; }
+    .sf-verde   { color:#3ECF8E !important; }
+    .sf-rojo    { color:#F1817E !important; }
+    .sf-tinte   { background:#122019 !important; border-color:#234032 !important; }
+    .sf-boton   { background:#3ECF8E !important; border-color:#3ECF8E !important; }
+    .sf-boton a { color:#0B0D10 !important; }
+  }
+  [data-ogsc] .sf-fondo   { background:#0B0D10 !important; }
+  [data-ogsc] .sf-tarjeta { background:#15181D !important; border-color:#2B313A !important; }
+  [data-ogsc] .sf-caja    { background:#1B1F26 !important; border-color:#2B313A !important; }
+  [data-ogsc] .sf-tinta   { color:#EDEFF2 !important; }
+  [data-ogsc] .sf-cuerpo  { color:#C7CDD6 !important; }
+  [data-ogsc] .sf-gris    { color:#A2ABB6 !important; }
+  [data-ogsc] .sf-linea   { border-color:#2B313A !important; }
+  [data-ogsc] .sf-verde   { color:#3ECF8E !important; }
+  [data-ogsc] .sf-rojo    { color:#F1817E !important; }
+  [data-ogsc] .sf-tinte   { background:#122019 !important; border-color:#234032 !important; }
+`;
 
 function escapar(s) {
   return String(s === null || s === undefined ? '' : s)
@@ -341,9 +424,17 @@ function fmt(n, dec = 4) {
     : '—';
 }
 
+function pct(n) {
+  return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+}
+
 const TEXTOS = {
   en: {
+    // Cabecera
+    edicion: 'Issue',
+    verEnWeb: 'View this issue in your browser',
     impulsoTitulo: 'The week in one line',
+    notaTitulo: "Jaime's line",
     noticiaTitulo: "The week's story",
     miLectura: 'My take',
     // Etiqueta honesta de quién escribió el texto de la noticia. Es la misma
@@ -358,8 +449,11 @@ const TEXTOS = {
     mercadoTituloCerrado: "The dollar's week, through Friday's close",
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Fear index (VIX)',
-    tipTitulo: "This week you'll learn",
-    tipCta: 'Read the lesson →',
+    movimientosTitulo: 'What moved this week',
+    movimientosPie: 'Monday-to-Friday change',
+    tipTitulo: "This week's lesson",
+    tipCta: 'Read the lesson',
+    tipMinutos: '{n}-minute read',
     researchTitulo: 'New in research',
     researchCta: 'Open the report →',
     researchPie: 'Equity research — sources cited, assumptions written out.',
@@ -369,8 +463,11 @@ const TEXTOS = {
     graficaAlt: 'Chart of the dollar against the peso {periodo}: from {inicio} to {fin} ({cambio}).',
     graficaPeriodoAbierto: 'over the past week',
     graficaPeriodoCerrado: "over the past week, through Friday's close",
+    fuenteRetraso: 'Yahoo Finance · quotes delayed up to 15 min',
+    fuenteCierre: 'Yahoo Finance · last close: {cuando}',
     despedida: 'See you next Sunday,',
     seguir: 'Follow along',
+    verNumeros: 'Past issues',
     baja: 'Unsubscribe',
     bajaFrase: 'You are getting this because you confirmed your subscription to the Smart Finance weekly.',
     aviso: 'Educational content only — not financial, investment, or tax advice.',
@@ -386,7 +483,10 @@ const TEXTOS = {
     semanaVixBaja: 'eased'
   },
   es: {
+    edicion: 'Número',
+    verEnWeb: 'Ver este número en el navegador',
     impulsoTitulo: 'La semana en una línea',
+    notaTitulo: 'La línea de Jaime',
     noticiaTitulo: 'La noticia de la semana',
     miLectura: 'Mi lectura',
     miLecturaIA: 'Resumen IA · revisado por Jaime',
@@ -395,16 +495,22 @@ const TEXTOS = {
     mercadoTituloCerrado: 'La semana del dólar, al cierre del viernes',
     fxEtiqueta: 'USD/MXN',
     vixEtiqueta: 'Índice del miedo (VIX)',
-    tipTitulo: 'Esta semana aprenderás',
-    tipCta: 'Leer la lección →',
+    movimientosTitulo: 'Qué se movió esta semana',
+    movimientosPie: 'cambio de lunes a viernes',
+    tipTitulo: 'La lección de la semana',
+    tipCta: 'Leer la lección',
+    tipMinutos: '{n} min de lectura',
     researchTitulo: 'Novedad en research',
     researchCta: 'Abrir el reporte →',
     researchPie: 'Equity research — con las fuentes citadas y los supuestos escritos.',
     graficaAlt: 'Gráfica del dólar frente al peso {periodo}: de {inicio} a {fin} ({cambio}).',
     graficaPeriodoAbierto: 'en la última semana',
     graficaPeriodoCerrado: 'en la última semana, hasta el cierre del viernes',
+    fuenteRetraso: 'Yahoo Finance · cotizaciones con hasta 15 min de retraso',
+    fuenteCierre: 'Yahoo Finance · último cierre: {cuando}',
     despedida: 'Nos leemos el próximo domingo,',
     seguir: 'Sígueme',
+    verNumeros: 'Números anteriores',
     baja: 'Darse de baja',
     bajaFrase: 'Recibes este correo porque confirmaste tu suscripción al boletín semanal de Smart Finance.',
     aviso: 'Contenido educativo únicamente — no es asesoría financiera, de inversión ni fiscal.',
@@ -426,13 +532,31 @@ const URL_TIKTOK = 'https://www.tiktok.com/@smart.financee';
 // escribe y la mayoría de quien lo lee, y el cron sale a las 8:00 de allá.
 const HUSO = 'America/Mexico_City';
 
-function fechaLarga(fecha, idioma) {
-  const texto = fecha.toLocaleDateString(idioma === 'es' ? 'es-MX' : 'en-US', {
-    timeZone: HUSO, weekday: 'long', day: 'numeric', month: 'long'
-  });
-  // Solo la primera letra: en español los días y meses van en minúscula, y un
-  // text-transform:capitalize dejaba "Jueves, 30 De Julio".
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
+/*
+ * EL NÚMERO DE EDICIÓN.
+ *
+ * Se cuenta desde el primer domingo del boletín semanal, que es el día en que
+ * dejó de ser diario (el commit "El boletin pasa a ser semanal"). No se guarda
+ * un contador en ninguna parte a propósito: un contador se desincroniza en
+ * cuanto alguien manda una prueba, y entonces el número que va impreso en el
+ * correo —y en la URL de su versión web— deja de ser el mismo dos veces.
+ * Calculado desde la fecha, dos boletines del mismo domingo llevan el mismo
+ * número siempre, que es lo único que el lector necesita que sea cierto.
+ */
+const PRIMER_DOMINGO = '2026-08-23';
+
+function diaLocal(fecha) {
+  return fecha.toLocaleDateString('en-CA', { timeZone: HUSO });   // 2026-08-23
+}
+
+function numeroDeEdicion(fecha) {
+  const semanas = Math.floor(
+    (Date.parse(diaLocal(fecha) + 'T12:00:00Z') - Date.parse(PRIMER_DOMINGO + 'T12:00:00Z')) /
+    (7 * 86400000)
+  );
+  // Un ensayo fechado antes del primer domingo no puede enseñar "Nº 0" ni un
+  // número negativo: se queda en el 1.
+  return Math.max(1, semanas + 1);
 }
 
 /*
@@ -448,8 +572,7 @@ function fechaLarga(fecha, idioma) {
  */
 function rangoSemana(fecha, idioma) {
   const es = idioma === 'es';
-  const local = (d) => d.toLocaleDateString('en-CA', { timeZone: HUSO });   // 2026-08-23
-  const fin = new Date(local(fecha) + 'T12:00:00Z');
+  const fin = new Date(diaLocal(fecha) + 'T12:00:00Z');
   const inicio = new Date(fin.getTime() - 6 * 86400000);
 
   const mes = (d) => d.toLocaleDateString(es ? 'es-MX' : 'en-US', { timeZone: 'UTC', month: 'long' });
@@ -478,19 +601,19 @@ function rangoSemana(fecha, idioma) {
  */
 function resumenSemana(mercado, t, es) {
   const partes = [];
-  const pct = (n) => Math.abs(n).toFixed(2) + '%';
+  const sinSigno = (n) => Math.abs(n).toFixed(2) + '%';
 
   if (mercado.usdmxn) {
     partes.push(t.semanaFx
       .replace('{valor}', fmt(mercado.usdmxn.valor, 2))
       .replace('{direccion}', mercado.usdmxn.cambioPct >= 0 ? t.semanaFxSube : t.semanaFxBaja)
-      .replace('{pct}', pct(mercado.usdmxn.cambioPct)));
+      .replace('{pct}', sinSigno(mercado.usdmxn.cambioPct)));
   }
   if (mercado.vix) {
     partes.push(t.semanaVix
       .replace('{vix}', fmt(mercado.vix.valor, 2))
       .replace('{direccion}', mercado.vix.cambioPct >= 0 ? t.semanaVixSube : t.semanaVixBaja)
-      .replace('{pct}', pct(mercado.vix.cambioPct)));
+      .replace('{pct}', sinSigno(mercado.vix.cambioPct)));
   }
 
   return partes.length ? partes.join(' ') : IMPULSO_RESPALDO[es ? 'es' : 'en'];
@@ -505,14 +628,14 @@ const FIRMA = 'Jaime Sandoval';
  *
  * Va en tabla de dos celdas y no como un <img> dentro del texto. Un ícono
  * alineado con vertical-align se cae medio píxel para arriba en Gmail, otro
- * medio para abajo en Outlook y se ve torcido justo en las cuatro líneas que
- * más se miran; en celdas separadas con valign="middle" queda alineado en
- * todos, que es la razón por la que el correo entero está maquetado en tablas.
+ * medio para abajo en Outlook y se ve torcido justo en las líneas que más se
+ * miran; en celdas separadas con valign="middle" queda alineado en todos, que
+ * es la razón por la que el correo entero está maquetado en tablas.
  *
- * EL alt VA VACÍO Y ES CORRECTO. Los cuatro íconos no dicen nada que no diga
- * el título que tienen al lado: son una ayuda para distinguir las secciones de
- * un vistazo. Ponerles texto alternativo descriptivo haría que un lector de
- * pantalla leyera "ícono de amanecer, Para arrancar el día" — la misma
+ * EL alt VA VACÍO Y ES CORRECTO. Los íconos no dicen nada que no diga el título
+ * que tienen al lado: son una ayuda para distinguir las secciones de un
+ * vistazo. Ponerles texto alternativo descriptivo haría que un lector de
+ * pantalla leyera "ícono de libro, La lección de la semana" — la misma
  * información dos veces. La regla de que toda imagen lleve alt existe para que
  * no se pierda información dentro de una imagen, y aquí no hay ninguna: por eso
  * la gráfica del dólar sí lleva un alt largo y estos no llevan ninguno.
@@ -528,8 +651,21 @@ function etiqueta(texto, icono, sitio, opciones) {
     <td width="16" valign="middle" style="${celda}line-height:0;padding-right:7px;">
       <img src="${escapar(sitio)}/assets/email/${escapar(icono)}.png" width="16" height="16" alt="" style="display:block;border:0;">
     </td>
-    <td valign="middle" style="${celda}font-family:${FUENTE};font-size:${tamano}px;font-weight:700;letter-spacing:${espaciado};text-transform:uppercase;color:${VERDE};">${escapar(texto)}</td>
+    <td valign="middle" class="sf-verde" style="${celda}font-family:${FUENTE};font-size:${tamano}px;font-weight:700;letter-spacing:${espaciado};text-transform:uppercase;color:${VERDE};">${escapar(texto)}</td>
   </tr></table>`;
+}
+
+/*
+ * EL CHIP DE FUENTE. Regla del sitio (CLAUDE.md): ningún dato de mercado se
+ * publica sin decir de dónde sale y de cuándo es.
+ *
+ * En el correo faltaba, y no era un descuido menor: el boletín es el único
+ * sitio donde esos números llegan SIN la página alrededor, o sea sin nada que
+ * los ponga en contexto. Un "16.8950" suelto en una bandeja de entrada parece
+ * el precio de este segundo.
+ */
+function chipFuente(texto) {
+  return `<div class="sf-gris" style="font-family:${FUENTE};font-size:11px;line-height:1.5;color:${GRIS};padding-top:8px;">${escapar(texto)}</div>`;
 }
 
 /*
@@ -544,6 +680,11 @@ function etiqueta(texto, icono, sitio, opciones) {
  * con max-width y height:auto es lo que la hace encogerse en un móvil, donde la
  * columna mide menos de 552 px.
  *
+ * NO lleva clase de modo oscuro y es a propósito: el PNG está dibujado sobre
+ * blanco, así que en modo oscuro se queda como una tarjeta blanca. Repintarle
+ * el fondo al contenedor dejaría un marco oscuro alrededor de un rectángulo
+ * blanco, que es peor.
+ *
  * Si no hay gráfica (falló el dibujo, o Redis no contestó) no se pinta nada.
  * Nunca un <img> roto: los números ya están arriba, así que no se pierde dato.
  */
@@ -551,7 +692,7 @@ function bloqueGrafica(g, alt) {
   if (!g || !g.url) return '';
   return `<div style="padding-top:12px;">
     <img src="${escapar(g.url)}" width="${g.ancho}" height="${g.alto}" alt="${escapar(alt)}"
-      style="display:block;width:100%;max-width:${g.ancho}px;height:auto;border:1px solid ${LINEA};border-radius:10px;">
+      style="display:block;width:100%;max-width:${g.ancho}px;height:auto;background:${BLANCO};border:1px solid ${LINEA};border-radius:10px;">
   </div>`;
 }
 
@@ -584,31 +725,97 @@ function bloqueMercado(mercado, t, pies) {
   // invertirColor sirve para el VIX: que suba significa MÁS miedo, así que se
   // pinta en rojo aunque el número vaya hacia arriba. Es el mismo criterio que
   // usa el panel del VIX en el sitio.
-  const celda = (etiqueta, resumen, decimales, invertirColor, pie) => {
+  const celda = (etiquetaTexto, resumen, decimales, invertirColor, pie) => {
     if (!resumen) {
-      return `<td width="50%" style="padding:10px 12px;font-family:${FUENTE};font-size:13px;color:${GRIS};">
-        <div style="text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:${GRIS};">${escapar(etiqueta)}</div>
-        <div style="font-size:15px;color:${GRIS};padding-top:4px;">${escapar(t.sinDatos)}</div></td>`;
+      return `<td width="50%" style="padding:10px 12px;font-family:${FUENTE};font-size:13px;">
+        <div class="sf-gris" style="text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:${GRIS};">${escapar(etiquetaTexto)}</div>
+        <div class="sf-gris" style="font-size:15px;color:${GRIS};padding-top:4px;">${escapar(t.sinDatos)}</div></td>`;
     }
     const sube = resumen.cambio >= 0;
-    const color = (invertirColor ? !sube : sube) ? VERDE : ROJO;
+    const bueno = invertirColor ? !sube : sube;
+    const color = bueno ? VERDE : ROJO;
+    const clase = bueno ? 'sf-verde' : 'sf-rojo';
     const signo = sube ? '+' : '';
     // El pie va en el gris de siempre y sin adorno: es una precisión sobre de
     // cuándo es el número, no una advertencia de que algo salió mal.
     const linea = pie
-      ? `<div style="font-size:11px;color:${GRIS};padding-top:6px;">${escapar(pie)}</div>`
+      ? `<div class="sf-gris" style="font-size:11px;color:${GRIS};padding-top:6px;">${escapar(pie)}</div>`
       : '';
     return `<td width="50%" style="padding:10px 12px;font-family:${FUENTE};">
-      <div style="text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:${GRIS};">${escapar(etiqueta)}</div>
-      <div style="font-size:22px;font-weight:700;color:${TINTA};padding-top:2px;">${fmt(resumen.valor, decimales)}</div>
-      <div style="font-size:13px;font-weight:600;color:${color};padding-top:2px;">${signo}${fmt(resumen.cambio, decimales)} (${signo}${resumen.cambioPct.toFixed(2)}%)</div>
+      <div class="sf-gris" style="text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:${GRIS};">${escapar(etiquetaTexto)}</div>
+      <div class="sf-tinta" style="font-size:22px;font-weight:700;color:${TINTA};padding-top:2px;">${fmt(resumen.valor, decimales)}</div>
+      <div class="${clase}" style="font-size:13px;font-weight:600;color:${color};padding-top:2px;">${signo}${fmt(resumen.cambio, decimales)} (${signo}${resumen.cambioPct.toFixed(2)}%)</div>
       ${linea}
     </td>`;
   };
 
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${LINEA};border-radius:10px;background:#FFFFFF;">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="sf-caja" style="border:1px solid ${LINEA};border-radius:10px;background:${BLANCO};">
     <tr>${celda(t.fxEtiqueta, mercado.usdmxn, 4, false, pies.fx)}${celda(t.vixEtiqueta, mercado.vix, 2, true, pies.vix)}</tr>
   </table>`;
+}
+
+/*
+ * QUÉ SE MOVIÓ ESTA SEMANA: los que más subieron y los que más bajaron.
+ *
+ * Una fila por activo, con la flecha, el nombre, el ticker y el cambio. El
+ * nombre va delante del ticker porque el correo lo lee gente que está
+ * empezando: "Nvidia" se entiende y "NVDA" hay que aprendérselo, así que el
+ * ticker va detrás y en gris, como la apostilla que es.
+ *
+ * LAS FLECHAS SON TEXTO (▲ ▼), no imágenes. Dos motivos: sobreviven a las
+ * imágenes bloqueadas, y el color no es la única señal —quien no distingue
+ * verde de rojo sigue viendo hacia dónde apunta el triángulo, y el signo del
+ * porcentaje lo dice una tercera vez.
+ */
+function bloqueMovimientos(movs, idioma, t) {
+  if (!movs) return '';
+
+  const fila = (m, sube, ultima) => {
+    const color = sube ? VERDE : ROJO;
+    const clase = sube ? 'sf-verde' : 'sf-rojo';
+    const borde = ultima ? '' : `border-bottom:1px solid ${LINEA};`;
+    const claseBorde = ultima ? '' : ' sf-linea';
+    return `<tr>
+      <td width="18" valign="middle" aria-hidden="true" class="${clase}${claseBorde}" style="${borde}padding:9px 0 9px 12px;font-family:${FUENTE};font-size:12px;line-height:1.2;color:${color};">${sube ? '&#9650;' : '&#9660;'}</td>
+      <td valign="middle" class="sf-tinta${claseBorde}" style="${borde}padding:9px 8px;font-family:${FUENTE};font-size:14px;line-height:1.3;color:${TINTA};">
+        ${escapar(m[idioma === 'es' ? 'es' : 'en'])}
+        <span class="sf-gris" style="color:${GRIS};font-size:11px;">${escapar(m.sym)}</span>
+      </td>
+      <td valign="middle" align="right" class="${clase}${claseBorde}" style="${borde}padding:9px 12px 9px 0;font-family:${FUENTE};font-size:14px;font-weight:700;line-height:1.3;color:${color};white-space:nowrap;">${escapar(pct(m.cambioPct))}</td>
+    </tr>`;
+  };
+
+  const filas = movs.suben.map((m) => ({ m, sube: true }))
+    .concat(movs.bajan.map((m) => ({ m, sube: false })));
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="sf-caja" style="border:1px solid ${LINEA};border-radius:10px;background:${BLANCO};">
+    ${filas.map((f, i) => fila(f.m, f.sube, i === filas.length - 1)).join('')}
+  </table>`;
+}
+
+/*
+ * LA LÍNEA DE JAIME: el hueco fijo donde habla una persona.
+ *
+ * Si no hay nota, esta función devuelve cadena vacía y el correo no cambia de
+ * forma: no queda un bloque con un título y nada debajo, que es como se ve un
+ * hueco mal resuelto. Cuando la hay, va entre comillas, en la serif de los
+ * títulos y firmada — o sea, se lee como una voz y no como una sección más.
+ *
+ * Va ARRIBA, después del resumen de la semana y antes de todo lo demás, porque
+ * es lo único del correo que no podría haber escrito una máquina; enterrarla al
+ * final sería quedarse con lo más valioso del boletín donde ya nadie lee.
+ */
+function bloqueNota(texto, sitio, t) {
+  if (!texto) return '';
+  return `<tr><td style="padding:26px 24px 0;">
+    ${etiqueta(t.notaTitulo, 'nota', sitio, { abajo: 10 })}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr><td class="sf-linea" style="padding:2px 0 2px 14px;border-left:3px solid ${VERDE};">
+        <div class="sf-tinta" style="font-family:${FUENTE_TITULO};font-size:16px;line-height:1.6;color:${TINTA};">${escapar(texto)}</div>
+        <div class="sf-gris" style="font-family:${FUENTE};font-size:12px;color:${GRIS};padding-top:8px;">— ${escapar(FIRMA)}</div>
+      </td></tr>
+    </table>
+  </td></tr>`;
 }
 
 // UNA noticia, no cuatro: la más reciente que Jaime ya aprobó en /news. El
@@ -620,7 +827,7 @@ function bloqueMercado(mercado, t, pies) {
 // una opinión que había escrito Anthropic y que nadie había leído.
 function bloqueNoticia(n, idioma, t) {
   if (!n) {
-    return `<p style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:${GRIS};margin:0;">${escapar(t.sinNoticia)}</p>`;
+    return `<p class="sf-gris" style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:${GRIS};margin:0;">${escapar(t.sinNoticia)}</p>`;
   }
 
   const lado = idioma === 'es' ? n.es : n.en;
@@ -631,15 +838,15 @@ function bloqueNoticia(n, idioma, t) {
   const firmaTake = n.autoria === 'humana' ? t.miLectura : t.miLecturaIA;
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-    <tr><td style="padding:0 0 10px;font-family:${FUENTE_TITULO};font-size:20px;line-height:1.3;font-weight:700;color:${TINTA};">
-      ${link ? `<a href="${link}" style="color:${TINTA};text-decoration:none;">${escapar(lado.titulo)}</a>` : escapar(lado.titulo)}
+    <tr><td class="sf-tinta" style="padding:0 0 10px;font-family:${FUENTE_TITULO};font-size:20px;line-height:1.3;font-weight:700;color:${TINTA};">
+      ${link ? `<a href="${link}" class="sf-tinta" style="color:${TINTA};text-decoration:none;">${escapar(lado.titulo)}</a>` : escapar(lado.titulo)}
     </td></tr>
-    ${take ? `<tr><td style="padding:0 0 6px 12px;border-left:3px solid ${VERDE};font-family:${FUENTE};font-size:15px;line-height:1.6;color:#39404A;">
-      <span style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:3px;">${escapar(firmaTake)}</span>
+    ${take ? `<tr><td class="sf-cuerpo" style="padding:0 0 6px 12px;border-left:3px solid ${VERDE};font-family:${FUENTE};font-size:15px;line-height:1.6;color:#39404A;">
+      <span class="sf-verde" style="display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:3px;">${escapar(firmaTake)}</span>
       ${escapar(take)}
     </td></tr>` : ''}
     ${link ? `<tr><td style="padding:10px 0 0;font-family:${FUENTE};font-size:13px;">
-      <a href="${link}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.leerMas)}</a>
+      <a href="${link}" class="sf-verde" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.leerMas)}</a>
     </td></tr>` : ''}
   </table>`;
 }
@@ -647,10 +854,10 @@ function bloqueNoticia(n, idioma, t) {
 /*
  * EL BLOQUE DE RESEARCH, que solo aparece si hubo novedad.
  *
- * Es la única sección CONDICIONAL del correo, y a propósito: un reporte de
- * research no se actualiza cada semana, y anunciar "nada nuevo" siete veces
- * seguidas entrena al lector a saltarse esa parte para siempre. Cuando aparece,
- * aparece porque hay algo.
+ * Es la única sección CONDICIONAL del correo con la nota de Jaime, y a
+ * propósito: un reporte de research no se actualiza cada semana, y anunciar
+ * "nada nuevo" siete veces seguidas entrena al lector a saltarse esa parte para
+ * siempre. Cuando aparece, aparece porque hay algo.
  */
 function bloqueResearch(r, idioma, t, sitio) {
   if (!r) return '';
@@ -660,16 +867,38 @@ function bloqueResearch(r, idioma, t, sitio) {
 
   return `<tr><td style="padding:26px 24px 6px;">
     ${etiqueta(t.researchTitulo, 'research', sitio, { abajo: 10 })}
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${LINEA};border-radius:10px;background:#FFFFFF;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="sf-caja" style="border:1px solid ${LINEA};border-radius:10px;background:${BLANCO};">
       <tr><td style="padding:14px 16px;">
-        <div style="font-family:${FUENTE_TITULO};font-size:18px;line-height:1.3;font-weight:700;color:${TINTA};">${escapar(titulo)}</div>
-        <div style="font-family:${FUENTE};font-size:13px;line-height:1.6;color:${GRIS};padding-top:4px;">${escapar(t.researchPie)}</div>
+        <div class="sf-tinta" style="font-family:${FUENTE_TITULO};font-size:18px;line-height:1.3;font-weight:700;color:${TINTA};">${escapar(titulo)}</div>
+        <div class="sf-gris" style="font-family:${FUENTE};font-size:13px;line-height:1.6;color:${GRIS};padding-top:4px;">${escapar(t.researchPie)}</div>
         ${link ? `<div style="padding-top:10px;font-family:${FUENTE};font-size:13px;">
-          <a href="${link}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.researchCta)}</a>
+          <a href="${link}" class="sf-verde" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.researchCta)}</a>
         </div>` : ''}
       </td></tr>
     </table>
   </td></tr>`;
+}
+
+/*
+ * EL BOTÓN. Uno solo en todo el correo, y es el de la lección.
+ *
+ * Antes los dos únicos botones eran LinkedIn y TikTok, o sea que lo más
+ * llamativo del boletín mandaba FUERA del sitio. Un correo con cinco enlaces
+ * del mismo peso no tiene llamado a la acción: tiene cinco, que es lo mismo que
+ * ninguno. La lección es lo que siempre está —haya noticia o no, haya research
+ * o no— y es lo que el sitio quiere que la gente lea, así que es la que se lleva
+ * el botón; todo lo demás se queda como enlace de texto.
+ *
+ * En tabla y con el color de fondo en el <td>, que es la única forma que pintan
+ * igual Gmail, Outlook y Apple Mail: un <a> con padding y background se le
+ * queda gris a Outlook, que ignora el padding.
+ */
+function boton(texto, url) {
+  return `<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+    <td align="center" class="sf-boton" style="background:${VERDE};border:1px solid ${VERDE};border-radius:8px;">
+      <a href="${escapar(url)}" style="display:inline-block;padding:12px 24px;font-family:${FUENTE};font-size:15px;font-weight:600;color:${BLANCO};text-decoration:none;">${escapar(texto)}</a>
+    </td>
+  </tr></table>`;
 }
 
 // Teaser de la lección: las primeras frases enteras de su resumen, hasta llegar
@@ -696,8 +925,36 @@ function bloqueResearch(r, idioma, t, sitio) {
  * al principio: lo que sobreviva al corte es lo de delante.
  */
 const GANCHO_MAX = 65;
+
+/*
+ * Lo que un filtro de spam mira en el asunto, y que no se puede confiar a que
+ * quien escribió el titular se acuerde.
+ *
+ * No reescribe el texto: solo quita lo que NUNCA quiere decir nada y sí puntúa
+ * como correo basura — signos repetidos ("¡¡GRATIS!!"), el titular gritado
+ * entero en mayúsculas y los espacios de más. Un "!" suelto se respeta: es
+ * puntuación normal y quitarlo sería corregirle la redacción a una persona.
+ *
+ * Las mayúsculas se arreglan bajándolas y devolviendo la inicial, no
+ * rechazando el asunto: un boletín no puede quedarse sin salir porque un
+ * titular venga en caja alta.
+ */
+function limpiarAsunto(texto) {
+  let t = String(texto || '').replace(/\s+/g, ' ').trim();
+  t = t.replace(/([!?¡¿])\1+/g, '$1');
+
+  const letras = t.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, '');
+  const mayusculas = letras.replace(/[^A-ZÁÉÍÓÚÜÑ]/g, '').length;
+  // Más de ocho letras y todas en alta: es un grito, no un titular.
+  if (letras.length > 8 && mayusculas === letras.length) {
+    t = t.toLocaleLowerCase('es-MX');
+    t = t.charAt(0).toLocaleUpperCase('es-MX') + t.slice(1);
+  }
+  return t;
+}
+
 function recortarGancho(texto) {
-  const t = String(texto || '').replace(/\s+/g, ' ').trim();
+  const t = limpiarAsunto(texto);
   if (t.length <= GANCHO_MAX) return t;
 
   const zona = t.slice(0, GANCHO_MAX + 1);
@@ -733,38 +990,39 @@ function teaserLeccion(texto) {
   return fin > 0 ? limpio.slice(0, fin) : limpio;
 }
 
-// Los dos botones de redes. En tabla y con el color de fondo en el <td>, que es
-// la única forma que pintan igual Gmail, Outlook y Apple Mail: un <a> con
-// padding y background se le queda gris a Outlook, que ignora el padding.
-function bloqueBotones(t) {
-  const boton = (texto, url, fondo, colorTexto, borde) => `<td style="padding:0 8px 0 0;">
-    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-      <td align="center" style="background:${fondo};border:1px solid ${borde};border-radius:8px;">
-        <a href="${escapar(url)}" style="display:inline-block;padding:11px 22px;font-family:${FUENTE};font-size:14px;font-weight:600;color:${colorTexto};text-decoration:none;">${escapar(texto)}</a>
-      </td>
-    </tr></table>
-  </td>`;
+// Las redes, ya sin botón: dos enlaces de texto en el pie, junto al archivo de
+// números anteriores. Siguen estando y siguen siendo fáciles de encontrar; lo
+// que ya no hacen es competir con el único llamado a la acción del correo.
+// `baseBoletin` es la raíz del archivo EN EL IDIOMA DEL CORREO. Se recibe en
+// vez de calcularse aquí porque el idioma lo decide quien renderiza: si esta
+// función se lo inventara, volveríamos al fallo que arregla — la etiqueta
+// traducida y el destino en inglés.
+function pieEnlaces(t, sitio, baseBoletin) {
+  const enlace = (texto, url) =>
+    `<a href="${escapar(url)}" class="sf-gris" style="color:${GRIS};text-decoration:underline;">${escapar(texto)}</a>`;
 
-  return `<div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${VERDE};padding-bottom:10px;">${escapar(t.seguir)}</div>
-  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-    ${boton('LinkedIn', URL_LINKEDIN, VERDE, '#FFFFFF', VERDE)}
-    ${boton('TikTok', URL_TIKTOK, '#FFFFFF', TINTA, LINEA)}
-  </tr></table>`;
+  return `<div class="sf-gris" style="font-family:${FUENTE};font-size:12px;line-height:1.8;color:${GRIS};">
+    ${enlace('LinkedIn', URL_LINKEDIN)} &nbsp;·&nbsp; ${enlace('TikTok', URL_TIKTOK)} &nbsp;·&nbsp; ${enlace(t.verNumeros, sitio + baseBoletin)}
+  </div>`;
 }
 
 /*
  * EL ORDEN DEL CORREO, de arriba a abajo:
  *
- *   1. La marca    — el nombre, tratado como en el sitio. Solo tipografía.
- *   2. Gancho      — titular corto, distinto cada semana. Es también el asunto.
- *   3. La semana   — lo que hizo el mercado, en una línea y con sus números.
- *   4. La noticia  — UNA, la más reciente ya aprobada, con mi lectura.
- *   5. El dólar    — USD/MXN y el VIX al lado, y la gráfica de la semana.
- *   6. La lección  — teaser de la lección de la semana, con su link.
- *   7. Research    — SOLO si hubo novedad. Es la única sección condicional.
- *   8. Botones     — LinkedIn y TikTok.
- *   9. La firma    — quién escribe esto.
- *  10. La baja     — obligatoria por ley, en todos los envíos.
+ *   0. Ver en el navegador — fuera de la tarjeta, chiquito. La salida de
+ *      emergencia de quien tiene las imágenes bloqueadas o un cliente raro.
+ *   1. La cabecera  — la marca, el número de edición y la semana que resume.
+ *   2. Gancho       — titular corto, distinto cada semana. Es también el asunto.
+ *   3. La semana    — lo que hizo el mercado, en una línea y con sus números.
+ *   4. La línea de Jaime — SOLO si la escribió. Es lo único que no puede
+ *                     escribir una máquina, así que va antes que nada.
+ *   5. La noticia   — UNA, la más reciente ya aprobada, con su "por qué importa".
+ *   6. El dólar     — USD/MXN y el VIX al lado, la gráfica y el chip de fuente.
+ *   7. Qué se movió — los tres que más subieron y los tres que más bajaron.
+ *   8. La lección   — nombre, tiempo de lectura, teaser y EL botón del correo.
+ *   9. Research     — SOLO si hubo novedad.
+ *  10. La firma     — quién escribe esto.
+ *  11. El pie       — redes, números anteriores, baja y disclaimer.
  *
  * Nada más. Un boletín semanal tiene la tentación de meter las cinco noticias
  * de la semana y las tres lecciones; con eso se convierte en un archivo que
@@ -775,12 +1033,26 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const t = TEXTOS[es ? 'es' : 'en'];
   const sitio = urlSitio();
   const tip = contenido.tip[es ? 'es' : 'en'];
-  const urlTip = sitio + contenido.tip.url;
+  const urlTip = sitio + urlDelTip(contenido.tip, es ? 'es' : 'en');
   const teaser = teaserLeccion(tip.resumen);
   const noticia = contenido.noticia || null;
   const research = contenido.research || null;
+  const movs = contenido.movimientos || null;
+  const linea = (contenido.nota && contenido.nota[es ? 'es' : 'en']) || null;
+  const numero = contenido.numero || numeroDeEdicion(contenido.fecha);
+  const rango = rangoSemana(contenido.fecha, idioma);
+  // La raíz del archivo del boletín EN EL IDIOMA DE ESTE CORREO. Va aquí arriba
+  // y no repetida en cada sitio donde hace falta porque el fallo que arregla
+  // fue justamente ese: la ruta escrita a mano tres veces, traducida cero.
+  // Un suscriptor en español aterrizaba en la página inglesa.
+  const baseBoletin = es ? '/es/boletin' : '/newsletter';
+  // La versión web de ESTE número. La página la genera Astro desde el archivo
+  // commiteado, y mientras no lo esté la sirve /newsletter-read leyendo del
+  // endpoint: la URL funciona desde el minuto uno.
+  const urlWeb = sitio + baseBoletin + '/' + diaLocal(contenido.fecha);
   // La semana en una línea: sale de los mismos números que se imprimen abajo.
   const resumen = resumenSemana(contenido.mercado, t, es);
+
   /*
    * El gancho —que es también el asunto— es el TITULAR DE LA NOTICIA APROBADA.
    *
@@ -790,11 +1062,19 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
    * correo no estaba. El titular de la noticia que sí va dentro no puede
    * desincronizarse de nada, y además ya pasó por una persona.
    *
-   * Sin noticia aprobada esta semana, el respaldo semanal: siempre cierto,
-   * porque el correo siempre lleva el dólar y siempre lleva una lección.
+   * SIN NOTICIA APROBADA, EL ASUNTO ES EL TÍTULO DE LA LECCIÓN, y esto es un
+   * cambio con motivo: el respaldo de antes ("La semana del dólar, y una
+   * lección en dos minutos") era el mismo texto todas las semanas que no
+   * hubiera noticia. Dos domingos seguidos con el mismo asunto es la señal más
+   * clara que existe de correo automático que no hace falta abrir. El título de
+   * la lección cambia cada semana, es cierto —esa lección va dentro— y dice de
+   * qué va el correo. El respaldo genérico se queda para el caso de que ni
+   * siquiera haya lección, que no debería pasar nunca.
    */
   const gancho = recortarGancho(
-    (noticia && (es ? noticia.es.titulo : noticia.en.titulo)) || GANCHO_SEMANAL[es ? 'es' : 'en']
+    (noticia && (es ? noticia.es.titulo : noticia.en.titulo)) ||
+    (tip && tip.titulo) ||
+    GANCHO_SEMANAL[es ? 'es' : 'en']
   );
 
   /*
@@ -807,10 +1087,8 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
    * tener que esperar al domingo.
    */
   const ahora = (contenido.fecha instanceof Date ? contenido.fecha : new Date()).getTime();
-  const cierreDe = (resumen) =>
-    horario.estado(resumen && resumen.ultimoTs, { ahora, timeZone: HUSO });
-  const pieDe = (est) =>
-    est.cerrado ? horario.pieCierre(est, { es, timeZone: HUSO }) : '';
+  const cierreDe = (r) => horario.estado(r && r.ultimoTs, { ahora, timeZone: HUSO });
+  const pieDe = (est) => (est.cerrado ? horario.pieCierre(est, { es, timeZone: HUSO }) : '');
 
   const cierreFx = cierreDe(contenido.mercado.usdmxn);
   const cierreVix = cierreDe(contenido.mercado.vix);
@@ -819,8 +1097,15 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   // línea la encabeza el símbolo y la etiqueta va en minúscula dentro de la
   // frase. Se saca aparte en vez de pasar el pie por toLowerCase() porque eso
   // se comía también la fecha y dejaba "last close · friday, august 7".
-  const cuandoCerro = (est) =>
-    est.cerrado ? horario.cuando(est, { es, timeZone: HUSO }) : '';
+  const cuandoCerro = (est) => (est.cerrado ? horario.cuando(est, { es, timeZone: HUSO }) : '');
+
+  // El chip de fuente: de dónde salen los números y de cuándo son. Con el
+  // mercado abierto manda el retraso real del proveedor; cerrado, la sesión de
+  // la que se está hablando.
+  const chipDe = (est) => (est.cerrado && cuandoCerro(est)
+    ? t.fuenteCierre.replace('{cuando}', cuandoCerro(est))
+    : t.fuenteRetraso);
+
   // El título habla del dólar, así que lo manda el dólar. El VIX se explica en
   // su propia celda.
   const tituloMercado = cierreFx.cerrado ? t.mercadoTituloCerrado : t.mercadoTitulo;
@@ -828,73 +1113,109 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   // "las últimas 24 horas" un domingo sería falso por la misma razón.
   const altGrafica = altDeGrafica(contenido.mercado.usdmxn, t, cierreFx.cerrado);
 
-  const html = `<!doctype html>
-<html lang="${idioma === 'es' ? 'es' : 'en'}">
+  // El chip de la tabla de movimientos: su propia hora (la del punto más nuevo
+  // de los doce activos), no la del dólar.
+  const cierreMovs = movs ? cierreDe({ ultimoTs: movs.asOf }) : null;
+  const chipMovs = movs ? chipDe(cierreMovs) + ' · ' + t.movimientosPie : '';
+
+  const minutos = contenido.tip.minutos
+    ? t.tipMinutos.replace('{n}', String(contenido.tip.minutos))
+    : '';
+
+  /*
+   * ¿EL TITULAR DE ARRIBA YA ES EL TÍTULO DE LA LECCIÓN?
+   *
+   * Pasa cada semana en la que no hubo noticia aprobada, porque entonces el
+   * gancho lo pone la lección. En la primera versión el mismo título salía dos
+   * veces en serif grande, con ochocientos píxeles de por medio, y eso no se
+   * lee como un boletín bien hecho: se lee como una plantilla mal rellenada.
+   *
+   * Se quita el de abajo y no el de arriba: el de arriba es el titular del
+   * número, y el bloque de la lección se sostiene igual con su etiqueta, el
+   * tiempo de lectura, el resumen y el botón.
+   */
+  const tituloRepetido = gancho === recortarGancho(tip.titulo);
+
+  const plantilla = `<!doctype html>
+<html lang="${es ? 'es' : 'en'}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart Finance</title>
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Smart Finance — ${escapar(t.edicion)} ${numero}</title>
+<style>${ESTILOS_OSCURO}</style>
 </head>
-<body style="margin:0;padding:0;background:${FONDO};">
+<body class="sf-fondo" style="margin:0;padding:0;background:${FONDO};">
 <!-- Preencabezado: lo que se lee en la bandeja junto al asunto. Ya no repite el
-     gancho —eso deja "titular · titular" en la bandeja—: anuncia la lección,
-     que es lo otro que trae el correo. Oculto en el cuerpo con tamaño cero
-     para que no se vea dos veces al abrir. -->
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapar(t.tipTitulo)}: ${escapar(tip.titulo)}</div>
+     gancho —eso deja "titular · titular" en la bandeja—: anuncia lo que hizo el
+     mercado, que es lo otro que trae el correo y cambia cada semana. Oculto en
+     el cuerpo con tamaño cero para que no se vea dos veces al abrir. -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapar(resumen)}</div>
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${FONDO};">
-<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="sf-fondo" style="background:${FONDO};">
+<tr><td align="center" style="padding:20px 12px 24px;">
 
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#FFFFFF;border-radius:14px;overflow:hidden;border:1px solid ${LINEA};">
+<!-- 0. VER EN EL NAVEGADOR. Fuera de la tarjeta y en gris pequeño: es la salida
+        de emergencia de quien tiene las imágenes bloqueadas o abre el correo en
+        un cliente que destroza el HTML, no una sección del boletín. -->
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;">
+  <tr><td align="center" style="padding:0 0 10px;font-family:${FUENTE};font-size:11px;line-height:1.5;">
+    <a href="${escapar(urlWeb)}" class="sf-gris" style="color:${GRIS};text-decoration:underline;">${escapar(t.verEnWeb)}</a>
+  </td></tr>
+</table>
 
-  <!-- 1. LA MARCA. El nombre tratado como en el sitio: serif, "Finance" en
-          verde. Es TEXTO, no una imagen — así se ve igual con las imágenes
-          bloqueadas, no suma un solo byte de descarga y no le da a ningún
-          filtro de spam una imagen más que contar. La serif de sistema hace
-          aquí el papel de Fraunces, que no carga en correo. -->
-  <tr><td align="center" style="padding:22px 24px 18px;border-bottom:1px solid ${LINEA};">
-    <div style="font-family:${FUENTE_TITULO};font-size:23px;font-weight:700;letter-spacing:-0.01em;line-height:1;color:${TINTA};">
-      Smart <span style="color:${VERDE};">Finance</span>
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" class="sf-tarjeta" style="width:100%;max-width:600px;background:${BLANCO};border-radius:14px;overflow:hidden;border:1px solid ${LINEA};">
+
+  <!-- 1. LA CABECERA. Oscura en los dos modos, como la barra superior del
+          sitio: es lo que hace que el correo se reconozca de un vistazo en la
+          bandeja y lo único que no se descuadra cuando Gmail invierte los
+          colores por su cuenta.
+
+          Es TEXTO, no una imagen — así se ve igual con las imágenes
+          bloqueadas, no suma un byte de descarga y no le da a ningún filtro de
+          spam una imagen más que contar. La serif de sistema hace aquí el papel
+          de Fraunces, que no carga en correo. -->
+  <tr><td style="background:${CABECERA};padding:20px 24px 18px;">
+    <div style="font-family:${FUENTE_TITULO};font-size:23px;font-weight:700;letter-spacing:-0.01em;line-height:1.1;color:#FFFFFF;">
+      Smart <span style="color:${VERDE_BRILLANTE};">Finance</span>
+    </div>
+    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8A929C;padding-top:7px;">
+      ${escapar(t.edicion)} ${numero} &nbsp;·&nbsp; ${escapar(rango)}
     </div>
   </td></tr>
 
-  <!-- 2. EL GANCHO. El RANGO de la semana se queda pequeño encima: quien abre
-          el correo ya sabe de quién es —lo acaba de leer arriba—, así que lo
-          grande tiene que ser de qué va el de esta semana. Y el rango, y no el
-          día del envío, porque el correo habla de siete días: quien lo abre el
-          martes tiene que saber de qué semana es. -->
-  <tr><td style="padding:20px 24px 20px;border-bottom:1px solid ${LINEA};">
-    <div style="font-family:${FUENTE};font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${GRIS};">
-      ${escapar(rangoSemana(contenido.fecha, idioma))}
-    </div>
-    <div style="font-family:${FUENTE_TITULO};font-size:25px;line-height:1.28;font-weight:700;color:${TINTA};padding-top:10px;">
+  <!-- 2. EL GANCHO: de qué va el número de esta semana. -->
+  <tr><td class="sf-linea" style="padding:22px 24px;border-bottom:1px solid ${LINEA};">
+    <div class="sf-tinta" style="font-family:${FUENTE_TITULO};font-size:25px;line-height:1.28;font-weight:700;color:${TINTA};">
       ${escapar(gancho)}
     </div>
   </td></tr>
 
   <!-- 3. La semana en una línea. Es el único bloque del correo con fondo
           propio: el tinte lo separa del resto sin usar imágenes, que la mayoría
-          de los clientes bloquea hasta que el lector las permite. Ya no lleva
-          la comilla grande de cuando aquí iba una frase motivacional: esto no
-          es una cita, son los números de la semana escritos en palabras. -->
+          de los clientes bloquea hasta que el lector las permite. -->
   <tr><td style="padding:20px 24px 0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${VERDE_TENUE};border:1px solid ${VERDE_BORDE};border-radius:12px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="sf-tinte" style="background:${VERDE_TENUE};border:1px solid ${VERDE_BORDE};border-radius:12px;">
       <tr>
         <td valign="top" style="padding:16px 18px;">
           ${etiqueta(t.impulsoTitulo, 'semana', sitio, { tamano: 10, espaciado: '.12em', abajo: 6 })}
-          <div style="font-family:${FUENTE_TITULO};font-size:16px;line-height:1.55;color:${TINTA};">${escapar(resumen)}</div>
+          <div class="sf-tinta" style="font-family:${FUENTE_TITULO};font-size:16px;line-height:1.55;color:${TINTA};">${escapar(resumen)}</div>
         </td>
       </tr>
     </table>
   </td></tr>
 
-  <!-- 4. La noticia de la semana. Una, y aprobada por una persona. -->
+  <!-- 4. La línea de Jaime: SOLO si la escribió esta semana. -->
+  ${bloqueNota(linea, sitio, t)}
+
+  <!-- 5. La noticia de la semana. Una, y aprobada por una persona. -->
   <tr><td style="padding:26px 24px 6px;">
     ${etiqueta(t.noticiaTitulo, 'noticia', sitio, { abajo: 12 })}
     ${bloqueNoticia(noticia, idioma, t)}
   </td></tr>
 
-  <!-- 5. La semana del dólar: USD/MXN y el VIX al lado, en la misma fila, y
+  <!-- 6. La semana del dólar: USD/MXN y el VIX al lado, en la misma fila, y
           debajo la gráfica de los cinco días. Con el mercado cerrado —que un
           domingo es siempre— el título cambia y cada celda dice de qué sesión
           es su número. -->
@@ -902,44 +1223,52 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     ${etiqueta(tituloMercado, 'dolar', sitio, {})}
     ${bloqueMercado(contenido.mercado, t, pies)}
     ${bloqueGrafica(contenido.grafica, altGrafica)}
+    ${chipFuente(chipDe(cierreFx))}
   </td></tr>
 
-  <!-- 6. Esta semana aprenderás: la lección de la semana y un teaser corto. -->
+  <!-- 7. Qué se movió: los tres que más subieron y los tres que más bajaron del
+          registro de activos del sitio. Si no contestaron bastantes, este
+          bloque no existe (mejor nada que media tabla). -->
+  ${movs ? `<tr><td style="padding:26px 24px 6px;">
+    ${etiqueta(t.movimientosTitulo, 'movimientos', sitio, {})}
+    ${bloqueMovimientos(movs, idioma, t)}
+    ${chipFuente(chipMovs)}
+  </td></tr>` : ''}
+
+  <!-- 8. La lección de la semana: nombre, cuánto se tarda en leerla, un teaser
+          corto y EL botón del correo. -->
   <tr><td style="padding:26px 24px 6px;">
     ${etiqueta(t.tipTitulo, 'leccion', sitio, { abajo: 8 })}
-    <div style="font-family:${FUENTE_TITULO};font-size:19px;line-height:1.3;font-weight:700;color:${TINTA};padding-bottom:6px;">${escapar(tip.titulo)}</div>
-    <div style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:#39404A;">${escapar(teaser)}</div>
-    <div style="padding-top:10px;font-family:${FUENTE};font-size:13px;">
-      <a href="${escapar(urlTip)}" style="color:${VERDE};text-decoration:none;font-weight:600;">${escapar(t.tipCta)}</a>
-    </div>
+    ${tituloRepetido ? '' : `<div class="sf-tinta" style="font-family:${FUENTE_TITULO};font-size:19px;line-height:1.3;font-weight:700;color:${TINTA};padding-bottom:4px;">${escapar(tip.titulo)}</div>`}
+    ${minutos ? `<div class="sf-gris" style="font-family:${FUENTE};font-size:12px;color:${GRIS};padding-bottom:8px;">${escapar(minutos)}</div>` : ''}
+    <div class="sf-cuerpo" style="font-family:${FUENTE};font-size:14px;line-height:1.6;color:#39404A;padding-bottom:14px;">${escapar(teaser)}</div>
+    ${boton(t.tipCta, urlTip)}
   </td></tr>
 
-  <!-- 7. Research: SOLO si hubo novedad en los últimos días. -->
+  <!-- 9. Research: SOLO si hubo novedad en los últimos días. -->
   ${bloqueResearch(research, idioma, t, sitio)}
 
-  <!-- 8. Los botones de redes. -->
-  <tr><td style="padding:26px 24px 22px;">
-    ${bloqueBotones(t)}
-  </td></tr>
-
-  <!-- 9. La firma. Texto, no imagen: es un nombre, y una imagen para un nombre
-          se ve rota justo en los clientes que bloquean imágenes. Discreta a
-          propósito — cierra el correo, no lo encabeza. -->
-  <tr><td style="padding:0 24px 24px;">
-    <div style="border-top:1px solid ${LINEA};padding-top:16px;font-family:${FUENTE};font-size:12px;line-height:1.5;color:${GRIS};">
-      ${escapar(t.despedida)}
-      <div style="font-family:${FUENTE_TITULO};font-style:italic;font-size:17px;color:${TINTA};padding-top:2px;">${escapar(FIRMA)}</div>
+  <!-- 10. La firma. Texto, no imagen: es un nombre, y una imagen para un nombre
+          se ve rota justo en los clientes que bloquean imágenes. -->
+  <tr><td style="padding:28px 24px 0;">
+    <div class="sf-linea" style="border-top:1px solid ${LINEA};padding-top:16px;font-family:${FUENTE};font-size:12px;line-height:1.5;">
+      <span class="sf-gris" style="color:${GRIS};">${escapar(t.despedida)}</span>
+      <div class="sf-tinta" style="font-family:${FUENTE_TITULO};font-style:italic;font-size:17px;color:${TINTA};padding-top:2px;">${escapar(FIRMA)}</div>
     </div>
   </td></tr>
 
-  <!-- 10. La baja. Va en TODOS los envíos: es obligatoria por ley, no una
-          cortesía, y por eso no depende de ninguna condición de arriba. -->
-  <tr><td style="padding:16px 24px 24px;border-top:1px solid ${LINEA};">
-    <div style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};">
+  <!-- 11. El pie: las redes y el archivo como enlaces de texto, la baja y el
+          disclaimer. La baja va en TODOS los envíos: es obligatoria por ley, no
+          una cortesía, y por eso no depende de ninguna condición de arriba. -->
+  <tr><td style="padding:16px 24px 24px;">
+    ${pieEnlaces(t, sitio, baseBoletin)}
+  </td></tr>
+  <tr><td class="sf-linea" style="padding:16px 24px 24px;border-top:1px solid ${LINEA};">
+    <div class="sf-gris" style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};">
       ${escapar(t.bajaFrase)}<br>
-      <a href="${escapar(urlBaja)}" style="color:${GRIS};text-decoration:underline;">${escapar(t.baja)}</a>
+      <a href="${escapar(urlBaja)}" class="sf-gris" style="color:${GRIS};text-decoration:underline;">${escapar(t.baja)}</a>
     </div>
-    <div style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:#8A929C;padding-top:10px;">
+    <div class="sf-gris" style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:#8A929C;padding-top:10px;">
       ${escapar(t.aviso)}
     </div>
   </td></tr>
@@ -950,18 +1279,41 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
 </body>
 </html>`;
 
+  /*
+   * Los comentarios del HTML se quitan al enviar.
+   *
+   * Están escritos para quien lea ESTE archivo —por qué la cabecera va oscura,
+   * por qué la gráfica va debajo de las cifras— y no aportan nada dentro del
+   * correo: son unos 2 KB por envío, y Gmail corta el mensaje a los 102 KB con
+   * un "mensaje truncado". Además una prueba que busque "Qué se movió" en el
+   * HTML encontraría el comentario aunque el bloque no se haya pintado, que es
+   * la clase de prueba que pasa siempre y no comprueba nada.
+   *
+   * OJO si algún día hay que meter un comentario condicional de Outlook
+   * (`<!--[if mso]>`): eso NO es documentación y esta línea se lo llevaría por
+   * delante. Hoy no hay ninguno.
+   */
+  const html = plantilla.replace(/<!--[\s\S]*?-->/g, '').replace(/\n{3,}/g, '\n\n');
+
   // Versión en texto plano: algunos clientes la prefieren y su ausencia cuenta
   // como señal de spam en varios filtros.
   // Mismo orden que el HTML, para que quien lea la versión de texto lea el
   // mismo correo y no otro.
   const lineas = [
-    'SMART FINANCE — ' + rangoSemana(contenido.fecha, idioma),
+    'SMART FINANCE — ' + t.edicion.toUpperCase() + ' ' + numero + ' · ' + rango,
     '',
     gancho,
     '',
-    t.impulsoTitulo.toUpperCase(), resumen, '',
-    t.noticiaTitulo.toUpperCase()
+    t.verEnWeb + ': ' + urlWeb,
+    '',
+    t.impulsoTitulo.toUpperCase(), resumen, ''
   ];
+
+  if (linea) {
+    lineas.push(t.notaTitulo.toUpperCase(), '"' + linea + '"', '— ' + FIRMA, '');
+  }
+
+  lineas.push(t.noticiaTitulo.toUpperCase());
 
   if (noticia) {
     const lado = es ? noticia.es : noticia.en;
@@ -977,21 +1329,38 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   // Misma información que en el HTML, incluido el aviso de cierre: quien lee la
   // versión de texto tiene que leer el mismo correo, no uno con menos matices.
   const etiquetaCierre = es ? 'último cierre' : 'last close';
-  const conPie = (linea, est) => {
+  const conPie = (l, est) => {
     const q = cuandoCerro(est);
-    return q ? linea + ' — ' + etiquetaCierre + ': ' + q : linea;
+    return q ? l + ' — ' + etiquetaCierre + ': ' + q : l;
   };
 
   lineas.push(
     '', tituloMercado.toUpperCase(),
     contenido.mercado.usdmxn
-      ? conPie(`USD/MXN ${fmt(contenido.mercado.usdmxn.valor, 4)} (${contenido.mercado.usdmxn.cambioPct >= 0 ? '+' : ''}${contenido.mercado.usdmxn.cambioPct.toFixed(2)}%)`, cierreFx)
+      ? conPie(`USD/MXN ${fmt(contenido.mercado.usdmxn.valor, 4)} (${pct(contenido.mercado.usdmxn.cambioPct)})`, cierreFx)
       : 'USD/MXN ' + t.sinDatos,
     contenido.mercado.vix
-      ? conPie(`VIX ${fmt(contenido.mercado.vix.valor, 2)} (${contenido.mercado.vix.cambioPct >= 0 ? '+' : ''}${contenido.mercado.vix.cambioPct.toFixed(2)}%)`, cierreVix)
+      ? conPie(`VIX ${fmt(contenido.mercado.vix.valor, 2)} (${pct(contenido.mercado.vix.cambioPct)})`, cierreVix)
       : 'VIX ' + t.sinDatos,
-    '', t.tipTitulo.toUpperCase(), tip.titulo, teaser, urlTip
+    chipDe(cierreFx)
   );
+
+  // La tabla de movimientos, con las mismas flechas: en texto plano un "+" y un
+  // "-" bastarían, pero la flecha es lo que hace que la lista se lea de un
+  // vistazo también aquí.
+  if (movs) {
+    lineas.push('', t.movimientosTitulo.toUpperCase());
+    for (const m of movs.suben) lineas.push('  ▲ ' + m[es ? 'es' : 'en'] + ' (' + m.sym + ') ' + pct(m.cambioPct));
+    for (const m of movs.bajan) lineas.push('  ▼ ' + m[es ? 'es' : 'en'] + ' (' + m.sym + ') ' + pct(m.cambioPct));
+    lineas.push(chipMovs);
+  }
+
+  lineas.push('', t.tipTitulo.toUpperCase());
+  // Mismo criterio que en el HTML: si el titular del número ya ES el título de
+  // la lección, aquí no se repite.
+  if (!tituloRepetido) lineas.push(tip.titulo + (minutos ? ' · ' + minutos : ''));
+  else if (minutos) lineas.push(minutos);
+  lineas.push(teaser, urlTip);
 
   // El research solo si lo hay, igual que en el HTML: las dos versiones tienen
   // que ser el mismo correo.
@@ -1009,6 +1378,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     '', t.seguir.toUpperCase(),
     'LinkedIn: ' + URL_LINKEDIN,
     'TikTok: ' + URL_TIKTOK,
+    t.verNumeros + ': ' + sitio + baseBoletin,
     // La misma firma que cierra el HTML. La gráfica en cambio no deja rastro
     // aquí, y es lo correcto: sus datos ya están escritos arriba, así que
     // anunciar una imagen que esta versión no puede enseñar solo sobraría.
@@ -1017,17 +1387,59 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     '', t.aviso
   );
 
-  // El asunto ES el gancho, o sea el titular de la noticia aprobada. El
-  // remitente ya se llama Smart Finance, así que repetirlo aquí solo gastaría
-  // los caracteres que la bandeja muestra antes de cortar.
+  // El asunto ES el gancho: el titular de la noticia aprobada o, si esta semana
+  // no hubo, el título de la lección. El remitente ya se llama Smart Finance,
+  // así que repetirlo aquí solo gastaría los caracteres que la bandeja muestra
+  // antes de cortar.
   const asunto = gancho;
 
   return { html, texto: lineas.join('\n'), asunto };
 }
 
+/*
+ * EL NÚMERO PARA EL ARCHIVO: lo mismo que se mandó, en datos.
+ *
+ * Se guarda el CONTENIDO y no el HTML del correo. Una página web no es una
+ * tabla de 600 px con estilos en línea, así que con los datos la versión web se
+ * pinta como página —con la tipografía del sitio, su modo oscuro y sus
+ * enlaces— y el archivo pesa 4 KB en vez de 40.
+ *
+ * Los textos van EN LOS DOS IDIOMAS, como en el correo: de aquí salen las dos
+ * páginas, /newsletter/<fecha> y su gemela en español.
+ */
+function paraArchivo(contenido) {
+  const fecha = contenido.fecha instanceof Date ? contenido.fecha : new Date();
+  const t = { en: TEXTOS.en, es: TEXTOS.es };
+  const conIdioma = (fn) => ({ en: fn('en'), es: fn('es') });
+
+  return {
+    version: 1,
+    fecha: diaLocal(fecha),
+    enviadoEn: fecha.toISOString(),
+    numero: contenido.numero || numeroDeEdicion(fecha),
+    rango: conIdioma((l) => rangoSemana(fecha, l)),
+    gancho: conIdioma((l) => recortarGancho(
+      (contenido.noticia && contenido.noticia[l].titulo) ||
+      (contenido.tip && contenido.tip[l] && contenido.tip[l].titulo) ||
+      GANCHO_SEMANAL[l]
+    )),
+    resumen: conIdioma((l) => resumenSemana(contenido.mercado, t[l], l === 'es')),
+    nota: contenido.nota || null,
+    noticia: contenido.noticia || null,
+    mercado: contenido.mercado || null,
+    movimientos: contenido.movimientos || null,
+    // La serie del dólar, para que la página pueda dibujar la misma curva en
+    // SVG. El PNG del correo caduca a los 30 días en Redis; esto no caduca.
+    serieFx: contenido.serieFx || null,
+    tip: contenido.tip || null,
+    research: contenido.research || null
+  };
+}
+
 module.exports = {
   construirContenido, renderizarCorreo, urlBase, urlSitio, escapar, urlSegura,
-  teaserLeccion, recortarGancho, rangoSemana, resumenSemana,
+  teaserLeccion, recortarGancho, limpiarAsunto, rangoSemana, resumenSemana, numeroDeEdicion,
+  paraArchivo, diaLocal,
   // IMPULSO_RESPALDO y GANCHO_RESPALDO los importa api/news.js para el
   // carrusel del sitio; el boletín semanal ya no los usa salvo como último
   // recurso si la semana entera se queda sin un dato de mercado.

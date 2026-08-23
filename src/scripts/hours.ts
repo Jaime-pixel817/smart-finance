@@ -8,8 +8,9 @@
 //     criterio que public/assets/market-hours.js, que también usa el boletín:
 //     si el último punto tiene más de 40 minutos, el mercado está cerrado, sea
 //     fin de semana, feriado o caída de la fuente. Solo vale para series
-//     intradía; en cierres diarios el último punto siempre es viejo.
-import type { Loc } from './format';
+//     intradía; en cierres diarios el último punto siempre es viejo. Lo usa el
+//     panel de gráfica para elegir entre "Hoy" y "Última sesión" en su línea
+//     de sesión (src/scripts/chart-panel.ts).
 import { sesionBMV } from '../lib/market/bmv.mjs';
 
 export function sessionOpen(tz: string, h0: number, m0: number, h1: number, m1: number, now = new Date()): boolean {
@@ -45,23 +46,4 @@ export function marketState(lastTs: number | null | undefined, now = Date.now())
   const gap = now - last.getTime();
   const key = (d: Date) => d.toLocaleDateString('en-CA');
   return { closed: gap > GAP_MS, last, today: key(last) === key(new Date(now)) };
-}
-
-/** "hoy, 03:00 p.m." | "viernes 7 de agosto" / "Friday, August 7" */
-export function whenText(st: MarketState, loc: Loc, T: { today: string }): string {
-  if (!st.last) return '';
-  const tag = loc === 'es' ? 'es-MX' : 'en-US';
-  if (st.today) {
-    const hora = st.last.toLocaleTimeString(tag, { hour: '2-digit', minute: '2-digit' });
-    return T.today + ', ' + hora;
-  }
-  const dia = st.last.toLocaleDateString(tag, { weekday: 'long' });
-  const resto = st.last.toLocaleDateString(tag, { day: 'numeric', month: 'long' });
-  return loc === 'es' ? dia + ' ' + resto : dia + ', ' + resto;
-}
-
-/** "Mercado cerrado · último cierre: viernes 7 de agosto" */
-export function closedPhrase(st: MarketState, loc: Loc, T: { closed: string; lastClose: string; today: string }): string {
-  const q = whenText(st, loc, T);
-  return q ? `${T.closed} · ${T.lastClose}: ${q}` : T.closed;
 }

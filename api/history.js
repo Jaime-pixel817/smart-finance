@@ -4,6 +4,9 @@
 // Sirve a las gráficas del sitio: divisas, VIX, acciones e índices y cripto
 // (la ficha de cada activo en /market/[symbol] y el panel de /market).
 
+// `intradayPoints` es el TOPE de barras de la vista 1D, no el recorte: el
+// recorte lo hace _lib/sesiones.js agrupando por dia de la bolsa. El tope solo
+// entra cuando la sesion acaba de abrir y hay que dibujar tambien la anterior.
 const SYMBOLS = {
   USDMXN: { yahoo: 'MXN=X', intradayPoints: 288 },
   EURMXN: { yahoo: 'EURMXN=X', intradayPoints: 288 },
@@ -11,35 +14,88 @@ const SYMBOLS = {
   EURUSD: { yahoo: 'EURUSD=X', intradayPoints: 288 },
   GBPUSD: { yahoo: 'GBPUSD=X', intradayPoints: 288 },
   USDJPY: { yahoo: 'JPY=X', intradayPoints: 288 },
-  // El VIX solo cotiza en horario de Estados Unidos: ~156 barras de 5 minutos
-  // por sesion, no 288 como el FX, que opera casi 24 h. Si le pidieramos 288 la
-  // gráfica de "1D" mostraria casi dos dias.
-  VIX: { yahoo: '^VIX', intradayPoints: 156 },
+  // El VIX solo cotiza en horario de Estados Unidos, pero con sesion larga: su
+  // dia de bolsa (America/Chicago) trae ~160 barras de 5 minutos, no 288 como
+  // el FX, que opera casi 24 h.
+  VIX: { yahoo: '^VIX', intradayPoints: 176 },
 
   // Acciones e indices. Los tres primeros son los ETF que siguen a cada indice:
   // es lo que se puede cotizar de verdad, y el dato del indice en si es de pago
   // (mismo criterio que en api/markets.js). Yahoo los toma con el ticker tal
   // cual, sin sufijo.
   //
-  // 78 barras: la sesion regular de EE. UU. va de 9:30 a 16:00 ET, o sea 6.5 h,
-  // que en barras de 5 minutos son 78. Con el 156 del VIX saldrian dos sesiones
-  // en la vista de "1D".
-  SPY:  { yahoo: 'SPY',  intradayPoints: 78 },
-  QQQ:  { yahoo: 'QQQ',  intradayPoints: 78 },
-  DIA:  { yahoo: 'DIA',  intradayPoints: 78 },
-  AAPL: { yahoo: 'AAPL', intradayPoints: 78 },
-  MSFT: { yahoo: 'MSFT', intradayPoints: 78 },
-  NVDA: { yahoo: 'NVDA', intradayPoints: 78 },
-  AMZN: { yahoo: 'AMZN', intradayPoints: 78 },
+  // 79 barras: la sesion regular de EE. UU. va de 9:30 a 16:00 ET, o sea 6.5 h,
+  // que en barras de 5 minutos son 78 mas la de cierre.
+  SPY:  { yahoo: 'SPY',  intradayPoints: 79 },
+  QQQ:  { yahoo: 'QQQ',  intradayPoints: 79 },
+  DIA:  { yahoo: 'DIA',  intradayPoints: 79 },
+  AAPL: { yahoo: 'AAPL', intradayPoints: 79 },
+  MSFT: { yahoo: 'MSFT', intradayPoints: 79 },
+  NVDA: { yahoo: 'NVDA', intradayPoints: 79 },
+  AMZN: { yahoo: 'AMZN', intradayPoints: 79 },
   // Empresas cubiertas por /research: solo historial para la marca de
   // "precio de mercado" del reporte. NO van en /api/markets (cuota de
   // Twelve Data contada) ni en el registro de simbolos del sitio.
-  LULU: { yahoo: 'LULU', intradayPoints: 78 },
+  LULU: { yahoo: 'LULU', intradayPoints: 79 },
+
+  // ---- Bolsa Mexicana de Valores ----------------------------------------
+  // Las emisoras del Reto Actinver y del portafolio personal (/actinver y
+  // /portfolio, desde src/data/*.json). NO están en /api/markets ni en el
+  // registro de símbolos del sitio: no tienen ficha propia, solo hace falta su
+  // último precio para valuar una posición. Esta es la vía que manda CLAUDE.md
+  // para datos nuevos: Yahoo, gratis y con la caché compartida de 60 s.
+  //
+  // POR QUÉ UNA LISTA Y NO "lo que pida el navegador": sin lista, /api/history
+  // sería un proxy abierto a Yahoo con nuestros contadores de cuota. Añadir una
+  // emisora es una línea aquí, y el JSON de la cartera la nombra con la clave de
+  // la IZQUIERDA (historyPair: "WALMEX"). La clave no lleva sufijo ni signos
+  // raros porque viaja en la query: PE&OLES rompería la URL y por eso es
+  // PENOLES, y LIVEPOLC-1 es LIVEPOLC1.
+  //
+  // 78 barras de 5 minutos: la BMV homologa su sesión con Nueva York (ver
+  // src/lib/market/bmv.mjs), así que son las mismas 6.5 h.
+  MXX:        { yahoo: '^MXX', intradayPoints: 78 },              // S&P/BMV IPC
+  NAFTRAC:    { yahoo: 'NAFTRACISHRS.MX', intradayPoints: 78 },   // ETF del IPC
+  WALMEX:     { yahoo: 'WALMEX.MX', intradayPoints: 78 },
+  AMXB:       { yahoo: 'AMXB.MX', intradayPoints: 78 },
+  GFNORTEO:   { yahoo: 'GFNORTEO.MX', intradayPoints: 78 },
+  FEMSAUBD:   { yahoo: 'FEMSAUBD.MX', intradayPoints: 78 },
+  GMEXICOB:   { yahoo: 'GMEXICOB.MX', intradayPoints: 78 },
+  CEMEXCPO:   { yahoo: 'CEMEXCPO.MX', intradayPoints: 78 },
+  BIMBOA:     { yahoo: 'BIMBOA.MX', intradayPoints: 78 },
+  TLEVISACPO: { yahoo: 'TLEVISACPO.MX', intradayPoints: 78 },
+  KOFUBL:     { yahoo: 'KOFUBL.MX', intradayPoints: 78 },
+  ORBIA:      { yahoo: 'ORBIA.MX', intradayPoints: 78 },
+  GAPB:       { yahoo: 'GAPB.MX', intradayPoints: 78 },
+  ASURB:      { yahoo: 'ASURB.MX', intradayPoints: 78 },
+  OMAB:       { yahoo: 'OMAB.MX', intradayPoints: 78 },
+  ALSEA:      { yahoo: 'ALSEA.MX', intradayPoints: 78 },
+  CHDRAUIB:   { yahoo: 'CHDRAUIB.MX', intradayPoints: 78 },
+  VESTA:      { yahoo: 'VESTA.MX', intradayPoints: 78 },
+  GCARSOA1:   { yahoo: 'GCARSOA1.MX', intradayPoints: 78 },
+  LIVEPOLC1:  { yahoo: 'LIVEPOLC-1.MX', intradayPoints: 78 },
+  PENOLES:    { yahoo: 'PE&OLES.MX', intradayPoints: 78 },
+  BBAJIOO:    { yahoo: 'BBAJIOO.MX', intradayPoints: 78 },
+  QUALITAS:   { yahoo: 'Q.MX', intradayPoints: 78 },
+  GRUMAB:     { yahoo: 'GRUMAB.MX', intradayPoints: 78 },
+  AC:         { yahoo: 'AC.MX', intradayPoints: 78 },
+  GENTERA:    { yahoo: 'GENTERA.MX', intradayPoints: 78 },
+  PINFRA:     { yahoo: 'PINFRA.MX', intradayPoints: 78 },
+  MEGACPO:    { yahoo: 'MEGACPO.MX', intradayPoints: 78 },
+  GFINBURO:   { yahoo: 'GFINBURO.MX', intradayPoints: 78 },
+  CUERVO:     { yahoo: 'CUERVO.MX', intradayPoints: 78 },
+  LABB:       { yahoo: 'LABB.MX', intradayPoints: 78 },
+  RA:         { yahoo: 'RA.MX', intradayPoints: 78 },          // Regional
+  VOLARA:     { yahoo: 'VOLARA.MX', intradayPoints: 78 },
+  GCC:        { yahoo: 'GCC.MX', intradayPoints: 78 },
+  KIMBERA:    { yahoo: 'KIMBERA.MX', intradayPoints: 78 },
+  BOLSAA:     { yahoo: 'BOLSAA.MX', intradayPoints: 78 },
+  AGUA:       { yahoo: 'AGUA.MX', intradayPoints: 78 },        // Rotoplas
 
   // Cripto (fichas /market/[symbol]). El precio y el cambio de 24 h siguen
   // saliendo de CoinGecko vía /api/markets; aquí solo va el HISTORIAL 1D–5A,
-  // que CoinGecko no da gratis con esta granularidad. Opera 24/7: 288 barras
-  // de 5 minutos son un día entero, como el FX.
+  // que CoinGecko no da gratis con esta granularidad. Opera 24/7 y su "dia" es
+  // el dia UTC: 288 barras de 5 minutos son uno entero, como el FX.
   BTC: { yahoo: 'BTC-USD', intradayPoints: 288 },
   ETH: { yahoo: 'ETH-USD', intradayPoints: 288 },
   XRP: { yahoo: 'XRP-USD', intradayPoints: 288 },
@@ -50,17 +106,16 @@ const RANGE_MAP = {
   // El mercado cierra el viernes por la tarde y no reabre hasta el domingo por
   // la noche. Si filtraramos por "ultimas 24h desde ahora", el fin de semana no
   // quedaria ningun punto y la grafica saldria vacia. En vez de eso pedimos 5
-  // dias y nos quedamos con los ultimos N puntos (una sesion), asi el sabado se
-  // ve la sesion del viernes.
+  // dias y nos quedamos con la ULTIMA SESION (ver ultimaSesion), asi el sabado
+  // y el domingo se ve entera la sesion del viernes.
   '1D': { range: '5d', interval: '5m', intraday: true },
   // Una semana en barras de una hora: ~120 puntos en divisas (operan casi 24 h)
   // y ~35 en el VIX. Lo pide el boletín SEMANAL, que resume lo que hizo el
   // mercado de lunes a viernes; con barras diarias serían cinco puntos y la
   // curva del correo saldría como una escalera.
   //
-  // No lleva `intraday`: recortar a `intradayPoints` (78 o 288, pensados para
-  // UNA sesión) se comería justo los días de atrás que esta vista existe para
-  // enseñar.
+  // No lleva `intraday`: quedarse con la última sesión se comería justo los
+  // días de atrás que esta vista existe para enseñar.
   '1W': { range: '5d', interval: '1h' },
   '1M': { range: '1mo', interval: '1d' },
   '3M': { range: '3mo', interval: '1d' },
@@ -77,11 +132,15 @@ const CACHE_TTL_MS = 60 * 1000;
 const CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=120';
 
 // La caché es COMPARTIDA (api/_lib/cache.js, Redis) y ya no un Map por
-// instancia. Aquí importa más que en el resto: hay 21 símbolos × 5 rangos, o
-// sea 105 combinaciones, y cada instancia nueva de Vercel empezaba con las 105
-// vacías. La clave lleva el par y el rango porque cada combinación es un dato
-// distinto.
+// instancia. Aquí importa más que en el resto: hay decenas de símbolos por seis
+// rangos —solo la BMV añadió 36 emisoras para las carteras— y cada instancia
+// nueva de Vercel empezaba con todas las combinaciones vacías. La clave lleva
+// el par y el rango porque cada combinación es un dato distinto. Lo que NO
+// crece es el gasto: un símbolo solo se le pide a Yahoo cuando alguien abre una
+// página que lo enseña, y esa respuesta vale 60 s para todo el mundo.
 const cache = require('./_lib/cache.js');
+// Recorte de la vista intradía a UNA sesión (con pruebas en _lib/sesiones.test.mjs).
+const { ultimaSesion } = require('./_lib/sesiones.js');
 
 async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
   const url =
@@ -106,17 +165,30 @@ async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
     .map((t, i) => [t, closes[i]])
     .filter(([, c]) => typeof c === 'number' && !isNaN(c));
 
-  if (rangeCfg.intraday && points.length > symbolCfg.intradayPoints) {
-    points = points.slice(-symbolCfg.intradayPoints);
-  }
-
   if (!points.length) throw new Error('no data points');
+
+  // El huso de la BOLSA, no el del servidor: con el lo agrupamos por sesion y
+  // con el el navegador dice de que dia es lo que esta viendo sin inventar.
+  const gmtOffset = result.meta && typeof result.meta.gmtoffset === 'number' ? result.meta.gmtoffset : 0;
+  let prevClose = null;
+
+  if (rangeCfg.intraday) {
+    const corte = ultimaSesion(points, gmtOffset, symbolCfg.intradayPoints);
+    points = corte.points;
+    prevClose = corte.prevClose;
+  }
 
   return {
     pair,
     symbol: symbolCfg.yahoo,
     range,
     currency: result.meta && result.meta.currency,
+    // Campos AÑADIDOS (el consumidor viejo sigue leyendo `points` igual):
+    // `tzOffset` es el desfase del huso de la bolsa en segundos y `prevClose`
+    // el cierre del dia habil anterior en las vistas intradia.
+    tzOffset: gmtOffset,
+    tz: (result.meta && result.meta.exchangeTimezoneName) || null,
+    prevClose,
     points
   };
 }

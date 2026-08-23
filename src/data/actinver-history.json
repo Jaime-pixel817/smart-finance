@@ -1,0 +1,6 @@
+{
+  "_lee_esto": "Foto diaria del valor de la cartera del Reto Actinver. Lo escribe .github/workflows/actinver-snapshot.yml (scripts/snapshot-cartera.mjs) los días hábiles por la noche y lo commitea solo. NO se edita a mano: si te equivocas aquí, la gráfica de /actinver miente. Cada punto guarda también los precios con los que se calculó, para poder revisarlo después.",
+  "version": 1,
+  "moneda": "MXN",
+  "puntos": []
+}

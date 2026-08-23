@@ -23,13 +23,15 @@
 // En el 4:3 del teléfono la banda es el 100 %: se ven las ocho personas de
 // pies a cabeza.
 // ─────────────────────────────────────────────────────────────────────────────
+import { foto } from '../../lib/photos';
+
 interface Props { alt: string; pendiente: string; posicion?: string }
 const { alt, pendiente, posicion = '50% 24%' } = Astro.props;
 
 interface Foto { webp: string; jpg: string; mini: string; w: number; h: number }
 // ↓ ESTA es la línea que hay que cambiar si cambia la foto (o null para quitarla):
-const FOTO = { webp: '/assets/community/grupo.webp', jpg: '/assets/community/grupo.jpg',
-               mini: '/assets/community/grupo-800.webp', w: 1600, h: 1200 } as Foto | null;
+const FOTO = { webp: foto('grupo.webp'), jpg: foto('grupo.jpg'),
+               mini: foto('grupo-800.webp'), w: 1600, h: 1200 } as Foto | null;
 ---
 <figure class="gp" style={`--gp-pos: ${posicion}`}>
   {FOTO ? (

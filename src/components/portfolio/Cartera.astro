@@ -1,0 +1,395 @@
+---
+// La página de una cartera: /actinver (concurso, dinero ficticio) y
+// /portfolio (posiciones personales, dinero real). Las dos comparten esta
+// plantilla y se diferencian por `id`, por los textos de src/i18n/cartera.ts y
+// por el aviso de arriba, que es lo más importante de cada una.
+//
+// DE DÓNDE SALE CADA NÚMERO
+// - Las posiciones y sus tesis: src/data/<id>.json, validado con Zod en el
+//   build (src/lib/portfolio/data.ts).
+// - Los precios del HTML servido: la última foto de src/data/<id>-history.json,
+//   que escribe .github/workflows/actinver-snapshot.yml. Por eso la página
+//   tiene cifras aunque el visitante llegue sin JavaScript o con /api caído.
+// - Los precios de la página ya cargada: /api/history, que los pide el script
+//   src/scripts/cartera.ts y los repinta con el chip de fuente y retraso.
+// - Las cuentas (valor, variación, mejor, peor, operaciones): SIEMPRE
+//   src/lib/portfolio/cartera.mjs, el mismo módulo en los tres sitios.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { useC } from '../../i18n/cartera';
+import SourceChip from '../SourceChip.astro';
+import { CARTERAS, runtimeDe, type CarteraId } from '../../lib/portfolio/data';
+import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
+import { dinero, dineroFirmado, pctFirmado, pctSimple, titulos, claseDir, dia, frase } from '../../lib/portfolio/formato.mjs';
+
+const { locale, id } = Astro.props as { locale: Locale; id: CarteraId };
+const t = useT(locale);
+const c = useC(locale);
+const L = (r: string) => route(r, locale);
+
+const { cartera, historial } = CARTERAS[id];
+const copia = id === 'actinver' ? c.actinver : c.portfolio;
+const otroId: CarteraId = id === 'actinver' ? 'portfolio' : 'actinver';
+const moneda = cartera.moneda;
+const hay = cartera.posiciones.length > 0;
+
+// Última foto del repositorio: sus precios son los que se pintan en el HTML.
+const foto = ultimoPunto(historial);
+const preciosFoto: Record<string, number> = foto ? foto.precios : {};
+const r = resumen(cartera, preciosFoto);
+const g = grafica(historial.puntos, { w: 600, h: 180, pad: 6, base: cartera.capitalInicial });
+
+// Retraso real del dato: Yahoo publica la BMV con más retraso que Nueva York.
+const enBmv = cartera.posiciones.some((p) => p.mercado === 'BMV' || p.mercado === 'SIC');
+const retraso = enBmv ? 20 : 15;
+
+const D = (n: number | null | undefined) => dinero(n, locale, moneda);
+const DF = (n: number | null | undefined) => dineroFirmado(n, locale, moneda);
+const P = (n: number | null | undefined) => pctFirmado(n, locale);
+
+// Lo que el navegador necesita para repintar con precios frescos.
+const runtime = {
+  ...runtimeDe(cartera),
+  retraso,
+  fuente: c.lbl.source,
+  fecha: foto ? foto.fecha : null,
+  preciosFoto,
+  textos: {
+    live: c.lbl.live, atClose: c.lbl.atClose, missing: c.lbl.missing,
+    loading: t('src.loading'), unavailable: t('src.unavailable'),
+    onlyOne: c.lbl.onlyOne, best: c.lbl.best, worst: c.lbl.worst
+  }
+};
+
+const REPO = 'https://github.com/Jaime-pixel817/smart-finance/blob/main/src/data/' + (id === 'actinver' ? 'actinver.json' : 'portfolio.json');
+const ejemplo = JSON.stringify(cartera._ejemplo, null, 2);
+
+/** Texto de Jaime: si no hay inglés, se enseña el español y se dice. */
+function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 'es' } {
+  if (locale === 'es') return { texto: txt.es };
+  if (txt.en) return { texto: txt.en };
+  return { texto: txt.es, lang: 'es' };
+}
+---
+<article class="cart">
+  <div class="container cart-wrap" data-cartera-raiz>
+    <header class="cart-head">
+      <p class="eyebrow">{copia.eyebrow}</p>
+      <h1 class="t-display">{copia.h1}</h1>
+      <p class="cart-lede">{copia.lede}</p>
+    </header>
+
+    <aside class="aviso" role="note" aria-labelledby="aviso-h">
+      <p class="aviso-h" id="aviso-h">{copia.warnH}</p>
+      <p class="t-small">{copia.warn}</p>
+    </aside>
+
+    {id === 'actinver' && cartera.practica && cartera.inicio && cartera.fin && (
+      <section class="cart-sec" aria-labelledby="fechas-h">
+        <h2 id="fechas-h" class="t-h2">{c.actinver.datesH}</h2>
+        <dl class="fechas">
+          <div>
+            <dt>{c.actinver.dates.practice}</dt>
+            <dd class="num">{dia(cartera.practica.inicio, locale)} → {dia(cartera.practica.fin, locale)}</dd>
+          </div>
+          <div>
+            <dt>{c.actinver.dates.real}</dt>
+            <dd class="num">{dia(cartera.inicio, locale)} → {dia(cartera.fin, locale)}</dd>
+          </div>
+          <div>
+            <dt>{c.lbl.capital}</dt>
+            <dd class="num">{cartera.capitalInicial === null ? c.lbl.capitalPending : D(cartera.capitalInicial)}</dd>
+          </div>
+        </dl>
+      </section>
+    )}
+
+    {hay ? (
+      <>
+        <section class="cart-sec" aria-labelledby="res-h">
+          <div class="sec-head">
+            <h2 id="res-h" class="t-h2">{c.lbl.summary}</h2>
+            <SourceChip locale={locale} source={c.lbl.source} delay={retraso} id="cart-chip" />
+          </div>
+          <p class="t-caption faint cadencia" data-cadencia>
+            {foto ? frase(c.lbl.atClose, { date: dia(foto.fecha, locale) }) : frase(c.lbl.live, { source: c.lbl.source, delay: retraso })}
+          </p>
+
+          <ul class="tiles">
+            <li class="card tile">
+              <p class="eyebrow">{c.lbl.value}</p>
+              <p class="tile-big num" data-tile="total">{D(r.valorTotal)}</p>
+              <p class="t-caption faint">{cartera.capitalInicial === null ? c.lbl.valueNoteNoCash : c.lbl.valueNote}</p>
+            </li>
+            <li class="card tile">
+              <p class="eyebrow">{c.lbl.change}</p>
+              <p class:list={['tile-big', 'num', claseDir(r.variacion ? r.variacion.pct : null)]} data-tile="pct">
+                {r.variacion ? P(r.variacion.pct) : '—'}
+              </p>
+              <p class="t-caption faint">
+                <span class="num" data-tile="pct-abs">{r.variacion ? DF(r.variacion.absoluta) : '—'}</span>
+                <span aria-hidden="true"> · </span>
+                {cartera.capitalInicial === null ? c.lbl.changeNoteCost : c.lbl.changeNote}
+              </p>
+            </li>
+            <li class="card tile">
+              <p class="eyebrow">{c.lbl.best}</p>
+              <p class="tile-big num" data-tile="best">{r.mejor ? r.mejor.ticker : '—'}</p>
+              <p class:list={['t-caption', 'num', claseDir(r.mejor ? r.mejor.pct : null)]} data-tile="best-pct">{r.mejor ? P(r.mejor.pct) : ''}</p>
+            </li>
+            {!r.unaSola && (
+              <li class="card tile">
+                <p class="eyebrow">{c.lbl.worst}</p>
+                <p class="tile-big num" data-tile="worst">{r.peor ? r.peor.ticker : '—'}</p>
+                <p class:list={['t-caption', 'num', claseDir(r.peor ? r.peor.pct : null)]} data-tile="worst-pct">{r.peor ? P(r.peor.pct) : ''}</p>
+              </li>
+            )}
+            <li class="card tile">
+              <p class="eyebrow">{c.lbl.trades}</p>
+              <p class="tile-big num">{r.operaciones}</p>
+              <p class="t-caption faint">{c.lbl.tradesNote}</p>
+            </li>
+            {r.efectivo !== null && (
+              <li class="card tile">
+                <p class="eyebrow">{c.lbl.cash}</p>
+                <p class="tile-big num" data-tile="cash">{D(r.efectivo)}</p>
+                {r.realizado && <p class:list={['t-caption', 'num', claseDir(r.realizado.absoluta)]}>{c.lbl.realized}: {DF(r.realizado.absoluta)}</p>}
+              </li>
+            )}
+          </ul>
+
+          {r.unaSola && <p class="t-caption faint">{c.lbl.onlyOne}</p>}
+          <p class:list={['t-small', 'falta', !r.faltantes.length && 'oculto']} data-faltan>
+            {frase(c.lbl.missing, { tickers: r.faltantes.join(', ') })}
+          </p>
+          <script type="application/json" data-cartera-datos set:html={JSON.stringify(runtime)} is:inline></script>
+        </section>
+
+        {g && (
+          <section class="cart-sec" aria-labelledby="graf-h">
+            <h2 id="graf-h" class="t-h2">{c.lbl.chart}</h2>
+            <figure class="graf">
+              <svg
+                class="graf-svg" viewBox="0 0 600 180" preserveAspectRatio="none" role="img"
+                aria-label={`${c.lbl.chartAria}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}
+              >
+                {g.baseY !== null && <line class="graf-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
+                <path class="graf-area" d={g.area} />
+                <path class={'graf-line ' + claseDir(g.cambioPct)} d={g.line} />
+              </svg>
+              <figcaption class="graf-pie t-caption">
+                <span class="num">{c.lbl.chartStart} {dia(g.puntos[0].fecha, locale)}: {D(g.primero)}</span>
+                <span class="num">{c.lbl.chartLatest} {dia(g.puntos[g.puntos.length - 1].fecha, locale)}: {D(g.ultimo)} <span class={claseDir(g.cambioPct)}>{P(g.cambioPct)}</span></span>
+              </figcaption>
+            </figure>
+            <p class="t-caption faint">{c.lbl.chartNote}</p>
+          </section>
+        )}
+
+        <section class="cart-sec" aria-labelledby="pos-h">
+          <h2 id="pos-h" class="t-h2">{c.lbl.positions}</h2>
+          <ol class="pos-list">
+            {cartera.posiciones.map((p, i) => {
+              const fila = r.filas[i];
+              const tesis = suyo(p.tesis);
+              const riesgo = suyo(p.riesgo);
+              // Peso de la posición sobre el valor total de la cartera. En
+              // /portfolio es lo ÚNICO que se publica del tamaño: el peso sí,
+              // el tamaño de la cuenta no.
+              const peso = fila.valor !== null && r.valorTotal ? (fila.valor / r.valorTotal) * 100 : null;
+              return (
+                <li class="card pos" data-pos={p.ticker}>
+                  <div class="pos-top">
+                    <div>
+                      <p class="pos-tic num">{p.ticker}</p>
+                      <p class="t-small muted">{p.nombre}</p>
+                    </div>
+                    <span class:list={['chip', p.estado === 'cerrada' ? 'st-closed' : 'st-open']}>
+                      {p.estado === 'cerrada' ? c.lbl.closed : c.lbl.open}
+                    </span>
+                  </div>
+                  <dl class="pos-nums">
+                    <div>
+                      <dt>{c.lbl.entry}</dt>
+                      <dd class="num">{D(p.entrada.precio)}<span class="pos-fecha t-caption faint">{dia(p.entrada.fecha, locale)}</span></dd>
+                    </div>
+                    <div>
+                      <dt>{c.lbl.qty}</dt>
+                      <dd class="num">{titulos(fila.cantidad, locale)}</dd>
+                    </div>
+                    {p.salida && (
+                      <div>
+                        <dt>{c.lbl.exit}</dt>
+                        <dd class="num">{D(p.salida.precio)}<span class="pos-fecha t-caption faint">{dia(p.salida.fecha, locale)}</span></dd>
+                      </div>
+                    )}
+                    {p.estado === 'abierta' && (
+                      <div>
+                        <dt>{c.lbl.price}</dt>
+                        <dd class="num" data-precio>{fila.precio === null ? '—' : D(fila.precio)}</dd>
+                      </div>
+                    )}
+                    <div>
+                      <dt>{c.lbl.marketValue}</dt>
+                      <dd class="num" data-valor>{fila.valor === null ? '—' : D(fila.valor)}</dd>
+                    </div>
+                    {p.estado === 'abierta' && (
+                      <div>
+                        <dt>{c.lbl.weight}</dt>
+                        <dd class="num" data-peso>{peso === null ? '—' : pctSimple(peso, locale)}</dd>
+                      </div>
+                    )}
+                    <div>
+                      <dt>{c.lbl.pl}</dt>
+                      <dd class="num">
+                        <span class:list={[claseDir(fila.pct)]} data-pl>{fila.pct === null ? '—' : P(fila.pct)}</span>
+                        <span class="pos-fecha t-caption faint" data-pl-abs>{fila.ganancia === null ? '' : DF(fila.ganancia)}</span>
+                      </dd>
+                    </div>
+                  </dl>
+                  <div class="pos-txt">
+                    <p class="eyebrow">{c.lbl.thesis}</p>
+                    <p class="t-small" lang={tesis.lang}>{tesis.texto}</p>
+                    {tesis.lang === 'es' && <p class="t-caption faint">{c.lbl.inSpanish}</p>}
+                  </div>
+                  <div class="pos-txt">
+                    <p class="eyebrow">{c.lbl.risk}</p>
+                    <p class="t-small muted" lang={riesgo.lang}>{riesgo.texto}</p>
+                  </div>
+                  {p.symbolId && (
+                    <p class="t-caption"><a class="more-link" href={L('asset.' + p.symbolId)}>{c.lbl.assetPage} →</a></p>
+                  )}
+                  {!p.historyPair && p.estado === 'abierta' && <p class="t-caption falta">{c.lbl.noPrice}</p>}
+                </li>
+              );
+            })}
+          </ol>
+          <p class="t-caption faint">{frase(c.lbl.updated, { date: dia(cartera.actualizado, locale) })}</p>
+        </section>
+      </>
+    ) : (
+      <section class="cart-sec" aria-labelledby="vacio-h">
+        <div class="card vacio">
+          <h2 id="vacio-h" class="t-h2">{copia.emptyH}</h2>
+          <p class="t-small">{copia.emptyLede}</p>
+          <ul class="dot-list t-small">{copia.emptyList.map((x) => <li>{x}</li>)}</ul>
+          <details class="ejemplo">
+            <summary>{c.lbl.exampleH}</summary>
+            <p class="t-caption faint">{c.lbl.exampleNote}</p>
+            <pre class="code"><code>{ejemplo}</code></pre>
+            <p class="t-caption"><a class="more-link" href={REPO} target="_blank" rel="noopener">{c.lbl.repo} ↗</a></p>
+          </details>
+        </div>
+      </section>
+    )}
+
+    <section class="cart-sec" aria-labelledby="reglas-h">
+      <h2 id="reglas-h" class="t-h2">{copia.rulesH}</h2>
+      <ul class="dot-list">{copia.rules.map((x) => <li>{x}</li>)}</ul>
+    </section>
+
+    <section class="cart-sec" aria-labelledby="how-h">
+      <h2 id="how-h" class="t-h2">{c.lbl.howH}</h2>
+      <ol class="steps">
+        {c.lbl.how.map((x, i) => (
+          <li>
+            <span class="step-n num" aria-hidden="true">{i + 1}</span>
+            <p class="t-small muted">{x}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="t-small links-row">
+        <a class="more-link" href={REPO} target="_blank" rel="noopener">{c.lbl.repo} ↗</a>
+        <a class="more-link" href={L('methodology')}>{c.lbl.methodology} →</a>
+        <a class="more-link" href={L(otroId)}>{copia.otherLink} →</a>
+      </p>
+    </section>
+
+    <section class="cart-sec" aria-labelledby="disc-h">
+      <h2 id="disc-h" class="t-h3">{copia.discH}</h2>
+      <p class="t-small muted disc">{copia.disc}</p>
+      <p class="t-small"><a class="more-link" href={L('methodology')}>{c.lbl.methodology} →</a></p>
+    </section>
+  </div>
+</article>
+
+{hay && <script src="../../scripts/cartera.ts"></script>}
+
+<style>
+  .cart { padding-top: var(--sp-4); }
+  .cart-wrap { display: flex; flex-direction: column; gap: var(--section-gap); max-width: 960px; }
+  .cart-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .cart-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
+  .cart-sec { display: flex; flex-direction: column; gap: var(--sp-3); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .cart-sec > p { max-width: var(--measure); }
+
+  /* El aviso es lo primero que hay que creerse de estas dos páginas, así que
+     no es una nota al pie: va arriba, con borde de color y sin poder saltarse. */
+  .aviso { border: 1px solid var(--line); border-left: 3px solid var(--warn); background: var(--bg-1); border-radius: var(--r-card); padding: var(--card-pad); display: flex; flex-direction: column; gap: var(--sp-2); }
+  .aviso-h { font-weight: 600; color: var(--ink); }
+  .aviso p { max-width: var(--measure); color: var(--ink-2); }
+
+  .fechas { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-6); margin: 0; }
+  .fechas div { display: flex; flex-direction: column; gap: 2px; }
+  .fechas dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .fechas dd { margin: 0; color: var(--ink); font-size: var(--fs-small); }
+
+  .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+  .cadencia { max-width: var(--measure); }
+
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  @media (min-width: 768px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tile-big { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero; font-size: var(--fs-num-l); line-height: 1.2; overflow-wrap: anywhere; }
+
+  .falta { color: var(--warn); }
+  .oculto { display: none; }
+
+  .graf { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .graf-svg { width: 100%; height: 180px; display: block; }
+  .graf-area { fill: var(--brand-fill); opacity: .10; stroke: none; }
+  .graf-line { fill: none; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+  .graf-line.up { color: var(--up-text); }
+  .graf-line.down { color: var(--down-text); }
+  .graf-line.flat { color: var(--neutral); }
+  .graf-base { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+  .graf-pie { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); color: var(--ink-2); }
+
+  .pos-list { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .pos-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .pos { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .pos-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
+  .pos-tic { font-size: var(--fs-num-m); color: var(--ink); }
+  .chip.st-open { color: var(--brand-text); }
+  .chip.st-closed { color: var(--ink-2); }
+  .pos-nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2) var(--sp-3); margin: 0; }
+  .pos-nums div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .pos-nums dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .pos-nums dd { margin: 0; color: var(--ink); font-size: var(--fs-small); overflow-wrap: anywhere; }
+  /* El precio manda y la fecha (o el importe de la ganancia) va debajo, en
+     pequeño: en un teléfono de 390 px, "$45.10 · 10 ago 2026" en una sola
+     línea se partía por el separador y dejaba un "·" colgando. */
+  .pos-fecha { display: block; }
+  .pos-txt { display: flex; flex-direction: column; gap: 2px; }
+  .pos-txt p { max-width: var(--measure); }
+
+  .vacio { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .vacio p, .vacio ul { max-width: var(--measure); }
+  .ejemplo { border-top: 1px solid var(--line); padding-top: var(--sp-3); }
+  .ejemplo summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: var(--fs-small); color: var(--brand-text); }
+  .ejemplo > p { margin-top: var(--sp-2); }
+  .code { overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-2); border-radius: var(--r-btn); padding: var(--sp-3); margin-top: var(--sp-2); }
+  .code code { font-family: var(--font-mono); font-size: var(--fs-caption); line-height: 1.5; color: var(--ink-2); white-space: pre; }
+
+  .dot-list { list-style: disc; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+  .dot-list li::marker { color: var(--brand-text); }
+  .steps { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .steps li { display: grid; grid-template-columns: 28px 1fr; gap: var(--sp-3); align-items: start; padding-top: var(--sp-3); border-top: 1px solid var(--line); }
+  .steps p { max-width: var(--measure); }
+  .step-n { width: 26px; height: 26px; border-radius: 50%; background: var(--brand-wash); color: var(--brand-text); display: grid; place-items: center; font-size: var(--fs-caption); }
+  .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
+  .more-link { color: var(--brand-text); min-height: 36px; display: inline-flex; align-items: center; }
+  .more-link:hover { text-decoration: underline; }
+  .disc { max-width: var(--measure); }
+</style>

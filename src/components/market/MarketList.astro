@@ -9,7 +9,7 @@
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT, type UIKey } from '../../i18n/ui';
-import { SYMBOLS, KINDS, sectionOf, runtimeOf, assetRouteId, type Kind, type SymbolEntry } from '../../data/symbols';
+import { SYMBOLS, ASSETS, KINDS, sectionOf, runtimeOf, assetRouteId, type Kind, type SymbolEntry } from '../../data/symbols';
 import { RATES, ratesFresh } from '../../data/home';
 import { fmtNum, fmtDay } from '../../scripts/format';
 import AssetRow from './AssetRow.astro';
@@ -32,9 +32,11 @@ const rateRow = (s: SymbolEntry) => ({
 });
 const strings = {
   open: t('today.open'), closed: t('today.closed'), updated: t('mkt.status.updated'), every: t('mkt.status.every'),
-  loading: t('src.loading'), unavailable: t('src.unavailable'), chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'),
-  today: t('chart.today'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'), bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
-  openCard: t('mkt.panel.open')
+  loading: t('src.loading'), unavailable: t('src.unavailable'),
+  empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
+  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'), cached: t('src.cached'),
+  sessToday: t('chart.session.today'), sessLast: t('chart.session.last'), sess24h: t('chart.session.24h'), sessUpto: t('chart.session.upto'),
+  openCard: t('mkt.panel.open'), watchEmpty: t('watch.empty'), watchFull: t('watch.full')
 };
 const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.name[locale] }));
 ---
@@ -43,8 +45,55 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
   <header class="container mkt-head">
     <h1 class="t-h1">{t('mkt.title')}</h1>
     <p class="t-small muted mkt-sub">{t('mkt.sub')}</p>
-    <p id="mkt-status" class="t-mono t-caption mkt-status" aria-live="polite"><span class="skel">Thu 21 Aug · NYSE open · BMV open · updated 14:32</span></p>
+    <!-- El esqueleto reserva la línea COMPLETA y en el peor caso ("cerrado"
+         es más largo que "abierto"): si reserva de menos, al llegar el dato la
+         línea pasa de una a dos y empuja media página. -->
+    <p id="mkt-status" class="t-mono t-caption mkt-status" aria-live="polite"><span class="skel">{fmtDay(new Date(), locale)} · NYSE {t('today.closed')} · BMV {t('today.closed')} · {t('mkt.status.updated')} 00:00 · {t('mkt.status.every')}</span></p>
   </header>
+
+  <!-- ── Lo que sigues ────────────────────────────────────────────
+       Las filas se pintan en el servidor (las mismas que abajo, mismo
+       componente y mismo sparkline) y nacen escondidas: el script enciende las
+       que están en la watchlist y ordena. Así no hay markup de una fila
+       escrito dos veces, que es de donde salen las dos versiones que se
+       separan (ver la nota de /news en CLAUDE.md). `data-row` se repite a
+       propósito y los pintores tocan TODAS las filas que casan. -->
+  <section id="mkt-watch" class="container mkt-watch" aria-labelledby="watch-h" hidden>
+    <div class="section-head mkt-sec-head">
+      <h2 id="watch-h" class="t-h3">{t('watch.title')}</h2>
+      <a class="more" id="mkt-watch-compare" href={L('market.compare')}>{t('watch.compare')} →</a>
+    </div>
+    <div class="card mkt-list-card">
+      <ul class="mkt-rows" id="mkt-watch-rows">
+        {ASSETS.map((s) => <AssetRow locale={locale} s={s} href={hrefOf(s)} seguible oculta />)}
+      </ul>
+    </div>
+    <p class="t-caption faint mkt-watch-note" id="mkt-watch-note">{t('watch.note')}</p>
+  </section>
+  <!-- ANTES DE PINTAR, no después. "Lo que sigues" va arriba del todo: si lo
+       encendiera el módulo (que va diferido), la sección aparecería DESPUÉS
+       del primer pintado y empujaría media página hacia abajo — 0.23 de CLS
+       medidos, de 0.01 que tenía /market. Este trozo corre mientras se parsea
+       el HTML, así que la sección ya está en su sitio en el primer frame.
+       Solo enciende y ordena: seguir, sincronizar y pintar precios siguen
+       siendo cosa de src/scripts/watchlist.ts y src/scripts/market.ts, que
+       repiten esto mismo (es idempotente) cuando llegan. -->
+  <script is:inline>
+    (function () {
+      try {
+        var ids = JSON.parse(localStorage.getItem('sf-watchlist-v1') || '[]');
+        if (!Array.isArray(ids) || !ids.length) return;
+        var sec = document.getElementById('mkt-watch'), ul = document.getElementById('mkt-watch-rows');
+        if (!sec || !ul) return;
+        var vivas = 0;
+        for (var i = 0; i < ids.length && i < 12; i++) {
+          var fila = typeof ids[i] === 'string' && ul.querySelector('[data-row="' + ids[i].replace(/[^\w-]/g, '') + '"]');
+          if (fila) { fila.hidden = false; ul.appendChild(fila); vivas++; }
+        }
+        if (vivas) sec.hidden = false;
+      } catch (e) { /* modo privado o lista rota: la sección se queda escondida */ }
+    })();
+  </script>
 
   <div class="container">
     <div class="mkt-filters rail" role="group" aria-label={t('mkt.filter.aria')}>
@@ -75,7 +124,7 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
           <div class="card mkt-list-card">
             <ul class="mkt-rows">
               {sec.items.map((s) => (
-                <AssetRow locale={locale} s={s} href={hrefOf(s)} rate={s.kind === 'rate' ? rateRow(s) : undefined} />
+                <AssetRow locale={locale} s={s} href={hrefOf(s)} seguible rate={s.kind === 'rate' ? rateRow(s) : undefined} />
               ))}
             </ul>
             {sec.kind === 'rate'
@@ -97,6 +146,15 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
   .mkt-status { color: var(--ink-2); margin-top: var(--sp-1); min-height: 1rem; }
   :global(.st-open) { color: var(--up-text); }
   :global(.st-closed) { color: var(--warn); }
+
+  .mkt-watch { margin-top: var(--sp-6); }
+  .mkt-watch[hidden] { display: none; }
+  .mkt-watch .mkt-list-card { margin-top: var(--sp-2); }
+  /* `.section-head .more` (base.css) declara display: inline-flex, y una regla
+     de autor le gana al [hidden] del navegador: sin esto, "Compararlos" seguía
+     a la vista con un solo activo seguido, que no es comparar nada. */
+  .mkt-watch .more[hidden] { display: none; }
+  .mkt-watch-note { margin-top: var(--sp-2); max-width: var(--measure); }
 
   .mkt-filters { margin-top: var(--sp-4); gap: var(--sp-2); scroll-snap-type: none; }
   .mkt-filters .chip { min-height: 36px; padding: 0 14px; color: var(--ink-2); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }

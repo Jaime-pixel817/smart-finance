@@ -23,11 +23,15 @@ const lesson = (await getLessonByRoute(locale, s.lesson)) ?? (await getLessons(l
 const sessionText = t(('asset.session.' + s.session) as UIKey);
 const strings = {
   loading: t('src.loading'), unavailable: t('src.unavailable'), today: t('chart.today'),
-  chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
-  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
-  r1D: t('range.1D'), r1M: t('range.1M'), r3M: t('range.3M'), r1Y: t('range.1Y'), r5Y: t('range.5Y')
+  empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
+  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'), cached: t('src.cached'),
+  sessToday: t('chart.session.today'), sessLast: t('chart.session.last'), sess24h: t('chart.session.24h'), sessUpto: t('chart.session.upto'),
+  r1D: t('range.1D'), r1M: t('range.1M'), r3M: t('range.3M'), r1Y: t('range.1Y'), r5Y: t('range.5Y'),
+  follow: t('watch.follow'), unfollow: t('watch.unfollow')
 };
 const runtime = runtimeOf(s);
+// "Comparar" arranca con este activo ya puesto; el otro lo elige quien llega.
+const compararHref = route('market.compare', locale) + '?a=' + s.id;
 const relatedRT = related.map((r) => ({ ...runtimeOf(r), href: L(assetRouteId(r.id)) }));
 const stats: [string, string][] = [
   ['range', t('asset.stat.range')], ['chg1M', t('asset.stat.1M')], ['chg3M', t('asset.stat.3M')],
@@ -51,6 +55,22 @@ const stats: [string, string][] = [
         <SourceChip locale={locale} id="asset-chip" source={s.source} delay={s.delay} />
         {sessionText && <span class="t-caption faint">{sessionText}</span>}
       </div>
+      <!-- Seguir es local: sin cuenta y sin servidor (src/scripts/watchlist.ts).
+           El botón lo dice en su propio texto de ayuda, no en letra chica. -->
+      <div class="asset-acciones">
+        <button class="btn btn-ghost btn-sm asset-follow" type="button" data-follow={s.id} aria-pressed="false"
+          aria-describedby="asset-follow-note"
+          data-label-on={t('watch.unfollow') + ' ' + s.name[locale]}
+          data-label-off={t('watch.follow') + ' ' + s.name[locale]}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+            <path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-3.8L5.5 20.5v-16a1 1 0 0 1 1-1z"
+              fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+          </svg>
+          <span class="asset-follow-text">{t('watch.follow')}</span>
+        </button>
+        <a class="btn btn-ghost btn-sm" href={compararHref}>{t('asset.compare')}</a>
+      </div>
+      <p id="asset-follow-note" class="t-caption faint asset-follow-note">{t('watch.note')}</p>
     </header>
 
     <div class="asset-grid">
@@ -94,7 +114,7 @@ const stats: [string, string][] = [
           <h2 id="rel-h" class="t-h3">{t('asset.related')}</h2>
           <div class="card asset-rel-card">
             <ul class="asset-rel-rows">
-              {related.map((r) => <AssetRow locale={locale} s={r} href={L(assetRouteId(r.id))} />)}
+              {related.map((r) => <AssetRow locale={locale} s={r} href={L(assetRouteId(r.id))} seguible />)}
             </ul>
           </div>
         </section>
@@ -116,6 +136,13 @@ const stats: [string, string][] = [
   .asset-chg { min-width: 12ch; white-space: nowrap; }
   .asset-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; margin-top: var(--sp-1); }
   .asset-meta :global(.src-chip) { flex-wrap: wrap; row-gap: 2px; }
+  .asset-acciones { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); }
+  .asset-follow { display: inline-flex; align-items: center; gap: 6px; }
+  /* Igual que en las filas: seguir NO se pinta de verde, que aquí significa
+     "sube" y está a dos centímetros del cambio del día. */
+  .asset-follow[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-3); background: var(--bg-2); }
+  .asset-follow[aria-pressed="true"] svg path { fill: currentColor; }
+  .asset-follow-note { margin-top: var(--sp-2); max-width: var(--measure); }
 
   /* La cabecera ya lleva el precio grande: el readout del panel baja un escalón. */
   .asset-chart :global(.pp-price) { font-size: 1.5rem; }

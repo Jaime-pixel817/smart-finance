@@ -3,6 +3,7 @@
 // volviera a servirse desde public/ (HTML legacy) se marca legacy: true.
 import { ASSETS } from '../data/symbols';
 import { NEWS, newsRouteId, newsLastmod } from '../data/news';
+import { NUMEROS, numeroRouteId, numerosLastmod } from '../data/newsletter';
 
 export type Locale = 'en' | 'es';
 export const LOCALES: Locale[] = ['en', 'es'];
@@ -32,6 +33,9 @@ const TOOL_META = { lastmod: '2026-08-22', changefreq: 'monthly' as const, prior
 export const ROUTES: RouteEntry[] = [
   { id: 'home', en: '/', es: '/es', lastmod: '2026-08-21', changefreq: 'daily', priority: '1.0' },
   { id: 'market', en: '/market', es: '/es/mercado', lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.9' },
+  // Comparador: dos o tres activos normalizados a 100. Los activos van en la
+  // query (?a=spy&b=usdmxn), así que la página es UNA sola y se puede compartir.
+  { id: 'market.compare', en: '/market/compare', es: '/es/mercado/comparar', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.7' },
   // Fichas de activo: una ruta por símbolo del registro (src/data/symbols.ts).
   ...ASSETS.map((s): RouteEntry => ({ id: 'asset.' + s.id, en: '/market/' + s.id, es: '/es/mercado/' + s.id, lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.8' })),
   // Noticias explicadas. El índice se pinta en el navegador desde
@@ -46,6 +50,19 @@ export const ROUTES: RouteEntry[] = [
   // llega a ella por su URL: la sirve la reescritura de vercel.json cuando
   // /news/<slug> no existe como archivo.
   { id: 'news.read', en: '/news-read', es: '/es/noticias-leer', sitemap: false },
+  // El boletín en la web: el índice de números y una página por número
+  // enviado y sincronizado al repo (src/data/newsletter/*.json). Es el destino
+  // del "ver en el navegador" de cada correo, y de paso convierte cada envío en
+  // contenido indexable en vez de un correo que se pierde en la bandeja.
+  { id: 'newsletter', en: '/newsletter', es: '/es/boletin', lastmod: numerosLastmod(), changefreq: 'weekly', priority: '0.7' },
+  ...NUMEROS.map((n): RouteEntry => ({
+    id: numeroRouteId(n.fecha), en: '/newsletter/' + n.fecha, es: '/es/boletin/' + n.fecha,
+    lastmod: n.fecha, changefreq: 'monthly', priority: '0.5'
+  })),
+  // Lectura de un número que ya salió por correo pero todavía no está
+  // commiteado. No se llega por su URL: la sirve la reescritura de vercel.json
+  // cuando /newsletter/<fecha> no existe como archivo.
+  { id: 'newsletter.read', en: '/newsletter-read', es: '/es/boletin-leer', sitemap: false },
   { id: 'lessons', en: '/lessons', es: '/es/lecciones', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.8' },
   { id: 'lesson.peso', en: '/lessons/peso-tipo-de-cambio', es: '/es/lecciones/peso-tipo-de-cambio', ...LESSON_META },
   { id: 'lesson.interes', en: '/lessons/interes-compuesto', es: '/es/lecciones/interes-compuesto', ...LESSON_META },
@@ -64,11 +81,19 @@ export const ROUTES: RouteEntry[] = [
   { id: 'tool.interes', en: '/tools/interes-compuesto', es: '/es/herramientas/interes-compuesto', ...TOOL_META },
   { id: 'tool.inflacion', en: '/tools/inflacion', es: '/es/herramientas/inflacion', ...TOOL_META },
   { id: 'tool.cetes', en: '/tools/cetes-vs-cuenta', es: '/es/herramientas/cetes-vs-cuenta', ...TOOL_META },
+  // El reto del día: /challenge y /es/reto. La página es estática; lo que cambia
+  // cada día es la partida, que se arma en el navegador con /api/history.
+  { id: 'challenge', en: '/challenge', es: '/es/reto', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.8' },
   { id: 'community', en: '/community', es: '/es/comunidad', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.6' },
   // Research: /research es marca y se usa igual en los dos idiomas (como
   // "Smart Finance Research"); lo que cambia es el idioma del contenido.
   { id: 'research', en: '/research', es: '/es/research', lastmod: '2026-08-22', changefreq: 'weekly', priority: '0.8' },
   { id: 'research.lululemon', en: '/research/lululemon', es: '/es/research/lululemon', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.7' },
+  // Las dos carteras. /actinver cambia todos los días hábiles mientras dure el
+  // reto (5-oct → 13-nov de 2026), porque la foto nocturna le escribe un punto
+  // nuevo; el portafolio personal se mueve cuando Jaime abre o cierra algo.
+  { id: 'actinver', en: '/actinver', es: '/es/actinver', lastmod: '2026-08-23', changefreq: 'daily', priority: '0.8' },
+  { id: 'portfolio', en: '/portfolio', es: '/es/portafolio', lastmod: '2026-08-23', changefreq: 'weekly', priority: '0.8' },
   { id: 'about', en: '/about', es: '/es/acerca', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' },
   { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' }
 ];

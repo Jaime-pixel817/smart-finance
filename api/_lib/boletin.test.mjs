@@ -92,12 +92,13 @@ test('la lección rota por SEMANA, no por día', () => {
   assert.notDeepEqual(tips.tipDeLaSemana(lunes), tips.tipDeLaSemana(domingoSiguiente));
 });
 
-test('la rotación semanal recorre las seis lecciones sin repetir de más', () => {
+test('la rotación semanal recorre TODAS las lecciones sin repetir de más', () => {
   const vistas = new Set();
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < tips.TIPS.length; i++) {
     vistas.add(tips.tipDeLaSemana(new Date(Date.UTC(2026, 0, 5 + i * 7, 18))).url);
   }
-  assert.equal(vistas.size, tips.TIPS.length, 'seis semanas deberían dar las seis lecciones');
+  assert.equal(vistas.size, tips.TIPS.length,
+    tips.TIPS.length + ' semanas deberían dar las ' + tips.TIPS.length + ' lecciones');
 });
 
 // ------------------------------------------------- el contenido del correo
@@ -108,7 +109,7 @@ test('el correo habla de la SEMANA, no del día, en los dos idiomas', () => {
 
   assert.match(es.html, /La semana en una línea/);
   assert.match(es.html, /La noticia de la semana/);
-  assert.match(es.html, /Esta semana aprenderás/);
+  assert.match(es.html, /La lección de la semana/);
   assert.match(es.html, /boletín semanal de Smart Finance/);
   assert.match(es.html, /próximo domingo/);
   // Y nada que siga hablando de un correo diario.
@@ -117,7 +118,7 @@ test('el correo habla de la SEMANA, no del día, en los dos idiomas', () => {
 
   assert.match(en.html, /The week in one line/);
   assert.match(en.html, /The week&#39;s story|The week's story/);
-  assert.match(en.html, /This week you&#39;ll learn|This week you'll learn/);
+  assert.match(en.html, /This week&#39;s lesson|This week's lesson/);
   assert.match(en.html, /Smart Finance weekly/);
   assert.doesNotMatch(en.html, /Smart Finance daily/i);
   assert.doesNotMatch(en.html, /Until tomorrow/i);
@@ -164,10 +165,12 @@ test('sin noticia aprobada el correo sale igual, y lo dice', () => {
   const { html, texto, asunto } = pintar(contenidoDePrueba({ noticia: null }), 'es');
   assert.match(html, /no hubo ninguna noticia revisada/i);
   assert.match(texto, /no hubo ninguna noticia revisada/i);
-  // El asunto cae al respaldo semanal, nunca queda vacío.
-  assert.equal(asunto, boletin.GANCHO_SEMANAL.es);
+  // El asunto cae al título de la lección de la semana, nunca queda vacío ni
+  // repite el mismo texto todas las semanas sin noticia.
+  assert.equal(asunto, tips.TIPS[0].es.titulo);
+  assert.notEqual(asunto, boletin.GANCHO_SEMANAL.es);
   // Y el resto del correo sigue completo.
-  assert.match(html, /Esta semana aprenderás/);
+  assert.match(html, /La lección de la semana/);
   assert.match(html, /18\.4210/);
 });
 
@@ -225,7 +228,7 @@ test('la baja va SIEMPRE, aunque no haya ni noticia ni research', () => {
 
 test('la versión de texto lleva lo mismo que el HTML', () => {
   const { texto } = pintar(contenidoDePrueba(), 'es');
-  assert.match(texto, /SMART FINANCE — 17–23 de agosto/);
+  assert.match(texto, /SMART FINANCE — NÚMERO 1 · 17–23 de agosto/);
   assert.match(texto, /Banxico vuelve a bajar la tasa/);
   assert.match(texto, /USD\/MXN/);
   assert.match(texto, /VIX/);
@@ -355,5 +358,534 @@ test('ni el sitio ni los correos de estado siguen prometiendo un boletín diario
     const texto = readFileSync(new URL(rel, RAIZ), 'utf8');
     const linea = texto.split('\n').findIndex((l) => patron.test(l));
     assert.equal(linea, -1, rel + ' sigue diciendo que el boletín es diario (línea ' + (linea + 1) + ')');
+  }
+});
+
+// ======================================================================
+// Lo que se añadió al mejorar el boletín: la cabecera con identidad, la
+// tabla de "qué se movió", la línea de Jaime, el archivo y la versión web.
+// ======================================================================
+
+// ------------------------------------------------- la lección de la semana
+
+test('cada lección del boletín es la MISMA que la del sitio', () => {
+  // api/ no puede leer los MDX en Vercel (el empaquetado solo se lleva lo que
+  // la función requiere), así que tips.js es una copia. Esta prueba es lo que
+  // impide que la copia se desincronice en silencio: si alguien retoca el
+  // título, la descripción o los minutos de una lección, aquí se cae.
+  for (const tip of tips.TIPS) {
+    for (const lang of ['en', 'es']) {
+      const mdx = readFileSync(new URL('src/content/lessons/' + lang + '/' + tip.slug + '.mdx', RAIZ), 'utf8');
+      const campo = (nombre) => {
+        const m = new RegExp('^' + nombre + ':\\s*"([^"]+)"', 'm').exec(mdx);
+        return m ? m[1] : null;
+      };
+      assert.equal(tip[lang].titulo, campo('title'), tip.slug + ' (' + lang + '): el título no es el de la lección');
+      assert.equal(tip[lang].resumen, campo('description'), tip.slug + ' (' + lang + '): el resumen no es el de la lección');
+    }
+    const minutos = /^readingMinutes:\s*(\d+)/m.exec(
+      readFileSync(new URL('src/content/lessons/es/' + tip.slug + '.mdx', RAIZ), 'utf8')
+    );
+    assert.equal(tip.minutos, Number(minutos[1]), tip.slug + ': los minutos de lectura no son los de la lección');
+  }
+});
+
+test('las dos rutas de cada lección están registradas en el sitio', () => {
+  const rutas = readFileSync(new URL('src/i18n/routes.ts', RAIZ), 'utf8');
+  for (const tip of tips.TIPS) {
+    assert.ok(rutas.includes("'" + tip.url + "'"), 'falta ' + tip.url + ' en routes.ts');
+    assert.ok(rutas.includes("'" + tip.urlEs + "'"), 'falta ' + tip.urlEs + ' en routes.ts');
+  }
+});
+
+test('el correo en español enlaza a la lección EN ESPAÑOL', () => {
+  // Era un fallo de verdad: tips.js solo guardaba la ruta inglesa, así que el
+  // botón del correo en español mandaba a /lessons/... y el lector aterrizaba
+  // en la lección en inglés.
+  const es = pintar(contenidoDePrueba(), 'es').html;
+  assert.match(es, /smartfinance\.lat\/es\/lecciones\//);
+  assert.doesNotMatch(es, /smartfinance\.lat\/lessons\//);
+
+  const en = pintar(contenidoDePrueba(), 'en').html;
+  assert.match(en, /smartfinance\.lat\/lessons\//);
+  assert.doesNotMatch(en, /smartfinance\.lat\/es\/lecciones\//);
+});
+
+test('la lección dice cuánto se tarda en leerse', () => {
+  const es = pintar(contenidoDePrueba(), 'es');
+  assert.match(es.html, /\d+ min de lectura/);
+  assert.match(es.texto, /\d+ min de lectura/);
+  assert.match(pintar(contenidoDePrueba(), 'en').html, /\d+-minute read/);
+});
+
+// ------------------------------------------------------ la cabecera
+
+test('la cabecera lleva el número de edición y la semana', () => {
+  const { html, texto } = pintar(contenidoDePrueba(), 'es');
+  assert.match(html, /Número 1/);
+  assert.match(html, /17–23 de agosto/);
+  assert.match(texto, /NÚMERO 1 · 17–23 de agosto/);
+  assert.match(pintar(contenidoDePrueba(), 'en').html, /Issue 1/);
+});
+
+test('el número de edición sube de uno en uno cada domingo', () => {
+  const domingo = (n) => new Date(Date.parse('2026-08-23T14:00:00.000Z') + n * 7 * 86400000);
+  assert.equal(boletin.numeroDeEdicion(domingo(0)), 1);
+  assert.equal(boletin.numeroDeEdicion(domingo(1)), 2);
+  assert.equal(boletin.numeroDeEdicion(domingo(10)), 11);
+  // Un ensayo fechado antes del primer domingo no puede enseñar "Nº 0".
+  assert.equal(boletin.numeroDeEdicion(new Date('2026-01-04T14:00:00.000Z')), 1);
+});
+
+test('"ver en el navegador" apunta a la versión web de ESTE número, en su idioma', () => {
+  // Mismo fallo que el de la lección, repetido: la etiqueta traducida y el
+  // destino en inglés. Un suscriptor en español aterrizaba en <html lang="en">.
+  // Por eso aquí no basta con `match`: hacen falta los cruzados.
+  const es = pintar(contenidoDePrueba(), 'es');
+  assert.match(es.html, /smartfinance\.lat\/es\/boletin\/2026-08-23/);
+  assert.match(es.texto, /Ver este número en el navegador: https:\/\/smartfinance\.lat\/es\/boletin\/2026-08-23/);
+  assert.doesNotMatch(es.html, /smartfinance\.lat\/newsletter/);
+  assert.doesNotMatch(es.texto, /smartfinance\.lat\/newsletter/);
+
+  const en = pintar(contenidoDePrueba(), 'en');
+  assert.match(en.html, /smartfinance\.lat\/newsletter\/2026-08-23/);
+  assert.match(en.texto, /View this issue in your browser: https:\/\/smartfinance\.lat\/newsletter\/2026-08-23/);
+  assert.doesNotMatch(en.html, /smartfinance\.lat\/es\/boletin/);
+  assert.doesNotMatch(en.texto, /smartfinance\.lat\/es\/boletin/);
+});
+
+test('"números anteriores" del pie también va al archivo en su idioma', () => {
+  const es = pintar(contenidoDePrueba(), 'es');
+  assert.match(es.html, /href="https:\/\/smartfinance\.lat\/es\/boletin"/);
+  assert.match(es.texto, /Números anteriores: https:\/\/smartfinance\.lat\/es\/boletin/);
+
+  const en = pintar(contenidoDePrueba(), 'en');
+  assert.match(en.html, /href="https:\/\/smartfinance\.lat\/newsletter"/);
+  assert.match(en.texto, /Past issues: https:\/\/smartfinance\.lat\/newsletter/);
+});
+
+test('el correo trae las reglas del modo oscuro', () => {
+  const { html } = pintar(contenidoDePrueba(), 'es');
+  assert.match(html, /prefers-color-scheme: dark/);
+  // Outlook.com no entiende prefers-color-scheme y marca el cuerpo con esto.
+  assert.match(html, /\[data-ogsc\]/);
+  assert.match(html, /name="color-scheme"/);
+  // Y cada color en línea tiene su clase: sin ellas el <style> no repinta nada.
+  assert.match(html, /class="sf-tarjeta"/);
+});
+
+// -------------------------------------------------- el chip de fuente
+
+test('ningún bloque de datos sale sin decir de dónde viene y de cuándo es', () => {
+  const conMovs = contenidoDePrueba({
+    movimientos: {
+      suben: [{ id: 'nvda', sym: 'NVDA', en: 'Nvidia', es: 'Nvidia', valor: 210, cambioPct: 4.2, ultimoTs: 1787000000 }],
+      bajan: [{ id: 'spy', sym: 'SPY', en: 'S&P 500', es: 'S&P 500', valor: 760, cambioPct: -1.3, ultimoTs: 1787000000 }],
+      asOf: 1787000000, consultados: 9
+    }
+  });
+  const { html, texto } = pintar(conMovs, 'es');
+  // Uno por el dólar y otro por la tabla de movimientos.
+  assert.equal((html.match(/Yahoo Finance/g) || []).length, 2);
+  assert.match(html, /Yahoo Finance · último cierre: /);
+  assert.match(texto, /Yahoo Finance/);
+});
+
+// ------------------------------------------------------ qué se movió
+
+test('la tabla de movimientos sale con flecha, nombre, ticker y cifra', () => {
+  const con = contenidoDePrueba({
+    movimientos: {
+      suben: [{ id: 'nvda', sym: 'NVDA', en: 'Nvidia', es: 'Nvidia', valor: 210, cambioPct: 4.2, ultimoTs: 1787000000 }],
+      bajan: [{ id: 'spy', sym: 'SPY', en: 'S&P 500', es: 'S&P 500', valor: 760, cambioPct: -1.3, ultimoTs: 1787000000 }],
+      asOf: 1787000000, consultados: 9
+    }
+  });
+  const { html, texto } = pintar(con, 'es');
+  assert.match(html, /Qué se movió esta semana/);
+  assert.match(html, /&#9650;/);            // ▲
+  assert.match(html, /&#9660;/);            // ▼
+  assert.match(html, /Nvidia/);
+  assert.match(html, /NVDA/);
+  assert.match(html, /\+4\.20%/);
+  assert.match(html, /-1\.30%/);
+  // En texto plano la flecha va de verdad, no como entidad.
+  assert.match(texto, /▲ Nvidia \(NVDA\) \+4\.20%/);
+});
+
+test('sin datos de movimientos, ese bloque simplemente no existe', () => {
+  const { html, texto } = pintar(contenidoDePrueba(), 'es');
+  assert.doesNotMatch(html, /Qué se movió/);
+  assert.doesNotMatch(texto, /QUÉ SE MOVIÓ/);
+});
+
+test('los activos de la tabla existen en el registro del sitio y en /api/history', () => {
+  const movs = require('./movimientos.js');
+  const symbols = readFileSync(new URL('src/data/symbols.ts', RAIZ), 'utf8');
+  const history = readFileSync(new URL('api/history.js', RAIZ), 'utf8');
+
+  for (const a of movs.ACTIVOS) {
+    assert.ok(symbols.includes("'" + a.id + "', '" + a.sym + "'"),
+      a.sym + ' no está en src/data/symbols.ts con ese id');
+    assert.match(history, new RegExp('^\\s*' + a.pair + ':', 'm'),
+      a.pair + ' no es un par que sepa servir /api/history');
+  }
+});
+
+test('la tabla no mezcla ventanas: nada de cripto, y ni el dólar ni el VIX', () => {
+  // `range=1W` son cinco SESIONES para una acción y cinco días de CALENDARIO
+  // para el bitcoin. Mezclarlos en la misma columna ordenada es una comparación
+  // falsa: salían Ethereum +27.50 % y el S&P 500 −1.26 % con el mismo título.
+  const movs = require('./movimientos.js');
+  const ids = movs.ACTIVOS.map((a) => a.id);
+  for (const cripto of ['btc', 'eth', 'sol', 'xrp']) {
+    assert.ok(!ids.includes(cripto), cripto + ' mide una ventana distinta: no puede ir en esta tabla');
+  }
+  // Estos dos tienen su propio bloque con su gráfica, tres líneas más arriba.
+  assert.ok(!ids.includes('usdmxn'));
+  assert.ok(!ids.includes('vix'));
+});
+
+// ---------------------------------------------------------------------------
+// La ventana de la tabla. Antes aquí solo se comprobaba que no hubiera cripto,
+// que es la mitad del asunto: sacar la cripto no hacía que los NUEVE restantes
+// compartieran ventana, y no la compartían. Medido contra /api/history de
+// producción en la semana del 2026-08-17:
+//
+//   las siete de EE. UU.   lun 13:30Z → vie 20:00Z
+//   EUR/MXN y EUR/USD      dom 23:00Z → vie 21:00–22:00Z
+//
+// Estas pruebas usan esas mismas horas y esos mismos porcentajes.
+// ---------------------------------------------------------------------------
+
+const LUN = Date.UTC(2026, 7, 17, 13, 30) / 1000;   // apertura de la sesión
+const VIE = Date.UTC(2026, 7, 21, 20, 0) / 1000;    // cierre de la sesión
+const DOM_FX = Date.UTC(2026, 7, 16, 23, 0) / 1000; // el FX abre el domingo
+const VIE_FX = Date.UTC(2026, 7, 21, 22, 0) / 1000; // y cierra dos horas después
+
+// Serie de dos puntos dentro de la sesión, con el cambio pedido.
+const serieUS = (pct) => ({ points: [[LUN, 100], [VIE, 100 * (1 + pct / 100)]] });
+
+// Serie de FX: abre el domingo y cierra el viernes tarde. `fuera` es lo que se
+// mueve en las horas que sobran; `dentro`, lo que se mueve en la sesión.
+const serieFX = (dentro, fuera) => ({
+  points: [
+    [DOM_FX, 100],
+    [LUN, 100 * (1 + fuera / 100)],
+    [VIE, 100 * (1 + fuera / 100) * (1 + dentro / 100)],
+    [VIE_FX, 100 * (1 + fuera / 100) * (1 + dentro / 100)]
+  ]
+});
+
+const SEMANA_REAL = {
+  SPY: serieUS(-1.26), QQQ: serieUS(-2.59), DIA: serieUS(-0.54),
+  AAPL: serieUS(1.59), MSFT: serieUS(0.14), NVDA: serieUS(-5.24),
+  AMZN: serieUS(-0.84),
+  // En la sesión suben 0.76 y 0.07; las horas de más les regalan el resto.
+  EURUSD: serieFX(0.76, 0.12),
+  EURMXN: serieFX(0.07, 0.13)
+};
+
+const servir = (tabla) => async (url) => {
+  const pair = new URL(url, 'https://x').searchParams.get('pair');
+  if (!tabla[pair]) throw new Error('sin datos para ' + pair);
+  return tabla[pair];
+};
+
+test('todas las filas se miden en la MISMA ventana, no cada una en la suya', async () => {
+  const movs = require('./movimientos.js');
+  const r = await movs.delaSemana('https://x', servir(SEMANA_REAL));
+
+  // La ventana es la de la sesión de EE. UU., sacada de los datos.
+  assert.equal(r.ventana.ini, LUN);
+  assert.equal(r.ventana.fin, VIE);
+
+  // Y ninguna fila se sale de ella: si alguna terminara más tarde, su columna
+  // estaría midiendo más semana que las demás.
+  const filas = r.suben.concat(r.bajan);
+  for (const f of filas) {
+    assert.equal(f.ultimoTs, VIE, f.sym + ' termina fuera de la ventana común');
+  }
+
+  // El chip habla de la ventana, no del punto más nuevo de quien cerró después.
+  assert.equal(r.asOf, VIE);
+});
+
+test('las horas de más del FX ya no le regalan un puesto en la tabla', async () => {
+  // ESTE es el fallo, con sus números: sin recortar, EUR/MXN sale TERCERO de
+  // los que más subieron (+0.20 %) por las ~15 h que el FX abre antes. En la
+  // ventana de las acciones sube +0.07 % y el puesto es de Microsoft (+0.14 %).
+  const movs = require('./movimientos.js');
+  const r = await movs.delaSemana('https://x', servir(SEMANA_REAL));
+
+  assert.deepEqual(r.suben.map((x) => x.sym), ['AAPL', 'EUR/USD', 'MSFT']);
+  assert.ok(!r.suben.some((x) => x.sym === 'EUR/MXN'),
+    'EUR/MXN está en la tabla solo por las horas que el FX abre antes');
+
+  const eurusd = r.suben.find((x) => x.sym === 'EUR/USD');
+  assert.ok(Math.abs(eurusd.cambioPct - 0.76) < 0.01,
+    'EUR/USD debería medir +0.76 % (la sesión), no +0.88 % (con las horas de más)');
+});
+
+test('la ventana se calcula, no se declara: un lunes festivo la mueve sola', async () => {
+  // "Lunes 13:30 UTC" es falso medio año (horario de invierno) y cualquier
+  // semana con festivo. Por eso la ventana sale de los datos: si la sesión
+  // empieza el martes, la tabla empieza el martes, sin tocar código.
+  const movs = require('./movimientos.js');
+  const MAR = Date.UTC(2026, 7, 18, 14, 30) / 1000;
+  const series = movs.ACTIVOS.map((a) => ({
+    sesion: a.sesion,
+    puntos: a.sesion === 'us' ? [[MAR, 100], [VIE, 101]] : [[DOM_FX, 100], [VIE_FX, 101]]
+  }));
+  assert.deepEqual(movs.ventanaDeLaSesion(series), { ini: MAR, fin: VIE });
+});
+
+test('un activo sin datos dentro de la ventana se cae de la tabla, no la corrompe', async () => {
+  const movs = require('./movimientos.js');
+  const tabla = Object.assign({}, SEMANA_REAL, {
+    // Solo cotizó DESPUÉS del cierre: no hay dos puntos suyos en la ventana.
+    EURMXN: { points: [[VIE + 60, 100], [VIE_FX, 105]] }
+  });
+  const r = await movs.delaSemana('https://x', servir(tabla));
+  assert.equal(r.consultados, 8);
+  assert.ok(!r.suben.concat(r.bajan).some((x) => x.sym === 'EUR/MXN'));
+  // Y el que se cae no arrastra a los demás: la ventana sigue siendo la misma.
+  assert.equal(r.ventana.fin, VIE);
+});
+
+test('sin serie de la sesión de EE. UU. no hay ventana, y sin ventana no hay tabla', async () => {
+  const movs = require('./movimientos.js');
+  // Solo contestan las divisas: no hay contra qué recortarlas.
+  const r = await movs.delaSemana('https://x', servir({
+    EURUSD: SEMANA_REAL.EURUSD, EURMXN: SEMANA_REAL.EURMXN
+  }));
+  assert.equal(r, null);
+});
+
+test('las filas archivadas no arrastran la serie entera de precios', async () => {
+  const movs = require('./movimientos.js');
+  const r = await movs.delaSemana('https://x', servir(SEMANA_REAL));
+  for (const f of r.suben.concat(r.bajan)) {
+    assert.ok(!('puntos' in f), f.sym + ' se archiva con cinco días de precios dentro');
+  }
+});
+
+test('con pocas respuestas no se publica media tabla', async () => {
+  const movs = require('./movimientos.js');
+  let n = 0;
+  const pedirJSON = async () => {
+    // Solo contestan cuatro; el resto se cae.
+    if (++n > 4) throw new Error('proveedor caído');
+    return { points: [[1786900000, 100], [1787000000, 105]] };
+  };
+  assert.equal(await movs.delaSemana('https://x', pedirJSON), null);
+});
+
+test('con la lista entera salen los tres de arriba y los tres de abajo, ordenados', async () => {
+  const movs = require('./movimientos.js');
+  // Cada activo sube un poco más que el anterior: el orden es predecible.
+  let i = 0;
+  const pedirJSON = async () => {
+    const cambio = 1 + (i++ - 4) / 100;    // de -0.03 a +0.04
+    return { points: [[1786900000, 100], [1787000000, 100 * cambio]] };
+  };
+  const r = await movs.delaSemana('https://x', pedirJSON);
+  assert.equal(r.suben.length, 3);
+  assert.equal(r.bajan.length, 3);
+  assert.ok(r.suben[0].cambioPct > r.suben[1].cambioPct, 'los que suben van de mayor a menor');
+  assert.ok(r.bajan[0].cambioPct < r.bajan[1].cambioPct, 'los que bajan van del que más cayó al que menos');
+  // Ninguno puede estar en los dos lados.
+  const arriba = new Set(r.suben.map((x) => x.id));
+  assert.ok(r.bajan.every((x) => !arriba.has(x.id)));
+});
+
+// --------------------------------------------------- la línea de Jaime
+
+test('sin nota, el correo no deja un bloque vacío', () => {
+  const { html, texto } = pintar(contenidoDePrueba(), 'es');
+  assert.doesNotMatch(html, /La línea de Jaime/);
+  assert.doesNotMatch(texto, /LA LÍNEA DE JAIME/);
+});
+
+test('con nota, se ve como su voz y va firmada', () => {
+  const con = contenidoDePrueba({ nota: { es: 'Esta semana abrí mi primera cuenta de casa de bolsa.', en: 'This week I opened my first brokerage account.' } });
+  const { html, texto } = pintar(con, 'es');
+  assert.match(html, /La línea de Jaime/);
+  assert.match(html, /Esta semana abrí mi primera cuenta/);
+  assert.match(html, /— Jaime Sandoval/);
+  assert.match(texto, /LA LÍNEA DE JAIME/);
+});
+
+test('una nota solo en español NO sale en el correo en inglés', () => {
+  // La regla del sitio es que no hay texto suelto en el idioma que no toca, y
+  // traducirla por nuestra cuenta sería poner una máquina a escribir lo único
+  // que firma una persona.
+  const con = contenidoDePrueba({ nota: { es: 'Esta semana abrí mi primera cuenta.', en: null } });
+  assert.match(pintar(con, 'es').html, /Esta semana abrí mi primera cuenta/);
+  const en = pintar(con, 'en').html;
+  assert.doesNotMatch(en, /Esta semana abrí/);
+  assert.doesNotMatch(en, /Jaime&#39;s line|Jaime's line/);
+});
+
+// --------------------------------- un solo llamado a la acción
+
+test('el correo tiene UN botón, y es el de la lección', () => {
+  const { html } = pintar(contenidoDePrueba(), 'es');
+  // El botón se pinta con la clase sf-boton; las redes bajaron a enlaces.
+  assert.equal((html.match(/class="sf-boton"/g) || []).length, 1);
+  assert.match(html, /Leer la lección/);
+  // LinkedIn y TikTok siguen estando, pero como texto en el pie.
+  assert.match(html, /linkedin\.com/);
+  assert.match(html, /tiktok\.com/);
+});
+
+// ------------------------------------------- el archivo y la versión web
+
+test('el número archivado trae todo lo que necesita su página', () => {
+  const con = contenidoDePrueba({
+    nota: { es: 'Una línea.', en: 'One line.' },
+    serieFx: [[1786900000, 18.3], [1787000000, 18.42]],
+    movimientos: { suben: [], bajan: [{ id: 'spy', sym: 'SPY', en: 'S&P 500', es: 'S&P 500', valor: 760, cambioPct: -1.3, ultimoTs: 1787000000 }], asOf: 1787000000, consultados: 9 }
+  });
+  const n = boletin.paraArchivo(con);
+
+  assert.equal(n.fecha, '2026-08-23');           // es la URL: /newsletter/<fecha>
+  assert.equal(n.numero, 1);
+  assert.equal(n.rango.es, '17–23 de agosto');
+  assert.equal(n.rango.en, 'August 17–23');
+  assert.equal(n.gancho.es, 'Banxico vuelve a bajar la tasa');
+  assert.ok(n.resumen.es.includes('18.42'));
+  assert.deepEqual(n.nota, { es: 'Una línea.', en: 'One line.' });
+  assert.ok(n.serieFx.length === 2, 'la serie del dólar viaja: la página dibuja su propia gráfica');
+  assert.ok(n.mercado.usdmxn && n.movimientos && n.tip);
+  assert.ok(n.enviadoEn.startsWith('2026-08-23'));
+});
+
+test('/newsletter/<fecha> existe como página y como reescritura', () => {
+  const rutas = readFileSync(new URL('src/i18n/routes.ts', RAIZ), 'utf8');
+  assert.match(rutas, /id: 'newsletter', en: '\/newsletter', es: '\/es\/boletin'/);
+  assert.match(rutas, /id: 'newsletter\.read'/);
+
+  // La reescritura solo entra si la página estática NO existe (Vercel mira el
+  // sistema de archivos antes), así que un número ya commiteado se sigue
+  // sirviendo como HTML y esto no lo tapa.
+  const vercel = JSON.parse(readFileSync(new URL('vercel.json', RAIZ), 'utf8'));
+  const reescrituras = vercel.rewrites.map((r) => r.source + ' -> ' + r.destination);
+  assert.ok(reescrituras.some((r) => r.startsWith('/newsletter/:fecha') && r.endsWith('/newsletter-read')));
+  assert.ok(reescrituras.some((r) => r.startsWith('/es/boletin/:fecha') && r.endsWith('/es/boletin-leer')));
+  // Y no puede tragarse /newsletter/baja ni /newsletter/confirmado, que son
+  // páginas de verdad en public/.
+  const patron = vercel.rewrites.find((r) => r.source.startsWith('/newsletter/:fecha')).source;
+  assert.match(patron, /\\d\{4\}-\\d\{2\}-\\d\{2\}/);
+});
+
+test('el plan de Vercel sigue cabiendo: 12 funciones y ni una más', () => {
+  // La versión web y la línea de Jaime entraron como ACCIONES de endpoints que
+  // ya existían, no como archivos nuevos: 13 tumbarían el despliegue entero.
+  const { readdirSync } = require('node:fs');
+  const funciones = readdirSync(new URL('api/', RAIZ)).filter((f) => f.endsWith('.js'));
+  assert.equal(funciones.length, 12, 'api/ tiene ' + funciones.length + ' funciones: ' + funciones.join(', '));
+
+  const chart = readFileSync(new URL('api/newsletter-chart.js', RAIZ), 'utf8');
+  assert.match(chart, /req\.query && req\.query\.issue/, 'el número en JSON se sirve desde newsletter-chart');
+  const log = readFileSync(new URL('api/newsletter-log.js', RAIZ), 'utf8');
+  assert.match(log, /accion !== 'nota'/, 'la línea de Jaime se escribe desde newsletter-log');
+});
+
+// ---------------------------------------- el asunto, que es lo primero
+
+test('el asunto no llega a la bandeja pareciendo spam', () => {
+  // Nada de signos repetidos ni de titulares gritados. Un "!" suelto se
+  // respeta: es puntuación normal.
+  assert.equal(boletin.limpiarAsunto('¡¡El peso se dispara!!!'), '¡El peso se dispara!');
+  assert.equal(boletin.limpiarAsunto('BANXICO BAJA LA TASA OTRA VEZ'), 'Banxico baja la tasa otra vez');
+  assert.equal(boletin.limpiarAsunto('El dólar cerró abajo, y una lección'), 'El dólar cerró abajo, y una lección');
+  // Las siglas cortas no son un grito.
+  assert.equal(boletin.limpiarAsunto('El VIX subió'), 'El VIX subió');
+  // Y sigue con el tope de 65, que es lo que enseña Gmail antes de cortar.
+  const largo = boletin.recortarGancho('Los aranceles de soja suben tu carrito de compras, y la regla para controlar gastos');
+  assert.ok(largo.length <= 65, 'el asunto mide ' + largo.length);
+});
+
+test('el asunto de cada semana es distinto aunque no haya noticia', () => {
+  // Antes el respaldo era una frase fija: dos domingos seguidos con el mismo
+  // asunto es la señal más clara de correo automático que no hace falta abrir.
+  const asuntos = new Set();
+  for (let i = 0; i < 6; i++) {
+    const fecha = new Date(Date.parse('2026-08-23T14:00:00.000Z') + i * 7 * 86400000);
+    const c = contenidoDePrueba({ noticia: null, fecha, tip: tips.tipDeLaSemana(fecha) });
+    asuntos.add(pintar(c, 'es').asunto);
+  }
+  assert.equal(asuntos.size, 6, 'seis domingos deberían dar seis asuntos distintos');
+});
+
+// ------------------------------------------- el archivo no bloquea el envío
+
+test('archivar guarda el número y lo devuelve entero', async () => {
+  const archivo = require('./archivo.js');
+  const redis = require('./redis.js');
+  const memoria = new Map();
+  const antes = { comando: redis.comando, obtenerJSON: redis.obtenerJSON };
+  redis.comando = async (...a) => {
+    if (String(a[0]).toUpperCase() === 'SET') { memoria.set(String(a[1]), String(a[2])); return 'OK'; }
+    return memoria.has(String(a[1])) ? memoria.get(String(a[1])) : null;
+  };
+  redis.obtenerJSON = async (k) => { const v = memoria.get(k); return v ? JSON.parse(v) : null; };
+
+  try {
+    const numero = boletin.paraArchivo(contenidoDePrueba());
+    assert.equal(await archivo.guardar(numero), '2026-08-23');
+    assert.deepEqual(await archivo.listarFechas(), ['2026-08-23']);
+    const leido = await archivo.leer('2026-08-23');
+    assert.equal(leido.gancho.es, 'Banxico vuelve a bajar la tasa');
+
+    // Reenviar el mismo domingo no deja la fecha dos veces en el índice: eso se
+    // vería como dos números repetidos en /newsletter.
+    await archivo.guardar(numero);
+    assert.deepEqual(await archivo.listarFechas(), ['2026-08-23']);
+
+    // Una fecha con mala forma ni siquiera toca Redis: la clave se construye
+    // con ella y una clave hecha de lo que llegue de fuera deja leer cualquier
+    // otra cosa que haya guardada.
+    assert.equal(await archivo.leer('../suscriptores'), null);
+  } finally {
+    redis.comando = antes.comando;
+    redis.obtenerJSON = antes.obtenerJSON;
+  }
+});
+
+test('si el archivo falla, el boletín se manda igual', async () => {
+  // La copia es la copia. Un número que no se puede archivar pierde su página
+  // web hasta el siguiente envío; un boletín que no sale lo pierde todo.
+  const archivo = require('./archivo.js');
+  const redis = require('./redis.js');
+  const antes = redis.comando;
+  redis.comando = async () => { throw new Error('Redis respondió 500'); };
+  try {
+    assert.equal(await archivo.guardar(boletin.paraArchivo(contenidoDePrueba())), null);
+    assert.equal(await archivo.leer('2026-08-23'), null);
+    assert.deepEqual(await archivo.listarFechas(), []);
+  } finally {
+    redis.comando = antes;
+  }
+});
+
+test('la nota caduca sola: la de hace dos meses no sale como "esta semana"', async () => {
+  const nota = require('./nota.js');
+  const redis = require('./redis.js');
+  const antes = redis.obtenerJSON;
+  const conFecha = (iso) => { redis.obtenerJSON = async () => ({ texto: 'Una línea de esta semana.', textoEn: null, escritoEn: iso }); };
+  try {
+    conFecha(new Date(DOMINGO.getTime() - 2 * 86400000).toISOString());
+    assert.equal((await nota.leer(DOMINGO)).es, 'Una línea de esta semana.');
+
+    conFecha(new Date(DOMINGO.getTime() - 60 * 86400000).toISOString());
+    assert.equal(await nota.leer(DOMINGO), null, 'una nota de hace dos meses no entra en este número');
+
+    // Y si Redis no contesta, el correo sale sin ese bloque en vez de no salir.
+    redis.obtenerJSON = async () => { throw new Error('Redis caído'); };
+    assert.equal(await nota.leer(DOMINGO), null);
+  } finally {
+    redis.obtenerJSON = antes;
   }
 });

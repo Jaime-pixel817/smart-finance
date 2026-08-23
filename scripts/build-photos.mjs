@@ -1,4 +1,5 @@
-// scripts/build-photos.mjs — recorta las fotos por donde hay que recortarlas.
+// scripts/build-photos.mjs — recorta las fotos por donde hay que recortarlas
+// y les pone HUELLA DE CONTENIDO en el nombre.
 //
 // POR QUÉ NO VALE sharp.strategy.attention. Es lo que se usó la primera vez y
 // por eso la miniatura de la entrevista con Andy Toh era UNA MESA DE CENTRO: la
@@ -13,25 +14,83 @@
 // filas que se revisa en diez segundos; la alternativa era una heurística que
 // falla en silencio.
 //
-// QUÉ ESCRIBE
-//   public/assets/breakdowns/thumbs/*.webp   480x360 (4:3), el doble que antes
-//                                            para que no se vean blandas en
-//                                            pantallas de densidad 2
-//   public/assets/jaime-96.jpg               96x96, la cara centrada en el
-//                                            círculo del avatar del home
-//   public/jaime-160.webp / jaime-320.webp   retrato para la ficha de /about
-//   public/assets/community/grupo*.webp/.jpg  la foto del grupo de /community
+// ═══════════════════════════════════════════════════════════════════════════
+// POR QUÉ CADA ARCHIVO LLEVA HUELLA (esto es lo importante)
+// ═══════════════════════════════════════════════════════════════════════════
+// vercel.json sirve las fotos con `cache-control: public, max-age=31536000,
+// immutable`. `immutable` es una PROMESA: le dice al navegador que ese URL no
+// va a cambiar nunca, así que ni siquiera pregunte durante un año.
 //
-// CÓMO SE CORRE:  node scripts/build-photos.mjs
+// Mientras los archivos se llamaron `breakdown-andy-toh.webp` a secas, esa
+// promesa era mentira. Se arregló el recorte de la entrevista, se desplegó, el
+// servidor ya devolvía la foto buena... y el teléfono de Jaime siguió enseñando
+// la mesa de centro, porque tenía el URL viejo guardado hasta 2027. Ni
+// recargar ayuda: `immutable` se salta la revalidación.
+//
+// Con huella, el nombre CAMBIA cuando cambia el contenido
+// (`breakdown-andy-toh.5f3a91c2.webp`), así que un cambio de foto es un URL
+// nuevo que nadie tiene cacheado, y el viejo puede quedarse en la caché de
+// quien sea sin hacer daño. La regla, en una línea:
+//
+//     lo que se sirve con `immutable` lleva huella; lo que no lleva huella no
+//     se sirve con `immutable`.
+//
+// Las páginas NUNCA escriben la ruta a pelo: leen `src/generated/photos.json`
+// (commiteado) con `foto()` de `src/lib/photos.ts`. Si falta una clave, el
+// build se cae con el nombre de la que falta — que es lo que uno quiere: un
+// `<img>` roto en producción no avisa.
+//
+// QUÉ ESCRIBE (todo en public/assets/fotos/, con huella)
+//   breakdown-<id>.<huella>.webp   480x360 (4:3), el doble que antes para que
+//                                  no se vean blandas en pantallas de densidad 2
+//   jaime-96.<huella>.jpg          96x96, la cara centrada en el círculo del
+//                                  avatar del home y de la firma de lecciones
+//   jaime-160/-320.<huella>.webp   retrato para la ficha de /about
+//   grupo.<huella>.webp, grupo-800.<huella>.webp, grupo.<huella>.jpg
+//                                  la foto del grupo de /community
+//   + src/generated/photos.json    el manifiesto: nombre lógico -> ruta final
+//
+// DE DÓNDE LEE (originales, NO se despliegan: están en .vercelignore)
+//   public/assets/breakdowns/breakdown-<id>.jpg
+//   public/assets/community/grupo-original.jpg
+//   jaime.webp (raíz del repo, fuera de public/)
+//
+// Al terminar borra de public/assets/fotos/ todo lo que no esté en el
+// manifiesto, así que cambiar una foto no deja huérfanas.
+//
+// CÓMO SE CORRE:  node scripts/build-photos.mjs   (después: commit de
+// public/assets/fotos/ y de src/generated/photos.json JUNTOS)
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const p = (...x) => path.join(raiz, ...x);
-const kb = (f) => (fs.statSync(f).size / 1024).toFixed(1) + ' KB';
+const kb = (buf) => (buf.length / 1024).toFixed(1) + ' KB';
+
+/* ── Publicar con huella ───────────────────────────────────────────────────
+ * `nombre` es el nombre LÓGICO y estable (el que usan las páginas y la clave
+ * del manifiesto): 'breakdown-japan.webp'. Lo que se escribe en disco lleva
+ * ocho hex del sha256 del contenido metidos antes de la extensión. */
+const SALIDA = p('public/assets/fotos');
+const MANIFIESTO = p('src/generated/photos.json');
+const manifiesto = {};
+const escritos = new Set();
+
+fs.mkdirSync(SALIDA, { recursive: true });
+
+function publicar(nombre, buffer) {
+  const punto = nombre.lastIndexOf('.');
+  const huella = createHash('sha256').update(buffer).digest('hex').slice(0, 8);
+  const archivo = nombre.slice(0, punto) + '.' + huella + nombre.slice(punto);
+  fs.writeFileSync(path.join(SALIDA, archivo), buffer);
+  manifiesto[nombre] = '/assets/fotos/' + archivo;
+  escritos.add(archivo);
+  return archivo;
+}
 
 /* ── Los seis breakdowns ───────────────────────────────────────────────────
  * fx, fy = punto focal en fracciones de la foto ORIGINAL. Lo que se recorta es
@@ -83,15 +142,15 @@ function caja(W, H, fx, fy) {
 console.log('miniaturas de breakdowns (480x360, 4:3)');
 for (const b of BREAKDOWNS) {
   const src = p('public/assets/breakdowns/breakdown-' + b.id + '.jpg');
-  const dst = p('public/assets/breakdowns/thumbs/breakdown-' + b.id + '.webp');
   const m = await sharp(src).metadata();
   const c = caja(m.width, m.height, b.fx, b.fy);
-  await sharp(src).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toFile(dst);
+  const buf = await sharp(src).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
+  const archivo = publicar('breakdown-' + b.id + '.webp', buf);
   // Dónde queda el punto focal DENTRO del recorte, en % — es lo que hay que
   // poner en object-position por si alguna vez la caja del HTML no es 4:3.
   const oy = Math.round(((b.fy * m.height - c.top) / c.height) * 100);
   const ox = Math.round(((b.fx * m.width - c.left) / c.width) * 100);
-  console.log('  ' + b.id.padEnd(22) + kb(dst).padStart(9) + '   object-position: ' + ox + '% ' + oy + '%');
+  console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   object-position: ' + ox + '% ' + oy + '%');
 }
 
 /* ── Jaime ─────────────────────────────────────────────────────────────────
@@ -116,9 +175,9 @@ console.log('Jaime');
   const lado = Math.round(Math.min(m.height, alturaCabeza / 0.65));
   const left = Math.max(0, Math.min(m.width - lado, Math.round(cx - lado / 2)));
   const top = Math.max(0, Math.min(m.height - lado, Math.round(cy - lado * 0.46)));
-  const dst = p('public/assets/jaime-96.jpg');
-  await sharp(JAIME).extract({ left, top, width: lado, height: lado }).resize(96, 96).jpeg({ quality: 82 }).toFile(dst);
-  console.log('  jaime-96.jpg'.padEnd(24) + kb(dst).padStart(9) + '   recorte ' + lado + 'px desde (' + left + ',' + top + ')');
+  const buf = await sharp(JAIME).extract({ left, top, width: lado, height: lado }).resize(96, 96).jpeg({ quality: 82 }).toBuffer();
+  const archivo = publicar('jaime-96.jpg', buf);
+  console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   recorte ' + lado + 'px desde (' + left + ',' + top + ')');
 }
 // /about: retrato de medio cuerpo, con la cabeza al 48 % del cuadro y el centro
 // de la cabeza en el 35 % — la proporción de un retrato normal, no un primer
@@ -129,9 +188,10 @@ console.log('Jaime');
   const lado = Math.round(Math.min(m.height, alturaCabeza / 0.48));
   const left = Math.max(0, Math.min(m.width - lado, Math.round(cx - lado / 2)));
   const top = Math.max(0, Math.min(m.height - lado, Math.round(cy - lado * 0.35)));
-  for (const [tam, dst] of [[160, p('public/jaime-160.webp')], [320, p('public/jaime-320.webp')]]) {
-    await sharp(JAIME).extract({ left, top, width: lado, height: lado }).resize(tam, tam).webp({ quality: 82 }).toFile(dst);
-    console.log(('  jaime-' + tam + '.webp').padEnd(24) + kb(dst).padStart(9) + '   recorte ' + lado + 'px desde (' + left + ',' + top + ')');
+  for (const tam of [160, 320]) {
+    const buf = await sharp(JAIME).extract({ left, top, width: lado, height: lado }).resize(tam, tam).webp({ quality: 82 }).toBuffer();
+    const archivo = publicar('jaime-' + tam + '.webp', buf);
+    console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   recorte ' + lado + 'px desde (' + left + ',' + top + ')');
   }
 }
 
@@ -166,16 +226,36 @@ console.log('Jaime');
     console.log('grupo: no está public/assets/community/grupo-original.jpg — me lo salto');
   } else {
     const g = await sharp(src).metadata();
-    const ANCHOS = [[1600, 'grupo.webp'], [800, 'grupo-800.webp']];
     console.log('foto del grupo (' + g.width + 'x' + g.height + ', encuadre completo)');
-    for (const [ancho, nombre] of ANCHOS) {
-      const dst = p('public/assets/community/' + nombre);
-      await sharp(src).resize(ancho).webp({ quality: 80 }).toFile(dst);
-      console.log(('  ' + nombre).padEnd(24) + kb(dst).padStart(9) + '   ' + ancho + 'x' + Math.round(ancho * g.height / g.width));
+    for (const [ancho, nombre] of [[1600, 'grupo.webp'], [800, 'grupo-800.webp']]) {
+      const buf = await sharp(src).resize(ancho).webp({ quality: 80 }).toBuffer();
+      const archivo = publicar(nombre, buf);
+      console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   ' + ancho + 'x' + Math.round(ancho * g.height / g.width));
     }
     // Respaldo para navegadores sin webp (y para og:image si algún día se usa).
-    const jpg = p('public/assets/community/grupo.jpg');
-    await sharp(src).resize(1600).jpeg({ quality: 80, mozjpeg: true }).toFile(jpg);
-    console.log('  grupo.jpg'.padEnd(24) + kb(jpg).padStart(9) + '   1600x' + Math.round(1600 * g.height / g.width));
+    const buf = await sharp(src).resize(1600).jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+    const archivo = publicar('grupo.jpg', buf);
+    console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   1600x' + Math.round(1600 * g.height / g.width));
   }
 }
+
+/* ── Huérfanas y manifiesto ────────────────────────────────────────────────
+ * Con huella, cambiar una foto deja el archivo viejo en la carpeta para
+ * siempre. Aquí se barre: lo que no se acaba de escribir, fuera. Si el script
+ * se corriera a medias (una foto original que falta), esto NO borraría las
+ * demás porque cada bloque escribe antes de llegar aquí. */
+let borradas = 0;
+for (const f of fs.readdirSync(SALIDA)) {
+  if (escritos.has(f)) continue;
+  fs.unlinkSync(path.join(SALIDA, f));
+  console.log('  huérfana borrada: ' + f);
+  borradas++;
+}
+
+const ordenado = {};
+for (const k of Object.keys(manifiesto).sort()) ordenado[k] = manifiesto[k];
+fs.writeFileSync(MANIFIESTO, JSON.stringify(ordenado, null, 2) + '\n');
+
+console.log('\nmanifiesto: src/generated/photos.json (' + Object.keys(ordenado).length +
+            ' fotos, ' + borradas + ' huérfanas borradas)');
+console.log('commitea public/assets/fotos/ y src/generated/photos.json JUNTOS.');

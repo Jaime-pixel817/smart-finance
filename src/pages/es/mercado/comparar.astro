@@ -1,0 +1,22 @@
+---
+// Comparador de activos (ES). Misma página que /market/compare bajo /es/mercado.
+import Base from '../../../layouts/Base.astro';
+import ComparePage from '../../../components/market/ComparePage.astro';
+import { SITE, route } from '../../../i18n/routes';
+import { ogPropia } from '../../../lib/og';
+const title = 'Comparar activos: dos o tres en la misma gráfica — Smart Finance';
+const description = 'Pon dos o tres activos en una gráfica, cada uno empezando en 100, y lee cuánto se movió cada uno en vez de cuánto cuesta. Sin segundo eje. Datos con retraso, solo educativo.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + route('market.compare', 'es'),
+  inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' }
+};
+---
+<Base locale="es" routeId="market.compare" active="markets" title={title} description={description}
+  ogImage={ogPropia('market-compare', 'es')} ogImageAlt="Smart Finance — comparar dos activos, los dos empezando en 100" jsonLd={jsonLd}>
+  <ComparePage locale="es" />
+</Base>

@@ -1,0 +1,6 @@
+{
+  "_lee_esto": "Foto diaria del valor del portafolio personal. Lo escribe el mismo workflow que la del Reto Actinver (.github/workflows/actinver-snapshot.yml, scripts/snapshot-cartera.mjs). NO se edita a mano.",
+  "version": 1,
+  "moneda": "MXN",
+  "puntos": []
+}

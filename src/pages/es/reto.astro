@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import Challenge from '../../components/challenge/Challenge.astro';
+import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
+import { ui } from '../../i18n/ui';
+const t = ui.es;
+const title = '¿Y luego qué pasó? El reto diario del mercado — Smart Finance';
+const description = t['reto.desc'];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + '/es/reto',
+  inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: {
+    '@type': 'WebApplication',
+    name: '¿Y luego qué pasó?',
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requiere JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' }
+  }
+};
+---
+<Base locale="es" routeId="challenge" active="tools" title={title} description={description}
+  ogImage={ogPropia('challenge', 'es')} ogImageAlt="Smart Finance — ¿Y luego qué pasó? El reto diario del mercado" jsonLd={jsonLd}>
+  <Challenge locale="es" />
+</Base>

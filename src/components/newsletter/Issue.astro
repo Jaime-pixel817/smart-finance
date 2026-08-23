@@ -1,0 +1,33 @@
+---
+// Un número del boletín, generado en el build desde src/data/newsletter/<fecha>.json.
+//
+// El MISMO HTML lo escribe también src/scripts/newsletter-read.ts para los
+// números que ya salieron por correo pero todavía no están commiteados. Por eso
+// el cuerpo lo arma un módulo compartido (src/scripts/newsletter-shared.ts) y
+// los estilos son globales (src/styles/newsletter.css) y no un <style> scoped:
+// con scoped, la versión pintada en el navegador saldría sin formato.
+import '../../styles/newsletter.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import type { Numero } from '../../data/newsletter';
+import { cuerpoDelNumero, kicker } from '../../scripts/newsletter-shared';
+
+const { locale, numero } = Astro.props as { locale: Locale; numero: Numero };
+const t = useT(locale);
+const home = route('home', locale);
+const cuerpo = cuerpoDelNumero(numero, locale);
+---
+<article class="nl container">
+  <header class="nl-cab">
+    <p class="kicker">{kicker(numero, locale)}</p>
+    <h1 class="t-display">{numero.gancho[locale]}</h1>
+  </header>
+
+  <div class="nl-cuerpo" set:html={cuerpo} />
+
+  <footer class="nl-pie">
+    <a class="btn btn-primary" href={home + '#newsletter'}>{t('boletin.cta')}</a>
+    <a class="nl-volver" href={route('newsletter', locale)}>{t('boletin.volver')} →</a>
+  </footer>
+</article>

@@ -1,0 +1,39 @@
+{
+  "_lee_esto": "Cartera del Reto Actinver: un simulador de concurso estudiantil con DINERO FICTICIO. Este archivo lo edita Jaime a mano y es la única fuente de /actinver y /es/actinver. El esquema está en src/lib/portfolio/data.ts y se valida en cada build: si algo no cuadra, `npm run build` falla y dice qué campo es. Las claves que empiezan por guion bajo son notas para Jaime y no salen en la página.",
+  "_comoAnadirUnaPosicion": [
+    "1. Cuando la plataforma te dé el capital ficticio, escríbelo en capitalInicial (hoy va en null porque todavía no lo sabemos y no se inventa).",
+    "2. Copia el bloque _ejemplo de abajo dentro de posiciones[] y cámbiale los datos. Es un ejemplo válido: si lo copias tal cual, el build pasa.",
+    "3. ticker en mayúsculas y sin sufijo (WALMEX, no WALMEX.MX). historyPair es la clave de /api/history que trae el precio; la lista está en api/history.js, bloque BMV. Si el ticker no está ahí, déjalo en null: la posición sale igual, con su tesis, y en vez del precio dice que no hay precio automático.",
+    "4. tesis y riesgo los escribes TÚ, en una o dos frases. El español es obligatorio; el inglés es opcional y, si falta, la página inglesa enseña el texto en español marcado como tal.",
+    "5. Al cerrar una posición: estado pasa a \"cerrada\" y salida deja de ser null (fecha y precio de venta). El resto no se toca: así queda el historial completo de la operación.",
+    "6. Cambia actualizado a la fecha de hoy, guarda, `npm test` y `npm run build`, y sube el cambio. La página se actualiza en el siguiente despliegue; los precios los pone el navegador solo."
+  ],
+  "version": 1,
+  "tipo": "actinver",
+  "moneda": "MXN",
+  "capitalInicial": null,
+  "inicio": "2026-10-05",
+  "fin": "2026-11-13",
+  "practica": { "inicio": "2026-09-28", "fin": "2026-10-02" },
+  "actualizado": "2026-08-23",
+  "posiciones": [],
+  "_ejemplo": {
+    "ticker": "WALMEX",
+    "nombre": "Wal-Mart de México",
+    "mercado": "BMV",
+    "historyPair": "WALMEX",
+    "entrada": { "fecha": "2026-10-05", "precio": 60 },
+    "cantidad": 1000,
+    "peso": null,
+    "tesis": {
+      "es": "Ejemplo: aquí va la razón por la que compré, en una o dos frases y con mis palabras.",
+      "en": "Example: this is where the reason I bought goes, in one or two sentences and in my own words."
+    },
+    "riesgo": {
+      "es": "Ejemplo: aquí va lo que más puede salir mal con esta posición.",
+      "en": "Example: this is where the main thing that can go wrong with this position goes."
+    },
+    "estado": "abierta",
+    "salida": null
+  }
+}

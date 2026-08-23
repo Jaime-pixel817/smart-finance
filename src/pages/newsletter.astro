@@ -1,0 +1,17 @@
+---
+// El índice del boletín en inglés: /newsletter.
+//
+// OJO con la carpeta: public/newsletter/ ya sirve /newsletter/baja y
+// /newsletter/confirmado (las páginas de estado del alta, HTML legacy). Astro
+// escribe aquí dist/newsletter/index.html y los tres conviven sin pisarse.
+import Base from '../layouts/Base.astro';
+import IssueList from '../components/newsletter/IssueList.astro';
+import { useT } from '../i18n/ui';
+import { ogPropia } from '../lib/og';
+const t = useT('en');
+---
+<Base locale="en" routeId="newsletter" active="today"
+  title={t('boletin.h1') + ' — Smart Finance'} description={t('boletin.sub')}
+  ogImage={ogPropia('newsletter', 'en')} ogImageAlt="Smart Finance — the weekly newsletter">
+  <IssueList locale="en" />
+</Base>

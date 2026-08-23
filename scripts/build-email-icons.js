@@ -79,6 +79,22 @@ const ICONOS = {
     <path d="M12 6.6v10.8"/>
     <path d="M14.6 9.5c0-1.05-1.15-1.7-2.6-1.7s-2.6.7-2.6 1.9c0 2.7 5.2 1.5 5.2 4.1 0 1.2-1.15 1.9-2.6 1.9s-2.6-.7-2.6-1.75"/>
   `,
+  // Qué se movió: una flecha que sube y otra que baja. Es el único ícono con
+  // dos trazos que significan cosas distintas, y por eso van bien separados:
+  // a 16 px, dos flechas pegadas se leen como una sola mancha.
+  movimientos: `
+    <path d="M7 19.5V6.2"/>
+    <path d="m3.6 9.6 3.4-3.4 3.4 3.4"/>
+    <path d="M17 4.5v13.3"/>
+    <path d="m13.6 14.4 3.4 3.4 3.4-3.4"/>
+  `,
+  // La línea de Jaime: una pluma. Nada de comillas — el bloque ya va
+  // entrecomillado por su tipografía, y una comilla dentro de una comilla se
+  // lee como un error de maquetación.
+  nota: `
+    <path d="M4 20h4.2l10.4-10.4a2.1 2.1 0 0 0 0-3l-1.2-1.2a2.1 2.1 0 0 0-3 0L4 15.8V20Z"/>
+    <path d="m14.6 6.6 2.8 2.8"/>
+  `,
   // Hoy aprenderás: un libro abierto.
   leccion: `
     <path d="M12 7.2C10.5 5.9 8.6 5.3 6 5.3H3.8v11.4H6c2.6 0 4.5.6 6 1.9"/>

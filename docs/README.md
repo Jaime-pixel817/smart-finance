@@ -7,6 +7,7 @@ Nada de esta carpeta se sirve en el sitio (está en `.vercelignore`). Es la memo
 | Carpeta / archivo | Qué es |
 |---|---|
 | `2026-08-21-estrategia/` | Auditoría completa del sitio y plan "Smart Finance 2.0" (2026-08-21): `00-hallazgos-auditoria.md`, `01-agente-finanzas-y-datos.md`, `02-agente-diseno-y-funciones.md`, `03-agente-planeacion.md` (plan maestro 24-ago → 15-ene), `smart-finance-2-0.html` (documento publicado), `lighthouse-mobile-2026-08-21.json` y `capturas/` (móvil y escritorio). |
+| `2026-08-23-reto/` | El reto interactivo de `/challenge` y `/es/reto`: `00-tres-ideas-y-eleccion.md` (las tres ideas que se pusieron sobre la mesa, sus pros y sus contras, y por qué gana la del gráfico ciego). |
 | `context/memory.md` | Decisiones de arquitectura vigentes (Astro + islas, sin globo, LWC + SVG, Redis, `/research`, roadmap). |
 | `context/lessons.md` | Errores convertidos en reglas (push a main = producción, `/es` generado, zsh `path`, Twelve Data, etc.). |
 | `context/todo.md` | Pendientes de las semanas 1–2 del plan y decisiones que bloquean. |

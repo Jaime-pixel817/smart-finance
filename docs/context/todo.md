@@ -10,23 +10,16 @@ Fuente: `docs/2026-08-21-estrategia/03-agente-planeacion.md` (secciones B.2 y E)
 - [ ] Confirmar: eliminar globo 3D, modo claro en fase 2, "Why it matters (AI-assisted)", licencias MIT + CC BY-NC-ND 4.0, Vercel WA, hub `/research` en ambos idiomas
 
 ## Semana 1 (24–30 ago) — pending
-- [ ] **Proteger `main`** — LO TIENE QUE HACER JAIME (es configuración del repo; el agente no la cambia por su cuenta). Comando listo para pegar:
+- [x] **`main` protegida** — hecho el 23-ago-2026 con `gh api -X PUT repos/Jaime-pixel817/smart-finance/branches/main/protection`. Estado verificado con `gh api repos/Jaime-pixel817/smart-finance/branches/main/protection`:
   ```
-  gh api -X PUT repos/Jaime-pixel817/smart-finance/branches/main/protection \
-    -H "Accept: application/vnd.github+json" \
-    -F required_status_checks[strict]=true \
-    -F 'required_status_checks[contexts][]=ci' \
-    -F enforce_admins=false \
-    -F required_pull_request_reviews[required_approving_review_count]=0 \
-    -F required_pull_request_reviews[dismiss_stale_reviews]=true \
-    -F restrictions=null \
-    -F required_linear_history=true \
-    -F allow_force_pushes=false \
-    -F allow_deletions=false
+  pr_obligatorio: true    aprobaciones: 0        checks: ["ci"]  (estrictos: la rama tiene que estar al día)
+  historia_lineal: true   force_push: false      borrar_rama: false
+  admins: true            resolver_hilos: true
   ```
-  `required_approving_review_count: 0` a propósito: exige que todo pase por un PR, pero deja que Jaime lo mergee solo (nadie puede aprobar su propio PR, y con 1 se quedaría bloqueado siendo el único mantenedor). `enforce_admins: false` para que le quede una salida de emergencia. Por la interfaz: Settings → Branches → Add branch ruleset (o Add rule) sobre `main` → *Require a pull request before merging* (0 aprobaciones) + *Require status checks to pass* → buscar `ci` + *Require linear history*, y dejar desmarcados *Allow force pushes* y *Allow deletions*.
+  `required_approving_review_count: 0` a propósito: exige que todo pase por un PR, pero deja que Jaime lo mergee solo (nadie puede aprobar su propio PR, y con 1 se quedaría bloqueado siendo el único mantenedor). **`enforce_admins: true`**, o sea que la regla también le aplica a Jaime: ya no se puede hacer `git push` a `main` desde la terminal, ni siquiera él. Con historia lineal, el botón de *Create a merge commit* deja de valer: hay que mergear con **Squash** o **Rebase** (los dos están activados en el repo, comprobado).
+  **Salida de emergencia**, si algún día hay que subir algo a `main` a pelo: Settings → Branches → editar la regla y desmarcar *Do not allow bypassing the above settings*, o desde la terminal `gh api -X DELETE repos/Jaime-pixel817/smart-finance/branches/main/protection` (la quita entera; volver a ponerla es el `PUT` de arriba).
 - [ ] Vercel/GitHub: añadir `CRON_SECRET` como **secreto del repo** (Settings → Secrets and variables → Actions), el mismo valor que en Vercel. Sin él, el healthcheck se salta el informe de cuota en vez de fallar, pero nadie ve cuántos créditos de Twelve Data se están gastando.
-- [ ] Activar **squash merge** y *borrar rama al mergear* (Settings → General → Pull Requests)
+- [ ] *Borrar rama al mergear* (Settings → General → Pull Requests): sigue en `false`. El **squash merge** ya está activado (comprobado con `gh api repos/Jaime-pixel817/smart-finance --jq .allow_squash_merge`), y ahora hace falta: con la historia lineal de la protección, el merge commit deja de ser una opción.
 - [ ] Mergear PR `chore/repo-hygiene` (docs, agentes, CI, README/LICENSE) tras CI verde
 - [ ] Mergear PR `fix/quick-wins` (bug CSS `index.html:356`, fuera three.js/geoMasks/risk-sphere/desktop-check.png, reduced-motion, preload fuentes, jaime.jpg ≤ 30 KB, cache headers) con Lighthouse móvil ≥ 75
 - [ ] `docs/vision.md` (1 página) con `superpowers:brainstorming`

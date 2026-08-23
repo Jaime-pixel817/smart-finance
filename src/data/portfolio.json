@@ -1,0 +1,39 @@
+{
+  "_lee_esto": "Portafolio personal de Jaime: posiciones propias, publicadas con fines educativos. Mismo esquema que src/data/actinver.json (src/lib/portfolio/data.ts), validado en cada build. Diferencia de fondo: aquí el dinero es real, así que lo que se publica es la TESIS y el porcentaje, no el tamaño de la cuenta — capitalInicial va en null a propósito y las posiciones se declaran por cantidad de títulos.",
+  "_comoAnadirUnaPosicion": [
+    "1. Copia el bloque _ejemplo de abajo dentro de posiciones[] y cámbiale los datos. Es un ejemplo válido: si lo copias tal cual, el build pasa.",
+    "2. ticker en mayúsculas y sin sufijo. historyPair es la clave de /api/history (lista en api/history.js: los pares del sitio y el bloque BMV). Si no está, déjalo en null y la posición sale sin precio automático, con su tesis.",
+    "3. tesis y riesgo los escribes TÚ. El español es obligatorio; el inglés es opcional.",
+    "4. Todas las posiciones tienen que estar en la moneda del archivo (hoy MXN). Aquí NO se convierten divisas: si algún día hay una posición en dólares, primero se cambia src/lib/portfolio/cartera.mjs con su prueba.",
+    "5. Al cerrar: estado \"cerrada\" y salida con fecha y precio. La posición se queda en el archivo para que el historial no se borre.",
+    "6. Cambia actualizado, `npm test`, `npm run build` y sube el cambio."
+  ],
+  "version": 1,
+  "tipo": "personal",
+  "moneda": "MXN",
+  "capitalInicial": null,
+  "inicio": null,
+  "fin": null,
+  "practica": null,
+  "actualizado": "2026-08-23",
+  "posiciones": [],
+  "_ejemplo": {
+    "ticker": "NAFTRAC",
+    "nombre": "NAFTRAC (ETF del IPC)",
+    "mercado": "BMV",
+    "historyPair": "NAFTRAC",
+    "entrada": { "fecha": "2026-09-01", "precio": 60 },
+    "cantidad": 100,
+    "peso": null,
+    "tesis": {
+      "es": "Ejemplo: aquí va la razón por la que compré, en una o dos frases y con mis palabras.",
+      "en": "Example: this is where the reason I bought goes, in one or two sentences and in my own words."
+    },
+    "riesgo": {
+      "es": "Ejemplo: aquí va lo que más puede salir mal con esta posición.",
+      "en": "Example: this is where the main thing that can go wrong with this position goes."
+    },
+    "estado": "abierta",
+    "salida": null
+  }
+}

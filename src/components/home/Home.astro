@@ -1,29 +1,53 @@
 ---
-// Home "Hoy": HERO (globo a sangre + titular + línea Hoy) → Pulso → La
-// historia de hoy → Mercado global (la leyenda del globo) → Sigue aprendiendo
-// → Herramientas → Research → Mercados en 60 s → Breakdowns → Boletín → Quién
+// Home "Hoy": HERO (globo a sangre + titular + línea Hoy + la barra de las
+// ocho bolsas) → Pulso → La historia de hoy → Sigue aprendiendo →
+// Herramientas → Research → Mercados en 60 s → Breakdowns → Boletín → Quién
 // hace esto. En escritorio la misma estructura se ensancha a 12 columnas.
 //
-// EL GLOBO YA NO VIVE EN UNA TARJETA. Su lienzo está arriba, en el hero
-// (Hero.astro), a sangre y detrás del titular. Lo que queda aquí abajo con el
-// título "Mercado global" es su LEYENDA: los ocho chips con ciudad, cambio del
-// día y abierto/cerrado. No es un adorno duplicado — es el mismo dato en texto,
-// que es lo que leen un lector de pantalla y quien no tiene WebGL, y es donde
-// se toca para abrir la tarjeta de cada bolsa.
+// EL GLOBO ENTERO VIVE EN EL HERO. El lienzo, el titular y la barra de ocho
+// chips (ciudad, cambio del día, abierto/cerrado) están arriba, en Hero.astro:
+// los chips son el mismo dato en texto —lo que leen un lector de pantalla y
+// quien no tiene WebGL— y donde se toca para abrir la tarjeta de cada bolsa,
+// así que van pegados al globo y no treinta secciones más abajo.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import { PULSE, RATES, BREAKDOWNS, ratesFresh } from '../../data/home';
 import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
+import { foto } from '../../lib/photos';
 import SourceChip from '../SourceChip.astro';
-import WorldMarkets from './WorldMarkets.astro';
+import { useC } from '../../i18n/cartera';
+import { CARTERAS, tienePosiciones, type CarteraId } from '../../lib/portfolio/data';
+import { resumen, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
+import { dinero, pctFirmado, claseDir, dia } from '../../lib/portfolio/formato.mjs';
+import AssetRow from '../market/AssetRow.astro';
 import Hero from './Hero.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
 const L = (id: string) => route(id, locale);
 const showRates = ratesFresh();
+
+// Las carteras (/actinver y /portfolio) solo aparecen en el home CUANDO HAY
+// POSICIONES. Anunciar una página vacía desde la portada es prometer algo que
+// no está; mientras los JSON estén vacíos, esta sección no existe. Las cifras
+// salen de la última foto nocturna del repositorio, con su fecha a la vista.
+const c = useC(locale);
+const carteras = (['actinver', 'portfolio'] as CarteraId[]).filter(tienePosiciones).map((id) => {
+  const { cartera, historial } = CARTERAS[id];
+  // OJO: se llama `punto` y no `foto` porque `foto()` es el helper de
+  // src/lib/photos.ts, importado arriba y usado más abajo para el avatar.
+  const punto = ultimoPunto(historial);
+  const r = resumen(cartera, punto ? punto.precios : {});
+  return {
+    id, foto: punto, r,
+    titulo: id === 'actinver' ? c.actinver.eyebrow : c.portfolio.eyebrow,
+    nota: id === 'actinver' ? c.actinver.warnH : c.portfolio.warnH,
+    moneda: cartera.moneda,
+    abiertas: r.abiertas.length
+  };
+});
 const strings = {
   open: t('today.open'), closed: t('today.closed'), loading: t('src.loading'), unavailable: t('src.unavailable'),
   // La historia de hoy prefiere la noticia REVISADA; si no hay ninguna, cae al
@@ -31,6 +55,11 @@ const strings = {
   storyOpen: t('news.open'), storyRead: t('story.read'), storyAi: t('news.ai'), storyWhat: t('news.what'),
   nlOk: t('nl.ok'), nlBadEmail: t('nl.badEmail'), nlNoConsent: t('nl.noConsent'), nlLimit: t('nl.limit'), nlError: t('nl.error'), nlSending: t('nl.sending')
 };
+// "Lo que sigues": las filas se pintan aquí (escondidas) y el script enciende
+// las que estén en la watchlist local. Si no sigues nada, la tarjeta no
+// aparece y NO se pide ningún dato de más: el home ya es la página con más
+// trabajo del sitio y una watchlist vacía no puede costarle una petición.
+const watchRuntime = ASSETS.map((a) => ({ id: a.id, feed: a.feed, feedKey: a.feedKey, kind: a.kind, decimals: a.decimals, invert: a.invert }));
 // Lecciones desde la colección MDX: la tarjeta grande es la primera de la ruta
 // "Desde cero"; el script de progreso la cambia por la siguiente sin leer.
 const lessons = await getLessons(locale);
@@ -49,28 +78,10 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 
   <div class="home-body">
   <div class="container grid">
-    <!-- ── Mercado global: la LEYENDA del globo del hero ────────────────
-         VA LA PRIMERA, pegada al globo. El lienzo está arriba (Hero.astro) y
-         aquí van los ocho chips con ciudad · cambio del día · abierto/cerrado:
-         el mismo dato en texto, que es lo que leen un lector de pantalla y
-         quien no tiene WebGL, y donde se toca para abrir la tarjeta de cada
-         bolsa (evento world:select). Junto al globo se entiende qué son esos
-         puntos; treinta secciones más abajo, no. -->
-    <section id="globe" class="globe col-5" aria-labelledby="globe-h">
-      <div class="section-head">
-        <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
-      </div>
-      <div class="card globe-card">
-        <WorldMarkets locale={locale} />
-        <p class="t-caption faint globe-note">{t('globe.sub')}</p>
-        <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
-      </div>
-    </section>
-
     <!-- ── Frase de bienvenida, solo la primera visita ──────────────
-         Va DESPUÉS de World markets: lo que tiene que asomar por debajo del
-         hero en la primera pantalla es la leyenda de bolsas, no esto. La línea
-         Hoy (fecha · NYSE · BMV) se fue al hero, que es donde se mira. -->
+         Es lo primero de .home-body y lo que asoma por debajo del hero: la
+         barra de bolsas y la línea Hoy (fecha · NYSE · BMV) están arriba, en
+         el hero, que es donde se miran. -->
     <section class="today col-12" aria-label={t('today.label')}>
       <p id="today-intro" class="today-intro t-small muted">
         <span>{t('today.intro')}</span>
@@ -103,8 +114,22 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       </div>
     </section>
 
+    <!-- ── Lo que sigues (watchlist local, sin cuenta) ───────────── -->
+    <section id="home-watch" class="home-watch col-12" aria-labelledby="home-watch-h"
+      data-watch={JSON.stringify(watchRuntime)} hidden>
+      <div class="section-head">
+        <h2 id="home-watch-h" class="t-h3">{t('watch.title')}</h2>
+        <a class="more" id="home-watch-compare" href={L('market.compare')}>{t('watch.compare')} →</a>
+      </div>
+      <div class="card home-watch-card">
+        <ul class="mkt-rows" id="home-watch-rows">
+          {ASSETS.map((a) => <AssetRow locale={locale} s={a} href={L(assetRouteId(a.id))} seguible oculta />)}
+        </ul>
+      </div>
+    </section>
+
     <!-- ── La historia de hoy ────────────────────────────────────── -->
-    <section id="story" class="story col-7" aria-labelledby="story-h" data-state="loading">
+    <section id="story" class="story col-8" aria-labelledby="story-h" data-state="loading">
       <div class="section-head">
         <h2 id="story-h" class="t-h3">{t('story.title')}</h2>
         <a class="more" href={L('news')}>{t('news.all')} →</a>
@@ -203,6 +228,31 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       </a>
     </section>
 
+    <!-- ── Mis carteras (solo si hay posiciones) ─────────────────── -->
+    {carteras.length > 0 && (
+      <section id="carteras" class="carteras col-12" aria-labelledby="cart-h">
+        <div class="section-head">
+          <h2 id="cart-h" class="t-h3">{c.lbl.homeH}</h2>
+          <a class="more" href={L('portfolio')}>{c.lbl.homeOpen} →</a>
+        </div>
+        <div class="cart-cards">
+          {carteras.map((x) => (
+            <a class="card card-link cart-card" href={L(x.id)}>
+              <p class="eyebrow">{x.titulo} <span aria-hidden="true">·</span> {x.nota}</p>
+              <p class="cart-val num">{dinero(x.r.valorTotal, locale, x.moneda, 0)}</p>
+              <p class="cart-line t-small">
+                <span class:list={['num', claseDir(x.r.variacion ? x.r.variacion.pct : null)]}>
+                  {x.r.variacion ? pctFirmado(x.r.variacion.pct, locale) : '—'}
+                </span>
+                <span class="muted">{x.abiertas} {c.lbl.positions.toLowerCase()}</span>
+              </p>
+              {x.foto && <p class="t-caption faint">{dia(x.foto.fecha, locale)}</p>}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
     <!-- ── Mercados en 60 s ──────────────────────────────────────── -->
     <section id="m60" class="m60 col-6" aria-labelledby="m60-h">
       <div class="section-head">
@@ -279,7 +329,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     <section id="who" class="who col-4" aria-labelledby="who-h">
       <span id="about" class="anchor-alias" aria-hidden="true"></span>
       <div class="card who-card">
-        <img class="who-avatar" src="/assets/jaime-96.jpg" alt={t('alt.jaime')} width="48" height="48" loading="lazy" decoding="async">
+        <img class="who-avatar" src={foto('jaime-96.jpg')} alt={t('alt.jaime')} width="48" height="48" loading="lazy" decoding="async">
         <div>
           <h2 id="who-h" class="eyebrow">{t('who.title')}</h2>
           <p class="t-small who-name">{t('who.name')}</p>
@@ -296,6 +346,13 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 <script src="../../scripts/home-learn.ts"></script>
 
 <style>
+  /* Lo que sigues: la misma fila de /market dentro de una tarjeta. */
+  .home-watch[hidden] { display: none; }
+  .home-watch-card { padding: var(--sp-1) var(--sp-2) var(--sp-2); }
+  /* Igual que en /market: [hidden] pierde contra el display de .more. */
+  .home-watch .more[hidden] { display: none; }
+  .home-watch .mkt-rows { display: flex; flex-direction: column; }
+
   /* El hero va a sangre desde y = 0; lo de después empieza aquí, y es OPACO
      (z-index 3) porque al hacer scroll tiene que tapar el globo, que está fijo
      en z-index 1. Sin fondo propio se vería el globo detrás del pulso. */
@@ -305,17 +362,15 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); margin-top: var(--sp-4); }
   .grid > section { min-width: 0; }
   @media (min-width: 960px) {
-    /* `dense` y no `order`: World markets (col-5) va ahora el primero, y detrás
-       vienen la frase de bienvenida y el Pulso, que ocupan 12 columnas y no
-       caben a su lado. Sin `dense` quedarían siete columnas muertas junto a la
-       leyenda y otras cinco junto a la historia del día; con él, la historia
-       (col-7) rellena el hueco de la primera fila y el escritorio se queda con
-       el MISMO reparto de siempre —leyenda a la izquierda, historia a la
-       derecha— sin tocar el orden del HTML, que es el del teléfono y el del
-       lector de pantalla. Lo único que se paga es que en escritorio la historia
-       se ve antes de lo que se tabula; el orden del documento sigue siendo el
-       orden en que se cuenta. */
-    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row dense; column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
+    /* Sin `dense`: el orden visual es el del HTML, que es el del teléfono y el
+       del lector de pantalla. Lo era antes por un apaño —la leyenda de bolsas
+       (col-5) abría la rejilla y la historia (col-7) le rellenaba la fila—,
+       pero la leyenda se mudó al hero y el apaño sobra. Las filas cuadran
+       solas: 8+4 (aprender/herramientas), 6+6 (research/mercados en 60 s),
+       12 y 8+4 (boletín/quién). La historia (col-8) abre sola: es la pieza
+       larga del día y no hay nada de cuatro columnas que quiera ir a su lado
+       sin adelantarse en el relato. */
+    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
     .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; }
     .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
   }
@@ -363,12 +418,6 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .ai-disclosure p { margin-top: var(--sp-2); max-width: 52ch; }
   #story-link[hidden] { display: none; }
 
-  /* Mercado global (la leyenda del globo del hero) */
-  .globe-card { padding: 0 0 var(--sp-1); overflow: hidden; position: relative; }
-  .globe-note, .globe-motion { padding: var(--sp-2) var(--sp-4) var(--sp-3); }
-  .globe-motion { display: none; }
-  @media (prefers-reduced-motion: reduce) { .globe-note { display: none; } .globe-motion { display: block; } }
-
   /* Aprender */
   .learn-card { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-3); }
   .learn-cta { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-1); }
@@ -394,6 +443,12 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .research-verified { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); background: var(--bg-2); border-radius: var(--r-btn); color: var(--ink-2); }
   .research-verified .eyebrow { color: var(--ink-2); } /* --ink-3 sobre --bg-2 a 11 px: 4.4:1 */
   .research-cta { align-self: flex-start; }
+
+  .cart-cards { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
+  @media (min-width: 768px) { .cart-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .cart-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cart-val { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero; font-size: var(--fs-num-l); line-height: 1.2; }
+  .cart-line { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
 
   /* Mercados en 60 s */
   .m60-card { padding: var(--sp-2) var(--sp-3) var(--sp-3); }

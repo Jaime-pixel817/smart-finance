@@ -1,89 +1,174 @@
-// Los seis tips de "Start Here", para el tip del día del boletín.
+// Las lecciones publicadas, para "la lección de la semana" del boletín.
 //
-// GENERADO desde lessons/index.html — si cambias el texto de una lección,
-// vuelve a generarlo en vez de editar aquí, para que el correo y la página no
-// se desincronicen.
+// COPIADO DE LAS LECCIONES DE VERDAD, NO ESCRITO AQUÍ. Cada entrada sale del
+// frontmatter de src/content/lessons/{en,es}/<slug>.mdx: `title`,
+// `description` y `readingMinutes`. api/ no puede leer esos MDX en Vercel —el
+// empaquetado solo se lleva lo que la función requiere—, así que la copia es
+// inevitable; lo que sí se puede evitar es que se desincronice en silencio, y
+// de eso se encarga la prueba de boletin.test.mjs, que abre los diez MDX y
+// compara campo por campo. Si alguien retoca el título de una lección, la
+// prueba falla y dice cuál.
 //
-// La rotación usa el día del año: el mismo tip para todos los suscriptores de
-// ese día, sin estado que guardar y sin pedirle nada a la IA. Con 6 tips y 365
-// días cada uno cae cada seis días, siempre en el mismo orden.
+// LAS DOS URL, Y ESTO ERA UN FALLO DE VERDAD: antes solo se guardaba la ruta
+// inglesa y el correo en español mandaba a /lessons/inflacion, o sea a la
+// lección en inglés. Ahora cada entrada lleva su ruta en los dos idiomas, tal
+// como están registradas en src/i18n/routes.ts.
 //
-// EL BOLETÍN USA `tipDeLaSemana` desde que sale los domingos. La diferencia no
-// es cosmética: el correo la anuncia como "la lección de esta semana", y con la
-// rotación por día eso sería falso — sería la lección del domingo, y el lunes
-// ya estaría enseñando otra. Con la rotación por semana, lo que dice el correo
-// y lo que el lector encuentra si entra el miércoles son lo mismo.
-//
-// `tipDelDia` se queda: /api/news lo usa para el carrusel del sitio.
+// La rotación usa el día del año (`tipDelDia`, para el carrusel de /api/news) o
+// la semana ISO (`tipDeLaSemana`, para el boletín): el mismo tip para todos los
+// suscriptores, sin estado que guardar y sin pedirle nada a la IA.
 
+// El orden ES la rotación, y va por ruta de aprendizaje: primero "desde cero",
+// luego "mercados", luego "invertir". Quien se suscriba y se quede diez semanas
+// habrá recorrido el plan completo en orden, que es más útil que diez lecciones
+// sueltas en orden alfabético.
 const TIPS = [
   {
-    "en": {
-      "titulo": "What it means when the peso weakens",
-      "resumen": "It means each dollar costs more pesos. Anything imported — gas, phones, streaming — gets pricier, and traveling abroad costs more. If you earn in dollars it's the opposite: your money stretches further at home."
-    },
-    "es": {
-      "titulo": "¿Qué significa que el peso se deprecie?",
-      "resumen": "Significa que cada dólar cuesta más pesos. Todo lo importado —gasolina, celulares, streaming— se encarece, y viajar fuera cuesta más. Si tú ganas en dólares es al revés: tu dinero rinde más aquí."
-    },
-    "url": "/lessons/peso-tipo-de-cambio"
-  },
-  {
-    "en": {
-      "titulo": "Simple vs. compound interest, in 30 seconds",
-      "resumen": "Simple interest only ever pays you on the money you put in. Compound interest pays you on your money and on the interest it already earned. Same deposit, same rate — compound just keeps building on a bigger base."
-    },
-    "es": {
-      "titulo": "Interés simple vs. compuesto, en 30 segundos",
-      "resumen": "El interés simple solo te paga sobre lo que metiste. El compuesto te paga sobre tu dinero y también sobre los intereses que ya generaste. Mismo depósito, misma tasa: el compuesto va construyendo sobre una base cada vez más grande."
-    },
-    "url": "/lessons/interes-compuesto"
-  },
-  {
-    "en": {
-      "titulo": "Why the S&P 500 goes up or down",
-      "resumen": "It tracks 500 of the largest US companies, so it moves with what people expect those companies to earn. Better expected profits push it up; higher rates, bad news, or plain fear push it down. Day to day is noise — the trend is what matters."
-    },
-    "es": {
-      "titulo": "¿Por qué sube o baja el S&P 500?",
-      "resumen": "Sigue a 500 de las empresas más grandes de Estados Unidos, así que se mueve con lo que la gente espera que ganen. Mejores utilidades esperadas lo suben; tasas más altas, malas noticias o puro miedo lo bajan. El día a día es ruido: lo que importa es la tendencia."
-    },
-    "url": "/lessons/sp500"
-  },
-  {
+    "slug": "presupuesto-50-30-20",
+    "minutos": 6,
+    "url": "/lessons/presupuesto-50-30-20",
+    "urlEs": "/es/lecciones/presupuesto-50-30-20",
     "en": {
       "titulo": "The 50/30/20 rule for your first budget",
-      "resumen": "Split what actually lands in your account: 50% needs (rent, food, transport), 30% wants, 20% saving or paying down debt. It won't fit everyone perfectly, and that's fine — it's a starting point, not a law."
+      "resumen": "How to build your first budget in Mexico: from your real take-home pay to a plan that survives a normal month."
     },
     "es": {
       "titulo": "La regla 50/30/20 para tu primer presupuesto",
-      "resumen": "Divide lo que de verdad te cae en la cuenta: 50% necesidades (renta, comida, transporte), 30% gustos, 20% ahorro o pagar deudas. No le queda perfecto a todo el mundo, y está bien: es un punto de partida, no una ley."
-    },
-    "url": "/lessons/presupuesto-50-30-20"
+      "resumen": "Cómo armar tu primer presupuesto en México: de lo que de verdad te llega libre a un plan que sobrevive un mes normal."
+    }
   },
   {
+    "slug": "interes-compuesto",
+    "minutos": 5,
+    "url": "/lessons/interes-compuesto",
+    "urlEs": "/es/lecciones/interes-compuesto",
     "en": {
-      "titulo": "What inflation is, and how it hits you",
-      "resumen": "Inflation means the same money buys less than it did before. Your salary can stay identical on paper and still shrink in practice. That's why money sitting still loses value, and why central banks raise rates to cool it down."
+      "titulo": "Simple vs. compound interest",
+      "resumen": "What compound interest actually is, why time matters more than the amount you start with, and how the same force works against you on a credit card."
     },
     "es": {
-      "titulo": "¿Qué es la inflación y cómo te afecta?",
-      "resumen": "Que el mismo dinero compra menos que antes. Tu sueldo puede quedarse igualito en papel y aun así encoger en la práctica. Por eso el dinero quieto pierde valor, y por eso los bancos centrales suben tasas para enfriarla."
-    },
-    "url": "/lessons/inflacion"
+      "titulo": "Interés simple vs. interés compuesto",
+      "resumen": "Qué es de verdad el interés compuesto, por qué el tiempo pesa más que el monto con el que empiezas, y cómo esa misma fuerza corre en tu contra en una tarjeta de crédito."
+    }
   },
   {
+    "slug": "inflacion",
+    "minutos": 5,
+    "url": "/lessons/inflacion",
+    "urlEs": "/es/lecciones/inflacion",
+    "en": {
+      "titulo": "What inflation is, and how it hits you",
+      "resumen": "Why the same money buys less over time, how a raise can still be a pay cut, and what central banks are actually doing when they raise rates."
+    },
+    "es": {
+      "titulo": "Qué es la inflación y cómo te afecta",
+      "resumen": "Por qué el mismo dinero compra menos con el tiempo, cómo un aumento puede ser en realidad un recorte, y qué hacen los bancos centrales cuando suben las tasas."
+    }
+  },
+  {
+    "slug": "tarjeta-de-credito",
+    "minutos": 6,
+    "url": "/lessons/tarjeta-de-credito",
+    "urlEs": "/es/lecciones/tarjeta-de-credito",
+    "en": {
+      "titulo": "Your first credit card (and how not to wreck yourself)",
+      "resumen": "What the CAT really is, why the minimum payment is a trap, how the interest starts running, and what a credit history buys you later."
+    },
+    "es": {
+      "titulo": "Tu primera tarjeta de crédito (y cómo no arruinarte)",
+      "resumen": "Qué es de verdad el CAT, por qué el pago mínimo es una trampa, cuándo empiezan a correr los intereses y para qué te sirve después el historial crediticio."
+    }
+  },
+  {
+    "slug": "peso-tipo-de-cambio",
+    "minutos": 5,
+    "url": "/lessons/peso-tipo-de-cambio",
+    "urlEs": "/es/lecciones/peso-tipo-de-cambio",
+    "en": {
+      "titulo": "What it means when the peso weakens",
+      "resumen": "A beginner's guide to how the peso-dollar exchange rate works: who moves it, why it swings, and what it means for your money."
+    },
+    "es": {
+      "titulo": "Qué significa que el peso se deprecie",
+      "resumen": "Guía para principiantes sobre cómo funciona el tipo de cambio peso-dólar: quién lo mueve, por qué brinca y qué significa para tu dinero."
+    }
+  },
+  {
+    "slug": "que-es-una-accion",
+    "minutos": 6,
+    "url": "/lessons/que-es-una-accion",
+    "urlEs": "/es/lecciones/que-es-una-accion",
+    "en": {
+      "titulo": "What you actually buy when you buy a share",
+      "resumen": "A share is a piece of a company, not a number on a screen. Where its value comes from, why the price moves, what a dividend is, and why it is not a lottery ticket."
+    },
+    "es": {
+      "titulo": "Qué compras realmente cuando compras una acción",
+      "resumen": "Una acción es un pedazo de una empresa, no un número en una pantalla. De dónde sale su valor, por qué sube y baja, qué es un dividendo y por qué no es un boleto de lotería."
+    }
+  },
+  {
+    "slug": "como-funciona-la-bolsa",
+    "minutos": 6,
+    "url": "/lessons/como-funciona-la-bolsa",
+    "urlEs": "/es/lecciones/como-funciona-la-bolsa",
+    "en": {
+      "titulo": "How a stock exchange actually works",
+      "resumen": "What happens between pressing buy and owning a share: the order book, the BMV, its hours, who regulates it, what an index is and what you would see if you walked in."
+    },
+    "es": {
+      "titulo": "Cómo funciona una Bolsa de Valores",
+      "resumen": "Qué pasa entre que aprietas comprar y eres dueño de una acción: el libro de órdenes, la BMV, sus horarios, quién la regula, qué es un índice y qué verías si la visitas."
+    }
+  },
+  {
+    "slug": "sp500",
+    "minutos": 5,
+    "url": "/lessons/sp500",
+    "urlEs": "/es/lecciones/sp500",
+    "en": {
+      "titulo": "Why the S&P 500 goes up or down",
+      "resumen": "What the S&P 500 actually measures, the four forces that move it, and why the daily number is mostly noise."
+    },
+    "es": {
+      "titulo": "¿Por qué sube o baja el S&P 500?",
+      "resumen": "Qué mide en realidad el S&P 500, las cuatro fuerzas que lo mueven y por qué el número de cada día es casi puro ruido."
+    }
+  },
+  {
+    "slug": "errores-al-invertir",
+    "minutos": 6,
+    "url": "/lessons/errores-al-invertir",
+    "urlEs": "/es/lecciones/errores-al-invertir",
     "en": {
       "titulo": "3 common mistakes when you start investing",
-      "resumen": "Investing money you'll need next month. Chasing whatever went up the most last week. And checking your account every single day, which turns normal swings into panic. Slow and boring usually wins."
+      "resumen": "Saving and investing do different jobs. Here's the order that works, and the signal that tells you you're ready to start investing."
     },
     "es": {
       "titulo": "3 errores comunes al empezar a invertir",
-      "resumen": "Invertir dinero que vas a necesitar el mes que entra. Perseguir lo que más subió la semana pasada. Y revisar tu cuenta todos los días, que convierte movimientos normales en pánico. Lo lento y aburrido suele ganar."
+      "resumen": "Ahorrar e invertir hacen trabajos distintos. Este es el orden que sí funciona, y la señal de que ya estás listo para empezar a invertir."
+    }
+  },
+  {
+    "slug": "etfs",
+    "minutos": 6,
+    "url": "/lessons/etfs",
+    "urlEs": "/es/lecciones/etfs",
+    "en": {
+      "titulo": "ETFs: five hundred companies in one go",
+      "resumen": "What an ETF is, why it diversifies, what its fee really costs you, two real examples (an S&P 500 ETF and NAFTRAC), and how it differs from picking single shares."
     },
-    "url": "/lessons/errores-al-invertir"
+    "es": {
+      "titulo": "ETFs: 500 empresas de un solo golpe",
+      "resumen": "Qué es un ETF, por qué diversifica, cuánto te cuesta de verdad su comisión, dos ejemplos reales (un ETF del S&P 500 y NAFTRAC) y en qué se diferencia de comprar acciones sueltas."
+    }
   }
 ];
+
+/** La ruta de la lección en el idioma del lector. */
+function urlDelTip(tip, idioma) {
+  return idioma === 'es' ? tip.urlEs : tip.url;
+}
 
 // Día del año (1-366) en la zona horaria de Ciudad de México, que es la que
 // manda para un boletín que sale a las 8 de la mañana de allá.
@@ -112,12 +197,12 @@ function semanaDelAnio(fecha = new Date()) {
 }
 
 /**
- * La lección de la semana. Con 6 lecciones, la rotación se repite cada 6
- * semanas y va en el mismo orden para todos los suscriptores, sin estado que
- * guardar y sin pedirle nada a la IA.
+ * La lección de la semana. Con diez lecciones la rotación se repite cada diez
+ * semanas —antes eran seis— y va en el mismo orden para todos los suscriptores,
+ * sin estado que guardar y sin pedirle nada a la IA.
  */
 function tipDeLaSemana(fecha = new Date()) {
   return TIPS[semanaDelAnio(fecha) % TIPS.length];
 }
 
-module.exports = { TIPS, tipDelDia, tipDeLaSemana, diaDelAnio, semanaDelAnio };
+module.exports = { TIPS, tipDelDia, tipDeLaSemana, diaDelAnio, semanaDelAnio, urlDelTip };

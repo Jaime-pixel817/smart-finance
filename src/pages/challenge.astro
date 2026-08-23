@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Challenge from '../components/challenge/Challenge.astro';
+import { SITE } from '../i18n/routes';
+import { ogPropia } from '../lib/og';
+import { ui } from '../i18n/ui';
+const t = ui.en;
+const title = 'What happened next? The daily market challenge — Smart Finance';
+const description = t['reto.desc'];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + '/challenge',
+  inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: {
+    '@type': 'WebApplication',
+    name: 'What happened next?',
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' }
+  }
+};
+---
+<Base locale="en" routeId="challenge" active="tools" title={title} description={description}
+  ogImage={ogPropia('challenge', 'en')} ogImageAlt="Smart Finance — What happened next? The daily market challenge" jsonLd={jsonLd}>
+  <Challenge locale="en" />
+</Base>

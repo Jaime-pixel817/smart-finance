@@ -1,0 +1,34 @@
+---
+// Un número del boletín en español: /es/boletin/<fecha>. La gemela de
+// src/pages/newsletter/[fecha].astro; el mismo JSON pinta las dos.
+import Base from '../../../layouts/Base.astro';
+import Issue from '../../../components/newsletter/Issue.astro';
+import { NUMEROS, numeroRouteId, type Numero } from '../../../data/newsletter';
+import { SITE } from '../../../i18n/routes';
+import { ogPropia } from '../../../lib/og';
+
+export async function getStaticPaths() {
+  return NUMEROS.map((numero) => ({ params: { fecha: numero.fecha }, props: { numero } }));
+}
+const { numero } = Astro.props as { numero: Numero };
+const url = SITE + '/es/boletin/' + numero.fecha;
+const description = numero.resumen.es;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: numero.gancho.es,
+  description,
+  datePublished: numero.enviadoEn,
+  inLanguage: 'es-MX',
+  url,
+  mainEntityOfPage: url,
+  isPartOf: { '@type': 'PublicationIssue', issueNumber: numero.numero, name: 'Boletín semanal de Smart Finance' },
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="es" routeId={numeroRouteId(numero.fecha)} active="today" ogType="article"
+  title={numero.gancho.es + ' — Smart Finance'} description={description} jsonLd={jsonLd}
+  ogImage={ogPropia('newsletter', 'es')} ogImageAlt="Smart Finance — el boletín semanal">
+  <Issue locale="es" numero={numero} />
+</Base>
