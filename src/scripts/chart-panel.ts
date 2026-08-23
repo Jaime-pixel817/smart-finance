@@ -269,11 +269,25 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   // ---- Máximo y mínimo del periodo -----------------------------------------
   // Es lo que se lee de un vistazo: cuándo subió más y cuándo cayó más. La
   // etiqueta lleva la hora en 1D y el día en los rangos largos.
+  /** ¿La ventana cruza la medianoche del VISITANTE? (cripto y divisas, sí). */
+  function cruzaMedianoche(): boolean {
+    const pts = data?.points;
+    if (!pts || pts.length < 2) return false;
+    const dia = (ts: number) => new Date(ts * 1000).toLocaleDateString('en-CA');
+    return dia(pts[0][0]) !== dia(pts[pts.length - 1][0]);
+  }
   function markerLabel(ts: number): string {
     const d = new Date(ts * 1000);
     // Misma forma que las marcas del eje justo debajo ("9:50am"), que ocupa la
-    // mitad que "09:50 AM" y no obliga a leer dos relojes distintos.
-    if (range === '1D') return squeezeAmPm(new Intl.DateTimeFormat(TAG[loc], { hour: 'numeric', minute: '2-digit' }).format(d));
+    // mitad que "09:50 AM" y no obliga a leer dos relojes distintos. Si la
+    // ventana cruza la medianoche del visitante (cripto, divisas), la hora
+    // sola no dice de qué día es: se le pone el día delante.
+    if (range === '1D') {
+      const hora = squeezeAmPm(new Intl.DateTimeFormat(TAG[loc], { hour: 'numeric', minute: '2-digit' }).format(d));
+      if (!cruzaMedianoche()) return hora;
+      const wd = new Intl.DateTimeFormat(TAG[loc], { weekday: 'short' }).format(d).replace(/\.,?/g, '');
+      return `${wd} ${hora}`;
+    }
     // En 1M/3M/1A el día y el mes ya son únicos dentro de la ventana; en 5A no
     // ("9 ago" podría ser cualquiera de los cinco), así que ahí va el año.
     const o: Intl.DateTimeFormatOptions = range === '5Y'
