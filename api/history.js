@@ -53,6 +53,15 @@ const RANGE_MAP = {
   // dias y nos quedamos con los ultimos N puntos (una sesion), asi el sabado se
   // ve la sesion del viernes.
   '1D': { range: '5d', interval: '5m', intraday: true },
+  // Una semana en barras de una hora: ~120 puntos en divisas (operan casi 24 h)
+  // y ~35 en el VIX. Lo pide el boletín SEMANAL, que resume lo que hizo el
+  // mercado de lunes a viernes; con barras diarias serían cinco puntos y la
+  // curva del correo saldría como una escalera.
+  //
+  // No lleva `intraday`: recortar a `intradayPoints` (78 o 288, pensados para
+  // UNA sesión) se comería justo los días de atrás que esta vista existe para
+  // enseñar.
+  '1W': { range: '5d', interval: '1h' },
   '1M': { range: '1mo', interval: '1d' },
   '3M': { range: '3mo', interval: '1d' },
   '1Y': { range: '1y', interval: '1d' },
@@ -65,9 +74,52 @@ const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 const CACHE_TTL_MS = 60 * 1000;
-// Reused across warm invocations of the same lambda instance; the
-// Cache-Control header below is what actually guarantees the 60s cache.
-const cache = new Map();
+const CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=120';
+
+// La caché es COMPARTIDA (api/_lib/cache.js, Redis) y ya no un Map por
+// instancia. Aquí importa más que en el resto: hay 21 símbolos × 5 rangos, o
+// sea 105 combinaciones, y cada instancia nueva de Vercel empezaba con las 105
+// vacías. La clave lleva el par y el rango porque cada combinación es un dato
+// distinto.
+const cache = require('./_lib/cache.js');
+
+async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
+  const url =
+    'https://query1.finance.yahoo.com/v8/finance/chart/' +
+    encodeURIComponent(symbolCfg.yahoo) +
+    '?range=' + rangeCfg.range + '&interval=' + rangeCfg.interval;
+
+  const yahooRes = await fetch(url, {
+    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' }
+  });
+  if (!yahooRes.ok) throw new Error('yahoo responded ' + yahooRes.status);
+
+  const json = await yahooRes.json();
+  const result = json && json.chart && json.chart.result && json.chart.result[0];
+  if (!result) throw new Error('unexpected yahoo response shape');
+
+  const timestamps = result.timestamp || [];
+  const closes =
+    (result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [];
+
+  let points = timestamps
+    .map((t, i) => [t, closes[i]])
+    .filter(([, c]) => typeof c === 'number' && !isNaN(c));
+
+  if (rangeCfg.intraday && points.length > symbolCfg.intradayPoints) {
+    points = points.slice(-symbolCfg.intradayPoints);
+  }
+
+  if (!points.length) throw new Error('no data points');
+
+  return {
+    pair,
+    symbol: symbolCfg.yahoo,
+    range,
+    currency: result.meta && result.meta.currency,
+    points
+  };
+}
 
 module.exports = async function handler(req, res) {
   const pair = String(req.query.pair || '').toUpperCase();
@@ -81,57 +133,19 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const cacheKey = pair + ':' + range;
-  const cached = cache.get(cacheKey);
-  if (cached && cached.expires > Date.now()) {
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
-    res.status(200).json(cached.body);
-    return;
-  }
-
   try {
-    const url =
-      'https://query1.finance.yahoo.com/v8/finance/chart/' +
-      encodeURIComponent(symbolCfg.yahoo) +
-      '?range=' + rangeCfg.range + '&interval=' + rangeCfg.interval;
-
-    const yahooRes = await fetch(url, {
-      headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' }
+    const r = await cache.conCache({
+      clave: 'history:v1:' + pair + ':' + range,
+      ttl: CACHE_TTL_MS / 1000,
+      proveedor: { nombre: 'yahoo', creditos: 1 },
+      calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
     });
-    if (!yahooRes.ok) throw new Error('yahoo responded ' + yahooRes.status);
-
-    const json = await yahooRes.json();
-    const result = json && json.chart && json.chart.result && json.chart.result[0];
-    if (!result) throw new Error('unexpected yahoo response shape');
-
-    const timestamps = result.timestamp || [];
-    const closes =
-      (result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [];
-
-    let points = timestamps
-      .map((t, i) => [t, closes[i]])
-      .filter(([, c]) => typeof c === 'number' && !isNaN(c));
-
-    if (rangeCfg.intraday && points.length > symbolCfg.intradayPoints) {
-      points = points.slice(-symbolCfg.intradayPoints);
-    }
-
-    if (!points.length) throw new Error('no data points');
-
-    const body = {
-      pair,
-      symbol: symbolCfg.yahoo,
-      range,
-      currency: result.meta && result.meta.currency,
-      points
-    };
-
-    cache.set(cacheKey, { expires: Date.now() + CACHE_TTL_MS, body });
-
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
-    res.status(200).json(body);
+    res.setHeader('Cache-Control', CACHE_CONTROL);
+    // `stale` es un campo AÑADIDO: la gráfica sigue leyendo `points` igual, y
+    // con esto puede decir "último dato conocido" en vez de quedarse vacía.
+    res.status(200).json(r.stale ? Object.assign({}, r.valor, { stale: true }) : r.valor);
   } catch (err) {
-    console.error('history fetch failed:', err);
+    console.error('history fetch failed:', err && err.message);
     res.status(502).json({ error: 'upstream fetch failed' });
   }
 };

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Community from '../../components/community/Community.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 const title = 'La comunidad estudiantil Smart Finance — Smart Finance';
 const description = 'El grupo estudiantil que fundó y preside Jaime Sandoval Ricaño: finanzas y finanzas personales, visitas a la Bolsa Mexicana de Valores, pláticas y talleres, y voluntariados por la comunidad y el medio ambiente. Para estudiantes de prepa y universidad.';
 const jsonLd = {
@@ -22,6 +23,7 @@ const jsonLd = {
   }
 };
 ---
-<Base locale="es" routeId="community" active="community" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="es" routeId="community" active="community" title={title} description={description}
+  ogImage={ogPropia('community', 'es')} ogImageAlt="Smart Finance — La comunidad estudiantil Smart Finance" jsonLd={jsonLd}>
   <Community locale="es" />
 </Base>

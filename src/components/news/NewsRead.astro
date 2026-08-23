@@ -36,7 +36,7 @@ const activos = ASSETS.map((a) => ({
   id: a.id, sym: a.sym, name: a.name[locale], feed: a.feed, feedKey: a.feedKey, href: L(assetRouteId(a.id))
 }));
 
-// Las seis lecciones y el glosario entero viajan en la página porque aquí la
+// Las lecciones y el glosario entero viajan en la página porque aquí la
 // noticia se arma en el navegador y no se sabe de antemano a cuáles apunta.
 // Son unos pocos KB en una página que casi nadie ve y que nunca se indexa.
 const lecciones = Object.fromEntries(

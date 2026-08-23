@@ -70,11 +70,17 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
     const pintar = () => {
       pedido = false;
       const h = globo.offsetHeight || 1;
-      const t = Math.min(1, Math.max(0, window.scrollY / (h * 0.8)));
+      // El recorrido es el alto del HERO (no el de la banda del globo, que
+      // desde que el hero ocupa la primera pantalla entera son dos cosas
+      // distintas), igual que animation-range en Hero.astro.
+      const recorrido = (hero.offsetHeight || h) * 0.8;
+      const t = Math.min(1, Math.max(0, window.scrollY / recorrido));
       // Mismos números que @keyframes hero-park, para que las dos rutas se
       // vean igual: centro del globo al hueco del ícono (28, 26) y escala 7.5 %.
+      // El centro está en --globe-top + alto/2, y por eso hay que leer el top.
+      const arriba = parseFloat(getComputedStyle(globo).top) || 0;
       const tx = t * (28 - window.innerWidth / 2);
-      const ty = t * (26 - h / 2);
+      const ty = t * (26 - arriba - h / 2);
       const s = 1 + t * (0.075 - 1);
       globo.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
       globo.style.opacity = String(t <= 0.7 ? 1 - 0.15 * (t / 0.7) : Math.max(0, 0.85 * (1 - (t - 0.7) / 0.3)));
@@ -97,16 +103,26 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   });
 
   // ---- El lienzo ya pinta: se apaga el SVG estático ------------------------
+  //
+  // EL ORDEN ES LO IMPORTANTE. risk-sphere.js manda "globe:ready" cuando ya
+  // tiene el lienzo montado y va a empezar la entrada de partículas, y espera
+  // --still-out ms antes de arrancarla. Así el SVG estático se va PRIMERO y la
+  // entrada empieza sobre un fondo limpio: si se solaparan, lo que se vería es
+  // el globo estático deshaciéndose en polvo, que es justo lo que no se quiere.
+  // El MutationObserver se queda como respaldo por si el evento no llega (una
+  // versión vieja del script en caché, por ejemplo).
   const host = document.getElementById('globalRiskGlobe');
+  const encender = () => globo.classList.add('is-live');
+  document.addEventListener('globe:ready', encender, { once: true });
   if (host) {
-    if (host.querySelector('canvas')) globo.classList.add('is-live');
+    if (host.querySelector('canvas')) encender();
     else if (typeof MutationObserver === 'function') {
       const mo = new MutationObserver(() => {
         if (!host.querySelector('canvas')) return;
         mo.disconnect();
         // Un par de frames de margen para que el primer render ya esté hecho
         // cuando el SVG empiece a irse: si no, se ve el hueco negro un instante.
-        requestAnimationFrame(() => requestAnimationFrame(() => globo.classList.add('is-live')));
+        requestAnimationFrame(() => requestAnimationFrame(encender));
       });
       mo.observe(host, { childList: true });
     }

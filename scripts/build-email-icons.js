@@ -25,15 +25,39 @@ const sharp = require('sharp');
 const VERDE = '#0F8A5F';
 const LADO = 32;
 
-// Mismo grosor en los cuatro y remates redondos: es lo que hace que se lean
-// como un juego y no como cuatro íconos sueltos.
+// Mismo grosor en todos y remates redondos: es lo que hace que se lean como un
+// juego y no como íconos sueltos.
 const TRAZO = 1.6;
 
 // Sin una sola letra dentro. Un ícono con texto se rasteriza con las fuentes
 // que haya en la máquina que lo genere, y además metería información en una
 // imagen que la mitad de los clientes de correo no va a cargar.
 const ICONOS = {
-  // Para arrancar el día: un amanecer.
+  // La semana en una línea: siete barras, la última más alta. Es un calendario
+  // y una gráfica a la vez, que es justo lo que dice ese bloque.
+  semana: `
+    <path d="M4 18.5v-4.2"/>
+    <path d="M7.2 18.5v-6.8"/>
+    <path d="M10.4 18.5v-3.4"/>
+    <path d="M13.6 18.5v-8.1"/>
+    <path d="M16.8 18.5v-5.6"/>
+    <path d="M20 18.5V7.2"/>
+    <path d="M3 21h18"/>
+  `,
+  // Novedad en research: una lupa sobre un documento.
+  research: `
+    <path d="M13.5 3.5H6.5A1.5 1.5 0 0 0 5 5v14a1.5 1.5 0 0 0 1.5 1.5h5"/>
+    <path d="M13.5 3.5 18 8v2.4"/>
+    <path d="M8.3 8.2h3.4"/>
+    <path d="M8.3 11.4h4.2"/>
+    <circle cx="16.2" cy="15.2" r="3.3"/>
+    <path d="m18.7 17.7 2.1 2.1"/>
+  `,
+  // Para arrancar el día: un amanecer. Ya no lo usa el boletín (ese bloque
+  // ahora es "la semana en una línea"), pero se sigue generando: es un fichero
+  // que puede estar cacheado en el proxy de imágenes de Gmail de correos ya
+  // enviados, y borrarlo dejaría un hueco roto en la bandeja de quien los
+  // vuelva a abrir.
   consejo: `
     <path d="M3 18.5h18"/>
     <path d="M7 18.5a5 5 0 0 1 10 0"/>

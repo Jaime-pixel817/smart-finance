@@ -23,24 +23,24 @@ export const PATHS: LearningPath[] = [
     id: 'desde-cero',
     name: { en: 'From zero', es: 'Desde cero' },
     blurb: {
-      en: 'Your first budget, why money that grows on money matters, and why the same $100 buy less every year.',
-      es: 'Tu primer presupuesto, por qué importa el dinero que crece sobre el dinero y por qué los mismos $100 compran menos cada año.'
+      en: 'Your first budget, why money that grows on money matters, why the same $100 buy less every year, and your first credit card.',
+      es: 'Tu primer presupuesto, por qué importa el dinero que crece sobre el dinero, por qué los mismos $100 compran menos cada año y tu primera tarjeta de crédito.'
     }
   },
   {
     id: 'mercados',
     name: { en: 'How markets work', es: 'Cómo funcionan los mercados' },
     blurb: {
-      en: 'The two numbers in every headline: the dollar in pesos and the S&P 500. Who moves them and why.',
-      es: 'Los dos números de todos los titulares: el dólar en pesos y el S&P 500. Quién los mueve y por qué.'
+      en: 'The dollar in pesos, what a share actually is, what happens inside an exchange, and what the S&P 500 measures.',
+      es: 'El dólar en pesos, qué es de verdad una acción, qué pasa dentro de una bolsa y qué mide el S&P 500.'
     }
   },
   {
     id: 'invertir',
     name: { en: 'Invest with a clear head', es: 'Invertir con cabeza' },
     blurb: {
-      en: 'The order that works before you buy anything, and the traps almost everyone falls into the first time.',
-      es: 'El orden que sí funciona antes de comprar nada, y las trampas en las que casi todos caen la primera vez.'
+      en: 'The order that works before you buy anything, the traps almost everyone falls into, and what an ETF really gets you.',
+      es: 'El orden que sí funciona antes de comprar nada, las trampas en las que casi todos caen y qué te da de verdad un ETF.'
     }
   }
 ];
@@ -52,7 +52,11 @@ export const LESSON_ROUTE: Record<string, string> = {
   'sp500': 'lesson.sp500',
   'presupuesto-50-30-20': 'lesson.presupuesto',
   'inflacion': 'lesson.inflacion',
-  'errores-al-invertir': 'lesson.errores'
+  'errores-al-invertir': 'lesson.errores',
+  'tarjeta-de-credito': 'lesson.tarjeta',
+  'que-es-una-accion': 'lesson.accion',
+  'como-funciona-la-bolsa': 'lesson.bolsa',
+  'etfs': 'lesson.etfs'
 };
 
 export type LessonEntry = CollectionEntry<'lessons'>;
@@ -67,7 +71,7 @@ export interface Lesson {
   /** posición dentro de su ruta (1…n) y tamaño de la ruta */
   pathIndex: number;
   pathTotal: number;
-  /** posición global (1…6) en el orden del catálogo */
+  /** posición global (1…n) en el orden del catálogo */
   n: number;
 }
 

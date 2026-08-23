@@ -1,6 +1,25 @@
-# Healthcheck de producción: cada 6 h pide los 4 endpoints de /api en
+# Healthcheck de producción: cada 6 h pide los endpoints de /api en
 # https://smartfinance.lat y valida que respondan 200 con JSON. Si falla,
 # GitHub Actions manda el aviso por correo al dueño del repo.
+#
+# QUÉ COMPRUEBA, MÁS ALLÁ DE "responde 200"
+# -----------------------------------------
+# 1. Que ninguno esté sirviendo la COPIA VIEJA. Desde api/_lib/cache.js, un
+#    endpoint que no puede hablar con su proveedor responde 200 con el último
+#    dato conocido y `stale: true`. Eso está bien para el visitante —mejor un
+#    dato de hace un rato que un hueco— pero es exactamente la avería que este
+#    workflow existe para cazar: sin esta comprobación, un proveedor caído
+#    durante días se vería como un healthcheck en verde.
+# 2. Que el dato de mercado se haya refrescado en las últimas 26 h EN DÍA
+#    HÁBIL. Es la otra mitad: la caché puede estar fresca y el proveedor
+#    devolviendo una serie congelada.
+#
+# 26 h y no 24: entre el cierre de una sesión y la apertura de la siguiente
+# pasan más de veinticuatro horas, y con el listón en 24 el aviso saltaría cada
+# mañana sin que pase nada. Sábados y domingos la comprobación se salta entera:
+# el mercado de divisas cierra el viernes a las 22:00 UTC y no reabre hasta el
+# domingo a las 22:00, así que un domingo por la tarde el último dato tiene 44 h
+# con toda la razón del mundo.
 name: healthcheck
 
 on:
@@ -19,13 +38,147 @@ jobs:
       BASE: https://smartfinance.lat
     steps:
       - name: /api/markets
-        run: curl -fsS --max-time 30 "$BASE/api/markets" | jq -e 'type == "object" or type == "array"' > /dev/null
+        run: |
+          curl -fsS --max-time 30 "$BASE/api/markets" -o markets.json
+          jq -e '.stocks.items | length > 0' markets.json > /dev/null
+          jq -e '.crypto.items | length > 0' markets.json > /dev/null
+          jq -e '.stale != true' markets.json > /dev/null \
+            || { echo "::error::/api/markets está sirviendo la copia vieja: el proveedor no responde"; exit 1; }
 
-      - name: /api/news
-        run: curl -fsS --max-time 30 "$BASE/api/news" | jq -e 'type == "object" or type == "array"' > /dev/null
+      - name: /api/world
+        run: |
+          curl -fsS --max-time 30 "$BASE/api/world" -o world.json
+          # Las ocho bolsas del globo del home. Que falte una es un símbolo
+          # caído; que estén las ocho con precio null es Yahoo caído.
+          jq -e '.items | length == 8' world.json > /dev/null
+          jq -e '[.items[] | select(.price != null)] | length > 0' world.json > /dev/null \
+            || { echo "::error::/api/world devolvió los ocho índices sin precio"; exit 1; }
+          jq -e '.stale != true' world.json > /dev/null \
+            || { echo "::error::/api/world está sirviendo la copia vieja"; exit 1; }
+
+      - name: /api/quotes
+        run: |
+          curl -fsS --max-time 30 "$BASE/api/quotes" -o quotes.json
+          jq -e '.items.USDMXN.price != null' quotes.json > /dev/null
+          jq -e '.items.VIX != null' quotes.json > /dev/null
+          jq -e '.stale != true' quotes.json > /dev/null \
+            || { echo "::error::/api/quotes está sirviendo la copia vieja"; exit 1; }
+
+      - name: /api/news (titulares del día)
+        run: curl -fsS --max-time 30 "$BASE/api/news" | jq -e '.items | type == "array"' > /dev/null
+
+      - name: /api/news?estado=aprobadas (lo que ve la gente en /news)
+        run: |
+          curl -fsS --max-time 30 "$BASE/api/news?estado=aprobadas" -o aprobadas.json
+          # La lista puede estar vacía sin que sea una avería: significa que no
+          # hay ninguna noticia aprobada todavía. Lo que NO puede pasar es que
+          # el endpoint deje de contestar o cambie de forma, porque el índice de
+          # /news se pinta en cliente desde aquí.
+          jq -e '.items | type == "array"' aprobadas.json > /dev/null
+          jq -e '.fuente == "revisadas"' aprobadas.json > /dev/null
+
+      - name: Los borradores siguen siendo privados
+        run: |
+          # La promesa del sitio: ningún texto de IA sin revisar es público.
+          # Un 403 aquí es el resultado CORRECTO; un 200 sería una fuga.
+          codigo=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$BASE/api/news?estado=borradores")
+          [ "$codigo" = "403" ] \
+            || { echo "::error::/api/news?estado=borradores devolvió $codigo y debía devolver 403"; exit 1; }
 
       - name: /api/sparklines
-        run: curl -fsS --max-time 30 "$BASE/api/sparklines" | jq -e 'type == "object" or type == "array"' > /dev/null
+        run: |
+          curl -fsS --max-time 30 "$BASE/api/sparklines" -o sparklines.json
+          jq -e '.series | length > 0' sparklines.json > /dev/null
+          jq -e '.stale != true' sparklines.json > /dev/null \
+            || { echo "::error::/api/sparklines está sirviendo la copia vieja"; exit 1; }
 
       - name: /api/history?pair=USDMXN&range=1D
-        run: curl -fsS --max-time 30 "$BASE/api/history?pair=USDMXN&range=1D" | jq -e 'type == "object" or type == "array"' > /dev/null
+        run: curl -fsS --max-time 30 "$BASE/api/history?pair=USDMXN&range=1D" | jq -e '.points | length > 0' > /dev/null
+
+      - name: /api/history?pair=USDMXN&range=1W (lo que usa el boletín semanal)
+        run: curl -fsS --max-time 30 "$BASE/api/history?pair=USDMXN&range=1W" | jq -e '.points | length > 0' > /dev/null
+
+      - name: /research-latest.json (lo lee el boletín)
+        run: curl -fsS --max-time 30 "$BASE/research-latest.json" | jq -e '.reportes | type == "array"' > /dev/null
+
+      - name: Los datos se refrescaron en las últimas 26 h (solo en día hábil)
+        run: |
+          dia=$(date -u +%u)     # 1 = lunes … 7 = domingo
+          if [ "$dia" -ge 6 ]; then
+            echo "Fin de semana (día $dia): el mercado está cerrado, no se comprueba la frescura."
+            exit 0
+          fi
+
+          ahora=$(date -u +%s)
+          limite=$((26 * 3600))
+          fallos=0
+
+          # USD/MXN: lastTs es la hora del último precio oficial, en segundos.
+          # Las divisas operan casi 24 h de lunes a viernes, así que entre
+          # semana este número no tiene por qué envejecer.
+          # Sin decimales: $(( )) es aritmética entera y un "1787000000.0"
+          # lo tumbaría con "syntax error in expression".
+          fx=$(jq -r '.items.USDMXN.lastTs // empty | floor' quotes.json)
+          if [ -n "$fx" ]; then
+            edad=$(( ahora - fx ))
+            horas=$(( edad / 3600 ))
+            echo "USD/MXN: último precio hace ${horas} h"
+            if [ "$edad" -gt "$limite" ]; then
+              echo "::error::USD/MXN lleva ${horas} h sin refrescarse en día hábil (límite 26 h)"
+              fallos=1
+            fi
+          else
+            echo "::error::/api/quotes no trajo lastTs de USD/MXN"
+            fallos=1
+          fi
+
+          # El globo del home: al menos uno de los ocho índices tiene que traer
+          # un asOf reciente. No se exigen los ocho porque una bolsa puede tener
+          # festivo local y las demás no.
+          # OJO con el sub(): asOf viene de toISOString() y trae milisegundos
+          # (2026-08-23T13:00:00.000Z). jq resuelve fromdateiso8601 con strptime
+          # y "%Y-%m-%dT%H:%M:%SZ" NO acepta la fracción: sin quitarla, esto
+          # falla con "date \"...\" does not match format" y el paso entero se
+          # cae por algo que no es una avería del sitio.
+          reciente=$(jq -r --argjson ahora "$ahora" --argjson limite "$limite" \
+            '[ .items[]
+               | select(.asOf != null)
+               | (.asOf | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) as $t
+               | select(($ahora - $t) <= $limite)
+             ] | length' world.json)
+          echo "/api/world: ${reciente} de 8 índices con dato de menos de 26 h"
+          if [ "$reciente" -lt 1 ]; then
+            echo "::error::ninguno de los ocho índices de /api/world se ha refrescado en 26 h"
+            fallos=1
+          fi
+
+          exit $fallos
+
+      # Informe de cuota. Va detrás de CRON_SECRET, igual que el resto de lo
+      # privado, y solo corre si el secreto está configurado en el repo: sin él
+      # el paso se salta en vez de fallar, para que un fork o un repo recién
+      # clonado no vea el healthcheck en rojo por algo que no es una avería.
+      - name: Cuota de los proveedores (/api/markets?accion=health)
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice::CRON_SECRET no está configurado en el repo; no se puede leer el informe de cuota."
+            echo "Para activarlo: Settings → Secrets and variables → Actions → New repository secret (nombre CRON_SECRET, el mismo valor que en Vercel)."
+            exit 0
+          fi
+
+          curl -fsS --max-time 30 -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE/api/markets?accion=health" -o salud.json
+
+          jq -r '.cuotas[] | "\(.etiqueta): \(.usadoHoy) créditos hoy" + (if .tope then " de \(.tope) (\(.porcentaje)%)" else "" end)' salud.json
+          jq -r '"Fuente de acciones ahora mismo: " + .fuenteAcciones' salud.json
+          jq -r '.caches[] | "caché \(.clave): \(.edadMinutos) min"' salud.json
+
+          # Aviso, no error: degradar a Yahoo es el sistema funcionando como
+          # debe. Lo que hay que saber es que pasó, para vigilar si se vuelve
+          # rutina y toca subir de plan en Twelve Data.
+          if jq -e '.cuotas[] | select(.proveedor == "twelvedata") | .degradado != null' salud.json > /dev/null; then
+            echo "::warning::Twelve Data pasó su umbral diario y el sitio está sirviendo acciones desde Yahoo Finance."
+          fi

@@ -3,6 +3,7 @@ import Base from '../../../layouts/Base.astro';
 import ToolPage from '../../../components/tools/ToolPage.astro';
 import InflationTool from '../../../components/tools/InflationTool.astro';
 import { SITE } from '../../../i18n/routes';
+import { ogPropia } from '../../../lib/og';
 const title = '¿Cuánto me come la inflación? Calculadora en pesos — Smart Finance';
 const description = 'Pon lo que algo te cuesta hoy, una inflación anual y los años: mira cuánto costará lo mismo, cuánto poder de compra se fue, y cómo se compara el dinero parado contra el dinero a la tasa de referencia.';
 const jsonLd = {
@@ -17,7 +18,8 @@ const learn = [
   'Lo que importa es la tasa menos la inflación. Un número que crece mientras los precios crecen más rápido sigue yendo hacia atrás.'
 ];
 ---
-<Base locale="es" routeId="tool.inflacion" active="tools" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="es" routeId="tool.inflacion" active="tools" title={title} description={description}
+  ogImage={ogPropia('tool-inflacion', 'es')} ogImageAlt="Smart Finance — ¿Cuánto me come la inflación?" jsonLd={jsonLd}>
   <ToolPage locale="es" eyebrow="Herramienta" title="¿Cuánto me come la inflación?" lessonRouteId="lesson.inflacion" lessonLabel="Qué es la inflación y cómo te afecta"
     lede="Empieza con algo que de verdad compras —tacos y refresco, $100— y mira cuánto costará lo mismo después, y qué alcanzaría a comprar tu dinero."
     learn={learn}>

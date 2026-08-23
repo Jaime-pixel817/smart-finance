@@ -5,6 +5,12 @@
 // la vez y solo la forma, no el detalle. Hacerlo aqui deja al navegador con una
 // sola peticion en vez de seis, y el servidor cachea el paquete completo para
 // todos los visitantes.
+//
+// La cache es COMPARTIDA (api/_lib/cache.js, Redis): antes vivia en una
+// variable de modulo, o sea una copia por instancia de Vercel, y cada arranque
+// en frio eran seis peticiones mas a Yahoo.
+
+const cache = require('./_lib/cache.js');
 
 const SERIES = {
   BTC: 'BTC-USD',
@@ -24,7 +30,8 @@ const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
-const cache = { expires: 0, body: null };
+const CLAVE = 'sparklines:v1';
+const CACHE_CONTROL = 'public, s-maxage=900, stale-while-revalidate=1800';
 
 // Promedia por tramos en vez de tomar uno de cada N: con muestreo simple, un
 // pico aislado puede desaparecer o dominar segun donde caiga el corte.
@@ -63,13 +70,7 @@ async function fetchSeries(yahooSymbol) {
   return downsample(values, OUT_POINTS).map((v) => Number(v.toFixed(6)));
 }
 
-module.exports = async function handler(req, res) {
-  if (cache.body && cache.expires > Date.now()) {
-    res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
-    res.status(200).json(cache.body);
-    return;
-  }
-
+async function construir() {
   const keys = Object.keys(SERIES);
   const settled = await Promise.allSettled(keys.map((k) => fetchSeries(SERIES[k])));
 
@@ -82,15 +83,25 @@ module.exports = async function handler(req, res) {
   // Si absolutamente todo falla es un problema de la fuente, no una respuesta
   // vacia valida. Con que sobreviva una serie, se manda lo que haya: el chip sin
   // sparkline simplemente se ve como antes.
-  if (!Object.keys(series).length) {
+  if (!Object.keys(series).length) throw new Error('sparklines: ninguna serie llego');
+
+  return { series, points: OUT_POINTS };
+}
+
+module.exports = async function handler(req, res) {
+  try {
+    const r = await cache.conCache({
+      clave: CLAVE,
+      ttl: CACHE_TTL_MS / 1000,
+      proveedor: { nombre: 'yahoo', creditos: Object.keys(SERIES).length },
+      calcular: construir
+    });
+    res.setHeader('Cache-Control', CACHE_CONTROL);
+    // `stale` es un campo AÑADIDO: el ticker sigue leyendo `series` y `points`
+    // exactamente igual.
+    res.status(200).json(r.stale ? Object.assign({}, r.valor, { stale: true }) : r.valor);
+  } catch (err) {
+    console.error('sparklines fetch failed:', err && err.message);
     res.status(502).json({ error: 'upstream fetch failed' });
-    return;
   }
-
-  const body = { series, points: OUT_POINTS };
-  cache.expires = Date.now() + CACHE_TTL_MS;
-  cache.body = body;
-
-  res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
-  res.status(200).json(body);
 };

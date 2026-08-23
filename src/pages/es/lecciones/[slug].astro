@@ -4,6 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import LessonArticle from '../../../components/learn/LessonArticle.astro';
 import { getLessons, type Lesson } from '../../../data/lessons';
 import { lessonJsonLd } from '../../../data/lesson-jsonld';
+import { ogPropia } from '../../../lib/og';
 
 export async function getStaticPaths() {
   const all = await getLessons('es');
@@ -12,6 +13,7 @@ export async function getStaticPaths() {
 const { lesson, all } = Astro.props as { lesson: Lesson; all: Lesson[] };
 const d = lesson.entry.data;
 ---
-<Base locale="es" routeId={lesson.routeId} active="learn" title={d.title + ' — Smart Finance'} description={d.description} ogType="article" jsonLd={lessonJsonLd('es', lesson)}>
+<Base locale="es" routeId={lesson.routeId} active="learn" title={d.title + ' — Smart Finance'} description={d.description} ogType="article"
+  ogImage={ogPropia('lesson-' + lesson.slug, 'es')} ogImageAlt={d.title + ' — lección de Smart Finance'} jsonLd={lessonJsonLd('es', lesson)}>
   <LessonArticle locale="es" lesson={lesson} all={all} />
 </Base>

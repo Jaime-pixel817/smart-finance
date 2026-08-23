@@ -13,7 +13,7 @@ const TEXTOS = {
   en: {
     asunto: 'Confirm your Smart Finance subscription',
     titulo: 'One last step',
-    cuerpo: 'Tap the button to confirm you want the Smart Finance daily: markets, one lesson, and my take on the headlines.',
+    cuerpo: 'Tap the button to confirm you want the Smart Finance weekly: the market week, one lesson, and the story that mattered, every Sunday.',
     boton: 'Confirm my subscription',
     ignora: 'If you did not ask for this, ignore this email and nothing will happen.',
     alterno: 'If the button does not work, copy this link into your browser:'
@@ -21,7 +21,7 @@ const TEXTOS = {
   es: {
     asunto: 'Confirma tu suscripción a Smart Finance',
     titulo: 'Falta un paso',
-    cuerpo: 'Toca el botón para confirmar que quieres el boletín diario de Smart Finance: mercados, una lección y mi lectura de los titulares.',
+    cuerpo: 'Toca el botón para confirmar que quieres el boletín semanal de Smart Finance: la semana del mercado, una lección y la noticia que importó, cada domingo.',
     boton: 'Confirmar mi suscripción',
     ignora: 'Si tú no pediste esto, ignora este correo y no pasa nada.',
     alterno: 'Si el botón no funciona, copia este link en tu navegador:'

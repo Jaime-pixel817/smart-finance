@@ -6,9 +6,15 @@
 import Base from '../layouts/Base.astro';
 import NewsRead from '../components/news/NewsRead.astro';
 import { useT } from '../i18n/ui';
+import { ogPropia } from '../lib/og';
 const t = useT('en');
 ---
-<Base locale="en" routeId="news.read" active="news" title={t('news.h1') + ' — Smart Finance'} description={t('news.sub')}>
+<!-- og:image: la del ÍNDICE de noticias, no la de la noticia. Esta página
+     pinta en el navegador la nota que pida la URL, así que en el build no se
+     sabe cuál es y no puede haber una tarjeta propia. La nota que sí tiene
+     página (src/pages/news/[slug].astro) usa la suya. -->
+<Base locale="en" routeId="news.read" active="news" title={t('news.h1') + ' — Smart Finance'} description={t('news.sub')}
+  ogImage={ogPropia('news', 'en')} ogImageAlt="Smart Finance — News, explained">
   <meta slot="head" name="robots" content="noindex, follow">
   <NewsRead locale="en" />
 </Base>

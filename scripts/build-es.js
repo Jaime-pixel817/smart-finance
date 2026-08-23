@@ -74,7 +74,7 @@ const PAGINAS = [
     ogTitle: 'Mercados hoy: acciones, divisas y cripto — Smart Finance',
     ogDesc: 'Acciones, divisas y cripto en un solo lugar, cada cosa con su gráfica de tendencia. Se actualiza cada 15 minutos.'
   },
-  // /lessons, las seis lecciones y su /es ya son páginas Astro (MDX en
+  // /lessons, las diez lecciones y su /es ya son páginas Astro (MDX en
   // src/content/lessons, páginas en src/pages/lessons y src/pages/es/lecciones):
   // se quedan aquí solo como registro; no hay HTML legacy que traducir.
   {
@@ -83,9 +83,9 @@ const PAGINAS = [
     enUrl: '/lessons', esUrl: '/es/lecciones',
     imgAlt: 'Smart Finance — Lecciones: finanzas desde cero, en palabras normales',
     title: 'Todas las lecciones — Smart Finance',
-    desc: 'Seis lecciones cortas de finanzas en palabras normales: el peso, el interés compuesto, el S&P 500, el presupuesto 50/30/20, la inflación y los errores al empezar a invertir.',
+    desc: 'Diez lecciones cortas de finanzas en palabras normales: el presupuesto 50/30/20, el interés compuesto, la inflación, tu primera tarjeta de crédito, el peso, qué es una acción, cómo funciona la bolsa, el S&P 500, los errores al empezar a invertir y los ETFs.',
     ogTitle: 'Todas las lecciones — Smart Finance',
-    ogDesc: 'Seis lecciones cortas de finanzas en palabras normales, para quien apenas empieza.'
+    ogDesc: 'Diez lecciones cortas de finanzas en palabras normales, para quien apenas empieza.'
   },
   {
     astro: true,
@@ -140,6 +140,42 @@ const PAGINAS = [
     desc: 'Ahorrar e invertir hacen trabajos distintos. Este es el orden que sí funciona, y la señal de que ya estás listo para empezar a invertir.',
     ogTitle: '3 errores comunes al empezar a invertir — Smart Finance',
     ogDesc: 'El orden que sí funciona, y la señal de que ya estás listo.'
+  },
+  {
+    astro: true,
+    en: 'lessons/tarjeta-de-credito.html', es: 'es/lecciones/tarjeta-de-credito.html',
+    enUrl: '/lessons/tarjeta-de-credito', esUrl: '/es/lecciones/tarjeta-de-credito',
+    title: 'Tu primera tarjeta de crédito (y cómo no arruinarte) — Smart Finance',
+    desc: 'Qué es de verdad el CAT, por qué el pago mínimo es una trampa, cuándo empiezan a correr los intereses y para qué te sirve después el historial crediticio.',
+    ogTitle: 'Tu primera tarjeta de crédito (y cómo no arruinarte) — Smart Finance',
+    ogDesc: 'El CAT, la trampa del pago mínimo y para qué sirve tu historial.'
+  },
+  {
+    astro: true,
+    en: 'lessons/que-es-una-accion.html', es: 'es/lecciones/que-es-una-accion.html',
+    enUrl: '/lessons/que-es-una-accion', esUrl: '/es/lecciones/que-es-una-accion',
+    title: 'Qué compras realmente cuando compras una acción — Smart Finance',
+    desc: 'Una acción es un pedazo de una empresa, no un número en una pantalla. De dónde sale su valor, por qué sube y baja, qué es un dividendo y por qué no es un boleto de lotería.',
+    ogTitle: 'Qué compras realmente cuando compras una acción — Smart Finance',
+    ogDesc: 'De dónde sale el valor de una acción y por qué no es un boleto de lotería.'
+  },
+  {
+    astro: true,
+    en: 'lessons/como-funciona-la-bolsa.html', es: 'es/lecciones/como-funciona-la-bolsa.html',
+    enUrl: '/lessons/como-funciona-la-bolsa', esUrl: '/es/lecciones/como-funciona-la-bolsa',
+    title: 'Cómo funciona una Bolsa de Valores — Smart Finance',
+    desc: 'Qué pasa entre que aprietas comprar y eres dueño de una acción: el libro de órdenes, la BMV, sus horarios, quién la regula, qué es un índice y qué verías si la visitas.',
+    ogTitle: 'Cómo funciona una Bolsa de Valores — Smart Finance',
+    ogDesc: 'Del botón de comprar al libro de órdenes, y qué es la BMV por dentro.'
+  },
+  {
+    astro: true,
+    en: 'lessons/etfs.html', es: 'es/lecciones/etfs.html',
+    enUrl: '/lessons/etfs', esUrl: '/es/lecciones/etfs',
+    title: 'ETFs: 500 empresas de un solo golpe — Smart Finance',
+    desc: 'Qué es un ETF, por qué diversifica, cuánto te cuesta de verdad su comisión, dos ejemplos reales (un ETF del S&P 500 y NAFTRAC) y en qué se diferencia de comprar acciones sueltas.',
+    ogTitle: 'ETFs: 500 empresas de un solo golpe — Smart Finance',
+    ogDesc: 'Qué es un ETF, por qué diversifica y cuánto te cuesta su comisión.'
   }
 ];
 

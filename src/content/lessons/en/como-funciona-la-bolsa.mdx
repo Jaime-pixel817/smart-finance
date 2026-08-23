@@ -1,0 +1,77 @@
+---
+title: "How a stock exchange actually works"
+description: "What happens between pressing buy and owning a share: the order book, the BMV, its hours, who regulates it, what an index is and what you would see if you walked in."
+lede: "You press a button and three seconds later you own part of a company. Between the button and the ownership there is a whole machine, and it is much less mysterious than it looks."
+path: mercados
+order: 3
+readingMinutes: 6
+publishedAt: 2026-08-23
+updatedAt: 2026-08-23
+level: beginner
+heroStat: { value: "6.5 hours", label: "how long one BMV trading session lasts, Monday to Friday" }
+sources:
+  - { title: "Horarios de Negociación y Calendario de Días Festivos", url: "https://www.bmv.com.mx/es/Grupo_BMV/Calendario_de_dias_festivos/_rid/662/_mod/TAB_HORARIOS_NEG", publisher: "Bolsa Mexicana de Valores", date: "2026-08-23" }
+  - { title: "Reglamento Interior de la BMV, Título Quinto: Operaciones del Mercado de Capitales", url: "https://www.bmv.com.mx/docs-pub/MARCO_NORMATIVO/CTEN_MNNB/REGLAMENTO%20INTERIOR%20BMV%20-%20T%C3%ADtulo%20V.pdf", publisher: "Bolsa Mexicana de Valores", date: "2026-08-23" }
+  - { title: "How Stock Markets Work: Market Participants", url: "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/market-participants", publisher: "Investor.gov, U.S. Securities and Exchange Commission", date: "2026-08-23" }
+  - { title: "How Stock Markets Work: Types of Orders", url: "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders", publisher: "Investor.gov, U.S. Securities and Exchange Commission", date: "2026-08-23" }
+  - { title: "Ley del Mercado de Valores", url: "https://www.diputados.gob.mx/LeyesBiblio/pdf/LMV.pdf", publisher: "Cámara de Diputados del H. Congreso de la Unión", date: "2026-08-23" }
+related: [que-es-una-accion, sp500]
+glossary: [bmv, accion, emisora, casa-de-bolsa, formador-de-mercado, spread-de-compra-venta, liquidez, oferta-publica-inicial, cnbv, indice-bursatil, ipc, sp500]
+quiz:
+  - q: "You press buy and the order fills instantly. Who sold you those shares?"
+    options: ["The company that issued them", "Another investor, or a market maker quoting both sides", "The exchange itself, from its own stock"]
+    answer: 1
+    why: "The exchange only matches orders; it never owns the shares. On the other side there is always another investor, and often a market maker whose job is to quote a buy and a sell price at the same time."
+  - q: "What is the difference between the primary and the secondary market?"
+    options: ["Primary is for big investors, secondary for small ones", "In the primary the company sells shares and gets the money; in the secondary investors trade with each other", "The primary is in Mexico and the secondary abroad"]
+    answer: 1
+    why: "The company raises money once, at its IPO or a later issue. Everything after that is investors passing the same shares between them, and the company does not receive a peso."
+  - q: "A wide bid-ask spread on a share tells you what?"
+    options: ["That the share is about to go up", "That it is not very liquid, and getting in and out costs you", "That the company is badly run"]
+    answer: 1
+    why: "The spread is the gap between the best buy and the best sell price. Wide means few people on each side, so you buy high and would have to sell low: the cost of trading something illiquid."
+---
+
+## What happens when you press buy
+
+You do not walk into a building. You send an instruction to your <Term id="casa-de-bolsa">brokerage</Term>, and the brokerage — which is a member of the exchange — passes it to the exchange's electronic system. There, your instruction goes into a queue with everybody else's, and the system looks for someone whose instruction is the mirror of yours.
+
+There are two basic instructions, and the difference matters more than beginners expect. A market order says *buy at whatever the price is right now*, so it fills immediately at a price you find out afterwards. A limit order says *buy, but never above this price*, so it fills at a price you chose or does not fill at all. The first one gives you certainty about the fill; the second gives you certainty about the price. You cannot have both.
+
+## The order book: a queue of buyers and a queue of sellers
+
+Picture two lists. On one side, everyone who wants to buy, sorted by who is willing to pay the most. On the other, everyone who wants to sell, sorted by who will accept the least. That is the order book, and the top of each list is the price you see quoted.
+
+The gap between them is the <Term id="spread-de-compra-venta">bid-ask spread</Term>. If the highest bid is 99.90 and the lowest ask is 100.10, then buying costs you 100.10 and selling right away gets you 99.90. Twenty centavos, gone, before anything has moved. That gap is the real cost of trading, and it is narrow on things everyone trades and wide on things almost nobody does — which is a working definition of <Term id="liquidez">liquidity</Term>.
+
+Making sure there is always somebody on the other side is a job, not a coincidence. <Term id="formador-de-mercado">Market makers</Term> quote a buy price and a sell price at the same time, all session, and earn the spread for the trouble. They are the reason your two-thousand-peso order finds a counterparty in a second instead of waiting for a human whose plans happen to match yours.
+
+## Two markets in the same building
+
+The exchange does two different jobs and they are easy to confuse.
+
+In the **primary market**, a company sells new <Term id="accion">shares</Term> and receives the money — that is an <Term id="oferta-publica-inicial">IPO</Term> or a later issue, and it is how listing raises capital to build things.
+
+In the **secondary market**, investors buy and sell those same shares among themselves. This is where you and almost everyone else operates. The company gets nothing from it. What it gets is something subtler and just as valuable: because people know they can sell later, they are willing to buy in the first place.
+
+## The BMV: hours, holidays, and who is inside
+
+Mexico's main exchange is the <Term id="bmv">Bolsa Mexicana de Valores</Term>, founded in 1894 and based on Paseo de la Reforma in Mexico City. A session runs Monday to Friday and lasts about six and a half hours, opening with an auction that gathers orders before continuous trading begins. The exact clock times shift when the United States changes its own — the BMV keeps its session lined up with New York — so the trustworthy source is the exchange's own published schedule, which is the first link in the sources below, along with the holiday calendar. On those days nothing trades, whatever your app shows.
+
+Inside are <Term id="emisora">issuers</Term>, brokerages trading for clients and for themselves, market makers, and the institutions that settle and safeguard the securities once a trade is done. The exchange itself never owns what is being traded. It runs the meeting place and the rules.
+
+## Who watches
+
+The market runs on rules written in three layers: the Ley del Mercado de Valores, the regulator, and the exchange's own internal rulebook. The regulator is the <Term id="cnbv">CNBV</Term>, which authorizes and supervises banks, brokerages and exchanges. "Regulated" means supervised — that the firm exists, reports, and answers to somebody. It has never meant that your investment cannot fall.
+
+## What an index is
+
+An <Term id="indice-bursatil">index</Term> is not something you can buy. It is a number that summarizes a basket of companies, so that "the market went up today" becomes a single figure instead of five hundred. Mexico's reference index is the <Term id="ipc">S&P/BMV IPC</Term>, built from the most traded companies on the exchange and weighted by size; the American one you hear about is the [S&P 500](/lessons/sp500). Same idea, different basket.
+
+<Callout>
+If you visit the BMV you will not see people shouting. Trading has been fully electronic for years, and what is left is a building, screens, a bell that rings for a listing, and staff who explain what the screens are doing. It is much calmer than the movies and considerably more interesting once you know what you are looking at. The Smart Finance student group organizes visits and workshops — dates, when there are dates, live on the [community page](/community).
+</Callout>
+
+## The short version
+
+An exchange is a matching machine. Your order joins a queue, meets the mirror of itself, and ownership changes hands in seconds. The company only gets money the first time, in the primary market; after that it is investors trading with each other. The BMV runs six and a half hours a day under rules the CNBV supervises, and an index is just a way of describing that whole crowd with one number.

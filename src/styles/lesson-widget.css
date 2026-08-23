@@ -1,0 +1,48 @@
+/* Piezas compartidas por los módulos interactivos de las lecciones.
+
+   Las usan los tres: la calculadora de interés compuesto, la de inflación y el
+   simulador de riesgo y retorno. Viven en su propio archivo y no en el
+   <style is:global> de uno de ellos porque esos estilos solo viajan a las
+   páginas donde ESE componente se usa: puestos en la calculadora, la lección
+   de riesgo pintaría su módulo sin tarjeta y sin ejes.
+
+   Lo específico de cada módulo (los colores de sus líneas, el abanico) se
+   queda en su componente. Aquí solo está el cascarón: tarjeta, controles,
+   lienzo, rejilla, ejes, leyenda y pie. */
+
+/* ---- La tarjeta ---- */
+.lesson-widget {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--card-pad);
+  margin: var(--sp-6) 0;
+  box-shadow: var(--shadow-1);
+}
+/* Dentro del cuerpo MDX los párrafos llevan margen; dentro del módulo, no. */
+.lesson-body .lesson-widget p { margin: 0; }
+
+/* ---- Controles (móvil: uno por renglón; a partir de 640, en fila) ---- */
+.lw-controls { display: grid; gap: var(--sp-4); margin: var(--sp-4) 0 var(--sp-4); }
+@media (min-width: 640px) { .lw-controls { grid-template-columns: repeat(3, 1fr); } }
+.lw-control { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 4px 10px; }
+.lw-control label { font-size: var(--fs-small); color: var(--ink-2); }
+.lw-control output { font-size: var(--fs-small); color: var(--ink); text-align: right; }
+.lw-control input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--brand-fill); height: 44px; }
+/* Pista bajo un control (el reparto de la mezcla, un valor por omisión…). */
+.lw-hint { grid-column: 1 / -1; margin-top: -6px; color: var(--ink-3); }
+
+/* ---- Lienzo, rejilla y ejes ---- */
+.lw-chart { position: relative; height: 200px; padding: 0 0 18px 0; }
+.lw-chart svg { width: 100%; height: calc(100% - 18px); display: block; overflow: visible; }
+.lw-grid line { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.lw-yticks { position: absolute; left: 0; top: 0; height: calc(100% - 18px); width: 100%; pointer-events: none; color: var(--ink-3); }
+.lw-yticks span { position: absolute; left: 0; transform: translateY(-100%); padding: 0 0 2px; background: color-mix(in srgb, var(--bg-1) 85%, transparent); }
+.lw-xticks { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; color: var(--ink-3); }
+
+/* ---- Leyenda y pie ---- */
+.lw-legend { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-top: var(--sp-3) !important; color: var(--ink-2); }
+.lw-key { display: inline-flex; align-items: center; gap: 7px; }
+.lw-dot { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.lesson-body .lw-summary { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); font-size: var(--fs-body); color: var(--ink); font-variant-numeric: tabular-nums; }
+.lesson-body .lw-note { margin-top: var(--sp-2); }

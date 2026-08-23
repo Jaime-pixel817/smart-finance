@@ -3,6 +3,7 @@ import Base from '../../../layouts/Base.astro';
 import ToolPage from '../../../components/tools/ToolPage.astro';
 import CompoundCalculator from '../../../components/tools/CompoundCalculator.astro';
 import { SITE } from '../../../i18n/routes';
+import { ogPropia } from '../../../lib/og';
 const title = 'Calculadora de interés compuesto, en pesos — Smart Finance';
 const description = 'Mueve el aporte mensual, la tasa anual y los años y mira qué hace el interés compuesto: tus aportes solos contra el mismo dinero componiéndose cada mes, con el número con el que terminarías.';
 const jsonLd = {
@@ -17,7 +18,8 @@ const learn = [
   'La tasa constante es un recurso para explicar, no una promesa: los rendimientos reales se mueven cada año y la curva nunca sale así de lisa.'
 ];
 ---
-<Base locale="es" routeId="tool.interes" active="tools" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="es" routeId="tool.interes" active="tools" title={title} description={description}
+  ogImage={ogPropia('tool-interes-compuesto', 'es')} ogImageAlt="Smart Finance — Calculadora de interés compuesto" jsonLd={jsonLd}>
   <ToolPage locale="es" eyebrow="Herramienta" title="Interés compuesto" lessonRouteId="lesson.interes" lessonLabel="Interés simple vs. interés compuesto"
     lede="Elige cuánto podrías guardar cada mes, una tasa y cuántos años. La línea punteada es tu dinero solo; la verde es el mismo dinero ganando sobre sí mismo."
     learn={learn}>

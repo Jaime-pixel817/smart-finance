@@ -4,6 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import AssetPage from '../../../components/market/AssetPage.astro';
 import { ASSETS, assetRouteId, type SymbolEntry } from '../../../data/symbols';
 import { SITE, route } from '../../../i18n/routes';
+import { ogPropia } from '../../../lib/og';
 
 export function getStaticPaths() {
   return ASSETS.map((s) => ({ params: { symbol: s.id }, props: { s } }));
@@ -24,6 +25,6 @@ const jsonLd = {
 };
 ---
 <Base locale="es" routeId={routeId} active="markets" title={title} description={description}
-  ogImage={SITE + '/og-market-es.jpg'} ogImageAlt={`${s.name.es} (${s.sym}) — Mercados de Smart Finance`} jsonLd={jsonLd}>
+  ogImage={ogPropia('market-' + s.id, 'es')} ogImageAlt={`${s.name.es} (${s.sym}) — Mercados de Smart Finance`} jsonLd={jsonLd}>
   <AssetPage locale="es" s={s} />
 </Base>

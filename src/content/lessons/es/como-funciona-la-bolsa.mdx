@@ -1,0 +1,77 @@
+---
+title: "Cómo funciona una Bolsa de Valores"
+description: "Qué pasa entre que aprietas comprar y eres dueño de una acción: el libro de órdenes, la BMV, sus horarios, quién la regula, qué es un índice y qué verías si la visitas."
+lede: "Aprietas un botón y tres segundos después eres dueño de un pedazo de una empresa. Entre el botón y la propiedad hay una máquina completa, y es mucho menos misteriosa de lo que parece."
+path: mercados
+order: 3
+readingMinutes: 6
+publishedAt: 2026-08-23
+updatedAt: 2026-08-23
+level: beginner
+heroStat: { value: "6.5 horas", label: "lo que dura una sesión de la BMV, de lunes a viernes" }
+sources:
+  - { title: "Horarios de Negociación y Calendario de Días Festivos", url: "https://www.bmv.com.mx/es/Grupo_BMV/Calendario_de_dias_festivos/_rid/662/_mod/TAB_HORARIOS_NEG", publisher: "Bolsa Mexicana de Valores", date: "2026-08-23" }
+  - { title: "Reglamento Interior de la BMV, Título Quinto: Operaciones del Mercado de Capitales", url: "https://www.bmv.com.mx/docs-pub/MARCO_NORMATIVO/CTEN_MNNB/REGLAMENTO%20INTERIOR%20BMV%20-%20T%C3%ADtulo%20V.pdf", publisher: "Bolsa Mexicana de Valores", date: "2026-08-23" }
+  - { title: "How Stock Markets Work: Market Participants", url: "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/market-participants", publisher: "Investor.gov, Comisión de Valores de EE. UU. (SEC)", date: "2026-08-23" }
+  - { title: "How Stock Markets Work: Types of Orders", url: "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders", publisher: "Investor.gov, Comisión de Valores de EE. UU. (SEC)", date: "2026-08-23" }
+  - { title: "Ley del Mercado de Valores", url: "https://www.diputados.gob.mx/LeyesBiblio/pdf/LMV.pdf", publisher: "Cámara de Diputados del H. Congreso de la Unión", date: "2026-08-23" }
+related: [que-es-una-accion, sp500]
+glossary: [bmv, accion, emisora, casa-de-bolsa, formador-de-mercado, spread-de-compra-venta, liquidez, oferta-publica-inicial, cnbv, indice-bursatil, ipc, sp500]
+quiz:
+  - q: "Aprietas comprar y la orden se llena al instante. ¿Quién te vendió esas acciones?"
+    options: ["La empresa que las emitió", "Otro inversionista, o un formador de mercado que cotiza los dos lados", "La bolsa misma, de su propio inventario"]
+    answer: 1
+    why: "La bolsa solo cruza órdenes; nunca es dueña de las acciones. Del otro lado siempre hay otro inversionista, y muchas veces un formador de mercado cuyo trabajo es cotizar compra y venta al mismo tiempo."
+  - q: "¿Cuál es la diferencia entre el mercado primario y el secundario?"
+    options: ["El primario es para inversionistas grandes y el secundario para chicos", "En el primario la empresa vende acciones y recibe el dinero; en el secundario los inversionistas operan entre ellos", "El primario es en México y el secundario en el extranjero"]
+    answer: 1
+    why: "La empresa levanta dinero una sola vez, en su OPI o en una emisión posterior. Todo lo demás son inversionistas pasándose las mismas acciones, y la empresa no recibe un peso."
+  - q: "Un spread de compra-venta ancho en una acción, ¿qué te dice?"
+    options: ["Que la acción está por subir", "Que no es muy líquida, y entrar y salir te cuesta", "Que la empresa está mal administrada"]
+    answer: 1
+    why: "El spread es la distancia entre la mejor compra y la mejor venta. Ancho significa poca gente de cada lado: compras caro y tendrías que vender barato, que es el costo de operar algo poco líquido."
+---
+
+## Qué pasa cuando aprietas comprar
+
+No entras a ningún edificio. Le mandas una instrucción a tu <Term id="casa-de-bolsa">casa de bolsa</Term>, y la casa de bolsa —que es miembro de la bolsa— la pasa al sistema electrónico de la bolsa. Ahí tu instrucción entra a una fila junto con la de todos los demás, y el sistema busca a alguien cuya instrucción sea el espejo de la tuya.
+
+Hay dos instrucciones básicas, y la diferencia importa más de lo que espera quien empieza. Una orden de mercado dice *compra al precio que haya ahorita*, así que se llena de inmediato a un precio que te enteras después. Una orden limitada dice *compra, pero nunca arriba de este precio*, así que se llena al precio que elegiste o no se llena. La primera te da certeza sobre la ejecución; la segunda, sobre el precio. Las dos a la vez no se puede.
+
+## El libro de órdenes: una fila de compradores y una de vendedores
+
+Imagina dos listas. De un lado, todos los que quieren comprar, ordenados por quién está dispuesto a pagar más. Del otro, todos los que quieren vender, ordenados por quién acepta menos. Eso es el libro de órdenes, y la punta de cada lista es el precio que ves cotizado.
+
+La distancia entre las dos es el <Term id="spread-de-compra-venta">spread de compra-venta</Term>. Si la mejor compra está en 99.90 y la mejor venta en 100.10, comprar te cuesta 100.10 y vender de inmediato te deja 99.90. Veinte centavos que se fueron antes de que nada se moviera. Esa distancia es el costo real de operar, y es estrecha en lo que todo el mundo opera y ancha en lo que casi nadie — que es una definición práctica de <Term id="liquidez">liquidez</Term>.
+
+Que siempre haya alguien del otro lado es un trabajo, no una casualidad. Los <Term id="formador-de-mercado">formadores de mercado</Term> cotizan un precio de compra y uno de venta al mismo tiempo, toda la sesión, y ganan el spread por la molestia. Son la razón de que tu orden de dos mil pesos encuentre contraparte en un segundo en vez de esperar a un humano al que le cuadren tus planes.
+
+## Dos mercados en el mismo edificio
+
+La bolsa hace dos trabajos distintos y es fácil confundirlos.
+
+En el **mercado primario**, una empresa vende <Term id="accion">acciones</Term> nuevas y recibe el dinero: eso es una <Term id="oferta-publica-inicial">oferta pública inicial</Term> o una emisión posterior, y es la forma en que listarse levanta capital para construir cosas.
+
+En el **mercado secundario**, los inversionistas compran y venden esas mismas acciones entre ellos. Aquí operas tú y casi todo el mundo. La empresa no recibe nada de esto. Lo que sí recibe es algo más sutil y igual de valioso: como la gente sabe que después va a poder vender, se anima a comprar en primer lugar.
+
+## La BMV: horarios, festivos y quién está adentro
+
+La bolsa principal de México es la <Term id="bmv">Bolsa Mexicana de Valores</Term>, fundada en 1894 y con sede en Paseo de la Reforma, en la Ciudad de México. Una sesión corre de lunes a viernes y dura como seis horas y media, y abre con una subasta que junta órdenes antes de que arranque el mercado continuo. Las horas exactas se recorren cuando Estados Unidos cambia de horario —la BMV mantiene su sesión alineada con Nueva York— así que la fuente confiable es el horario que la propia bolsa publica, que es el primer enlace de las fuentes de abajo, junto con el calendario de días festivos. Esos días no se opera, muestre lo que muestre tu app.
+
+Adentro están las <Term id="emisora">emisoras</Term>, las casas de bolsa operando por sus clientes y por ellas mismas, los formadores de mercado, y las instituciones que liquidan y resguardan los valores una vez que la operación se cerró. La bolsa misma nunca es dueña de lo que se opera. Ella pone el lugar de encuentro y las reglas.
+
+## Quién vigila
+
+El mercado corre sobre reglas escritas en tres capas: la Ley del Mercado de Valores, el regulador y el reglamento interior de la propia bolsa. El regulador es la <Term id="cnbv">CNBV</Term>, que autoriza y supervisa bancos, casas de bolsa y bolsas. "Regulado" significa supervisado: que la firma existe, reporta y le responde a alguien. Nunca ha significado que tu inversión no pueda bajar.
+
+## Qué es un índice
+
+Un <Term id="indice-bursatil">índice</Term> no es algo que puedas comprar. Es un número que resume una canasta de empresas, para que "el mercado subió hoy" sea una sola cifra en vez de quinientas. El índice de referencia de México es el <Term id="ipc">S&P/BMV IPC</Term>, armado con las empresas más operadas de la bolsa y ponderado por tamaño; el estadounidense del que tanto oyes es el [S&P 500](/es/lecciones/sp500). La misma idea, otra canasta.
+
+<Callout>
+Si visitas la BMV no vas a ver gente gritando. Las operaciones son totalmente electrónicas desde hace años, y lo que queda es un edificio, pantallas, una campana que suena cuando alguien se lista y personas que explican qué están haciendo esas pantallas. Es mucho más tranquilo que en las películas y bastante más interesante en cuanto sabes qué estás viendo. El grupo estudiantil de Smart Finance organiza visitas y talleres: las fechas, cuando hay, viven en la [página de comunidad](/es/comunidad).
+</Callout>
+
+## La versión corta
+
+Una bolsa es una máquina de cruzar órdenes. La tuya entra a una fila, encuentra su espejo y la propiedad cambia de manos en segundos. La empresa solo recibe dinero la primera vez, en el mercado primario; después son inversionistas operando entre ellos. La BMV corre seis horas y media al día bajo reglas que la CNBV supervisa, y un índice no es más que una forma de describir a toda esa multitud con un solo número.

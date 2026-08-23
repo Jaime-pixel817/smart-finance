@@ -2,26 +2,34 @@
 // Cabecera de /community: la foto grupal de la comunidad estudiantil.
 //
 // ─────────────────────────────────────────────────────────────────────────────
-// LA FOTO TODAVÍA NO EXISTE. La va a aportar Jaime desde su LinkedIn.
-// Cuando llegue el archivo:
-//   1. Guardarlo en public/assets/community/grupo.webp (ancho ~1600 px) y
-//      public/assets/community/grupo.jpg (respaldo), más la miniatura
-//      public/assets/community/grupo-800.webp para pantallas chicas.
-//   2. Cambiar FOTO de null al objeto de abajo (está escrito y comentado) y
-//      ajustar `alt` con lo que de verdad se ve, y `posicion` si las caras
-//      quedan cortadas (object-position: "50% 30%" sube el encuadre).
-// Mientras tanto se pinta un degradado con los tokens del sitio: ocupa el
-// mismo hueco (misma relación de aspecto), así que meter la foto no mueve
-// nada de la página ni cambia el layout.
+// CAMBIAR LA FOTO = CAMBIAR UNA CONSTANTE (FOTO, aquí abajo).
+//
+// Los tres archivos los escribe `node scripts/build-photos.mjs` a partir de
+// public/assets/community/grupo-original.jpg (que NO se despliega: está en
+// .vercelignore). Salen grupo.webp (1600 px), grupo-800.webp y grupo.jpg.
+// Si algún día hay otra foto de grupo: se deja el original con ese nombre, se
+// corre el script y ya. Poner FOTO a null vuelve a pintar el marcador de
+// posición, que ocupa el MISMO hueco (misma relación de aspecto): quitar o
+// poner la foto no mueve un píxel del resto de la página.
+//
+// EL ENCUADRE NO ES `center`. En la foto la fila de ocho ocupa del 8 % al 95 %
+// del alto, y la caja de escritorio (16:9) solo enseña el 75 %: con "50 % 50 %"
+// el navegador recorta por arriba y por abajo a la vez y se lleva media cabeza.
+// El valor va ESCRITO —igual que los puntos focales de scripts/build-photos.mjs
+// y por el mismo motivo— y está razonado en el encabezado de ese script:
+//   50 % 24 %  →  banda visible 6 %–81 %: entra el cartel de Smart Finance,
+//                 entran las ocho cabezas con aire por encima y lo que se
+//                 recorta es el adoquín de abajo, que es lo que sobra.
+// En el 4:3 del teléfono la banda es el 100 %: se ven las ocho personas de
+// pies a cabeza.
 // ─────────────────────────────────────────────────────────────────────────────
 interface Props { alt: string; pendiente: string; posicion?: string }
-const { alt, pendiente, posicion = '50% 50%' } = Astro.props;
+const { alt, pendiente, posicion = '50% 24%' } = Astro.props;
 
 interface Foto { webp: string; jpg: string; mini: string; w: number; h: number }
-// ↓ ESTA es la línea que hay que cambiar cuando llegue la foto de Jaime:
-const FOTO = null as Foto | null;
-// const FOTO = { webp: '/assets/community/grupo.webp', jpg: '/assets/community/grupo.jpg',
-//                mini: '/assets/community/grupo-800.webp', w: 1600, h: 900 } as Foto | null;
+// ↓ ESTA es la línea que hay que cambiar si cambia la foto (o null para quitarla):
+const FOTO = { webp: '/assets/community/grupo.webp', jpg: '/assets/community/grupo.jpg',
+               mini: '/assets/community/grupo-800.webp', w: 1600, h: 1200 } as Foto | null;
 ---
 <figure class="gp" style={`--gp-pos: ${posicion}`}>
   {FOTO ? (

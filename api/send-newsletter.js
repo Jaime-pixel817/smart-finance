@@ -1,9 +1,15 @@
-// Envío del boletín diario. La dispara el Cron de Vercel una vez al día.
+// Envío del boletín SEMANAL. La dispara el Cron de Vercel una vez por semana.
 //
 // HORARIO (configurado en vercel.json, que no admite comentarios): la tarea
-// corre a las "0 14 * * *", o sea 14:00 UTC = 8:00 AM en Ciudad de México.
-// México dejó el horario de verano en 2022 y se quedó fijo en UTC-6, así que
-// esta hora no hay que moverla dos veces al año.
+// corre a las "0 14 * * 0", o sea los DOMINGOS a las 14:00 UTC = 8:00 AM en
+// Ciudad de México. México dejó el horario de verano en 2022 y se quedó fijo en
+// UTC-6, así que esta hora no hay que moverla dos veces al año.
+//
+// POR QUÉ SEMANAL: el plan gratuito de Resend da 100 correos al DÍA y esos 100
+// son los mismos que usan las confirmaciones de alta. Con ~90 suscriptores, el
+// envío diario dejaba menos de diez correos libres para que alguien pudiera
+// darse de alta — o sea que el sistema se rompía solo con crecer, y en
+// silencio. El detalle está en el encabezado de _lib/boletin.js.
 //
 // DURACIÓN: también en vercel.json se le sube maxDuration a 60s. El envío
 // recorre la lista con una pausa entre correos por el límite de peticiones de
@@ -66,12 +72,29 @@ module.exports = async function handler(req, res) {
       suscriptores.listarConfirmados()
     ]);
 
-    if (!contenido.noticia) {
-      // Sin la noticia del día el correo pierde su parte principal. Mejor no
-      // mandar y reintentar mañana que mandar medio boletín.
-      console.error('envío abortado: /api/news no devolvió titulares');
+    /*
+     * ¿HAY CORREO QUE MANDAR?
+     *
+     * Antes bastaba con que faltara la noticia para abortar. Con el boletín
+     * semanal esa regla es demasiado dura por dos motivos: la noticia viene de
+     * /news y solo existe si una persona aprobó alguna esa semana —no hacerlo
+     * no debería cancelar el correo—, y el resto del boletín (la semana del
+     * mercado, la lección, el research) es contenido de verdad por sí solo.
+     *
+     * Lo que sí cancela el envío es no tener NADA: ni noticia aprobada ni un
+     * solo dato de mercado. Eso ya no es un boletín flojo, es un boletín vacío,
+     * y mandarlo gastaría cuota de Resend para no decir nada.
+     */
+    const hayMercado = !!(contenido.mercado && (contenido.mercado.usdmxn || contenido.mercado.vix));
+    if (!contenido.noticia && !hayMercado) {
+      console.error('envío abortado: ni noticia aprobada ni datos de mercado');
       await responder(502, { error: 'sin_contenido' }, { enviados: 0, motivo: 'sin_contenido' });
       return;
+    }
+    if (!contenido.noticia) {
+      // No es un fallo: es la promesa del sitio funcionando. Queda en el
+      // registro para que se note si pasan varias semanas seguidas.
+      console.warn('boletín: esta semana no hay ninguna noticia aprobada; el correo sale sin ese bloque');
     }
 
     const total = lista.length;
@@ -109,17 +132,24 @@ module.exports = async function handler(req, res) {
         }).headers,
         confirmados: total,
         seEnviariaA: destinatarios.length,
-        gancho: contenido.gancho,
         asunto: muestra.asunto,
         tip: contenido.tip.es.titulo,
         mercado: contenido.mercado,
+        // Qué reporte de research entra esta semana, o null si no hubo
+        // novedad. Va en el ensayo porque es la única sección condicional del
+        // correo: sin esto no habría forma de saber si NO salió porque no tocaba
+        // o porque /research-latest.json no contestó.
+        research: contenido.research,
         // La gráfica del día: su URL pública y lo que pesa. Va en el ensayo
         // porque es lo único del correo que vive fuera del correo — si Redis
         // no contestó esto sale en null, y esa es la única señal de que la
         // imagen no va a aparecer. En el HTML no se notaría: el bloque
         // simplemente no se pinta.
         grafica: contenido.grafica,
-        titular: contenido.noticia.title,
+        // La noticia aprobada de la semana, o null si esta semana no hubo
+        // ninguna. Que salga null es información, no un fallo.
+        titular: contenido.noticia ? contenido.noticia.es.titulo : null,
+        autoriaNoticia: contenido.noticia ? contenido.noticia.autoria : null,
         html: muestra.html
       }, { enviados: 0, confirmados: total, motivo: 'ensayo' });
       return;
