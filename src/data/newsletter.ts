@@ -70,6 +70,14 @@ export interface Numero {
     bajan: MovimientoActivo[];
     asOf: number | null;
     consultados: number;
+    /**
+     * La ventana en la que se midieron TODAS las filas (segundos epoch), que es
+     * la de la sesión de EE. UU. de esa semana. Se archiva porque es lo que
+     * hace comparable la columna: sin ella, un número guardado no dice contra
+     * qué periodo se midió. Opcional: los números archivados antes de que la
+     * ventana se recortara no la traen.
+     */
+    ventana?: { ini: number; fin: number };
   } | null;
   /** La serie del dólar de esa semana: [marcaDeTiempo, valor]. Dibuja la gráfica. */
   serieFx: [number, number][] | null;

@@ -546,6 +546,130 @@ test('la tabla no mezcla ventanas: nada de cripto, y ni el dólar ni el VIX', ()
   assert.ok(!ids.includes('vix'));
 });
 
+// ---------------------------------------------------------------------------
+// La ventana de la tabla. Antes aquí solo se comprobaba que no hubiera cripto,
+// que es la mitad del asunto: sacar la cripto no hacía que los NUEVE restantes
+// compartieran ventana, y no la compartían. Medido contra /api/history de
+// producción en la semana del 2026-08-17:
+//
+//   las siete de EE. UU.   lun 13:30Z → vie 20:00Z
+//   EUR/MXN y EUR/USD      dom 23:00Z → vie 21:00–22:00Z
+//
+// Estas pruebas usan esas mismas horas y esos mismos porcentajes.
+// ---------------------------------------------------------------------------
+
+const LUN = Date.UTC(2026, 7, 17, 13, 30) / 1000;   // apertura de la sesión
+const VIE = Date.UTC(2026, 7, 21, 20, 0) / 1000;    // cierre de la sesión
+const DOM_FX = Date.UTC(2026, 7, 16, 23, 0) / 1000; // el FX abre el domingo
+const VIE_FX = Date.UTC(2026, 7, 21, 22, 0) / 1000; // y cierra dos horas después
+
+// Serie de dos puntos dentro de la sesión, con el cambio pedido.
+const serieUS = (pct) => ({ points: [[LUN, 100], [VIE, 100 * (1 + pct / 100)]] });
+
+// Serie de FX: abre el domingo y cierra el viernes tarde. `fuera` es lo que se
+// mueve en las horas que sobran; `dentro`, lo que se mueve en la sesión.
+const serieFX = (dentro, fuera) => ({
+  points: [
+    [DOM_FX, 100],
+    [LUN, 100 * (1 + fuera / 100)],
+    [VIE, 100 * (1 + fuera / 100) * (1 + dentro / 100)],
+    [VIE_FX, 100 * (1 + fuera / 100) * (1 + dentro / 100)]
+  ]
+});
+
+const SEMANA_REAL = {
+  SPY: serieUS(-1.26), QQQ: serieUS(-2.59), DIA: serieUS(-0.54),
+  AAPL: serieUS(1.59), MSFT: serieUS(0.14), NVDA: serieUS(-5.24),
+  AMZN: serieUS(-0.84),
+  // En la sesión suben 0.76 y 0.07; las horas de más les regalan el resto.
+  EURUSD: serieFX(0.76, 0.12),
+  EURMXN: serieFX(0.07, 0.13)
+};
+
+const servir = (tabla) => async (url) => {
+  const pair = new URL(url, 'https://x').searchParams.get('pair');
+  if (!tabla[pair]) throw new Error('sin datos para ' + pair);
+  return tabla[pair];
+};
+
+test('todas las filas se miden en la MISMA ventana, no cada una en la suya', async () => {
+  const movs = require('./movimientos.js');
+  const r = await movs.delaSemana('https://x', servir(SEMANA_REAL));
+
+  // La ventana es la de la sesión de EE. UU., sacada de los datos.
+  assert.equal(r.ventana.ini, LUN);
+  assert.equal(r.ventana.fin, VIE);
+
+  // Y ninguna fila se sale de ella: si alguna terminara más tarde, su columna
+  // estaría midiendo más semana que las demás.
+  const filas = r.suben.concat(r.bajan);
+  for (const f of filas) {
+    assert.equal(f.ultimoTs, VIE, f.sym + ' termina fuera de la ventana común');
+  }
+
+  // El chip habla de la ventana, no del punto más nuevo de quien cerró después.
+  assert.equal(r.asOf, VIE);
+});
+
+test('las horas de más del FX ya no le regalan un puesto en la tabla', async () => {
+  // ESTE es el fallo, con sus números: sin recortar, EUR/MXN sale TERCERO de
+  // los que más subieron (+0.20 %) por las ~15 h que el FX abre antes. En la
+  // ventana de las acciones sube +0.07 % y el puesto es de Microsoft (+0.14 %).
+  const movs = require('./movimientos.js');
+  const r = await movs.delaSemana('https://x', servir(SEMANA_REAL));
+
+  assert.deepEqual(r.suben.map((x) => x.sym), ['AAPL', 'EUR/USD', 'MSFT']);
+  assert.ok(!r.suben.some((x) => x.sym === 'EUR/MXN'),
+    'EUR/MXN está en la tabla solo por las horas que el FX abre antes');
+
+  const eurusd = r.suben.find((x) => x.sym === 'EUR/USD');
+  assert.ok(Math.abs(eurusd.cambioPct - 0.76) < 0.01,
+    'EUR/USD debería medir +0.76 % (la sesión), no +0.88 % (con las horas de más)');
+});
+
+test('la ventana se calcula, no se declara: un lunes festivo la mueve sola', async () => {
+  // "Lunes 13:30 UTC" es falso medio año (horario de invierno) y cualquier
+  // semana con festivo. Por eso la ventana sale de los datos: si la sesión
+  // empieza el martes, la tabla empieza el martes, sin tocar código.
+  const movs = require('./movimientos.js');
+  const MAR = Date.UTC(2026, 7, 18, 14, 30) / 1000;
+  const series = movs.ACTIVOS.map((a) => ({
+    sesion: a.sesion,
+    puntos: a.sesion === 'us' ? [[MAR, 100], [VIE, 101]] : [[DOM_FX, 100], [VIE_FX, 101]]
+  }));
+  assert.deepEqual(movs.ventanaDeLaSesion(series), { ini: MAR, fin: VIE });
+});
+
+test('un activo sin datos dentro de la ventana se cae de la tabla, no la corrompe', async () => {
+  const movs = require('./movimientos.js');
+  const tabla = Object.assign({}, SEMANA_REAL, {
+    // Solo cotizó DESPUÉS del cierre: no hay dos puntos suyos en la ventana.
+    EURMXN: { points: [[VIE + 60, 100], [VIE_FX, 105]] }
+  });
+  const r = await movs.delaSemana('https://x', servir(tabla));
+  assert.equal(r.consultados, 8);
+  assert.ok(!r.suben.concat(r.bajan).some((x) => x.sym === 'EUR/MXN'));
+  // Y el que se cae no arrastra a los demás: la ventana sigue siendo la misma.
+  assert.equal(r.ventana.fin, VIE);
+});
+
+test('sin serie de la sesión de EE. UU. no hay ventana, y sin ventana no hay tabla', async () => {
+  const movs = require('./movimientos.js');
+  // Solo contestan las divisas: no hay contra qué recortarlas.
+  const r = await movs.delaSemana('https://x', servir({
+    EURUSD: SEMANA_REAL.EURUSD, EURMXN: SEMANA_REAL.EURMXN
+  }));
+  assert.equal(r, null);
+});
+
+test('las filas archivadas no arrastran la serie entera de precios', async () => {
+  const movs = require('./movimientos.js');
+  const r = await movs.delaSemana('https://x', servir(SEMANA_REAL));
+  for (const f of r.suben.concat(r.bajan)) {
+    assert.ok(!('puntos' in f), f.sym + ' se archiva con cinco días de precios dentro');
+  }
+});
+
 test('con pocas respuestas no se publica media tabla', async () => {
   const movs = require('./movimientos.js');
   let n = 0;
