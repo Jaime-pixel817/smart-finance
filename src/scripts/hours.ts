@@ -10,6 +10,7 @@
 //     fin de semana, feriado o caída de la fuente. Solo vale para series
 //     intradía; en cierres diarios el último punto siempre es viejo.
 import type { Loc } from './format';
+import { sesionBMV } from '../lib/market/bmv.mjs';
 
 export function sessionOpen(tz: string, h0: number, m0: number, h1: number, m1: number, now = new Date()): boolean {
   const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' }).formatToParts(now);
@@ -21,8 +22,17 @@ export function sessionOpen(tz: string, h0: number, m0: number, h1: number, m1: 
 }
 /** NYSE 9:30–16:00 ET, lunes a viernes. */
 export const nyseOpen = (now = new Date()) => sessionOpen('America/New_York', 9, 30, 16, 0, now);
-/** BMV 8:30–15:00 CDMX, lunes a viernes. */
-export const bmvOpen = (now = new Date()) => sessionOpen('America/Mexico_City', 8, 30, 15, 0, now);
+/**
+ * BMV, lunes a viernes. El horario NO es fijo: la bolsa mexicana homologa su
+ * sesión con Nueva York y México ya no cambia de hora, así que opera 7:30–14:00
+ * mientras EE. UU. está en horario de verano y 8:30–15:00 el resto del año. El
+ * par exacto lo calcula `sesiones()` en exchange-hours.ts restando el adelanto
+ * real de Nueva York, para no depender de fechas que caducan cada año.
+ */
+export const bmvOpen = (now = new Date()) => {
+  const [a, b] = sesionBMV(now);
+  return sessionOpen('America/Mexico_City', Math.floor(a / 60), a % 60, Math.floor(b / 60), b % 60, now);
+};
 
 export const GAP_MS = 40 * 60 * 1000;
 

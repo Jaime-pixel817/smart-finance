@@ -23,11 +23,17 @@
 // Tokio y Hong Kong tienen dos tramos (pausa de comida). Es el port a
 // TypeScript de assets/exchange-hours.js (PR #5, sitio legacy).
 import type { Loc } from './format';
+import { sesionBMV } from '../lib/market/bmv.mjs';
 
 const m = (h: number, mi: number) => h * 60 + mi;
 export const SESSIONS: Record<string, [number, number][]> = {
   'America/New_York':    [[m(9, 30), m(16, 0)]],
   'America/Toronto':     [[m(9, 30), m(16, 0)]],
+  // Ojo: este par NO es fijo. La BMV homologa su sesión con Nueva York y
+  // México ya no cambia de hora, así que el horario local se mueve solo dos
+  // veces al año: 7:30–14:00 mientras EE. UU. está en horario de verano y
+  // 8:30–15:00 el resto del año. Lo resuelve sesiones(), abajo; este par es
+  // el de invierno y queda como respaldo si algo falla.
   'America/Mexico_City': [[m(8, 30), m(15, 0)]],
   'America/Sao_Paulo':   [[m(10, 0), m(17, 0)]],
   'Europe/London':       [[m(8, 0),  m(16, 30)]],
@@ -50,12 +56,23 @@ function clock(tz: string, now: Date): { day: number; min: number } {
   return { day, min: h * 60 + mi };
 }
 
+/**
+ * Sesiones de la bolsa AHORA. Igual que SESSIONS salvo la BMV, cuyo horario se
+ * mueve dos veces al año porque sigue al de Nueva York: lo calcula
+ * `sesionBMV()` (src/lib/market/bmv.mjs, con sus pruebas), que es la única
+ * fuente de ese dato en el sitio.
+ */
+export function sesiones(tz: string, now: Date): [number, number][] | undefined {
+  if (tz !== 'America/Mexico_City') return SESSIONS[tz];
+  return [sesionBMV(now)];
+}
+
 /** abierta → cierre de la sesión en curso; cerrada → próxima apertura. */
 export type ExchangeState = { open: true; until: Date } | { open: false; opens: Date };
 
 /** Estado de la bolsa cuya zona IANA es `tz`, ahora. null si la zona no está en la tabla. */
 export function exchangeState(tz: string, now = new Date()): ExchangeState | null {
-  const ses = SESSIONS[tz];
+  const ses = sesiones(tz, now);
   if (!ses) return null;
   const r = clock(tz, now);
   // Al minuto: las horas que se muestran no llevan segundos.
