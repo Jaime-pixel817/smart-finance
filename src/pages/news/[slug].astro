@@ -10,6 +10,7 @@ import Base from '../../layouts/Base.astro';
 import NewsStory from '../../components/news/NewsStory.astro';
 import { NEWS, newsRouteId, type NewsItem } from '../../data/news';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 
 export async function getStaticPaths() {
   return NEWS.map((item) => ({ params: { slug: item.slug }, props: { item } }));
@@ -35,6 +36,7 @@ const jsonLd = {
 };
 ---
 <Base locale="en" routeId={newsRouteId(item.slug)} active="news" ogType="article"
+  ogImage={ogPropia('news-' + item.slug, 'en')} ogImageAlt={texto.titulo + ' — Smart Finance, news explained'}
   title={texto.titulo + ' — Smart Finance'} description={description} jsonLd={jsonLd}>
   <NewsStory locale="en" item={item} />
 </Base>

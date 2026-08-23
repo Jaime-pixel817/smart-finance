@@ -3,6 +3,7 @@
 import Base from '../layouts/Base.astro';
 import NewsIndex from '../components/news/NewsIndex.astro';
 import { SITE } from '../i18n/routes';
+import { ogPropia } from '../lib/og';
 import { NEWS } from '../data/news';
 const title = 'News, explained: what happened and why it matters — Smart Finance';
 const description = 'Market and economy news explained in plain words for students in Mexico and Canada: what happened, why it matters to you, and what it touched in the markets. Every story is reviewed by a person before it goes up.';
@@ -22,6 +23,7 @@ const jsonLd = {
   }
 };
 ---
-<Base locale="en" routeId="news" active="news" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="en" routeId="news" active="news" title={title} description={description}
+  ogImage={ogPropia('news', 'en')} ogImageAlt="Smart Finance — News, explained: what happened and why it matters" jsonLd={jsonLd}>
   <NewsIndex locale="en" />
 </Base>

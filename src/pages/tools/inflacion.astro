@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ToolPage from '../../components/tools/ToolPage.astro';
 import InflationTool from '../../components/tools/InflationTool.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 const title = 'How much does inflation eat? Calculator in pesos — Smart Finance';
 const description = 'Put in what something costs you today, an annual inflation rate and the years: see what the same thing will cost, how much of your purchasing power is gone, and how money sitting still compares with money at the reference rate.';
 const jsonLd = {
@@ -17,7 +18,8 @@ const learn = [
   'What matters is the rate minus inflation. A number that grows while prices grow faster is still going backwards.'
 ];
 ---
-<Base locale="en" routeId="tool.inflacion" active="tools" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="en" routeId="tool.inflacion" active="tools" title={title} description={description}
+  ogImage={ogPropia('tool-inflacion', 'en')} ogImageAlt="Smart Finance — How much does inflation eat?" jsonLd={jsonLd}>
   <ToolPage locale="en" eyebrow="Tool" title="How much does inflation eat?" lessonRouteId="lesson.inflacion" lessonLabel="What inflation is, and how it hits you"
     lede="Start with something you actually buy — tacos and a soda, $100 — and see what the same thing costs later, and what your money would still buy."
     learn={learn}>

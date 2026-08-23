@@ -3,6 +3,7 @@
 import Base from '../../layouts/Base.astro';
 import NewsIndex from '../../components/news/NewsIndex.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 import { NEWS } from '../../data/news';
 const title = 'Noticias explicadas: qué pasó y por qué importa — Smart Finance';
 const description = 'Las noticias de mercados y economía en palabras normales, para estudiantes en México y Canadá: qué pasó, por qué te importa y qué movió en los mercados. Cada nota la revisa una persona antes de publicarse.';
@@ -22,6 +23,7 @@ const jsonLd = {
   }
 };
 ---
-<Base locale="es" routeId="news" active="news" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="es" routeId="news" active="news" title={title} description={description}
+  ogImage={ogPropia('news', 'es')} ogImageAlt="Smart Finance — Noticias explicadas: qué pasó y por qué te importa" jsonLd={jsonLd}>
   <NewsIndex locale="es" />
 </Base>

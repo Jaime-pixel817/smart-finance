@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import MarketList from '../../components/market/MarketList.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 const title = 'Mercados hoy: índices, acciones, divisas y cripto — Smart Finance';
 const description = 'ETF de índices, cuatro acciones, el VIX, seis pares de divisas y cuatro criptomonedas, cada uno con su gráfica táctil y su ficha. Los precios se actualizan cada 15 minutos, nunca “en vivo”.';
 const jsonLd = {
@@ -15,6 +16,6 @@ const jsonLd = {
 };
 ---
 <Base locale="es" routeId="market" active="markets" title={title} description={description}
-  ogImage={SITE + '/og-market-es.jpg'} ogImageAlt="Smart Finance — Mercado: acciones, divisas y cripto" jsonLd={jsonLd}>
+  ogImage={ogPropia('market', 'es')} ogImageAlt="Smart Finance — Mercado: índices, acciones, divisas y cripto" jsonLd={jsonLd}>
   <MarketList locale="es" />
 </Base>

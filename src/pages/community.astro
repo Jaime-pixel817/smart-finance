@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Community from '../components/community/Community.astro';
 import { SITE } from '../i18n/routes';
+import { ogPropia } from '../lib/og';
 const title = 'The Smart Finance student community — Smart Finance';
 const description = 'The student group Jaime Sandoval Ricaño founded and leads: finance and personal finance, visits to the Mexican Stock Exchange, talks and workshops, and volunteering for the community and the environment. Open to high school and university students.';
 const jsonLd = {
@@ -22,6 +23,7 @@ const jsonLd = {
   }
 };
 ---
-<Base locale="en" routeId="community" active="community" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="en" routeId="community" active="community" title={title} description={description}
+  ogImage={ogPropia('community', 'en')} ogImageAlt="Smart Finance — The Smart Finance student community" jsonLd={jsonLd}>
   <Community locale="en" />
 </Base>
