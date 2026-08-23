@@ -1,0 +1,22 @@
+{
+  "_comentario": [
+    "Próximas actividades de la comunidad estudiantil (/community y /es/comunidad).",
+    "Se actualiza AQUÍ, sin tocar código: añade objetos a \"proximas\" con la misma forma que \"_ejemplo\".",
+    "Campos: id (único, sin espacios), fecha (AAAA-MM-DD; se formatea sola en cada idioma),",
+    "hora (opcional, 24 h, hora de Ciudad de México), tipo (bolsa | taller | voluntariado),",
+    "lugar y titulo/detalle con su versión en inglés y en español. url es opcional (registro o evento).",
+    "Las actividades cuya fecha ya pasó dejan de mostrarse solas: no hay que borrarlas.",
+    "Si \"proximas\" está vacío, la página lo dice y manda al boletín; no se inventa ninguna fecha."
+  ],
+  "_ejemplo": {
+    "id": "visita-bmv-2026-09",
+    "fecha": "2026-09-18",
+    "hora": "10:00",
+    "tipo": "bolsa",
+    "lugar": { "en": "Mexican Stock Exchange, Mexico City", "es": "Bolsa Mexicana de Valores, Ciudad de México" },
+    "titulo": { "en": "Visit to the Mexican Stock Exchange", "es": "Visita a la Bolsa Mexicana de Valores" },
+    "detalle": { "en": "A guided visit plus a short session on how an order becomes a trade.", "es": "Visita guiada y una sesión corta sobre cómo una orden se convierte en una operación." },
+    "url": ""
+  },
+  "proximas": []
+}

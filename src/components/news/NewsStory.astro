@@ -1,0 +1,138 @@
+---
+// Una noticia explicada, generada en el build desde src/data/news/<slug>.json.
+//
+// El orden de los bloques es el formato de la sección y no se cambia por
+// noticia: kicker (tema · hora · fuente) → etiqueta de quién la escribió y
+// quién la revisó → título en Fraunces → Qué pasó → Por qué importa → Impacto
+// en mercados (chips con el Δ del día y la mini gráfica del principal) →
+// Aprende más (lección + glosario al tacto) → pie con la fuente enlazada, la
+// hora y el disclaimer.
+//
+// El MISMO HTML lo escribe también src/scripts/news-shared.ts para las
+// noticias que todavía no tienen página estática. Si cambia la estructura de
+// aquí, cambia allí: por eso los estilos viven en src/styles/news.css y no en
+// un <style> de este componente.
+import '../../styles/news.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import type { NewsItem } from '../../data/news';
+import { ASSETS, assetRouteId, bySymbolId } from '../../data/symbols';
+import { getLessonByRoute } from '../../data/lessons';
+import glossary from '../../data/glossary.json';
+import Term from '../learn/Term.astro';
+import GlossarySheet from '../learn/GlossarySheet.astro';
+import { fmtDay, fmtTime24 } from '../../scripts/format';
+
+const { locale, item } = Astro.props as { locale: Locale; item: NewsItem };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const texto = item[locale];
+
+const publicado = new Date(item.fuente.publicado);
+const cuando = fmtDay(publicado, locale) + ' ' + fmtTime24(publicado, locale);
+
+// Activos de la noticia: solo los que existen en el registro del sitio.
+const activos = (item.simbolos || []).map((id) => bySymbolId(id)).filter((s) => !!s);
+const principal = item.principal ? bySymbolId(item.principal) : undefined;
+// Lo que el script necesita para pedir la cotización de cada uno.
+const activosUI = ASSETS
+  .filter((a) => activos.some((s) => s!.id === a.id) || (principal && a.id === principal.id))
+  .map((a) => ({ id: a.id, sym: a.sym, name: a.name[locale], feed: a.feed, feedKey: a.feedKey, href: L(assetRouteId(a.id)) }));
+
+const leccion = item.leccion ? await getLessonByRoute(locale, item.leccion) : undefined;
+const terminos = (item.terminos || [])
+  .map((id) => ({ id, entrada: glossary.find((g) => g.id === id) }))
+  .filter((x) => !!x.entrada);
+
+const humana = item.autoria === 'humana';
+---
+<div id="news-story" class="container" data-locale={locale} data-activos={JSON.stringify(activosUI)}>
+  <article class="nw-story">
+    <p class="kicker eyebrow">
+      <span>{t(('news.tema.' + item.tema) as UIKey)}</span>
+      <span aria-hidden="true">·</span>
+      <span>{cuando}</span>
+      <span aria-hidden="true">·</span>
+      <span>{item.fuente.nombre}</span>
+    </p>
+
+    <div class="nw-chips">
+      <span class="chip chip-ia" data-autoria={item.autoria}>{humana ? t('news.human') : t('news.ai')}</span>
+    </div>
+
+    <h1 class="t-display nw-h1">{texto.titulo}</h1>
+
+    <div class="nw-block">
+      <p class="nw-label eyebrow">{t('news.what')}</p>
+      <p class="nw-text">{texto.que}</p>
+    </div>
+
+    <div class="nw-block">
+      <p class="nw-label eyebrow">{t('news.why')}</p>
+      <p class="nw-text">{texto.porque}</p>
+    </div>
+
+    <section class="nw-impact" aria-label={t('news.impact')}>
+      <p class="nw-label eyebrow">{t('news.impact')}</p>
+      <p class="nw-text">{texto.impacto}</p>
+      {activos.length > 0 && (
+        <div class="nw-chips">
+          {activos.map((s) => (
+            <a class="chip chip-activo" href={L(assetRouteId(s!.id))} data-activo={s!.id} data-estado="cargando">
+              {s!.sym} <span class="num"></span>
+            </a>
+          ))}
+        </div>
+      )}
+      {principal && (
+        <figure class="nw-spark">
+          <svg class="spark skel" data-spark={principal.id} viewBox="0 0 240 64" preserveAspectRatio="none"
+            role="img" aria-label={principal.sym + ' — ' + t('news.spark')}>
+            <path class="fill" d=""></path><path class="line" d=""></path>
+          </svg>
+          <figcaption class="t-caption faint">{principal.sym} <span aria-hidden="true">·</span> {t('news.impact.note')}</figcaption>
+        </figure>
+      )}
+    </section>
+
+    {(leccion || terminos.length > 0) && (
+      <section class="nw-learn" aria-label={t('news.learn')}>
+        <p class="nw-label eyebrow">{t('news.learn')}</p>
+        {leccion && (
+          <a class="card card-link nw-lesson" href={leccion.href}>
+            <span class="t-small">{leccion.entry.data.title}</span>
+            <span class="t-caption faint">{t('news.learn.lesson')} →</span>
+          </a>
+        )}
+        {terminos.length > 0 && (
+          <p class="nw-terms t-small muted">
+            {t('news.terms')}: {terminos.map((x, i) => (
+              <Fragment><Term id={x.id}>{x.entrada![locale].term}</Term>{i < terminos.length - 1 ? ', ' : ''}</Fragment>
+            ))}
+          </p>
+        )}
+      </section>
+    )}
+
+    <footer class="nw-foot">
+      <p class="t-small">
+        <a href={item.fuente.url} target="_blank" rel="noopener">{t('news.read')}: {item.fuente.titular} ↗</a>
+      </p>
+      <p class="t-caption faint">
+        {t('news.source')}: {item.fuente.nombre} <span aria-hidden="true">·</span> {cuando}
+        {item.revisadoPor && <Fragment> <span aria-hidden="true">·</span> {t('news.reviewed') + ' ' + item.revisadoPor}</Fragment>}
+      </p>
+      <details class="ai-disclosure">
+        <summary class="t-caption">{t('story.ai.more')}</summary>
+        <p class="t-caption muted">{humana ? t('news.human.disclosure') : t('news.ai.disclosure')}</p>
+      </details>
+      <p class="t-caption faint nw-disclaimer">{t('news.disclaimer')}</p>
+    </footer>
+
+    <a class="btn btn-ghost btn-sm nw-back" href={L('news')}>← {t('news.all')}</a>
+  </article>
+</div>
+
+<GlossarySheet locale={locale} />
+<script src="../../scripts/news-story.ts"></script>

@@ -4,34 +4,33 @@
 // (window.THREE) desde CDN.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// YA NO ES UN MAPA. Es una esfera de puntos, y nada más.
+// VUELVE A SER UN MAPA — pero sin volver a los 551 KB de base64
 // ═══════════════════════════════════════════════════════════════════════════
 //
-// El original dibujaba tres capas encima de la nube de partículas: los
-// continentes (por una máscara de tierra), las fronteras de los países (por
-// líneas de verdad) y un semáforo de riesgo que teñía cinco países de verde,
-// ámbar o rojo. Las tres se fueron. Lo que queda es puntos hueso sobre negro,
-// con un halo blanco en el borde que le da volumen. Ni un color más.
+// La esfera sigue siendo una nube de partículas repartidas por una espiral de
+// Fibonacci: la geografía no cambia ni una posición. Lo que cambia es el COLOR
+// de cada partícula, que ahora sabe tres cosas de sí misma:
 //
-// LO QUE SE LLEVÓ POR DELANTE, Y POR QUÉ NO SE ROMPIÓ NADA
-// -------------------------------------------------------
-// Antes de borrar se revisó quién usaba cada pieza. Resultado: NADIE fuera de
-// este archivo. Ni el HTML, ni los otros scripts, ni las páginas en español
-// llamaban a la API de países (setCountryScores, setCountries, countries,
-// setHalo) — estaba publicada en window.riskSphere y sin un solo consumidor.
+//   1. si cae en TIERRA o en MAR (máscara de 1440x720, un bit por píxel), y se
+//      pinta cálida y brillante o fría y apagada. Eso solo ya hace que América,
+//      Europa, África y Asia se reconozcan a 390 px de ancho;
+//   2. en qué PAÍS cae (máscara de 720x360, un id por píxel), para poder
+//      encender el país entero de la bolsa que se seleccione con el color de su
+//      cambio del día;
+//   3. y encima va una capa de FRONTERAS (THREE.LineSegments finas y tenues),
+//      que se apaga sola en la cara de atrás.
 //
-// Y con las tres capas fuera, el shader ya no lee la textura, así que se cayó
-// TODA la cadena que la construía: la máscara de tierra, la de países, las
-// aristas de frontera, el lienzo de 1440x720 que se pintaba píxel a píxel al
-// arrancar (con etiquetado de componentes conexas para limpiar islas sueltas),
-// y el import de ./geoMasks.js — 551 KB de base64 que el navegador se
-// descargaba y parseaba en cada carga del home. La esfera nunca dependió de
-// esos datos: sus posiciones salen de una espiral de Fibonacci, que se calcula
-// aquí en tres líneas.
+// DE DÓNDE SALEN ESOS DATOS. De cuatro binarios en /assets/geo/ que genera
+// scripts/build-geo.mjs y que se piden con fetch + ArrayBuffer DENTRO del
+// arranque diferido (este archivo entero se carga después del evento load, en
+// tiempo ocioso). 204 KB en crudo, ~75 KB comprimidos, contra los 551 KB de
+// base64 de assets/geoMasks.js — que además había que pasar por el parser de
+// JavaScript en cada visita al home. Si los binarios no llegan, el globo se
+// pinta igual, monocromo y sin fronteras: la geografía es una mejora, no un
+// requisito. Los tres primeros frames no la esperan.
 //
-// El archivo assets/geoMasks.js se DEJA en el repo aunque ya no se importe: si
-// algún día se quiere volver a un mapa, volver a generarlo cuesta bastante más
-// que tenerlo ahí sin que nadie lo pida.
+// assets/geoMasks.js se queda en el repo (es la fuente de la máscara de tierra
+// para el script de build) pero fuera del despliegue: ver .vercelignore.
 
 /* ============================================================
    quantForms.js — generadores de formas, shaders y helpers
@@ -39,6 +38,58 @@
    ============================================================ */
 
 const eio = (t) => (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * LOS BINARIOS DE GEOGRAFÍA (public/assets/geo/, los hace scripts/build-geo.mjs)
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * La petición ARRANCA AQUÍ, al evaluarse el módulo, y no dentro de
+ * initRiskSphere: así los cuatro fetch viajan en paralelo con el parseo de
+ * three.js en vez de esperarlo. Como este archivo ya se carga diferido (ver el
+ * bloque "Globo de mercados" de src/scripts/home.ts), no compite con el LCP.
+ *
+ * Todo va envuelto en un catch que devuelve null: sin geografía el globo es el
+ * de antes, monocromo, y ni una línea de abajo se cae.
+ */
+const GEO_BASE = "/assets/geo/";
+const LAND_COLS = 1440, LAND_ROWS = 720;
+const CTY_COLS = 720, CTY_ROWS = 360;
+
+const geoPromesa = (async () => {
+  const pedir = (n) =>
+    fetch(GEO_BASE + n, { cache: "force-cache" }).then((r) => {
+      if (!r.ok) throw new Error(n + ": " + r.status);
+      return r.arrayBuffer();
+    });
+  const [land, cty, bpos, bedges] = await Promise.all(
+    ["land.bin", "country.bin", "border-pos.bin", "border-edges.bin"].map(pedir)
+  );
+  // country.bin viaja en RLE — [valor uint8][repeticiones uint16 LE] — porque
+  // el 76 % del planeta es océano y son carreras larguísimas: 259 200 bytes en
+  // crudo se quedan en 18. Descomprimir son tres líneas y medio milisegundo.
+  const rle = new Uint8Array(cty);
+  const pais = new Uint8Array(CTY_COLS * CTY_ROWS);
+  for (let i = 0, o = 0; i + 3 <= rle.length; i += 3) {
+    const v = rle[i], n = rle[i + 1] | (rle[i + 2] << 8);
+    if (v) pais.fill(v, o, Math.min(o + n, pais.length));
+    o += n;
+  }
+  return { land: new Uint8Array(land), pais, bpos: new Int16Array(bpos), bedges: new Uint16Array(bedges) };
+})().catch((e) => { console.warn("RiskSphere: sin geografía —", e.message); return null; });
+
+/* De un punto de la esfera a la celda de las máscaras. Es el inverso exacto de
+ * latLonToDir (ver más abajo): lat = asin(y), y el meridiano sale de atan2
+ * sobre los otros dos ejes. Fila 0 = lat +90, columna 0 = lon -180, que es como
+ * las escribe el script de build. */
+function celda(x, y, z, cols, rows) {
+  const lat = Math.asin(Math.max(-1, Math.min(1, y)));
+  const lon = Math.atan2(z, -x) - Math.PI;              // theta = lon + 180°
+  let c = Math.floor(((lon / (2 * Math.PI)) + 1.5) * cols) % cols;
+  if (c < 0) c += cols;
+  let r = Math.floor((0.5 - lat / Math.PI) * rows);
+  if (r < 0) r = 0; else if (r >= rows) r = rows - 1;
+  return r * cols + c;
+}
 
 // Fibonacci sphere — cada partícula es una posible trayectoria futura bajo GBM.
 function genSphere(n, r) {
@@ -114,20 +165,33 @@ function subsolarDir(date) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * EL SHADER DE LA ESFERA. Monocromo y nada más.
+ * EL SHADER DE LA ESFERA. Tierra, mar y el país encendido.
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * Cada partícula es un punto hueso cuyo brillo depende solo de una cosa:
- * cuánto mira a la cámara. Ya no se muestrea ninguna textura, así que no hay
- * tierra ni océano ni países — la esfera no sabe qué es la geografía.
+ * El brillo de cada partícula sigue saliendo de lo mismo que antes (cuánto mira
+ * a la cámara, el titileo, el sol), y encima de eso van tres cosas nuevas, las
+ * tres por atributo de vértice — o sea CERO trabajo por frame, se calculan una
+ * vez al arrancar y viven en la GPU:
  *
- * TODAS las partículas se pintan, también las de la cara de atrás. Eso es lo
- * que le da la densidad: la mezcla aditiva de las dos capas es lo que se ve
- * como una nube sólida en vez de como una cáscara.
+ *   aLand     0 mar / 1 tierra. La tierra sube el brillo y tira a hueso cálido;
+ *             el mar baja y tira a azul apagado. Es lo que dibuja los
+ *             continentes.
+ *   aCountry  el id de país de la máscara. Cuando uHiCountry coincide, esa
+ *             partícula se tiñe del color de la bolsa seleccionada.
+ *
+ * POR QUÉ HACE FALTA APAGAR LA CARA DE ATRÁS (uAtras). Todas las partículas se
+ * pintan, también las del hemisferio opuesto, y con mezcla aditiva ese fondo se
+ * SUMA encima del dibujo de delante. Mientras la esfera era monocroma daba
+ * igual —solo aportaba densidad—, pero con continentes es justo lo que los
+ * borra: África por detrás cae sobre el Pacífico de delante y todo se promedia
+ * a gris. Bajando la cara trasera a un tercio se conserva el volumen y el mapa
+ * de delante manda.
  */
 const GLOBE_VERTEX_SHADER = /* glsl */ `
 precision highp float;
 attribute float jPhase;
+attribute float aLand;
+attribute float aCountry;
 uniform float uPixelsPerUnit;
 uniform float uPixelRatio;
 uniform float uSize;
@@ -140,6 +204,15 @@ uniform float uShimmerSpeed;
 uniform float uPlano;
 uniform vec3  uSunDir;
 uniform float uNoche;
+uniform float uAtras;
+uniform float uTierra;
+uniform float uMar;
+uniform vec3  uColTierra;
+uniform vec3  uColMar;
+uniform float uHiCountry;
+uniform vec3  uHiColor;
+uniform float uHiGain;
+uniform float uHiFade;
 varying vec3 vColor;
 
 void main() {
@@ -185,9 +258,28 @@ void main() {
   float sol = dot(dir, uSunDir);
   b *= mix(1.0 - uNoche, 1.0 + uNoche * 0.15, smoothstep(-0.15, 0.25, sol));
 
-  vColor = vec3(b);
+  // La cara de atrás, a un tercio: sin esto los continentes se emborronan
+  // contra el hemisferio opuesto (ver la nota de arriba).
+  b *= mix(uAtras, 1.0, smoothstep(-0.30, 0.02, vFacing));
 
-  gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / -mvPosition.z;
+  // Tierra o mar: la tierra sube y se va a hueso cálido, el mar baja y se
+  // queda en azul de noche. La costa se dibuja sola, en el salto entre las dos.
+  float esTierra = step(0.5, aLand);
+  vec3 col = mix(uColMar, uColTierra, esTierra) * mix(uMar, uTierra, esTierra);
+
+  /* El país de la bolsa seleccionada. Sin ifs: uHiCountry es 0 cuando no hay
+     nada seleccionado, y aCountry nunca vale 0 en tierra con país, así que la
+     comparación es suficiente. uHiFade lo mueve el bucle en 0.3 s para que el
+     país no aparezca de golpe. */
+  float hi = step(0.5, uHiCountry) * (1.0 - step(0.5, abs(aCountry - uHiCountry))) * uHiFade;
+  /* El país encendido tiene que quedar MÁS brillante que la tierra de al
+     lado, y la tierra ya va multiplicada por uTierra (2.3). Sin uHiGain el
+     país se encendía más OSCURO que sus vecinos, que es exactamente lo
+     contrario de lo que se pide. Y suelo de brillo: si el país cae en la
+     noche del globo, sigue siendo el país iluminado. */
+  vColor = mix(vec3(b) * col, uHiColor * uHiGain * max(b, 0.50), hi);
+
+  gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / -mvPosition.z * (1.0 + 0.45 * hi);
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -231,6 +323,31 @@ void main() {
     + 0.16 * sin(ang * 3.0 - uTime * 0.55)
     + 0.10 * sin(ang * 5.0 + uTime * 0.33 + 1.7);
   gl_FragColor = vec4(uColor, rim * uIntensity * 0.55 * breathe * drift);
+}
+`;
+
+/* ── Las fronteras ────────────────────────────────────────────────────────
+ *
+ * THREE.LineSegments sobre una esfera un pelo más grande que la nube (R·1.008)
+ * para que no se hunda en ella. No hay depth test —el resto del globo tampoco
+ * lo usa—, así que el que la línea de atrás no se vea lo hace el shader: se
+ * desvanece con el facing igual que los marcadores. Muy tenue a propósito: son
+ * una referencia para leer los continentes, no el dibujo principal. */
+const BORDER_VERTEX_SHADER = /* glsl */ `
+varying float vFacing;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  vFacing = dot(normalize(normalMatrix * normalize(position)), normalize(-mv.xyz));
+  gl_Position = projectionMatrix * mv;
+}
+`;
+const BORDER_FRAGMENT_SHADER = /* glsl */ `
+precision mediump float;
+uniform vec3 uColor;
+uniform float uOpacity;
+varying float vFacing;
+void main() {
+  gl_FragColor = vec4(uColor, smoothstep(0.02, 0.45, vFacing) * uOpacity);
 }
 `;
 
@@ -619,62 +736,76 @@ async function initRiskSphere() {
 
   const tex = makeDotTexture(THREE);
 
-  const atom = genAtom(N, R);
-  const HOMES = HERO_FORMS.map((f) => {
-    switch (f.id) {
-      case "GLOBE":   return genGlobe(N, R);
-      case "SPHERE":  return genSphere(N, R);
-      case "THOMAS":  return genThomas(N);
-      case "VORONOI": return genVoronoi(N, R);
-      case "ATOM":    return atom.pos;
-      default:        return genGlobe(N, R);
+  /* ── Las formas, solo cuando se piden ─────────────────────────────────
+   *
+   * Antes se construían las CINCO al arrancar: la esfera, el atractor de
+   * Thomas, el Voronoi, el átomo y la esfera de Fibonacci. Cinco Float32Array
+   * de N*3 (1.2 MB cada uno con N = 99 000) y cinco recorridos completos, más
+   * los 80 semilleros y el ordenado del Voronoi. Y de las cinco, el home usa
+   * UNA: las otras cuatro solo aparecen si alguien llama a
+   * window.riskSphere.select(idx) desde la consola, cosa que no hace nadie.
+   *
+   * Medido con Lighthouse móvil: ese arranque era una sola tarea de 1755 ms
+   * de hilo principal. Ahora cada forma se genera la primera vez que se pide.
+   */
+  let atom = null;
+  const HOMES = new Array(HERO_FORMS.length);
+  function forma(idx) {
+    if (HOMES[idx]) return HOMES[idx];
+    switch (HERO_FORMS[idx].id) {
+      case "THOMAS":  HOMES[idx] = genThomas(N); break;
+      case "VORONOI": HOMES[idx] = genVoronoi(N, R); break;
+      case "ATOM":    atom = genAtom(N, R); HOMES[idx] = atom.pos; break;
+      default:        HOMES[idx] = genGlobe(N, R); break;
     }
-  });
+    return HOMES[idx];
+  }
 
   /* La rejilla se construye sobre las posiciones de reposo de la ESFERA, que
      es la forma en la que el globo vive siempre. Ocho cubos por lado dan una
      arista de 0.46, prácticamente el radio de acción del dedo (0.455): así el
      vecindario de 3x3x3 cubos cubre el casquete entero con margen de sobra
      para lo que las partículas se hayan desplazado. */
-  const rejilla = construirRejilla(HOMES[GLOBE_IDX], N, R, 8);
+  const rejilla = construirRejilla(forma(GLOBE_IDX), N, R, 8);
 
-  const gauss = () => {
-    let u = 0, v = 0;
-    while (u === 0) u = Math.random();
-    while (v === 0) v = Math.random();
-    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-  };
   const fovRad    = THREE.MathUtils.degToRad(camera.fov);
   const visibleHW = 2 * Math.tan(fovRad / 2) * camera.position.z;
   /* En el primer frame el contenedor puede medir 0 (el CSS del hero todavía
-     no le da alto): 0/0 es NaN, los sigmas de abajo salían NaN y ese NaN
-     acababa en computeBoundingSphere ("Computed radius is NaN" en consola).
+     no le da alto): 0/0 es NaN, y ese NaN acababa en computeBoundingSphere
+     ("Computed radius is NaN" en consola).
      Respaldo 1 — onResize ajusta cámara y renderer cuando ya hay tamaño. */
   const aspect    = (container.clientWidth > 0 && container.clientHeight > 0)
     ? container.clientWidth / container.clientHeight
     : 1;
   const groupScale = Math.min(BASE_SCALE, (visibleHW * aspect * 0.85) / (2 * R));
-  const visibleH = visibleHW / groupScale;
-  const visibleW = visibleH * aspect;
-  const sigmaX = visibleW * 0.5;
-  const sigmaY = visibleH * 0.5;
-  const sigmaZ = 1.5;
-  const scatter = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    scatter[i*3]   = gauss() * sigmaX;
-    scatter[i*3+1] = gauss() * sigmaY;
-    scatter[i*3+2] = gauss() * sigmaZ;
-  }
 
+  /* ── EL GLOBO NACE YA FORMADO ──────────────────────────────────────────
+   *
+   * Antes las partículas empezaban dispersas en una nube gaussiana y
+   * convergían durante un segundo. Eso se acabó, por dos motivos, y el de
+   * diseño pesa más que el de rendimiento:
+   *
+   *   1. AHORA HAY UN GLOBO ANTES. El hero pinta el SVG estático desde el
+   *      primer frame (2.3 KB, inline). Si WebGL arranca con polvo suelto, lo
+   *      que se ve es un globo que se DESHACE y se vuelve a hacer. La entrada
+   *      buena es la que no se nota: mismo globo, misma orientación, y encima
+   *      entran el halo, las fronteras y los marcadores con su fundido.
+   *   2. Costaba unos 105 frames moviendo las 99 000 partículas enteras —
+   *      la mayor parte de los 6.4 s de CPU que Lighthouse le achacaba a este
+   *      archivo. Con la esfera ya formada y quieta, el bucle entra por el
+   *      camino rápido desde el primer frame y no toca ni una partícula
+   *      mientras nadie ponga el dedo encima.
+   *
+   * Con ello se fue también la nube gaussiana (N llamadas a Box-Muller, con
+   * su logaritmo y su coseno cada una). El morph sigue existiendo intacto para
+   * select(), que es de donde venía. */
   let currentIdx  = GLOBE_IDX;
-  let prevHome    = scatter;
-  let currHome    = HOMES[GLOBE_IDX];
-  let morphT      = 0;
+  let currHome    = forma(GLOBE_IDX);
+  let prevHome    = currHome;
+  let morphT      = 1;
   let morphDur    = INTRO_MORPH_S;
-  // introActive se quitó: solo servía para saber cuándo encender el modo mapa,
-  // que ya no existe. Lo que ahora marca "la esfera ya está" es morphT.
-  const baseNow  = scatter.slice();
-  const effHome  = scatter.slice();
+  const baseNow  = currHome.slice();
+  const effHome  = currHome.slice();
 
   const dispX = new Float32Array(N), dispY = new Float32Array(N), dispZ = new Float32Array(N);
   const velX  = new Float32Array(N), velY  = new Float32Array(N), velZ  = new Float32Array(N);
@@ -708,10 +839,26 @@ async function initRiskSphere() {
   const jPhase  = new Float32Array(N);
   for (let i = 0; i < N; i++) jPhase[i] = Math.random() * Math.PI * 2;
 
+  /* ── A qué corresponde cada partícula en el mapa ─────────────────────────
+   *
+   * Se calcula UNA vez, sobre las posiciones de reposo de la esfera (que son
+   * fijas: salen de la espiral de Fibonacci), y se sube a la GPU como dos
+   * atributos. A partir de ahí la geografía no cuesta nada por frame.
+   *
+   * Arrancan en 0 (todo mar, sin país) porque los binarios pueden no haber
+   * llegado todavía o no llegar nunca: el globo se pinta igual y, cuando
+   * lleguen, `aplicarGeo` los rellena y marca los atributos para subir. */
+  const aLand    = new Float32Array(N);
+  const aCountry = new Float32Array(N);
+
   const geometry = new THREE.BufferGeometry();
   const posAttr  = new THREE.BufferAttribute(effHome, 3);
+  const landAttr = new THREE.BufferAttribute(aLand, 1);
+  const ctyAttr  = new THREE.BufferAttribute(aCountry, 1);
   geometry.setAttribute("position", posAttr);
   geometry.setAttribute("jPhase",   new THREE.BufferAttribute(jPhase, 1));
+  geometry.setAttribute("aLand",    landAttr);
+  geometry.setAttribute("aCountry", ctyAttr);
 
   const material = new THREE.ShaderMaterial({
     uniforms: {
@@ -730,8 +877,28 @@ async function initRiskSphere() {
       // quede un rastro de aro y la esfera no se lea como un círculo plano.
       uPlano:         { value: 0.92 },
       uSunDir:        { value: new THREE.Vector3(1, 0, 0) },
-      // 0.58: la noche queda al 42 % y el día al 109 % del brillo base.
-      uNoche:         { value: 0.58 },
+      /* La noche baja de 0.58 a 0.30 (del 42 % al 70 % del brillo base).
+         Con la esfera monocroma daba igual, pero ahora el globo es el HERO y
+         medio planeta está siempre de noche: con 0.58, entrar al home a las
+         seis de la tarde en México era encontrarse los continentes en negro.
+         El terminador se sigue viendo perfectamente. */
+      uNoche:         { value: 0.30 },
+      /* Geografía. uTierra/uMar son los factores de brillo y uColTierra/
+         uColMar los tonos. Los números salieron de mirar capturas a 390 px:
+         con el mar por encima de 0.45 los continentes dejan de separarse, y
+         con la tierra por debajo de 2.0 el globo se apaga entero. La tierra
+         va MUY por encima de 1 a propósito: al apagar la cara de atrás se
+         perdió la mitad de la luz acumulada, y esto la devuelve solo donde
+         interesa, que es en los continentes. */
+      uAtras:         { value: 0.30 },
+      uTierra:        { value: 2.30 },
+      uMar:           { value: 0.72 },
+      uColTierra:     { value: new THREE.Color(1.0, 0.95, 0.86) },
+      uColMar:        { value: new THREE.Color(0.46, 0.58, 0.78) },
+      uHiCountry:     { value: 0 },
+      uHiColor:       { value: new THREE.Color(0.72, 0.72, 0.74) },
+      uHiGain:        { value: 4.0 },
+      uHiFade:        { value: 0 },
     },
     vertexShader: GLOBE_VERTEX_SHADER,
     fragmentShader: GLOBE_FRAGMENT_SHADER,
@@ -767,6 +934,67 @@ async function initRiskSphere() {
   });
   const atmo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.06, 64, 48), atmoMat);
   group.add(atmo);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * LA GEOGRAFÍA SE PEGA CUANDO LLEGA
+   * ═══════════════════════════════════════════════════════════════════════
+   *
+   * El globo ya está girando cuando esto se resuelve. No se espera a los
+   * binarios para arrancar a propósito: los primeros frames se ven monocromos
+   * y los continentes entran solos un momento después, que se lee como que el
+   * mapa se revela, no como que faltaba algo.
+   *
+   * El coste es un recorrido de N partículas (48 000–160 000) haciendo dos
+   * lecturas de máscara cada una. Medido en el portátil: 6 ms con N = 160 000.
+   * Se hace una sola vez y fuera del camino del primer pintado. */
+  const bordeMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uColor:   { value: new THREE.Color(0.80, 0.84, 0.92) },
+      uOpacity: { value: 0 },
+    },
+    vertexShader: BORDER_VERTEX_SHADER,
+    fragmentShader: BORDER_FRAGMENT_SHADER,
+    transparent: true, depthWrite: false, depthTest: false,
+  });
+  // 0.30 en escritorio y 0.24 en el teléfono: la misma línea sobre menos
+  // píxeles se lee más marcada, y aquí sobran antes que faltan.
+  const BORDE_OPACIDAD = isSmall ? 0.24 : 0.30;
+  let geoLista = false;
+
+  geoPromesa.then((geo) => {
+    if (!geo) return;
+    // 1. Tierra/mar y país de cada partícula, sobre las posiciones de reposo.
+    const home = forma(GLOBE_IDX);
+    for (let i = 0; i < N; i++) {
+      const ix = i * 3;
+      const x = home[ix] / R, y = home[ix + 1] / R, z = home[ix + 2] / R;
+      const li = celda(x, y, z, LAND_COLS, LAND_ROWS);
+      aLand[i] = (geo.land[li >> 3] >> (7 - (li & 7))) & 1;
+      aCountry[i] = geo.pais[celda(x, y, z, CTY_COLS, CTY_ROWS)];
+    }
+    landAttr.needsUpdate = true;
+    ctyAttr.needsUpdate = true;
+
+    // 2. Las fronteras: Int16 (lon·91.02, lat·182.04) → puntos sobre la esfera.
+    const P = geo.bpos.length / 2;
+    const bp = new Float32Array(P * 3);
+    const BR = R * 1.008;
+    for (let i = 0; i < P; i++) {
+      const d = latLonToDir(geo.bpos[i * 2 + 1] / 182.0389, geo.bpos[i * 2] / 91.0194);
+      bp[i * 3] = d.x * BR; bp[i * 3 + 1] = d.y * BR; bp[i * 3 + 2] = d.z * BR;
+    }
+    const bGeom = new THREE.BufferGeometry();
+    bGeom.setAttribute("position", new THREE.BufferAttribute(bp, 3));
+    bGeom.setIndex(new THREE.BufferAttribute(geo.bedges, 1));
+    const bordes = new THREE.LineSegments(bGeom, bordeMat);
+    bordes.renderOrder = 1;
+    group.add(bordes);
+
+    geoLista = true;
+    // Sin movimiento no hay bucle que suba la opacidad: se pone y se repinta.
+    if (REDUCED_MOTION) bordeMat.uniforms.uOpacity.value = BORDE_OPACIDAD;
+    if (repintar) repintar();
+  });
 
   /* ═══════════════════════════════════════════════════════════════════════
    * GLOBO DE MERCADOS: el sol y las bolsas
@@ -893,6 +1121,9 @@ async function initRiskSphere() {
       const it = byId.get(markers[i].id);
       if (!it) { mOpen[i] = 0; continue; }
       if (typeof it.lat === "number" && typeof it.lon === "number") { markers[i].lat = it.lat; markers[i].lon = it.lon; }
+      // El id de país lo manda el HTML (src/data/world.ts, leído en su día de
+      // la propia máscara con scripts/build-geo.mjs): aquí no hay tabla.
+      if (typeof it.countryId === "number") markers[i].countryId = it.countryId;
       const c = typeof it.changePct !== "number" ? COL_FLAT
         : it.changePct > 0.0001 ? COL_UP : it.changePct < -0.0001 ? COL_DOWN : COL_FLAT;
       mCol[i*3] = c[0]; mCol[i*3+1] = c[1]; mCol[i*3+2] = c[2];
@@ -913,7 +1144,20 @@ async function initRiskSphere() {
   document.addEventListener("world:data", (e) => aplicarMercados(e.detail));
   document.addEventListener("world:select", (e) => {
     const id = e.detail && e.detail.id;
-    mMat.uniforms.uSel.value = markers.findIndex((m) => m.id === id);
+    const k = markers.findIndex((m) => m.id === id);
+    mMat.uniforms.uSel.value = k;
+    /* El país entero, del color de la bolsa. El color es EL MISMO que ya lleva
+       su marcador (verde si sube, rojo si baja, gris si no hay dato), así que
+       el punto y el país no pueden decir cosas distintas. Atenuado a la mitad
+       contra blanco: encendido a tope el país tapaba el marcador. */
+    const cid = k >= 0 ? (markers[k].countryId || 0) : 0;
+    material.uniforms.uHiCountry.value = cid;
+    if (cid) {
+      const c = material.uniforms.uHiColor.value;
+      c.setRGB(mCol[k*3], mCol[k*3+1], mCol[k*3+2]);
+      c.lerp(new THREE.Color(1, 1, 1), 0.30);
+    }
+    if (REDUCED_MOTION) material.uniforms.uHiFade.value = cid ? 1 : 0;
     if (repintar) repintar();
   });
   if (window.SmartWorld && window.SmartWorld.data) aplicarMercados(window.SmartWorld.data);
@@ -945,7 +1189,79 @@ async function initRiskSphere() {
     return true;
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+   * LOS PINES DEL HERO
+   * ═══════════════════════════════════════════════════════════════════════
+   *
+   * El hero enseña el cambio del día de dos o tres bolsas en una pastilla
+   * pegada a su marcador. Quién sabe dónde está cada marcador AHORA es el
+   * globo y nadie más, así que las coordenadas salen de aquí por el evento
+   * "globe:pins" y el HTML se limita a mover un div con transform.
+   *
+   * Se emite como mucho una vez cada dos frames, y solo si algo se movió más
+   * de medio píxel o cambió de cara: con el globo quieto no cuesta nada.
+   */
+  let pinIds = [];
+  let pinPar = 0;
+  const pinPrev = new Map();
+  document.addEventListener("world:pins", (e) => {
+    pinIds = (e.detail && e.detail.ids) || [];
+    pinPrev.clear();
+    emitirPines(true);
+  });
+  // El hero ya eligió sus bolsas antes de que este archivo existiera (se carga
+  // diferido): se recogen de donde las dejó. Mismo patrón que SmartWorld.
+  if (Array.isArray(window.SmartWorldPins)) pinIds = window.SmartWorldPins.slice();
+  function emitirPines(forzar) {
+    if (!pinIds.length) return;
+    const rect = container.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    group.updateMatrixWorld(true);
+    const pins = [];
+    let cambio = false;
+    for (const id of pinIds) {
+      const i = markers.findIndex((m) => m.id === id);
+      if (i < 0) continue;
+      _v.set(mPos[i*3], mPos[i*3+1], mPos[i*3+2]).applyMatrix4(group.matrixWorld);
+      _n.copy(_v).normalize();
+      _c.copy(camera.position).sub(_v).normalize();
+      const facing = _n.dot(_c);
+      _v.project(camera);
+      const p = {
+        id,
+        x: (_v.x + 1) / 2 * rect.width,
+        y: (1 - _v.y) / 2 * rect.height,
+        on: facing > 0.16,
+      };
+      const ant = pinPrev.get(id);
+      if (!ant || ant.on !== p.on || Math.abs(ant.x - p.x) > 0.5 || Math.abs(ant.y - p.y) > 0.5) cambio = true;
+      pinPrev.set(id, p);
+      pins.push(p);
+    }
+    if (!cambio && !forzar) return;
+    document.dispatchEvent(new CustomEvent("globe:pins", { detail: { pins, w: rect.width, h: rect.height } }));
+  }
+
+  /* Aparcado. Cuando el hero termina de encoger el globo hasta el ícono de la
+     barra, el HTML lo esconde y avisa por aquí: sin esto el lienzo seguiría
+     dibujando a 60 fps detrás de una página que ya no lo enseña. El
+     IntersectionObserver de más abajo no sirve para esto porque el globo del
+     hero es position:fixed y nunca deja de intersecar. */
+  let parado = false;
+  document.addEventListener("globe:visible", (e) => {
+    const on = !(e.detail && e.detail.on === false);
+    if (parado === !on) return;
+    parado = !on;
+    if (on && !REDUCED_MOTION && !animId && visible) { lastFrame = 0; nextFrameAt = 0; animate(); }
+  });
+
   group.scale.set(groupScale, groupScale, groupScale);
+  /* Arranca mirando a la longitud -64°: Nueva York, Toronto, Ciudad de México
+     y São Paulo de frente desde el PRIMER frame, que es lo que el hero tiene
+     que enseñar (y lo mismo que ve quien pide menos movimiento). Antes salía
+     en 0, o sea el Pacífico, y había que esperar veinte segundos a que girara
+     hasta América. */
+  group.rotation.y = -0.45;
   scene.add(group);
 
   let focusTarget = null;
@@ -964,9 +1280,9 @@ async function initRiskSphere() {
       focusTarget = -Math.atan2(d.x, d.z);
     },
     select: (idx) => {
-      if (idx < 0 || idx >= HOMES.length || idx === currentIdx) return;
+      if (idx < 0 || idx >= HERO_FORMS.length || idx === currentIdx) return;
       prevHome   = baseNow.slice();
-      currHome   = HOMES[idx];
+      currHome   = forma(idx);
       currentIdx = idx;
       morphT     = 0;
       morphDur   = MORPH_S;
@@ -986,12 +1302,14 @@ async function initRiskSphere() {
   // Se enciende cuando la entrada termina de asentarse y las posiciones de
   // reposo ya son definitivas. A partir de ahí el camino rápido puede confiar
   // en baseNow. Vuelve a cero si se cambia de forma con select().
-  let asentadoUnaVez = false;
+  let asentadoUnaVez = true;
   let elapsed = 0, animId = 0, lastFrame = 0, nextFrameAt = 0;
   let lastScrollAt = -1e9;
   let mouseActive = false;
   let lastMoveAt  = 0;
-  let settled = false, settleFrames = 0;
+  // Arranca asentado: la esfera ya está en su sitio (ver "EL GLOBO NACE YA
+  // FORMADO"), así que el camino rápido vale desde el primer frame.
+  let settled = true, settleFrames = 0;
   let visible = true;
   let qFrames = 0, qSlow = 0, qDone = DPR <= 1.5;
   const mouseNDC    = new THREE.Vector2();
@@ -1174,7 +1492,7 @@ async function initRiskSphere() {
 
   let ultimoSol = 0;
   function animate(ts = 0) {
-    if (!visible) { animId = 0; return; }
+    if (!visible || parado) { animId = 0; return; }
     animId = requestAnimationFrame(animate);
     if (ts < nextFrameAt) return;
     nextFrameAt = Math.max(nextFrameAt + 1000 / 60, ts - 32);
@@ -1213,7 +1531,13 @@ async function initRiskSphere() {
         focusTarget = null;
       }
     } else {
-      group.rotation.y += 0.216 * dt;
+      /* La deriva baja de 0.216 a 0.075 rad/s (una vuelta cada 84 s en vez de
+         cada 29). Ahora el globo es el hero y lleva encima el titular y las
+         pastillas con el cambio del día de dos o tres bolsas: a la velocidad
+         de antes las pastillas cruzaban la pantalla y no daba tiempo a leer
+         ninguna. Sigue girando —importa que se vea que el planeta se mueve—,
+         solo que a paso de reloj. */
+      group.rotation.y += 0.075 * dt;
       group.rotation.x += (Math.sin(elapsed * 0.2) * 0.07 + gyroTilt - group.rotation.x) * 0.03;
     }
 
@@ -1240,7 +1564,19 @@ async function initRiskSphere() {
     atmoMat.uniforms.uTime.value      = elapsed;
     mMat.uniforms.uFade.value = fade;
     mMat.uniforms.uTime.value = elapsed;
+    // Las fronteras entran con el mismo fundido que el halo, y solo si los
+    // binarios llegaron.
+    bordeMat.uniforms.uOpacity.value = geoLista ? fade * BORDE_OPACIDAD : 0;
+    // El país seleccionado enciende y apaga en 0.3 s.
+    const hiObjetivo = material.uniforms.uHiCountry.value > 0 ? 1 : 0;
+    const hiActual = material.uniforms.uHiFade.value;
+    if (hiActual !== hiObjetivo) {
+      const paso2 = dt / 0.3;
+      material.uniforms.uHiFade.value = hiObjetivo > hiActual
+        ? Math.min(1, hiActual + paso2) : Math.max(0, hiActual - paso2);
+    }
     if (ts - ultimoSol > 60000) { ultimoSol = ts; actualizarSol(); }
+    if ((pinPar ^= 1) === 0) emitirPines(false);
 
     if (mouseActive) {
       raycaster.setFromCamera(mouseNDC, camera);
@@ -1273,7 +1609,7 @@ async function initRiskSphere() {
       : 0;
 
     if (currentIdx === ATOM_IDX) {
-      tickAtom(HOMES[ATOM_IDX], atom.phases, atom.rIdx, elapsed, N, R);
+      tickAtom(forma(ATOM_IDX), atom.phases, atom.rIdx, elapsed, N, R);
     }
 
     if (morphT < 1) morphT = Math.min(1, morphT + dt / morphDur);
@@ -1539,7 +1875,7 @@ async function initRiskSphere() {
     material.uniforms.uTime.value = 0;
     atmoMat.uniforms.uIntensity.value = 1;
     mMat.uniforms.uFade.value = 1;
-    const pintarQuieto = () => renderer.render(scene, camera);
+    const pintarQuieto = () => { renderer.render(scene, camera); emitirPines(true); };
     repintar = pintarQuieto;
     pintarQuieto();
     window.addEventListener("resize", pintarQuieto);

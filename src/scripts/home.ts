@@ -13,6 +13,11 @@ type Markets = { updatedAt: string; refreshMinutes: number; stocks: { source: st
 type Sparks = { series: Record<string, number[]>; points: number };
 type NewsItem = { title: string; link: string; description: string; pubDate: string; take?: { en: string; es: string } };
 type News = { source: string; items: NewsItem[] };
+// Noticia ya revisada por una persona (/api/news?estado=aprobadas). Trae la
+// estructura completa; el home solo usa el título, el "qué pasó" y el "por qué
+// importa", y enlaza a la noticia entera.
+type TextoNoticia = { titulo: string; que: string; porque: string; impacto: string };
+type Revisada = { slug: string; fuente: { nombre: string; publicado: string }; autoria: string; en: TextoNoticia; es: TextoNoticia };
 
 function boot(root: HTMLElement) {
   const loc = (root.dataset.locale === 'es' ? 'es' : 'en') as Loc;
@@ -22,7 +27,7 @@ function boot(root: HTMLElement) {
 
   // ---- caché local: pinta el último valor conocido y luego refresca ----
   const LS = 'sf-home-cache-v1';
-  function readCache(): { markets?: Markets; sparks?: Sparks; news?: News; at?: number } {
+  function readCache(): { markets?: Markets; sparks?: Sparks; news?: News; revisada?: Revisada; at?: number } {
     try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch { return {}; }
   }
   function writeCache(patch: Record<string, unknown>) {
@@ -193,18 +198,67 @@ function boot(root: HTMLElement) {
     box.dataset.state = 'ready';
   }
 
+  // La versión buena de la historia de hoy: una noticia que ya pasó por
+  // revisión humana. Se pinta igual que la del feed, pero el "por qué importa"
+  // es un párrafo escrito para el lector y el enlace lleva a la noticia entera
+  // en vez de a Bloomberg.
+  function applyRevisada(n: Revisada, fromCache: boolean) {
+    const box = $('#story');
+    const texto = (n as any)[loc] || n.en;
+    if (!box || !texto) return false;
+    const title = $('#story-title'); if (title) { title.textContent = texto.titulo; title.classList.remove('skel'); }
+    const what = $('#story-what'); if (what) { what.textContent = texto.que; what.classList.remove('skel'); }
+    const why = $('#story-why');
+    if (why) { why.textContent = texto.porque; why.classList.remove('skel'); why.closest('.story-block')?.removeAttribute('hidden'); }
+    const link = $<HTMLAnchorElement>('#story-link');
+    if (link) {
+      link.href = (root.dataset.newsBase || '/news/') + n.slug;
+      link.textContent = T.storyOpen;
+      // Deja de ser un enlace externo: quitar target y rel evita abrir una
+      // pestaña nueva para ir a otra página del mismo sitio.
+      link.removeAttribute('target');
+      link.removeAttribute('rel');
+      link.hidden = false;
+    }
+    const when = n.fuente?.publicado ? new Date(n.fuente.publicado) : null;
+    const kt = $('#story-time'); if (kt && when) kt.textContent = fmtDay(when, loc) + ' · ' + fmtTime(when, loc);
+    const chip = $('#chip-story');
+    if (chip) {
+      chip.dataset.fresh = fromCache ? 'stale' : 'fresh';
+      const etiqueta = chip.firstElementChild?.nextSibling;
+      if (etiqueta) etiqueta.textContent = ' ' + T.storyAi + ' ';
+      const t = $('.sc-time', chip); if (t && when) t.textContent = fmtTime(when, loc);
+    }
+    const err = $('#story-error'); if (err) err.hidden = true;
+    box.dataset.state = 'ready';
+    return true;
+  }
+
   // ---- Pintar caché, luego pedir ----
   const cache = readCache();
   if (cache.markets) applyMarkets(cache.markets, true);
   if (cache.sparks) applySparks(cache.sparks, true);
-  if (cache.news) applyNews(cache.news, true);
+  if (cache.revisada) applyRevisada(cache.revisada, true);
+  else if (cache.news) applyNews(cache.news, true);
 
   const ctrl = new AbortController();
   const get = <T,>(url: string) => fetch(url, { signal: ctrl.signal, headers: { accept: 'application/json' } }).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json() as Promise<T>; });
 
   get<Markets>('/api/markets').then((m) => { applyMarkets(m, false); writeCache({ markets: m }); }).catch(() => { if (!cache.markets) { setChip('chip-pulse', null, 'error'); setChip('chip-m60', null, 'error'); tiles.forEach((t) => { if (['SPY','QQQ','DIA','BTC','ETH'].includes(t.dataset.tile!)) paintTile(t.dataset.tile!, null, null, null, 2, { text: '—' }); }); } });
   get<Sparks>('/api/sparklines').then((s) => { applySparks(s, false); writeCache({ sparks: s }); }).catch(() => { if (!cache.sparks) paintTile('USDMXN', null, null, null, 2, { text: '—' }); });
-  get<News>('/api/news').then((n) => { applyNews(n, false); writeCache({ news: n }); }).catch(() => { if (!cache.news) { const s = $('#story'); if (s) { s.dataset.state = 'error'; const e = $('#story-error'); if (e) e.hidden = false; } setChip('chip-story', null, 'error'); } });
+  // Dos peticiones para la misma tarjeta, y la revisada manda siempre: es la
+  // que una persona leyó. La del feed queda como respaldo para los días en que
+  // todavía no hay ninguna aprobada.
+  let hayRevisada = false;
+  get<{ items: Revisada[] }>('/api/news?estado=aprobadas')
+    .then((d) => {
+      const n = d && d.items && d.items[0];
+      if (!n) return;
+      hayRevisada = applyRevisada(n, false);
+      if (hayRevisada) writeCache({ revisada: n });
+    })
+    .catch(() => { /* sin noticias revisadas se usa el feed, abajo */ });
+  get<News>('/api/news').then((n) => { if (!hayRevisada) applyNews(n, false); writeCache({ news: n }); }).catch(() => { if (!cache.news && !cache.revisada && !hayRevisada) { const s = $('#story'); if (s) { s.dataset.state = 'error'; const e = $('#story-error'); if (e) e.hidden = false; } setChip('chip-story', null, 'error'); } });
 
   // Refresco suave cada 15 min mientras la pestaña esté visible.
   setInterval(() => { if (document.visibilityState === 'visible') { get<Markets>('/api/markets').then((m) => { applyMarkets(m, false); writeCache({ markets: m }); }).catch(() => {}); paintToday(); } }, 15 * 60 * 1000);
@@ -230,14 +284,16 @@ function boot(root: HTMLElement) {
   }
 
   // ---- 6. Globo de mercados (diferido) -------------------------------------
-  // Carga three.js + public/assets/risk-sphere.js cuando la tarjeta se acerca
-  // al viewport y el hilo está libre. Con prefers-reduced-motion también se
-  // carga (las ocho bolsas son contenido, no decoración): el propio
-  // risk-sphere.js pinta UN fotograma quieto con los marcadores y no arranca
-  // el bucle; aquí solo se marca la tarjeta para cambiar la nota de pie.
+  // Carga three.js + public/assets/risk-sphere.js cuando el hilo está libre.
+  // El globo ahora es el hero, o sea que está en pantalla desde el primer
+  // frame — pero SIGUE cargándose diferido a propósito: mientras tanto se ve
+  // el SVG estático de Hero.astro, que pesa 2.3 KB y va inline. Así el LCP no
+  // espera ni a three.js ni a WebGL.
+  // Con prefers-reduced-motion también se carga (las ocho bolsas son
+  // contenido, no decoración): risk-sphere.js pinta UN fotograma quieto con
+  // los marcadores en su sitio y no arranca el bucle.
   const globe = document.getElementById('globalRiskGlobe');
   if (globe && 'IntersectionObserver' in window) {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) globe.classList.add('globe-static');
     let loaded = false;
     const load = () => {
       if (loaded) return; loaded = true;

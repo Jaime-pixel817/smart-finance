@@ -1,34 +1,49 @@
 ---
-// Calculadora de interés compuesto de la lección "Interés simple vs.
-// compuesto" (antes public/assets/lesson-widgets.js con Chart.js por CDN).
-// Mismo comportamiento: tres sliders (aporte mensual, tasa anual, años), la
-// curva "solo tus aportes" contra "con interés compuesto" y la frase resumen.
-// La gráfica ahora es SVG propio (sección E del diseño: sin CDN, sin Chart.js)
-// y la pinta src/scripts/compound.ts. Sin JavaScript queda el resumen con los
+// Calculadora de interés compuesto. Nació dentro de la lección "Interés
+// simple vs. compuesto" y ahora vive aquí porque la comparten dos superficies:
+//   - la lección (<CompoundCalculator /> desde el MDX, variante "lesson");
+//   - la herramienta /tools/interes-compuesto (variante "tool").
+// La lección la importa desde este archivo: no hay dos copias del widget, ni
+// dos copias de la fórmula (esa vive en src/lib/finance/compound.mjs y la
+// pinta src/scripts/compound.ts). Sin JavaScript queda el resumen con los
 // valores del ejemplo.
 import type { Locale } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
+interface Props { locale?: Locale; variant?: 'lesson' | 'tool' }
 const p = Astro.url.pathname;
-const locale: Locale = p === '/es' || p.startsWith('/es/') ? 'es' : 'en';
+// Dentro de un MDX el componente se usa sin props: el idioma sale de la ruta.
+const locale: Locale = Astro.props.locale ?? (p === '/es' || p.startsWith('/es/') ? 'es' : 'en');
+const variant = Astro.props.variant ?? 'lesson';
+const esTool = variant === 'tool';
 const t = useT(locale);
 ---
-<div class="lesson-widget" data-widget="compound" data-locale={locale} data-tpl={t('calc.summary_tpl')} data-years-unit={t('calc.years')}>
-  <p class="eyebrow">{t('calc.eyebrow')}</p>
+<div class="lesson-widget" class:list={{ 'tool-widget': esTool }} data-widget="compound" data-locale={locale}
+  data-tpl={t('calc.summary_tpl')} data-years-unit={t('calc.years')} data-gain-tpl={t('tool.compound.gain_tpl')}
+  data-url-state={esTool ? '' : undefined}>
+  {esTool ? (
+    <div class="tool-result">
+      <p class="eyebrow">{t('tool.compound.result')}</p>
+      <p class="tool-big num" data-lw-big aria-live="polite">$589,020</p>
+      <p class="t-small muted" data-lw-gain>{t('tool.compound.gain')}</p>
+    </div>
+  ) : (
+    <p class="eyebrow">{t('calc.eyebrow')}</p>
+  )}
   <div class="lw-controls">
     <div class="lw-control">
       <label for="lwMonthly">{t('calc.monthly')}</label>
       <output for="lwMonthly" id="lwMonthlyOut" class="num">$1,000</output>
-      <input type="range" id="lwMonthly" min="200" max="5000" step="100" value="1000" data-lw="monthly">
+      <input type="range" id="lwMonthly" min="200" max="5000" step="100" value="1000" data-lw="monthly" data-param="m">
     </div>
     <div class="lw-control">
       <label for="lwRate">{t('calc.rate')}</label>
       <output for="lwRate" id="lwRateOut" class="num">8%</output>
-      <input type="range" id="lwRate" min="4" max="12" step="0.5" value="8" data-lw="rate">
+      <input type="range" id="lwRate" min="4" max="12" step="0.5" value="8" data-lw="rate" data-param="r">
     </div>
     <div class="lw-control">
       <label for="lwYears">{t('calc.years')}</label>
       <output for="lwYears" id="lwYearsOut" class="num">20</output>
-      <input type="range" id="lwYears" min="1" max="30" step="1" value="20" data-lw="years">
+      <input type="range" id="lwYears" min="1" max="30" step="1" value="20" data-lw="years" data-param="y">
     </div>
   </div>
   <div class="lw-chart">
@@ -75,4 +90,9 @@ const t = useT(locale);
   .lw-dot-compound { background: var(--brand-text); }
   .lesson-body .lw-summary { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); font-size: var(--fs-body); color: var(--ink); font-variant-numeric: tabular-nums; }
   .lesson-body .lw-note { margin-top: var(--sp-2); }
+  /* Variante herramienta: el resultado manda, y el resumen y la nota pasan a
+     ser el pie de la tarjeta (dentro de la lección el orden es el contrario). */
+  .tool-widget { margin: 0; }
+  .tool-widget .lw-summary { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .tool-widget .lw-note { margin-top: var(--sp-2); }
 </style>

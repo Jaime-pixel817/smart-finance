@@ -1,0 +1,64 @@
+# Borradores de las noticias explicadas, una vez al día.
+#
+# POR QUÉ AQUÍ Y NO EN UN CRON DE VERCEL
+# --------------------------------------
+# El primer intento fue un segundo cron en vercel.json, junto al del boletín.
+# El plan no lo acepta: el build terminaba bien y el despliegue moría en
+# "Deploying outputs". El boletín es el que tiene que ir en Vercel (manda
+# correos y depende del entorno de la función); esto es solo una llamada HTTP,
+# así que se dispara desde aquí y el plan deja de importar.
+#
+# QUÉ HACE: pide hasta tres borradores a /api/news (accion "generar"). NO
+# publica nada — los borradores esperan en Redis a que Jaime los apruebe en
+# /review.html. Todo lo de noticias vive en ese endpoint porque el plan de
+# Vercel admite 12 funciones por despliegue y el sitio ya estaba justo en 12.
+#
+# QUÉ HACE FALTA: el secreto CRON_SECRET en Settings → Secrets and variables →
+# Actions del repositorio, con el mismo valor que la variable de Vercel.
+name: noticias
+
+on:
+  # 11:30 UTC = 5:30 en Ciudad de México: los borradores están listos antes de
+  # que nadie se levante, y la revisión se hace con el café.
+  schedule:
+    - cron: "30 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noticias
+  cancel-in-progress: false
+
+jobs:
+  borradores:
+    name: borradores del día
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comprobar que el secreto existe
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "Falta el secreto CRON_SECRET en el repositorio."
+            echo "Settings -> Secrets and variables -> Actions -> New repository secret,"
+            echo "con el mismo valor que la variable CRON_SECRET de Vercel."
+            exit 1
+          fi
+
+      - name: Generar los borradores
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        # La generación puede tardar cerca de un minuto: es una llamada a
+        # Anthropic con tres noticias en dos idiomas.
+        run: |
+          respuesta=$(curl -fsS --max-time 120 -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{"accion":"generar"}' \
+            https://smartfinance.lat/api/news)
+          echo "$respuesta" | jq .
+          # Cero borradores no es un fallo: puede ser que la cuota del día ya
+          # esté gastada o que el feed no traiga nada que explicar.
+          echo "$respuesta" | jq -e 'has("generadas")' > /dev/null

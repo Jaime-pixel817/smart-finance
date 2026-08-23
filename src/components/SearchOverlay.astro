@@ -23,7 +23,8 @@ const t = useT(locale);
     <div id="search-results" class="search-results" aria-live="polite"
       data-empty={t('search.empty')}
       data-g-assets={t('search.group.assets')} data-g-lessons={t('search.group.lessons')}
-      data-g-tools={t('search.group.tools')} data-g-pages={t('search.group.pages')} data-g-terms={t('search.group.terms')}></div>
+      data-g-tools={t('search.group.tools')} data-g-pages={t('search.group.pages')} data-g-terms={t('search.group.terms')}
+      data-g-news={t('search.group.news')}></div>
   </div>
 </div>
 <style>
@@ -75,8 +76,8 @@ const t = useT(locale);
       if (!hits.length) { results.innerHTML = '<p class="empty">' + results.dataset.empty + '</p>'; return; }
       const groups: Record<string, Item[]> = {};
       hits.forEach((h) => { (groups[h.t] ||= []).push(h); });
-      const label: Record<string, string> = { asset: results.dataset.gAssets!, lesson: results.dataset.gLessons!, term: results.dataset.gTerms!, tool: results.dataset.gTools!, page: results.dataset.gPages! };
-      for (const k of ['asset', 'lesson', 'term', 'tool', 'page']) {
+      const label: Record<string, string> = { asset: results.dataset.gAssets!, news: results.dataset.gNews!, lesson: results.dataset.gLessons!, term: results.dataset.gTerms!, tool: results.dataset.gTools!, page: results.dataset.gPages! };
+      for (const k of ['asset', 'news', 'lesson', 'term', 'tool', 'page']) {
         if (!groups[k]) continue;
         const h3 = document.createElement('h3'); h3.textContent = label[k]; results.appendChild(h3);
         groups[k].forEach((it) => {

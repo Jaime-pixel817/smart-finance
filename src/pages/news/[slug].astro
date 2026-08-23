@@ -1,0 +1,40 @@
+---
+// Una noticia en inglés: /news/<slug>. Se genera una página por cada JSON
+// aprobado y sincronizado en src/data/news/ (npm run news:sync).
+//
+// Si el JSON todavía no está en el repo pero la noticia YA está aprobada, esta
+// ruta no existe y la reescritura de vercel.json manda la URL a /news-read,
+// que pinta la misma noticia desde /api/news?estado=aprobadas. Nunca hay
+// enlace roto y nunca se publica algo sin revisar.
+import Base from '../../layouts/Base.astro';
+import NewsStory from '../../components/news/NewsStory.astro';
+import { NEWS, newsRouteId, type NewsItem } from '../../data/news';
+import { SITE } from '../../i18n/routes';
+
+export async function getStaticPaths() {
+  return NEWS.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props as { item: NewsItem };
+const texto = item.en;
+const description = texto.que.length > 180 ? texto.que.slice(0, 177).trimEnd() + '…' : texto.que;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: texto.titulo,
+  description,
+  datePublished: item.fecha,
+  dateModified: item.revisadoEn || item.fecha,
+  inLanguage: 'en',
+  url: SITE + '/news/' + item.slug,
+  mainEntityOfPage: SITE + '/news/' + item.slug,
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' },
+  // De dónde salen los hechos: la nota explica una noticia ajena, no la sustituye.
+  isBasedOn: item.fuente.url,
+  citation: { '@type': 'CreativeWork', name: item.fuente.titular, url: item.fuente.url, publisher: { '@type': 'Organization', name: item.fuente.nombre } }
+};
+---
+<Base locale="en" routeId={newsRouteId(item.slug)} active="news" ogType="article"
+  title={texto.titulo + ' — Smart Finance'} description={description} jsonLd={jsonLd}>
+  <NewsStory locale="en" item={item} />
+</Base>

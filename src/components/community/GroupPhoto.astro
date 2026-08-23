@@ -1,0 +1,68 @@
+---
+// Cabecera de /community: la foto grupal de la comunidad estudiantil.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// LA FOTO TODAVÍA NO EXISTE. La va a aportar Jaime desde su LinkedIn.
+// Cuando llegue el archivo:
+//   1. Guardarlo en public/assets/community/grupo.webp (ancho ~1600 px) y
+//      public/assets/community/grupo.jpg (respaldo), más la miniatura
+//      public/assets/community/grupo-800.webp para pantallas chicas.
+//   2. Cambiar FOTO de null al objeto de abajo (está escrito y comentado) y
+//      ajustar `alt` con lo que de verdad se ve, y `posicion` si las caras
+//      quedan cortadas (object-position: "50% 30%" sube el encuadre).
+// Mientras tanto se pinta un degradado con los tokens del sitio: ocupa el
+// mismo hueco (misma relación de aspecto), así que meter la foto no mueve
+// nada de la página ni cambia el layout.
+// ─────────────────────────────────────────────────────────────────────────────
+interface Props { alt: string; pendiente: string; posicion?: string }
+const { alt, pendiente, posicion = '50% 50%' } = Astro.props;
+
+interface Foto { webp: string; jpg: string; mini: string; w: number; h: number }
+// ↓ ESTA es la línea que hay que cambiar cuando llegue la foto de Jaime:
+const FOTO = null as Foto | null;
+// const FOTO = { webp: '/assets/community/grupo.webp', jpg: '/assets/community/grupo.jpg',
+//                mini: '/assets/community/grupo-800.webp', w: 1600, h: 900 } as Foto | null;
+---
+<figure class="gp" style={`--gp-pos: ${posicion}`}>
+  {FOTO ? (
+    <picture>
+      <source type="image/webp" srcset={`${FOTO.mini} 800w, ${FOTO.webp} 1600w`} sizes="(min-width: 1024px) 1000px, 100vw" />
+      <img class="gp-img" src={FOTO.jpg} width={FOTO.w} height={FOTO.h} alt={alt} decoding="async" fetchpriority="high" />
+    </picture>
+  ) : (
+    <div class="gp-ph" role="img" aria-label={alt}>
+      <!-- Marcador de posición: gente de pie, en línea, con los tokens del sitio. -->
+      <svg class="gp-ph-icon" viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="10" cy="8" r="3.2" /><path d="M4 21v-3a6 6 0 0 1 12 0v3" />
+        <circle cx="24" cy="6.5" r="3.6" /><path d="M17 21v-3.5a7 7 0 0 1 14 0V21" />
+        <circle cx="38" cy="8" r="3.2" /><path d="M32 21v-3a6 6 0 0 1 12 0v3" />
+      </svg>
+      <p class="t-caption faint gp-ph-text">{pendiente}</p>
+    </div>
+  )}
+  <figcaption class="t-caption faint gp-cap">
+    <slot />
+  </figcaption>
+</figure>
+<style>
+  /* El hueco es el mismo con foto y sin ella: 4/3 en móvil y 16/9 de 640 px
+     para arriba, para que la foto de grupo respire en escritorio. */
+  .gp { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .gp-img, .gp-ph {
+    width: 100%; aspect-ratio: 4 / 3; border-radius: var(--r-card);
+    border: 1px solid var(--line); background: var(--bg-1);
+  }
+  @media (min-width: 640px) { .gp-img, .gp-ph { aspect-ratio: 16 / 9; } }
+  .gp-img { object-fit: cover; object-position: var(--gp-pos); }
+  .gp-ph {
+    display: grid; place-content: center; justify-items: center; gap: var(--sp-3);
+    color: var(--ink-3); text-align: center; padding: var(--sp-4);
+    background:
+      radial-gradient(120% 90% at 15% 0%, var(--brand-wash), transparent 60%),
+      linear-gradient(160deg, var(--bg-2), var(--bg-1) 55%, var(--bg-3));
+  }
+  .gp-ph-icon { width: min(180px, 60%); height: auto; color: var(--brand-text); opacity: .55; }
+  .gp-ph-text { max-width: 34ch; }
+  .gp-cap { max-width: var(--measure); }
+  .gp-cap:empty { display: none; }
+</style>

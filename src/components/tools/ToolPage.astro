@@ -1,0 +1,62 @@
+---
+// Cascarón compartido de las páginas de herramienta (/tools/<slug> y
+// /es/herramientas/<slug>): vuelta al índice, encabezado, la calculadora en
+// una tarjeta, "Copiar enlace" (los parámetros ya viajan en la URL), el bloque
+// "Qué aprendes" con su lección y el disclaimer educativo.
+// Cada herramienta solo aporta su widget y su texto.
+import '../../styles/tools.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+interface Props {
+  locale: Locale;
+  eyebrow: string;
+  title: string;
+  lede: string;
+  /** 2–3 líneas de "Qué aprendes aquí". */
+  learn: string[];
+  /** id de la lección relacionada en src/i18n/routes.ts. */
+  lessonRouteId: string;
+  lessonLabel: string;
+}
+const { locale, eyebrow, title, lede, learn, lessonRouteId, lessonLabel } = Astro.props;
+const t = useT(locale);
+---
+<article class="tool">
+  <div class="container tool-wrap">
+    <p class="tool-back"><a href={route('tools', locale)}>← {t('tools.all')}</a></p>
+
+    <header class="tool-head">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1 class="t-h1">{title}</h1>
+      <p class="tool-lede">{lede}</p>
+    </header>
+
+    <div class="card">
+      <slot />
+    </div>
+
+    <div class="tool-share-block">
+      <p class="tool-share">
+        <button class="btn btn-ghost btn-sm" type="button" data-copy data-copied={t('tool.copied')} data-failed={t('tool.copy.failed')}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>
+          <span data-copy-label>{t('tool.copy')}</span>
+        </button>
+        <span class="t-caption faint visually-hidden" data-copy-live role="status" aria-live="polite"></span>
+      </p>
+      <p class="t-caption faint tool-note">{t('tool.copy.note')}</p>
+    </div>
+
+    <section class="card tool-learn" aria-labelledby="tool-learn-h">
+      <h2 id="tool-learn-h" class="t-h3">{t('tool.learn')}</h2>
+      <ul>{learn.map((l) => <li class="t-small">{l}</li>)}</ul>
+      <a class="btn btn-ghost btn-sm" href={route(lessonRouteId, locale)}>{t('tool.lesson')}: {lessonLabel} →</a>
+    </section>
+
+    <p class="tool-disclaimer">{t('tool.disclaimer')}</p>
+  </div>
+</article>
+<style>
+  .tool { padding-bottom: var(--sp-6); }
+  .tool-share-block { display: flex; flex-direction: column; gap: 0; }
+</style>

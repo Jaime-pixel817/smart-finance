@@ -14,6 +14,15 @@ export function dirClass(n: number): string { return n > 0.0001 ? 'up' : n < -0.
 export function fmtTime(d: Date, loc: Loc): string {
   return new Intl.DateTimeFormat(LOCALE_TAG[loc], { hour: '2-digit', minute: '2-digit' }).format(d);
 }
+/**
+ * Hora en 24 h ("13:00"). La usa el kicker de las noticias: "01:00 p. m." en
+ * español ocupa casi el doble y partía la línea en dos en un teléfono, dejando
+ * las tarjetas de alturas distintas. Además, en un sitio de mercados el reloj
+ * de 24 h es el que se lee en todas partes.
+ */
+export function fmtTime24(d: Date, loc: Loc): string {
+  return new Intl.DateTimeFormat(LOCALE_TAG[loc], { hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+}
 export function fmtDay(d: Date, loc: Loc): string {
   const s = new Intl.DateTimeFormat(LOCALE_TAG[loc], { weekday: 'short', day: 'numeric', month: 'short' }).format(d);
   return s.replace(/\.,?/g, '').replace(/,/g, '');

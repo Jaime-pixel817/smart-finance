@@ -1,0 +1,26 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ToolPage from '../../../components/tools/ToolPage.astro';
+import CetesTool from '../../../components/tools/CetesTool.astro';
+import { SITE } from '../../../i18n/routes';
+const title = 'CETES vs tu cuenta del banco vs la inflación — Smart Finance';
+const description = 'Pon un monto, un plazo y las dos tasas: mira con cuánto terminas en pesos y cuánto compra de verdad ese dinero, al lado del efectivo bajo el colchón, con la conclusión en una frase.';
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'WebPage', name: title, description,
+  url: SITE + '/es/herramientas/cetes-vs-cuenta', inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: { '@type': 'WebApplication', name: 'CETES vs cuenta vs inflación', applicationCategory: 'FinanceApplication', operatingSystem: 'Any', browserRequirements: 'Requiere JavaScript', offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' } }
+};
+const learn = [
+  'Siempre dos números: lo que dice la cuenta al final y lo que compra esa cantidad. Solo el segundo es tu dinero.',
+  'La diferencia entre un instrumento cerca de la tasa de referencia y una cuenta que casi no paga no son centavos: es casi todo lo que tu ahorro pudo haber hecho.',
+  'Ganarle a tu banco no es lo mismo que ganarle a la inflación. Pueden pasar las dos cosas a la vez, y también ninguna.'
+];
+---
+<Base locale="es" routeId="tool.cetes" active="tools" title={title} description={description} jsonLd={jsonLd}>
+  <ToolPage locale="es" eyebrow="Herramienta" title="CETES vs cuenta vs inflación" lessonRouteId="lesson.errores" lessonLabel="3 errores comunes al empezar a invertir"
+    lede="El mismo dinero en tres lugares durante los mismos años: CETES, tu cuenta del banco y el efectivo que solo está ahí. En pesos, y en lo que esos pesos siguen comprando."
+    learn={learn}>
+    <CetesTool locale="es" />
+  </ToolPage>
+</Base>

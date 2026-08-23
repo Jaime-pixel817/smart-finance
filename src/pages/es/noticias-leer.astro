@@ -1,0 +1,11 @@
+---
+// Gemela en español de /news-read.
+import Base from '../../layouts/Base.astro';
+import NewsRead from '../../components/news/NewsRead.astro';
+import { useT } from '../../i18n/ui';
+const t = useT('es');
+---
+<Base locale="es" routeId="news.read" active="news" title={t('news.h1') + ' — Smart Finance'} description={t('news.sub')}>
+  <meta slot="head" name="robots" content="noindex, follow">
+  <NewsRead locale="es" />
+</Base>

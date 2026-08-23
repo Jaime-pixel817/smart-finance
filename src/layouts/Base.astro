@@ -25,8 +25,14 @@ interface Props {
   jsonLd?: Record<string, unknown>;
   /** og:type: website (por defecto) o article en lecciones y research */
   ogType?: 'website' | 'article';
+  /**
+   * La barra flota TRANSPARENTE sobre el contenido en vez de ocupar su hueco.
+   * Solo lo pide el home, cuyo hero lleva el globo a sangre hasta el borde de
+   * arriba (ver src/components/home/Hero.astro).
+   */
+  heroOverlay?: boolean;
 }
-const { locale, routeId, title, description, active = 'today', jsonLd, ogType = 'website' } = Astro.props;
+const { locale, routeId, title, description, active = 'today', jsonLd, ogType = 'website', heroOverlay = false } = Astro.props;
 const t = useT(locale);
 const alts = alternates(routeId);
 const canonical = SITE + route(routeId, locale);
@@ -86,8 +92,8 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
 </head>
 <body>
   <SkipLink locale={locale} />
-  <TopBar locale={locale} routeId={routeId} active={active} />
-  <main id="main" tabindex="-1">
+  <TopBar locale={locale} routeId={routeId} active={active} overlay={heroOverlay} />
+  <main id="main" tabindex="-1" class:list={[heroOverlay && 'main-hero']}>
     <slot />
   </main>
   <Footer locale={locale} routeId={routeId} />

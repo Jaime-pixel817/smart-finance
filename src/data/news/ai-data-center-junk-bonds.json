@@ -1,0 +1,31 @@
+{
+  "id": "2026-08-22-ai-data-center-junk-bonds",
+  "slug": "ai-data-center-junk-bonds",
+  "tema": "macro",
+  "fecha": "2026-08-22T19:00:00.000Z",
+  "fuente": {
+    "nombre": "Bloomberg",
+    "titular": "Juicy Yields Draw Junk Bond Buyers to Investment-Grade AI Debt",
+    "url": "https://www.bloomberg.com/news/articles/2026-08-22/juicy-yields-draw-junk-bond-buyers-to-investment-grade-ai-debt",
+    "publicado": "2026-08-22T19:00:00.000Z"
+  },
+  "simbolos": ["qqq"],
+  "principal": "qqq",
+  "leccion": "lesson.sp500",
+  "terminos": ["bono", "rendimiento"],
+  "autoria": "ia-revisada",
+  "revisadoPor": "Jaime",
+  "revisadoEn": "2026-08-22T23:30:00.000Z",
+  "en": {
+    "titulo": "AI data centers are borrowing from junk bond investors",
+    "que": "Bloomberg reported on 22 August 2026 that companies financing data center projects are increasingly turning to junk bond investors to raise billions of dollars. The striking part is that they are doing it even for debt rated investment grade, the kind more conservative funds usually buy. The story does not give an exact amount or name the companies.",
+    "porque": "Building data centers for artificial intelligence has gotten so expensive that the usual bond buyers are no longer enough. When the lender is a fund hunting high yields, the money costs more and arrives with more conditions, which makes the whole project pricier. It matters to you because a large share of the stocks that have risen most depend on that spending, and on someone continuing to fund it.",
+    "impacto": "Too early to tell: the story reports where the money is coming from, not how markets moved that day."
+  },
+  "es": {
+    "titulo": "Los centros de datos de la IA piden prestado a inversionistas de deuda basura",
+    "que": "Bloomberg reportó el 22 de agosto de 2026 que las empresas que financian centros de datos acuden cada vez más a inversionistas de bonos basura para juntar miles de millones de dólares. Lo llamativo es que lo hacen incluso con deuda con grado de inversión, la que normalmente compran los fondos más conservadores. La nota no da un monto exacto ni nombra a las empresas.",
+    "porque": "Construir centros de datos para inteligencia artificial cuesta tanto que ya no alcanza con los compradores de bonos de siempre. Cuando quien presta es un fondo que busca rendimientos altos, el dinero sale más caro y llega con más condiciones, y eso encarece el proyecto entero. A ti te importa porque buena parte de las acciones que más han subido dependen de ese gasto, y de que alguien lo siga financiando.",
+    "impacto": "Todavía no se sabe: la nota reporta de dónde sale el dinero, no cómo se movieron los mercados ese día."
+  }
+}

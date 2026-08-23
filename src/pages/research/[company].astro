@@ -1,0 +1,23 @@
+---
+// /research/<empresa> — un reporte por carpeta de content/research con página propia.
+import Base from '../../layouts/Base.astro';
+import Report from '../../components/research/Report.astro';
+import { PAGED_REPORTS, loadReport } from '../../lib/research/reports';
+import { SITE, route } from '../../i18n/routes';
+import { reportJsonLd } from '../../lib/research/jsonld';
+
+export function getStaticPaths() {
+  return PAGED_REPORTS.map((e) => ({ params: { company: e.slug }, props: { slug: e.slug } }));
+}
+const { slug } = Astro.props as { slug: string };
+const report = loadReport(slug);
+const m = report.meta;
+const title = `${m.name} (${m.ticker}) — equity research (draft) — Smart Finance`;
+const description = `Equity research report on ${m.name} (${m.exchange}: ${m.ticker}), built in public by Jaime Sandoval. Seven fiscal years pulled from SEC filings and checked against the 10-K, a DCF you can move in your browser, and every source listed. Draft: thesis and assumptions are still being written.`;
+---
+<Base
+  locale="en" routeId={report.routeId} active="research" ogType="article"
+  title={title} description={description}
+  jsonLd={reportJsonLd('en', report, SITE + route(report.routeId, 'en'), description)}>
+  <Report locale="en" report={report} />
+</Base>

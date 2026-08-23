@@ -12,7 +12,7 @@
       "maxDuration": 60
     },
     "api/news.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -88,6 +88,16 @@
       "source": "/articles/:path*",
       "destination": "/#tips",
       "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/news/:slug",
+      "destination": "/news-read"
+    },
+    {
+      "source": "/es/noticias/:slug",
+      "destination": "/es/noticias-leer"
     }
   ]
 }

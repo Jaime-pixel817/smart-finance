@@ -38,14 +38,24 @@ export const RATES = {
 // Las lecciones ya no se listan aquí: viven en src/content/lessons (MDX) y se
 // leen con getLessons() de src/data/lessons.ts.
 
-export interface Breakdown { id: string; titleKey: UIKey; altKey: UIKey; href: string; net: 'tiktok' | 'linkedin'; img: string; w: number; h: number }
+/**
+ * Una publicación de TikTok o LinkedIn con su miniatura.
+ *
+ * `focus` es el object-position de ESA foto: dónde está lo que no se puede
+ * cortar (las caras). Las miniaturas ya salen recortadas en 4:3 por
+ * scripts/build-photos.mjs, que es el mismo sitio de donde salen estos
+ * valores, así que hoy coinciden con la caja del HTML y no se nota; está aquí
+ * para el día en que la tarjeta cambie de proporción — sin esto, ese día las
+ * caras se recortan otra vez y nadie se entera.
+ */
+export interface Breakdown { id: string; titleKey: UIKey; altKey: UIKey; href: string; net: 'tiktok' | 'linkedin'; img: string; w: number; h: number; focus: string }
 export const BREAKDOWNS: Breakdown[] = [
-  { id: 'japan', titleKey: 'post.japan.title', altKey: 'alt.japan', net: 'tiktok', href: 'https://www.tiktok.com/@smart.financee/video/7653328531694439700', img: '/assets/breakdowns/thumbs/breakdown-japan.webp', w: 320, h: 240 },
-  { id: 'andytoh', titleKey: 'post.andytoh.title', altKey: 'alt.andytoh', net: 'tiktok', href: 'https://www.tiktok.com/@smart.financee/video/7662781308988411156', img: '/assets/breakdowns/thumbs/breakdown-andy-toh.webp', w: 320, h: 240 },
-  { id: 'singapore', titleKey: 'post.singapore.title', altKey: 'alt.singapore', net: 'tiktok', href: 'https://www.tiktok.com/@smart.financee/video/7655111359419387157', img: '/assets/breakdowns/thumbs/breakdown-singapore.webp', w: 320, h: 240 },
-  { id: 'jpmorgan', titleKey: 'post.jpmorgan.title', altKey: 'alt.jpmorgan', net: 'linkedin', href: 'https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ', img: '/assets/breakdowns/thumbs/breakdown-jpmorgan-etf.webp', w: 320, h: 240 },
-  { id: 'moris', titleKey: 'post.moris.title', altKey: 'alt.moris', net: 'linkedin', href: 'https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn', img: '/assets/breakdowns/thumbs/breakdown-moris-dieck.webp', w: 320, h: 240 },
-  { id: 'tradingroom', titleKey: 'post.tradingroom.title', altKey: 'alt.tradingroom', net: 'linkedin', href: 'https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7', img: '/assets/breakdowns/thumbs/breakdown-trading-room-podcast.webp', w: 320, h: 240 }
+  { id: 'japan', titleKey: 'post.japan.title', altKey: 'alt.japan', net: 'tiktok', href: 'https://www.tiktok.com/@smart.financee/video/7653328531694439700', img: '/assets/breakdowns/thumbs/breakdown-japan.webp', w: 480, h: 360, focus: '47% 50%' },
+  { id: 'andytoh', titleKey: 'post.andytoh.title', altKey: 'alt.andytoh', net: 'tiktok', href: 'https://www.tiktok.com/@smart.financee/video/7662781308988411156', img: '/assets/breakdowns/thumbs/breakdown-andy-toh.webp', w: 480, h: 360, focus: '48% 50%' },
+  { id: 'singapore', titleKey: 'post.singapore.title', altKey: 'alt.singapore', net: 'tiktok', href: 'https://www.tiktok.com/@smart.financee/video/7655111359419387157', img: '/assets/breakdowns/thumbs/breakdown-singapore.webp', w: 480, h: 360, focus: '54% 50%' },
+  { id: 'jpmorgan', titleKey: 'post.jpmorgan.title', altKey: 'alt.jpmorgan', net: 'linkedin', href: 'https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_great-experience-attending-an-insightful-activity-7450005569882738689-rTcJ', img: '/assets/breakdowns/thumbs/breakdown-jpmorgan-etf.webp', w: 480, h: 360, focus: '50% 38%' },
+  { id: 'moris', titleKey: 'post.moris.title', altKey: 'alt.moris', net: 'linkedin', href: 'https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-attend-a-conference-activity-7455446269097033728-Z8sn', img: '/assets/breakdowns/thumbs/breakdown-moris-dieck.webp', w: 480, h: 360, focus: '51% 50%' },
+  { id: 'tradingroom', titleKey: 'post.tradingroom.title', altKey: 'alt.tradingroom', net: 'linkedin', href: 'https://www.linkedin.com/posts/jaime-sandoval-ricano-23b3a4401_i-had-the-opportunity-to-organize-and-participate-activity-7450679158118076417-OPK7', img: '/assets/breakdowns/thumbs/breakdown-trading-room-podcast.webp', w: 480, h: 360, focus: '50% 38%' }
 ];
 
 export function ratesFresh(now = new Date()): boolean {
