@@ -1,0 +1,27 @@
+---
+// /es/portafolio — las posiciones personales de Jaime, con dinero real, en
+// español. El contenido lo pinta Cartera.astro desde src/data/portfolio.json.
+import Base from '../../layouts/Base.astro';
+import Cartera from '../../components/portfolio/Cartera.astro';
+import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
+import { useC } from '../../i18n/cartera';
+import { PORTFOLIO } from '../../lib/portfolio/data';
+const c = useC('es');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Portafolio',
+  description: c.portfolio.desc,
+  url: SITE + '/es/portafolio',
+  inLanguage: 'es-MX',
+  dateModified: PORTFOLIO.actualizado,
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/es/acerca' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="es" routeId="portfolio" active="portfolio" title={c.portfolio.title} description={c.portfolio.desc} jsonLd={jsonLd}
+  ogImage={ogPropia('portfolio', 'es')} ogImageAlt="Smart Finance — Mi portafolio: las posiciones y la tesis de cada una">
+  <Cartera locale="es" id="portfolio" />
+</Base>

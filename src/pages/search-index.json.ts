@@ -54,6 +54,16 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['nav.methodology'], keys: lang === 'es' ? 'metodología fuentes datos IA correcciones' : 'methodology sources data AI corrections', href: route('methodology', lang), lang });
     items.push({ t: 'page', name: t['nav.newsletter'], keys: lang === 'es' ? 'suscribirme correo boletín números anteriores archivo semanal' : 'subscribe email weekly past issues archive', href: route('newsletter', lang), lang });
     items.push({ t: 'page', name: t['research.title'], keys: lang === 'es' ? 'research reportes acciones DCF valuación fuentes' : 'research reports equity DCF valuation sources', href: route('research', lang), lang });
+    items.push({
+      t: 'page', name: t['nav.portfolio'],
+      keys: lang === 'es' ? 'portafolio posiciones tesis cartera personal acciones qué tengo' : 'portfolio positions thesis holdings what I own',
+      href: route('portfolio', lang), lang
+    });
+    items.push({
+      t: 'page', name: t['nav.actinver'],
+      keys: lang === 'es' ? 'reto actinver concurso simulador bolsa estudiantes cartera dinero ficticio BMV' : 'actinver challenge contest simulator student stock market portfolio fictional money',
+      href: route('actinver', lang), lang
+    });
     for (const rep of PAGED_REPORTS) {
       const meta = loadReport(rep.slug).meta;
       items.push({ t: 'page', name: meta.name, sym: meta.ticker, keys: rep.ticker + ' ' + (lang === 'es' ? 'reporte equity research DCF valuación' : 'equity research report DCF valuation'), href: route(rep.routeId, lang), lang });

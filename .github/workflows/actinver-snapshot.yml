@@ -1,0 +1,91 @@
+# Foto diaria del valor de las carteras (/actinver y /portfolio).
+#
+# QUÉ HACE: pide a https://smartfinance.lat/api/history el último precio de cada
+# posición abierta, calcula cuánto vale la cartera y escribe UN punto en
+# src/data/actinver-history.json y src/data/portfolio-history.json. Después
+# commitea el cambio. La gráfica de evolución de las dos páginas se dibuja solo
+# con esos archivos: la línea es un dato del repositorio, con fecha y con los
+# precios que la produjeron, y no depende de que nada esté vivo cuando alguien
+# abre la página.
+#
+# POR QUÉ AQUÍ Y NO EN UN CRON DE VERCEL: el plan da UN cron y ya lo usa el
+# boletín de los domingos. Un segundo cron en vercel.json tumba el despliegue
+# entero en "Deploying outputs" (ver .github/workflows/news-draft.yml, que nació
+# del mismo problema). Además esto tiene que ESCRIBIR en el repositorio, y eso
+# una función de Vercel no lo hace.
+#
+# CUÁNDO: 01:00 UTC de martes a sábado = 19:00 de lunes a viernes en Ciudad de
+# México, cuatro horas después del cierre de la BMV. La fecha del punto la pone
+# el script con el reloj de Ciudad de México, no con el UTC del runner, así que
+# el punto del lunes por la noche lleva fecha de lunes.
+#
+# CUÁNDO NO ESCRIBE (y no es un fallo):
+# - No hay posiciones abiertas.
+# - Todos los precios tienen más de 30 h, o sea que la bolsa no operó (festivo).
+# - El punto de hoy ya existe: se reescribe, no se duplica.
+#
+# CUÁNDO FALLA A PROPÓSITO: si a una posición abierta le falta el precio. Media
+# cartera valuada es una gráfica que miente, así que prefiere no escribir nada
+# y mandar el aviso por correo al dueño del repositorio.
+#
+# CÓMO SE APAGA
+# 1. Lo más rápido: GitHub → pestaña Actions → "foto de la cartera" (columna de
+#    la izquierda) → botón "..." arriba a la derecha → Disable workflow. Se
+#    vuelve a encender en el mismo sitio, sin tocar código.
+# 2. Para siempre: borrar este archivo, o comentar las tres líneas de
+#    `schedule:` de abajo (con `workflow_dispatch` se seguiría pudiendo lanzar a
+#    mano desde Actions → Run workflow).
+# 3. Con las dos carteras vacías no hace nada aunque esté encendido: el script
+#    sale a los dos segundos diciendo "sin posiciones abiertas".
+name: foto de la cartera
+
+on:
+  schedule:
+    - cron: "0 1 * * 2-6"
+  workflow_dispatch:
+
+# Escribe en el repositorio (el commit con el punto del día).
+permissions:
+  contents: write
+
+concurrency:
+  group: foto-cartera
+  cancel-in-progress: false
+
+jobs:
+  foto:
+    name: foto del día
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # El script valida los JSON con el mismo esquema que el build (Zod, vía
+      # astro/zod), así que necesita las dependencias instaladas.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Calcular y escribir el punto del día
+        run: node scripts/snapshot-cartera.mjs
+
+      - name: Commitear si cambió algo
+        run: |
+          if git diff --quiet -- src/data/actinver-history.json src/data/portfolio-history.json; then
+            echo "Sin cambios: hoy no había nada que fotografiar."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/actinver-history.json src/data/portfolio-history.json
+          git commit \
+            -m "Foto de la cartera del $(TZ=America/Mexico_City date +%F)" \
+            -m "Lo escribe .github/workflows/actinver-snapshot.yml con scripts/snapshot-cartera.mjs. No se edita a mano."
+          # Por si alguien empujó a main mientras corría esto.
+          git pull --rebase --autostash
+          git push

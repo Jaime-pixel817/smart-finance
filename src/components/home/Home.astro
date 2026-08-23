@@ -17,12 +17,36 @@ import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
 import { foto } from '../../lib/photos';
 import SourceChip from '../SourceChip.astro';
+import { useC } from '../../i18n/cartera';
+import { CARTERAS, tienePosiciones, type CarteraId } from '../../lib/portfolio/data';
+import { resumen, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
+import { dinero, pctFirmado, claseDir, dia } from '../../lib/portfolio/formato.mjs';
 import Hero from './Hero.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
 const L = (id: string) => route(id, locale);
 const showRates = ratesFresh();
+
+// Las carteras (/actinver y /portfolio) solo aparecen en el home CUANDO HAY
+// POSICIONES. Anunciar una página vacía desde la portada es prometer algo que
+// no está; mientras los JSON estén vacíos, esta sección no existe. Las cifras
+// salen de la última foto nocturna del repositorio, con su fecha a la vista.
+const c = useC(locale);
+const carteras = (['actinver', 'portfolio'] as CarteraId[]).filter(tienePosiciones).map((id) => {
+  const { cartera, historial } = CARTERAS[id];
+  // OJO: se llama `punto` y no `foto` porque `foto()` es el helper de
+  // src/lib/photos.ts, importado arriba y usado más abajo para el avatar.
+  const punto = ultimoPunto(historial);
+  const r = resumen(cartera, punto ? punto.precios : {});
+  return {
+    id, foto: punto, r,
+    titulo: id === 'actinver' ? c.actinver.eyebrow : c.portfolio.eyebrow,
+    nota: id === 'actinver' ? c.actinver.warnH : c.portfolio.warnH,
+    moneda: cartera.moneda,
+    abiertas: r.abiertas.length
+  };
+});
 const strings = {
   open: t('today.open'), closed: t('today.closed'), loading: t('src.loading'), unavailable: t('src.unavailable'),
   // La historia de hoy prefiere la noticia REVISADA; si no hay ninguna, cae al
@@ -183,6 +207,31 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
         <span class="btn btn-primary btn-sm research-cta">{t('research.cta')} →</span>
       </a>
     </section>
+
+    <!-- ── Mis carteras (solo si hay posiciones) ─────────────────── -->
+    {carteras.length > 0 && (
+      <section id="carteras" class="carteras col-12" aria-labelledby="cart-h">
+        <div class="section-head">
+          <h2 id="cart-h" class="t-h3">{c.lbl.homeH}</h2>
+          <a class="more" href={L('portfolio')}>{c.lbl.homeOpen} →</a>
+        </div>
+        <div class="cart-cards">
+          {carteras.map((x) => (
+            <a class="card card-link cart-card" href={L(x.id)}>
+              <p class="eyebrow">{x.titulo} <span aria-hidden="true">·</span> {x.nota}</p>
+              <p class="cart-val num">{dinero(x.r.valorTotal, locale, x.moneda, 0)}</p>
+              <p class="cart-line t-small">
+                <span class:list={['num', claseDir(x.r.variacion ? x.r.variacion.pct : null)]}>
+                  {x.r.variacion ? pctFirmado(x.r.variacion.pct, locale) : '—'}
+                </span>
+                <span class="muted">{x.abiertas} {c.lbl.positions.toLowerCase()}</span>
+              </p>
+              {x.foto && <p class="t-caption faint">{dia(x.foto.fecha, locale)}</p>}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
 
     <!-- ── Mercados en 60 s ──────────────────────────────────────── -->
     <section id="m60" class="m60 col-6" aria-labelledby="m60-h">
@@ -367,6 +416,12 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .research-verified { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); background: var(--bg-2); border-radius: var(--r-btn); color: var(--ink-2); }
   .research-verified .eyebrow { color: var(--ink-2); } /* --ink-3 sobre --bg-2 a 11 px: 4.4:1 */
   .research-cta { align-self: flex-start; }
+
+  .cart-cards { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
+  @media (min-width: 768px) { .cart-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .cart-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cart-val { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero; font-size: var(--fs-num-l); line-height: 1.2; }
+  .cart-line { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
 
   /* Mercados en 60 s */
   .m60-card { padding: var(--sp-2) var(--sp-3) var(--sp-3); }

@@ -86,6 +86,11 @@ export const ROUTES: RouteEntry[] = [
   // "Smart Finance Research"); lo que cambia es el idioma del contenido.
   { id: 'research', en: '/research', es: '/es/research', lastmod: '2026-08-22', changefreq: 'weekly', priority: '0.8' },
   { id: 'research.lululemon', en: '/research/lululemon', es: '/es/research/lululemon', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.7' },
+  // Las dos carteras. /actinver cambia todos los días hábiles mientras dure el
+  // reto (5-oct → 13-nov de 2026), porque la foto nocturna le escribe un punto
+  // nuevo; el portafolio personal se mueve cuando Jaime abre o cierra algo.
+  { id: 'actinver', en: '/actinver', es: '/es/actinver', lastmod: '2026-08-23', changefreq: 'daily', priority: '0.8' },
+  { id: 'portfolio', en: '/portfolio', es: '/es/portafolio', lastmod: '2026-08-23', changefreq: 'weekly', priority: '0.8' },
   { id: 'about', en: '/about', es: '/es/acerca', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' },
   { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' }
 ];

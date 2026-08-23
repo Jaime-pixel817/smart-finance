@@ -54,7 +54,8 @@ const en = {
     'Quarterly updates with a visible diff against the previous version.'
   ],
   disclaimerH: 'Educational, not advice',
-  disclaimer: 'These reports are a student’s work, published to learn in the open. They are not financial, investment or tax advice, and they are not a recommendation to buy or sell anything. The author holds no position in the companies covered unless the report says otherwise. Verify every figure at its source before deciding anything.',
+  disclaimer: 'These reports are a student’s work, published to learn in the open. They are not financial, investment or tax advice, and they are not a recommendation to buy or sell anything. Whether the author holds a position in a company he covers is declared on the report itself, and every position he holds is published on the portfolio page. Verify every figure at its source before deciding anything.',
+  positionsLink: 'Where my own positions are published',
 
   // ---- Reporte ----
   back: 'All research',
@@ -307,7 +308,8 @@ const es: typeof en = {
     'Actualización trimestral con el diff visible contra la versión anterior.'
   ],
   disclaimerH: 'Educativo, no es asesoría',
-  disclaimer: 'Estos reportes son el trabajo de un estudiante, publicados para aprender a la vista de todos. No son asesoría financiera, de inversión ni fiscal, y no son una recomendación para comprar ni vender nada. El autor no tiene posición en las empresas que cubre salvo que el reporte diga lo contrario. Verifica cada cifra en su fuente antes de decidir nada.',
+  disclaimer: 'Estos reportes son el trabajo de un estudiante, publicados para aprender a la vista de todos. No son asesoría financiera, de inversión ni fiscal, y no son una recomendación para comprar ni vender nada. Si el autor tiene posición en una empresa que cubre, se declara en el propio reporte, y todas sus posiciones están publicadas en la página del portafolio. Verifica cada cifra en su fuente antes de decidir nada.',
+  positionsLink: 'Dónde se publican mis propias posiciones',
 
   back: 'Todo el research',
   reportKicker: 'Equity research',
