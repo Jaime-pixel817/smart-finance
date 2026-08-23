@@ -65,7 +65,9 @@ const en = {
     exampleH: 'What a position looks like',
     exampleNote: 'This is the documented example inside the file — not a real position. It is checked by the same schema as the real ones, so it can be copied as it is.',
     methodology: 'Full site methodology',
-    assetPage: 'Open the asset page'
+    assetPage: 'Open the asset page',
+    homeH: 'My portfolios',
+    homeOpen: 'See the positions'
   },
 
   actinver: {
@@ -189,7 +191,9 @@ const es: typeof en = {
     exampleH: 'Cómo se ve una posición',
     exampleNote: 'Este es el ejemplo documentado dentro del archivo, no una posición real. Lo valida el mismo esquema que a las de verdad, así que se puede copiar tal cual.',
     methodology: 'Metodología completa del sitio',
-    assetPage: 'Ver la ficha del activo'
+    assetPage: 'Ver la ficha del activo',
+    homeH: 'Mis carteras',
+    homeOpen: 'Ver las posiciones'
   },
 
   actinver: {
