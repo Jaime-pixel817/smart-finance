@@ -30,6 +30,18 @@ function boot(root: HTMLElement) {
   const quotes = new Map<string, Quote>();
   let lastUpdated: Date | null = null;
 
+  // El panel de escritorio se monta mucho más abajo, pero sus tres variables se
+  // declaran AQUÍ a propósito. `applyMarkets` llama a `maybeRefreshPanel()`, y
+  // en la segunda visita a /market hay caché, así que esa llamada ocurre en la
+  // primera línea del arranque — antes de un `let` declarado más abajo, que es
+  // una ReferenceError de zona muerta ("Cannot access 'panel' before
+  // initialization"). El script moría ahí: se pintaban los precios viejos de
+  // la caché y ya no corría nada más (ni la petición fresca, ni los chips de
+  // filtro, ni el panel), sin un solo error visible en la página.
+  let panel: PricePanel | null = null;
+  let selected: Sym | null = null;
+  let pendingPrev = false;
+
   // ---- Línea de estado: fecha · NYSE · BMV · actualizado hh:mm · cada 15 min ----
   function paintStatus() {
     const el = $('#mkt-status');
@@ -153,10 +165,6 @@ function boot(root: HTMLElement) {
   // ---- Panel de escritorio (≥ 960 px): la fila selecciona; "Abrir ficha" navega ----
   const panelSec = $('.mkt-panel');
   const desk = matchMedia('(min-width: 960px)');
-  let panel: PricePanel | null = null;
-  let selected: Sym | null = null;
-  let pendingPrev = false;
-
   function selectSym(s: Sym, push = true) {
     if (!panelSec || !s.history) return;
     selected = s;

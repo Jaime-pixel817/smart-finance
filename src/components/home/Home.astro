@@ -319,6 +319,8 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   /* Lo que sigues: la misma fila de /market dentro de una tarjeta. */
   .home-watch[hidden] { display: none; }
   .home-watch-card { padding: var(--sp-1) var(--sp-2) var(--sp-2); }
+  /* Igual que en /market: [hidden] pierde contra el display de .more. */
+  .home-watch .more[hidden] { display: none; }
   .home-watch .mkt-rows { display: flex; flex-direction: column; }
 
   /* El hero va a sangre desde y = 0; lo de después empieza aquí, y es OPACO

@@ -145,6 +145,10 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
   .mkt-watch { margin-top: var(--sp-6); }
   .mkt-watch[hidden] { display: none; }
   .mkt-watch .mkt-list-card { margin-top: var(--sp-2); }
+  /* `.section-head .more` (base.css) declara display: inline-flex, y una regla
+     de autor le gana al [hidden] del navegador: sin esto, "Compararlos" seguía
+     a la vista con un solo activo seguido, que no es comparar nada. */
+  .mkt-watch .more[hidden] { display: none; }
   .mkt-watch-note { margin-top: var(--sp-2); max-width: var(--measure); }
 
   .mkt-filters { margin-top: var(--sp-4); gap: var(--sp-2); scroll-snap-type: none; }
