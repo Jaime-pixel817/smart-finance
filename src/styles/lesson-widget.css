@@ -29,6 +29,8 @@
 .lw-control label { font-size: var(--fs-small); color: var(--ink-2); }
 .lw-control output { font-size: var(--fs-small); color: var(--ink); text-align: right; }
 .lw-control input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--brand-fill); height: 44px; }
+/* Pista bajo un control (el reparto de la mezcla, un valor por omisión…). */
+.lw-hint { grid-column: 1 / -1; margin-top: -6px; color: var(--ink-3); }
 
 /* ---- Lienzo, rejilla y ejes ---- */
 .lw-chart { position: relative; height: 200px; padding: 0 0 18px 0; }

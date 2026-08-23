@@ -17,12 +17,14 @@ function montar(raiz: HTMLElement) {
   let cortos: Intl.NumberFormat;
   try { cortos = new Intl.NumberFormat(region, { style: 'currency', currency: 'MXN', notation: 'compact', maximumFractionDigits: 1 }); } catch { cortos = pesos; }
   const pct1 = new Intl.NumberFormat(region, { maximumFractionDigits: 1, signDisplay: 'auto' });
+  const entero = new Intl.NumberFormat(region, { maximumFractionDigits: 0 });
 
   const q = <T extends Element>(s: string) => raiz.querySelector<T>(s);
   const slAcciones = q<HTMLInputElement>('[data-param="a"]');
   const slAnios = q<HTMLInputElement>('[data-param="h"]');
   if (!slAcciones || !slAnios) return;
   const outAcciones = q<HTMLElement>('#rrStocksOut'), outAnios = q<HTMLElement>('#rrYearsOut');
+  const reparto = q<HTMLElement>('[data-rr-split]');
   const etiqueta = q<HTMLElement>('[data-rr-label]');
   const mediana = q<HTMLElement>('[data-rr-median]'), rango = q<HTMLElement>('[data-rr-range]');
   const banda = q<SVGPathElement>('[data-rr-band]'), linea = q<SVGPathElement>('[data-rr-median-path]');
@@ -39,7 +41,6 @@ function montar(raiz: HTMLElement) {
     result: raiz.dataset.resultTpl || '',
     range: raiz.dataset.rangeTpl || '',
     stocks: raiz.dataset.stocksTpl || '',
-    year: raiz.dataset.yearTpl || '',
     worst: raiz.dataset.worstTpl || ''
   };
   // La primera corrida es siempre la misma: la semilla por omisión del módulo.
@@ -70,8 +71,9 @@ function montar(raiz: HTMLElement) {
     const anios = Number(slAnios!.value);
     const r = simular({ pctAcciones, anios, inicial, caminos, cetesPct, ...(semilla === undefined ? {} : { semilla }) });
 
-    if (outAcciones) {
-      outAcciones.textContent = tpl.stocks
+    if (outAcciones) outAcciones.textContent = pctAcciones + ' %';
+    if (reparto) {
+      reparto.textContent = tpl.stocks
         .replace('{stocks}', pctAcciones + ' %')
         .replace('{cetes}', (100 - pctAcciones) + ' %');
     }
@@ -79,9 +81,9 @@ function montar(raiz: HTMLElement) {
     if (etiqueta) etiqueta.textContent = tpl.result.replace('{years}', String(anios));
     if (mediana) mediana.textContent = pesos.format(r.finalP50);
     if (rango) rango.textContent = tpl.range.replace('{low}', pesos.format(r.finalP10)).replace('{high}', pesos.format(r.finalP90));
-    if (esperado) esperado.textContent = tpl.year.replace('{rate}', pct1.format(r.anualizadoP50Pct) + ' %');
+    if (esperado) esperado.textContent = pct1.format(r.anualizadoP50Pct) + ' %';
     if (peor) peor.textContent = pct1.format(r.peorAnioPct) + ' %';
-    if (peorNota) peorNota.textContent = tpl.worst.replace('{n}', String(anios * caminos));
+    if (peorNota) peorNota.textContent = tpl.worst.replace('{n}', entero.format(anios * caminos));
 
     // Escala: el techo del abanico, redondeado a un número bonito.
     const step = niceStep(Math.max(r.finalP90, inicial * 1.2));

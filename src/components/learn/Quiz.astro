@@ -57,7 +57,6 @@ const t = useT(locale);
     <p class="quiz-score t-small" data-quiz-score role="status" aria-live="polite">{t('quiz.pending')}</p>
     <button type="button" class="btn btn-ghost btn-sm quiz-reset" data-quiz-reset hidden>{t('quiz.reset')}</button>
   </div>
-  <p class="t-caption faint quiz-note">{t('learn.progress.note')}</p>
 </section>
 <script src="../../scripts/quiz.ts"></script>
 
@@ -79,7 +78,10 @@ const t = useT(locale);
   .quiz-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
   .quiz-mark { grid-column: 1; grid-row: 1; width: 18px; height: 18px; margin-top: 1px; border: 2px solid var(--ink-3); border-radius: 50%; background: transparent; flex: none; }
   .quiz-opt-text { grid-column: 2; grid-row: 1; }
-  .quiz-opt:has(input:checked) .quiz-mark { border-color: var(--brand-text); box-shadow: inset 0 0 0 4px var(--brand-fill); }
+  /* El punto verde de "elegida" solo vale ANTES de calificar: sin el :not(),
+     :has() gana en especificidad y la respuesta equivocada salía con relleno
+     verde y una ✕ roja encima. */
+  .quiz-opt:not(.is-right):not(.is-wrong):has(input:checked) .quiz-mark { border-color: var(--brand-text); box-shadow: inset 0 0 0 4px var(--brand-fill); }
   .quiz-opt:has(input:focus-visible) { box-shadow: var(--focus-ring); }
 
   /* Resultado: color + símbolo, nunca solo color. */
@@ -96,5 +98,4 @@ const t = useT(locale);
   .quiz-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-4); }
   .quiz-score { color: var(--ink-2); font-variant-numeric: tabular-nums; }
   .quiz-score.is-done { color: var(--ink); font-weight: 500; }
-  .quiz-note { margin-top: var(--sp-2); }
 </style>
