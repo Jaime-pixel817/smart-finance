@@ -18,8 +18,9 @@
 //    propio IntersectionObserver nunca lo daría por fuera de pantalla.
 //
 // 3. EL RESPALDO. El SVG estático del hero nace apagado y solo se enciende si
-//    no va a haber globo: sin WebGL, o si three.js no llega. Con
-//    prefers-reduced-motion lo enciende el CSS solo. Ver el bloque de abajo.
+//    no va a haber globo: lo dice el evento "globe:fail" (sin WebGL, o three.js
+//    que no llega). Con prefers-reduced-motion lo enciende el CSS solo. Ver el
+//    bloque de abajo.
 //
 // 4. LAS PASTILLAS. Nueva York, Ciudad de México y la bolsa que más se mueva
 //    llevan pegado su cambio del día. La posición la manda el globo por
@@ -40,21 +41,6 @@ type Pin = { id: string; x: number; y: number; on: boolean };
 const CORTO: Record<string, string> = {
   nyc: 'NY', yto: 'TOR', mex: 'CDMX', sao: 'SÃO', lon: 'LDN', fra: 'FRA', tyo: 'TYO', hkg: 'HK'
 };
-
-/** ¿Hay WebGL? Se crea un contexto de prueba y se tira en el acto con
- *  WEBGL_lose_context: si se dejara vivo, contaría para el tope de contextos
- *  del navegador y el globo se quedaría sin el suyo. */
-function hayWebgl(): boolean {
-  try {
-    const c = document.createElement('canvas');
-    const gl = (c.getContext('webgl') || c.getContext('experimental-webgl')) as WebGLRenderingContext | null;
-    if (!gl) return false;
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function boot(hero: HTMLElement, globo: HTMLElement) {
   const loc: Loc = document.documentElement.lang === 'es' ? 'es' : 'en';
@@ -133,11 +119,15 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   //   - prefers-reduced-motion → lo pone el CSS, desde el primer frame y sin
   //     pasar por aquí; risk-sphere.js pinta igualmente un fotograma quieto y
   //     al llegar "globe:ready" el SVG se va.
-  //   - sin WebGL → se sabe al momento, con una prueba de contexto que se tira
-  //     acto seguido (crearlo y perderlo cuesta menos que un frame).
-  //   - three.js que no llega (CDN caído o bloqueado) o un error dentro del
-  //     globo → no hay evento que avisar, así que va por reloj: si a los 6 s no
-  //     hay "globe:ready", se enseña el SVG. Tarde, pero mejor que un hueco.
+  //   - sin WebGL, o three.js que no llega (CDN caído o bloqueado) → quien lo
+  //     descubre avisa con "globe:fail": el catch de risk-sphere.js y el
+  //     onerror de las dos etiquetas <script> de home.ts. Va por evento y no
+  //     preguntándole al navegador si hay WebGL: crear un contexto de prueba
+  //     al arrancar costaba medio segundo de hilo principal en un teléfono
+  //     modesto (+230 ms de bloqueo en Lighthouse), y es medio segundo pagado
+  //     por todo el mundo para enterarse de algo que casi nunca pasa.
+  //   - y si no llega ninguna de las dos cosas —el globo ni siquiera arrancó—,
+  //     la red de seguridad es el reloj: a los 10 s se enseña el SVG.
   //
   // El lienzo, cuando pinta, gana siempre: .is-live apaga el SVG esté como
   // esté.
@@ -145,11 +135,9 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   const encender = () => globo.classList.add('is-live');
   const respaldo = () => globo.classList.add('is-still');
   if (!menos.matches) {
-    if (!hayWebgl()) respaldo();
-    else {
-      const reloj = setTimeout(respaldo, 6000);
-      document.addEventListener('globe:ready', () => clearTimeout(reloj), { once: true });
-    }
+    const reloj = setTimeout(respaldo, 10000);
+    document.addEventListener('globe:fail', respaldo, { once: true });
+    document.addEventListener('globe:ready', () => clearTimeout(reloj), { once: true });
   }
 
   // EL ORDEN ES LO IMPORTANTE. risk-sphere.js manda "globe:ready" cuando ya
