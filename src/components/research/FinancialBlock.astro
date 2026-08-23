@@ -111,7 +111,7 @@ const charts = [
     })
   },
   {
-    h: r.charts.legendShares, sub: r.finRows.shares, legend: [],
+    h: r.charts.legendShares, sub: r.charts.sharesSub, legend: [],
     svg: lineChart({
       labels: short, fmtY: (v: number) => millions(v, locale, 0), fmtVal: (v: number) => millions(v, locale, 1),
       series: [{ name: r.charts.legendShares, values: num('dilutedShares'), color: 'var(--s6)' }],
@@ -146,7 +146,7 @@ const repoDir = 'https://github.com/Jaime-pixel817/smart-finance/tree/main/conte
   </div>
 
   <h3 class="t-h3 fin-th">{r.finTableH}</h3>
-  <div class="fin-table-wrap">
+  <div class="fin-table-wrap" data-scroll-end>
     <table class="fin-table">
       <caption class="visually-hidden">{r.finTableH}</caption>
       <thead>

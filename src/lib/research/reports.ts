@@ -123,7 +123,10 @@ export function pending(v: unknown): boolean {
   if (v === null || v === undefined) return true;
   if (typeof v === 'string') return v.trim() === '' || /ESCRIBE AQU|TODO \(Jaime\)|TODO Jaime/i.test(v);
   if (Array.isArray(v)) return v.length === 0 || v.every((x) => pending(x));
-  if (typeof v === 'object') return Object.keys(v as object).length === 0;
+  if (typeof v === 'object') {
+    const vals = Object.values(v as object);
+    return vals.length === 0 || vals.every((x) => pending(x));
+  }
   return false;
 }
 

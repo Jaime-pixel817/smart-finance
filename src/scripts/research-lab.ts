@@ -22,7 +22,7 @@ interface Payload {
     price: string;
     ff: { lab: string; comps: string; mark: string; empty: string; aria: string };
     scen: { bear: string; base: string; bull: string };
-    copied: string; copy: string; alertsOk: string; vsMarket: string;
+    copied: string; copy: string; alertsOk: string; vsMarket: string; unavailable: string;
   };
 }
 
@@ -232,10 +232,10 @@ function mount(root: HTMLElement) {
     .then((r) => (r.ok ? r.json() : null))
     .then((j) => {
       const pts = j && Array.isArray(j.points) ? j.points : null;
-      if (!pts || !pts.length) return;
+      if (!pts || !pts.length) { marketUnavailable(); return; }
       const lastPoint = pts[pts.length - 1];
       market = Number(lastPoint[1]);
-      if (!Number.isFinite(market)) { market = null; return; }
+      if (!Number.isFinite(market)) { market = null; marketUnavailable(); return; }
       for (const el of document.querySelectorAll<HTMLElement>('[data-market-price]')) {
         el.textContent = money(market, loc, 2);
         el.classList.remove('skel');
@@ -254,7 +254,17 @@ function mount(root: HTMLElement) {
       }
       render();
     })
-    .catch(() => { /* sin precio de mercado: la página funciona igual */ });
+    .catch(marketUnavailable);
+
+  function marketUnavailable() {
+    for (const wrap of document.querySelectorAll<HTMLElement>('[data-market-chip]')) {
+      const chip = wrap.classList.contains('src-chip') ? wrap : wrap.querySelector<HTMLElement>('.src-chip');
+      if (!chip) continue;
+      chip.dataset.fresh = 'error';
+      const time = chip.querySelector('.sc-time');
+      if (time) time.textContent = p.t.unavailable;
+    }
+  }
 
   // Estado inicial desde la URL (?w=…&g=…): pinta y recalcula.
   writeControls(controls);

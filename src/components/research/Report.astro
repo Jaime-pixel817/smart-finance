@@ -41,7 +41,11 @@ const blocks = [
 ];
 
 // Fuentes numeradas: primero las que ya existen, al final los TODO de Jaime.
+// Los títulos salen del fichero de trabajo del reporte (sources.yaml), que
+// Jaime escribe en español; en la página inglesa se marcan con lang="es" en
+// vez de traducirlos aquí. Si algún día añade `title_en`, se usa ese.
 const sources = [...report.sources].sort((a, b) => Number(!a.url) - Number(!b.url));
+const srcLang = locale === 'en' ? 'es' : undefined;
 
 // KPIs que hay que capturar a mano del 10-K (model.json → kpis).
 const kpiFields = locale === 'es'
@@ -98,7 +102,8 @@ const fmtV = (v: any) => {
         <div>
           <dt>{r.hdr.price}</dt>
           <dd><span class="num" data-market-price>—</span></dd>
-          <dd class="rep-chip" data-market-chip><SourceChip locale={locale} source="Yahoo Finance" delay={15} note={r.hdr.priceNote} /></dd>
+          <dd class="rep-chip" data-market-chip><SourceChip locale={locale} source="Yahoo" delay={15} /></dd>
+          <dd class="t-caption faint">{r.hdr.priceNote}</dd>
         </div>
         <div>
           <dt>{r.hdr.analysisDate}</dt>
@@ -145,7 +150,7 @@ const fmtV = (v: any) => {
           <div><dt>{r.facts.sic}</dt><dd>{fin.sicDescription} ({fin.sic})</dd></div>
           {fin.stateOfIncorporation && <div><dt>{r.facts.state}</dt><dd>{fin.stateOfIncorporation}</dd></div>}
           <div><dt>{r.facts.currency}</dt><dd>{m.currency}</dd></div>
-          <div><dt>{r.hdr.fiscalYear}</dt><dd class="t-caption">{m.fiscalYearEnd}</dd></div>
+          <div><dt>{r.hdr.fiscalYear}</dt><dd class="num">{day(last.periodEnd, locale)} <span class="t-caption faint">({last.fy})</span></dd></div>
           {report.lastFiling && (
             <div><dt>{r.facts.lastFiling}</dt><dd class="num">{report.lastFiling.form} · {day(report.lastFiling.filed, locale)}</dd></div>
           )}
@@ -239,7 +244,9 @@ const fmtV = (v: any) => {
             <span class="src-n num" aria-hidden="true">{i + 1}</span>
             <div>
               <p class="t-small">
-                {s.url ? <a href={s.url} target="_blank" rel="noopener">{s.title} ↗</a> : <span class="src-todo">{s.title}</span>}
+                {s.url
+                  ? <a href={s.url} target="_blank" rel="noopener" lang={srcLang}>{(s as any).title_en && locale === 'en' ? (s as any).title_en : s.title} ↗</a>
+                  : <span class="src-todo" lang={srcLang}>{(s as any).title_en && locale === 'en' ? (s as any).title_en : s.title}</span>}
               </p>
               <p class="t-caption faint">
                 <span class="chip src-type">{(r.sourceType as any)[s.type || 'primary'] || s.type}</span>
@@ -248,7 +255,7 @@ const fmtV = (v: any) => {
                 {s.accession && <span class="num"> · {s.accession}</span>}
                 {s.retrieved ? <span> · {r.sourcesRetrieved} {day(s.retrieved, locale)}</span> : <span class="src-pend"> · {r.sourcesPending}</span>}
               </p>
-              {s.value && <p class="t-caption num">{s.value}</p>}
+              {s.value && <p class="t-caption num" lang={srcLang}>{s.value}</p>}
             </div>
           </li>
         ))}
@@ -300,6 +307,11 @@ const fmtV = (v: any) => {
 
 <script>
   document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+  // La tabla de siete años arranca mostrando el año MÁS RECIENTE: en el
+  // teléfono es la columna que importa y el histórico queda a la izquierda.
+  for (const box of document.querySelectorAll('[data-scroll-end]')) {
+    box.scrollLeft = box.scrollWidth;
+  }
 </script>
 
 <style>

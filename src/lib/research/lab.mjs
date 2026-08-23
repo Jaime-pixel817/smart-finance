@@ -183,15 +183,27 @@ export function decodeControls(search, start, limits = LIMITS) {
 }
 
 /** Rangos de los controles: acotan el enlace compartido y los sliders. */
+// Todos los valores de arranque tienen que caer EXACTAMENTE en la rejilla
+// min + k·step de su control: si no, el navegador redondea el value del
+// <input type="range"> al escalón más cercano y el precio que se ve al cargar
+// deja de coincidir con el que se calculó en el build. Lo comprueba
+// src/lib/research/research.test.mjs.
 export const LIMITS = {
-  g1: { min: -10, max: 25, step: 0.5 },
-  g2: { min: -10, max: 25, step: 0.5 },
-  m: { min: 5, max: 35, step: 0.5 },
+  g1: { min: -10, max: 25, step: 0.1 },
+  g2: { min: -10, max: 25, step: 0.1 },
+  m: { min: 5, max: 35, step: 0.1 },
   w: { min: 6, max: 14, step: 0.1 },
   g: { min: 0, max: 4, step: 0.1 },
   da: { min: 0, max: 15, step: 0.1 },
   capex: { min: 0, max: 20, step: 0.1 },
-  nwc: { min: -20, max: 40, step: 1 },
-  tax: { min: 0, max: 45, step: 0.5 },
+  nwc: { min: -20, max: 40, step: 0.5 },
+  tax: { min: 0, max: 45, step: 0.1 },
   x: { min: 4, max: 30, step: 0.5 }
 };
+
+/** ¿el valor cae en la rejilla del control? (tolerancia por coma flotante) */
+export function onGrid(value, lim) {
+  if (!lim) return true;
+  const k = (value - lim.min) / lim.step;
+  return Math.abs(k - Math.round(k)) < 1e-6 && value >= lim.min && value <= lim.max;
+}

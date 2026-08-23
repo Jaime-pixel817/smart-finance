@@ -109,7 +109,7 @@ export function lineChart({ labels, series, fmtY = str, fmtVal = str, ariaLabel 
     const dots = pts.map((p) => `<circle class="fc-dot" cx="${n2(p[0])}" cy="${n2(p[1])}" r="2.6" style="fill:${s.color}"/>`).join('');
     const lastI = s.values.length - 1;
     const label = Number.isFinite(s.values[lastI])
-      ? `<text class="fc-val" x="${n2(x(lastI))}" y="${n2(y(s.values[lastI]) - 8)}" text-anchor="end" style="fill:${s.color}">${esc(fmtVal(s.values[lastI]))}</text>`
+      ? `<text class="fc-val" x="${n2(x(lastI) + 2)}" y="${n2(y(s.values[lastI]) - 9)}" text-anchor="end" style="fill:${s.color}">${esc(fmtVal(s.values[lastI]))}</text>`
       : '';
     return `<path class="fc-line" d="${d}" style="stroke:${s.color}"/>${dots}${label}`;
   }).join('');

@@ -95,7 +95,7 @@ const cols = [
   .comps > p { max-width: var(--measure); }
   .comps-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1); margin-top: var(--sp-2); }
   .comps-table { border-collapse: collapse; font-size: var(--fs-small); min-width: 100%; }
-  .comps-table th, .comps-table td { padding: 8px 10px; text-align: left; border-top: 1px solid var(--line); font-weight: 400; color: var(--ink-2); vertical-align: top; }
+  .comps-table th, .comps-table td { padding: 8px 10px; text-align: left; border-top: 1px solid var(--line); font-weight: 400; color: var(--ink-2); vertical-align: top; white-space: nowrap; }
   .comps-table td.num, .comps-table th.num { text-align: right; white-space: nowrap; }
   .comps-table thead th { border-top: 0; color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
   .comps-table thead th button { font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; min-height: 32px; }
@@ -104,7 +104,7 @@ const cols = [
   .comps-table thead th[aria-sort="descending"] button::after { content: ' ↓'; opacity: 1; }
   .comps-table tbody th[scope="row"] { position: sticky; left: 0; background: var(--bg-1); color: var(--ink); font-weight: 500; }
   .comps-table tr.is-self th[scope="row"], .comps-table tr.is-self td { background: var(--brand-wash); color: var(--ink); }
-  .comps-why { max-width: 34ch; min-width: 24ch; white-space: normal; line-height: var(--lh-caption); }
+  .comps-why { max-width: 36ch; min-width: 26ch; white-space: normal; line-height: var(--lh-caption); }
   .chip.comps-in { color: var(--up-text); }
   .chip.comps-out { color: var(--down-text); }
   .chip.comps-pend { color: var(--warn); }
