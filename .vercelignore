@@ -19,5 +19,9 @@
 # guardan en el repo por si vuelve el mapa, pero no se despliegan.
 /assets/geoMasks.js
 
-# Datos y plantillas del research: se usan para escribir el reporte, no se sirven
-/content
+# OJO: /content NO se puede excluir. Desde que existen /research y
+# /research/<empresa>, el build lee content/research/<empresa>/ (meta.yaml,
+# sources.yaml, model.json, data/financials.json) con import.meta.glob y los
+# incrusta en el HTML; sin esa carpeta el build de Vercel se cae con
+# "research: falta el fichero content/research/lululemon/meta.yaml".
+# No se sirven igual: el sitio es estatico y Vercel solo publica dist/.
