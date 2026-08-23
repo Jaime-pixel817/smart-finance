@@ -14,6 +14,7 @@ import CompoundCalculator from '../tools/CompoundCalculator.astro';
 import InflationTool from '../tools/InflationTool.astro';
 import RiskReturn from '../tools/RiskReturn.astro';
 import GlossarySheet from './GlossarySheet.astro';
+import { foto } from '../../lib/photos';
 import LessonCard from './LessonCard.astro';
 import Quiz from './Quiz.astro';
 
@@ -48,7 +49,7 @@ const levelKey = ('learn.level.' + d.level) as UIKey;
         </p>
       )}
       <div class="byline t-caption">
-        <img class="byline-avatar" src="/assets/jaime-96.jpg" alt="" width="24" height="24" loading="lazy" decoding="async">
+        <img class="byline-avatar" src={foto('jaime-96.jpg')} alt="" width="24" height="24" loading="lazy" decoding="async">
         <span><a class="byline-name" href={route('about', locale)}>{t('learn.by')} Jaime Sandoval Ricaño</a></span>
         <span aria-hidden="true">·</span>
         <span>{t('learn.published')} <time datetime={iso(d.publishedAt)}>{day(d.publishedAt)}</time></span>

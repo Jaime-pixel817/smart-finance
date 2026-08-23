@@ -30,8 +30,17 @@
 # "research: falta el fichero content/research/lululemon/meta.yaml".
 # No se sirven igual: el sitio es estatico y Vercel solo publica dist/.
 
-# El original de la foto del grupo (3797x2848, 3.6 MB). De él salen grupo.webp,
-# grupo-800.webp y grupo.jpg con `node scripts/build-photos.mjs`, y esas tres
-# sí se sirven. El original se queda en el repo para poder reencuadrar sin
-# volver a pedírselo a nadie, pero no tiene por qué viajar al despliegue.
-/public/assets/community/grupo-original.jpg
+# LOS ORIGINALES DE LAS FOTOS. De estas dos carpetas no se sirve nada: son la
+# entrada de `node scripts/build-photos.mjs`, que escribe lo que sí se sirve en
+# public/assets/fotos/ con huella de contenido en el nombre. Se quedan en el
+# repo para poder reencuadrar sin volver a pedirle la foto a nadie, pero no
+# tienen por qué viajar al despliegue. Lo que AHORRA cada línea, medido:
+#   /public/assets/community/  = grupo-original.jpg (3797x2848, 3 545 281 B).
+#       Ahorro nuevo: CERO. Ya estaba excluido por su propia línea; excluir la
+#       carpeta entera solo cubre lo que se deje ahí en el futuro. Y ojo:
+#       grupo.webp, grupo-800.webp y grupo.jpg no desaparecen del despliegue,
+#       se MUDARON a public/assets/fotos/ con huella y se siguen sirviendo.
+#   /public/assets/breakdowns/ = los seis breakdown-<id>.jpg a resolución media
+#       (777 954 B). Este es el ahorro nuevo de verdad de este bloque.
+/public/assets/community
+/public/assets/breakdowns

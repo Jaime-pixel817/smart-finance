@@ -16,6 +16,7 @@ import { useT } from '../../i18n/ui';
 import { PULSE, RATES, BREAKDOWNS, ratesFresh } from '../../data/home';
 import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
+import { foto } from '../../lib/photos';
 import SourceChip from '../SourceChip.astro';
 import WorldMarkets from './WorldMarkets.astro';
 import Hero from './Hero.astro';
@@ -279,7 +280,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     <section id="who" class="who col-4" aria-labelledby="who-h">
       <span id="about" class="anchor-alias" aria-hidden="true"></span>
       <div class="card who-card">
-        <img class="who-avatar" src="/assets/jaime-96.jpg" alt={t('alt.jaime')} width="48" height="48" loading="lazy" decoding="async">
+        <img class="who-avatar" src={foto('jaime-96.jpg')} alt={t('alt.jaime')} width="48" height="48" loading="lazy" decoding="async">
         <div>
           <h2 id="who-h" class="eyebrow">{t('who.title')}</h2>
           <p class="t-small who-name">{t('who.name')}</p>
