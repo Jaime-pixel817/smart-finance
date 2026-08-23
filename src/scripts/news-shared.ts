@@ -89,7 +89,9 @@ export function tarjeta(n: NoticiaAPI, ctx: Contexto): HTMLElement {
   li.innerHTML = [
     `<article class="card">`,
     `<p class="kicker eyebrow">${kicker(n, ctx)}</p>`,
-    `<h3 class="nw-title"><a href="${esc(ctx.href(n.slug))}">${esc(t.titulo)}</a></h3>`,
+    // h2 y no h3: debajo del h1 de la página no hay ningún nivel intermedio, y
+    // saltarse uno es justo lo que Lighthouse marca como heading-order.
+    `<h2 class="nw-title"><a href="${esc(ctx.href(n.slug))}">${esc(t.titulo)}</a></h2>`,
     `<p class="nw-que t-small muted">${esc(t.que)}</p>`,
     `<div class="nw-chips">${chipAutoria(n, ctx)}${chipsActivos(n, ctx)}</div>`,
     `</article>`
