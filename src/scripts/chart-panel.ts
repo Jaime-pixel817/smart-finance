@@ -274,7 +274,12 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
     // Misma forma que las marcas del eje justo debajo ("9:50am"), que ocupa la
     // mitad que "09:50 AM" y no obliga a leer dos relojes distintos.
     if (range === '1D') return squeezeAmPm(new Intl.DateTimeFormat(TAG[loc], { hour: 'numeric', minute: '2-digit' }).format(d));
-    return new Intl.DateTimeFormat(TAG[loc], { day: 'numeric', month: 'short' }).format(d).replace(/\./g, '');
+    // En 1M/3M/1A el día y el mes ya son únicos dentro de la ventana; en 5A no
+    // ("9 ago" podría ser cualquiera de los cinco), así que ahí va el año.
+    const o: Intl.DateTimeFormatOptions = range === '5Y'
+      ? { day: 'numeric', month: 'short', year: 'numeric' }
+      : { day: 'numeric', month: 'short' };
+    return new Intl.DateTimeFormat(TAG[loc], o).format(d).replace(/\./g, '');
   }
   function paintMarkers() {
     if (!markers || !stats || !rows.length) { markers?.setMarkers([]); return; }
@@ -479,7 +484,17 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
     sessionEl.textContent = `${txt} · ${granularity()}`;
   }
   function paintSource(state: 'fresh' | 'stale' | 'error', lastTs: number | null) {
-    if (chip) chip.dataset.fresh = state;
+    // El punto se colorea por la EDAD del dato, como el resto de los chips del
+    // sitio (rows.ts): verde mientras esté dentro de la cadencia, ámbar hasta
+    // una hora, gris más allá. En cierres diarios el margen es de cuatro días,
+    // que es lo que puede tardar en llegar el siguiente después de un puente.
+    if (chip) {
+      const edadMin = lastTs ? (Date.now() / 1000 - lastTs) / 60 : Infinity;
+      const tope = range === '1D' ? 7 : 4 * 24 * 60;
+      chip.dataset.fresh = state !== 'fresh' ? state
+        : edadMin <= tope ? 'fresh'
+        : edadMin <= (range === '1D' ? 60 : 7 * 24 * 60) ? 'stale' : 'old';
+    }
     // Cuando el último dato no es de hoy, la hora sola engaña ("14:00" un
     // domingo). Se le pone el día delante.
     if (srcNote) srcNote.textContent = granularity() + (state === 'stale' ? ` · ${T.cached}` : '');
@@ -508,12 +523,21 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
       delete root.dataset.loading;
       const pts = (d.points || []).filter((p) => typeof p[1] === 'number' && isFinite(p[1]));
       if (pts.length < 2) {
-        data = null; stats = null;
+        // El endpoint contestó, pero de este rango no hay serie. Se dice y se
+        // limpia: dejar el esqueleto parpadeando parece que sigue cargando, y
+        // dejar los números del rango anterior sería mentir.
+        data = null; stats = null; rows = [];
         setState('empty', T.empty);
         if (sessionEl) sessionEl.textContent = '';
         if (series) series.setData([]);
         markers?.setMarkers([]);
-        rows = [];
+        queueTags();
+        priceEl.textContent = '—'; priceEl.classList.remove('skel');
+        chgEl.textContent = ''; chgEl.className = 'pp-chg num t-small';
+        whenEl.textContent = ''; whenEl.classList.remove('skel');
+        if (chip) chip.dataset.fresh = 'loading';
+        if (srcNote) srcNote.textContent = granularity();
+        if (srcTime) srcTime.textContent = '—';
         return;
       }
       if (typeof d.tzOffset === 'number') tzOff = d.tzOffset;
