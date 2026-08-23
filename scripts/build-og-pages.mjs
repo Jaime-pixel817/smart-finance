@@ -659,6 +659,24 @@ const TARJETAS_FIJAS = [
       pie: 'Visitas a la BMV · Pláticas · Voluntariados' }
   },
   {
+    nombre: 'actinver',
+    en: { etiqueta: 'Actinver Challenge', titular: 'A contest portfolio, position by position',
+      bajada: 'A student stock-market contest played with fictional money, with the thesis behind every position.',
+      pie: 'Simulator · Fictional money · Not advice' },
+    es: { etiqueta: 'Reto Actinver', titular: 'Una cartera de concurso, posición por posición',
+      bajada: 'Un concurso de bolsa para estudiantes que se juega con dinero ficticio, con la tesis de cada posición.',
+      pie: 'Simulador · Dinero ficticio · No es asesoría' }
+  },
+  {
+    nombre: 'portfolio',
+    en: { etiqueta: 'Portfolio', titular: 'What I own, and why',
+      bajada: 'My own positions, each with the reason I opened it and the risk I think it has.',
+      pie: 'Educational · Not a recommendation' },
+    es: { etiqueta: 'Portafolio', titular: 'Qué tengo, y por qué',
+      bajada: 'Mis propias posiciones, cada una con la razón por la que la abrí y el riesgo que creo que tiene.',
+      pie: 'Educativo · No es una recomendación' }
+  },
+  {
     nombre: 'market',
     en: { etiqueta: 'Markets', titular: 'Indexes, stocks, currencies and crypto',
       bajada: 'Each one with its own touch chart, its key numbers and what it is in plain words.',

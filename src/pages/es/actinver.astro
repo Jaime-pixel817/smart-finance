@@ -5,6 +5,7 @@
 import Base from '../../layouts/Base.astro';
 import Cartera from '../../components/portfolio/Cartera.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 import { useC } from '../../i18n/cartera';
 import { ACTINVER } from '../../lib/portfolio/data';
 const c = useC('es');
@@ -21,6 +22,7 @@ const jsonLd = {
   publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
 };
 ---
-<Base locale="es" routeId="actinver" active="actinver" title={c.actinver.title} description={c.actinver.desc} jsonLd={jsonLd}>
+<Base locale="es" routeId="actinver" active="actinver" title={c.actinver.title} description={c.actinver.desc} jsonLd={jsonLd}
+  ogImage={ogPropia('actinver', 'es')} ogImageAlt="Smart Finance — Cartera del Reto Actinver, un concurso estudiantil con dinero ficticio">
   <Cartera locale="es" id="actinver" />
 </Base>

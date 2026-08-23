@@ -4,6 +4,7 @@
 import Base from '../layouts/Base.astro';
 import Cartera from '../components/portfolio/Cartera.astro';
 import { SITE } from '../i18n/routes';
+import { ogPropia } from '../lib/og';
 import { useC } from '../i18n/cartera';
 import { PORTFOLIO } from '../lib/portfolio/data';
 const c = useC('en');
@@ -20,6 +21,7 @@ const jsonLd = {
   publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
 };
 ---
-<Base locale="en" routeId="portfolio" active="portfolio" title={c.portfolio.title} description={c.portfolio.desc} jsonLd={jsonLd}>
+<Base locale="en" routeId="portfolio" active="portfolio" title={c.portfolio.title} description={c.portfolio.desc} jsonLd={jsonLd}
+  ogImage={ogPropia('portfolio', 'en')} ogImageAlt="Smart Finance — My portfolio: the positions and the thesis behind each one">
   <Cartera locale="en" id="portfolio" />
 </Base>
