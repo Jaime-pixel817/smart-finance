@@ -1,0 +1,23 @@
+---
+// /es/research/<empresa> — el mismo reporte en español.
+import Base from '../../../layouts/Base.astro';
+import Report from '../../../components/research/Report.astro';
+import { PAGED_REPORTS, loadReport } from '../../../lib/research/reports';
+import { SITE, route } from '../../../i18n/routes';
+import { reportJsonLd } from '../../../lib/research/jsonld';
+
+export function getStaticPaths() {
+  return PAGED_REPORTS.map((e) => ({ params: { company: e.slug }, props: { slug: e.slug } }));
+}
+const { slug } = Astro.props as { slug: string };
+const report = loadReport(slug);
+const m = report.meta;
+const title = `${m.name} (${m.ticker}) — equity research (borrador) — Smart Finance`;
+const description = `Reporte de equity research sobre ${m.name} (${m.exchange}: ${m.ticker}), construido en público por Jaime Sandoval. Siete años fiscales bajados de los reportes a la SEC y comparados contra el 10-K, un DCF que puedes mover en tu navegador y todas las fuentes citadas. Borrador: la tesis y los supuestos se están escribiendo.`;
+---
+<Base
+  locale="es" routeId={report.routeId} active="research" ogType="article"
+  title={title} description={description}
+  jsonLd={reportJsonLd('es', report, SITE + route(report.routeId, 'es'), description)}>
+  <Report locale="es" report={report} />
+</Base>

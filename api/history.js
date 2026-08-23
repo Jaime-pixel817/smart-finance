@@ -31,6 +31,10 @@ const SYMBOLS = {
   MSFT: { yahoo: 'MSFT', intradayPoints: 78 },
   NVDA: { yahoo: 'NVDA', intradayPoints: 78 },
   AMZN: { yahoo: 'AMZN', intradayPoints: 78 },
+  // Empresas cubiertas por /research: solo historial para la marca de
+  // "precio de mercado" del reporte. NO van en /api/markets (cuota de
+  // Twelve Data contada) ni en el registro de simbolos del sitio.
+  LULU: { yahoo: 'LULU', intradayPoints: 78 },
 
   // Cripto (fichas /market/[symbol]). El precio y el cambio de 24 h siguen
   // saliendo de CoinGecko vía /api/markets; aquí solo va el HISTORIAL 1D–5A,

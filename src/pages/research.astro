@@ -1,0 +1,23 @@
+---
+// /research — hub de Smart Finance Research (inglés).
+import Base from '../layouts/Base.astro';
+import Hub from '../components/research/Hub.astro';
+import { SITE } from '../i18n/routes';
+import { useR } from '../i18n/research';
+const r = useR('en');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Smart Finance Research',
+  description: r.hubDesc,
+  url: SITE + '/research',
+  inLanguage: 'en',
+  dateModified: '2026-08-22',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="en" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}>
+  <Hub locale="en" />
+</Base>

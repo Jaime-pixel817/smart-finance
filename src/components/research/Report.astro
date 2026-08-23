@@ -1,0 +1,411 @@
+---
+// /research/<empresa> — el reporte, con los diez bloques.
+//
+// REGLA DE AUTORÍA: esta página construye (a) el armazón, (b) todo lo que sale
+// de los datos ya verificados y (c) los huecos marcados donde escribe Jaime.
+// Ni una línea de tesis, supuesto o conclusión sale de aquí.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import { useT } from '../../i18n/ui';
+import type { Report } from '../../lib/research/reports';
+import { pending } from '../../lib/research/reports';
+import { day, millions } from '../../lib/research/format.mjs';
+import SourceChip from '../SourceChip.astro';
+import Pending from './Pending.astro';
+import FinancialBlock from './FinancialBlock.astro';
+import DcfLab from './DcfLab.astro';
+import CompsTable from './CompsTable.astro';
+
+const { locale, report } = Astro.props as { locale: Locale; report: Report };
+const r = useR(locale);
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+const m = report.meta;
+const model = report.model;
+const fin = report.financials?.meta || {};
+const last = report.annual[report.annual.length - 1];
+const repoDir = 'https://github.com/Jaime-pixel817/smart-finance/tree/main/content/research/' + report.slug;
+
+const blocks = [
+  { id: 'b1', n: 1, title: r.blocks.b1 },
+  { id: 'b2', n: 2, title: r.blocks.b2 },
+  { id: 'b3', n: 3, title: r.blocks.b3 },
+  { id: 'b4', n: 4, title: r.blocks.b4 },
+  { id: 'b5', n: 5, title: r.blocks.b5 },
+  { id: 'b6', n: 6, title: r.blocks.b6 },
+  { id: 'b7', n: 7, title: r.blocks.b7 },
+  { id: 'b8', n: 8, title: r.blocks.b8 },
+  { id: 'b9', n: 9, title: r.blocks.b9 },
+  { id: 'b10', n: 10, title: r.blocks.b10 }
+];
+
+// Fuentes numeradas: primero las que ya existen, al final los TODO de Jaime.
+// Los títulos salen del fichero de trabajo del reporte (sources.yaml), que
+// Jaime escribe en español; en la página inglesa se marcan con lang="es" en
+// vez de traducirlos aquí. Si algún día añade `title_en`, se usa ese.
+const sources = [...report.sources].sort((a, b) => Number(!a.url) - Number(!b.url));
+const srcLang = locale === 'en' ? 'es' : undefined;
+
+// KPIs que hay que capturar a mano del 10-K (model.json → kpis).
+const kpiFields = locale === 'es'
+  ? [
+      { k: 'storesTotal', l: 'Tiendas totales' },
+      { k: 'compsTotalPct', l: 'Comparables (comps) totales' },
+      { k: 'compsAmericasPct', l: 'Comparables en América' },
+      { k: 'revenueByRegion', l: 'Ingresos por región (América, China, resto del mundo)' },
+      { k: 'revenueByChannel', l: 'Ingresos por canal (tiendas, e-commerce, otros)' },
+      { k: 'inventoryDays', l: 'Días de inventario' }
+    ]
+  : [
+      { k: 'storesTotal', l: 'Total stores' },
+      { k: 'compsTotalPct', l: 'Total comparable sales' },
+      { k: 'compsAmericasPct', l: 'Comparable sales, Americas' },
+      { k: 'revenueByRegion', l: 'Revenue by region (Americas, China, rest of world)' },
+      { k: 'revenueByChannel', l: 'Revenue by channel (stores, e-commerce, other)' },
+      { k: 'inventoryDays', l: 'Inventory days' }
+    ];
+const kpis = model.kpis || [];
+const kpiDone = (key: string) => kpis.some((row: any) => !pending(row[key]));
+
+// Supuestos del reporte (los de Jaime), para el apéndice.
+const a = model.dcf?.assumptions || {};
+const rat = model.dcf?.rationale || {};
+const assumpRows = [
+  { k: 'revenueGrowthPct', l: r.ctl.g1.replace(/,.*$/, ''), v: a.revenueGrowthPct },
+  { k: 'ebitdaMarginPct', l: r.ctl.m, v: a.ebitdaMarginPct },
+  { k: 'daPctRevenue', l: r.ctl.da, v: a.daPctRevenue },
+  { k: 'capexPctRevenue', l: r.ctl.capex, v: a.capexPctRevenue },
+  { k: 'nwcPctDeltaRevenue', l: r.ctl.nwc, v: a.nwcPctDeltaRevenue },
+  { k: 'taxRatePct', l: r.ctl.tax, v: a.taxRatePct },
+  { k: 'sbcTreatment', l: 'SBC', v: a.sbcTreatment },
+  { k: 'terminal', l: r.ctl.t, v: a.terminal?.type ? `${a.terminal.type} · g ${a.terminal.g}` : null }
+];
+const waccRat = a.wacc?.rationale || '';
+
+const fmtV = (v: any) => {
+  if (pending(v)) return r.hdr.pending;
+  if (Array.isArray(v)) return v.map((x) => millions(x, locale, 1) + '%').join(' · ');
+  if (typeof v === 'number') return millions(v, locale, 1) + '%';
+  return String(v);
+};
+---
+<article class="rep">
+  <div class="container rep-wrap">
+
+    <!-- Cabecera de credibilidad -->
+    <header class="rep-head">
+      <p class="rep-back"><a href={L('research')}>← {r.back}</a></p>
+      <p class="eyebrow">{r.reportKicker} <span aria-hidden="true">·</span> {m.exchange}: {m.ticker}</p>
+      <h1 class="t-display">{m.name}</h1>
+      <!-- El precio de mercado va en su propia fila y con hueco reservado: lo
+           rellena JavaScript al volver /api/history y, si compartiera fila con
+           el resto de los metadatos, al cambiar de ancho los movería (CLS). -->
+      <div class="rep-price">
+        <span class="rep-price-k eyebrow">{r.hdr.price}</span>
+        <span class="num rep-price-v" data-market-price>—</span>
+        <span class="rep-price-src" data-market-chip><SourceChip locale={locale} source="Yahoo" delay={15} /></span>
+        <span class="rep-note">{r.hdr.priceNote}</span>
+      </div>
+      <dl class="rep-meta">
+        <div>
+          <dt>{r.hdr.analysisDate}</dt>
+          <dd class:list={['num', pending(m.analysisDate) && 'is-pending']}>{pending(m.analysisDate) ? r.hdr.pending : day(m.analysisDate, locale)}</dd>
+        </div>
+        <div><dt>{r.hdr.dataAsOf}</dt><dd class="num">{day(m.dataAsOf, locale)}</dd></div>
+        <div><dt>{r.hdr.updated}</dt><dd class="num">{day(r.changelog[0][0], locale)}</dd></div>
+        <div><dt>{r.hdr.version}</dt><dd class="num">{m.version}</dd></div>
+        <div><dt>{r.hdr.author}</dt><dd>{m.author}</dd></div>
+      </dl>
+      <div class="card rep-draft">
+        <p class="rep-draft-h">
+          <span class="dot" aria-hidden="true"></span>{r.draftBannerH}
+        </p>
+        <p class="t-small muted">{r.draftBannerP}</p>
+        <p class="t-caption faint">{r.pendingNoteProd}</p>
+      </div>
+      <nav class="rep-toc rail" aria-label={r.tocH}>
+        {blocks.map((b) => <a class="chip" href={'#' + b.id}><span class="num">{b.n}</span> {b.title}</a>)}
+      </nav>
+      <p class="rep-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-print>{r.print}</button>
+        <a class="btn btn-ghost btn-sm" href="#b10">{r.sourcesH} ↓</a>
+      </p>
+    </header>
+
+    <!-- 1 · Resumen de una página -->
+    <section id="b1" class="rep-sec" aria-labelledby="b1-h">
+      <h2 id="b1-h" class="t-h2"><span class="rep-n num">01</span>{r.blocks.b1}</h2>
+      {pending(model.thesis?.summary)
+        ? <Pending locale={locale} field="model.json → thesis.question / thesis.summary" />
+        : <p class="rep-lede">{model.thesis.summary}</p>}
+    </section>
+
+    <!-- 2 · Qué hace y cómo gana dinero -->
+    <section id="b2" class="rep-sec" aria-labelledby="b2-h">
+      <h2 id="b2-h" class="t-h2"><span class="rep-n num">02</span>{r.blocks.b2}</h2>
+      <Pending locale={locale} field="model.json → thesis (negocio, unidades, canales) · KPIs del 10-K en model.json → kpis" />
+      <div class="card rep-facts">
+        <p class="eyebrow">{r.factsH}</p>
+        <dl class="facts-grid">
+          <div><dt>{r.facts.cik}</dt><dd class="num">{fin.cik}</dd></div>
+          <div><dt>{r.facts.exchange}</dt><dd>{(fin.exchanges || []).join(', ')} · {m.ticker}</dd></div>
+          <div><dt>{r.facts.sic}</dt><dd>{fin.sicDescription} ({fin.sic})</dd></div>
+          {fin.stateOfIncorporation && <div><dt>{r.facts.state}</dt><dd>{fin.stateOfIncorporation}</dd></div>}
+          <div><dt>{r.facts.currency}</dt><dd>{m.currency}</dd></div>
+          <div><dt>{r.hdr.fiscalYear}</dt><dd class="num">{day(last.periodEnd, locale)} <span class="t-caption faint">({last.fy})</span></dd></div>
+          {report.lastFiling && (
+            <div><dt>{r.facts.lastFiling}</dt><dd class="num">{report.lastFiling.form} · {day(report.lastFiling.filed, locale)}</dd></div>
+          )}
+        </dl>
+        <p class="t-caption faint">{r.factsNote}</p>
+      </div>
+    </section>
+
+    <!-- 3 · Industria y competencia -->
+    <section id="b3" class="rep-sec" aria-labelledby="b3-h">
+      <h2 id="b3-h" class="t-h2"><span class="rep-n num">03</span>{r.blocks.b3}</h2>
+      <Pending locale={locale} field="model.json → thesis (industria, competencia) · comps[].includeDecision / includeRationale" />
+      <h3 class="t-h3">{r.compsH}</h3>
+      <CompsTable locale={locale} report={report} />
+    </section>
+
+    <!-- 4 · Desempeño financiero -->
+    <section id="b4" class="rep-sec" aria-labelledby="b4-h">
+      <h2 id="b4-h" class="t-h2"><span class="rep-n num">04</span>{r.blocks.b4}</h2>
+      <p class="rep-ok t-small"><span class="dot" aria-hidden="true"></span>{r.finH}</p>
+      <FinancialBlock locale={locale} report={report} />
+    </section>
+
+    <!-- 5 · Palancas y management -->
+    <section id="b5" class="rep-sec" aria-labelledby="b5-h">
+      <h2 id="b5-h" class="t-h2"><span class="rep-n num">05</span>{r.blocks.b5}</h2>
+      <Pending locale={locale} field="model.json → thesis.catalysts · kpis[] (capturados a mano del 10-K) · sources.yaml → TODO-proxy-2026" />
+      <ul class="kpi-list">
+        {kpiFields.map((k) => (
+          <li>
+            <span class:list={['kpi-state', kpiDone(k.k) ? 'is-done' : 'is-todo']} aria-hidden="true"></span>
+            <span class="t-small">{k.l}</span>
+            <span class="t-caption faint">{kpiDone(k.k) ? '✓' : r.hdr.pending}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- 6 · Riesgos -->
+    <section id="b6" class="rep-sec" aria-labelledby="b6-h">
+      <h2 id="b6-h" class="t-h2"><span class="rep-n num">06</span>{r.blocks.b6}</h2>
+      <Pending locale={locale} field="model.json → thesis.risks (rankeados) · 10-K Item 1A" />
+    </section>
+
+    <!-- 7 · Valuación -->
+    <section id="b7" class="rep-sec" aria-labelledby="b7-h">
+      <h2 id="b7-h" class="t-h2"><span class="rep-n num">07</span>{r.blocks.b7}</h2>
+      <h3 class="t-h3">{r.dcfH}</h3>
+      <DcfLab locale={locale} report={report} />
+    </section>
+
+    <!-- 8 · Escenarios (el control y el rango viven en el bloque 7) -->
+    <section id="b8" class="rep-sec" aria-labelledby="b8-h">
+      <h2 id="b8-h" class="t-h2"><span class="rep-n num">08</span>{r.blocks.b8}</h2>
+      <p class="t-small muted">{r.scenPending}</p>
+      <div class="table-wrap">
+        <table class="scen-table">
+          <thead><tr><th scope="col">&nbsp;</th><th scope="col">{r.scenProb}</th><th scope="col">{r.scenWhy}</th></tr></thead>
+          <tbody>
+            {(['bear', 'base', 'bull'] as const).map((name) => {
+              const s = model.scenarios?.[name] || {};
+              return (
+                <tr>
+                  <th scope="row">{name === 'bear' ? r.ffBear : name === 'base' ? r.ffBase : r.ffBull}</th>
+                  <td class="num">{pending(s.prob) ? r.hdr.pending : millions(s.prob * 100, locale, 0) + '%'}</td>
+                  <td class="t-caption">{pending(s.rationale) ? r.hdr.pending : s.rationale}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="t-caption faint"><a href="#b7">{r.ffH} ↑</a></p>
+    </section>
+
+    <!-- 9 · Conclusión -->
+    <section id="b9" class="rep-sec" aria-labelledby="b9-h">
+      <h2 id="b9-h" class="t-h2"><span class="rep-n num">09</span>{r.blocks.b9}</h2>
+      <Pending locale={locale} field="model.json → thesis.whatWouldChangeMyMind · thesis.whatIDontKnow" />
+    </section>
+
+    <!-- 10 · Apéndice -->
+    <section id="b10" class="rep-sec" aria-labelledby="b10-h">
+      <h2 id="b10-h" class="t-h2"><span class="rep-n num">10</span>{r.blocks.b10}</h2>
+
+      <h3 class="t-h3">{r.sourcesH}</h3>
+      <p class="t-small muted">{r.sourcesP}</p>
+      <ol class="src-list">
+        {sources.map((s, i) => (
+          <li id={'src-' + (i + 1)}>
+            <span class="src-n num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <p class="t-small">
+                {s.url
+                  ? <a href={s.url} target="_blank" rel="noopener" lang={srcLang}>{(s as any).title_en && locale === 'en' ? (s as any).title_en : s.title} ↗</a>
+                  : <span class="src-todo" lang={srcLang}>{(s as any).title_en && locale === 'en' ? (s as any).title_en : s.title}</span>}
+              </p>
+              <p class="t-caption faint">
+                <span class="chip src-type">{(r.sourceType as any)[s.type || 'primary'] || s.type}</span>
+                {s.form && <span> · {s.form}</span>}
+                {s.filed && <span> · {day(s.filed, locale)}</span>}
+                {s.accession && <span class="num"> · {s.accession}</span>}
+                {s.retrieved ? <span> · {r.sourcesRetrieved} {day(s.retrieved, locale)}</span> : <span class="src-pend"> · {r.sourcesPending}</span>}
+              </p>
+              {s.value && <p class="t-caption num" lang={srcLang}>{s.value}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <h3 class="t-h3">{r.assumpH}</h3>
+      <div class="table-wrap">
+        <table class="assump">
+          <thead><tr><th scope="col">{r.assumpCols.field}</th><th scope="col">{r.assumpCols.value}</th><th scope="col">{r.assumpCols.why}</th></tr></thead>
+          <tbody>
+            {assumpRows.map((row) => (
+              <tr>
+                <th scope="row">{row.l}</th>
+                <td class:list={['num', pending(row.v) && 'is-pending']}>{fmtV(row.v)}</td>
+                <td class={pending((rat as any)[row.k]) ? 'is-pending t-caption' : 't-caption'}>
+                  {pending((rat as any)[row.k]) ? r.pendingH : (rat as any)[row.k]}
+                </td>
+              </tr>
+            ))}
+            <tr>
+              <th scope="row">WACC</th>
+              <td class:list={['num', pending(a.wacc?.wacc) && 'is-pending']}>{pending(a.wacc?.wacc) ? r.hdr.pending : millions(a.wacc.wacc, locale, 2) + '%'}</td>
+              <td class="t-caption">
+                {pending(waccRat) && <span class="is-pending">{r.pendingH}. </span>}
+                <span lang={srcLang}>{waccRat}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="t-h3">{r.aiUseH}</h3>
+      <div class="rep-two">
+        <div class="card"><p class="eyebrow">{r.aiDid}</p><p class="t-small muted">{r.aiDidP}</p></div>
+        <div class="card"><p class="eyebrow">{r.jaimeDoes}</p><p class="t-small muted">{r.jaimeDoesP}</p></div>
+      </div>
+      <p class="t-small"><a class="more-link" href={repoDir} target="_blank" rel="noopener">{r.repoLink} ↗</a></p>
+
+      <h3 class="t-h3">{r.changelogH}</h3>
+      <ol class="changelog">
+        {r.changelog.map(([d, text]) => (
+          <li><time class="num t-caption" datetime={d}>{d}</time><span class="t-small">{text}</span></li>
+        ))}
+      </ol>
+
+      <h3 class="t-h3">{r.disclaimerH}</h3>
+      <p class="t-small muted">{r.reportDisclaimer}</p>
+      <p class="t-caption faint">{t('asset.disclaimer')}</p>
+    </section>
+  </div>
+</article>
+
+<script>
+  document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+  // La tabla de siete años arranca mostrando el año MÁS RECIENTE: en el
+  // teléfono es la columna que importa y el histórico queda a la izquierda.
+  for (const box of document.querySelectorAll('[data-scroll-end]')) {
+    box.scrollLeft = box.scrollWidth;
+  }
+</script>
+
+<style>
+  .rep { padding-top: var(--sp-4); }
+  .rep-wrap { display: flex; flex-direction: column; gap: var(--section-gap); max-width: 1000px; }
+  .rep-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .rep-back a { color: var(--ink-2); font-size: var(--fs-small); min-height: 36px; display: inline-flex; align-items: center; }
+  .rep-back a:hover { color: var(--ink); }
+  .rep-meta { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-5); margin: 0; padding: var(--sp-3) 0; border-block: 1px solid var(--line); }
+  .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
+  .rep-meta dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .rep-meta dd { margin: 0; color: var(--ink); font-size: var(--fs-small); }
+  .rep-meta dd.is-pending { color: var(--warn); }
+  .rep-price {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--sp-3);
+    min-height: 46px; padding-top: var(--sp-2);
+  }
+  .rep-price-k { align-self: center; }
+  .rep-price-v { font-size: var(--fs-num-l); color: var(--ink); min-width: 7ch; }
+  .rep-price-src { align-self: center; min-width: 22ch; }
+  .rep-note { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
+
+  .rep-draft { display: flex; flex-direction: column; gap: var(--sp-2); border-left: 3px solid var(--warn); }
+  .rep-draft-h { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: var(--fs-small); color: var(--warn); }
+  .rep-draft .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn-dot); flex: none; }
+  .rep-draft p { max-width: var(--measure); }
+
+  .rep-toc { gap: var(--sp-2); scroll-snap-type: none; }
+  .rep-toc .chip { color: var(--ink-2); gap: 8px; }
+  /* --ink-3 sobre --bg-2 a 11 px se queda en 4.4:1 (Lighthouse): sube a --ink-2. */
+  .rep-toc .chip .num { color: var(--ink-2); font-size: var(--fs-eyebrow); }
+  .rep-toc .chip:hover { color: var(--ink); border-color: var(--ink-3); }
+  .rep-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+  .rep-sec { display: flex; flex-direction: column; gap: var(--sp-3); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .rep-sec > p, .rep-sec > ul { max-width: var(--measure); }
+  .rep-sec h2 { display: flex; align-items: baseline; gap: var(--sp-3); padding-bottom: var(--sp-2); border-bottom: 1px solid var(--line); }
+  .rep-n { color: var(--ink-3); font-size: var(--fs-caption); }
+  .rep-lede { font-size: var(--fs-read); line-height: var(--lh-read); }
+  .rep-ok { display: inline-flex; align-items: center; gap: 8px; color: var(--up-text); }
+  .rep-ok .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--up); flex: none; }
+
+  .rep-facts { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .facts-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); margin: 0; }
+  @media (min-width: 560px) { .facts-grid { grid-template-columns: 1fr 1fr; } }
+  .facts-grid div { display: flex; flex-direction: column; gap: 1px; }
+  .facts-grid dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .facts-grid dd { margin: 0; font-size: var(--fs-small); color: var(--ink); }
+
+  .kpi-list { display: flex; flex-direction: column; gap: 0; }
+  .kpi-list li { display: grid; grid-template-columns: 10px 1fr auto; gap: var(--sp-3); align-items: center; padding: var(--sp-2) 0; border-top: 1px solid var(--line); }
+  .kpi-state { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+  .kpi-state.is-done { background: var(--up); }
+  .kpi-state.is-todo { background: var(--warn-dot); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1); }
+  .scen-table, .assump { border-collapse: collapse; font-size: var(--fs-small); min-width: 100%; }
+  .scen-table th, .scen-table td, .assump th, .assump td { padding: 8px 10px; text-align: left; border-top: 1px solid var(--line); font-weight: 400; color: var(--ink-2); vertical-align: top; }
+  .scen-table thead th, .assump thead th { border-top: 0; color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .scen-table th[scope="row"], .assump th[scope="row"] { color: var(--ink); white-space: nowrap; }
+  .assump .is-pending, .scen-table .is-pending { color: var(--warn); }
+
+  .src-list { display: flex; flex-direction: column; gap: 0; counter-reset: s; }
+  .src-list li { display: grid; grid-template-columns: 2.4ch 1fr; gap: var(--sp-3); padding: var(--sp-3) 0; border-top: 1px solid var(--line); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .src-list li > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .src-n { color: var(--ink-3); font-size: var(--fs-caption); }
+  .src-list a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--brand-text); text-underline-offset: 3px; word-break: break-word; }
+  .src-todo { color: var(--warn); }
+  .src-pend { color: var(--warn); }
+  .chip.src-type { min-height: 22px; padding: 0 8px; font-size: var(--fs-eyebrow); }
+
+  .rep-two { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
+  @media (min-width: 768px) { .rep-two { grid-template-columns: 1fr 1fr; } }
+  .rep-two .card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .changelog { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .changelog li { display: grid; grid-template-columns: 9ch 1fr; gap: var(--sp-3); padding: var(--sp-2) 0; border-top: 1px solid var(--line); }
+  .changelog time { color: var(--ink-3); }
+  .more-link { color: var(--brand-text); min-height: 36px; display: inline-flex; align-items: center; }
+  .more-link:hover { text-decoration: underline; }
+
+  /* ---- Impresión / PDF: una columna, sin controles, con las URLs a la vista ---- */
+  @media print {
+    .rep-toc, .rep-actions, .rep-back { display: none !important; }
+    .rep-wrap { max-width: none; gap: 18pt; }
+    .rep-sec { break-inside: auto; }
+    .rep-sec h2 { break-after: avoid; }
+    .src-list a::after { content: ' (' attr(href) ')'; font-size: 7pt; color: #555; word-break: break-all; }
+    .rep-two { grid-template-columns: 1fr 1fr; }
+    .table-wrap { overflow: visible; }
+  }
+</style>

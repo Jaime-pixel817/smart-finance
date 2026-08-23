@@ -1,0 +1,229 @@
+---
+// Bloque 4 del reporte: los números verificados. Tabla de siete años fiscales
+// y seis gráficas SVG generadas EN EL BUILD desde data/financials.json.
+// Aquí no hay interpretación: solo los datos que la empresa reportó a la SEC,
+// las divisiones que se hacen a la vista (márgenes, crecimiento) y la fuente.
+import type { Locale } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import type { Report } from '../../lib/research/reports';
+import { barChart, lineChart, groupedBarChart } from '../../lib/research/charts.mjs';
+import { millions, pct, billions, day } from '../../lib/research/format.mjs';
+
+const { locale, report } = Astro.props as { locale: Locale; report: Report };
+const r = useR(locale);
+const rows = report.annual;
+const years = rows.map((x) => x.fy.replace('FY', 'FY '));
+const short = rows.map((x) => 'FY' + x.fy.slice(-2));
+const num = (k: keyof typeof rows[0]) => rows.map((x) => x[k] as number | null);
+
+const mm = (v: number | null) => millions(v, locale, 0);
+const mm1 = (v: number | null) => millions(v, locale, 1);
+const p1 = (v: number | null) => pct(v, locale, 1);
+
+type Line = { label: string; values: (number | null)[]; fmt: (v: number | null) => string; strong?: boolean };
+const table: Line[] = [
+  { label: r.finRows.revenue, values: num('revenue'), fmt: mm, strong: true },
+  { label: r.finRows.growth, values: num('revenueGrowthPct'), fmt: p1 },
+  { label: r.finRows.grossProfit, values: num('grossProfit'), fmt: mm },
+  { label: r.finRows.grossMargin, values: num('grossMarginPct'), fmt: p1 },
+  { label: r.finRows.ebitda, values: num('ebitda'), fmt: mm, strong: true },
+  { label: r.finRows.ebitdaMargin, values: num('ebitdaMarginPct'), fmt: p1 },
+  { label: r.finRows.operatingIncome, values: num('operatingIncome'), fmt: mm },
+  { label: r.finRows.netIncome, values: num('netIncome'), fmt: mm },
+  { label: r.finRows.netMargin, values: num('netMarginPct'), fmt: p1 },
+  { label: r.finRows.da, values: num('da'), fmt: mm },
+  { label: r.finRows.capex, values: num('capex'), fmt: mm },
+  { label: r.finRows.cfo, values: num('cfo'), fmt: mm },
+  { label: r.finRows.fcf, values: num('fcf'), fmt: mm, strong: true },
+  { label: r.finRows.fcfMargin, values: num('fcfMarginPct'), fmt: p1 },
+  { label: r.finRows.sbc, values: num('sbc'), fmt: mm },
+  { label: r.finRows.cash, values: num('cash'), fmt: mm },
+  { label: r.finRows.debt, values: num('financialDebt'), fmt: mm },
+  { label: r.finRows.leases, values: num('operatingLeases'), fmt: mm },
+  { label: r.finRows.equity, values: num('equity'), fmt: mm },
+  { label: r.finRows.shares, values: num('dilutedShares'), fmt: mm1 },
+  { label: r.finRows.buybacks, values: num('buybacks'), fmt: mm }
+];
+
+const last = rows.length - 1;
+const axisMM = (v: number) => millions(v, locale, 0);
+const axisB = (v: number) => millions(v, locale, 0);
+const axisPct = (v: number) => millions(v, locale, 0) + '%';
+
+const revB = rows.map((x) => (x.revenue === null ? null : Math.round((x.revenue / 1000) * 100) / 100));
+const charts = [
+  {
+    h: r.charts.revenue, sub: r.charts.revenueSub, legend: [] as { label: string; color: string }[],
+    svg: barChart({
+      labels: short, values: revB, fmtY: axisB, fmtVal: (v: number) => billions(v * 1000, locale, 1),
+      color: 'var(--s1)', highlight: last,
+      ariaLabel: `${r.charts.revenue}: ${rows.map((x, i) => `${years[i]} ${billions(x.revenue, locale)}`).join(', ')}`
+    })
+  },
+  {
+    h: r.charts.margins, sub: r.charts.marginsSub,
+    legend: [
+      { label: r.charts.legendGross, color: 'var(--s3)' },
+      { label: r.charts.legendEbitda, color: 'var(--s1)' },
+      { label: r.charts.legendNet, color: 'var(--s4)' }
+    ],
+    svg: lineChart({
+      labels: short, fmtY: axisPct, fmtVal: (v: number) => millions(v, locale, 1) + '%', zeroBase: true,
+      series: [
+        { name: r.charts.legendGross, values: num('grossMarginPct'), color: 'var(--s3)' },
+        { name: r.charts.legendEbitda, values: num('ebitdaMarginPct'), color: 'var(--s1)' },
+        { name: r.charts.legendNet, values: num('netMarginPct'), color: 'var(--s4)' }
+      ],
+      ariaLabel: `${r.charts.margins}: ${rows.map((x, i) => `${years[i]} ${p1(x.grossMarginPct)} / ${p1(x.ebitdaMarginPct)} / ${p1(x.netMarginPct)}`).join('; ')}`
+    })
+  },
+  {
+    h: r.charts.fcf, sub: r.charts.fcfSub, legend: [],
+    svg: barChart({
+      labels: short, values: num('fcf'), fmtY: axisMM, fmtVal: (v: number) => millions(v, locale, 0),
+      color: 'var(--s3)', highlight: last,
+      ariaLabel: `${r.charts.fcf}: ${rows.map((x, i) => `${years[i]} ${mm(x.fcf)}`).join(', ')}`
+    })
+  },
+  {
+    h: r.charts.balance, sub: r.charts.balanceSub,
+    legend: [
+      { label: r.charts.legendCash, color: 'var(--s1)' },
+      { label: r.charts.legendDebt, color: 'var(--s5)' },
+      { label: r.charts.legendLeases, color: 'var(--s2)' }
+    ],
+    svg: groupedBarChart({
+      labels: short, fmtY: axisMM,
+      series: [
+        { name: r.charts.legendCash, values: num('cash'), color: 'var(--s1)' },
+        { name: r.charts.legendDebt, values: num('financialDebt'), color: 'var(--s5)' },
+        { name: r.charts.legendLeases, values: num('operatingLeases'), color: 'var(--s2)' }
+      ],
+      ariaLabel: `${r.charts.balance}: ${rows.map((x, i) => `${years[i]} ${mm(x.cash)} / ${mm(x.financialDebt)} / ${mm(x.operatingLeases)}`).join('; ')}`
+    })
+  },
+  {
+    h: r.charts.legendBuybacks, sub: r.charts.buybacksSub, legend: [],
+    svg: barChart({
+      labels: short, values: num('buybacks'), fmtY: axisMM, fmtVal: (v: number) => millions(v, locale, 0),
+      color: 'var(--s4)', highlight: last,
+      ariaLabel: `${r.charts.legendBuybacks}: ${rows.map((x, i) => `${years[i]} ${mm(x.buybacks)}`).join(', ')}`
+    })
+  },
+  {
+    h: r.charts.legendShares, sub: r.charts.sharesSub, legend: [],
+    svg: lineChart({
+      labels: short, fmtY: (v: number) => millions(v, locale, 0), fmtVal: (v: number) => millions(v, locale, 1),
+      series: [{ name: r.charts.legendShares, values: num('dilutedShares'), color: 'var(--s6)' }],
+      ariaLabel: `${r.charts.legendShares}: ${rows.map((x, i) => `${years[i]} ${mm1(x.dilutedShares)}`).join(', ')}`
+    })
+  }
+];
+
+const cik = report.financials?.meta?.cik;
+const repoDir = 'https://github.com/Jaime-pixel817/smart-finance/tree/main/content/research/' + report.slug;
+---
+<div class="fin">
+  <p class="muted">{r.finLede}</p>
+
+  <div class="fin-charts">
+    {charts.map((c) => (
+      <figure class="card fin-fig">
+        <figcaption>
+          <span class="t-h3">{c.h}</span>
+          <span class="t-caption faint">{c.sub}</span>
+          {c.legend.length > 0 && (
+            <span class="fin-legend t-caption">
+              {c.legend.map((l) => (
+                <span class="fin-key"><span class="fin-dot" style={`background:${l.color}`} aria-hidden="true"></span>{l.label}</span>
+              ))}
+            </span>
+          )}
+        </figcaption>
+        <div class="fin-chart" set:html={c.svg} />
+      </figure>
+    ))}
+  </div>
+
+  <h3 class="t-h3 fin-th">{r.finTableH}</h3>
+  <div class="fin-table-wrap" data-scroll-end>
+    <table class="fin-table">
+      <caption class="visually-hidden">{r.finTableH}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{r.mm}</th>
+          {rows.map((x) => <th scope="col" class="num">{x.fy.replace('FY', 'FY ')}<span class="fin-close t-caption faint">{day(x.periodEnd, locale)}</span></th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {table.map((line) => (
+          <tr class={line.strong ? 'is-strong' : undefined}>
+            <th scope="row">{line.label}</th>
+            {line.values.map((v) => <td class="num">{line.fmt(v)}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="t-caption faint fin-note">{r.fyNote}</p>
+
+  <div class="card fin-src">
+    <p class="eyebrow">{r.finSourceH}</p>
+    <p class="t-small muted">{r.finSource}</p>
+    <p class="t-small"><strong class="fin-ok">{r.finVerify}</strong> <span class="muted">{r.finVerifyP}</span></p>
+    <p class="t-small fin-links">
+      <a href={`https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`} target="_blank" rel="noopener">SEC EDGAR companyfacts ↗</a>
+      <a href={repoDir} target="_blank" rel="noopener">{r.repoLink} ↗</a>
+    </p>
+  </div>
+</div>
+
+<style>
+  .fin { display: flex; flex-direction: column; gap: var(--sp-5); }
+  .fin > p { max-width: var(--measure); }
+  .fin-charts { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 700px) { .fin-charts { grid-template-columns: 1fr 1fr; } }
+  .fin-fig { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; }
+  .fin-fig figcaption { display: flex; flex-direction: column; gap: 2px; }
+  .fin-legend { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: 4px; color: var(--ink-2); }
+  .fin-key { display: inline-flex; align-items: center; gap: 5px; }
+  .fin-dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+  .fin-chart :global(svg) { width: 100%; height: auto; display: block; }
+  .fin-chart :global(.fc-grid) { stroke: var(--line); stroke-width: 1; }
+  .fin-chart :global(.fc-zero) { stroke: var(--ink-3); stroke-opacity: .5; }
+  .fin-chart :global(.fc-ytick), .fin-chart :global(.fc-xtick) { fill: var(--ink-3); font-family: var(--font-mono); font-size: 10px; }
+  .fin-chart :global(.fc-val) { fill: var(--ink-2); font-family: var(--font-mono); font-size: 10px; }
+  .fin-chart :global(.fc-bar) { opacity: .8; }
+  .fin-chart :global(.fc-bar.is-on) { opacity: 1; }
+  .fin-chart :global(.fc-line) { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+
+  .fin-th { margin-top: var(--sp-2); }
+  .fin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1); }
+  .fin-table { border-collapse: collapse; font-size: var(--fs-small); line-height: var(--lh-small); min-width: 100%; }
+  .fin-table th, .fin-table td { padding: 8px 10px; text-align: right; white-space: nowrap; border-top: 1px solid var(--line); }
+  .fin-table thead th { border-top: 0; color: var(--ink-3); font-weight: 500; font-size: var(--fs-caption); vertical-align: bottom; }
+  .fin-table thead th:first-child, .fin-table th[scope="row"] {
+    text-align: left; position: sticky; left: 0; background: var(--bg-1); z-index: 1;
+    font-weight: 400; color: var(--ink-2); min-width: 190px;
+  }
+  .fin-table thead th:first-child { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .fin-table tr.is-strong th[scope="row"], .fin-table tr.is-strong td { color: var(--ink); font-weight: 500; }
+  .fin-close { display: block; font-weight: 400; }
+  .fin-note { max-width: var(--measure); }
+
+  .fin-src { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .fin-src p { max-width: var(--measure); }
+  .fin-ok { color: var(--up-text); font-weight: 500; }
+  .fin-links { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+  .fin-links a { color: var(--brand-text); min-height: 36px; display: inline-flex; align-items: center; }
+  .fin-links a:hover { text-decoration: underline; }
+
+  @media print {
+    .fin-charts { grid-template-columns: 1fr 1fr; }
+    .fin-table-wrap { overflow: visible; border: 0; }
+    .fin-table { width: 100%; min-width: 0; font-size: 7pt; line-height: 1.3; }
+    .fin-table th, .fin-table td { white-space: normal; padding: 2px 4px; }
+    .fin-table th[scope="row"], .fin-table thead th:first-child { position: static; min-width: 0; }
+    .fin-fig { break-inside: avoid; }
+  }
+</style>

@@ -184,23 +184,15 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     <section id="research" class="research col-6" aria-labelledby="research-h">
       <div class="section-head">
         <h2 id="research-h" class="t-h3">{t('research.title')}</h2>
-        <span class="chip"><span class="dot-warn" aria-hidden="true"></span>{t('research.building')}</span>
+        <a class="more" href={L('research')}>{t('research.all')} →</a>
       </div>
-      <article class="card research-card">
-        <p class="eyebrow">{t('research.card.kicker')} <span aria-hidden="true">·</span> {t('research.soon')}</p>
+      <a class="card card-link research-card" href={L('research.lululemon')}>
+        <p class="eyebrow">{t('research.card.kicker')} <span aria-hidden="true">·</span> <span class="research-status">{t('research.building')}</span></p>
         <h3 class="t-display research-title">{t('research.card.title')}</h3>
         <p class="t-small muted">{t('research.card.desc')}</p>
-        <div class="scen" aria-label={t('research.scenarios')}>
-          <p class="eyebrow">{t('research.scenarios')}</p>
-          <div class="scen-bar" aria-hidden="true"><span class="scen-fill"></span><span class="scen-mark"></span></div>
-          <div class="scen-labels t-caption num">
-            <span class="down">{t('research.bear')} <span class="skel">$000</span></span>
-            <span>{t('research.base')} <span class="skel">$000</span></span>
-            <span class="up">{t('research.bull')} <span class="skel">$000</span></span>
-          </div>
-        </div>
-        <p class="t-caption faint">{t('research.note')}</p>
-      </article>
+        <p class="research-verified t-caption"><span class="eyebrow">{t('research.verified.label')}</span> <span>{t('research.verified')}</span></p>
+        <span class="btn btn-primary btn-sm research-cta">{t('research.cta')} →</span>
+      </a>
     </section>
 
     <!-- ── Mercados en 60 s ──────────────────────────────────────── -->
@@ -380,11 +372,10 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .research-card { display: flex; flex-direction: column; gap: var(--sp-3); }
   .research-title { font-size: 1.375rem; line-height: 1.75rem; }
   .dot-warn { width: 6px; height: 6px; border-radius: 50%; background: var(--warn-dot); display: inline-block; }
-  .scen { display: flex; flex-direction: column; gap: 6px; }
-  .scen-bar { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--down), var(--ink-3) 50%, var(--up)); opacity: .55; }
-  .scen-mark { position: absolute; left: 42%; top: -3px; width: 2px; height: 14px; background: var(--ink); border-radius: 1px; }
-  .scen-labels { display: flex; justify-content: space-between; }
-  .scen-labels .skel { min-width: 3ch; }
+  .research-status { color: var(--warn); }
+  .research-verified { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); background: var(--bg-2); border-radius: var(--r-btn); color: var(--ink-2); }
+  .research-verified .eyebrow { color: var(--ink-2); } /* --ink-3 sobre --bg-2 a 11 px: 4.4:1 */
+  .research-cta { align-self: flex-start; }
 
   /* Mercados en 60 s */
   .m60-card { padding: var(--sp-2) var(--sp-3) var(--sp-3); }

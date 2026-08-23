@@ -23,5 +23,9 @@
 # "/assets/geoMasks.js" no casaba con nada y los 551 KB se estaban subiendo.
 /public/assets/geoMasks.js
 
-# Datos y plantillas del research: se usan para escribir el reporte, no se sirven
-/content
+# OJO: /content NO se puede excluir. Desde que existen /research y
+# /research/<empresa>, el build lee content/research/<empresa>/ (meta.yaml,
+# sources.yaml, model.json, data/financials.json) con import.meta.glob y los
+# incrusta en el HTML; sin esa carpeta el build de Vercel se cae con
+# "research: falta el fichero content/research/lululemon/meta.yaml".
+# No se sirven igual: el sitio es estatico y Vercel solo publica dist/.

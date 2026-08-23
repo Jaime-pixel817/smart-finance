@@ -145,3 +145,36 @@ input, select, textarea { font: inherit; color: inherit; }
   border-radius: 2px; transition: color .15s;
 }
 .term:hover { color: var(--brand-text); }
+
+/* ---- Impresión y PDF ----------------------------------------------------
+   El sitio es oscuro por defecto: en papel eso es una plancha de tinta y el
+   texto claro se pierde. Al imprimir se cambian los tokens al juego claro (los
+   componentes ya usan variables, así que no hay que tocar ninguno) y se
+   esconden las barras fijas, que si no se repiten en cada hoja y tapan el
+   final de la página. Nació con /research/<empresa>, que se exporta a PDF,
+   pero vale para todo el sitio. */
+@media print {
+  :root, :root[data-theme="dark"], :root[data-theme="light"] {
+    color-scheme: light;
+    --bg-0: #FFFFFF; --bg-1: #FFFFFF; --bg-2: #FFFFFF; --bg-3: #FFFFFF;
+    --line: rgba(18, 19, 22, .28);
+    --ink: #101114; --ink-2: #35373D; --ink-3: #55585F;
+    --up: #06703F; --up-text: #06703F; --down: #A81F27; --down-text: #A81F27;
+    --neutral: #55585F; --warn: #7A4A00; --warn-dot: #7A4A00;
+    --brand-fill: #06703F; --on-brand: #FFFFFF; --brand-text: #06703F; --brand-wash: rgba(18, 19, 22, .06);
+    --s1: #1B4FD0; --s2: #8A5A00; --s3: #0A6B76; --s4: #5940C4; --s5: #A32259; --s6: #5A5810;
+    --shadow-1: none; --shadow-sheet: none;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: #FFFFFF; padding-bottom: 0; }
+  .topbar, .bottom-nav, .search-overlay, .skip, .theme-toggle, .lang-btn { display: none !important; }
+  .footer { margin-top: var(--sp-4); }
+  .card { box-shadow: none; break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  table { break-inside: auto; }
+  tr { break-inside: avoid; }
+  /* Las tablas anchas se deslizan de lado en pantalla; en papel no hay hacia
+     dónde deslizar, así que cada componente las deja fluir en su propio bloque
+     @media print (el CSS con ámbito de Astro gana sobre este fichero). */
+  @page { margin: 14mm 12mm; }
+}

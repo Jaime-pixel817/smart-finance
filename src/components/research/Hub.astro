@@ -1,0 +1,205 @@
+---
+// /research y /es/research: qué es Smart Finance Research, el reporte
+// destacado, la lista de reportes, cómo se hace uno (resumen de metodología),
+// cómo se usa la IA, qué viene y el disclaimer educativo.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import { REPORTS, loadReport, loadFinancials } from '../../lib/research/reports';
+import { day, billions } from '../../lib/research/format.mjs';
+
+const { locale } = Astro.props as { locale: Locale };
+const r = useR(locale);
+const L = (id: string) => route(id, locale);
+
+const featured = loadReport('lululemon');
+const fLast = featured.annual[featured.annual.length - 1];
+const fFirst = featured.annual[0];
+
+type Row = {
+  name: string; ticker: string; exchange: string; dataAsOf: string | null;
+  status: keyof typeof r.status; href: string | null; years: number;
+};
+const rows: Row[] = REPORTS.map((e) => {
+  if (e.page) {
+    const rep = loadReport(e.slug);
+    return {
+      name: rep.meta.name, ticker: rep.meta.ticker, exchange: rep.meta.exchange || '',
+      dataAsOf: rep.meta.dataAsOf ?? null,
+      status: (rep.meta.status || 'draft') as keyof typeof r.status,
+      href: L(e.routeId), years: rep.annual.length
+    };
+  }
+  const fin = loadFinancials(e.dir);
+  return {
+    name: fin.meta.name, ticker: e.ticker, exchange: (fin.meta.exchanges || [])[0] || '',
+    dataAsOf: fin.meta.lastFiling?.filed ?? null, status: 'none', href: null,
+    years: (fin.annual || []).length
+  };
+});
+
+const verified = locale === 'es'
+  ? `${featured.annual.length} años fiscales (${fFirst.fy.replace('FY', '')}–${fLast.fy.replace('FY', '')}) bajados de SEC EDGAR y comparados contra el 10-K`
+  : `${featured.annual.length} fiscal years (${fFirst.fy.replace('FY', '')}–${fLast.fy.replace('FY', '')}) pulled from SEC EDGAR and checked against the 10-K`;
+const revLine = locale === 'es'
+  ? `Ingresos ${fLast.fy}: ${billions(fLast.revenue, locale)} mil millones de dólares`
+  : `${fLast.fy} revenue: US$${billions(fLast.revenue, locale)} billion`;
+---
+<article class="hub">
+  <div class="container hub-wrap">
+    <header class="hub-head">
+      <p class="eyebrow">{r.eyebrow}</p>
+      <h1 class="t-display">{r.h1}</h1>
+      <p class="hub-lede">{r.lede}</p>
+    </header>
+
+    <section class="hub-sec" aria-labelledby="std-h">
+      <h2 id="std-h" class="t-h2">{r.standardsH}</h2>
+      <ol class="std">
+        {r.standards.map((s, i) => (
+          <li class="card std-card">
+            <p class="eyebrow">{String(i + 1).padStart(2, '0')}</p>
+            <h3 class="t-h3">{s.h}</h3>
+            <p class="t-small muted">{s.p}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="hub-sec" aria-labelledby="feat-h">
+      <h2 id="feat-h" class="t-h2">{r.featuredH}</h2>
+      <a class="card card-link feat" href={L(featured.routeId)}>
+        <p class="eyebrow">
+          {featured.meta.exchange}: {featured.meta.ticker}
+          <span aria-hidden="true"> · </span>
+          <span class="feat-status">{r.status[(featured.meta.status || 'draft') as keyof typeof r.status]}</span>
+        </p>
+        <h3 class="t-h1 feat-name">{featured.meta.name}</h3>
+        <dl class="feat-meta t-caption">
+          <div><dt>{r.hdr.dataAsOf}</dt><dd class="num">{day(featured.meta.dataAsOf, locale)}</dd></div>
+          <div><dt>{r.hdr.version}</dt><dd class="num">{featured.meta.version}</dd></div>
+          <div><dt>{r.hdr.author}</dt><dd>{featured.meta.author}</dd></div>
+        </dl>
+        <p class="feat-verified t-small">
+          <span class="eyebrow">{r.verifiedSoFar}</span>
+          <span>{verified}. {revLine}.</span>
+        </p>
+        <span class="btn btn-primary btn-sm feat-cta">{r.open} →</span>
+      </a>
+    </section>
+
+    <section class="hub-sec" aria-labelledby="list-h">
+      <h2 id="list-h" class="t-h2">{r.reportsH}</h2>
+      <div class="table-wrap">
+        <table class="rep-table">
+          <thead>
+            <tr>
+              <th scope="col">{r.cols.company}</th>
+              <th scope="col">{r.cols.ticker}</th>
+              <th scope="col">{r.cols.data}</th>
+              <th scope="col">{r.cols.status}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr>
+                <th scope="row">{row.href ? <a href={row.href}>{row.name}</a> : row.name}</th>
+                <td data-label={r.cols.ticker}><span class="num">{row.exchange ? row.exchange + ': ' : ''}{row.ticker}</span></td>
+                <td data-label={r.cols.data}><span class="num">{day(row.dataAsOf, locale)}</span></td>
+                <td data-label={r.cols.status}>
+                  <span class:list={['chip', 'st-' + row.status]}>{r.status[row.status]}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="hub-sec" aria-labelledby="meth-h">
+      <h2 id="meth-h" class="t-h2">{r.methodH}</h2>
+      <p class="muted">{r.methodLede}</p>
+      <ol class="steps">
+        {r.method.map((m, i) => (
+          <li>
+            <span class="step-n num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <h3 class="t-h3">{m.h}</h3>
+              <p class="t-small muted">{m.p}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p class="t-small"><a class="more-link" href={L('methodology')}>{r.methodMore} →</a></p>
+    </section>
+
+    <section class="hub-sec" aria-labelledby="ai-h">
+      <h2 id="ai-h" class="t-h2">{r.aiH}</h2>
+      <p>{r.aiP}</p>
+    </section>
+
+    <section class="hub-sec" aria-labelledby="next-h">
+      <h2 id="next-h" class="t-h2">{r.nextH}</h2>
+      <ul class="dot-list">{r.next.map((n) => <li>{n}</li>)}</ul>
+    </section>
+
+    <section class="hub-sec" aria-labelledby="disc-h">
+      <h2 id="disc-h" class="t-h3">{r.disclaimerH}</h2>
+      <p class="t-small muted">{r.disclaimer}</p>
+    </section>
+  </div>
+</article>
+
+<style>
+  .hub { padding-top: var(--sp-4); }
+  .hub-wrap { display: flex; flex-direction: column; gap: var(--section-gap); max-width: 960px; }
+  .hub-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .hub-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
+  .hub-sec { display: flex; flex-direction: column; gap: var(--sp-3); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .hub-sec > p { max-width: var(--measure); }
+
+  .std { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .std { grid-template-columns: repeat(3, 1fr); } }
+  .std-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+  .feat { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .feat-name { font-family: var(--font-serif); }
+  .feat-status { color: var(--warn); }
+  .feat-meta { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin: 0; }
+  .feat-meta div { display: flex; flex-direction: column; gap: 2px; }
+  .feat-meta dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .feat-meta dd { margin: 0; color: var(--ink); }
+  .feat-verified { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3); background: var(--bg-2); border-radius: var(--r-btn); color: var(--ink-2); }
+  /* --ink-3 sobre --bg-2 a 11 px se queda en 4.4:1 (Lighthouse pide 4.5). */
+  .feat-verified .eyebrow { color: var(--ink-2); }
+  .feat-cta { align-self: flex-start; }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .rep-table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); line-height: var(--lh-small); }
+  .rep-table thead { display: none; }
+  .rep-table tr { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+  .rep-table th, .rep-table td { text-align: left; padding: 0; font-weight: 400; color: var(--ink-2); vertical-align: top; }
+  .rep-table th[scope="row"] { color: var(--ink); font-weight: 600; }
+  .rep-table th[scope="row"] a { text-decoration: underline; text-decoration-color: var(--brand-text); text-underline-offset: 3px; }
+  .rep-table td::before { content: attr(data-label) ': '; color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .chip.st-draft { color: var(--warn); }
+  .chip.st-published { color: var(--up-text); }
+  @media (min-width: 768px) {
+    .rep-table thead { display: table-header-group; }
+    .rep-table tr { display: table-row; }
+    .rep-table th, .rep-table td { display: table-cell; padding: var(--sp-3) var(--sp-3) var(--sp-3) 0; border-top: 1px solid var(--line); }
+    .rep-table thead th { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; font-weight: 500; border-top: 0; }
+    .rep-table td::before { content: none; }
+  }
+
+  .steps { display: flex; flex-direction: column; gap: var(--sp-3); counter-reset: s; }
+  .steps li { display: grid; grid-template-columns: 28px 1fr; gap: var(--sp-3); align-items: start; padding-top: var(--sp-3); border-top: 1px solid var(--line); }
+  .steps li > div { display: flex; flex-direction: column; gap: 4px; }
+  .step-n { width: 26px; height: 26px; border-radius: 50%; background: var(--brand-wash); color: var(--brand-text); display: grid; place-items: center; font-size: var(--fs-caption); }
+  .steps p { max-width: var(--measure); }
+
+  .dot-list { list-style: disc; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+  .dot-list li::marker { color: var(--brand-text); }
+  .more-link { color: var(--brand-text); min-height: 36px; display: inline-flex; align-items: center; }
+  .more-link:hover { text-decoration: underline; }
+</style>
