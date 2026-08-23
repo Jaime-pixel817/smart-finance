@@ -29,6 +29,7 @@
     "build:og": "node scripts/build-og.js",
     "build:og-pages": "node scripts/build-og-pages.mjs --strict",
     "news:sync": "node scripts/news-sync.js",
+    "boletin:ensayo": "node scripts/boletin-ensayo.js",
     "test": "node --test"
   },
   "dependencies": {

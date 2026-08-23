@@ -46,6 +46,23 @@ module.exports = async function handler(req, res) {
   // contenido del día sin gastar cuota ni escribirle a nadie.
   const soloEnsayo = String((req.query && req.query.dry) || '') === '1';
 
+  /*
+   * ?fecha=AAAA-MM-DD — SOLO en ensayo, y por eso se lee aquí dentro.
+   *
+   * Sirve para ver el correo de otro domingo sin esperar a que llegue: cambia
+   * la lección de la semana (rota por semana ISO), el rango de fechas del
+   * encabezado y el número de edición. Los datos de mercado siguen siendo los
+   * de ahora — Yahoo no da la semana pasada por este camino—, así que no vale
+   * para revisar cifras viejas, solo la forma del correo.
+   *
+   * En un envío de verdad se ignora a propósito: un boletín fechado a mano es
+   * un boletín que puede mentir sobre de cuándo son sus números.
+   */
+  const fechaPedida = soloEnsayo ? String((req.query && req.query.fecha) || '').trim() : '';
+  const fechaEnvio = /^\d{4}-\d{2}-\d{2}$/.test(fechaPedida)
+    ? new Date(fechaPedida + 'T14:00:00.000Z')
+    : new Date();
+
   // Toda salida de esta función pasa por aquí, para que no exista ningún camino
   // que responda sin dejar rastro. El registro se anota ANTES de responder pero
   // su fallo nunca cambia la respuesta: anotar() no lanza.
@@ -68,7 +85,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const [contenido, lista] = await Promise.all([
-      construirContenido(new Date()),
+      construirContenido(fechaEnvio),
       suscriptores.listarConfirmados()
     ]);
 
@@ -150,7 +167,11 @@ module.exports = async function handler(req, res) {
         // ninguna. Que salga null es información, no un fallo.
         titular: contenido.noticia ? contenido.noticia.es.titulo : null,
         autoriaNoticia: contenido.noticia ? contenido.noticia.autoria : null,
-        html: muestra.html
+        html: muestra.html,
+        // La versión de texto plano, que es la que leen algunos clientes y la
+        // que cuenta en los filtros de spam. Va en el ensayo porque es tan
+        // parte del correo como el HTML y nadie la mira nunca.
+        texto: muestra.texto
       }, { enviados: 0, confirmados: total, motivo: 'ensayo' });
       return;
     }
