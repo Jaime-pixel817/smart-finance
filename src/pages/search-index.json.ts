@@ -45,6 +45,7 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['tools.h1'], keys: lang === 'es' ? 'herramientas calculadoras' : 'tools calculators', href: route('tools', lang), lang });
     items.push({ t: 'page', name: t['nav.today'], keys: lang === 'es' ? 'inicio pulso historia home' : 'home pulse story', href: route('home', lang), lang });
     items.push({ t: 'page', name: t['mkt.title'], keys: lang === 'es' ? 'gráficas divisas cripto vix charts' : 'charts fx crypto vix', href: route('market', lang), lang });
+    items.push({ t: 'tool', name: t['cmp.title'], keys: lang === 'es' ? 'comparar activos dos tres gráfica base 100 normalizar rendimiento' : 'compare assets two three chart base 100 normalise performance', href: route('market.compare', lang), lang });
     items.push({ t: 'page', name: t['news.h1'], keys: lang === 'es' ? 'noticias explicadas titulares hoy actualidad' : 'news explained headlines today', href: route('news', lang), lang });
     items.push({ t: 'page', name: t['learn.h1'], keys: lang === 'es' ? 'aprende lecciones rutas' : 'learn lessons paths', href: route('lessons', lang), lang });
     items.push({ t: 'page', name: t['glossary.h1'], keys: lang === 'es' ? 'glosario términos definiciones' : 'glossary terms definitions', href: route('lessons.glossary', lang), lang });

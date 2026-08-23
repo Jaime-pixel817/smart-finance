@@ -66,7 +66,10 @@ const nombreSolo = s.name[locale];
   .ar[hidden] { display: none; }
   .ar:last-child { border-bottom: 0; }
   .ar-link { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; padding: 0 var(--sp-2); color: var(--ink); transition: background .15s; }
-  .ar-link:hover, .ar[aria-current] .ar-link { background: var(--bg-2); border-radius: var(--r-input); }
+  /* El fondo de hover/seleccionada va en la FILA, no en el enlace: con el
+     botón de seguir fuera del <a>, pintarlo en el enlace dejaba una costura
+     justo antes del marcador. */
+  .ar:hover, .ar[aria-current] { background: var(--bg-2); border-radius: var(--r-input); }
   .ar-link:active { transform: scale(.995); }
   .ar[aria-current] .ar-sym { color: var(--brand-text); }
   .ar-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -79,14 +82,17 @@ const nombreSolo = s.name[locale];
   .ar-verified { min-width: 0; }
 
   /* Seguir: 44×44 de zona táctil, marcador vacío cuando no lo sigues y
-     relleno cuando sí. El color de marca lo usa el sitio para lo que se puede
-     tocar, no para "sube": aquí no hay ningún dato en juego. */
-  .ar-follow { flex: 0 0 auto; display: grid; place-items: center; width: 44px; height: 44px; margin-right: -6px; background: none; border: 0; border-radius: var(--r-btn); color: var(--ink-3); cursor: pointer; transition: color .15s, background .15s; }
+     relleno cuando sí. NO se pone verde al seguir: el verde de este sitio
+     significa "sube", y en la misma fila hay un ▲ verde. Un marcador verde al
+     lado de un cambio verde se lee como parte del dato. Relleno en color de
+     tinta: lo que cambia es la forma, no el significado. */
+  .ar-follow { flex: 0 0 auto; display: grid; place-items: center; width: 44px; height: 44px; margin-right: -8px; background: none; border: 0; border-radius: var(--r-btn); color: var(--ink-3); cursor: pointer; transition: color .15s, background .15s; }
   .ar-follow:hover { color: var(--ink); background: var(--bg-2); }
-  .ar-follow[aria-pressed="true"] { color: var(--brand-text); }
+  .ar-follow[aria-pressed="true"] { color: var(--ink-2); }
   .ar-follow[aria-pressed="true"] svg path { fill: currentColor; }
   .ar-follow:focus-visible { box-shadow: var(--focus-ring); outline: none; }
 
+  @media (max-width: 479px) { .ar-link { gap: var(--sp-2); padding-left: var(--sp-1); } .ar-follow { width: 40px; } }
   @media (min-width: 768px) { .ar-price { min-width: 9ch; } .ar-chg { min-width: 9ch; } }
   /* Al estrecharse mucho (≤ 380 px), la sparkline de las filas cede antes que
      el precio: primero se va el dibujo, nunca el número ni el botón. */

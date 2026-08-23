@@ -84,6 +84,22 @@ const strings = {
       <!-- La leyenda es el dato en texto: es lo que se lee en voz alta y lo
            que queda si alguien no distingue el azul del ámbar. -->
       <ul class="cmp-legend" id="cmp-legend" aria-live="polite"></ul>
+      <!-- Los activos van en la URL, así que el servidor no sabe cuántas filas
+           tendrá la leyenda: lo sabe el navegador, y lo sabe ANTES de pintar.
+           Sin esto, las filas aparecían con el módulo (diferido) y bajaban la
+           gráfica de golpe. Solo reserva alto; el contenido lo pone compare.ts. -->
+      <script is:inline>
+        (function () {
+          try {
+            var q = new URLSearchParams(location.search);
+            var n = ['a', 'b', 'c'].filter(function (k) { return q.get(k); }).length || 2;
+            var ul = document.getElementById('cmp-legend');
+            // 25 px de fila y 8 px de hueco: medidos en el navegador, no
+            // estimados (con 20 quedaban 10 px de salto).
+            if (ul && n >= 2) ul.style.minHeight = (n * 25 + (n - 1) * 8) + 'px';
+          } catch (e) { /* sin URLSearchParams no se reserva y ya está */ }
+        })();
+      </script>
 
       <p class="cmp-state t-caption" id="cmp-state" role="status">{t('cmp.empty')}</p>
       <div class="cmp-canvas skel" id="cmp-canvas" aria-hidden="true"></div>
@@ -112,10 +128,11 @@ const strings = {
   .cmp-head { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-1); }
   .cmp-sub { max-width: var(--measure); }
 
-  .cmp-picks { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); margin-top: var(--sp-4); }
+  .cmp-picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-4); }
   .cmp-pick { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .cmp-pick select { width: 100%; min-height: 44px; padding: 0 var(--sp-3); background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r-btn); font: inherit; font-size: var(--fs-small); }
   .cmp-pick select:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  @media (max-width: 359px) { .cmp-picks { grid-template-columns: minmax(0, 1fr); } }
   @media (min-width: 640px) { .cmp-picks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-4); } }
 
   .cmp-card { margin-top: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-3); }
@@ -125,15 +142,19 @@ const strings = {
   .cmp-ranges [role="tab"]:hover { color: var(--ink); }
   .cmp-ranges [role="tab"][aria-selected="true"] { background: var(--brand-wash); color: var(--ink); }
 
+  /* La leyenda la escribe el script (compare.ts), así que sus reglas van
+     GLOBALES: los elementos creados con innerHTML no llevan el atributo de
+     scope de Astro y con estilos scoped saldrían sin formato — el mismo
+     problema que documenta CLAUDE.md para el HTML de una noticia. */
   .cmp-legend { display: flex; flex-direction: column; gap: var(--sp-2); }
   .cmp-legend:empty { display: none; }
-  .cmp-legend li { display: flex; align-items: baseline; gap: var(--sp-2); min-width: 0; }
-  .cmp-swatch { flex: 0 0 auto; width: 14px; height: 3px; border-radius: 2px; align-self: center; }
-  .cmp-sym { font-family: var(--font-mono); font-size: var(--fs-small); font-weight: 500; color: var(--ink); white-space: nowrap; }
-  .cmp-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .cmp-chg { margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-small); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
-  .cmp-legend a { color: var(--ink-2); }
-  .cmp-legend a:hover { color: var(--ink); }
+  :global(.cmp-legend li) { display: flex; align-items: baseline; gap: var(--sp-2); min-width: 0; }
+  :global(.cmp-swatch) { flex: 0 0 auto; width: 16px; height: 3px; border-radius: 2px; align-self: center; }
+  :global(.cmp-sym) { font-family: var(--font-mono); font-size: var(--fs-small); font-weight: 500; color: var(--ink); white-space: nowrap; }
+  :global(.cmp-name) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :global(.cmp-chg) { margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-small); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); min-width: 8ch; text-align: right; }
+  :global(.cmp-legend a) { color: var(--ink-2); }
+  :global(.cmp-legend a:hover) { color: var(--ink); }
 
   .cmp-state { color: var(--ink-2); }
   .cmp-state[hidden] { display: none; }

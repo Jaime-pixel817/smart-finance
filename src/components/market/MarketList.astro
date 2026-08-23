@@ -65,6 +65,30 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
     </div>
     <p class="t-caption faint mkt-watch-note" id="mkt-watch-note">{t('watch.note')}</p>
   </section>
+  <!-- ANTES DE PINTAR, no después. "Lo que sigues" va arriba del todo: si lo
+       encendiera el módulo (que va diferido), la sección aparecería DESPUÉS
+       del primer pintado y empujaría media página hacia abajo — 0.23 de CLS
+       medidos, de 0.01 que tenía /market. Este trozo corre mientras se parsea
+       el HTML, así que la sección ya está en su sitio en el primer frame.
+       Solo enciende y ordena: seguir, sincronizar y pintar precios siguen
+       siendo cosa de src/scripts/watchlist.ts y src/scripts/market.ts, que
+       repiten esto mismo (es idempotente) cuando llegan. -->
+  <script is:inline>
+    (function () {
+      try {
+        var ids = JSON.parse(localStorage.getItem('sf-watchlist-v1') || '[]');
+        if (!Array.isArray(ids) || !ids.length) return;
+        var sec = document.getElementById('mkt-watch'), ul = document.getElementById('mkt-watch-rows');
+        if (!sec || !ul) return;
+        var vivas = 0;
+        for (var i = 0; i < ids.length && i < 12; i++) {
+          var fila = typeof ids[i] === 'string' && ul.querySelector('[data-row="' + ids[i].replace(/[^\w-]/g, '') + '"]');
+          if (fila) { fila.hidden = false; ul.appendChild(fila); vivas++; }
+        }
+        if (vivas) sec.hidden = false;
+      } catch (e) { /* modo privado o lista rota: la sección se queda escondida */ }
+    })();
+  </script>
 
   <div class="container">
     <div class="mkt-filters rail" role="group" aria-label={t('mkt.filter.aria')}>

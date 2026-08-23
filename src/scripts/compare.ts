@@ -193,23 +193,39 @@ function boot(root: HTMLElement) {
     return (n > 0.005 ? '+' : n < -0.005 ? '−' : '') + s;
   }
 
+  /** Una fila de leyenda. `cambio` en null = esqueleto, mientras llega el dato. */
+  function filaLeyenda(clave: string, color: string, cambio: number | null, esqueleto = false) {
+    const s = symOf(clave);
+    const li = document.createElement('li');
+    li.innerHTML =
+      `<span class="cmp-swatch" style="background:${color}" aria-hidden="true"></span>` +
+      `<a class="cmp-sym" href="${s ? s.href : '#'}">${s ? s.sym : clave}</a>` +
+      `<span class="cmp-name t-caption faint">${s ? s.name : ''}</span>` +
+      `<span class="cmp-chg${esqueleto ? ' skel' : ''}">${esqueleto ? '0.00 %' : signo(cambio)}</span>`;
+    if (!esqueleto) li.querySelector('.cmp-chg')!.setAttribute('aria-label', (s ? s.sym : clave) + ' ' + signo(cambio) + ' ' + T.since);
+    return li;
+  }
+
+  /**
+   * La leyenda con su alto final desde el primer frame. Sin esto, las tres
+   * filas aparecían cuando llegaba el historial y empujaban la gráfica hacia
+   * abajo (0.044 de CLS medidos). Es el mismo esqueleto que usan las filas de
+   * /market: el ancho y el alto definitivos, con el número en gris.
+   */
+  function esqueletoLeyenda() {
+    const th = tema();
+    legend.innerHTML = '';
+    (elegidos.filter(Boolean) as string[]).forEach((id, i) => legend.appendChild(filaLeyenda(id, th.colores[i % th.colores.length], null, true)));
+  }
+
   function pintarLeyenda(r: Resultado, enFecha?: { ts: number; valores: (number | null)[] }) {
     legend.innerHTML = '';
     if (!r) return;
     const th = tema();
     r.series.forEach((serie, i) => {
-      const s = symOf(serie.clave);
       const valor = enFecha ? enFecha.valores[i] : null;
       const cambio = valor != null ? valor - 100 : serie.cambioPct;
-      const li = document.createElement('li');
-      li.innerHTML =
-        `<span class="cmp-swatch" style="background:${th.colores[i % th.colores.length]}" aria-hidden="true"></span>` +
-        `<a class="cmp-sym" href="${s ? s.href : '#'}">${s ? s.sym : serie.clave}</a>` +
-        `<span class="cmp-name t-caption faint">${s ? s.name : ''}</span>` +
-        `<span class="cmp-chg">${signo(cambio)}</span>`;
-      const chg = li.querySelector('.cmp-chg')!;
-      chg.setAttribute('aria-label', (s ? s.sym : serie.clave) + ' ' + signo(cambio) + ' ' + T.since);
-      legend.appendChild(li);
+      legend.appendChild(filaLeyenda(serie.clave, th.colores[i % th.colores.length], cambio));
     });
     if (r.fuera.length) {
       const razones: Record<string, string> = { 'sin datos': T.dNone, 'sin tramo en común': T.dWindow, 'sin datos en el tramo común': T.dRange };
@@ -262,6 +278,7 @@ function boot(root: HTMLElement) {
     }
     const id = ++reqId;
     root.dataset.loading = '1';
+    if (!ultimo) esqueletoLeyenda();
     ensureLib();
     const peticiones = ids.map(async (x) => {
       const s = symOf(x);
@@ -291,7 +308,9 @@ function boot(root: HTMLElement) {
       const nota = chip.querySelector('.sc-note');
       const hora = chip.querySelector('.sc-time');
       if (nota) nota.textContent = range === '1D' ? T.bars5 : range === '5Y' ? T.weekly : T.daily;
-      if (hora) hora.textContent = fmtTime(new Date(ultimo.hasta * 1000), loc);
+      // En 1D el dato es de una hora concreta; de 1M en adelante son cierres
+      // diarios y poner una hora sería fingir una precisión que no hay.
+      if (hora) hora.textContent = range === '1D' ? fmtTime(new Date(ultimo.hasta * 1000), loc) : fmtDay(new Date(ultimo.hasta * 1000), loc);
     }
     pintarLeyenda(ultimo);
     estado.textContent = pieDeRango();

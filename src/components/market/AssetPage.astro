@@ -137,7 +137,9 @@ const stats: [string, string][] = [
   .asset-meta :global(.src-chip) { flex-wrap: wrap; row-gap: 2px; }
   .asset-acciones { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); }
   .asset-follow { display: inline-flex; align-items: center; gap: 6px; }
-  .asset-follow[aria-pressed="true"] { color: var(--brand-text); border-color: var(--brand-text); }
+  /* Igual que en las filas: seguir NO se pinta de verde, que aquí significa
+     "sube" y está a dos centímetros del cambio del día. */
+  .asset-follow[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-3); background: var(--bg-2); }
   .asset-follow[aria-pressed="true"] svg path { fill: currentColor; }
   .asset-follow-note { margin-top: var(--sp-2); max-width: var(--measure); }
 
