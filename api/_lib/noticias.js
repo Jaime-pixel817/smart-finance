@@ -5,9 +5,9 @@
 // El sitio es estático y las noticias no pueden publicarse solas. El trato es:
 // la IA escribe BORRADORES a partir de un titular real, y una persona (Jaime)
 // los aprueba, edita o rechaza antes de que aparezcan en smartfinance.lat. Este
-// módulo es la única puerta a ese estado compartido, para que /api/news,
-// /api/news-draft, /api/news-review y scripts/news-sync.js no tengan tres
-// versiones distintas de "qué es una noticia aprobada".
+// módulo es la única puerta a ese estado compartido, para que el router de
+// /api/news, _lib/borradores.js, _lib/revision.js y scripts/news-sync.js no
+// tengan cuatro versiones distintas de "qué es una noticia aprobada".
 //
 // POR QUÉ REDIS Y NO EL REPOSITORIO
 // ---------------------------------
@@ -210,8 +210,8 @@ async function actualizar(id, cambios) {
 
 /**
  * Cuota de generación del día: cuántos borradores se han pedido hoy.
- * Es el freno de gasto — sin él, un bucle de peticiones a /api/news-draft
- * gastaría la cuenta de Anthropic sin que nadie se entere.
+ * Es el freno de gasto — sin él, un bucle de peticiones a la generación de
+ * borradores gastaría la cuenta de Anthropic sin que nadie se entere.
  */
 async function cuotaDelDia(fecha = new Date()) {
   const n = await redis.comando('GET', claveCuota(diaMexico(fecha)));

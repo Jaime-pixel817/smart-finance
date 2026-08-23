@@ -8,8 +8,10 @@
 # correos y depende del entorno de la función); esto es solo una llamada HTTP,
 # así que se dispara desde aquí y el plan deja de importar.
 #
-# QUÉ HACE: pide hasta tres borradores a /api/news-draft. NO publica nada —
-# los borradores esperan en Redis a que Jaime los apruebe en /review.html.
+# QUÉ HACE: pide hasta tres borradores a /api/news (accion "generar"). NO
+# publica nada — los borradores esperan en Redis a que Jaime los apruebe en
+# /review.html. Todo lo de noticias vive en ese endpoint porque el plan de
+# Vercel admite 12 funciones por despliegue y el sitio ya estaba justo en 12.
 #
 # QUÉ HACE FALTA: el secreto CRON_SECRET en Settings → Secrets and variables →
 # Actions del repositorio, con el mismo valor que la variable de Vercel.
@@ -53,7 +55,9 @@ jobs:
         run: |
           respuesta=$(curl -fsS --max-time 120 -X POST \
             -H "Authorization: Bearer $CRON_SECRET" \
-            https://smartfinance.lat/api/news-draft)
+            -H "Content-Type: application/json" \
+            -d '{"accion":"generar"}' \
+            https://smartfinance.lat/api/news)
           echo "$respuesta" | jq .
           # Cero borradores no es un fallo: puede ser que la cuota del día ya
           # esté gastada o que el feed no traiga nada que explicar.

@@ -4,12 +4,22 @@
 // le pide a Claude que escriba hasta tres notas con la estructura del sitio
 // (qué pasó / por qué importa / impacto / lección) y las guarda en Redis con
 // estado "borrador". NADA de lo que escribe aquí sale en smartfinance.lat: para
-// eso hace falta que una persona lo apruebe en /api/news-review. Ver CLAUDE.md.
+// eso hace falta que una persona lo apruebe. Ver CLAUDE.md.
+//
+// POR QUÉ ES UN MÓDULO Y NO SU PROPIO ENDPOINT
+//   El plan de Vercel admite 12 funciones por despliegue y el sitio ya estaba
+//   justo en 12: añadir /api/news-draft y /api/news-review tumbaba el
+//   despliegue entero con "exceeded_serverless_functions_per_deployment", con
+//   el build ya terminado. Todo lo de noticias vive ahora dentro de
+//   api/news.js, que es su router; los archivos de api/_lib no cuentan como
+//   funciones porque Vercel no enruta lo que empieza por guion bajo.
 //
 // CÓMO SE DISPARA
-//   Cron de Vercel a las 11:30 UTC (vercel.json), o a mano:
-//   curl -X POST -H "Authorization: Bearer $CRON_SECRET" https://smartfinance.lat/api/news-draft
-//   ...?dry=1   genera y devuelve sin guardar (para ver qué escribiría)
+//   GitHub Actions a las 11:30 UTC (.github/workflows/news-draft.yml), o a mano:
+//   curl -X POST -H "Authorization: Bearer $CRON_SECRET" \
+//     -H "Content-Type: application/json" -d '{"accion":"generar"}' \
+//     https://smartfinance.lat/api/news
+//   ...con "seco": true genera y devuelve sin guardar (para ver qué escribiría)
 //
 // POR QUÉ VA DETRÁS DE CRON_SECRET
 //   Cada llamada cuesta dinero en la cuenta de Anthropic. Una URL abierta que
@@ -29,9 +39,8 @@
 const AnthropicSDK = require('@anthropic-ai/sdk');
 const Anthropic = AnthropicSDK.Anthropic || AnthropicSDK.default || AnthropicSDK;
 
-const { autorizado } = require('./_lib/secreto');
-const noticias = require('./_lib/noticias');
-const { parseFeed } = require('./news');
+const noticias = require('./noticias');
+const { parseFeed } = require('../news');
 
 const FEED_URL = 'https://feeds.bloomberg.com/markets/news.rss';
 const FUENTE = 'Bloomberg';
@@ -181,7 +190,7 @@ function limpiar(html) {
   return String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-async function generar(candidatos, glosario) {
+async function pedirAlModelo(candidatos, glosario) {
   const client = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
     timeout: TIMEOUT_MS,
@@ -268,29 +277,27 @@ function armar(cruda, candidatos, ahora) {
   return errores.length ? { error: errores.join('; '), noticia: n } : { noticia: n };
 }
 
-module.exports = async function handler(req, res) {
-  if (!autorizado(req)) {
-    res.status(401).json({ error: 'unauthorized' });
-    return;
-  }
-  res.setHeader('Cache-Control', 'no-store');
-
+/**
+ * Genera y guarda los borradores del día. Devuelve el cuerpo de la respuesta.
+ * Lanza si el feed o la API fallan; quien llama decide qué código HTTP dar.
+ * @param {{seco?: boolean}} opciones seco = generar sin guardar.
+ */
+async function generar({ seco = false } = {}) {
   if (!process.env.ANTHROPIC_API_KEY) {
-    res.status(500).json({ error: 'anthropic_no_configurado' });
-    return;
+    const err = new Error('ANTHROPIC_API_KEY no está configurada');
+    err.code = 'ANTHROPIC_NO_CONFIGURADO';
+    throw err;
   }
 
-  const seco = String((req.query && req.query.dry) || '') === '1';
   const ahora = new Date();
 
-  try {
+  {
     // 1. El freno de gasto va PRIMERO: antes de pedir el feed y antes de gastar
     //    un solo token.
     const yaGeneradas = seco ? 0 : await noticias.cuotaDelDia(ahora);
     const cupo = MAX_DIA - yaGeneradas;
     if (cupo <= 0) {
-      res.status(200).json({ generadas: 0, motivo: 'cuota_del_dia_agotada', yaGeneradas, maximo: MAX_DIA });
-      return;
+      return { generadas: 0, motivo: 'cuota_del_dia_agotada', yaGeneradas, maximo: MAX_DIA };
     }
 
     // 2. Titulares reales. Sin feed no hay noticia: nunca se escribe de memoria.
@@ -303,15 +310,14 @@ module.exports = async function handler(req, res) {
     const todos = parseFeed(await feedRes.text(), 40);
     const candidatos = todos.filter(esArticulo).slice(0, CANDIDATOS);
     if (!candidatos.length) {
-      res.status(200).json({ generadas: 0, motivo: 'ningun_titular_util', revisados: todos.length });
-      return;
+      return { generadas: 0, motivo: 'ningun_titular_util', revisados: todos.length };
     }
 
     // 3. Los borradores.
     const glosario = (() => {
       try { return require('../src/data/glossary.json').map((g) => g.id); } catch (e) { return []; }
     })();
-    const { noticias: crudas } = await generar(candidatos, glosario);
+    const { noticias: crudas } = await pedirAlModelo(candidatos, glosario);
 
     const guardadas = [];
     const descartadas = [];
@@ -323,22 +329,17 @@ module.exports = async function handler(req, res) {
     }
     if (!seco && guardadas.length) await noticias.sumarCuota(guardadas.length, ahora);
 
-    res.status(200).json({
+    return {
       generadas: guardadas.length,
       seco,
       cupoRestante: cupo - guardadas.length,
       borradores: guardadas.map((n) => ({ id: n.id, slug: n.slug, tema: n.tema, titulo: n.es.titulo, fuente: n.fuente.url })),
       descartadas,
-      // El modelo y el coste van en la respuesta para que el registro de la
-      // corrida diga qué se gastó sin tener que abrir el panel de Anthropic.
+      // El modelo va en la respuesta para que el registro de la corrida diga
+      // qué se gastó sin tener que abrir el panel de Anthropic.
       modelo: MODEL
-    });
-  } catch (err) {
-    console.error('news-draft falló:', err && err.message ? err.message : err);
-    res.status(502).json({ error: 'draft_fallido', detalle: err && err.message ? err.message : String(err) });
+    };
   }
-};
+}
 
-module.exports.esArticulo = esArticulo;
-module.exports.armar = armar;
-module.exports.MAX_DIA = MAX_DIA;
+module.exports = { generar, esArticulo, armar, MAX_DIA, MODEL };

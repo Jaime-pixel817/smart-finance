@@ -14,7 +14,7 @@
   antes de clase. Un flujo que pida abrir la laptop y escribir un curl con el
   secreto pegado a mano acabaría en que nadie aprueba nada y /news se queda
   vacío para siempre. El curl equivalente sigue existiendo y está documentado
-  en el encabezado de api/news-review.js y en CLAUDE.md, para automatizar o
+  en el encabezado de api/_lib/revision.js y en CLAUDE.md, para automatizar o
   para cuando esta página falle.
 
   LO QUE ESTA PÁGINA NO HACE
@@ -137,7 +137,7 @@
     secreto = $('secreto').value.trim();
     if (!secreto) return;
     avisar('Comprobando…');
-    pedir('/api/news-review?limite=1').then(function () {
+    pedir('/api/news?accion=revision&limite=1').then(function () {
       try { sessionStorage.setItem(LLAVE, secreto); } catch (err) {}
       abrir();
     }).catch(function (err) {
@@ -164,7 +164,11 @@
     if (!confirm('Pide borradores nuevos a la IA (cuesta unos centavos y hay tope de 3 al día). ¿Seguir?')) return;
     $('generar').disabled = true;
     avisar('Generando… puede tardar medio minuto.');
-    pedir('/api/news-draft', { method: 'POST' }).then(function (d) {
+    pedir('/api/news', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accion: 'generar' })
+    }).then(function (d) {
       avisar(d.generadas + ' borrador(es) nuevo(s)' + (d.motivo ? ' — ' + d.motivo : '') + '.', d.generadas ? 'ok' : 'info');
       $('filtro').value = 'borrador';
       cargar();
@@ -177,7 +181,7 @@
   function cargar() {
     avisar('Cargando…');
     $('lista').innerHTML = '';
-    pedir('/api/news-review?estado=' + encodeURIComponent($('filtro').value)).then(function (d) {
+    pedir('/api/news?accion=revision&estado=' + encodeURIComponent($('filtro').value)).then(function (d) {
       avisar(d.total ? '' : 'No hay nada en ese estado.', 'info');
       d.items.forEach(pintar);
     }).catch(function (err) {
@@ -244,7 +248,7 @@
     var estado = document.createElement('p'); estado.className = 'nota';
 
     function decidir(nuevoEstado, conCambios) {
-      var cuerpo = { id: n.id, estado: nuevoEstado };
+      var cuerpo = { accion: 'decidir', id: n.id, estado: nuevoEstado };
       if (conCambios) {
         ['es', 'en'].forEach(function (loc) {
           cuerpo[loc] = {
@@ -255,7 +259,7 @@
       }
       Array.prototype.forEach.call(fila.querySelectorAll('button'), function (b) { b.disabled = true; });
       estado.textContent = 'Guardando…';
-      pedir('/api/news-review', {
+      pedir('/api/news', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cuerpo)

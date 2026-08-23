@@ -45,7 +45,7 @@ const copy = {
     aiDoes: 'Claude (claude-haiku-4-5) writes the FIRST DRAFT of each news explainer from a real Bloomberg headline and its summary: what happened, why it matters, which assets it touches and which lesson helps. Those drafts are labeled “AI summary · reviewed by Jaime” and are never published on their own. I also use Claude as an assistant to draft and edit code and text; the repository is public.',
     aiDoesNot: 'No figure on this site comes from an AI without a source. The lessons are written by me and list their sources with the date they were checked. Research reports, when they come, will be written by me with Claude as an assistant for data handling and drafting, and every number will link to a filing or a dataset. The AI never recommends anything, and neither do I.',
     revH: 'How a news story gets published',
-    revIntro: 'This is the part that matters: an AI writes the draft, a person decides. The whole chain is in the public repository (/api/news-draft, /api/news-review, /api/news).',
+    revIntro: 'This is the part that matters: an AI writes the draft, a person decides. The whole chain is in the public repository (api/news.js and api/_lib/).',
     revSteps: [
       { n: '1', texto: 'Once a day, a scheduled job reads the Bloomberg Markets RSS feed and asks Claude for up to three drafts, using only what the headline and the feed summary say. Never more than three: that is also the cost ceiling, around one US cent a day.' },
       { n: '2', texto: 'Each draft is stored as “borrador” (draft). Drafts are not public: asking the public endpoint for them returns an error on purpose.' },
@@ -102,7 +102,7 @@ const copy = {
     aiDoes: 'Claude (claude-haiku-4-5) escribe el PRIMER BORRADOR de cada noticia explicada a partir de un titular real de Bloomberg y su resumen: qué pasó, por qué importa, qué activos toca y qué lección ayuda a entenderla. Esos borradores van etiquetados como “Resumen IA · revisado por Jaime” y nunca se publican solos. También uso Claude como asistente para redactar y editar código y texto; el repositorio es público.',
     aiDoesNot: 'Ninguna cifra de este sitio sale de una IA sin fuente. Las lecciones las escribo yo y listan sus fuentes con la fecha en que las revisé. Los reportes de research, cuando lleguen, los escribiré yo con Claude como asistente para manejar datos y redactar, y cada número enlazará a un reporte oficial o a un conjunto de datos. La IA nunca recomienda nada, y yo tampoco.',
     revH: 'Cómo se publica una noticia',
-    revIntro: 'Esta es la parte que importa: la IA escribe el borrador, una persona decide. Toda la cadena está en el repositorio público (/api/news-draft, /api/news-review, /api/news).',
+    revIntro: 'Esta es la parte que importa: la IA escribe el borrador, una persona decide. Toda la cadena está en el repositorio público (api/news.js y api/_lib/).',
     revSteps: [
       { n: '1', texto: 'Una vez al día, una tarea programada lee el RSS de Bloomberg Markets y le pide a Claude hasta tres borradores, usando solo lo que dicen el titular y el resumen del feed. Nunca más de tres: ese es también el tope de gasto, alrededor de un centavo de dólar al día.' },
       { n: '2', texto: 'Cada borrador se guarda como “borrador”. Los borradores no son públicos: pedirlos por la vía pública devuelve un error a propósito.' },

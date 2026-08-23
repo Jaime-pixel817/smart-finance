@@ -84,7 +84,7 @@ function pickThumbnail(block) {
 }
 
 // max: cuántos items devolver. El carrusel del home usa los 4 más recientes;
-// /api/news-draft pide más para poder descartar los videos del fin de semana
+// la generación de borradores pide más para poder descartar los videos del fin
 // antes de gastar tokens en ellos.
 function parseFeed(xml, max = MAX_ITEMS) {
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || [];
@@ -396,21 +396,22 @@ async function withTakes(items) {
 //
 // Es la otra mitad de este endpoint, y no comparte nada con la de arriba: no
 // llama a Anthropic ni lee el feed, solo devuelve lo que una persona ya aprobó
-// en /api/news-review. El sitio es estático, así que esta es la vía por la que
+// con ?accion=revision. El sitio es estático, así que esta es la vía por la que
 // una noticia aprobada a las 8:00 se ve a las 8:01 sin volver a construir.
 //
 // SOLO SE SIRVEN LAS APROBADAS. Pedir borradores por aquí devuelve 403 a
 // propósito: un borrador es texto de IA que nadie ha leído todavía, y la
 // promesa del sitio es que eso no se publica. Para verlos está
-// /api/news-review, detrás de CRON_SECRET.
+// /api/news?accion=revision, detrás de CRON_SECRET.
 const noticias = require('./_lib/noticias');
+const { autorizado } = require('./_lib/secreto');
 
 async function servirRevisadas(req, res, pedido) {
   if (pedido !== 'aprobada') {
     res.setHeader('Cache-Control', 'no-store');
     res.status(403).json({
       error: 'solo_aprobadas',
-      detalle: 'Los borradores no son públicos. Se leen en /api/news-review con CRON_SECRET.'
+      detalle: 'Los borradores no son públicos. Se leen en /api/news?accion=revision con CRON_SECRET.'
     });
     return;
   }
@@ -436,7 +437,113 @@ async function servirRevisadas(req, res, pedido) {
   }
 }
 
+// ---- Lo privado: generar borradores y revisarlos -------------------------
+//
+// Vive AQUÍ y no en dos endpoints propios porque el plan de Vercel
+// admite 12 funciones por despliegue y el sitio ya estaba justo en 12: los dos
+// endpoints nuevos tumbaban el despliegue entero con
+// "exceeded_serverless_functions_per_deployment", con el build ya terminado.
+// Los archivos de api/_lib no cuentan (Vercel no enruta lo que empieza por
+// guion bajo), así que la lógica está en _lib/borradores.js y _lib/revision.js
+// y este archivo es el router de todo lo que tiene que ver con noticias.
+//
+//   GET  /api/news                          titulares del día con su opinión
+//   GET  /api/news?estado=aprobadas         noticias revisadas y publicadas
+//   GET  /api/news?accion=revision          la cola de revisión      (secreto)
+//   POST /api/news {accion:'generar'}       escribe los borradores   (secreto)
+//   POST /api/news {accion:'decidir',...}   aprueba/edita/rechaza    (secreto)
+
+function leerCuerpo(req) {
+  // Vercel ya parsea el JSON en req.body; en una prueba con req/res falsos
+  // puede llegar como cadena.
+  const b = req.body;
+  if (b === undefined || b === null || b === '') return {};
+  if (typeof b === 'string') { try { return JSON.parse(b); } catch (e) { return null; } }
+  return b;
+}
+
+function fallo(res, err, contexto) {
+  const noConfigurado = err && (err.code === 'REDIS_NO_CONFIGURADO' || err.code === 'ANTHROPIC_NO_CONFIGURADO');
+  console.error(contexto + ' falló:', err && err.message ? err.message : err);
+  res.status(noConfigurado ? 500 : 502).json({
+    error: noConfigurado ? String(err.code).toLowerCase() : contexto + '_fallido',
+    detalle: err && err.message ? err.message : String(err)
+  });
+}
+
+async function servirPrivado(req, res, accion) {
+  if (!autorizado(req)) {
+    res.status(401).json({ error: 'unauthorized' });
+    return;
+  }
+  // Una mesa de revisión cacheada contestaría con los borradores de hace una
+  // hora justo cuando se está decidiendo qué publicar.
+  res.setHeader('Cache-Control', 'no-store');
+
+  const revision = require('./_lib/revision');
+
+  if (accion === 'revision') {
+    try {
+      const r = await revision.cola(req.query || {});
+      if (r.texto !== undefined) {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.status(r.codigo).send(r.texto);
+        return;
+      }
+      res.status(r.codigo).json(r.cuerpo);
+    } catch (err) { fallo(res, err, 'revision'); }
+    return;
+  }
+
+  const cuerpo = leerCuerpo(req);
+  if (!cuerpo) { res.status(400).json({ error: 'json_invalido' }); return; }
+
+  if (accion === 'generar') {
+    try {
+      res.status(200).json(await require('./_lib/borradores').generar({ seco: cuerpo.seco === true }));
+    } catch (err) { fallo(res, err, 'draft'); }
+    return;
+  }
+
+  if (accion === 'decidir') {
+    try {
+      const r = await revision.decidir(cuerpo);
+      res.status(r.codigo).json(r.cuerpo);
+    } catch (err) { fallo(res, err, 'revision'); }
+    return;
+  }
+
+  res.status(400).json({ error: 'accion_desconocida', valores: ['generar', 'decidir', 'revision'] });
+}
+
+const ACCIONES_PRIVADAS = ['generar', 'decidir', 'revision'];
+
 module.exports = async function handler(req, res) {
+  const metodo = String(req.method || 'GET').toUpperCase();
+
+  // POST siempre es una acción privada; en GET la acción va en la query.
+  if (metodo === 'POST') {
+    const cuerpo = leerCuerpo(req);
+    const accion = String((cuerpo && cuerpo.accion) || (req.query && req.query.accion) || '').toLowerCase();
+    return servirPrivado(req, res, accion);
+  }
+  if (metodo !== 'GET') {
+    res.setHeader('Allow', 'GET, POST');
+    res.status(405).json({ error: 'metodo_no_permitido' });
+    return;
+  }
+  const accionGet = String((req.query && req.query.accion) || '').toLowerCase();
+  if (accionGet) {
+    // Generar y decidir cambian cosas: por GET no, ni con el secreto.
+    if (accionGet !== 'revision') {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(ACCIONES_PRIVADAS.includes(accionGet) ? 405 : 400)
+        .json({ error: ACCIONES_PRIVADAS.includes(accionGet) ? 'usa_post' : 'accion_desconocida' });
+      return;
+    }
+    return servirPrivado(req, res, 'revision');
+  }
+
   const pedido = noticias.estadoPedido(req.query && req.query.estado);
   if (pedido === undefined) {
     res.setHeader('Cache-Control', 'no-store');

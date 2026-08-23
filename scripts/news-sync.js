@@ -13,6 +13,9 @@
 // (src/pages/news-read.astro, ver la reescritura de vercel.json): la noticia
 // se lee igual, solo que pintada en el navegador. Nunca hay un enlace roto.
 //
+// Todo lo de noticias vive en /api/news (el plan de Vercel admite 12 funciones
+// y el sitio ya estaba en 12); la cola de revisión es ?accion=revision.
+//
 // CÓMO SE USA
 //   export CRON_SECRET=...        # el mismo del boletín (.env.local)
 //   npm run news:sync             # contra smartfinance.lat
@@ -80,7 +83,7 @@ async function main() {
     process.exit(1);
   }
 
-  const url = BASE + '/api/news-review?estado=todas&limite=200';
+  const url = BASE + '/api/news?accion=revision&estado=todas&limite=200';
   console.log('Leyendo ' + url);
   const res = await fetch(url, { headers: { Authorization: 'Bearer ' + clave } });
   if (!res.ok) {
