@@ -14,11 +14,14 @@
 // anterior. Si un símbolo falla, su item sale con price:null y los demás
 // siguen: un índice caído no deja el globo sin datos.
 //
-// Caché: 15 min en memoria (instancia caliente) + s-maxage=900 en el CDN de
-// Vercel, con stale-while-revalidate de 30 min. Es lo que el chip de fuente
-// promete ("se actualiza cada 15 minutos", clave `quarter` de source.js).
+// Caché: 15 min COMPARTIDA en Redis (api/_lib/cache.js) + s-maxage=900 en el
+// CDN de Vercel, con stale-while-revalidate de 30 min. Es lo que el chip de
+// fuente promete ("se actualiza cada 15 minutos", clave `quarter` de
+// source.js). Compartida y no por instancia: antes cada arranque en frío de
+// Vercel volvía a pedirle los ocho índices a Yahoo.
 
 const history = require('./history.js');
+const cache = require('./_lib/cache.js');
 
 const USER_AGENT = history.USER_AGENT ||
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
@@ -39,7 +42,7 @@ const EXCHANGES = [
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const CACHE_CONTROL = 'public, s-maxage=900, stale-while-revalidate=1800';
-let cache = null; // { expires, body }
+const CLAVE = 'world:v1';
 
 // Clave de día (2026-08-21) de un instante en la zona de la bolsa. Sirve para
 // saber si la última barra diaria es la sesión de HOY (entonces el cierre
@@ -104,18 +107,24 @@ async function construir() {
 }
 
 module.exports = async function handler(req, res) {
-  if (cache && cache.expires > Date.now()) {
-    res.setHeader('Cache-Control', CACHE_CONTROL);
-    res.status(200).json(cache.body);
-    return;
-  }
   try {
-    const body = await construir();
-    // Solo se cachea si al menos un índice llegó: una respuesta toda vacía no
-    // merece quedarse 15 minutos.
-    if (body.items.some((it) => it.price !== null)) cache = { expires: Date.now() + CACHE_TTL_MS, body };
+    const r = await cache.conCache({
+      clave: CLAVE,
+      ttl: CACHE_TTL_MS / 1000,
+      proveedor: { nombre: 'yahoo', creditos: EXCHANGES.length },
+      calcular: async () => {
+        const body = await construir();
+        // Una respuesta con los ocho índices vacíos no merece quedarse 15
+        // minutos: se trata como fallo para que la caché sirva la copia
+        // anterior en vez de un globo sin números.
+        if (!body.items.some((it) => it.price !== null)) throw new Error('world: ningún índice llegó');
+        return body;
+      }
+    });
     res.setHeader('Cache-Control', CACHE_CONTROL);
-    res.status(200).json(body);
+    // `stale` es un campo AÑADIDO, nunca uno que cambie: el globo lo ignora si
+    // no lo entiende y sigue pintando `items` igual que siempre.
+    res.status(200).json(r.stale ? Object.assign({}, r.valor, { stale: true }) : r.valor);
   } catch (err) {
     console.error('world fetch failed:', err);
     res.status(502).json({ error: 'upstream fetch failed' });

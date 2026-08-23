@@ -15,6 +15,20 @@
 // Por eso NO se llama también a /quote, que costaría otros 7 por refresco y
 // pondría el total en 1 344, muy por encima del límite: el precio y el cambio
 // se derivan de la misma serie que alimenta la mini-gráfica.
+//
+// ESA CUENTA SUPONÍA UNA SOLA INSTANCIA, Y NO LA HAY. La caché vivía en una
+// variable de este módulo, o sea una copia por lambda: cada arranque en frío y
+// cada región volvían a pedir, y los 672 de papel podían ser el doble sin que
+// nadie se enterara hasta que /market apareciera vacío. Desde
+// api/_lib/cache.js la caché es COMPARTIDA en Redis (una petición al proveedor
+// por ventana entre TODAS las instancias, con candado), los créditos se
+// CUENTAN de verdad (`INCRBY quota:twelvedata:<día>`) y al llegar a 700 se
+// degrada solo a Yahoo hasta la medianoche UTC.
+//
+// ?accion=health (con CRON_SECRET) enseña esos contadores, la edad de cada
+// caché y qué fuente está sirviendo ahora mismo. Va aquí y no en un endpoint
+// nuevo porque el plan de Vercel admite 12 funciones y el sitio ya está en 12
+// (mismo motivo por el que /news es un router; ver CLAUDE.md).
 
 const STOCKS = [
   // Los tres primeros son los ETF que siguen a cada índice: es lo que se puede
@@ -48,7 +62,12 @@ const CACHE_TTL_MS = 15 * 60 * 1000;
 // vacío 15 minutos cuando lo más probable es que el siguiente intento funcione.
 const DEGRADED_TTL_MS = 3 * 60 * 1000;
 
-let cache = null;
+const CLAVE = 'markets:v1';
+// Créditos que cuesta un refresco: Twelve Data cobra por símbolo.
+const CREDITOS_TWELVE_DATA = STOCKS.length;
+
+const cache = require('./_lib/cache.js');
+const { autorizado } = require('./_lib/secreto.js');
 
 function num(v) {
   const n = typeof v === 'number' ? v : parseFloat(v);
@@ -213,21 +232,43 @@ async function fetchCrypto() {
   return { source: 'CoinGecko', items };
 }
 
-module.exports = async function handler(req, res) {
-  if (cache && cache.expires > Date.now()) {
-    res.setHeader('Cache-Control', cache.cacheControl);
-    res.status(200).json(cache.body);
-    return;
+// Acciones, eligiendo fuente por CUOTA y no solo por si falla.
+//
+// Antes: siempre Twelve Data, y Yahoo solo si Twelve Data reventaba. El
+// problema es que Twelve Data no revienta cuando se acaban los créditos, la
+// gente ve un bloque vacío y no hay forma de saber por qué. Ahora se mira el
+// contador ANTES de gastar: pasando de 700 de 800 no se le llama en todo el
+// día y el respaldo entra sin que nadie note nada.
+async function fetchStocks() {
+  const sinCuota = await cache.cuotaSuperada('twelvedata', cache.UMBRAL_TWELVE_DATA);
+  if (sinCuota) {
+    await cache.anotarDegradacion(
+      'twelvedata',
+      'cuota diaria por encima de ' + cache.UMBRAL_TWELVE_DATA + ' de 800 créditos'
+    );
+    await cache.contarCuota('yahoo', STOCKS.length);
+    return fetchYahooStocks();
   }
 
+  try {
+    // Se cuenta ANTES de pedir: si la petición se pierde a medias, el crédito
+    // ya se gastó igual. Contar después dejaría el contador corto justo el día
+    // en que la fuente va mal, que es cuando más falta hace que sea exacto.
+    await cache.contarCuota('twelvedata', CREDITOS_TWELVE_DATA);
+    return await fetchTwelveData();
+  } catch (err) {
+    console.warn('twelve data failed, falling back to yahoo:', err && err.message);
+    await cache.contarCuota('yahoo', STOCKS.length);
+    return fetchYahooStocks();
+  }
+}
+
+async function construir() {
   // Los dos bloques van en paralelo y fallan por separado: que CoinGecko esté
   // caído no debe dejar sin acciones a la página, ni al revés.
   const [stocksRes, cryptoRes] = await Promise.allSettled([
-    fetchTwelveData().catch(async (err) => {
-      console.warn('twelve data failed, falling back to yahoo:', err && err.message);
-      return fetchYahooStocks();
-    }),
-    fetchCrypto()
+    fetchStocks(),
+    (async () => { await cache.contarCuota('coingecko', 1); return fetchCrypto(); })()
   ]);
 
   const stocks = stocksRes.status === 'fulfilled' ? stocksRes.value : null;
@@ -235,31 +276,59 @@ module.exports = async function handler(req, res) {
   if (stocksRes.status === 'rejected') console.error('stocks failed:', stocksRes.reason && stocksRes.reason.message);
   if (cryptoRes.status === 'rejected') console.error('crypto failed:', cryptoRes.reason && cryptoRes.reason.message);
 
-  if (!stocks && !crypto) {
-    // Nada que servir: si hay algo viejo en memoria es mejor que un error.
-    if (cache) {
-      res.setHeader('Cache-Control', 'public, s-maxage=60');
-      res.status(200).json(cache.body);
-      return;
-    }
-    res.status(502).json({ error: 'upstream fetch failed' });
-    return;
-  }
+  // Nada que servir: se trata como error para que la caché compartida saque la
+  // copia vieja, que es mejor que un 502.
+  if (!stocks && !crypto) throw new Error('markets: ni acciones ni cripto');
 
-  const degraded = !stocks || !crypto ||
-    stocks.items.length < STOCKS.length || crypto.items.length < COINS.length;
-  const ttl = degraded ? DEGRADED_TTL_MS : CACHE_TTL_MS;
-  const sMaxAge = Math.floor(ttl / 1000);
-  const cacheControl = `public, s-maxage=${sMaxAge}, stale-while-revalidate=${sMaxAge * 2}`;
-
-  const body = {
+  return {
     updatedAt: new Date().toISOString(),
     refreshMinutes: Math.round(CACHE_TTL_MS / 60000),
     stocks: stocks || { source: null, items: [] },
     crypto: crypto || { source: null, items: [] }
   };
+}
 
-  cache = { expires: Date.now() + ttl, body, cacheControl };
-  res.setHeader('Cache-Control', cacheControl);
-  res.status(200).json(body);
+function estaCojo(body) {
+  return !body.stocks.items.length || !body.crypto.items.length ||
+    body.stocks.items.length < STOCKS.length || body.crypto.items.length < COINS.length;
+}
+
+module.exports = async function handler(req, res) {
+  // ---- Informe de salud -------------------------------------------------
+  // Va colgado de este endpoint, no de uno propio: 12 funciones es el techo
+  // del plan y ya estamos en 12. Mismo patrón que ?accion=revision en
+  // /api/news.
+  if (String((req.query && req.query.accion) || '') === 'health') {
+    if (!autorizado(req)) {
+      // Igual que el resto del sitio: sin el secreto, no existe.
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(401).json({ error: 'no autorizado' });
+      return;
+    }
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json(await cache.informe());
+    return;
+  }
+
+  try {
+    const r = await cache.conCache({
+      clave: CLAVE,
+      ttl: (body) => (estaCojo(body) ? DEGRADED_TTL_MS : CACHE_TTL_MS) / 1000,
+      calcular: construir
+    });
+
+    const sMaxAge = Math.floor(r.ttl || CACHE_TTL_MS / 1000);
+    res.setHeader('Cache-Control', `public, s-maxage=${sMaxAge}, stale-while-revalidate=${sMaxAge * 2}`);
+    // `stale` es un campo AÑADIDO: `stocks`, `crypto`, `updatedAt` y
+    // `refreshMinutes` salen exactamente igual que siempre.
+    res.status(200).json(r.stale ? Object.assign({}, r.valor, { stale: true }) : r.valor);
+  } catch (err) {
+    console.error('markets fetch failed:', err && err.message);
+    res.status(502).json({ error: 'upstream fetch failed' });
+  }
 };
+
+// Expuesto para api/_lib/cache.test.mjs: es donde vive la decisión de fuente
+// (Twelve Data o Yahoo según la cuota), que es justo lo que hay que poder
+// probar sin gastar créditos de verdad.
+module.exports.fetchStocks = fetchStocks;

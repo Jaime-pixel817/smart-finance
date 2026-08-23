@@ -13,8 +13,13 @@
 // las seis con precio y cambio en UNA petición, y la ficha de cada par necesita
 // el cierre previo para decir "hoy" con el mismo criterio que las acciones.
 //
-// CADENCIA: caché de 15 minutos en memoria y en el CDN (s-maxage=900), igual
-// que /api/markets. Siete peticiones a Yahoo cada 15 minutos como mucho.
+// CADENCIA: caché de 15 minutos COMPARTIDA en Redis (api/_lib/cache.js) y en
+// el CDN (s-maxage=900), igual que /api/markets. Siete peticiones a Yahoo cada
+// 15 minutos como mucho, ahora sí de verdad: la caché de antes vivía en una
+// variable del módulo, o sea siete peticiones por CADA instancia de Vercel que
+// arrancara en frío.
+
+const cache = require('./_lib/cache.js');
 
 const SYMBOLS = {
   USDMXN: 'MXN=X',
@@ -36,7 +41,7 @@ const USER_AGENT =
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const DEGRADED_TTL_MS = 3 * 60 * 1000;
-const cache = { expires: 0, body: null, cacheControl: '' };
+const CLAVE = 'quotes:v1';
 
 function num(v) {
   const n = typeof v === 'number' ? v : parseFloat(v);
@@ -111,13 +116,7 @@ async function fetchQuote(pair, yahooSymbol) {
   };
 }
 
-module.exports = async function handler(req, res) {
-  if (cache.body && cache.expires > Date.now()) {
-    res.setHeader('Cache-Control', cache.cacheControl);
-    res.status(200).json(cache.body);
-    return;
-  }
-
+async function construir() {
   const keys = Object.keys(SYMBOLS);
   const settled = await Promise.allSettled(keys.map((k) => fetchQuote(k, SYMBOLS[k])));
 
@@ -127,36 +126,39 @@ module.exports = async function handler(req, res) {
     else console.error('quote failed for', keys[i], r.reason && r.reason.message);
   });
 
-  // Si absolutamente todo falla es un problema de la fuente: si hay algo viejo
-  // en memoria es mejor que un error; si no, 502 y el navegador reintenta.
-  if (!Object.keys(items).length) {
-    if (cache.body) {
-      res.setHeader('Cache-Control', 'public, s-maxage=60');
-      res.status(200).json(cache.body);
-      return;
-    }
-    res.status(502).json({ error: 'upstream fetch failed' });
-    return;
-  }
+  // Si absolutamente todo falla es un problema de la fuente, no una respuesta
+  // vacía válida: se trata como error para que la caché compartida sirva la
+  // copia anterior en vez de una lista sin precios.
+  if (!Object.keys(items).length) throw new Error('quotes: ningún par llegó');
 
-  // Si faltó algún par se cachea menos: lo más probable es que el siguiente
-  // intento lo traiga.
-  const degraded = Object.keys(items).length < keys.length;
-  const ttl = degraded ? DEGRADED_TTL_MS : CACHE_TTL_MS;
-  const sMaxAge = Math.floor(ttl / 1000);
-  const cacheControl = `public, s-maxage=${sMaxAge}, stale-while-revalidate=${sMaxAge * 2}`;
-
-  const body = {
+  return {
     updatedAt: new Date().toISOString(),
     refreshMinutes: Math.round(CACHE_TTL_MS / 60000),
     source: 'Yahoo Finance',
     items
   };
+}
 
-  cache.expires = Date.now() + ttl;
-  cache.body = body;
-  cache.cacheControl = cacheControl;
+module.exports = async function handler(req, res) {
+  try {
+    const r = await cache.conCache({
+      clave: CLAVE,
+      // Si faltó algún par se cachea menos: lo más probable es que el
+      // siguiente intento lo traiga.
+      ttl: (body) =>
+        (Object.keys(body.items).length < Object.keys(SYMBOLS).length ? DEGRADED_TTL_MS : CACHE_TTL_MS) / 1000,
+      proveedor: { nombre: 'yahoo', creditos: Object.keys(SYMBOLS).length },
+      calcular: construir
+    });
 
-  res.setHeader('Cache-Control', cacheControl);
-  res.status(200).json(body);
+    const sMaxAge = Math.floor(r.ttl || CACHE_TTL_MS / 1000);
+    res.setHeader('Cache-Control', `public, s-maxage=${sMaxAge}, stale-while-revalidate=${sMaxAge * 2}`);
+    // `stale` es un campo AÑADIDO: `items`, `source` y `updatedAt` no cambian.
+    // `updatedAt` sigue siendo el del dato, no el de ahora — que es justo lo
+    // que hace honesto al chip de fuente cuando se sirve la copia vieja.
+    res.status(200).json(r.stale ? Object.assign({}, r.valor, { stale: true }) : r.valor);
+  } catch (err) {
+    console.error('quotes fetch failed:', err && err.message);
+    res.status(502).json({ error: 'upstream fetch failed' });
+  }
 };
