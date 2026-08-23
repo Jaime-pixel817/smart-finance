@@ -126,10 +126,14 @@ test('resumen: cartera vacía no revienta ni inventa un total', () => {
   assert.equal(r.completo, true);
 });
 
-test('resumen: con una sola posición valorada avisa de que mejor y peor son la misma', () => {
-  const r = resumen({ capitalInicial: 10000, posiciones: [CARTERA.posiciones[0]] }, PRECIOS);
+test('resumen: con una sola posición avisa de que mejor y peor son la misma', () => {
+  const r = resumen({ capitalInicial: 100000, posiciones: [CARTERA.posiciones[0]] }, PRECIOS);
   assert.equal(r.unaSola, true);
   assert.equal(r.mejor.ticker, r.peor.ticker);
+  // Y no depende de que haya precio: con dos posiciones sin precio sigue
+  // habiendo rejilla de mejor y peor (el servidor pinta lo mismo que el
+  // navegador, solo que con guiones).
+  assert.equal(resumen(CARTERA, {}).unaSola, false);
 });
 
 test('resumen: una posición por peso entra en el total con su cantidad derivada', () => {

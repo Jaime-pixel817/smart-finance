@@ -122,9 +122,11 @@ export function resumen(cartera, precios = {}) {
     capitalInicial: cap, efectivo,
     costoAbierto, costoCerrado, valorAbierto, valorTotal,
     variacion, realizado,
-    // Con una sola posición valorada, mejor y peor son la misma fila: la
-    // página enseña "mejor" y calla "peor" en vez de repetirla.
-    mejor, peor, unaSola: conPct.length < 2,
+    // Con una sola posición, mejor y peor son la misma fila: la página enseña
+    // "mejor" y calla "peor" en vez de repetirla. Se mira el número de
+    // POSICIONES y no el de filas con precio a propósito: así el servidor y el
+    // navegador pintan la misma rejilla aunque al primero le falten precios.
+    mejor, peor, unaSola: posiciones.length < 2,
     // Una compra por posición y una venta por posición cerrada.
     operaciones: posiciones.length + cerradas.length
   };

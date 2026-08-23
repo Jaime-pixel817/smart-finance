@@ -1,0 +1,26 @@
+---
+// /es/actinver — mi cartera del Reto Actinver (concurso estudiantil, dinero
+// ficticio), en español. La ruta se llama igual en los dos idiomas porque
+// "Actinver" es un nombre propio.
+import Base from '../../layouts/Base.astro';
+import Cartera from '../../components/portfolio/Cartera.astro';
+import { SITE } from '../../i18n/routes';
+import { useC } from '../../i18n/cartera';
+import { ACTINVER } from '../../lib/portfolio/data';
+const c = useC('es');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Cartera del Reto Actinver',
+  description: c.actinver.desc,
+  url: SITE + '/es/actinver',
+  inLanguage: 'es-MX',
+  dateModified: ACTINVER.actualizado,
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/es/acerca' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="es" routeId="actinver" active="actinver" title={c.actinver.title} description={c.actinver.desc} jsonLd={jsonLd}>
+  <Cartera locale="es" id="actinver" />
+</Base>
