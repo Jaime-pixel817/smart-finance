@@ -6,6 +6,7 @@ import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import { BREAKDOWNS } from '../../data/home';
+import { foto } from '../../lib/photos';
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
 const L = (id: string) => route(id, locale);
@@ -71,7 +72,7 @@ const copy = {
 <article class="about">
   <div class="container about-wrap">
     <header class="about-head">
-      <img class="about-photo" src="/jaime-160.webp" srcset="/jaime-160.webp 1x, /jaime-320.webp 2x" width="160" height="160" alt={copy.alt} decoding="async" fetchpriority="high">
+      <img class="about-photo" src={foto('jaime-160.webp')} srcset={`${foto('jaime-160.webp')} 1x, ${foto('jaime-320.webp')} 2x`} width="160" height="160" alt={copy.alt} decoding="async" fetchpriority="high">
       <div class="about-intro">
         <p class="eyebrow">{copy.eyebrow}</p>
         <h1 class="t-display">{copy.title}</h1>
