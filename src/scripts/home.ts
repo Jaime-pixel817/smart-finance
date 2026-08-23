@@ -286,9 +286,11 @@ function boot(root: HTMLElement) {
   // ---- 6. Globo de mercados (diferido) -------------------------------------
   // Carga three.js + public/assets/risk-sphere.js cuando el hilo está libre.
   // El globo ahora es el hero, o sea que está en pantalla desde el primer
-  // frame — pero SIGUE cargándose diferido a propósito: mientras tanto se ve
-  // el SVG estático de Hero.astro, que pesa 2.3 KB y va inline. Así el LCP no
-  // espera ni a three.js ni a WebGL.
+  // frame — pero SIGUE cargándose diferido a propósito: el LCP es el titular
+  // (medido con Lighthouse) y no tiene por qué esperar a three.js ni a WebGL.
+  // Mientras tanto la banda del globo está vacía a propósito: lo primero que
+  // se ve del globo son sus partículas formándose, no un dibujo estático que
+  // se funde (ver Hero.astro).
   // Con prefers-reduced-motion también se carga (las ocho bolsas son
   // contenido, no decoración): risk-sphere.js pinta UN fotograma quieto con
   // los marcadores en su sitio y no arranca el bucle.
@@ -297,10 +299,15 @@ function boot(root: HTMLElement) {
     let loaded = false;
     const load = () => {
       if (loaded) return; loaded = true;
+      // Si un script no llega (CDN bloqueado, red que se cae), no habrá globo:
+      // "globe:fail" enciende el SVG de respaldo del hero sin esperar al reloj
+      // de los 10 s. Ver src/scripts/hero.ts.
+      const falla = () => document.dispatchEvent(new CustomEvent('globe:fail'));
       const s1 = document.createElement('script');
       s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
       s1.async = true;
-      s1.onload = () => { const s2 = document.createElement('script'); s2.type = 'module'; s2.src = '/assets/risk-sphere.js'; document.body.appendChild(s2); };
+      s1.onerror = falla;
+      s1.onload = () => { const s2 = document.createElement('script'); s2.type = 'module'; s2.src = '/assets/risk-sphere.js'; s2.onerror = falla; document.body.appendChild(s2); };
       document.body.appendChild(s1);
     };
     // requestIdleCallback CON tope: sin él, una página que nunca queda ociosa

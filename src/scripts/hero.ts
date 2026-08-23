@@ -1,7 +1,8 @@
 // El hero del home: la barra que se vuelve sólida, el globo que aterriza en
-// ella y las pastillas de cambio del día pegadas a los marcadores.
+// ella, el SVG de respaldo que casi nunca se ve y las pastillas de cambio del
+// día pegadas a los marcadores.
 //
-// TRES COSAS Y NINGUNA LIBRERÍA
+// CUATRO COSAS Y NINGUNA LIBRERÍA
 //
 // 1. LA BARRA. Un IntersectionObserver sobre un testigo de 1 px arriba del
 //    hero. Mientras se ve, la barra está encima del globo y va transparente;
@@ -16,11 +17,16 @@
 //    fps detrás de una página que ya no lo enseña — es position:fixed y su
 //    propio IntersectionObserver nunca lo daría por fuera de pantalla.
 //
-// 3. LAS PASTILLAS. Nueva York, Ciudad de México y la bolsa que más se mueva
+// 3. EL RESPALDO. El SVG estático del hero nace apagado y solo se enciende si
+//    no va a haber globo: lo dice el evento "globe:fail" (sin WebGL, o three.js
+//    que no llega). Con prefers-reduced-motion lo enciende el CSS solo. Ver el
+//    bloque de abajo.
+//
+// 4. LAS PASTILLAS. Nueva York, Ciudad de México y la bolsa que más se mueva
 //    llevan pegado su cambio del día. La posición la manda el globo por
 //    "globe:pins" (ver risk-sphere.js) porque es el único que sabe dónde está
 //    cada marcador ahora mismo; aquí solo se mueve un div con transform. Van
-//    con aria-hidden: el mismo dato en texto está en la leyenda de ocho chips.
+//    con aria-hidden: el mismo dato en texto está en la barra de ocho chips.
 import { fmtPct, arrow, dirClass, type Loc } from './format';
 
 const hero = document.querySelector<HTMLElement>('.hero');
@@ -91,28 +97,56 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   }
 
   // ---- Tocar una ciudad devuelve el globo ---------------------------------
-  // La leyenda de ocho chips vive más abajo, y para cuando se llega a ella el
-  // globo ya aterrizó en la barra. Encender el país de Canadá en un globo que
-  // no se ve no sirve de nada: al seleccionar una bolsa la página vuelve
-  // arriba. La tarjeta es position: fixed, así que no se pierde de vista
-  // mientras sube. Con menos movimiento el salto es seco, sin deslizamiento.
+  // Los ocho chips están ahora DENTRO del hero, así que lo normal es tocarlos
+  // con la página arriba del todo y esto no hace nada. Sigue puesto para el
+  // caso en que se llegue a ellos con la página ya bajada (un enlace con
+  // ancla, volver atrás): encender el país de Canadá en un globo que ya
+  // aterrizó en la barra no sirve de nada, así que la página vuelve arriba. La
+  // tarjeta es position: fixed y no se pierde de vista mientras sube. Con
+  // menos movimiento el salto es seco, sin deslizamiento.
   document.addEventListener('world:select', (e) => {
     const id = (e as CustomEvent<{ id?: string | null }>).detail?.id;
     if (!id || window.scrollY < 8) return;
     window.scrollTo({ top: 0, behavior: menos.matches ? 'auto' : 'smooth' });
   });
 
-  // ---- El lienzo ya pinta: se apaga el SVG estático ------------------------
+  // ---- El SVG estático: respaldo, no primer pintado ------------------------
   //
-  // EL ORDEN ES LO IMPORTANTE. risk-sphere.js manda "globe:ready" cuando ya
-  // tiene el lienzo montado y va a empezar la entrada de partículas, y espera
-  // --still-out ms antes de arrancarla. Así el SVG estático se va PRIMERO y la
-  // entrada empieza sobre un fondo limpio: si se solaparan, lo que se vería es
-  // el globo estático deshaciéndose en polvo, que es justo lo que no se quiere.
-  // El MutationObserver se queda como respaldo por si el evento no llega (una
-  // versión vieja del script en caché, por ejemplo).
+  // El SVG del hero (Hero.astro) nace invisible. Lo normal es que no se vea
+  // NUNCA: se veía medio segundo antes de la entrada de partículas y ese
+  // parpadeo sobraba. Solo se enciende cuando no va a haber globo que enseñar:
+  //
+  //   - prefers-reduced-motion → lo pone el CSS, desde el primer frame y sin
+  //     pasar por aquí; risk-sphere.js pinta igualmente un fotograma quieto y
+  //     al llegar "globe:ready" el SVG se va.
+  //   - sin WebGL, o three.js que no llega (CDN caído o bloqueado) → quien lo
+  //     descubre avisa con "globe:fail": el catch de risk-sphere.js y el
+  //     onerror de las dos etiquetas <script> de home.ts. Va por evento y no
+  //     preguntándole al navegador si hay WebGL: crear un contexto de prueba
+  //     al arrancar costaba medio segundo de hilo principal en un teléfono
+  //     modesto (+230 ms de bloqueo en Lighthouse), y es medio segundo pagado
+  //     por todo el mundo para enterarse de algo que casi nunca pasa.
+  //   - y si no llega ninguna de las dos cosas —el globo ni siquiera arrancó—,
+  //     la red de seguridad es el reloj: a los 10 s se enseña el SVG.
+  //
+  // El lienzo, cuando pinta, gana siempre: .is-live apaga el SVG esté como
+  // esté.
   const host = document.getElementById('globalRiskGlobe');
   const encender = () => globo.classList.add('is-live');
+  const respaldo = () => globo.classList.add('is-still');
+  if (!menos.matches) {
+    const reloj = setTimeout(respaldo, 10000);
+    document.addEventListener('globe:fail', respaldo, { once: true });
+    document.addEventListener('globe:ready', () => clearTimeout(reloj), { once: true });
+  }
+
+  // EL ORDEN ES LO IMPORTANTE. risk-sphere.js manda "globe:ready" cuando ya
+  // tiene el lienzo montado y va a empezar la entrada de partículas, y espera
+  // --still-out ms antes de arrancarla. Así el SVG de respaldo —si estaba
+  // puesto— se va PRIMERO y la entrada empieza sobre un fondo limpio: si se
+  // solaparan, lo que se vería es el globo estático deshaciéndose en polvo, que
+  // es justo lo que no se quiere. El MutationObserver se queda como respaldo
+  // por si el evento no llega (una versión vieja del script en caché).
   document.addEventListener('globe:ready', encender, { once: true });
   if (host) {
     if (host.querySelector('canvas')) encender();
@@ -128,7 +162,7 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
     }
   }
 
-  // ---- 3. Las pastillas ----------------------------------------------------
+  // ---- 4. Las pastillas ----------------------------------------------------
   const capa = document.getElementById('hero-pins');
   if (!capa) return;
   const pins = new Map<string, HTMLElement>();

@@ -1,5 +1,5 @@
 ---
-// Globo de mercados, la parte en HTML: la leyenda de ocho chips (ciudad ·
+// Globo de mercados, la parte en HTML: la barra de ocho chips (ciudad ·
 // ▲▼Δ % · punto abierto/cerrado) y la tarjeta que se abre al tocar un chip o
 // un marcador del globo. Los chips van en el HTML desde el primer pintado
 // (cero CLS y lista legible sin JS); src/scripts/world-markets.ts los rellena
@@ -7,6 +7,11 @@
 // globe:marker). La tarjeta es un bottom sheet sobre el bottom nav en móvil y
 // una tarjeta abajo a la derecha en escritorio; cierra con ✕, Esc, toque
 // fuera o deslizando hacia abajo.
+//
+// DÓNDE VA: dentro del hero, justo debajo del globo (Hero.astro). No lleva
+// título de sección — el "toca una ciudad" de la propia barra dice lo que hay
+// que saber — ni márgenes propios: el hueco y el ancho los pone el hero, que
+// la mete en su .container.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
@@ -60,8 +65,10 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
 </div>
 
 <style>
-  /* Leyenda: dentro de la tarjeta del globo, bajo el lienzo. */
-  .world { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4) 0; }
+  /* La barra: dentro del hero, bajo el globo. Sin padding propio — la aloja
+     el .container del hero, y así los chips arrancan en la misma vertical que
+     el titular. */
+  .world { display: flex; flex-direction: column; gap: var(--sp-2); }
   .world-chips {
     display: flex; gap: var(--sp-2); overflow-x: auto; overscroll-behavior-x: contain;
     scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none;

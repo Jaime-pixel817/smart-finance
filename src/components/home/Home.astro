@@ -1,15 +1,14 @@
 ---
-// Home "Hoy": HERO (globo a sangre + titular + línea Hoy) → Pulso → La
-// historia de hoy → Mercado global (la leyenda del globo) → Sigue aprendiendo
-// → Herramientas → Research → Mercados en 60 s → Breakdowns → Boletín → Quién
+// Home "Hoy": HERO (globo a sangre + titular + línea Hoy + la barra de las
+// ocho bolsas) → Pulso → La historia de hoy → Sigue aprendiendo →
+// Herramientas → Research → Mercados en 60 s → Breakdowns → Boletín → Quién
 // hace esto. En escritorio la misma estructura se ensancha a 12 columnas.
 //
-// EL GLOBO YA NO VIVE EN UNA TARJETA. Su lienzo está arriba, en el hero
-// (Hero.astro), a sangre y detrás del titular. Lo que queda aquí abajo con el
-// título "Mercado global" es su LEYENDA: los ocho chips con ciudad, cambio del
-// día y abierto/cerrado. No es un adorno duplicado — es el mismo dato en texto,
-// que es lo que leen un lector de pantalla y quien no tiene WebGL, y es donde
-// se toca para abrir la tarjeta de cada bolsa.
+// EL GLOBO ENTERO VIVE EN EL HERO. El lienzo, el titular y la barra de ocho
+// chips (ciudad, cambio del día, abierto/cerrado) están arriba, en Hero.astro:
+// los chips son el mismo dato en texto —lo que leen un lector de pantalla y
+// quien no tiene WebGL— y donde se toca para abrir la tarjeta de cada bolsa,
+// así que van pegados al globo y no treinta secciones más abajo.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
@@ -18,7 +17,6 @@ import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
 import { foto } from '../../lib/photos';
 import SourceChip from '../SourceChip.astro';
-import WorldMarkets from './WorldMarkets.astro';
 import Hero from './Hero.astro';
 
 const { locale } = Astro.props as { locale: Locale };
@@ -50,28 +48,10 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 
   <div class="home-body">
   <div class="container grid">
-    <!-- ── Mercado global: la LEYENDA del globo del hero ────────────────
-         VA LA PRIMERA, pegada al globo. El lienzo está arriba (Hero.astro) y
-         aquí van los ocho chips con ciudad · cambio del día · abierto/cerrado:
-         el mismo dato en texto, que es lo que leen un lector de pantalla y
-         quien no tiene WebGL, y donde se toca para abrir la tarjeta de cada
-         bolsa (evento world:select). Junto al globo se entiende qué son esos
-         puntos; treinta secciones más abajo, no. -->
-    <section id="globe" class="globe col-5" aria-labelledby="globe-h">
-      <div class="section-head">
-        <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
-      </div>
-      <div class="card globe-card">
-        <WorldMarkets locale={locale} />
-        <p class="t-caption faint globe-note">{t('globe.sub')}</p>
-        <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
-      </div>
-    </section>
-
     <!-- ── Frase de bienvenida, solo la primera visita ──────────────
-         Va DESPUÉS de World markets: lo que tiene que asomar por debajo del
-         hero en la primera pantalla es la leyenda de bolsas, no esto. La línea
-         Hoy (fecha · NYSE · BMV) se fue al hero, que es donde se mira. -->
+         Es lo primero de .home-body y lo que asoma por debajo del hero: la
+         barra de bolsas y la línea Hoy (fecha · NYSE · BMV) están arriba, en
+         el hero, que es donde se miran. -->
     <section class="today col-12" aria-label={t('today.label')}>
       <p id="today-intro" class="today-intro t-small muted">
         <span>{t('today.intro')}</span>
@@ -105,7 +85,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     </section>
 
     <!-- ── La historia de hoy ────────────────────────────────────── -->
-    <section id="story" class="story col-7" aria-labelledby="story-h" data-state="loading">
+    <section id="story" class="story col-8" aria-labelledby="story-h" data-state="loading">
       <div class="section-head">
         <h2 id="story-h" class="t-h3">{t('story.title')}</h2>
         <a class="more" href={L('news')}>{t('news.all')} →</a>
@@ -306,17 +286,15 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); margin-top: var(--sp-4); }
   .grid > section { min-width: 0; }
   @media (min-width: 960px) {
-    /* `dense` y no `order`: World markets (col-5) va ahora el primero, y detrás
-       vienen la frase de bienvenida y el Pulso, que ocupan 12 columnas y no
-       caben a su lado. Sin `dense` quedarían siete columnas muertas junto a la
-       leyenda y otras cinco junto a la historia del día; con él, la historia
-       (col-7) rellena el hueco de la primera fila y el escritorio se queda con
-       el MISMO reparto de siempre —leyenda a la izquierda, historia a la
-       derecha— sin tocar el orden del HTML, que es el del teléfono y el del
-       lector de pantalla. Lo único que se paga es que en escritorio la historia
-       se ve antes de lo que se tabula; el orden del documento sigue siendo el
-       orden en que se cuenta. */
-    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row dense; column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
+    /* Sin `dense`: el orden visual es el del HTML, que es el del teléfono y el
+       del lector de pantalla. Lo era antes por un apaño —la leyenda de bolsas
+       (col-5) abría la rejilla y la historia (col-7) le rellenaba la fila—,
+       pero la leyenda se mudó al hero y el apaño sobra. Las filas cuadran
+       solas: 8+4 (aprender/herramientas), 6+6 (research/mercados en 60 s),
+       12 y 8+4 (boletín/quién). La historia (col-8) abre sola: es la pieza
+       larga del día y no hay nada de cuatro columnas que quiera ir a su lado
+       sin adelantarse en el relato. */
+    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
     .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; }
     .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
   }
@@ -363,12 +341,6 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .ai-disclosure summary::after { content: ' ⓘ'; color: var(--ink-3); }
   .ai-disclosure p { margin-top: var(--sp-2); max-width: 52ch; }
   #story-link[hidden] { display: none; }
-
-  /* Mercado global (la leyenda del globo del hero) */
-  .globe-card { padding: 0 0 var(--sp-1); overflow: hidden; position: relative; }
-  .globe-note, .globe-motion { padding: var(--sp-2) var(--sp-4) var(--sp-3); }
-  .globe-motion { display: none; }
-  @media (prefers-reduced-motion: reduce) { .globe-note { display: none; } .globe-motion { display: block; } }
 
   /* Aprender */
   .learn-card { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-3); }

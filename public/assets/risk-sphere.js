@@ -2166,7 +2166,13 @@ async function initRiskSphere() {
 }
 
 function boot() {
-  initRiskSphere().catch((err) => console.error("RiskSphere:", err));
+  initRiskSphere().catch((err) => {
+    console.error("RiskSphere:", err);
+    /* No va a haber globo (lo típico: WebGL apagado o sin contexto, o el THREE
+       global que nunca aparece). El hero tiene un SVG de respaldo esperando
+       apagado: este aviso es lo que lo enciende. Ver src/scripts/hero.ts. */
+    document.dispatchEvent(new CustomEvent("globe:fail", { detail: { error: String(err && err.message || err) } }));
+  });
 }
 
 if (document.readyState === "loading") {
