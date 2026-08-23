@@ -36,6 +36,60 @@ const SYMBOLS = {
   // Twelve Data contada) ni en el registro de simbolos del sitio.
   LULU: { yahoo: 'LULU', intradayPoints: 78 },
 
+  // ---- Bolsa Mexicana de Valores ----------------------------------------
+  // Las emisoras del Reto Actinver y del portafolio personal (/actinver y
+  // /portfolio, desde src/data/*.json). NO están en /api/markets ni en el
+  // registro de símbolos del sitio: no tienen ficha propia, solo hace falta su
+  // último precio para valuar una posición. Esta es la vía que manda CLAUDE.md
+  // para datos nuevos: Yahoo, gratis y con la caché compartida de 60 s.
+  //
+  // POR QUÉ UNA LISTA Y NO "lo que pida el navegador": sin lista, /api/history
+  // sería un proxy abierto a Yahoo con nuestros contadores de cuota. Añadir una
+  // emisora es una línea aquí, y el JSON de la cartera la nombra con la clave de
+  // la IZQUIERDA (historyPair: "WALMEX"). La clave no lleva sufijo ni signos
+  // raros porque viaja en la query: PE&OLES rompería la URL y por eso es
+  // PENOLES, y LIVEPOLC-1 es LIVEPOLC1.
+  //
+  // 78 barras de 5 minutos: la BMV homologa su sesión con Nueva York (ver
+  // src/lib/market/bmv.mjs), así que son las mismas 6.5 h.
+  MXX:        { yahoo: '^MXX', intradayPoints: 78 },              // S&P/BMV IPC
+  NAFTRAC:    { yahoo: 'NAFTRACISHRS.MX', intradayPoints: 78 },   // ETF del IPC
+  WALMEX:     { yahoo: 'WALMEX.MX', intradayPoints: 78 },
+  AMXB:       { yahoo: 'AMXB.MX', intradayPoints: 78 },
+  GFNORTEO:   { yahoo: 'GFNORTEO.MX', intradayPoints: 78 },
+  FEMSAUBD:   { yahoo: 'FEMSAUBD.MX', intradayPoints: 78 },
+  GMEXICOB:   { yahoo: 'GMEXICOB.MX', intradayPoints: 78 },
+  CEMEXCPO:   { yahoo: 'CEMEXCPO.MX', intradayPoints: 78 },
+  BIMBOA:     { yahoo: 'BIMBOA.MX', intradayPoints: 78 },
+  TLEVISACPO: { yahoo: 'TLEVISACPO.MX', intradayPoints: 78 },
+  KOFUBL:     { yahoo: 'KOFUBL.MX', intradayPoints: 78 },
+  ORBIA:      { yahoo: 'ORBIA.MX', intradayPoints: 78 },
+  GAPB:       { yahoo: 'GAPB.MX', intradayPoints: 78 },
+  ASURB:      { yahoo: 'ASURB.MX', intradayPoints: 78 },
+  OMAB:       { yahoo: 'OMAB.MX', intradayPoints: 78 },
+  ALSEA:      { yahoo: 'ALSEA.MX', intradayPoints: 78 },
+  CHDRAUIB:   { yahoo: 'CHDRAUIB.MX', intradayPoints: 78 },
+  VESTA:      { yahoo: 'VESTA.MX', intradayPoints: 78 },
+  GCARSOA1:   { yahoo: 'GCARSOA1.MX', intradayPoints: 78 },
+  LIVEPOLC1:  { yahoo: 'LIVEPOLC-1.MX', intradayPoints: 78 },
+  PENOLES:    { yahoo: 'PE&OLES.MX', intradayPoints: 78 },
+  BBAJIOO:    { yahoo: 'BBAJIOO.MX', intradayPoints: 78 },
+  QUALITAS:   { yahoo: 'Q.MX', intradayPoints: 78 },
+  GRUMAB:     { yahoo: 'GRUMAB.MX', intradayPoints: 78 },
+  AC:         { yahoo: 'AC.MX', intradayPoints: 78 },
+  GENTERA:    { yahoo: 'GENTERA.MX', intradayPoints: 78 },
+  PINFRA:     { yahoo: 'PINFRA.MX', intradayPoints: 78 },
+  MEGACPO:    { yahoo: 'MEGACPO.MX', intradayPoints: 78 },
+  GFINBURO:   { yahoo: 'GFINBURO.MX', intradayPoints: 78 },
+  CUERVO:     { yahoo: 'CUERVO.MX', intradayPoints: 78 },
+  LABB:       { yahoo: 'LABB.MX', intradayPoints: 78 },
+  RA:         { yahoo: 'RA.MX', intradayPoints: 78 },          // Regional
+  VOLARA:     { yahoo: 'VOLARA.MX', intradayPoints: 78 },
+  GCC:        { yahoo: 'GCC.MX', intradayPoints: 78 },
+  KIMBERA:    { yahoo: 'KIMBERA.MX', intradayPoints: 78 },
+  BOLSAA:     { yahoo: 'BOLSAA.MX', intradayPoints: 78 },
+  AGUA:       { yahoo: 'AGUA.MX', intradayPoints: 78 },        // Rotoplas
+
   // Cripto (fichas /market/[symbol]). El precio y el cambio de 24 h siguen
   // saliendo de CoinGecko vía /api/markets; aquí solo va el HISTORIAL 1D–5A,
   // que CoinGecko no da gratis con esta granularidad. Opera 24/7: 288 barras
@@ -77,10 +131,12 @@ const CACHE_TTL_MS = 60 * 1000;
 const CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=120';
 
 // La caché es COMPARTIDA (api/_lib/cache.js, Redis) y ya no un Map por
-// instancia. Aquí importa más que en el resto: hay 21 símbolos × 5 rangos, o
-// sea 105 combinaciones, y cada instancia nueva de Vercel empezaba con las 105
-// vacías. La clave lleva el par y el rango porque cada combinación es un dato
-// distinto.
+// instancia. Aquí importa más que en el resto: hay decenas de símbolos por seis
+// rangos —solo la BMV añadió 36 emisoras para las carteras— y cada instancia
+// nueva de Vercel empezaba con todas las combinaciones vacías. La clave lleva
+// el par y el rango porque cada combinación es un dato distinto. Lo que NO
+// crece es el gasto: un símbolo solo se le pide a Yahoo cuando alguien abre una
+// página que lo enseña, y esa respuesta vale 60 s para todo el mundo.
 const cache = require('./_lib/cache.js');
 
 async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {

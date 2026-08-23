@@ -129,6 +129,17 @@ test('una posición en otra moneda no pasa: aquí no se convierten divisas', () 
   assert.match(mensajes(r), /divisas/);
 });
 
+test('una acción de Nueva York no cabe en una cartera en pesos', () => {
+  const r = malla(carteraSchema, { ...CARTERA, posiciones: [{ ...POS, ticker: 'SPY', mercado: 'US' }] });
+  assert.equal(r.success, false);
+  assert.match(mensajes(r), /divisas/);
+  // En una cartera en dólares, la misma posición pasa.
+  assert.equal(
+    malla(carteraSchema, { ...CARTERA, moneda: 'USD', posiciones: [{ ...POS, ticker: 'SPY', mercado: 'US' }] }).success,
+    true
+  );
+});
+
 test('una fecha inventada no pasa', () => {
   assert.equal(malla(carteraSchema, { ...CARTERA, actualizado: '2026-13-45' }).success, false);
   assert.equal(malla(carteraSchema, { ...CARTERA, actualizado: '23/08/2026' }).success, false);

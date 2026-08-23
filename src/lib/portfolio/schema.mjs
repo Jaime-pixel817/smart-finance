@@ -115,6 +115,16 @@ export const carteraSchema = z
           message: `esta cartera es en ${c.moneda} y aquí no se convierten divisas`
         });
       }
+      // Un mercado estadounidense cotiza en dólares. En una cartera en pesos
+      // eso sumaría manzanas con naranjas sin que nadie lo notara, así que se
+      // para aquí: la conversión de divisas no existe todavía (cartera.mjs).
+      if (p.mercado === 'US' && c.moneda !== 'USD') {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['posiciones', i, 'mercado'],
+          message: `una posición de un mercado en dólares no cabe en una cartera en ${c.moneda}: aquí no se convierten divisas`
+        });
+      }
       if (typeof p.peso === 'number' && c.capitalInicial === null) {
         ctx.addIssue({
           code: 'custom',
