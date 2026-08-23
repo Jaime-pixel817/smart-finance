@@ -86,7 +86,7 @@ const t = useT(locale);
     --globe-h: clamp(300px, 56svh, 460px);
     /* Centrado óptico: ver la nota de arriba. max(0px, …) por si alguien abre
        el sitio en una ventana más baja que la propia banda. */
-    --globe-top: max(0px, calc((var(--hero-h) - var(--globe-h)) * 0.42));
+    --globe-top: max(0px, calc((var(--hero-h) - var(--globe-h)) * 0.5));
 
     /* Colores del texto que va SOBRE el globo. Son propios y no los tokens
        generales porque el fondo es el globo, no la página: en oscuro el texto
