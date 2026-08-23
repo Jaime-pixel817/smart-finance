@@ -1,7 +1,7 @@
 ---
 // Barra superior: wordmark · (escritorio) Hoy · Mercados · Noticias · Aprende ·
-// Herramientas · Research · EN/ES · tema · Boletín. En móvil solo wordmark,
-// idioma, tema y buscar; los destinos van en BottomNav.
+// Herramientas · Reto · Research · EN/ES · tema · Boletín. En móvil solo
+// wordmark, idioma, tema y buscar; los destinos van en BottomNav.
 import type { Locale } from '../i18n/routes';
 import { route, otherLocale } from '../i18n/routes';
 import { useT } from '../i18n/ui';
@@ -20,7 +20,11 @@ const links: { id: string; href: string; label: string; wide?: boolean }[] = [
   { id: 'news', href: route('news', locale), label: t('nav.news') },
   { id: 'learn', href: route('lessons', locale), label: t('nav.learn') },
   { id: 'tools', href: route('tools', locale), label: t('nav.tools') },
-  { id: 'challenge', href: route('challenge', locale), label: t('nav.challenge') },
+  // Como Comunidad: solo desde 1024 px. Entre 768 y 1023 la barra ya iba
+  // justa ANTES de este destino (se sale ~91 px en producción a 768) y meterlo
+  // ahí lo empeoraba. En tablet se llega al reto por /herramientas, el pie y el
+  // buscador.
+  { id: 'challenge', href: route('challenge', locale), label: t('nav.challenge'), wide: true },
   { id: 'research', href: route('research', locale), label: t('nav.research') },
   // Séptimo destino: solo desde 1024 px. En pantallas menores vive en el pie.
   { id: 'community', href: route('community', locale), label: t('nav.community'), wide: true }
@@ -138,7 +142,10 @@ try { altHref = route(routeId, other); } catch { altHref = route('home', other);
     .topbar-actions { gap: var(--sp-2); }
     .btn.desk-only { margin-left: var(--sp-2); }
   }
-  @media (min-width: 768px) and (max-width: 1023px) { .desk-nav a { padding: 0 8px; } }
+  /* Con "Reto" son OCHO destinos desde 1024 px y a 12 px de padding se salían
+     40 px de la barra. De 1024 a 1139 van más apretados; nadie pierde su
+     destino por eso. */
+  @media (min-width: 768px) and (max-width: 1139px) { .desk-nav a { padding: 0 8px; } }
   .desk-nav .nav-wide { display: none; }
   @media (min-width: 1024px) { .desk-nav .nav-wide { display: inline-flex; } }
 </style>

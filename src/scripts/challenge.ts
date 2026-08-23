@@ -33,6 +33,8 @@ type Textos = {
 };
 
 const LLAVE = 'sf:reto:v1';
+/** Con prefers-reduced-motion no se desliza nada: ni el lienzo ni la página. */
+const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 const W = 640, H = 260;
 const TOTAL = VENTANA + OCULTAS;
 
@@ -57,9 +59,11 @@ function montar(raiz: HTMLElement) {
   const fLarga = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short', year: 'numeric' });
   const limpia = (s: string) => s.replace(/\./g, '');
   /** "+12.4 %" con el signo menos tipográfico y el punto decimal del idioma. */
-  const pct = (n: number, dec = 1) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmtNum(Math.abs(n), loc, dec) + ' %';
+  // El espacio antes del % es duro (\u00A0): con el normal, "Cayó más de 20 %"
+  // partía el botón dejando el signo solo en la segunda línea.
+  const pct = (n: number, dec = 1) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmtNum(Math.abs(n), loc, dec) + '\u00A0%';
   /** El umbral se enseña sin signo y sin decimales cuando es entero: "6 %". */
-  const umbralTxt = (u: number) => fmtNum(u, loc, u % 1 === 0 ? 0 : 1) + ' %';
+  const umbralTxt = (u: number) => fmtNum(u, loc, u % 1 === 0 ? 0 : 1) + '\u00A0%';
   const rellena = (s: string, vals: Record<string, string | number>) =>
     s.replace(/\{(\w+)\}/g, (_, k) => String(vals[k] ?? ''));
 
@@ -97,8 +101,10 @@ function montar(raiz: HTMLElement) {
 
   // Alguien compartió su resultado: ?s=8&d=2026-08-23.
   const busca = new URLSearchParams(location.search);
+  // OJO con Number(null): sin ?s= daba 0 y el banner salía siempre diciendo
+  // que alguien había sacado cero.
   const sCompartida = Number(busca.get('s'));
-  if (Number.isFinite(sCompartida) && sCompartida >= 0 && sCompartida <= RONDAS * 2) {
+  if (busca.has('s') && Number.isInteger(sCompartida) && sCompartida >= 0 && sCompartida <= RONDAS * 2) {
     const banner = q<HTMLElement>('[data-reto-desafio]')!;
     const dia = busca.get('d');
     const cuando = dia && /^\d{4}-\d{2}-\d{2}$/.test(dia) ? limpia(fCorta.format(new Date(dia + 'T12:00:00Z'))) : limpia(fCorta.format(new Date(hoy + 'T12:00:00Z')));
@@ -203,7 +209,7 @@ function montar(raiz: HTMLElement) {
     // Rejilla: el nivel del último punto visible y el umbral arriba y abajo.
     const niveles = [
       { v: refs[0], txt: '+' + umbralTxt(r.umbral), cero: false },
-      { v: corte, txt: '0', cero: true },
+      { v: corte, txt: '0\u00A0%', cero: true },
       { v: refs[1], txt: '−' + umbralTxt(r.umbral), cero: false }
     ];
     gGrid.innerHTML = niveles
@@ -222,6 +228,7 @@ function montar(raiz: HTMLElement) {
 
     for (const b of opciones) {
       b.removeAttribute('aria-disabled');
+      b.removeAttribute('tabindex');
       b.classList.remove('es-correcta', 'es-elegida', 'es-fallo');
       b.querySelector('[data-etiqueta]')!.textContent = rellena(T.op[b.dataset.banda!], { u: umbralTxt(r.umbral) });
     }
@@ -250,29 +257,51 @@ function montar(raiz: HTMLElement) {
     }
 
     for (const b of opciones) {
+      // aria-disabled y no disabled: un botón deshabilitado pierde el foco y
+      // quien navega con teclado se queda tirado en el <body>. Así el foco se
+      // queda en la respuesta que pulsó.
       b.setAttribute('aria-disabled', 'true');
       if (Number(b.dataset.banda) === r.banda) b.classList.add('es-correcta');
       if (Number(b.dataset.banda) === elegida) {
         b.classList.add('es-elegida');
         if (gana === 0) b.classList.add('es-fallo');
+      } else {
+        // Las otras tres salen del recorrido: el siguiente Tab es "Siguiente".
+        b.tabIndex = -1;
       }
     }
     marcasProgreso[i].dataset.p = String(gana);
 
     const cifra = q<HTMLElement>('[data-reto-cifra]')!;
-    cifra.textContent = pct(r.cambio);
+    // El % va en su propio <span> más chico: a 3rem, el espacio de una mono
+    // deja un hueco enorme entre la cifra y el signo.
+    const signo = document.createElement('span');
+    signo.className = 'reto-cifra-pct';
+    signo.textContent = '%';
+    cifra.replaceChildren(document.createTextNode(pct(r.cambio).replace('\u00A0%', '')), signo);
     cifra.className = 'reto-cifra num ' + (r.cambio >= 0 ? 'up' : 'down');
     q<HTMLElement>('[data-reto-veredicto]')!.textContent = T.verdict[String(gana)];
     q<HTMLElement>('[data-reto-gan]')!.textContent = gana === 0 ? '' : gana === 1 ? T.point : rellena(T.points, { p: gana });
-    q<HTMLElement>('[data-reto-detalle]')!.textContent = rellena(T.reveal, {
-      name: r.activo.name, from: limpia(fLarga.format(new Date(r.finVisible))), to: limpia(fLarga.format(new Date(r.hasta)))
-    });
+    const fechas = { from: limpia(fLarga.format(new Date(r.finVisible))), to: limpia(fLarga.format(new Date(r.hasta))) };
+    const [antes, despues] = T.reveal.split('{name}');
+    const enlace = document.createElement('a');
+    enlace.href = r.activo.href;
+    enlace.textContent = r.activo.name;
+    q<HTMLElement>('[data-reto-detalle]')!.replaceChildren(
+      document.createTextNode(rellena(antes, fechas)), enlace, document.createTextNode(rellena(despues, fechas))
+    );
     q<HTMLElement>('[data-reto-tip]')!.textContent = T.tips[i] || '';
     btnSiguiente.textContent = i === RONDAS - 1 ? T.see : T.next;
     elRevelado.hidden = false;
+    // En un teléfono el revelado nace debajo del pliegue: sin esto se contesta
+    // y no se ve el resultado hasta que uno adivina que hay que bajar. Se baja
+    // lo justo, y contando la barra inferior fija (56 px + área segura), que
+    // con scrollIntoView({block:'end'}) se comía las dos últimas líneas.
+    const falta = elRevelado.getBoundingClientRect().bottom - (window.innerHeight - 76);
+    if (falta > 0) window.scrollBy({ top: falta, behavior: suave ? 'smooth' : 'auto' });
     svg.setAttribute('aria-label', rellena(T.ariaDone, { n: i + 1, pct: pct(r.cambio) }));
     elLive.textContent = T.verdict[String(gana)] + ' ' + pct(r.cambio) + '. ' +
-      rellena(T.reveal, { name: r.activo.name, from: limpia(fLarga.format(new Date(r.finVisible))), to: limpia(fLarga.format(new Date(r.hasta))) });
+      rellena(T.reveal, { name: r.activo.name, ...fechas });
   }
 
   // ---- Resultado ----
@@ -317,7 +346,11 @@ function montar(raiz: HTMLElement) {
     q<HTMLTextAreaElement>('[data-reto-texto]')!.value = texto;
     q<HTMLElement>('[data-reto-total]')!.setAttribute('aria-label', res.puntos + ' / ' + res.max);
     elLive.textContent = res.puntos + ' / ' + res.max + '. ' + T.labels[clave];
-    (q<HTMLElement>('.reto-marcador') as HTMLElement).focus();
+    // El foco va al marcador (para quien navega con teclado) pero SIN mover la
+    // página con él: la vista la coloca el bloque entero, que así entra con su
+    // "Tu resultado" arriba y no cortado por la barra superior.
+    (q<HTMLElement>('.reto-marcador') as HTMLElement).focus({ preventScroll: true });
+    elFinal.scrollIntoView({ block: 'start', behavior: suave ? 'smooth' : 'auto' });
     // El número del azar sale de la librería: si algún día cambian las bandas,
     // este texto no se queda mintiendo.
     void ESPERADO_AL_AZAR;

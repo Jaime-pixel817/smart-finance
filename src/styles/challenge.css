@@ -6,6 +6,11 @@
    Móvil primero: todo cabe en 390 px sin scroll horizontal, la gráfica mide
    200 px de alto y los cuatro botones de respuesta son de 56 px. */
 
+/* Un display: flex de clase gana al [hidden] de la hoja del navegador, y los
+   cuatro estados del juego se pintaban uno encima de otro. Mismo tropiezo que
+   en news.css: aquí se corta de raíz para toda la página del reto. */
+.reto [hidden], .reto-fig [hidden] { display: none !important; }
+
 .reto-wrap {
   max-width: calc(var(--measure) + 2 * var(--gutter));
   display: flex; flex-direction: column; gap: var(--sp-5);
@@ -39,10 +44,14 @@
 .reto-progreso span[data-p="now"] { background: var(--brand-text); }
 
 /* ---- La gráfica ---- */
+.reto-juego { display: flex; flex-direction: column; gap: var(--sp-4); }
 .reto-fig { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
 .reto-plot { display: grid; grid-template-columns: 1fr 46px; gap: var(--sp-2); }
 .reto-canvas { position: relative; }
-.reto-svg { display: block; width: 100%; height: 200px; overflow: visible; }
+/* overflow lo trae el navegador en hidden y así se queda: con visible, la
+   banda de la zona tapada (un rect alto a propósito, para que el zoom no la
+   deje corta) se pintaba sobre la página entera. */
+.reto-svg { display: block; width: 100%; height: 208px; }
 @media (min-width: 640px) { .reto-svg { height: 260px; } }
 
 .reto-linea { fill: none; stroke: var(--ink-2); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
@@ -106,13 +115,15 @@
   font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero;
   font-size: clamp(2rem, 12vw, 3rem); line-height: 1.05; letter-spacing: -.02em;
 }
+.reto-cifra-pct { font-size: .5em; margin-left: .12em; opacity: .8; }
 .reto-cifra.up { color: var(--up-text); }
 .reto-cifra.down { color: var(--down-text); }
 .reto-tip { color: var(--ink-2); }
+.reto-revelado a { color: var(--brand-text); text-decoration: underline; text-underline-offset: 2px; }
 .reto-revelado .btn { align-self: flex-start; margin-top: var(--sp-2); }
 
 /* ---- Pantalla final ---- */
-.reto-final { display: flex; flex-direction: column; gap: var(--sp-4); }
+.reto-final { display: flex; flex-direction: column; gap: var(--sp-4); scroll-margin-top: calc(var(--topbar-h) + var(--sp-4)); }
 .reto-marcador { display: flex; flex-direction: column; gap: var(--sp-1); }
 .reto-puntos {
   font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero;
