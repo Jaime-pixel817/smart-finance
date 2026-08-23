@@ -153,12 +153,6 @@
 .reto-learn .btn { align-self: flex-start; white-space: normal; text-align: left; height: auto; min-height: 44px; padding-block: 10px; max-width: 100%; }
 .reto-disclaimer { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); max-width: var(--measure); }
 
-/* ---- Tarjeta del reto en /tools ---- */
-.tools-reto { border-color: color-mix(in srgb, var(--brand-fill) 45%, var(--line)); background: linear-gradient(180deg, var(--brand-wash), transparent 60%); }
-.tools-reto .tools-icon { background: var(--brand-fill); color: var(--on-brand); }
-.tools-nuevo { font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-text); }
-@media (min-width: 860px) { .tools-destacada { grid-column: 1 / -1; } .tools-destacada .tools-card { flex-direction: column; } }
-
 @media (prefers-reduced-motion: reduce) {
   .reto-zoom, .reto-clip, .reto-ylabels span, .reto-q, .reto-tapa { transition: none !important; }
   .reto-spinner { animation: none; }

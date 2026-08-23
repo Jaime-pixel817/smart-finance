@@ -67,6 +67,15 @@
 .tool-learn .btn { align-self: flex-start; white-space: normal; text-align: left; height: auto; min-height: 44px; padding-block: 10px; max-width: 100%; }
 .tool-disclaimer { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); max-width: var(--measure); }
 
+/* ---- El reto, destacado en el índice de /tools ---- */
+/* El <li> sigue siendo <li> (nada de display:contents, que en varios
+   navegadores saca la fila del árbol de accesibilidad): solo ocupa el ancho
+   entero de la retícula, y con una sola columna eso no cambia nada. */
+.tools-destacada { grid-column: 1 / -1; }
+.tools-reto { border-color: color-mix(in srgb, var(--brand-fill) 45%, var(--line)); background: linear-gradient(180deg, var(--brand-wash), transparent 60%); }
+.tools-reto .tools-icon { background: var(--brand-fill); color: var(--on-brand); }
+.tools-nuevo { font-family: var(--font-mono); font-size: var(--fs-eyebrow); line-height: var(--lh-eyebrow); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-text); }
+
 /* ---- Índice /tools ---- */
 .tools-index { padding-top: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-6); }
 .tools-list { display: grid; gap: var(--sp-3); }
