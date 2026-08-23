@@ -185,13 +185,24 @@
     });
   }
 
+  // El texto se ve ENTERO. Revisar es leer: una caja que corta la frase a la
+  // mitad invita a aprobar sin haber leido, que es justo lo que este flujo
+  // existe para impedir.
+  function crecer(t) {
+    t.style.height = 'auto';
+    t.style.height = (t.scrollHeight + 2) + 'px';
+  }
+
   function campo(padre, etiqueta, valor, clave, filas) {
     var d = document.createElement('div'); d.className = 'campo';
     var l = document.createElement('label'); l.textContent = etiqueta;
     var t = document.createElement('textarea');
     t.value = valor || ''; t.dataset.campo = clave; t.rows = filas || 3;
     l.htmlFor = t.id = 'c-' + Math.random().toString(36).slice(2);
+    t.addEventListener('input', function () { crecer(t); });
     d.appendChild(l); d.appendChild(t); padre.appendChild(d);
+    // Despues de estar en el DOM, que es cuando scrollHeight dice la verdad.
+    setTimeout(function () { crecer(t); }, 0);
     return t;
   }
 

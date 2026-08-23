@@ -22,7 +22,7 @@ import { getLessonByRoute } from '../../data/lessons';
 import glossary from '../../data/glossary.json';
 import Term from '../learn/Term.astro';
 import GlossarySheet from '../learn/GlossarySheet.astro';
-import { fmtDay, fmtTime } from '../../scripts/format';
+import { fmtDay, fmtTime24 } from '../../scripts/format';
 
 const { locale, item } = Astro.props as { locale: Locale; item: NewsItem };
 const t = useT(locale);
@@ -30,7 +30,7 @@ const L = (id: string) => route(id, locale);
 const texto = item[locale];
 
 const publicado = new Date(item.fuente.publicado);
-const cuando = fmtDay(publicado, locale) + ' ' + fmtTime(publicado, locale);
+const cuando = fmtDay(publicado, locale) + ' ' + fmtTime24(publicado, locale);
 
 // Activos de la noticia: solo los que existen en el registro del sitio.
 const activos = (item.simbolos || []).map((id) => bySymbolId(id)).filter((s) => !!s);
@@ -107,8 +107,8 @@ const humana = item.autoria === 'humana';
         )}
         {terminos.length > 0 && (
           <p class="nw-terms t-small muted">
-            {t('news.terms')}: {terminos.map((x) => (
-              <Fragment><Term id={x.id}>{x.entrada![locale].term}</Term>{' '}</Fragment>
+            {t('news.terms')}: {terminos.map((x, i) => (
+              <Fragment><Term id={x.id}>{x.entrada![locale].term}</Term>{i < terminos.length - 1 ? ', ' : ''}</Fragment>
             ))}
           </p>
         )}
@@ -121,7 +121,7 @@ const humana = item.autoria === 'humana';
       </p>
       <p class="t-caption faint">
         {t('news.source')}: {item.fuente.nombre} <span aria-hidden="true">·</span> {cuando}
-        {item.revisadoPor && <Fragment> <span aria-hidden="true">·</span> {t('news.reviewed')} {item.revisadoPor}</Fragment>}
+        {item.revisadoPor && <Fragment> <span aria-hidden="true">·</span> {t('news.reviewed') + ' ' + item.revisadoPor}</Fragment>}
       </p>
       <details class="ai-disclosure">
         <summary class="t-caption">{t('story.ai.more')}</summary>

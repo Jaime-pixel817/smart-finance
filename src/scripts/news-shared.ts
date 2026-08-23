@@ -7,7 +7,7 @@
 // Todo lo que viene del endpoint se escapa antes de entrar al HTML. Es texto
 // nuestro y revisado por una persona, pero un almacén compartido no es un sitio
 // donde confiar por costumbre.
-import { fmtDay, fmtTime, type Loc } from './format';
+import { fmtDay, fmtTime24, type Loc } from './format';
 import type { ActivoUI } from './news-markets';
 
 export interface TextoNoticia { titulo: string; que: string; porque: string; impacto: string }
@@ -56,7 +56,7 @@ export function texto(n: NoticiaAPI, loc: Loc): TextoNoticia { return n[loc] || 
 /** "Macro · Sáb 22 ago 13:00 · Bloomberg" */
 export function kicker(n: NoticiaAPI, ctx: Contexto): string {
   const d = new Date(n.fuente.publicado);
-  const cuando = isNaN(d.getTime()) ? '' : fmtDay(d, ctx.loc) + ' ' + fmtTime(d, ctx.loc);
+  const cuando = isNaN(d.getTime()) ? '' : fmtDay(d, ctx.loc) + ' ' + fmtTime24(d, ctx.loc);
   return [ctx.t['tema.' + n.tema] || n.tema, cuando, n.fuente.nombre]
     .filter(Boolean)
     .map((p) => `<span>${esc(p)}</span>`)
@@ -144,13 +144,13 @@ export function historia(n: NoticiaAPI, ctx: Contexto): HTMLElement {
         `<p class="nw-label eyebrow">${esc(ctx.t.learn)}</p>` +
         (leccion ? `<a class="card card-link nw-lesson" href="${esc(leccion.href)}"><span class="t-small">${esc(leccion.titulo)}</span>` +
           `<span class="t-caption faint">${esc(ctx.t.lesson)} →</span></a>` : '') +
-        (terminos.length ? `<p class="nw-terms t-small muted">${esc(ctx.t.terms)}: ${terminos.join(' ')}</p>` : '') +
+        (terminos.length ? `<p class="nw-terms t-small muted">${esc(ctx.t.terms)}: ${terminos.join(', ')}</p>` : '') +
         `</section>`
       : '',
     `<footer class="nw-foot">`,
     `<p class="t-small"><a href="${esc(n.fuente.url)}" target="_blank" rel="noopener">${esc(ctx.t.read)}: ${esc(n.fuente.titular)} ↗</a></p>`,
     `<p class="t-caption faint">${esc(ctx.t.source)}: ${esc(n.fuente.nombre)} <span aria-hidden="true">·</span> ` +
-      `${esc(isNaN(d.getTime()) ? '' : fmtDay(d, ctx.loc) + ' ' + fmtTime(d, ctx.loc))}` +
+      `${esc(isNaN(d.getTime()) ? '' : fmtDay(d, ctx.loc) + ' ' + fmtTime24(d, ctx.loc))}` +
       (n.revisadoPor ? ` <span aria-hidden="true">·</span> ${esc(ctx.t.reviewed)} ${esc(n.revisadoPor)}` : '') + `</p>`,
     `<details class="ai-disclosure"><summary class="t-caption">${esc(ctx.t.howMade)}</summary>` +
       `<p class="t-caption muted">${esc(n.autoria === 'humana' ? ctx.t.humanDisclosure : ctx.t.aiDisclosure)}</p></details>`,

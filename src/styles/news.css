@@ -61,13 +61,19 @@
 /* ---- La semana en 5 puntos ---- */
 .nw-week { margin-top: var(--sp-5); }
 .nw-week[hidden] { display: none; }
-.nw-week ol { margin: var(--sp-2) 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: var(--sp-2); }
+/* Con numeros: son "5 puntos", y el reseteo global de listas se los quitaba. */
+.nw-week ol { list-style: decimal; margin: var(--sp-2) 0 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: var(--sp-2); }
+.nw-week li::marker { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-caption); }
 .nw-week li { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2); }
 .nw-week li a { color: var(--ink); }
 .nw-week li a:hover { color: var(--brand-text); }
 
 /* ---- Noticia completa ---- */
 .nw-story { max-width: var(--measure); margin-inline: auto; display: flex; flex-direction: column; gap: var(--sp-4); padding-top: var(--sp-4); }
+/* Sin esto el esqueleto de la página de lectura no se iba nunca: el display de
+   la regla de arriba le gana al display:none que el navegador aplica a
+   [hidden], y la noticia salía debajo de sus propias barras grises. */
+.nw-story[hidden] { display: none; }
 .nw-story .kicker { color: var(--ink-3); }
 .nw-h1 { font-size: 1.75rem; line-height: 2.125rem; }
 @media (min-width: 768px) { .nw-h1 { font-size: var(--fs-display); line-height: var(--lh-display); } }
@@ -80,7 +86,7 @@
 .nw-spark svg { width: 100%; height: 64px; color: var(--neutral); }
 .nw-spark svg[hidden] { display: none; }
 .nw-spark svg.skel { border-radius: var(--r-input); }
-.nw-lesson { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.nw-lesson { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-3); }
 .nw-lesson .t-small { color: var(--ink); font-weight: 500; }
 .nw-terms { line-height: 1.9; }
 .nw-foot { display: flex; flex-direction: column; gap: var(--sp-2); border-top: 1px solid var(--line); padding-top: var(--sp-4); }
