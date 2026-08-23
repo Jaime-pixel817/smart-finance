@@ -156,9 +156,12 @@ const t = useT(locale);
   .hero-globe-still { display: grid; place-items: center; transition: opacity .22s ease; }
   .hero-globe-still :global(svg) { width: min(92%, 100vh); height: auto; }
   .hero-globe.is-live .hero-globe-still { opacity: 0; }
-  /* En claro el SVG es el mismo dibujo hueso del tema oscuro: invertido se lee
-     como tinta sobre el fondo claro y empalma con el color de las partículas. */
-  :global(:root[data-theme="light"]) .hero-globe-still { filter: invert(1) hue-rotate(180deg); opacity: .75; }
+  /* En claro el SVG es el mismo dibujo del tema oscuro (disco oscuro + puntos
+     hueso): invertido pasa a disco claro + puntos de tinta, que es lo que hace
+     falta aquí. Solo el filtro — NADA de opacity en esta regla, que empata en
+     especificidad con .is-live y le ganaría por ir después: el SVG se quedaría
+     puesto para siempre. */
+  :global(:root[data-theme="light"]) .hero-globe-still { filter: invert(1) hue-rotate(180deg); }
 
   .hero-mark { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; }
   .hero-mark-top { top: 4px; }
