@@ -43,7 +43,10 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
   <header class="container mkt-head">
     <h1 class="t-h1">{t('mkt.title')}</h1>
     <p class="t-small muted mkt-sub">{t('mkt.sub')}</p>
-    <p id="mkt-status" class="t-mono t-caption mkt-status" aria-live="polite"><span class="skel">Thu 21 Aug · NYSE open · BMV open · updated 14:32</span></p>
+    <!-- El esqueleto reserva la línea COMPLETA y en el peor caso ("cerrado"
+         es más largo que "abierto"): si reserva de menos, al llegar el dato la
+         línea pasa de una a dos y empuja media página. -->
+    <p id="mkt-status" class="t-mono t-caption mkt-status" aria-live="polite"><span class="skel">{fmtDay(new Date(), locale)} · NYSE {t('today.closed')} · BMV {t('today.closed')} · {t('mkt.status.updated')} 00:00 · {t('mkt.status.every')}</span></p>
   </header>
 
   <!-- ── Lo que sigues ────────────────────────────────────────────

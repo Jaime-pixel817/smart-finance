@@ -47,9 +47,13 @@ function boot(root: HTMLElement) {
     const el = $('#mkt-status');
     if (!el) return;
     const st = (b: boolean) => `<span class="${b ? 'st-open' : 'st-closed'}">${b ? T.open : T.closed}</span>`;
-    let html = `<span>${fmtDay(new Date(), loc)}</span> <span aria-hidden="true">·</span> NYSE ${st(nyseOpen())} <span aria-hidden="true">·</span> BMV ${st(bmvOpen())}`;
-    if (lastUpdated) html += ` <span aria-hidden="true">·</span> ${T.updated} ${fmtTime(lastUpdated, loc)} <span aria-hidden="true">·</span> ${T.every}`;
-    el.innerHTML = html;
+    // La cola ("actualizado hh:mm · cada 15 min") se escribe SIEMPRE, con un
+    // guion mientras no hay hora. Antes solo aparecía al llegar el dato, y en
+    // un teléfono eso convertía la línea de una a dos: 16 px que empujaban la
+    // página entera justo cuando ya se estaba leyendo.
+    const hora = lastUpdated ? fmtTime(lastUpdated, loc) : '—';
+    el.innerHTML = `<span>${fmtDay(new Date(), loc)}</span> <span aria-hidden="true">·</span> NYSE ${st(nyseOpen())} <span aria-hidden="true">·</span> BMV ${st(bmvOpen())}` +
+      ` <span aria-hidden="true">·</span> ${T.updated} ${hora} <span aria-hidden="true">·</span> ${T.every}`;
   }
   paintStatus();
   const bump = (when: Date | null) => { if (when && (!lastUpdated || when > lastUpdated)) { lastUpdated = when; paintStatus(); } };
