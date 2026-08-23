@@ -29,3 +29,9 @@
 # incrusta en el HTML; sin esa carpeta el build de Vercel se cae con
 # "research: falta el fichero content/research/lululemon/meta.yaml".
 # No se sirven igual: el sitio es estatico y Vercel solo publica dist/.
+
+# El original de la foto del grupo (3797x2848, 3.6 MB). De él salen grupo.webp,
+# grupo-800.webp y grupo.jpg con `node scripts/build-photos.mjs`, y esas tres
+# sí se sirven. El original se queda en el repo para poder reencuadrar sin
+# volver a pedírselo a nadie, pero no tiene por qué viajar al despliegue.
+/public/assets/community/grupo-original.jpg
