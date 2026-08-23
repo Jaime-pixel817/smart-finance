@@ -92,12 +92,13 @@ test('la lección rota por SEMANA, no por día', () => {
   assert.notDeepEqual(tips.tipDeLaSemana(lunes), tips.tipDeLaSemana(domingoSiguiente));
 });
 
-test('la rotación semanal recorre las seis lecciones sin repetir de más', () => {
+test('la rotación semanal recorre TODAS las lecciones sin repetir de más', () => {
   const vistas = new Set();
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < tips.TIPS.length; i++) {
     vistas.add(tips.tipDeLaSemana(new Date(Date.UTC(2026, 0, 5 + i * 7, 18))).url);
   }
-  assert.equal(vistas.size, tips.TIPS.length, 'seis semanas deberían dar las seis lecciones');
+  assert.equal(vistas.size, tips.TIPS.length,
+    tips.TIPS.length + ' semanas deberían dar las ' + tips.TIPS.length + ' lecciones');
 });
 
 // ------------------------------------------------- el contenido del correo
@@ -108,7 +109,7 @@ test('el correo habla de la SEMANA, no del día, en los dos idiomas', () => {
 
   assert.match(es.html, /La semana en una línea/);
   assert.match(es.html, /La noticia de la semana/);
-  assert.match(es.html, /Esta semana aprenderás/);
+  assert.match(es.html, /La lección de la semana/);
   assert.match(es.html, /boletín semanal de Smart Finance/);
   assert.match(es.html, /próximo domingo/);
   // Y nada que siga hablando de un correo diario.
@@ -117,7 +118,7 @@ test('el correo habla de la SEMANA, no del día, en los dos idiomas', () => {
 
   assert.match(en.html, /The week in one line/);
   assert.match(en.html, /The week&#39;s story|The week's story/);
-  assert.match(en.html, /This week you&#39;ll learn|This week you'll learn/);
+  assert.match(en.html, /This week&#39;s lesson|This week's lesson/);
   assert.match(en.html, /Smart Finance weekly/);
   assert.doesNotMatch(en.html, /Smart Finance daily/i);
   assert.doesNotMatch(en.html, /Until tomorrow/i);
@@ -164,10 +165,12 @@ test('sin noticia aprobada el correo sale igual, y lo dice', () => {
   const { html, texto, asunto } = pintar(contenidoDePrueba({ noticia: null }), 'es');
   assert.match(html, /no hubo ninguna noticia revisada/i);
   assert.match(texto, /no hubo ninguna noticia revisada/i);
-  // El asunto cae al respaldo semanal, nunca queda vacío.
-  assert.equal(asunto, boletin.GANCHO_SEMANAL.es);
+  // El asunto cae al título de la lección de la semana, nunca queda vacío ni
+  // repite el mismo texto todas las semanas sin noticia.
+  assert.equal(asunto, tips.TIPS[0].es.titulo);
+  assert.notEqual(asunto, boletin.GANCHO_SEMANAL.es);
   // Y el resto del correo sigue completo.
-  assert.match(html, /Esta semana aprenderás/);
+  assert.match(html, /La lección de la semana/);
   assert.match(html, /18\.4210/);
 });
 
@@ -225,7 +228,7 @@ test('la baja va SIEMPRE, aunque no haya ni noticia ni research', () => {
 
 test('la versión de texto lleva lo mismo que el HTML', () => {
   const { texto } = pintar(contenidoDePrueba(), 'es');
-  assert.match(texto, /SMART FINANCE — 17–23 de agosto/);
+  assert.match(texto, /SMART FINANCE — NÚMERO 1 · 17–23 de agosto/);
   assert.match(texto, /Banxico vuelve a bajar la tasa/);
   assert.match(texto, /USD\/MXN/);
   assert.match(texto, /VIX/);

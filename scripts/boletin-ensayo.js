@@ -4,6 +4,8 @@
 //   npm run boletin:ensayo                    -> tmp/boletin/boletin-es.html
 //   npm run boletin:ensayo -- --lang=en
 //   npm run boletin:ensayo -- --salida=/tmp/x --fecha=2026-08-23
+//   npm run boletin:ensayo -- --nota="Esta semana abrí mi primera cuenta."
+
 //
 // POR QUÉ EXISTE
 // --------------
@@ -103,6 +105,16 @@ Module._load = function (peticion, padre, esPrincipal) {
   }
   return cargarOriginal.apply(this, arguments);
 };
+
+// --nota="..." — prueba el hueco de la línea de Jaime sin tocar producción.
+// Se escribe en el Redis de memoria con la fecha de hoy, que es justo lo que
+// hace el endpoint de verdad, así que lo que se ve es lo que saldría.
+if (args.nota) {
+  cadenas.set('boletin:nota:v1', JSON.stringify({
+    texto: String(args.nota).replace(/\s+/g, ' ').trim(),
+    escritoEn: new Date().toISOString()
+  }));
+}
 
 // ---- req / res falsos ------------------------------------------------------
 const handler = require(path.join(RAIZ, 'api/send-newsletter.js'));

@@ -27,7 +27,10 @@ const suscriptores = require('./_lib/suscriptores');
 const resend = require('./_lib/resend');
 const registro = require('./_lib/registro');
 const { autorizado, origen } = require('./_lib/secreto');
-const { construirContenido, renderizarCorreo, urlSitio } = require('./_lib/boletin');
+const { construirContenido, renderizarCorreo, urlSitio, paraArchivo } = require('./_lib/boletin');
+// El archivo de números: de aquí sale /newsletter/<fecha>, la versión web que
+// enlaza cada correo con "ver en el navegador".
+const archivo = require('./_lib/archivo');
 
 // Margen para no morir a medio envío: Vercel corta la función y quedaría sin
 // saberse a quién se le escribió. Al acercarse al límite se para y se reporta.
@@ -163,6 +166,20 @@ module.exports = async function handler(req, res) {
         // imagen no va a aparecer. En el HTML no se notaría: el bloque
         // simplemente no se pinta.
         grafica: contenido.grafica,
+        // Los que más subieron y bajaron esta semana, o null si no contestaron
+        // bastantes activos. Va en el ensayo porque es la sección con más
+        // partes móviles del correo —doce peticiones con su propio plazo— y
+        // desde fuera no hay forma de distinguir "no salió porque falló" de
+        // "no salió porque no había".
+        movimientos: contenido.movimientos
+          ? contenido.movimientos.suben.concat(contenido.movimientos.bajan)
+              .map((m) => ({ sym: m.sym, cambioPct: Number(m.cambioPct.toFixed(2)) }))
+          : null,
+        // La línea de Jaime de esta semana, o null si no escribió ninguna (o si
+        // la que hay ya caducó). Se enseña entera para poder releerla antes de
+        // que salga: es el único texto del correo que no se puede corregir
+        // después.
+        nota: contenido.nota,
         // La noticia aprobada de la semana, o null si esta semana no hubo
         // ninguna. Que salga null es información, no un fallo.
         titular: contenido.noticia ? contenido.noticia.es.titulo : null,
@@ -220,6 +237,20 @@ module.exports = async function handler(req, res) {
       }, { ensayo: true, enviados: 0, motivo: 'prueba' });
       return;
     }
+
+    /*
+     * EL ARCHIVO, ANTES DE MANDAR NADA.
+     *
+     * El correo lleva un enlace de "ver en el navegador" que apunta a
+     * /newsletter/<fecha>, y esa página lee de aquí mientras el número no esté
+     * commiteado en el repo. Si se archivara DESPUÉS del envío, un fallo a
+     * mitad de la lista dejaría correos ya entregados con ese enlace roto.
+     *
+     * No bloquea: archivar() se traga sus propios errores y devuelve null. Un
+     * boletín que no se puede archivar se manda igual — la copia es la copia.
+     */
+    const archivado = await archivo.guardar(paraArchivo(contenido));
+    if (!archivado) console.warn('boletín: el número no quedó archivado; /newsletter/<fecha> no lo tendrá hasta el próximo despliegue');
 
     // Cada correo se arma por separado: el idioma es el que eligió cada quien al
     // suscribirse, y el link de baja lleva SU token.
