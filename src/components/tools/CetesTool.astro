@@ -29,6 +29,8 @@ const copy = {
     cetesHint_ok: `Starts at Banxico's target rate, ${tasaTxt}, verified by hand on ${verificado}. CETES move close to it.`,
     cetesHint_old: `Starts at Banxico's last target rate we verified by hand (${tasaTxt}, on ${verificado}) — check today's auction at cetesdirecto before using it.`,
     account: 'What your account pays',
+    rowCetes: 'CETES',
+    rowAccount: 'Your account',
     accountHint: 'Look it up in your banking app. If you have no idea, leave it low.',
     inflation: 'Annual inflation',
     inflationHint: 'Banxico aims for 3 %, give or take a point.',
@@ -54,6 +56,8 @@ const copy = {
     cetesHint_ok: `Arranca en la tasa objetivo de Banxico, ${tasaTxt}, verificada a mano el ${verificado}. Los CETES se mueven cerca de ella.`,
     cetesHint_old: `Arranca en la última tasa objetivo de Banxico que verificamos a mano (${tasaTxt}, el ${verificado}) — consulta la subasta de hoy en cetesdirecto antes de usarla.`,
     account: 'Lo que te paga tu cuenta',
+    rowCetes: 'CETES',
+    rowAccount: 'Tu cuenta',
     accountHint: 'Búscalo en la app de tu banco. Si no tienes idea, déjalo bajo.',
     inflation: 'Inflación anual',
     inflationHint: 'Banxico apunta a 3 %, más o menos un punto.',
@@ -73,7 +77,7 @@ const copy = {
 }[locale];
 ---
 <div class="tool-widget" data-widget="cetes" data-locale={locale} data-url-state
-  data-real-tpl={copy.real_tpl} data-today={copy.today} data-cetes={copy.cetes} data-account={copy.account} data-cash={copy.cash}
+  data-real-tpl={copy.real_tpl} data-today={copy.today} data-cetes={copy.rowCetes} data-account={copy.rowAccount} data-cash={copy.cash}
   data-win-cetes={copy.win_cetes_tpl} data-win-account={copy.win_account_tpl} data-tie={copy.tie}
   data-beats={copy.beats} data-still-losing={copy.stillLosing}>
   <div class="tool-result">
@@ -120,11 +124,11 @@ const copy = {
       <svg class="tool-bar tool-bar-3" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="92" height="12" data-ct-b0></rect></svg>
     </div>
     <div class="tool-bar-row">
-      <p class="tool-bar-label t-caption"><span>{copy.cetes}</span><span class="num" data-ct-b1-val>$10,745</span></p>
+      <p class="tool-bar-label t-caption"><span>{copy.rowCetes}</span><span class="num" data-ct-b1-val>$10,745</span></p>
       <svg class="tool-bar" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="12" data-ct-b1></rect></svg>
     </div>
     <div class="tool-bar-row">
-      <p class="tool-bar-label t-caption"><span>{copy.account}</span><span class="num" data-ct-b2-val>$9,157</span></p>
+      <p class="tool-bar-label t-caption"><span>{copy.rowAccount}</span><span class="num" data-ct-b2-val>$9,157</span></p>
       <svg class="tool-bar tool-bar-2" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="85" height="12" data-ct-b2></rect></svg>
     </div>
     <div class="tool-bar-row">
@@ -138,8 +142,8 @@ const copy = {
       <tr><th scope="col"><span class="visually-hidden">—</span></th><th scope="col">{copy.colNominal}</th><th scope="col">{copy.colReal}</th></tr>
     </thead>
     <tbody>
-      <tr><th scope="row"><span class="dot dot-1" aria-hidden="true"></span>{copy.cetes}</th><td data-ct-t1-nom>$12,079</td><td data-ct-t1-real>$10,745</td></tr>
-      <tr><th scope="row"><span class="dot dot-2" aria-hidden="true"></span>{copy.account}</th><td data-ct-t2-nom>$10,303</td><td data-ct-t2-real>$9,157</td></tr>
+      <tr><th scope="row"><span class="dot dot-1" aria-hidden="true"></span>{copy.rowCetes}</th><td data-ct-t1-nom>$12,079</td><td data-ct-t1-real>$10,745</td></tr>
+      <tr><th scope="row"><span class="dot dot-2" aria-hidden="true"></span>{copy.rowAccount}</th><td data-ct-t2-nom>$10,303</td><td data-ct-t2-real>$9,157</td></tr>
       <tr><th scope="row"><span class="dot dot-3" aria-hidden="true"></span>{copy.cash}</th><td data-ct-t3-nom>$10,000</td><td data-ct-t3-real>$8,890</td></tr>
     </tbody>
   </table>
