@@ -22,8 +22,19 @@ import { REPORTS, loadReport } from '../lib/research/reports';
 import { route, SITE, LOCALES } from '../i18n/routes';
 
 export const GET: APIRoute = async () => {
-  const reportes = REPORTS.map((entry) => {
-    const meta = loadReport(entry.slug).meta;
+  const reportes = REPORTS.flatMap((entry) => {
+    // Un reporte a medio empezar —carpeta con data/financials.json pero
+    // todavía sin meta.yaml, como chipotle— no tiene cabecera que publicar.
+    // Se salta con un aviso en el log en vez de tumbar el build entero, que es
+    // lo que pasaba: loadReport() lanza en cuanto le falta un fichero y este
+    // endpoint los pedía TODOS, incluidos los que aún no tienen página.
+    let meta;
+    try {
+      meta = loadReport(entry.slug).meta;
+    } catch (e) {
+      console.warn('[research-latest] me salto "' + entry.slug + '": ' + (e as Error).message);
+      return [];
+    }
     // "Actualizado" es la fecha más reciente entre el día del análisis y el
     // corte de los datos. Un reporte cuyos números se refrescaron ayer es
     // novedad aunque la tesis se escribiera hace un mes.
