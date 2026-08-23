@@ -34,6 +34,7 @@ const TOOLS = [
   }
 ];
 const open = locale === 'es' ? 'Abrir' : 'Open';
+const nuevo = locale === 'es' ? 'Nuevo' : 'New';
 ---
 <section class="container tools-index" aria-labelledby="tools-h">
   <header class="tool-head">
@@ -42,6 +43,18 @@ const open = locale === 'es' ? 'Abrir' : 'Open';
   </header>
 
   <ul class="tools-list">
+    <li class="tools-destacada">
+      <a class="card card-link tools-card tools-reto" href={route('challenge', locale)}>
+        <span class="tools-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16l4-6 4 4 3-6"/><path d="M15 8h6v6"/><path d="M18 15v6M15 18h6"/></svg>
+        </span>
+        <span class="tools-nuevo">{nuevo}</span>
+        <span class="t-h3">{t('reto.h1')}</span>
+        <span class="t-small muted">{t('reto.card.desc')}</span>
+        <span class="t-caption faint">{t('reto.card.q')}</span>
+        <span class="tools-go">{open} →</span>
+      </a>
+    </li>
     {TOOLS.map((tool) => (
       <li>
         <a class="card card-link tools-card" href={route(tool.routeId, locale)}>
