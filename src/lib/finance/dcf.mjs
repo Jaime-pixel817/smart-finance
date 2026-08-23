@@ -186,7 +186,10 @@ export function scenarioValues(model) {
  */
 export function sanityChecks(model, result = null) {
   const alerts = [];
-  const push = (level, code, message) => alerts.push({ level, code, message });
+  // `params` lleva los mismos trozos ya formateados que salen en `message`,
+  // para que la interfaz pueda escribir la alerta en su propio idioma sin
+  // volver a calcular nada (src/i18n/research.ts -> alerts).
+  const push = (level, code, message, params = []) => alerts.push({ level, code, message, params });
   const a = model?.dcf?.assumptions || {};
   const waccPct = a.wacc?.wacc;
   const g = a.terminal?.g;
@@ -199,30 +202,30 @@ export function sanityChecks(model, result = null) {
   if (!Array.isArray(a.ebitdaMarginPct) || a.ebitdaMarginPct.some((x) => !isNum(x))) missing.push('ebitdaMarginPct');
   if (!isNum(waccPct)) missing.push('wacc.wacc');
   if (!type) missing.push('terminal.type');
-  if (missing.length) push('error', 'MISSING_ASSUMPTIONS', `Supuestos sin valor: ${missing.join(', ')}`);
+  if (missing.length) push('error', 'MISSING_ASSUMPTIONS', `Supuestos sin valor: ${missing.join(', ')}`, [missing.join(', ')]);
 
   // Rationale vacio o placeholder
   const rat = model?.dcf?.rationale || {};
   const pendientes = Object.entries(rat).filter(([, v]) => !v || /ESCRIBE AQU/i.test(String(v))).map(([k]) => k);
-  if (pendientes.length) push('warn', 'RATIONALE_PENDING', `Falta la razon escrita de: ${pendientes.join(', ')}`);
+  if (pendientes.length) push('warn', 'RATIONALE_PENDING', `Falta la razon escrita de: ${pendientes.join(', ')}`, [pendientes.join(', ')]);
 
   // WACC
   if (isNum(waccPct)) {
-    if (waccPct < 6 || waccPct > 14) push('error', 'WACC_OUT_OF_RANGE', `WACC ${waccPct} % fuera de 6–14 %`);
-    else if (waccPct < 7 || waccPct > 11) push('warn', 'WACC_UNUSUAL', `WACC ${waccPct} % fuera del rango tipico 7–11 %`);
+    if (waccPct < 6 || waccPct > 14) push('error', 'WACC_OUT_OF_RANGE', `WACC ${waccPct} % fuera de 6–14 %`, [String(waccPct)]);
+    else if (waccPct < 7 || waccPct > 11) push('warn', 'WACC_UNUSUAL', `WACC ${waccPct} % fuera del rango tipico 7–11 %`, [String(waccPct)]);
   }
   // g
   if (type === 'gordon' && isNum(g)) {
-    if (isNum(waccPct) && g >= waccPct) push('error', 'G_GE_WACC', `g (${g} %) debe ser menor que WACC (${waccPct} %)`);
-    if (g > 3) push('warn', 'G_ABOVE_3', `g ${g} % > 3 % nominal en USD: justificar`);
-    if (g < 0) push('warn', 'G_NEGATIVE', `g negativa (${g} %)`);
+    if (isNum(waccPct) && g >= waccPct) push('error', 'G_GE_WACC', `g (${g} %) debe ser menor que WACC (${waccPct} %)`, [String(g), String(waccPct)]);
+    if (g > 3) push('warn', 'G_ABOVE_3', `g ${g} % > 3 % nominal en USD: justificar`, [String(g)]);
+    if (g < 0) push('warn', 'G_NEGATIVE', `g negativa (${g} %)`, [String(g)]);
   }
   // Probabilidades
   const sc = model?.scenarios;
   if (sc && Object.keys(sc).length) {
     const probs = Object.values(sc).map((s) => s.prob);
     if (probs.some((p) => !isNum(p))) push('warn', 'SCENARIO_PROB_MISSING', 'Hay escenarios sin probabilidad');
-    else if (Math.abs(probs.reduce((s, p) => s + p, 0) - 1) > 1e-6) push('error', 'SCENARIO_PROB_SUM', `Las probabilidades suman ${probs.reduce((s, p) => s + p, 0).toFixed(3)}, no 1`);
+    else if (Math.abs(probs.reduce((s, p) => s + p, 0) - 1) > 1e-6) push('error', 'SCENARIO_PROB_SUM', `Las probabilidades suman ${probs.reduce((s, p) => s + p, 0).toFixed(3)}, no 1`, [probs.reduce((s, p) => s + p, 0).toFixed(3)]);
   }
   // Margen proyectado vs maximo historico
   const hist = Array.isArray(model?.historical) ? model.historical : [];
@@ -232,36 +235,36 @@ export function sanityChecks(model, result = null) {
     const maxProj = Math.max(...a.ebitdaMarginPct);
     if (maxProj > maxHist + 1e-9) {
       const hasReason = rat.ebitdaMarginPct && !/ESCRIBE AQU/i.test(String(rat.ebitdaMarginPct));
-      push(hasReason ? 'warn' : 'error', 'MARGIN_ABOVE_RECORD', `Margen EBITDA proyectado ${maxProj.toFixed(1)} % supera el maximo historico ${maxHist.toFixed(1)} %${hasReason ? '' : ' sin razon escrita'}`);
+      push(hasReason ? 'warn' : 'error', 'MARGIN_ABOVE_RECORD', `Margen EBITDA proyectado ${maxProj.toFixed(1)} % supera el maximo historico ${maxHist.toFixed(1)} %${hasReason ? '' : ' sin razon escrita'}`, [maxProj.toFixed(1), maxHist.toFixed(1)]);
     }
   }
   // Capex vs D&A con crecimiento
   if (isNum(a.capexPctRevenue) && isNum(a.daPctRevenue) && Array.isArray(a.revenueGrowthPct) && a.revenueGrowthPct.every(isNum)) {
     const growing = a.revenueGrowthPct.some((x) => x > 0);
-    if (growing && a.capexPctRevenue < a.daPctRevenue) push('warn', 'CAPEX_BELOW_DA', `Capex ${a.capexPctRevenue} % < D&A ${a.daPctRevenue} % de ventas con crecimiento positivo`);
+    if (growing && a.capexPctRevenue < a.daPctRevenue) push('warn', 'CAPEX_BELOW_DA', `Capex ${a.capexPctRevenue} % < D&A ${a.daPctRevenue} % de ventas con crecimiento positivo`, [String(a.capexPctRevenue), String(a.daPctRevenue)]);
   }
   // Fecha de datos
   const asOf = model?.meta?.priceDate || model?.meta?.analysisDate;
   if (asOf) {
     const days = Math.round((Date.now() - new Date(asOf).getTime()) / 86400000);
-    if (days > 90) push('warn', 'STALE_DATA', `Datos de hace ${days} dias (> 90): mostrar banner "desactualizado"`);
+    if (days > 90) push('warn', 'STALE_DATA', `Datos de hace ${days} dias (> 90): mostrar banner "desactualizado"`, [String(days)]);
   }
   // Resultados
   if (result) {
     const s = result.tvShareOfEVPct;
     if (isNum(s)) {
-      if (s > 80) push('error', 'TV_SHARE_HIGH', `El valor terminal es ${s.toFixed(1)} % del EV (> 80 %)`);
-      else if (s < 50 || s > 75) push('warn', 'TV_SHARE_UNUSUAL', `El valor terminal es ${s.toFixed(1)} % del EV (fuera de 50–75 %)`);
+      if (s > 80) push('error', 'TV_SHARE_HIGH', `El valor terminal es ${s.toFixed(1)} % del EV (> 80 %)`, [s.toFixed(1)]);
+      else if (s < 50 || s > 75) push('warn', 'TV_SHARE_UNUSUAL', `El valor terminal es ${s.toFixed(1)} % del EV (fuera de 50–75 %)`, [s.toFixed(1)]);
     }
     if (isNum(result.impliedExitMultiple) && (result.impliedExitMultiple < 4 || result.impliedExitMultiple > 30)) {
-      push('warn', 'EXIT_MULTIPLE_UNUSUAL', `Multiplo EV/EBITDA implicito ${result.impliedExitMultiple.toFixed(1)}x: cotejar con comps`);
+      push('warn', 'EXIT_MULTIPLE_UNUSUAL', `Multiplo EV/EBITDA implicito ${result.impliedExitMultiple.toFixed(1)}x: cotejar con comps`, [result.impliedExitMultiple.toFixed(1)]);
     }
     const price = model?.meta?.priceAtAnalysis;
     const sens = result.sensitivity;
     if (isNum(price) && sens && sens.prices?.length) {
       const flat = sens.prices.flat().filter(isNum);
       if (flat.length && (price < Math.min(...flat) || price > Math.max(...flat))) {
-        push('warn', 'PRICE_OUTSIDE_SENSITIVITY', `El precio de mercado ${price} cae fuera de la tabla de sensibilidad [${Math.min(...flat).toFixed(1)}, ${Math.max(...flat).toFixed(1)}]: explicar`);
+        push('warn', 'PRICE_OUTSIDE_SENSITIVITY', `El precio de mercado ${price} cae fuera de la tabla de sensibilidad [${Math.min(...flat).toFixed(1)}, ${Math.max(...flat).toFixed(1)}]: explicar`, [String(price), Math.min(...flat).toFixed(1), Math.max(...flat).toFixed(1)]);
       }
     }
   }

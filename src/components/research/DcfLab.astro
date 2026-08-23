@@ -7,7 +7,7 @@
 // alguien mueve un control. Las dos usan EL MISMO motor, src/lib/finance/dcf.mjs:
 // no hay una segunda copia de las fórmulas.
 import type { Locale } from '../../i18n/routes';
-import { useR } from '../../i18n/research';
+import { useR, alertText } from '../../i18n/research';
 import { useT } from '../../i18n/ui';
 import type { Report } from '../../lib/research/reports';
 import { runDCF, sensitivity, sanityChecks, defaultRanges } from '../../lib/finance/dcf.mjs';
@@ -85,7 +85,7 @@ const payload = {
     price: r.out.price, ff: { lab: r.ffLab, comps: r.ffComps, mark: r.ffMark, empty: r.ffEmpty, aria: r.ffH },
     scen: { bear: r.ffBear, base: r.ffBase, bull: r.ffBull },
     copied: r.btnCopied, copy: r.btnCopy, alertsOk: r.alertsOk, vsMarket: r.out.vsMarket,
-    unavailable: t('src.unavailable')
+    unavailable: t('src.unavailable'), alerts: r.alerts
   }
 };
 ---
@@ -158,7 +158,7 @@ const payload = {
         {alerts.length === 0 && <p class="t-small muted">{r.alertsOk}</p>}
         <ul>
           {alerts.map((a: any) => (
-            <li class={'al al-' + a.level}><span class="al-dot" aria-hidden="true"></span><span class="t-small">{a.message}</span></li>
+            <li class={'al al-' + a.level}><span class="al-dot" aria-hidden="true"></span><span class="t-small">{alertText(a, r)}</span></li>
           ))}
         </ul>
       </div>

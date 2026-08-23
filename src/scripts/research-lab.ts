@@ -23,6 +23,7 @@ interface Payload {
     ff: { lab: string; comps: string; mark: string; empty: string; aria: string };
     scen: { bear: string; base: string; bull: string };
     copied: string; copy: string; alertsOk: string; vsMarket: string; unavailable: string;
+    alerts: Record<string, string>;
   };
 }
 
@@ -81,12 +82,20 @@ function mount(root: HTMLElement) {
     if (xWrap) xWrap.hidden = c.t !== 'exit-multiple';
   }
 
-  function paintAlerts(list: { level: string; message: string }[]) {
+  /** Misma traducción que en el build (src/i18n/research.ts -> alertText). */
+  function alertText(a: { code: string; level: string; message: string; params?: string[] }) {
+    const key = a.code === 'MARGIN_ABOVE_RECORD' && a.level === 'error' ? 'MARGIN_ABOVE_RECORD_NOREASON' : a.code;
+    const tpl = p.t.alerts[key];
+    if (!tpl) return a.message;
+    return tpl.replace(/\{(\d+)\}/g, (_m, i) => (a.params || [])[Number(i)] ?? '');
+  }
+
+  function paintAlerts(list: { level: string; code: string; message: string; params?: string[] }[]) {
     if (!alertsBox) return;
     const ul = alertsBox.querySelector('ul');
     const empty = alertsBox.querySelector('p.t-small');
     if (ul) {
-      ul.innerHTML = list.map((a) => `<li class="al al-${a.level}"><span class="al-dot" aria-hidden="true"></span><span class="t-small">${escapeHtml(a.message)}</span></li>`).join('');
+      ul.innerHTML = list.map((a) => `<li class="al al-${a.level}"><span class="al-dot" aria-hidden="true"></span><span class="t-small">${escapeHtml(alertText(a))}</span></li>`).join('');
     }
     if (empty) empty.textContent = list.length ? '' : p.t.alertsOk;
     if (empty) (empty as HTMLElement).hidden = list.length > 0;
@@ -145,7 +154,7 @@ function mount(root: HTMLElement) {
     let res: any;
     const live = modelWith(p.model, controls);
     try { res = runDCF(live); } catch (e) {
-      paintAlerts([{ level: 'error', message: String((e as Error).message || e) }]);
+      paintAlerts([{ level: 'error', code: 'ENGINE_ERROR', message: String((e as Error).message || e) }]);
       return;
     }
     const ranges = defaultRanges(controls.w as number, controls.g as number);

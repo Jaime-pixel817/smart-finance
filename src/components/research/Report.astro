@@ -103,7 +103,7 @@ const fmtV = (v: any) => {
           <dt>{r.hdr.price}</dt>
           <dd><span class="num" data-market-price>—</span></dd>
           <dd class="rep-chip" data-market-chip><SourceChip locale={locale} source="Yahoo" delay={15} /></dd>
-          <dd class="t-caption faint">{r.hdr.priceNote}</dd>
+          <dd class="rep-note">{r.hdr.priceNote}</dd>
         </div>
         <div>
           <dt>{r.hdr.analysisDate}</dt>
@@ -278,7 +278,10 @@ const fmtV = (v: any) => {
             <tr>
               <th scope="row">WACC</th>
               <td class:list={['num', pending(a.wacc?.wacc) && 'is-pending']}>{pending(a.wacc?.wacc) ? r.hdr.pending : millions(a.wacc.wacc, locale, 2) + '%'}</td>
-              <td class="t-caption">{waccRat}</td>
+              <td class="t-caption">
+                {pending(waccRat) && <span class="is-pending">{r.pendingH}. </span>}
+                <span lang={srcLang}>{waccRat}</span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -326,6 +329,7 @@ const fmtV = (v: any) => {
   .rep-meta dd { margin: 0; color: var(--ink); font-size: var(--fs-small); }
   .rep-meta dd.is-pending { color: var(--warn); }
   .rep-chip { margin-top: 2px !important; }
+  .rep-meta dd.rep-note { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
 
   .rep-draft { display: flex; flex-direction: column; gap: var(--sp-2); border-left: 3px solid var(--warn); }
   .rep-draft-h { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: var(--fs-small); color: var(--warn); }

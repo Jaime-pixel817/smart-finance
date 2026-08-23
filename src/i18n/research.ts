@@ -186,6 +186,27 @@ const en = {
   btnCopied: 'Link copied',
   alertsH: 'Sanity checks',
   alertsOk: 'No warnings with these settings.',
+  // Las alertas las levanta el motor (src/lib/finance/dcf.mjs) con un `code` y
+  // los trozos ya formateados en `params`; aquí solo se escriben en cada idioma.
+  alerts: {
+    MISSING_ASSUMPTIONS: 'Assumptions with no value: {0}',
+    RATIONALE_PENDING: 'Still missing the written reason for: {0}',
+    WACC_OUT_OF_RANGE: 'A WACC of {0} % is outside 6–14 %',
+    WACC_UNUSUAL: 'A WACC of {0} % is outside the usual 7–11 % range',
+    G_GE_WACC: 'Terminal growth ({0} %) has to be lower than the WACC ({1} %)',
+    G_ABOVE_3: 'Terminal growth of {0} % is above 3 % nominal in US dollars: that needs a reason',
+    G_NEGATIVE: 'Terminal growth is negative ({0} %)',
+    SCENARIO_PROB_MISSING: 'Some scenarios have no probability yet',
+    SCENARIO_PROB_SUM: 'The scenario probabilities add up to {0}, not 1',
+    MARGIN_ABOVE_RECORD: 'The projected EBITDA margin of {0} % is above the historical record of {1} %',
+    MARGIN_ABOVE_RECORD_NOREASON: 'The projected EBITDA margin of {0} % is above the historical record of {1} % with no written reason',
+    CAPEX_BELOW_DA: 'Capex {0} % of revenue is below D&A {1} % while revenue grows',
+    STALE_DATA: 'The data is {0} days old (more than 90)',
+    TV_SHARE_HIGH: 'The terminal value is {0} % of enterprise value (above 80 %)',
+    TV_SHARE_UNUSUAL: 'The terminal value is {0} % of enterprise value (outside 50–75 %)',
+    EXIT_MULTIPLE_UNUSUAL: 'The implied EV/EBITDA exit multiple is {0}x: check it against the comparables',
+    PRICE_OUTSIDE_SENSITIVITY: 'The market price {0} falls outside the sensitivity grid ({1} to {2})'
+  } as Record<string, string>,
   derivH: 'Where each starting value comes from',
   derivCols: { field: 'Control', value: 'Start', from: 'Comes from' },
   derivCode: {
@@ -415,6 +436,25 @@ const es: typeof en = {
   btnCopied: 'Enlace copiado',
   alertsH: 'Controles de sanidad',
   alertsOk: 'Ninguna alerta con estos valores.',
+  alerts: {
+    MISSING_ASSUMPTIONS: 'Supuestos sin valor: {0}',
+    RATIONALE_PENDING: 'Falta la razón escrita de: {0}',
+    WACC_OUT_OF_RANGE: 'Un WACC de {0} % queda fuera de 6–14 %',
+    WACC_UNUSUAL: 'Un WACC de {0} % queda fuera del rango típico de 7–11 %',
+    G_GE_WACC: 'El crecimiento terminal ({0} %) tiene que ser menor que el WACC ({1} %)',
+    G_ABOVE_3: 'Un crecimiento terminal de {0} % pasa del 3 % nominal en dólares: eso necesita una razón',
+    G_NEGATIVE: 'El crecimiento terminal es negativo ({0} %)',
+    SCENARIO_PROB_MISSING: 'Todavía hay escenarios sin probabilidad',
+    SCENARIO_PROB_SUM: 'Las probabilidades de los escenarios suman {0}, no 1',
+    MARGIN_ABOVE_RECORD: 'El margen EBITDA proyectado de {0} % supera el máximo histórico de {1} %',
+    MARGIN_ABOVE_RECORD_NOREASON: 'El margen EBITDA proyectado de {0} % supera el máximo histórico de {1} % sin razón escrita',
+    CAPEX_BELOW_DA: 'El capex, {0} % de los ingresos, está por debajo de la D&A, {1} %, mientras los ingresos crecen',
+    STALE_DATA: 'Los datos tienen {0} días (más de 90)',
+    TV_SHARE_HIGH: 'El valor terminal es {0} % del valor de la empresa (más del 80 %)',
+    TV_SHARE_UNUSUAL: 'El valor terminal es {0} % del valor de la empresa (fuera de 50–75 %)',
+    EXIT_MULTIPLE_UNUSUAL: 'El múltiplo EV/EBITDA implícito es {0}x: cotéjalo con los comparables',
+    PRICE_OUTSIDE_SENSITIVITY: 'El precio de mercado {0} cae fuera de la malla de sensibilidad ({1} a {2})'
+  } as Record<string, string>,
   derivH: 'De dónde sale cada valor de arranque',
   derivCols: { field: 'Control', value: 'Arranque', from: 'Sale de' },
   derivCode: {
@@ -471,3 +511,11 @@ const es: typeof en = {
 export const research: Record<Locale, typeof en> = { en, es };
 export type ResearchCopy = typeof en;
 export function useR(locale: Locale): ResearchCopy { return research[locale] ?? research.en; }
+
+/** Alerta del motor de DCF escrita en el idioma de la página. */
+export function alertText(alert: { code: string; level?: string; message: string; params?: string[] }, copy: ResearchCopy): string {
+  const key = alert.code === 'MARGIN_ABOVE_RECORD' && alert.level === 'error' ? 'MARGIN_ABOVE_RECORD_NOREASON' : alert.code;
+  const tpl = copy.alerts[key];
+  if (!tpl) return alert.message; // código nuevo en el motor: mejor el texto crudo que nada
+  return tpl.replace(/\{(\d+)\}/g, (_m, i) => (alert.params || [])[Number(i)] ?? '');
+}
