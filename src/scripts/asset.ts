@@ -7,6 +7,7 @@ import { fmtNum, fmtPct, arrow, dirClass, type Loc } from './format';
 import { loadMarkets, loadQuotes, loadHistory, quoteFromMarkets, quoteFromQuotes, quoteFromHistory, changeOver, minMax, readLS, writeLS, type Quote, type SymbolRT, type Range } from './market-data';
 import { paintAssetRow, setChip } from './rows';
 import { mountPricePanel, type PanelStats } from './chart-panel';
+import { montarBotones, alCambiar, leer as leerWatchlist } from './watchlist';
 
 type Sym = SymbolRT & { href?: string };
 const root = document.getElementById('asset');
@@ -131,5 +132,17 @@ function boot(root: HTMLElement) {
       yearLowHigh = minMax(h.points);
       paintHighLow();
     }).catch(() => { ['chg1M', 'chg3M', 'chg1Y'].forEach((k) => paintStat(k, '—')); paintHighLow(); });
+  }
+
+  // ---- Seguir (watchlist local) ----
+  // El botón de la cabecera además cambia su texto visible; los de las filas de
+  // "Relacionados" solo cambian de estado. Todo lo demás lo hace watchlist.ts.
+  montarBotones(root);
+  const follow = $('.asset-follow');
+  const followText = $('.asset-follow-text');
+  if (follow && followText) {
+    const pintar = (ids: string[]) => { followText.textContent = ids.includes(s.id) ? T.unfollow : T.follow; };
+    alCambiar(pintar);
+    pintar(leerWatchlist());
   }
 }

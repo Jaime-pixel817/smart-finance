@@ -32,6 +32,9 @@ const TOOL_META = { lastmod: '2026-08-22', changefreq: 'monthly' as const, prior
 export const ROUTES: RouteEntry[] = [
   { id: 'home', en: '/', es: '/es', lastmod: '2026-08-21', changefreq: 'daily', priority: '1.0' },
   { id: 'market', en: '/market', es: '/es/mercado', lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.9' },
+  // Comparador: dos o tres activos normalizados a 100. Los activos van en la
+  // query (?a=spy&b=usdmxn), así que la página es UNA sola y se puede compartir.
+  { id: 'market.compare', en: '/market/compare', es: '/es/mercado/comparar', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.7' },
   // Fichas de activo: una ruta por símbolo del registro (src/data/symbols.ts).
   ...ASSETS.map((s): RouteEntry => ({ id: 'asset.' + s.id, en: '/market/' + s.id, es: '/es/mercado/' + s.id, lastmod: '2026-08-21', changefreq: 'hourly', priority: '0.8' })),
   // Noticias explicadas. El índice se pinta en el navegador desde

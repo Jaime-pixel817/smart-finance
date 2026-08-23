@@ -9,7 +9,7 @@
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT, type UIKey } from '../../i18n/ui';
-import { SYMBOLS, KINDS, sectionOf, runtimeOf, assetRouteId, type Kind, type SymbolEntry } from '../../data/symbols';
+import { SYMBOLS, ASSETS, KINDS, sectionOf, runtimeOf, assetRouteId, type Kind, type SymbolEntry } from '../../data/symbols';
 import { RATES, ratesFresh } from '../../data/home';
 import { fmtNum, fmtDay } from '../../scripts/format';
 import AssetRow from './AssetRow.astro';
@@ -34,7 +34,7 @@ const strings = {
   open: t('today.open'), closed: t('today.closed'), updated: t('mkt.status.updated'), every: t('mkt.status.every'),
   loading: t('src.loading'), unavailable: t('src.unavailable'), chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'),
   today: t('chart.today'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'), bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
-  openCard: t('mkt.panel.open')
+  openCard: t('mkt.panel.open'), watchEmpty: t('watch.empty'), watchFull: t('watch.full')
 };
 const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.name[locale] }));
 ---
@@ -45,6 +45,26 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
     <p class="t-small muted mkt-sub">{t('mkt.sub')}</p>
     <p id="mkt-status" class="t-mono t-caption mkt-status" aria-live="polite"><span class="skel">Thu 21 Aug · NYSE open · BMV open · updated 14:32</span></p>
   </header>
+
+  <!-- ── Lo que sigues ────────────────────────────────────────────
+       Las filas se pintan en el servidor (las mismas que abajo, mismo
+       componente y mismo sparkline) y nacen escondidas: el script enciende las
+       que están en la watchlist y ordena. Así no hay markup de una fila
+       escrito dos veces, que es de donde salen las dos versiones que se
+       separan (ver la nota de /news en CLAUDE.md). `data-row` se repite a
+       propósito y los pintores tocan TODAS las filas que casan. -->
+  <section id="mkt-watch" class="container mkt-watch" aria-labelledby="watch-h" hidden>
+    <div class="section-head mkt-sec-head">
+      <h2 id="watch-h" class="t-h3">{t('watch.title')}</h2>
+      <a class="more" id="mkt-watch-compare" href={L('market.compare')}>{t('watch.compare')} →</a>
+    </div>
+    <div class="card mkt-list-card">
+      <ul class="mkt-rows" id="mkt-watch-rows">
+        {ASSETS.map((s) => <AssetRow locale={locale} s={s} href={hrefOf(s)} seguible oculta />)}
+      </ul>
+    </div>
+    <p class="t-caption faint mkt-watch-note" id="mkt-watch-note">{t('watch.note')}</p>
+  </section>
 
   <div class="container">
     <div class="mkt-filters rail" role="group" aria-label={t('mkt.filter.aria')}>
@@ -75,7 +95,7 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
           <div class="card mkt-list-card">
             <ul class="mkt-rows">
               {sec.items.map((s) => (
-                <AssetRow locale={locale} s={s} href={hrefOf(s)} rate={s.kind === 'rate' ? rateRow(s) : undefined} />
+                <AssetRow locale={locale} s={s} href={hrefOf(s)} seguible rate={s.kind === 'rate' ? rateRow(s) : undefined} />
               ))}
             </ul>
             {sec.kind === 'rate'
@@ -97,6 +117,11 @@ const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.
   .mkt-status { color: var(--ink-2); margin-top: var(--sp-1); min-height: 1rem; }
   :global(.st-open) { color: var(--up-text); }
   :global(.st-closed) { color: var(--warn); }
+
+  .mkt-watch { margin-top: var(--sp-6); }
+  .mkt-watch[hidden] { display: none; }
+  .mkt-watch .mkt-list-card { margin-top: var(--sp-2); }
+  .mkt-watch-note { margin-top: var(--sp-2); max-width: var(--measure); }
 
   .mkt-filters { margin-top: var(--sp-4); gap: var(--sp-2); scroll-snap-type: none; }
   .mkt-filters .chip { min-height: 36px; padding: 0 14px; color: var(--ink-2); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }

@@ -17,6 +17,7 @@ import { PULSE, RATES, BREAKDOWNS, ratesFresh } from '../../data/home';
 import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
 import SourceChip from '../SourceChip.astro';
+import AssetRow from '../market/AssetRow.astro';
 import WorldMarkets from './WorldMarkets.astro';
 import Hero from './Hero.astro';
 
@@ -31,6 +32,11 @@ const strings = {
   storyOpen: t('news.open'), storyRead: t('story.read'), storyAi: t('news.ai'), storyWhat: t('news.what'),
   nlOk: t('nl.ok'), nlBadEmail: t('nl.badEmail'), nlNoConsent: t('nl.noConsent'), nlLimit: t('nl.limit'), nlError: t('nl.error'), nlSending: t('nl.sending')
 };
+// "Lo que sigues": las filas se pintan aquí (escondidas) y el script enciende
+// las que estén en la watchlist local. Si no sigues nada, la tarjeta no
+// aparece y NO se pide ningún dato de más: el home ya es la página con más
+// trabajo del sitio y una watchlist vacía no puede costarle una petición.
+const watchRuntime = ASSETS.map((a) => ({ id: a.id, feed: a.feed, feedKey: a.feedKey, kind: a.kind, decimals: a.decimals, invert: a.invert }));
 // Lecciones desde la colección MDX: la tarjeta grande es la primera de la ruta
 // "Desde cero"; el script de progreso la cambia por la siguiente sin leer.
 const lessons = await getLessons(locale);
@@ -100,6 +106,20 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
       <div class="chips-row">
         <SourceChip locale={locale} id="chip-pulse" source="Yahoo Finance · CoinGecko" delay={15} />
         {showRates && <SourceChip locale={locale} id="chip-rates" source="Banxico · Fed" note={t('src.manual')} />}
+      </div>
+    </section>
+
+    <!-- ── Lo que sigues (watchlist local, sin cuenta) ───────────── -->
+    <section id="home-watch" class="home-watch col-12" aria-labelledby="home-watch-h"
+      data-watch={JSON.stringify(watchRuntime)} hidden>
+      <div class="section-head">
+        <h2 id="home-watch-h" class="t-h3">{t('watch.title')}</h2>
+        <a class="more" id="home-watch-compare" href={L('market.compare')}>{t('watch.compare')} →</a>
+      </div>
+      <div class="card home-watch-card">
+        <ul class="mkt-rows" id="home-watch-rows">
+          {ASSETS.map((a) => <AssetRow locale={locale} s={a} href={L(assetRouteId(a.id))} seguible oculta />)}
+        </ul>
       </div>
     </section>
 
@@ -296,6 +316,11 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 <script src="../../scripts/home-learn.ts"></script>
 
 <style>
+  /* Lo que sigues: la misma fila de /market dentro de una tarjeta. */
+  .home-watch[hidden] { display: none; }
+  .home-watch-card { padding: var(--sp-1) var(--sp-2) var(--sp-2); }
+  .home-watch .mkt-rows { display: flex; flex-direction: column; }
+
   /* El hero va a sangre desde y = 0; lo de después empieza aquí, y es OPACO
      (z-index 3) porque al hacer scroll tiene que tapar el globo, que está fijo
      en z-index 1. Sin fondo propio se vería el globo detrás del pulso. */

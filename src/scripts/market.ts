@@ -7,6 +7,7 @@ import { nyseOpen, bmvOpen } from './hours';
 import { loadMarkets, loadQuotes, loadHistory, quoteFromMarkets, quoteFromQuotes, readLS, writeLS, type Markets, type Quotes, type Quote, type SymbolRT } from './market-data';
 import { paintAssetRow, setChip } from './rows';
 import { mountPricePanel, type PricePanel } from './chart-panel';
+import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar, TOPE } from './watchlist';
 
 type Sym = SymbolRT & { href: string; name: string };
 const root = document.getElementById('market-page');
@@ -18,7 +19,10 @@ function boot(root: HTMLElement) {
   const symbols = JSON.parse(root.dataset.symbols || '[]') as Sym[];
   const $ = <E extends Element = HTMLElement>(sel: string, from: ParentNode = root) => from.querySelector<E>(sel);
   const $$ = <E extends Element = HTMLElement>(sel: string, from: ParentNode = root) => Array.from(from.querySelectorAll<E>(sel));
-  const rowOf = (id: string) => $(`[data-row="${id}"]`);
+  // El mismo activo sale hasta dos veces (en "Lo que sigues" y en su sección),
+  // así que se pintan TODAS las filas que casan, no la primera.
+  const rowsOf = (id: string) => $$(`[data-row="${id}"]`);
+  const pintarFilas = (s: Sym, q: Quote | null) => rowsOf(s.id).forEach((r) => paintAssetRow(r, s, q, loc));
 
   const LS = 'sf-market-cache-v1';
   type Cache = { markets?: Markets; quotes?: Quotes; at?: number };
@@ -44,7 +48,7 @@ function boot(root: HTMLElement) {
   const chipT = { loading: T.loading, unavailable: T.unavailable };
 
   function applyMarkets(m: Markets, fromCache: boolean) {
-    viaMarkets.forEach((s) => { const q = quoteFromMarkets(s, m); if (q) { quotes.set(s.id, q); paintAssetRow(rowOf(s.id), s, q, loc); } });
+    viaMarkets.forEach((s) => { const q = quoteFromMarkets(s, m); if (q) { quotes.set(s.id, q); pintarFilas(s, q); } });
     const when = m.updatedAt ? new Date(m.updatedAt) : null;
     const state = fromCache ? 'stale' : 'fresh';
     const stockSrc = m.stocks?.source || undefined;
@@ -56,7 +60,7 @@ function boot(root: HTMLElement) {
     maybeRefreshPanel();
   }
   function applyQuotes(q: Quotes, fromCache: boolean) {
-    viaQuotes.forEach((s) => { const x = quoteFromQuotes(s, q); if (x) { quotes.set(s.id, x); paintAssetRow(rowOf(s.id), s, x, loc); } });
+    viaQuotes.forEach((s) => { const x = quoteFromQuotes(s, q); if (x) { quotes.set(s.id, x); pintarFilas(s, x); } });
     const when = q.updatedAt ? new Date(q.updatedAt) : null;
     setChip($('#chip-fx'), when, fromCache ? 'stale' : 'fresh', loc, chipT, q.refreshMinutes, q.source || undefined);
     bump(when);
@@ -69,10 +73,10 @@ function boot(root: HTMLElement) {
   function fetchAll() {
     loadMarkets()
       .then((m) => { applyMarkets(m, false); writeLS(LS, { ...(readLS<Cache>(LS) || {}), markets: m, at: Date.now() }); })
-      .catch(() => { if (!cache.markets) { viaMarkets.forEach((s) => paintAssetRow(rowOf(s.id), s, null, loc)); ['index', 'stock', 'crypto'].forEach((k) => setChip($('#chip-' + k), null, 'error', loc, chipT)); } });
+      .catch(() => { if (!cache.markets) { viaMarkets.forEach((s) => pintarFilas(s, null)); ['index', 'stock', 'crypto'].forEach((k) => setChip($('#chip-' + k), null, 'error', loc, chipT)); } });
     loadQuotes()
       .then((q) => { applyQuotes(q, false); writeLS(LS, { ...(readLS<Cache>(LS) || {}), quotes: q, at: Date.now() }); })
-      .catch(() => { if (!cache.quotes) { viaQuotes.forEach((s) => paintAssetRow(rowOf(s.id), s, null, loc)); setChip($('#chip-fx'), null, 'error', loc, chipT); } });
+      .catch(() => { if (!cache.quotes) { viaQuotes.forEach((s) => pintarFilas(s, null)); setChip($('#chip-fx'), null, 'error', loc, chipT); } });
   }
   fetchAll();
   setInterval(() => { if (document.visibilityState === 'visible') { fetchAll(); paintStatus(); } }, 15 * 60 * 1000);
@@ -90,6 +94,46 @@ function boot(root: HTMLElement) {
       const chip = $('#chip-rate'); if (chip) { chip.dataset.fresh = 'fresh'; const t = $('.sc-time', chip); if (t) t.textContent = fmtDay(d, loc); }
     }
   }
+
+  // ---- "Lo que sigues": las mismas filas, encendidas y ordenadas ----------
+  // Las filas ya están en el HTML (escondidas): aquí solo se enciende lo que
+  // está en la watchlist y se pone en el orden en el que se fue marcando.
+  const watchSec = $('#mkt-watch');
+  const watchRows = $('#mkt-watch-rows');
+  const watchLink = $<HTMLAnchorElement>('#mkt-watch-compare');
+  const watchNote = $('#mkt-watch-note');
+  const notaBase = watchNote ? watchNote.textContent || '' : '';
+  const validos = new Set(symbols.map((s) => s.id));
+
+  function pintarWatchlist(ids: string[]) {
+    if (!watchSec || !watchRows) return;
+    const enLista = new Set(ids);
+    for (const fila of Array.from(watchRows.children) as HTMLElement[]) {
+      fila.hidden = !enLista.has(fila.dataset.row || '');
+    }
+    // El orden de la lista manda: se reordenan en el DOM, no con CSS, para que
+    // el teclado y el lector de pantalla lo recorran igual que la vista.
+    ids.forEach((id) => {
+      const fila = watchRows.querySelector<HTMLElement>(`[data-row="${id}"]`);
+      if (fila) watchRows.appendChild(fila);
+    });
+    watchSec.hidden = ids.length === 0;
+    if (watchLink) {
+      watchLink.href = urlComparar(watchLink.pathname.split('?')[0] || watchLink.href, ids);
+      watchLink.hidden = ids.length < 2;   // comparar uno solo no es comparar
+    }
+    if (watchNote) watchNote.textContent = ids.length >= TOPE ? T.watchFull : notaBase;
+    // Lo que ya llegó del endpoint se pinta ya; lo que no, en la siguiente vuelta.
+    ids.forEach((id) => {
+      const s = symbols.find((x) => x.id === id);
+      const q = quotes.get(id);
+      if (s && q) pintarFilas(s, q);
+    });
+  }
+
+  montarBotones(root);
+  alCambiar(() => pintarWatchlist(leerWatchlist(validos)));
+  pintarWatchlist(leerWatchlist(validos));
 
   // ---- Chips de filtro: Todo · Índices · Acciones · Divisas · Cripto · Tasas ----
   const filters = $$<HTMLButtonElement>('[data-filter]');

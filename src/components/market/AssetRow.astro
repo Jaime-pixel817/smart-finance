@@ -4,14 +4,30 @@
 // de la página la rellena por data-row. Toda la fila es el enlace a la ficha.
 // Las tasas (sin cotización) se pintan ya en el servidor: valor y fecha de
 // verificación, sin sparkline.
+//
+// EL BOTÓN DE SEGUIR VA FUERA DEL ENLACE, no dentro: un <button> dentro de un
+// <a> es HTML inválido y el teclado se lo come. Por eso el borde de la fila lo
+// pinta el <li> y no el enlace. `data-row` puede repetirse (el mismo activo
+// sale en "Lo que sigues" y en su sección), así que los scripts pintan TODAS
+// las filas que casan, no la primera.
 import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
 import { sectionOf, type SymbolEntry } from '../../data/symbols';
 
-interface Props { locale: Locale; s: SymbolEntry; href: string; rate?: { value: string; note: string; verified: string } }
-const { locale, s, href, rate } = Astro.props;
+interface Props {
+  locale: Locale; s: SymbolEntry; href: string;
+  rate?: { value: string; note: string; verified: string };
+  /** Botón de seguir/dejar de seguir (todo menos las tasas, que no cotizan). */
+  seguible?: boolean;
+  /** Nace escondida: las filas de "Lo que sigues" las enciende el script. */
+  oculta?: boolean;
+}
+const { locale, s, href, rate, seguible = false, oculta = false } = Astro.props;
+const t = useT(locale);
 const name = s.name[locale] + (s.note ? ' · ' + s.note[locale] : '');
+const nombreSolo = s.name[locale];
 ---
-<li class="ar" data-row={s.id} data-kind={sectionOf(s)} data-state={rate ? 'ready' : 'loading'}>
+<li class="ar" data-row={s.id} data-kind={sectionOf(s)} data-state={rate ? 'ready' : 'loading'} hidden={oculta}>
   <a class="ar-link" href={href}>
     <span class="ar-id">
       <span class="ar-sym num">{s.sym}</span>
@@ -33,10 +49,23 @@ const name = s.name[locale] + (s.note ? ' · ' + s.note[locale] : '');
       <span class="ar-chg num t-caption skel">▲ 0.00 %</span>
     )}
   </a>
+  {seguible && !rate && (
+    <button class="ar-follow" type="button" data-follow={s.id} aria-pressed="false"
+      aria-label={t('watch.follow') + ' ' + nombreSolo}
+      data-label-on={t('watch.unfollow') + ' ' + nombreSolo}
+      data-label-off={t('watch.follow') + ' ' + nombreSolo}>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-3.8L5.5 20.5v-16a1 1 0 0 1 1-1z"
+          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+  )}
 </li>
 <style>
-  .ar-link { display: grid; grid-template-columns: minmax(0, 1fr) 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; padding: 0 var(--sp-2); border-bottom: 1px solid var(--line); color: var(--ink); transition: background .15s; }
-  .ar:last-child .ar-link { border-bottom: 0; }
+  .ar { display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+  .ar[hidden] { display: none; }
+  .ar:last-child { border-bottom: 0; }
+  .ar-link { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; padding: 0 var(--sp-2); color: var(--ink); transition: background .15s; }
   .ar-link:hover, .ar[aria-current] .ar-link { background: var(--bg-2); border-radius: var(--r-input); }
   .ar-link:active { transform: scale(.995); }
   .ar[aria-current] .ar-sym { color: var(--brand-text); }
@@ -48,7 +77,18 @@ const name = s.name[locale] + (s.note ? ' · ' + s.note[locale] : '');
   .ar-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; white-space: nowrap; }
   .ar-chg { text-align: right; min-width: 8ch; white-space: nowrap; }
   .ar-verified { min-width: 0; }
+
+  /* Seguir: 44×44 de zona táctil, marcador vacío cuando no lo sigues y
+     relleno cuando sí. El color de marca lo usa el sitio para lo que se puede
+     tocar, no para "sube": aquí no hay ningún dato en juego. */
+  .ar-follow { flex: 0 0 auto; display: grid; place-items: center; width: 44px; height: 44px; margin-right: -6px; background: none; border: 0; border-radius: var(--r-btn); color: var(--ink-3); cursor: pointer; transition: color .15s, background .15s; }
+  .ar-follow:hover { color: var(--ink); background: var(--bg-2); }
+  .ar-follow[aria-pressed="true"] { color: var(--brand-text); }
+  .ar-follow[aria-pressed="true"] svg path { fill: currentColor; }
+  .ar-follow:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
   @media (min-width: 768px) { .ar-price { min-width: 9ch; } .ar-chg { min-width: 9ch; } }
-  /* Al estrecharse mucho (≤ 360 px), la sparkline de las filas cede antes que el precio. */
-  @media (max-width: 359px) { .ar-link { grid-template-columns: minmax(0, 1fr) auto auto; } .ar-spark:not(.ar-rate-note) { display: none; } }
+  /* Al estrecharse mucho (≤ 380 px), la sparkline de las filas cede antes que
+     el precio: primero se va el dibujo, nunca el número ni el botón. */
+  @media (max-width: 379px) { .ar-link { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sp-2); } .ar-spark:not(.ar-rate-note) { display: none; } }
 </style>

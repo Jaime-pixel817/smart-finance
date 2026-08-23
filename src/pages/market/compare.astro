@@ -1,0 +1,25 @@
+---
+// Comparador de activos (EN). Es UNA página: los activos van en la query
+// (?a=spy&b=usdmxn), así que un enlace compartido abre la misma comparación.
+// La ruta estática gana a /market/[symbol]: Astro sirve antes un archivo que
+// un parámetro, así que /market/compare nunca cae en la ficha de un activo.
+import Base from '../../layouts/Base.astro';
+import ComparePage from '../../components/market/ComparePage.astro';
+import { SITE, route } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
+const title = 'Compare assets: two or three on the same chart — Smart Finance';
+const description = 'Put two or three assets on one chart, each starting at 100, and read how much each one moved instead of what it costs. No second axis. Delayed data, educational only.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: SITE + route('market.compare', 'en'),
+  inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' }
+};
+---
+<Base locale="en" routeId="market.compare" active="markets" title={title} description={description}
+  ogImage={ogPropia('market-compare', 'en')} ogImageAlt="Smart Finance — compare two assets, both starting at 100" jsonLd={jsonLd}>
+  <ComparePage locale="en" />
+</Base>

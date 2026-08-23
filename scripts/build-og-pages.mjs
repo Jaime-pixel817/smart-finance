@@ -455,6 +455,15 @@ const TARJETAS_FIJAS = [
       pie: 'Cada nota la lee una persona antes de publicarse' }
   },
   {
+    nombre: 'market-compare',
+    en: { etiqueta: 'Markets', titular: 'Compare two assets without lying with the axis',
+      bajada: 'Both start at 100, so what you read is how much each one moved, not what it costs.',
+      pie: 'No second axis · Delayed data' },
+    es: { etiqueta: 'Mercados', titular: 'Comparar dos activos sin mentir con el eje',
+      bajada: 'Los dos empiezan en 100, así que lo que se lee es cuánto se movió cada uno, no cuánto cuesta.',
+      pie: 'Sin segundo eje · Datos con retraso' }
+  },
+  {
     nombre: 'tools',
     en: { etiqueta: 'Tools', titular: 'Three calculators with your own numbers',
       bajada: 'Move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
