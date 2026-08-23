@@ -187,11 +187,40 @@ function subsolarDir(date) {
  * a gris. Bajando la cara trasera a un tercio se conserva el volumen y el mapa
  * de delante manda.
  */
+/* ═══════════════════════════════════════════════════════════════════════════
+ * LA ENTRADA — las partículas llegan de lejos y forman el globo, EN LA GPU
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Cada partícula lleva DOS posiciones: `aScatter`, de donde sale (un punto
+ * suelto a dos veces y media el radio, repartido por toda la pantalla), y
+ * `position`, donde aterriza. Un único uniform, uForm, va de 0 a 1 en 1.2 s y
+ * el vertex shader interpola entre las dos con un easing que arranca y frena
+ * suave. El bucle de JavaScript NO toca ni una partícula: mueve un número.
+ *
+ * POR QUÉ ASÍ Y NO COMO ANTES. La primera versión de esta entrada movía las
+ * 99 000 partículas desde JavaScript, buffer entero a la GPU en cada frame,
+ * unos 105 frames: 1 640 ms de TBT en Lighthouse, casi todos de este archivo.
+ * Ese coste era de MOVERLAS en la CPU, no de la animación en sí. Hecha en el
+ * vertex shader —que ya se ejecuta igual para cada partícula en cada frame—
+ * cuesta una interpolación y un mix por vértice, o sea nada medible, y el
+ * camino rápido del bucle sigue sin tocar el buffer de posiciones.
+ *
+ * Y EL SVG DE RESPALDO SE VA ANTES. El hero pinta un globo estático de 2.3 KB
+ * desde el primer frame. Si la entrada empezara con él todavía encima, lo que
+ * se vería es ese globo deshaciéndose en polvo. Por eso el orden es: lienzo
+ * montado → "globe:ready" → el hero funde el SVG en 160 ms → y solo entonces
+ * arranca uForm. Mientras tanto las partículas están a brillo 0 (ver
+ * `entrada`), así que no se asoma nada por debajo.
+ *
+ * Con prefers-reduced-motion no hay entrada: uForm nace en 1.
+ */
 const GLOBE_VERTEX_SHADER = /* glsl */ `
 precision highp float;
 attribute float jPhase;
 attribute float aLand;
 attribute float aCountry;
+attribute vec3  aScatter;
+uniform float uForm;
 uniform float uPixelsPerUnit;
 uniform float uPixelRatio;
 uniform float uSize;
@@ -202,9 +231,11 @@ uniform float uBrightBase;
 uniform float uBrightScale;
 uniform float uShimmerSpeed;
 uniform float uPlano;
+uniform float uPlanoA;
 uniform vec3  uSunDir;
 uniform float uNoche;
 uniform float uAtras;
+uniform float uAtrasA;
 uniform float uTierra;
 uniform float uMar;
 uniform vec3  uColTierra;
@@ -214,10 +245,27 @@ uniform vec3  uHiColor;
 uniform float uHiGain;
 uniform float uHiFade;
 varying vec3 vColor;
+varying float vAlfa;
 
 void main() {
   vec3 dir = normalize(position);
-  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+  /* ── La entrada ────────────────────────────────────────────────────────
+     jPhase ya es un número aleatorio por partícula (0..2pi); dividido entre
+     2pi da el 0..1 con el que se escalona la salida, para que no lleguen
+     todas a la vez y se lea como un enjambre y no como una cortina. */
+  float retraso = 0.38 * (jPhase * 0.15915494);
+  float t = clamp((uForm - retraso) / (1.0 - retraso), 0.0, 1.0);
+  float avance = t * t * (3.0 - 2.0 * t);
+  vec3 pos = mix(aScatter, position, avance);
+  /* A uForm = 0 el lienzo está VACÍO —es lo que deja al SVG del hero irse solo
+     y sin cruce—, pero en cuanto la partícula arranca se enciende deprisa
+     (0.12, no 0.32): con una rampa larga las partículas solo se veían ya casi
+     colocadas y el hero se quedaba en negro medio segundo. Encendidas pronto,
+     lo que se ve es lo que se pidió: llegan de lejos. */
+  float entrada = smoothstep(0.0, 0.12, t);
+
+  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
 
   vec3 viewNormal = normalize(normalMatrix * dir);
   vec3 viewDir    = normalize(-mvPosition.xyz);
@@ -249,6 +297,29 @@ void main() {
    * duro entre la nube y el halo. */
   b *= mix(1.0, max(0.05, abs(vFacing)), uPlano);
 
+  /* ── Apagar de verdad, y no solo oscurecer ─────────────────────────────
+   *
+   * ESTO ES LA CLAVE DEL MODO DÍA y merece leerse despacio. La mezcla es
+   * ADITIVA: el alfa que acumulan las partículas es lo que tapa el fondo de
+   * la página, y el color es lo que se pinta encima. Sobre fondo NEGRO, bajar
+   * el color de una partícula la hace desaparecer y da igual su alfa. Sobre
+   * fondo CLARO, no: bajar el color y dejar el alfa deja un punto GRIS, o sea
+   * que "apagar" acaba pintando más. Lo que apaga sobre claro es bajar las
+   * dos cosas a la vez, que es lo que hace vAlfa (multiplica el fragmento
+   * entero, color y alfa).
+   *
+   * Así que las tres atenuaciones que significan "esta partícula no tiene que
+   * verse" —la cara de atrás, la corrección de densidad del limbo y la
+   * entrada— pueden ir por color o por alfa, y cada tema elige:
+   *   oscuro  uAtras 0.30 / uAtrasA 1     y  uPlano 0.92 / uPlanoA 0
+   *   claro   uAtras 1    / uAtrasA 0.22  y  uPlano 0    / uPlanoA 0.92
+   * En oscuro queda EXACTAMENTE el globo de siempre; en claro, la cara de
+   * atrás y el borde se van a la página en vez de mancharla de gris. */
+  float caraAtras = smoothstep(-0.30, 0.02, vFacing);
+  float alfaAtras = mix(uAtrasA, 1.0, caraAtras);
+  float alfaPlano = mix(1.0, max(0.05, abs(vFacing)), uPlanoA);
+  vAlfa = entrada * alfaAtras * alfaPlano;
+
   /* Día y noche. uSunDir apunta al punto subsolar (ver subsolarDir). La cara
      que mira al sol sube un pelo, la opuesta baja bastante; el terminador es
      una franja suave de -0.15..0.25 en el coseno (~23°) para que no se lea
@@ -258,9 +329,10 @@ void main() {
   float sol = dot(dir, uSunDir);
   b *= mix(1.0 - uNoche, 1.0 + uNoche * 0.15, smoothstep(-0.15, 0.25, sol));
 
-  // La cara de atrás, a un tercio: sin esto los continentes se emborronan
-  // contra el hemisferio opuesto (ver la nota de arriba).
-  b *= mix(uAtras, 1.0, smoothstep(-0.30, 0.02, vFacing));
+  // La cara de atrás, a un tercio en modo noche: sin esto los continentes se
+  // emborronan contra el hemisferio opuesto. En modo día esto vale 1 y el
+  // trabajo lo hace alfaAtras (ver arriba).
+  b *= mix(uAtras, 1.0, caraAtras);
 
   // Tierra o mar: la tierra sube y se va a hueso cálido, el mar baja y se
   // queda en azul de noche. La costa se dibuja sola, en el salto entre las dos.
@@ -279,7 +351,11 @@ void main() {
      noche del globo, sigue siendo el país iluminado. */
   vColor = mix(vec3(b) * col, uHiColor * uHiGain * max(b, 0.50), hi);
 
-  gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / -mvPosition.z * (1.0 + 0.45 * hi);
+  /* El suelo de 0.45 en la profundidad es por la entrada: una partícula que
+     sale cerca del plano de la cámara daría un gl_PointSize enorme y un
+     destello de un frame. En reposo la más cercana está a 4.2 unidades, así
+     que este max no toca al globo ya formado. */
+  gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / max(0.45, -mvPosition.z) * (1.0 + 0.45 * hi);
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -289,10 +365,14 @@ precision highp float;
 uniform sampler2D uDot;
 uniform float uOpacity;
 varying vec3 vColor;
+varying float vAlfa;
 
 void main() {
   vec4 dot = texture2D(uDot, gl_PointCoord);
-  gl_FragColor = vec4(vColor, 1.0) * dot * uOpacity;
+  // vAlfa multiplica el fragmento ENTERO —color y alfa—: ver la nota del
+  // vertex shader. Es lo que hace que apagar una partícula la apague también
+  // sobre fondo claro, donde el alfa solo ya tapa la página.
+  gl_FragColor = vec4(vColor, 1.0) * dot * uOpacity * vAlfa;
 }
 `;
 
@@ -532,6 +612,15 @@ const HERO_FORMS = [
 
 // Cuánto tarda el halo en aparecer, una vez que la esfera está formada.
 const HALO_FADE_S = 0.9;
+/* La entrada: 1.2 s de polvo convergiendo. Menos y no da tiempo a leer que las
+   partículas VIENEN de algún sitio; más y se hace esperar al lector.
+   Los 170 ms de espera son los 160 ms que tarda el hero en fundir el SVG
+   estático (.hero-globe-still en Hero.astro) más un frame de margen: la entrada
+   no puede empezar con el globo de respaldo todavía en pantalla. Y el fundido
+   es corto a propósito: entre que el SVG se va y el polvo se ve hay un hueco
+   con el hero vacío, y ese hueco se nota. */
+const ENTRADA_S = 1.2;
+const ENTRADA_ESPERA_MS = 170;
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * REJILLA ESPACIAL — para no recorrer 97 000 partículas por cada frame
@@ -779,26 +868,24 @@ async function initRiskSphere() {
     : 1;
   const groupScale = Math.min(BASE_SCALE, (visibleHW * aspect * 0.85) / (2 * R));
 
-  /* ── EL GLOBO NACE YA FORMADO ──────────────────────────────────────────
+  /* ── LAS POSICIONES DE REPOSO NACEN YA EN SU SITIO ─────────────────────
    *
-   * Antes las partículas empezaban dispersas en una nube gaussiana y
-   * convergían durante un segundo. Eso se acabó, por dos motivos, y el de
-   * diseño pesa más que el de rendimiento:
+   * Ojo, esto NO es "no hay entrada": la hay, y es la de las partículas
+   * llegando de lejos (ver el bloque LA ENTRADA, arriba). Lo que pasa es que
+   * la entrada vive ENTERA en el vertex shader, entre aScatter y position, y
+   * de este lado —el de la CPU, el que cuesta— la esfera está formada y quieta
+   * desde el primer frame.
    *
-   *   1. AHORA HAY UN GLOBO ANTES. El hero pinta el SVG estático desde el
-   *      primer frame (2.3 KB, inline). Si WebGL arranca con polvo suelto, lo
-   *      que se ve es un globo que se DESHACE y se vuelve a hacer. La entrada
-   *      buena es la que no se nota: mismo globo, misma orientación, y encima
-   *      entran el halo, las fronteras y los marcadores con su fundido.
-   *   2. Costaba unos 105 frames moviendo las 99 000 partículas enteras —
-   *      la mayor parte de los 6.4 s de CPU que Lighthouse le achacaba a este
-   *      archivo. Con la esfera ya formada y quieta, el bucle entra por el
-   *      camino rápido desde el primer frame y no toca ni una partícula
-   *      mientras nadie ponga el dedo encima.
+   * La versión de la que se viene hacía justo lo contrario: nube gaussiana en
+   * JavaScript (N llamadas a Box-Muller, con su logaritmo y su coseno) y unos
+   * 105 frames moviendo las 99 000 partículas y subiendo el buffer entero a la
+   * GPU. Eso son los 1 640 ms de TBT que Lighthouse achacaba a este archivo.
+   * Se quitó por eso — y de paso se perdió la entrada, que era bonita.
    *
-   * Con ello se fue también la nube gaussiana (N llamadas a Box-Muller, con
-   * su logaritmo y su coseno cada una). El morph sigue existiendo intacto para
-   * select(), que es de donde venía. */
+   * Ahora están las dos cosas: el bucle entra por el camino rápido desde el
+   * primer frame y no toca ni una partícula mientras nadie ponga el dedo
+   * encima, y aun así el globo se forma en pantalla. El morph de select()
+   * sigue intacto, que es de donde venía toda esta maquinaria. */
   let currentIdx  = GLOBE_IDX;
   let currHome    = forma(GLOBE_IDX);
   let prevHome    = currHome;
@@ -839,6 +926,33 @@ async function initRiskSphere() {
   const jPhase  = new Float32Array(N);
   for (let i = 0; i < N; i++) jPhase[i] = Math.random() * Math.PI * 2;
 
+  /* ── De dónde viene cada partícula ──────────────────────────────────────
+   *
+   * Una cáscara suelta alrededor de la esfera, de 1.85 a 2.8 radios: en un
+   * teléfono de 390 px eso es una nube de más de 900 px de ancho, o sea que
+   * las partículas entran desde FUERA de la pantalla, que es lo que se pide.
+   * Dirección uniforme sobre la esfera (el truco del coseno uniforme, no
+   * ángulos al azar, que amontonaría partículas en los polos).
+   *
+   * El eje Z va achatado a 0.5. La cámara está en z = 6.5 y el grupo se
+   * escala hasta 1.3: sin achatar, las partículas del casquete delantero
+   * nacerían a menos de medio unidad del plano de la cámara y se verían como
+   * manchones. Achatado, la nube es un disco ancho —que además es como se lee
+   * mejor en una pantalla: vienen de los lados, de arriba y de abajo.
+   *
+   * Se calcula UNA vez, cuesta unos 5 ms con N = 160 000 y de ahí en adelante
+   * vive en la GPU. */
+  const aScatter = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const u = Math.random() * 2 - 1;
+    const th = Math.random() * Math.PI * 2;
+    const s = Math.sqrt(Math.max(0, 1 - u * u));
+    const r = R * (1.85 + 0.95 * Math.random());
+    aScatter[i * 3]     = Math.cos(th) * s * r;
+    aScatter[i * 3 + 1] = u * r;
+    aScatter[i * 3 + 2] = Math.sin(th) * s * r * 0.5;
+  }
+
   /* ── A qué corresponde cada partícula en el mapa ─────────────────────────
    *
    * Se calcula UNA vez, sobre las posiciones de reposo de la esfera (que son
@@ -859,11 +973,15 @@ async function initRiskSphere() {
   geometry.setAttribute("jPhase",   new THREE.BufferAttribute(jPhase, 1));
   geometry.setAttribute("aLand",    landAttr);
   geometry.setAttribute("aCountry", ctyAttr);
+  geometry.setAttribute("aScatter", new THREE.BufferAttribute(aScatter, 3));
 
   const material = new THREE.ShaderMaterial({
     uniforms: {
       uDot:           { value: tex },
       uOpacity:       { value: opacidad },
+      // 0 = polvo suelto y lienzo apagado, 1 = globo formado. Lo mueve el
+      // bucle durante ENTRADA_S; con menos movimiento nace en 1.
+      uForm:          { value: REDUCED_MOTION ? 1 : 0 },
       uPixelsPerUnit: { value: 1 },
       uPixelRatio:    { value: DPR },
       uSize:          { value: uSize },
@@ -876,6 +994,7 @@ async function initRiskSphere() {
       // 1 = disco completamente parejo. Se deja un pelo por debajo para que
       // quede un rastro de aro y la esfera no se lea como un círculo plano.
       uPlano:         { value: 0.92 },
+      uPlanoA:        { value: 0 },
       uSunDir:        { value: new THREE.Vector3(1, 0, 0) },
       /* La noche baja de 0.58 a 0.30 (del 42 % al 70 % del brillo base).
          Con la esfera monocroma daba igual, pero ahora el globo es el HERO y
@@ -891,6 +1010,7 @@ async function initRiskSphere() {
          perdió la mitad de la luz acumulada, y esto la devuelve solo donde
          interesa, que es en los continentes. */
       uAtras:         { value: 0.30 },
+      uAtrasA:        { value: 1 },
       uTierra:        { value: 2.30 },
       uMar:           { value: 0.72 },
       uColTierra:     { value: new THREE.Color(1.0, 0.95, 0.86) },
@@ -1066,6 +1186,7 @@ async function initRiskSphere() {
       uTime: { value: 0 },
       uSel:  { value: -1 },
       uFade: { value: 0 },
+      uNucleo: { value: new THREE.Color(1, 1, 1) },
     },
     vertexShader: /* glsl */ `
       attribute vec3 aColor; attribute float aOpen; attribute float aIdx;
@@ -1080,7 +1201,7 @@ async function initRiskSphere() {
       }`,
     fragmentShader: /* glsl */ `
       precision highp float;
-      uniform float uTime; uniform float uFade;
+      uniform float uTime; uniform float uFade; uniform vec3 uNucleo;
       varying vec3 vCol; varying float vOpen; varying float vFacing; varying float vSel;
       void main() {
         vec2 q = gl_PointCoord - 0.5;
@@ -1097,7 +1218,10 @@ async function initRiskSphere() {
         float a = max(max(core, halo), anillo);
         // Se apagan al girar a la cara de atrás.
         a *= smoothstep(-0.08, 0.22, vFacing) * uFade;
-        vec3 col = mix(vCol, vec3(1.0), 0.55 * core + 0.4 * anillo);
+        // El núcleo del punto tira hacia uNucleo: blanco sobre el globo oscuro
+        // y casi negro sobre el claro. Con blanco fijo, en modo día el centro
+        // del marcador desaparecía contra el fondo.
+        vec3 col = mix(vCol, uNucleo, 0.55 * core + 0.4 * anillo);
         gl_FragColor = vec4(col, a);
       }`,
     transparent: true, depthWrite: false, depthTest: false,
@@ -1106,11 +1230,119 @@ async function initRiskSphere() {
   mPoints.renderOrder = 2;
   group.add(mPoints);
 
+  /* ═══════════════════════════════════════════════════════════════════════
+   * MODO DÍA
+   * ═══════════════════════════════════════════════════════════════════════
+   *
+   * Hasta ahora el globo era oscuro en los dos temas: el hero le ponía un
+   * fondo negro fijo y el planeta se quedaba como un agujero en una página
+   * clara. Ahora el fondo lo pone el CSS (--globe-sky-1/2 en Hero.astro) y
+   * estos uniformes acompañan.
+   *
+   * LO QUE HAY QUE ENTENDER PARA TOCAR ESTOS NÚMEROS: las partículas se pintan
+   * con mezcla ADITIVA sobre un lienzo transparente. El resultado que ve el
+   * lector es
+   *
+   *     final = Σ(color_i · A_i²)  +  fondo · (1 − Σ A_i²)
+   *
+   * o sea que el ALFA que acumulan las partículas es lo que tapa el fondo, y
+   * el COLOR es lo que se pinta encima. Sobre fondo oscuro, un color claro
+   * ilumina; sobre fondo claro, un color OSCURO oscurece. Por eso en modo día
+   * no se trata de "bajar el brillo": se trata de que la tierra lleve un color
+   * casi negro (tinta) y el mar uno claro, al revés que de noche. Nada de esto
+   * necesita cambiar de shader — son los mismos uniformes con otros valores.
+   *
+   * Y por eso también uAtras (la cara de atrás) pasa de 0.30 a 1.55: en oscuro
+   * bajar el brillo apaga el hemisferio de atrás, en claro lo que lo apaga es
+   * SUBIRLO, porque acercarse al color del fondo es desaparecer.
+   */
+  /* Repinta UN fotograma. Solo existe en modo quieto (prefers-reduced-motion),
+     donde no hay bucle: lo rellena el bloque del final. Se declara aquí arriba
+     porque aplicarTema() lo llama ya en el arranque. */
+  let repintar = null;
+
+  const TEMA = {
+    dark: {
+      // Exactamente los valores de siempre: en oscuro no cambia ni un píxel.
+      opacidad: 1.00,
+      tierra: 2.30, mar: 0.72,
+      colTierra: [1.00, 0.95, 0.86],  colMar: [0.46, 0.58, 0.78],
+      atras: 0.30, atrasA: 1.00, plano: 0.92, planoA: 0.00,
+      base: 0.22, escala: 0.72, noche: 0.30,
+      hi: [0.72, 0.72, 0.74], hiGain: 4.0,
+      halo: [0.86, 0.86, 0.86], haloInt: 1.00,
+      borde: [0.80, 0.84, 0.92],
+      nucleo: [1, 1, 1],
+    },
+    light: {
+      /* El disco se vuelve OPACO: con el alfa a medias, lo que salía era el
+         globo LAVADO —todo entre el 84 % y el 96 % de luminancia, tierra y mar
+         indistinguibles— porque la página se colaba por debajo de todo y
+         comprimía el rango. De ahí el x3 de opacidad: con el alfa saturado, lo
+         que se ve es el color acumulado y nada más. */
+      opacidad: 3.00,
+      /* Y ese color se invierte respecto a la noche: el MAR se va a casi
+         blanco (0.9-1.1: satura, que es lo que hace que el disco se lea como
+         papel) y la TIERRA a tinta (0.05). Sobre fondo claro el que desaparece
+         es el claro, así que el mapa se dibuja con la tierra. */
+      tierra: 1.00, mar: 1.50,
+      colTierra: [0.050, 0.050, 0.055],  colMar: [0.60, 0.66, 0.75],
+      /* La cara de atrás se apaga SUBIÉNDOLA, no bajándola: a 1.9 se va al
+         blanco del mar y se funde con él. Bajarla la habría convertido en
+         manchas grises sobre el papel, que es exactamente lo contrario.
+         Por eso aquí no hace falta el atajo del alfa (atrasA = 1) ni cambiar
+         la corrección de densidad de sitio (planoA = 0): con el mar en blanco,
+         el color solo ya hace el trabajo. */
+      atras: 1.90, atrasA: 1.00, plano: 0.92, planoA: 0.00,
+      // Iluminación bastante plana: sobre papel el relieve lo dan tierra y mar,
+      // no el sombreado. La rampa de noche deja el hemisferio nocturno un poco
+      // más gris, que es lo mismo que dice en oscuro.
+      base: 0.55, escala: 0.45, noche: 0.22,
+      // El país encendido: verde de marca oscuro, que sobre papel se lee.
+      hi: [0.05, 0.42, 0.27], hiGain: 1.2,
+      // El halo deja de ser luz y pasa a ser una sombra fina en el borde.
+      halo: [0.20, 0.24, 0.32], haloInt: 1.15,
+      borde: [0.16, 0.22, 0.32],
+      nucleo: [0.06, 0.07, 0.09],
+    },
+  };
+  let haloIntensidad = TEMA.dark.haloInt;
+  function aplicarTema() {
+    const claro = document.documentElement.getAttribute("data-theme") === "light";
+    const T = claro ? TEMA.light : TEMA.dark;
+    const u = material.uniforms;
+    u.uOpacity.value = opacidad * T.opacidad;
+    u.uTierra.value = T.tierra;
+    u.uMar.value = T.mar;
+    u.uColTierra.value.setRGB(T.colTierra[0], T.colTierra[1], T.colTierra[2]);
+    u.uColMar.value.setRGB(T.colMar[0], T.colMar[1], T.colMar[2]);
+    u.uAtras.value = T.atras;
+    u.uAtrasA.value = T.atrasA;
+    u.uPlano.value = T.plano;
+    u.uPlanoA.value = T.planoA;
+    u.uBrightBase.value = T.base;
+    u.uBrightScale.value = T.escala;
+    u.uNoche.value = T.noche;
+    u.uHiGain.value = T.hiGain;
+    // uHiColor lo reescribe seleccionar() con el color del cambio del día; el
+    // valor de reposo (nada seleccionado) es este.
+    if (!u.uHiCountry.value) u.uHiColor.value.setRGB(T.hi[0], T.hi[1], T.hi[2]);
+    atmoMat.uniforms.uColor.value.setRGB(T.halo[0], T.halo[1], T.halo[2]);
+    haloIntensidad = T.haloInt;
+    bordeMat.uniforms.uColor.value.setRGB(T.borde[0], T.borde[1], T.borde[2]);
+    mMat.uniforms.uNucleo.value.setRGB(T.nucleo[0], T.nucleo[1], T.nucleo[2]);
+    // Con el bucle corriendo el frame siguiente ya sale bien; en modo quieto
+    // (prefers-reduced-motion) hay que pedir el repintado a mano.
+    if (repintar) repintar();
+  }
+  aplicarTema();
+  // En caliente: el ThemeToggle emite "sf:theme" al cambiar (ThemeToggle.astro).
+  document.addEventListener("sf:theme", aplicarTema);
+
   const sunDir = material.uniforms.uSunDir.value;
   const actualizarSol = () => { const d = subsolarDir(); sunDir.set(d.x, d.y, d.z); };
   actualizarSol();
   // Ganchos que rellenan el bucle de animación o el modo quieto.
-  let repintar = null;
 
   function aplicarMercados(data) {
     if (!data || !Array.isArray(data.items)) return;
@@ -1155,7 +1387,11 @@ async function initRiskSphere() {
     if (cid) {
       const c = material.uniforms.uHiColor.value;
       c.setRGB(mCol[k*3], mCol[k*3+1], mCol[k*3+2]);
-      c.lerp(new THREE.Color(1, 1, 1), 0.30);
+      /* En modo noche se aclara contra blanco; en modo día, contra tinta. Es
+         la misma idea de siempre —separar el país del marcador— pero sobre
+         papel aclarar es borrar. */
+      const claro = document.documentElement.getAttribute("data-theme") === "light";
+      c.lerp(claro ? new THREE.Color(0.05, 0.06, 0.08) : new THREE.Color(1, 1, 1), 0.30);
     }
     if (REDUCED_MOTION) material.uniforms.uHiFade.value = cid ? 1 : 0;
     if (repintar) repintar();
@@ -1231,7 +1467,10 @@ async function initRiskSphere() {
         id,
         x: (_v.x + 1) / 2 * rect.width,
         y: (1 - _v.y) / 2 * rect.height,
-        on: facing > 0.16,
+        // Las pastillas entran con el globo, no antes: mientras las partículas
+        // todavía vienen de camino, un "CDMX ▲ 2.14 %" flotando sobre polvo
+        // suelto delata que el globo no está.
+        on: facing > 0.16 && introT > 0.75,
       };
       const ant = pinPrev.get(id);
       if (!ant || ant.on !== p.on || Math.abs(ant.x - p.x) > 0.5 || Math.abs(ant.y - p.y) > 0.5) cambio = true;
@@ -1299,6 +1538,12 @@ async function initRiskSphere() {
   // Fundido de lo que se suma a la esfera ya formada: fronteras, halo y
   // semáforo de riesgo. 0 mientras las partículas convergen, 1 después.
   let fadeExtras = 0;
+  /* La entrada. `entrando` lo enciende un temporizador cuando el SVG del hero
+     ya se ha ido (ver el final de esta función) y `introT` es el 0→1 que el
+     bucle copia en el uniform uForm. Con menos movimiento nacen en 1: no hay
+     entrada que reproducir. */
+  let entrando = REDUCED_MOTION;
+  let introT = REDUCED_MOTION ? 1 : 0;
   // Se enciende cuando la entrada termina de asentarse y las posiciones de
   // reposo ya son definitivas. A partir de ahí el camino rápido puede confiar
   // en baseNow. Vuelve a cero si se cambia de forma con select().
@@ -1543,24 +1788,34 @@ async function initRiskSphere() {
 
     material.uniforms.uTime.value = elapsed;
 
+    /* ── La entrada, en una línea ─────────────────────────────────────────
+       TODO el trabajo de mover 100 000 partículas desde el otro lado de la
+       pantalla hasta su sitio está en el vertex shader (ver GLOBE_VERTEX_
+       SHADER). Aquí solo sube un número. */
+    if (entrando && introT < 1) {
+      introT = Math.min(1, introT + dt / ENTRADA_S);
+      material.uniforms.uForm.value = introT;
+    }
+
     /* ── El halo entra cuando la esfera ya está ───────────────────────────
      *
-     * Las partículas nacen dispersas y convergen (eso lo lleva morphT). El
-     * halo no puede estar desde el primer frame: es un anillo en el radio
-     * final, y mientras el polvo todavía anda suelto por la pantalla se vería
-     * una burbuja flotando alrededor de nada. Aparece con un fundido de 0.9 s
-     * en cuanto la esfera está casi cuajada, y remata la entrada.
+     * Las partículas nacen dispersas y convergen (eso lo lleva introT; morphT
+     * es lo mismo para los cambios de forma de select()). El halo no puede
+     * estar desde el primer frame: es un anillo en el radio final, y mientras
+     * el polvo todavía anda suelto por la pantalla se vería una burbuja
+     * flotando alrededor de nada. Aparece con un fundido de 0.9 s en cuanto la
+     * esfera está casi cuajada, y remata la entrada.
      *
      * Antes este mismo fundido encendía también las fronteras y el semáforo de
      * riesgo; ya no existen, así que solo queda el halo. */
-    const formada = morphT > 0.8 ? 1 : 0;
+    const formada = (morphT > 0.8 && introT > 0.75) ? 1 : 0;
     const paso = dt / HALO_FADE_S;
     fadeExtras += (formada ? paso : -paso);
     fadeExtras = Math.max(0, Math.min(1, fadeExtras));
     // Suavizado en los extremos, para que no arranque ni pare en seco.
     const fade = fadeExtras * fadeExtras * (3 - 2 * fadeExtras);
 
-    atmoMat.uniforms.uIntensity.value = fade;
+    atmoMat.uniforms.uIntensity.value = fade * haloIntensidad;
     atmoMat.uniforms.uTime.value      = elapsed;
     mMat.uniforms.uFade.value = fade;
     mMat.uniforms.uTime.value = elapsed;
@@ -1873,16 +2128,30 @@ async function initRiskSphere() {
     morphT = 1; settled = true; asentadoUnaVez = true; fadeExtras = 1;
     group.rotation.y = -0.45;
     material.uniforms.uTime.value = 0;
-    atmoMat.uniforms.uIntensity.value = 1;
+    atmoMat.uniforms.uIntensity.value = haloIntensidad;
     mMat.uniforms.uFade.value = 1;
     const pintarQuieto = () => { renderer.render(scene, camera); emitirPines(true); };
     repintar = pintarQuieto;
     pintarQuieto();
+    // Ya hay globo pintado: el hero puede apagar el SVG estático. Aquí no hay
+    // entrada que esperar, así que se avisa en cuanto está el primer fotograma.
+    document.dispatchEvent(new CustomEvent("globe:ready"));
     window.addEventListener("resize", pintarQuieto);
     // El sol sí se mueve aunque el globo no: un fotograma nuevo por minuto.
     setInterval(() => { actualizarSol(); pintarQuieto(); }, 60000);
     return;
   }
+
+  /* ── El arranque: primero se va el SVG, después entra el polvo ──────────
+   *
+   * Un render con uForm = 0 deja el lienzo transparente (las partículas están
+   * a brillo 0) pero compila el shader y calienta el contexto, así que la
+   * entrada no arranca con un tirón. Con eso hecho se avisa al hero, que funde
+   * su globo estático en 160 ms, y solo entonces empieza uForm a subir. El
+   * orden es la mitad del efecto: si se solapan, se ve un globo deshacerse. */
+  renderer.render(scene, camera);
+  document.dispatchEvent(new CustomEvent("globe:ready"));
+  setTimeout(() => { entrando = true; }, ENTRADA_ESPERA_MS);
 
   animate();
 

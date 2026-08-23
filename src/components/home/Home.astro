@@ -48,16 +48,36 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   <Hero locale={locale} />
 
   <div class="home-body">
-  <!-- Frase de bienvenida, solo la primera visita. La línea Hoy (fecha ·
-       NYSE · BMV) se fue al hero: es lo primero que hay que saber. -->
-  <section class="container today" aria-label={t('today.label')}>
-    <p id="today-intro" class="today-intro t-small muted">
-      <span>{t('today.intro')}</span>
-      <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
-    </p>
-  </section>
-
   <div class="container grid">
+    <!-- ── Mercado global: la LEYENDA del globo del hero ────────────────
+         VA LA PRIMERA, pegada al globo. El lienzo está arriba (Hero.astro) y
+         aquí van los ocho chips con ciudad · cambio del día · abierto/cerrado:
+         el mismo dato en texto, que es lo que leen un lector de pantalla y
+         quien no tiene WebGL, y donde se toca para abrir la tarjeta de cada
+         bolsa (evento world:select). Junto al globo se entiende qué son esos
+         puntos; treinta secciones más abajo, no. -->
+    <section id="globe" class="globe col-5" aria-labelledby="globe-h">
+      <div class="section-head">
+        <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
+      </div>
+      <div class="card globe-card">
+        <WorldMarkets locale={locale} />
+        <p class="t-caption faint globe-note">{t('globe.sub')}</p>
+        <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
+      </div>
+    </section>
+
+    <!-- ── Frase de bienvenida, solo la primera visita ──────────────
+         Va DESPUÉS de World markets: lo que tiene que asomar por debajo del
+         hero en la primera pantalla es la leyenda de bolsas, no esto. La línea
+         Hoy (fecha · NYSE · BMV) se fue al hero, que es donde se mira. -->
+    <section class="today col-12" aria-label={t('today.label')}>
+      <p id="today-intro" class="today-intro t-small muted">
+        <span>{t('today.intro')}</span>
+        <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
+      </p>
+    </section>
+
     <!-- ── Pulso ─────────────────────────────────────────────────── -->
     <section id="market" class="pulse col-12" aria-labelledby="pulse-h">
       <div class="section-head">
@@ -115,23 +135,6 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
           <a id="story-link" class="btn btn-ghost btn-sm" href="#" target="_blank" rel="noopener" hidden>{t('story.read')} ↗</a>
         </div>
       </article>
-    </section>
-
-    <!-- ── Mercado global: la LEYENDA del globo del hero ────────────────
-         El lienzo está arriba (Hero.astro). Aquí van los ocho chips con
-         ciudad · cambio del día · abierto/cerrado, que son el mismo dato en
-         texto y el acceso para lectores de pantalla y para quien no tiene
-         WebGL. Tocar un chip abre la tarjeta y enciende ese país en el globo
-         (evento world:select). -->
-    <section id="globe" class="globe col-5" aria-labelledby="globe-h">
-      <div class="section-head">
-        <h2 id="globe-h" class="t-h3">{t('globe.title')}</h2>
-      </div>
-      <div class="card globe-card">
-        <WorldMarkets locale={locale} />
-        <p class="t-caption faint globe-note">{t('globe.sub')}</p>
-        <p class="t-caption faint globe-motion">{t('globe.motion')}</p>
-      </div>
     </section>
 
     <!-- ── Sigue aprendiendo ─────────────────────────────────────── -->
@@ -302,7 +305,17 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); margin-top: var(--sp-4); }
   .grid > section { min-width: 0; }
   @media (min-width: 960px) {
-    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
+    /* `dense` y no `order`: World markets (col-5) va ahora el primero, y detrás
+       vienen la frase de bienvenida y el Pulso, que ocupan 12 columnas y no
+       caben a su lado. Sin `dense` quedarían siete columnas muertas junto a la
+       leyenda y otras cinco junto a la historia del día; con él, la historia
+       (col-7) rellena el hueco de la primera fila y el escritorio se queda con
+       el MISMO reparto de siempre —leyenda a la izquierda, historia a la
+       derecha— sin tocar el orden del HTML, que es el del teléfono y el del
+       lector de pantalla. Lo único que se paga es que en escritorio la historia
+       se ve antes de lo que se tabula; el orden del documento sigue siendo el
+       orden en que se cuenta. */
+    .grid { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row dense; column-gap: var(--sp-6); row-gap: var(--sp-10); margin-top: var(--sp-6); }
     .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; }
     .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
   }

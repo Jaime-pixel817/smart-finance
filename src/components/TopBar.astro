@@ -64,20 +64,37 @@ try { altHref = route(routeId, other); } catch { altHref = route('home', other);
      flujo, y entonces el hero empezaría 52 px más abajo y el globo no llegaría
      al borde de arriba. Fuera del flujo, el hero arranca en y = 0 y la barra
      flota encima.
-     Sobre el globo la tinta es siempre clara —el fondo del globo es oscuro en
-     los dos temas—; al ponerse sólida vuelven los tokens normales. */
+     Sobre el globo la tinta NO puede salir de los tokens normales: el fondo de
+     esta barra no es la página, es el globo. Y desde que el globo se aclara en
+     modo día (Hero.astro + risk-sphere.js), tampoco puede ser siempre clara —
+     hueso sobre un globo de papel no se lee. Así que va en variables propias
+     que se dan la vuelta con el tema; al ponerse sólida vuelven los tokens. */
   .topbar.is-overlay {
+    --ov-ink: #F7F7F3;
+    --ov-ink-2: #E4E4DE;
+    --ov-halo: 0 1px 3px rgba(0,0,0,.7);
+    --ov-marca: #35D89A;
+    --ov-chip-bg: rgba(10,10,13,.5);
+    --ov-chip-line: rgba(244,244,241,.22);
     position: fixed; top: 0; left: 0; right: 0;
     background: transparent; border-bottom-color: transparent;
     backdrop-filter: none; -webkit-backdrop-filter: none;
-    color: #F4F4F1;
+    color: var(--ov-ink);
     transition: background .25s ease, border-color .25s ease, backdrop-filter .25s ease;
   }
-  .topbar.is-overlay .wordmark { color: #F7F7F3; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
-  .topbar.is-overlay .wm-s { background: rgba(10,10,13,.5); border-color: rgba(244,244,241,.22); color: #35D89A; }
-  .topbar.is-overlay .wm-globe { color: #35D89A; }
-  .topbar.is-overlay .desk-nav a, .topbar.is-overlay .lang-btn, .topbar.is-overlay .search-btn { color: #E4E4DE; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
-  .topbar.is-overlay :global(.theme-toggle) { color: #E4E4DE; }
+  :global(:root[data-theme="light"]) .topbar.is-overlay {
+    --ov-ink: #101216;
+    --ov-ink-2: #33363D;
+    --ov-halo: 0 1px 3px rgba(255,255,255,.85);
+    --ov-marca: #087248;
+    --ov-chip-bg: rgba(255,255,255,.72);
+    --ov-chip-line: rgba(18,19,22,.16);
+  }
+  .topbar.is-overlay .wordmark { color: var(--ov-ink); text-shadow: var(--ov-halo); }
+  .topbar.is-overlay .wm-s { background: var(--ov-chip-bg); border-color: var(--ov-chip-line); color: var(--ov-marca); }
+  .topbar.is-overlay .wm-globe { color: var(--ov-marca); }
+  .topbar.is-overlay .desk-nav a, .topbar.is-overlay .lang-btn, .topbar.is-overlay .search-btn { color: var(--ov-ink-2); text-shadow: var(--ov-halo); }
+  .topbar.is-overlay :global(.theme-toggle) { color: var(--ov-ink-2); }
   .topbar.is-overlay.is-solid {
     background: color-mix(in srgb, var(--bg-0) 92%, transparent);
     border-bottom-color: var(--line);
