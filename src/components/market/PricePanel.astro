@@ -1,9 +1,11 @@
 ---
-// Price chart panel (sección C): readout (precio mono 32, Δ ▲▼, fecha bajo el
-// dedo), pestañas de rango con role=tablist, lienzo 200/280/320 px que
-// reserva su alto (CLS 0), línea de estado (cerrado · vacío · error), chip de
-// fuente y atribución a TradingView. El dibujo lo monta
-// src/scripts/chart-panel.ts (Lightweight Charts, import dinámico).
+// Price chart panel (sección C): readout (precio mono 32, Δ ▲▼, fecha y hora
+// bajo el dedo), pestañas de rango con role=tablist, línea de sesión ("Última
+// sesión · viernes 21 de agosto · barras de 5 min"), lienzo 200/280/320 px que
+// reserva su alto (CLS 0), línea de estado (sin datos · error), chip de fuente
+// y atribución a TradingView. El dibujo lo monta src/scripts/chart-panel.ts
+// (Lightweight Charts, import dinámico), que también mete dentro del lienzo la
+// capa transparente del arrastre (.pp-hit).
 import type { Locale } from '../../i18n/routes';
 import { useT, type UIKey } from '../../i18n/ui';
 import { RANGES, type Range } from '../../scripts/market-data';
@@ -28,6 +30,7 @@ const t = useT(locale);
       ))}
     </div>
   </div>
+  <p class="pp-session t-caption faint"></p>
   <p class="pp-state t-caption" role="status" hidden></p>
   <div class="pp-canvas skel" aria-hidden="true"></div>
   <div class="pp-foot">
@@ -47,12 +50,26 @@ const t = useT(locale);
   .pp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: background .15s, color .15s; }
   .pp-ranges [role="tab"]:hover { color: var(--ink); }
   .pp-ranges [role="tab"][aria-selected="true"] { background: var(--brand-wash); color: var(--ink); }
+  /* Qué sesión se está viendo. Ocupa su renglón desde el primer pintado para
+     que la gráfica no salte cuando llega el dato. */
+  .pp-session { color: var(--ink-2); min-height: 1rem; }
   .pp-state { color: var(--warn); }
   .pp-state[hidden] { display: none; }
   .pp[data-state="error"] .pp-state { color: var(--down-text); }
   .pp[data-state="empty"] .pp-state { color: var(--ink-2); }
   .pp-canvas { display: block; position: relative; width: 100%; height: 200px; border-radius: var(--r-input); touch-action: pan-y; overflow: hidden; }
   .pp-canvas.skel { background: var(--bg-2); }
+  /* Capa del arrastre: se queda con los eventos de puntero para que el lector
+     siga al dedo desde el primer píxel (Lightweight Charts, en táctil, pide
+     una pulsación larga antes de mover nada). `pan-y` deja que el gesto
+     vertical siga desplazando la página. */
+  /* Etiquetas del máximo y del mínimo del periodo: van en HTML y no en el
+     marcador de la librería, que recorta su texto contra el borde del panel. */
+  .pp-canvas :global(.pp-tags) { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .pp-canvas :global(.pp-tag) { position: absolute; transform: translateX(-50%); font-family: var(--font-mono); font-size: 11px; line-height: 1; white-space: nowrap; }
+  .pp-canvas :global(.pp-tag.hi) { color: var(--up-text); }
+  .pp-canvas :global(.pp-tag.lo) { color: var(--down-text); }
+  .pp-canvas :global(.pp-hit) { position: absolute; inset: 0; z-index: 2; touch-action: pan-y; cursor: crosshair; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
   .pp[data-loading="1"] .pp-canvas { opacity: .7; transition: opacity .15s; }
   @media (min-width: 768px) { .pp-canvas { height: 280px; } }
   @media (min-width: 1024px) { .pp-canvas { height: 320px; } }

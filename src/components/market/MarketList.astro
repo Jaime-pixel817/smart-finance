@@ -32,8 +32,10 @@ const rateRow = (s: SymbolEntry) => ({
 });
 const strings = {
   open: t('today.open'), closed: t('today.closed'), updated: t('mkt.status.updated'), every: t('mkt.status.every'),
-  loading: t('src.loading'), unavailable: t('src.unavailable'), chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'),
-  today: t('chart.today'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'), bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
+  loading: t('src.loading'), unavailable: t('src.unavailable'),
+  empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
+  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'), cached: t('src.cached'),
+  sessToday: t('chart.session.today'), sessLast: t('chart.session.last'), sess24h: t('chart.session.24h'), sessUpto: t('chart.session.upto'),
   openCard: t('mkt.panel.open')
 };
 const runtime = SYMBOLS.map((s) => ({ ...runtimeOf(s), href: hrefOf(s), name: s.name[locale] }));
