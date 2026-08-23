@@ -14,8 +14,9 @@ const esNum = (x) => typeof x === 'number' && Number.isFinite(x);
 /**
  * Un destino del dinero: cuánto tienes al final en pesos nominales y cuánto
  * compra ese dinero en pesos de hoy.
- * @returns {{ id: string, tasaPct: number, nominal: number, real: number,
- *   tasaRealPct: number, gananciaReal: number }}
+ * @typedef {{ id: string, tasaPct: number, nominal: number, real: number,
+ *   tasaRealPct: number, gananciaReal: number }} Destino
+ * @returns {Destino}
  */
 function destino(id, monto, tasaPct, inflacionPct, anios) {
   const real = valorReal(monto, tasaPct, inflacionPct, anios);
@@ -33,7 +34,7 @@ function destino(id, monto, tasaPct, inflacionPct, anios) {
  * Compara los tres destinos del mismo monto y dice cuál gana en poder de
  * compra (que es el único empate que importa).
  * @param {{ monto: number, anios: number, cetesPct: number, cuentaPct: number, inflacionPct: number }} v
- * @returns {{ cetes: object, cuenta: object, efectivo: object, ganador: string,
+ * @returns {{ cetes: Destino, cuenta: Destino, efectivo: Destino, ganador: string,
  *   brechaReal: number, cetesPierdeContraInflacion: boolean }}
  *   brechaReal: cuánto poder de compra separa a CETES de la cuenta.
  */

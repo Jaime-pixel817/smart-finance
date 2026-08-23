@@ -1,0 +1,153 @@
+---
+// Herramienta "CETES vs cuenta vs inflación" (/tools/cetes-vs-cuenta).
+// Monto, plazo y las dos tasas contra la inflación: cuánto tienes al final en
+// pesos y cuánto compra ese dinero, con la conclusión en una frase.
+//
+// La comparación vive en src/lib/finance/savings.mjs (con tests) y la pinta
+// src/scripts/tools/cetes.ts. El slider de CETES arranca en la tasa objetivo
+// de Banxico verificada a mano (src/data/home.ts): los CETES se mueven cerca
+// de ella. Si el dato lleva más de RATES.maxDias sin verificar, se dice que
+// hay que consultarlo en lugar de presumir que sigue vigente.
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { RATES, ratesFresh } from '../../data/home';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const region = locale === 'es' ? 'es-MX' : 'en-US';
+const hayTasa = ratesFresh();
+const verificado = new Intl.DateTimeFormat(region, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  .format(new Date(RATES.verificado + 'T12:00:00Z'));
+const tasaTxt = new Intl.NumberFormat(region, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(RATES.banxico) + ' %';
+
+const copy = {
+  en: {
+    resultLabel: 'In CETES you would end up with',
+    real_tpl: 'Which buys {real} of what you can buy today.',
+    amount: 'Amount (MXN)',
+    years: 'Term (years)',
+    cetes: 'CETES rate',
+    cetesHint_ok: `Starts at Banxico's target rate, ${tasaTxt}, verified by hand on ${verificado}. CETES move close to it.`,
+    cetesHint_old: `Starts at Banxico's last target rate we verified by hand (${tasaTxt}, on ${verificado}) — check today's auction at cetesdirecto before using it.`,
+    account: 'What your account pays',
+    accountHint: 'Look it up in your banking app. If you have no idea, leave it low.',
+    inflation: 'Annual inflation',
+    inflationHint: 'Banxico aims for 3 %, give or take a point.',
+    barsTitle: 'What each option buys at the end',
+    today: 'What you put in today',
+    cash: 'Cash under the mattress',
+    colNominal: 'In pesos',
+    colReal: 'What it buys',
+    aria: 'Bars comparing what you put in today with what CETES, your account and cash are worth in purchasing power at the end of the term.',
+    win_cetes_tpl: 'CETES win: {gap} more purchasing power than your account.',
+    win_account_tpl: 'Your account wins: {gap} more purchasing power than CETES.',
+    tie: 'It is a tie: both leave you with practically the same purchasing power.',
+    beats: 'And the winner does beat inflation — the money still buys more than what you put in.',
+    stillLosing: 'And even the winner loses to inflation: the number grows, what it buys shrinks.',
+    note: 'Reinvesting at the same rate the whole term, before taxes and fees. A 28-day CETES is renewed thirteen times a year and its rate changes at every auction.'
+  },
+  es: {
+    resultLabel: 'En CETES terminarías con',
+    real_tpl: 'Que compran {real} de lo que puedes comprar hoy.',
+    amount: 'Monto (MXN)',
+    years: 'Plazo (años)',
+    cetes: 'Tasa de CETES',
+    cetesHint_ok: `Arranca en la tasa objetivo de Banxico, ${tasaTxt}, verificada a mano el ${verificado}. Los CETES se mueven cerca de ella.`,
+    cetesHint_old: `Arranca en la última tasa objetivo de Banxico que verificamos a mano (${tasaTxt}, el ${verificado}) — consulta la subasta de hoy en cetesdirecto antes de usarla.`,
+    account: 'Lo que te paga tu cuenta',
+    accountHint: 'Búscalo en la app de tu banco. Si no tienes idea, déjalo bajo.',
+    inflation: 'Inflación anual',
+    inflationHint: 'Banxico apunta a 3 %, más o menos un punto.',
+    barsTitle: 'Lo que compra cada opción al final',
+    today: 'Lo que pones hoy',
+    cash: 'Efectivo bajo el colchón',
+    colNominal: 'En pesos',
+    colReal: 'Lo que compra',
+    aria: 'Barras que comparan lo que pones hoy con lo que valen, en poder de compra, los CETES, tu cuenta y el efectivo al final del plazo.',
+    win_cetes_tpl: 'Ganan los CETES: {gap} más de poder de compra que tu cuenta.',
+    win_account_tpl: 'Gana tu cuenta: {gap} más de poder de compra que los CETES.',
+    tie: 'Empate: los dos te dejan prácticamente el mismo poder de compra.',
+    beats: 'Y el ganador sí le gana a la inflación — ese dinero compra más que lo que pusiste.',
+    stillLosing: 'Y hasta el ganador pierde contra la inflación: el número crece y lo que compra se encoge.',
+    note: 'Reinvirtiendo a la misma tasa todo el plazo, antes de impuestos y comisiones. Un CETE a 28 días se renueva trece veces al año y su tasa cambia en cada subasta.'
+  }
+}[locale];
+---
+<div class="tool-widget" data-widget="cetes" data-locale={locale} data-url-state
+  data-real-tpl={copy.real_tpl} data-today={copy.today} data-cetes={copy.cetes} data-account={copy.account} data-cash={copy.cash}
+  data-win-cetes={copy.win_cetes_tpl} data-win-account={copy.win_account_tpl} data-tie={copy.tie}
+  data-beats={copy.beats} data-still-losing={copy.stillLosing}>
+  <div class="tool-result">
+    <p class="eyebrow">{copy.resultLabel}</p>
+    <p class="tool-big" data-ct-big aria-live="polite">$12,079</p>
+    <p class="t-small muted" data-ct-real set:html="&nbsp;"></p>
+  </div>
+
+  <div class="tool-controls">
+    <div class="tool-control">
+      <label for="ctAmount">{copy.amount}</label>
+      <output for="ctAmount" id="ctAmountOut">$10,000</output>
+      <input type="range" id="ctAmount" min="1000" max="100000" step="1000" value="10000" data-param="a">
+    </div>
+    <div class="tool-control">
+      <label for="ctYears">{copy.years}</label>
+      <output for="ctYears" id="ctYearsOut">3</output>
+      <input type="range" id="ctYears" min="1" max="10" step="1" value="3" data-param="y">
+    </div>
+    <div class="tool-control">
+      <label for="ctCetes">{copy.cetes}</label>
+      <output for="ctCetes" id="ctCetesOut">6.50 %</output>
+      <input type="range" id="ctCetes" min="0" max="15" step="0.25" value={String(RATES.banxico)} data-param="c">
+      <p class="t-caption tool-hint">{hayTasa ? copy.cetesHint_ok : copy.cetesHint_old}</p>
+    </div>
+    <div class="tool-control">
+      <label for="ctAccount">{copy.account}</label>
+      <output for="ctAccount" id="ctAccountOut">1.00 %</output>
+      <input type="range" id="ctAccount" min="0" max="10" step="0.25" value="1" data-param="b">
+      <p class="t-caption tool-hint">{copy.accountHint}</p>
+    </div>
+    <div class="tool-control">
+      <label for="ctInflation">{copy.inflation}</label>
+      <output for="ctInflation" id="ctInflationOut">4 %</output>
+      <input type="range" id="ctInflation" min="0" max="15" step="0.5" value="4" data-param="i">
+      <p class="t-caption tool-hint">{copy.inflationHint}</p>
+    </div>
+  </div>
+
+  <h3 class="t-h3">{copy.barsTitle}</h3>
+  <div class="tool-bars" role="img" aria-label={copy.aria}>
+    <div class="tool-bar-row">
+      <p class="tool-bar-label t-caption"><span>{copy.today}</span><span class="num" data-ct-b0-val>$10,000</span></p>
+      <svg class="tool-bar tool-bar-3" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="92" height="12" data-ct-b0></rect></svg>
+    </div>
+    <div class="tool-bar-row">
+      <p class="tool-bar-label t-caption"><span>{copy.cetes}</span><span class="num" data-ct-b1-val>$10,745</span></p>
+      <svg class="tool-bar" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="12" data-ct-b1></rect></svg>
+    </div>
+    <div class="tool-bar-row">
+      <p class="tool-bar-label t-caption"><span>{copy.account}</span><span class="num" data-ct-b2-val>$9,157</span></p>
+      <svg class="tool-bar tool-bar-2" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="85" height="12" data-ct-b2></rect></svg>
+    </div>
+    <div class="tool-bar-row">
+      <p class="tool-bar-label t-caption"><span>{copy.cash}</span><span class="num" data-ct-b3-val>$8,890</span></p>
+      <svg class="tool-bar tool-bar-3" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="82" height="12" data-ct-b3></rect></svg>
+    </div>
+  </div>
+
+  <table class="tool-table">
+    <thead>
+      <tr><th scope="col"><span class="visually-hidden">—</span></th><th scope="col">{copy.colNominal}</th><th scope="col">{copy.colReal}</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row"><span class="dot dot-1" aria-hidden="true"></span>{copy.cetes}</th><td data-ct-t1-nom>$12,079</td><td data-ct-t1-real>$10,745</td></tr>
+      <tr><th scope="row"><span class="dot dot-2" aria-hidden="true"></span>{copy.account}</th><td data-ct-t2-nom>$10,303</td><td data-ct-t2-real>$9,157</td></tr>
+      <tr><th scope="row"><span class="dot dot-3" aria-hidden="true"></span>{copy.cash}</th><td data-ct-t3-nom>$10,000</td><td data-ct-t3-real>$8,890</td></tr>
+    </tbody>
+  </table>
+
+  <p class="tool-conclusion" data-ct-verdict aria-live="polite">{copy.tie}</p>
+  <p class="t-caption faint tool-note">{copy.note}</p>
+</div>
+<script src="../../scripts/tools/cetes.ts"></script>
+<style>
+  .tool-widget h3 { margin-bottom: var(--sp-2); }
+</style>

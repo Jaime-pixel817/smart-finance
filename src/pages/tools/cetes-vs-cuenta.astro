@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolPage from '../../components/tools/ToolPage.astro';
+import CetesTool from '../../components/tools/CetesTool.astro';
+import { SITE } from '../../i18n/routes';
+const title = 'CETES vs your bank account vs inflation — Smart Finance';
+const description = 'Put in an amount, a term and the two rates: see what you end up with in pesos and what that money actually buys, next to cash under the mattress, with the conclusion in one sentence.';
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'WebPage', name: title, description,
+  url: SITE + '/tools/cetes-vs-cuenta', inLanguage: 'en',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  mainEntity: { '@type': 'WebApplication', name: 'CETES vs account vs inflation', applicationCategory: 'FinanceApplication', operatingSystem: 'Any', browserRequirements: 'Requires JavaScript', offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' } }
+};
+const learn = [
+  'Two numbers, always: what the account says at the end, and what that amount buys. Only the second one is your money.',
+  'The gap between a savings instrument near the reference rate and an account paying almost nothing is not small change — it is most of what your savings could have done.',
+  'Beating your bank is not the same as beating inflation. Both can happen at once, and so can neither.'
+];
+---
+<Base locale="en" routeId="tool.cetes" active="tools" title={title} description={description} jsonLd={jsonLd}>
+  <ToolPage locale="en" eyebrow="Tool" title="CETES vs account vs inflation" lessonRouteId="lesson.errores" lessonLabel="3 common mistakes when you start investing"
+    lede="The same money in three places for the same years: CETES, your bank account, and cash that just sits there. In pesos, and in what those pesos still buy."
+    learn={learn}>
+    <CetesTool locale="en" />
+  </ToolPage>
+</Base>

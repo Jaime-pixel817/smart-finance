@@ -1,0 +1,75 @@
+/* Piezas compartidas por /tools y por las páginas de cada herramienta.
+   Móvil primero: una columna, controles de 44 px de alto y el resultado en
+   mono lo más grande que quepa sin desbordar a 390 px. Las tres herramientas
+   usan estas clases, así que una sola pasada de diseño las arregla todas. */
+
+/* ---- Cascarón de la página de herramienta ---- */
+.tool-wrap { max-width: calc(var(--measure) + 2 * var(--gutter)); display: flex; flex-direction: column; gap: var(--sp-6); padding-top: var(--sp-4); }
+.tool-back { font-size: var(--fs-small); color: var(--ink-2); min-height: 36px; display: flex; align-items: center; }
+.tool-back a:hover { color: var(--ink); }
+.tool-head { display: flex; flex-direction: column; gap: var(--sp-2); }
+.tool-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
+
+/* ---- Resultado grande ---- */
+.tool-result { display: flex; flex-direction: column; gap: 2px; margin-bottom: var(--sp-4); }
+.tool-big {
+  font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero;
+  font-size: clamp(1.75rem, 11vw, 2.75rem); line-height: 1.1; letter-spacing: -.02em; color: var(--ink);
+  overflow-wrap: anywhere;
+}
+@media (min-width: 640px) { .tool-big { font-size: 2.75rem; } }
+
+/* ---- Controles ---- */
+.tool-controls { display: grid; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+@media (min-width: 640px) { .tool-controls { grid-template-columns: 1fr 1fr; gap: var(--sp-4) var(--sp-5); } }
+.tool-control { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 4px 10px; }
+.tool-control label { font-size: var(--fs-small); color: var(--ink-2); }
+.tool-control output { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: var(--fs-small); color: var(--ink); text-align: right; }
+.tool-control input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--brand-fill); height: 44px; }
+.tool-hint { grid-column: 1 / -1; margin-top: -6px; color: var(--ink-3); }
+
+/* ---- Barras (SVG propio: el script solo mueve el ancho del rect) ---- */
+.tool-bars { display: flex; flex-direction: column; gap: var(--sp-3); margin: var(--sp-2) 0 var(--sp-4); }
+.tool-bar-row { display: flex; flex-direction: column; gap: 6px; }
+.tool-bar-label { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: baseline; color: var(--ink-2); }
+.tool-bar-label .num { color: var(--ink); }
+.tool-bar { width: 100%; height: 12px; display: block; background: var(--bg-2); border-radius: 3px; overflow: hidden; }
+.tool-bar rect { fill: var(--brand-fill); }
+.tool-bar-2 rect { fill: var(--s1); }
+.tool-bar-3 rect { fill: var(--ink-3); }
+
+/* ---- Tabla de resultados (nominal vs real) ---- */
+.tool-table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.tool-table th, .tool-table td { text-align: right; padding: var(--sp-2) 0 var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--line); }
+.tool-table th:first-child, .tool-table td:first-child { text-align: left; padding-left: 0; }
+.tool-table thead th { font-weight: 500; color: var(--ink-3); font-size: var(--fs-caption); }
+.tool-table tbody th { font-weight: 500; color: var(--ink); }
+.tool-table td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+.tool-table tbody tr:last-child th, .tool-table tbody tr:last-child td { border-bottom: 0; }
+.tool-table .dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 7px; }
+.tool-table .dot-1 { background: var(--brand-fill); }
+.tool-table .dot-2 { background: var(--s1); }
+.tool-table .dot-3 { background: var(--ink-3); }
+
+/* ---- Conclusión en una frase ---- */
+.tool-conclusion { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums; }
+.tool-note { margin-top: var(--sp-2); }
+
+/* ---- Compartir ---- */
+.tool-share { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.tool-share .btn svg { flex: none; }
+
+/* ---- "Qué aprendes" y disclaimer ---- */
+.tool-learn { display: flex; flex-direction: column; gap: var(--sp-3); }
+.tool-learn ul { list-style: disc; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+.tool-learn li::marker { color: var(--brand-text); }
+.tool-learn .btn { align-self: flex-start; }
+.tool-disclaimer { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); max-width: var(--measure); }
+
+/* ---- Índice /tools ---- */
+.tools-index { padding-top: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-6); }
+.tools-list { display: grid; gap: var(--sp-3); }
+@media (min-width: 860px) { .tools-list { grid-template-columns: repeat(3, 1fr); } }
+.tools-card { display: flex; flex-direction: column; gap: var(--sp-2); color: var(--ink); height: 100%; }
+.tools-icon { width: 40px; height: 40px; border-radius: var(--r-btn); display: grid; place-items: center; background: var(--brand-wash); color: var(--brand-text); }
+.tools-card .tools-go { margin-top: auto; padding-top: var(--sp-2); color: var(--brand-text); font-size: var(--fs-small); font-weight: 500; }

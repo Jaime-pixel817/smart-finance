@@ -54,6 +54,11 @@ export function guardarUrl(raiz: ParentNode): void {
  */
 export function montarCopiar(raiz: ParentNode = document): void {
   for (const boton of Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-copy]'))) {
+    // El botón vive en el cascarón de la página, fuera del widget, así que se
+    // busca en todo el documento; la marca evita engancharlo dos veces si la
+    // página llegara a tener dos calculadoras.
+    if (boton.dataset.copyReady !== undefined) continue;
+    boton.dataset.copyReady = '';
     const original = boton.querySelector<HTMLElement>('[data-copy-label]') ?? boton;
     const textoOriginal = original.textContent || '';
     const aviso = boton.parentElement?.querySelector<HTMLElement>('[data-copy-live]') ?? null;
@@ -92,6 +97,6 @@ export function conectar(raiz: HTMLElement, pintar: () => void): void {
       if (guarda) guardarUrl(raiz);
     });
   }
-  montarCopiar(raiz);
+  montarCopiar(document);
   pintar();
 }

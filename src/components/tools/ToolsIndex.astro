@@ -1,0 +1,62 @@
+---
+// Índice /tools y /es/herramientas: las tres calculadoras, cada una con su
+// icono de línea, lo que responde y el enlace a su página. El orden es el de
+// dificultad: primero la que engancha (interés compuesto), luego la que duele
+// (inflación) y al final la que se usa para decidir (CETES vs cuenta).
+import '../../styles/tools.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+
+const TOOLS = [
+  {
+    routeId: 'tool.interes',
+    name: t('tools.compound'),
+    desc: t('tools.compound.desc'),
+    icon: '<path d="M3 19c4-1 6-3 8-7s4-7 10-8"/><path d="M3 19h18"/>',
+    q: { en: 'What does $1,000 a month turn into?', es: '¿En cuánto se convierten $1,000 al mes?' }
+  },
+  {
+    routeId: 'tool.inflacion',
+    name: t('tools.inflation'),
+    desc: t('tools.inflation.desc'),
+    icon: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+    q: { en: 'What will the same $100 buy later?', es: '¿Qué comprarán los mismos $100 después?' }
+  },
+  {
+    routeId: 'tool.cetes',
+    name: t('tools.cetes'),
+    desc: t('tools.cetes.desc'),
+    icon: '<path d="M4 20V9m5 11V5m5 15v-8m5 8V7"/><path d="M3 20h18"/>',
+    q: { en: 'Where does my money hold its value?', es: '¿Dónde aguanta mi dinero?' }
+  }
+];
+const open = locale === 'es' ? 'Abrir' : 'Open';
+---
+<section class="container tools-index" aria-labelledby="tools-h">
+  <header class="tool-head">
+    <p class="eyebrow">{t('tools.h1')}</p>
+    <h1 id="tools-h" class="t-display">{t('tools.h1')}</h1>
+    <p class="tool-lede">{t('tools.sub')}</p>
+  </header>
+
+  <ul class="tools-list">
+    {TOOLS.map((tool) => (
+      <li>
+        <a class="card card-link tools-card" href={route(tool.routeId, locale)}>
+          <span class="tools-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={tool.icon} />
+          </span>
+          <span class="t-h3">{tool.name}</span>
+          <span class="t-small muted">{tool.desc}</span>
+          <span class="t-caption faint">{tool.q[locale]}</span>
+          <span class="tools-go">{open} →</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <p class="tool-disclaimer">{t('tool.disclaimer')}</p>
+</section>
