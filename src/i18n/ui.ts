@@ -31,6 +31,7 @@ const en = {
   'search.group.lessons': 'Lessons',
   'search.group.tools': 'Tools',
   'search.group.pages': 'Pages',
+  'search.group.news': 'News',
 
   'today.label': 'Today',
   'today.open': 'open',
@@ -351,6 +352,7 @@ const es: typeof en = {
   'search.group.lessons': 'Lecciones',
   'search.group.tools': 'Herramientas',
   'search.group.pages': 'Páginas',
+  'search.group.news': 'Noticias',
 
   'today.label': 'Hoy',
   'today.open': 'abierto',
