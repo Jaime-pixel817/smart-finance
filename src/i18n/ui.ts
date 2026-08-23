@@ -87,7 +87,7 @@ const en = {
 
   'hero.label': 'Today at a glance',
   'globe.title': 'World markets',
-  'globe.sub': 'Day and night as they are right now; each dot on the globe above is a stock exchange, colored by today\'s change. Tap a city to light up its country.',
+  'globe.sub': 'Day and night as they are right now; each dot on the globe above is a stock exchange, colored by today\'s change. Tap a city and the globe comes back with its country lit up.',
   'globe.aria': 'Globe of world markets: day and night, stock exchanges with today\'s change',
   'globe.motion': 'Animation paused because your device prefers reduced motion.',
   // Globo de mercados: leyenda de ocho chips y tarjeta al toque.
@@ -369,7 +369,7 @@ const es: typeof en = {
 
   'hero.label': 'Hoy de un vistazo',
   'globe.title': 'Mercado global',
-  'globe.sub': 'Día y noche como están ahora mismo; cada punto del globo de arriba es una bolsa, coloreada según el cambio del día. Toca una ciudad y se enciende su país.',
+  'globe.sub': 'Día y noche como están ahora mismo; cada punto del globo de arriba es una bolsa, coloreada según el cambio del día. Toca una ciudad y el globo vuelve con su país encendido.',
   'globe.aria': 'Globo de mercados: día y noche, bolsas con el cambio del día',
   'globe.motion': 'Animación en pausa porque tu dispositivo prefiere menos movimiento.',
   // Globo de mercados: leyenda de ocho chips y tarjeta al toque.

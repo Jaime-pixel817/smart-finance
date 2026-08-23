@@ -211,6 +211,7 @@ uniform vec3  uColTierra;
 uniform vec3  uColMar;
 uniform float uHiCountry;
 uniform vec3  uHiColor;
+uniform float uHiGain;
 uniform float uHiFade;
 varying vec3 vColor;
 
@@ -271,11 +272,14 @@ void main() {
      comparación es suficiente. uHiFade lo mueve el bucle en 0.3 s para que el
      país no aparezca de golpe. */
   float hi = step(0.5, uHiCountry) * (1.0 - step(0.5, abs(aCountry - uHiCountry))) * uHiFade;
-  // El país encendido tiene suelo de brillo: si cae en la noche del globo
-  // seguiría siendo el país iluminado, que es de lo que va la selección.
-  vColor = mix(vec3(b) * col, uHiColor * max(b, 0.55), hi);
+  /* El país encendido tiene que quedar MÁS brillante que la tierra de al
+     lado, y la tierra ya va multiplicada por uTierra (2.3). Sin uHiGain el
+     país se encendía más OSCURO que sus vecinos, que es exactamente lo
+     contrario de lo que se pide. Y suelo de brillo: si el país cae en la
+     noche del globo, sigue siendo el país iluminado. */
+  vColor = mix(vec3(b) * col, uHiColor * uHiGain * max(b, 0.50), hi);
 
-  gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / -mvPosition.z * (1.0 + 0.30 * hi);
+  gl_PointSize = uSize * uPixelsPerUnit * uPixelRatio / -mvPosition.z * (1.0 + 0.45 * hi);
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -879,6 +883,7 @@ async function initRiskSphere() {
       uColMar:        { value: new THREE.Color(0.46, 0.58, 0.78) },
       uHiCountry:     { value: 0 },
       uHiColor:       { value: new THREE.Color(0.72, 0.72, 0.74) },
+      uHiGain:        { value: 4.0 },
       uHiFade:        { value: 0 },
     },
     vertexShader: GLOBE_VERTEX_SHADER,
@@ -1190,6 +1195,9 @@ async function initRiskSphere() {
     pinPrev.clear();
     emitirPines(true);
   });
+  // El hero ya eligió sus bolsas antes de que este archivo existiera (se carga
+  // diferido): se recogen de donde las dejó. Mismo patrón que SmartWorld.
+  if (Array.isArray(window.SmartWorldPins)) pinIds = window.SmartWorldPins.slice();
   function emitirPines(forzar) {
     if (!pinIds.length) return;
     const rect = container.getBoundingClientRect();

@@ -84,6 +84,18 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
     pintar();
   }
 
+  // ---- Tocar una ciudad devuelve el globo ---------------------------------
+  // La leyenda de ocho chips vive más abajo, y para cuando se llega a ella el
+  // globo ya aterrizó en la barra. Encender el país de Canadá en un globo que
+  // no se ve no sirve de nada: al seleccionar una bolsa la página vuelve
+  // arriba. La tarjeta es position: fixed, así que no se pierde de vista
+  // mientras sube. Con menos movimiento el salto es seco, sin deslizamiento.
+  document.addEventListener('world:select', (e) => {
+    const id = (e as CustomEvent<{ id?: string | null }>).detail?.id;
+    if (!id || window.scrollY < 8) return;
+    window.scrollTo({ top: 0, behavior: menos.matches ? 'auto' : 'smooth' });
+  });
+
   // ---- El lienzo ya pinta: se apaga el SVG estático ------------------------
   const host = document.getElementById('globalRiskGlobe');
   if (host) {
@@ -128,6 +140,11 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
         capa!.appendChild(el);
         pins.set(id, el);
       }
+      // El globo se carga DIFERIDO: cuando llegan los datos puede que aún no
+      // exista nadie escuchando "world:pins". Se deja también en un global,
+      // igual que window.SmartWorld con los datos, y risk-sphere.js lo lee al
+      // arrancar. Sin esto las pastillas se creaban y no se movían nunca.
+      (window as any).SmartWorldPins = ids;
       document.dispatchEvent(new CustomEvent('world:pins', { detail: { ids } }));
     }
     for (const it of items) {
@@ -153,9 +170,15 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
       const el = pins.get(p.id);
       if (!el) continue;
       // Se sujeta a los bordes para que la pastilla no se salga del lienzo, y
-      // sube 16 px: la etiqueta va encima del punto, no tapándolo.
+      // sube 16 px: la etiqueta va encima del punto, no tapándolo. Si arriba
+      // no cabe —Toronto y Nueva York quedan bajo la barra superior— se pone
+      // debajo del punto en vez de meterse detrás de la barra.
       const x = Math.min(Math.max(p.x, 52), ancho - 52);
-      el.style.transform = `translate(${x.toFixed(1)}px, ${(p.y - 16).toFixed(1)}px) translate(-50%, -100%)`;
+      const barra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 52;
+      const arriba = p.y - 16 - 26 > barra + 6;
+      el.style.transform = arriba
+        ? `translate(${x.toFixed(1)}px, ${(p.y - 16).toFixed(1)}px) translate(-50%, -100%)`
+        : `translate(${x.toFixed(1)}px, ${(p.y + 16).toFixed(1)}px) translate(-50%, 0)`;
       el.classList.toggle('on', p.on);
     }
   });
