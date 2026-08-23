@@ -4,7 +4,8 @@
 //   npm run boletin:ensayo                    -> tmp/boletin/boletin-es.html
 //   npm run boletin:ensayo -- --lang=en
 //   npm run boletin:ensayo -- --salida=/tmp/x --fecha=2026-08-23
-//   npm run boletin:ensayo -- --nota="Esta semana abrí mi primera cuenta."
+//   npm run boletin:ensayo -- --nota="Esta semana abrí mi primera cuenta." \
+//                              --nota-en="This week I opened my first account."
 
 //
 // POR QUÉ EXISTE
@@ -112,6 +113,7 @@ Module._load = function (peticion, padre, esPrincipal) {
 if (args.nota) {
   cadenas.set('boletin:nota:v1', JSON.stringify({
     texto: String(args.nota).replace(/\s+/g, ' ').trim(),
+    textoEn: args['nota-en'] ? String(args['nota-en']).replace(/\s+/g, ' ').trim() : null,
     escritoEn: new Date().toISOString()
   }));
 }
@@ -160,6 +162,18 @@ const res = {
     console.log('gráfica         ' + png.length + ' bytes → grafica.png');
   }
 
+  // El número tal como quedaría ARCHIVADO, que es de lo que se pinta la versión
+  // web (/newsletter/<fecha>). Se escribe siempre: es el otro lado del correo y
+  // hasta ahora no había forma de mirarlo antes de un envío de verdad. Para ver
+  // la página, copiar este archivo a src/data/newsletter/ y `npm run build`.
+  if (cuerpo.numero) {
+    fs.writeFileSync(
+      path.join(SALIDA, cuerpo.numero.fecha + '.json'),
+      JSON.stringify(cuerpo.numero, null, 2) + '\n'
+    );
+    console.log('archivo         ' + cuerpo.numero.fecha + '.json (número ' + cuerpo.numero.numero + ')');
+  }
+
   const archivoHtml = path.join(SALIDA, 'boletin-' + LANG + '.html');
   fs.writeFileSync(archivoHtml, html);
   fs.writeFileSync(path.join(SALIDA, 'boletin-' + LANG + '.txt'), cuerpo.texto || '');
@@ -173,7 +187,9 @@ const res = {
   linea('asunto', cuerpo.asunto);
   linea('noticia', cuerpo.titular || '— esta semana no hay ninguna aprobada');
   linea('lección', cuerpo.tip);
-  linea('nota de Jaime', cuerpo.nota ? '«' + cuerpo.nota + '»' : '— vacía (el correo sale sin ese bloque)');
+  linea('nota de Jaime', cuerpo.nota
+    ? '«' + (cuerpo.nota[LANG] || '— sin versión en este idioma: este correo sale sin el bloque') + '»'
+    : '— vacía (el correo sale sin ese bloque)');
   linea('research', cuerpo.research ? cuerpo.research.name : '— sin novedad');
   linea('se movieron', (cuerpo.movimientos || []).map((m) => m.sym).join(' ') || '—');
   linea('peso HTML', Buffer.byteLength(html) + ' bytes' +

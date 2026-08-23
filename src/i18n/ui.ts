@@ -68,6 +68,19 @@ const en = {
   'story.unavailable': 'The story is unavailable right now. Try again in a minute.',
   'story.kicker': 'Markets',
   'story.lang': '',
+  // ---- /newsletter, /newsletter/[fecha] y sus gemelas en español ----
+  'boletin.h1': 'The weekly newsletter',
+  'boletin.sub': 'One email every Sunday morning: what the market did that week, one story reviewed by a person, and the lesson of the week. Every issue also lives here as a page.',
+  'boletin.cta': 'Subscribe',
+  'boletin.cadencia': 'Sundays, 8:00 AM Mexico City. Free, and you can leave in one click.',
+  'boletin.anteriores': 'Past issues',
+  'boletin.vacio': 'No issue is archived yet.',
+  'boletin.vacio.nota': 'Issues appear here after they go out. Subscribe and you will get the next one in your inbox on Sunday.',
+  'boletin.volver': 'All issues',
+  'boletin.cargando': 'Loading this issue…',
+  'boletin.error': 'This issue could not be loaded. It may not have gone out yet.',
+  'boletin.enviado': 'Sent',
+
   // ---- /news, /news/[slug] y sus gemelas en español ----
   'news.h1': 'News, explained',
   'news.sub': 'One story at a time, in plain words: what happened, why it matters to you, and what it touched in the markets. Nothing goes up until a person has read it.',
@@ -424,6 +437,19 @@ const es: typeof en = {
   'story.unavailable': 'La noticia no está disponible por ahora. Inténtalo en un minuto.',
   'story.kicker': 'Mercados',
   'story.lang': 'Titular en inglés',
+  // ---- /newsletter, /newsletter/[fecha] y sus gemelas en español ----
+  'boletin.h1': 'El boletín semanal',
+  'boletin.sub': 'Un correo cada domingo por la mañana: lo que hizo el mercado esa semana, una noticia revisada por una persona y la lección de la semana. Cada número queda además aquí como página.',
+  'boletin.cta': 'Suscribirme',
+  'boletin.cadencia': 'Domingos, 8:00 de la mañana de Ciudad de México. Gratis, y te sales con un clic.',
+  'boletin.anteriores': 'Números anteriores',
+  'boletin.vacio': 'Todavía no hay ningún número archivado.',
+  'boletin.vacio.nota': 'Los números aparecen aquí después de salir. Suscríbete y el próximo te llega el domingo.',
+  'boletin.volver': 'Todos los números',
+  'boletin.cargando': 'Cargando este número…',
+  'boletin.error': 'No se pudo cargar este número. Puede que todavía no haya salido.',
+  'boletin.enviado': 'Enviado',
+
   // ---- /news, /news/[slug] y sus gemelas en español ----
   'news.h1': 'Noticias explicadas',
   'news.sub': 'Una noticia a la vez, en palabras normales: qué pasó, por qué te importa y qué movió en los mercados. Nada sube hasta que una persona la leyó.',

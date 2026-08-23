@@ -188,7 +188,11 @@ module.exports = async function handler(req, res) {
         // La versión de texto plano, que es la que leen algunos clientes y la
         // que cuenta en los filtros de spam. Va en el ensayo porque es tan
         // parte del correo como el HTML y nadie la mira nunca.
-        texto: muestra.texto
+        texto: muestra.texto,
+        // El número tal como quedaría ARCHIVADO: es de lo que se pinta
+        // /newsletter/<fecha>, la versión web. Va en el ensayo porque hasta
+        // ahora la única forma de verla era mandar el boletín de verdad.
+        numero: paraArchivo(contenido)
       }, { enviados: 0, confirmados: total, motivo: 'ensayo' });
       return;
     }

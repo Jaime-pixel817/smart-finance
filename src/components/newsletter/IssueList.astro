@@ -1,0 +1,51 @@
+---
+// El índice del boletín: qué es, cómo suscribirse y los números que ya salieron.
+//
+// La lista sale de src/data/newsletter/*.json, o sea de lo que `npm run
+// newsletter:sync` haya bajado de Redis. Mientras no haya ninguno se dice —el
+// hueco con una frase es información; el hueco vacío parece una página rota.
+import '../../styles/newsletter.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { NUMEROS, numeroRouteId } from '../../data/newsletter';
+import { kicker } from '../../scripts/newsletter-shared';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const home = route('home', locale);
+---
+<div class="nl container">
+  <header class="nl-cab">
+    <h1 class="t-display">{t('boletin.h1')}</h1>
+    <p class="nl-cab-sub">{t('boletin.sub')}</p>
+    <p class="kicker">{t('boletin.cadencia')}</p>
+    <p><a class="btn btn-primary" href={home + '#newsletter'}>{t('boletin.cta')}</a></p>
+  </header>
+
+  {NUMEROS.length === 0 ? (
+    <div class="nl-hueco">
+      <h2 class="t-h3">{t('boletin.vacio')}</h2>
+      <p>{t('boletin.vacio.nota')}</p>
+    </div>
+  ) : (
+    <section class="section">
+      <div class="section-head"><h2 class="t-h2">{t('boletin.anteriores')}</h2></div>
+      <ul class="nl-lista">
+        {NUMEROS.map((n) => (
+          <li>
+            <article class="card">
+              <p class="kicker">{kicker(n, locale)}</p>
+              <h2><a href={route(numeroRouteId(n.fecha), locale)}>{n.gancho[locale]}</a></h2>
+              <p>{n.resumen[locale]}</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</div>
+
+<style>
+  .nl-cab-sub { color: var(--ink-2); max-width: var(--measure); }
+</style>

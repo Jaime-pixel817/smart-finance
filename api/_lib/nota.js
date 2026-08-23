@@ -19,11 +19,20 @@
 // como si fuera de esta semana: sería el único texto del correo capaz de
 // mentir, precisamente el que va firmado.
 //
+// VA EN LOS DOS IDIOMAS, Y SI SOLO HAY UNO EL OTRO NO LLEVA BLOQUE. El boletín
+// sale en inglés y en español, y la regla del sitio es que no hay texto suelto
+// en el idioma que no toca (ver CLAUDE.md). Traducirlo por nuestra cuenta está
+// descartado: sería justo el único texto firmado por una persona escrito por
+// una máquina. Así que si Jaime solo escribe la línea en español, el correo en
+// español la lleva y el inglés sale sin ella — que es lo mismo que pasa cuando
+// no escribe ninguna, o sea nada roto.
+//
 // CÓMO SE ESCRIBE (con el mismo CRON_SECRET del boletín):
 //
 //   curl -X POST https://smartfinance.lat/api/newsletter-log \
 //     -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" \
-//     -d '{"accion":"nota","texto":"Esta semana abrí mi primera cuenta de casa de bolsa. Cuento cómo me fue."}'
+//     -d '{"accion":"nota","texto":"Esta semana abrí mi primera cuenta de casa de bolsa.",
+//          "textoEn":"This week I opened my first brokerage account."}'
 //
 //   curl -X POST ... -d '{"accion":"nota","texto":""}'     # borrarla
 //   curl -H "Authorization: Bearer $CRON_SECRET" https://smartfinance.lat/api/newsletter-log   # verla
@@ -53,34 +62,44 @@ function limpiar(texto) {
     .trim();
 }
 
-/**
- * Guarda (o borra, con texto vacío) la nota de la semana.
- * Devuelve { guardada, texto } o lanza si el texto no cabe.
- */
-async function guardar(texto, fecha = new Date()) {
-  const limpio = limpiar(texto);
-
-  if (!limpio) {
-    await redis.comando('DEL', CLAVE);
-    return { guardada: false, texto: null };
-  }
-  if (limpio.length < MIN) {
-    const e = new Error('la nota es demasiado corta (mínimo ' + MIN + ' caracteres)');
+function comprobar(texto, cual) {
+  if (texto.length < MIN) {
+    const e = new Error('la nota' + cual + ' es demasiado corta (mínimo ' + MIN + ' caracteres)');
     e.code = 'NOTA_CORTA';
     throw e;
   }
-  if (limpio.length > MAX) {
-    const e = new Error('la nota mide ' + limpio.length + ' caracteres y el tope son ' + MAX);
+  if (texto.length > MAX) {
+    const e = new Error('la nota' + cual + ' mide ' + texto.length + ' caracteres y el tope son ' + MAX);
     e.code = 'NOTA_LARGA';
     throw e;
   }
+}
+
+/**
+ * Guarda (o borra, con el español vacío) la nota de la semana.
+ * Devuelve { guardada, es, en } o lanza si algún texto no cabe.
+ */
+async function guardar(texto, textoEn, fecha = new Date()) {
+  const es = limpiar(texto);
+  const en = limpiar(textoEn);
+
+  // El español manda: sin él no hay nota, aunque venga el inglés. Es el idioma
+  // en el que Jaime escribe, y una nota que solo existe en inglés sería una
+  // traducción sin original.
+  if (!es) {
+    await redis.comando('DEL', CLAVE);
+    return { guardada: false, es: null, en: null };
+  }
+
+  comprobar(es, '');
+  if (en) comprobar(en, ' en inglés');
 
   await redis.comando(
     'SET', CLAVE,
-    JSON.stringify({ texto: limpio, escritoEn: fecha.toISOString() }),
+    JSON.stringify({ texto: es, textoEn: en || null, escritoEn: fecha.toISOString() }),
     'EX', VIDA_SEGUNDOS
   );
-  return { guardada: true, texto: limpio };
+  return { guardada: true, es, en: en || null };
 }
 
 /**
@@ -111,7 +130,12 @@ async function leer(fecha = new Date()) {
     return null;
   }
 
-  return { texto: limpiar(guardada.texto), escritoEn: guardada.escritoEn };
+  return {
+    es: limpiar(guardada.texto),
+    // Vacío significa "esta semana el correo en inglés sale sin este bloque".
+    en: limpiar(guardada.textoEn) || null,
+    escritoEn: guardada.escritoEn
+  };
 }
 
 module.exports = { leer, guardar, limpiar, CLAVE, MAX, MIN, VIGENCIA_DIAS };

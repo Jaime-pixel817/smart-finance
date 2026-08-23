@@ -309,9 +309,11 @@ async function construirContenido(fecha = new Date()) {
     research,
     mercado: deMercado.mercado,
     movimientos: movs,
-    // La línea de Jaime, o null. Es texto suyo tal cual: ni pasa por una IA ni
-    // se recorta aquí (nota.js ya le puso el tope al guardarla).
-    nota: linea ? linea.texto : null,
+    // La línea de Jaime en los dos idiomas, o null. Es texto suyo tal cual: ni
+    // pasa por una IA ni se recorta aquí (nota.js ya le puso el tope al
+    // guardarla). Si solo escribió el español, `en` viene en null y el correo
+    // en inglés sale sin ese bloque — ver el encabezado de nota.js.
+    nota: linea ? { es: linea.es, en: linea.en } : null,
     grafica,
     // La serie completa del dólar. La usa el ARCHIVO —de ahí sale la gráfica de
     // la versión web, que se dibuja como SVG y no caduca a los 30 días como el
@@ -1004,7 +1006,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const noticia = contenido.noticia || null;
   const research = contenido.research || null;
   const movs = contenido.movimientos || null;
-  const linea = contenido.nota || null;
+  const linea = (contenido.nota && contenido.nota[es ? 'es' : 'en']) || null;
   const numero = contenido.numero || numeroDeEdicion(contenido.fecha);
   const rango = rangoSemana(contenido.fecha, idioma);
   // La versión web de ESTE número. La página la genera Astro desde el archivo
@@ -1097,7 +1099,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
    */
   const tituloRepetido = gancho === recortarGancho(tip.titulo);
 
-  const html = `<!doctype html>
+  const plantilla = `<!doctype html>
 <html lang="${es ? 'es' : 'en'}">
 <head>
 <meta charset="utf-8">
@@ -1239,6 +1241,22 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
 </table>
 </body>
 </html>`;
+
+  /*
+   * Los comentarios del HTML se quitan al enviar.
+   *
+   * Están escritos para quien lea ESTE archivo —por qué la cabecera va oscura,
+   * por qué la gráfica va debajo de las cifras— y no aportan nada dentro del
+   * correo: son unos 2 KB por envío, y Gmail corta el mensaje a los 102 KB con
+   * un "mensaje truncado". Además una prueba que busque "Qué se movió" en el
+   * HTML encontraría el comentario aunque el bloque no se haya pintado, que es
+   * la clase de prueba que pasa siempre y no comprueba nada.
+   *
+   * OJO si algún día hay que meter un comentario condicional de Outlook
+   * (`<!--[if mso]>`): eso NO es documentación y esta línea se lo llevaría por
+   * delante. Hoy no hay ninguno.
+   */
+  const html = plantilla.replace(/<!--[\s\S]*?-->/g, '').replace(/\n{3,}/g, '\n\n');
 
   // Versión en texto plano: algunos clientes la prefieren y su ausencia cuenta
   // como señal de spam en varios filtros.

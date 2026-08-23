@@ -1,0 +1,40 @@
+---
+// Un número del boletín en inglés: /newsletter/<fecha>. Se genera una página
+// por cada JSON enviado y sincronizado en src/data/newsletter/ (npm run
+// newsletter:sync).
+//
+// Si el número ya salió por correo pero su JSON todavía no está en el repo,
+// esta ruta no existe y la reescritura de vercel.json manda la URL a
+// /newsletter-read, que pinta el mismo número desde el endpoint. Así el enlace
+// de "ver en el navegador" del correo del domingo funciona desde el minuto uno.
+import Base from '../../layouts/Base.astro';
+import Issue from '../../components/newsletter/Issue.astro';
+import { NUMEROS, numeroRouteId, type Numero } from '../../data/newsletter';
+import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
+
+export async function getStaticPaths() {
+  return NUMEROS.map((numero) => ({ params: { fecha: numero.fecha }, props: { numero } }));
+}
+const { numero } = Astro.props as { numero: Numero };
+const url = SITE + '/newsletter/' + numero.fecha;
+const description = numero.resumen.en;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: numero.gancho.en,
+  description,
+  datePublished: numero.enviadoEn,
+  inLanguage: 'en',
+  url,
+  mainEntityOfPage: url,
+  isPartOf: { '@type': 'PublicationIssue', issueNumber: numero.numero, name: 'Smart Finance weekly' },
+  author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
+};
+---
+<Base locale="en" routeId={numeroRouteId(numero.fecha)} active="today" ogType="article"
+  title={numero.gancho.en + ' — Smart Finance'} description={description} jsonLd={jsonLd}
+  ogImage={ogPropia('newsletter', 'en')} ogImageAlt="Smart Finance — the weekly newsletter">
+  <Issue locale="en" numero={numero} />
+</Base>

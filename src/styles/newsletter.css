@@ -1,0 +1,125 @@
+/* ============================================================================
+   El boletín en la web — /newsletter, /newsletter/[fecha] y sus gemelas en
+   español.
+
+   GLOBALES a propósito, no <style> de un componente: el mismo HTML lo escribe
+   Astro en el build (src/pages/newsletter/[fecha].astro) y el navegador desde
+   el endpoint (src/scripts/newsletter-read.ts) mientras el número todavía no
+   está commiteado. Con estilos scoped, la versión pintada en cliente saldría
+   sin formato — que es el mismo motivo por el que news.css existe.
+
+   Todo sale de los tokens de base.css, así que el modo oscuro sale gratis.
+   ========================================================================== */
+
+.nl { padding-top: var(--sp-4); }
+/* `hidden` tiene que ganarle a `display: flex`. El esqueleto de la página de
+   lectura lleva la clase .nl-cab, que es flex, y `display` de una clase le gana
+   al `[hidden] { display: none }` del navegador: el esqueleto se quedaba
+   pintado encima del número ya cargado. */
+.nl [hidden] { display: none !important; }
+.nl-cab { display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+.nl-cab .kicker { color: var(--ink-3); }
+.nl-cuerpo { max-width: var(--measure); }
+
+/* La primera línea, la que resume la semana: es la entradilla del número. */
+.nl-resumen {
+  font-family: var(--font-serif); font-size: var(--fs-h3); line-height: 1.55;
+  color: var(--ink); margin-top: var(--sp-4);
+}
+
+.nl-bloque { margin-top: var(--sp-6); }
+.nl-label {
+  font-family: var(--font-mono); font-size: var(--fs-eyebrow); line-height: var(--lh-eyebrow);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--brand-text);
+  margin-bottom: var(--sp-2);
+}
+.nl-titulo {
+  font-family: var(--font-serif); font-weight: 600; font-size: var(--fs-h2); line-height: var(--lh-h2);
+  letter-spacing: -.01em;
+}
+.nl-titulo a { color: var(--ink); }
+.nl-titulo a:hover { color: var(--brand-text); }
+.nl-teaser, .nl-vacio { color: var(--ink-2); margin-top: var(--sp-2); }
+.nl-min { color: var(--ink-3); font-size: var(--fs-caption); margin-top: var(--sp-1); }
+.nl-mas { margin-top: var(--sp-3); font-size: var(--fs-small); }
+.nl-mas a { color: var(--brand-text); font-weight: 500; }
+.nl-cta { margin-top: var(--sp-4); }
+
+/* ---- La línea de Jaime: lo único del número que escribió una persona ---- */
+.nl-nota { margin-top: var(--sp-6); }
+.nl-nota blockquote {
+  border-left: 3px solid var(--brand-fill); padding-left: var(--sp-4); margin: 0;
+}
+.nl-nota p { font-family: var(--font-serif); font-size: var(--fs-h3); line-height: 1.6; color: var(--ink); }
+.nl-nota cite { display: block; margin-top: var(--sp-2); font-style: normal; font-size: var(--fs-caption); color: var(--ink-3); }
+
+/* ---- Mi lectura de la noticia ---- */
+.nl-take { border-left: 3px solid var(--brand-fill); padding-left: var(--sp-4); margin-top: var(--sp-3); }
+.nl-autoria {
+  display: block; font-family: var(--font-mono); font-size: var(--fs-eyebrow);
+  letter-spacing: .08em; text-transform: uppercase; color: var(--brand-text); margin-bottom: var(--sp-1);
+}
+.nl-take p { color: var(--ink-2); }
+
+/* ---- Las dos cifras del dólar ---- */
+.nl-cifras { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-top: var(--sp-3); }
+.nl-cifra { border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--sp-3); background: var(--bg-1); }
+.nl-cifra-et { font-size: var(--fs-caption); color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+.nl-cifra-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; font-size: var(--fs-h2); font-weight: 500; margin-top: 2px; }
+.nl-cifra-d { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-small); margin-top: 2px; }
+.nl-cifra-d.up, .nl-delta.up, tr.up .nl-delta { color: var(--up-text); }
+.nl-cifra-d.down, .nl-delta.down, tr.down .nl-delta { color: var(--down-text); }
+.nl-cifra-d.flat { color: var(--ink-3); }
+
+/* ---- La curva de la semana ---- */
+.nl-grafica {
+  display: block; width: 100%; height: 140px; margin-top: var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1);
+}
+.nl-grafica .line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.nl-grafica .fill { stroke: none; opacity: .12; }
+.nl-grafica.up .line, .nl-grafica.up .fill { stroke: var(--up); fill: var(--up); }
+.nl-grafica.down .line, .nl-grafica.down .fill { stroke: var(--down); fill: var(--down); }
+.nl-grafica.flat .line, .nl-grafica.flat .fill { stroke: var(--neutral); fill: var(--neutral); }
+
+/* ---- Qué se movió ---- */
+.nl-tabla { width: 100%; border-collapse: collapse; margin-top: var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-card); }
+.nl-tabla td { padding: var(--sp-3) var(--sp-3); border-bottom: 1px solid var(--line); vertical-align: middle; }
+.nl-tabla tr:last-child td { border-bottom: 0; }
+.nl-flecha { width: 1.5rem; font-size: var(--fs-caption); }
+tr.up .nl-flecha { color: var(--up-text); }
+tr.down .nl-flecha { color: var(--down-text); }
+.nl-nombre { color: var(--ink); }
+.nl-tk { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-3); margin-left: .35em; }
+.nl-delta { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+
+/* ---- Chip de fuente y disclaimer ---- */
+.nl-fuente { margin-top: var(--sp-2); font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
+.nl-aviso { margin-top: var(--sp-6); padding-top: var(--sp-4); border-top: 1px solid var(--line); font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
+
+/* ---- El índice de números ---- */
+.nl-lista { list-style: none; display: grid; gap: var(--sp-3); margin-top: var(--sp-5); }
+@media (min-width: 768px) { .nl-lista { grid-template-columns: 1fr 1fr; gap: var(--sp-4); } }
+.nl-lista .card { display: flex; flex-direction: column; gap: var(--sp-2); height: 100%; }
+.nl-lista .kicker { color: var(--ink-3); }
+.nl-lista h2 { font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; line-height: 1.4rem; letter-spacing: -.01em; }
+.nl-lista h2 a { color: var(--ink); }
+.nl-lista h2 a:hover { color: var(--brand-text); }
+.nl-lista p { color: var(--ink-2); font-size: var(--fs-small); line-height: var(--lh-small); }
+
+/* Sin números todavía: se dice, no se deja el hueco. */
+.nl-hueco { margin-top: var(--sp-5); max-width: var(--measure); }
+.nl-hueco p { color: var(--ink-2); }
+
+/* El pie del número. Global y no scoped porque lo escribe también
+   src/scripts/newsletter-read.ts. */
+.nl-pie {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4);
+  margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--line);
+}
+.nl-volver { color: var(--ink-2); font-size: var(--fs-small); }
+.nl-volver:hover { color: var(--brand-text); }
+
+/* Esqueleto de la página de lectura mientras llega el número del endpoint. */
+.nl-cargando { margin-top: var(--sp-5); color: var(--ink-3); }
+.nl-cargando[hidden] { display: none; }

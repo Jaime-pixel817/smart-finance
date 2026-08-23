@@ -6,6 +6,18 @@
 // que /api/send-newsletter escribe en Redis (ver _lib/registro.js), que no
 // caduca, y contesta en cualquier momento aunque hayan pasado semanas.
 //
+// AQUÍ SE ESCRIBE TAMBIÉN LA LÍNEA DE JAIME, la frase suya que abre el boletín
+// de la semana (ver _lib/nota.js). Va en este endpoint y no en uno propio
+// porque el plan de Vercel admite 12 funciones y el sitio está justo en 12 —
+// mismo motivo por el que /api/news es un router (ver CLAUDE.md). Encaja bien:
+// los dos son el panel de control del boletín, los dos van detrás del mismo
+// CRON_SECRET y ninguno de los dos es público.
+//
+//   curl -X POST https://smartfinance.lat/api/newsletter-log \
+//     -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" \
+//     -d '{"accion":"nota","texto":"Esta semana abrí mi primera cuenta de casa de bolsa."}'
+//   curl -X POST ... -d '{"accion":"nota","texto":""}'    # borrarla
+//
 // CÓMO SE USA
 //   curl -H "Authorization: Bearer $CRON_SECRET" https://smartfinance.lat/api/newsletter-log
 //   ...?limite=90   para ver más corridas (tope 180, el largo de la lista)
@@ -23,6 +35,7 @@
 //                                  el caso que no pudimos demostrar la primera vez.
 
 const registro = require('./_lib/registro');
+const nota = require('./_lib/nota');
 const { autorizado } = require('./_lib/secreto');
 
 function comoTexto(resumen, corridas) {
@@ -58,6 +71,33 @@ module.exports = async function handler(req, res) {
   // con el estado de hace una hora justo cuando se consulta por una urgencia.
   res.setHeader('Cache-Control', 'no-store');
 
+  /*
+   * POST {accion:'nota', texto} — la línea de Jaime del próximo boletín.
+   *
+   * Se guarda con la fecha de hoy y solo entra en el correo si el envío cae
+   * dentro de los siete días siguientes (_lib/nota.js). Con texto vacío se
+   * borra. No pasa por ninguna IA: es texto suyo, guardado tal cual.
+   */
+  if (req.method === 'POST') {
+    const cuerpo = typeof req.body === 'string' ? (() => { try { return JSON.parse(req.body); } catch (e) { return {}; } })() : (req.body || {});
+    if (cuerpo.accion !== 'nota') {
+      res.status(400).json({ error: 'accion_desconocida', acciones: ['nota'] });
+      return;
+    }
+    try {
+      const r = await nota.guardar(cuerpo.texto, cuerpo.textoEn);
+      res.status(200).json(Object.assign({ ok: true }, r));
+    } catch (err) {
+      // NOTA_CORTA / NOTA_LARGA son culpa de quien escribe, no del servidor: se
+      // contestan con 400 y con el motivo exacto, para poder corregir sin
+      // adivinar cuánto sobraba.
+      const suyo = err && (err.code === 'NOTA_CORTA' || err.code === 'NOTA_LARGA');
+      if (!suyo) console.error('nota: no se pudo guardar:', err && err.message ? err.message : err);
+      res.status(suyo ? 400 : 502).json({ error: suyo ? err.code.toLowerCase() : 'nota_no_guardada', detalle: err && err.message ? err.message : String(err) });
+    }
+    return;
+  }
+
   try {
     const corridas = await registro.leer((req.query && req.query.limite) || 30);
     const resumen = registro.resumir(corridas);
@@ -68,7 +108,10 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    res.status(200).json({ resumen, corridas });
+    // La nota vigente va en la misma respuesta: es el otro estado del boletín
+    // que no se ve desde ningún sitio, y saber que hay una escrita —o que la
+    // que se escribió ya caducó— es justo lo que hace falta antes del domingo.
+    res.status(200).json({ resumen, corridas, nota: await nota.leer() });
   } catch (err) {
     // Distingue "Redis no está configurado" de "Redis contestó mal": el primero
     // se arregla en las variables del proyecto y el segundo no.

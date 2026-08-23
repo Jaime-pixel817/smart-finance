@@ -1,0 +1,15 @@
+---
+// La gemela en español de /newsletter-read: destino de la reescritura de
+// /es/boletin/<fecha> mientras ese número no tenga página estática.
+import Base from '../../layouts/Base.astro';
+import IssueRead from '../../components/newsletter/IssueRead.astro';
+import { useT } from '../../i18n/ui';
+import { ogPropia } from '../../lib/og';
+const t = useT('es');
+---
+<Base locale="es" routeId="newsletter.read" active="today"
+  title={t('boletin.h1') + ' — Smart Finance'} description={t('boletin.sub')}
+  ogImage={ogPropia('newsletter', 'es')} ogImageAlt="Smart Finance — el boletín semanal">
+  <meta slot="head" name="robots" content="noindex, follow">
+  <IssueRead locale="es" />
+</Base>
