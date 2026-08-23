@@ -21,7 +21,7 @@ import { useC } from '../../i18n/cartera';
 import SourceChip from '../SourceChip.astro';
 import { CARTERAS, runtimeDe, type CarteraId } from '../../lib/portfolio/data';
 import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
-import { dinero, dineroFirmado, pctFirmado, titulos, claseDir, dia, frase } from '../../lib/portfolio/formato.mjs';
+import { dinero, dineroFirmado, pctFirmado, pctSimple, titulos, claseDir, dia, frase } from '../../lib/portfolio/formato.mjs';
 
 const { locale, id } = Astro.props as { locale: Locale; id: CarteraId };
 const t = useT(locale);
@@ -194,6 +194,10 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
               const fila = r.filas[i];
               const tesis = suyo(p.tesis);
               const riesgo = suyo(p.riesgo);
+              // Peso de la posición sobre el valor total de la cartera. En
+              // /portfolio es lo ÚNICO que se publica del tamaño: el peso sí,
+              // el tamaño de la cuenta no.
+              const peso = fila.valor !== null && r.valorTotal ? (fila.valor / r.valorTotal) * 100 : null;
               return (
                 <li class="card pos" data-pos={p.ticker}>
                   <div class="pos-top">
@@ -208,7 +212,7 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
                   <dl class="pos-nums">
                     <div>
                       <dt>{c.lbl.entry}</dt>
-                      <dd class="num">{D(p.entrada.precio)} · {dia(p.entrada.fecha, locale)}</dd>
+                      <dd class="num">{D(p.entrada.precio)}<span class="pos-fecha t-caption faint">{dia(p.entrada.fecha, locale)}</span></dd>
                     </div>
                     <div>
                       <dt>{c.lbl.qty}</dt>
@@ -217,7 +221,7 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
                     {p.salida && (
                       <div>
                         <dt>{c.lbl.exit}</dt>
-                        <dd class="num">{D(p.salida.precio)} · {dia(p.salida.fecha, locale)}</dd>
+                        <dd class="num">{D(p.salida.precio)}<span class="pos-fecha t-caption faint">{dia(p.salida.fecha, locale)}</span></dd>
                       </div>
                     )}
                     {p.estado === 'abierta' && (
@@ -230,10 +234,17 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
                       <dt>{c.lbl.marketValue}</dt>
                       <dd class="num" data-valor>{fila.valor === null ? '—' : D(fila.valor)}</dd>
                     </div>
+                    {p.estado === 'abierta' && (
+                      <div>
+                        <dt>{c.lbl.weight}</dt>
+                        <dd class="num" data-peso>{peso === null ? '—' : pctSimple(peso, locale)}</dd>
+                      </div>
+                    )}
                     <div>
                       <dt>{c.lbl.pl}</dt>
-                      <dd class:list={['num', claseDir(fila.pct)]} data-pl>
-                        {fila.pct === null ? '—' : `${P(fila.pct)} · ${DF(fila.ganancia)}`}
+                      <dd class="num">
+                        <span class:list={[claseDir(fila.pct)]} data-pl>{fila.pct === null ? '—' : P(fila.pct)}</span>
+                        <span class="pos-fecha t-caption faint" data-pl-abs>{fila.ganancia === null ? '' : DF(fila.ganancia)}</span>
                       </dd>
                     </div>
                   </dl>
@@ -298,6 +309,7 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
     <section class="cart-sec" aria-labelledby="disc-h">
       <h2 id="disc-h" class="t-h3">{copia.discH}</h2>
       <p class="t-small muted disc">{copia.disc}</p>
+      <p class="t-small"><a class="more-link" href={L('methodology')}>{c.lbl.methodology} →</a></p>
     </section>
   </div>
 </article>
@@ -355,6 +367,10 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
   .pos-nums div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .pos-nums dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
   .pos-nums dd { margin: 0; color: var(--ink); font-size: var(--fs-small); overflow-wrap: anywhere; }
+  /* El precio manda y la fecha (o el importe de la ganancia) va debajo, en
+     pequeño: en un teléfono de 390 px, "$45.10 · 10 ago 2026" en una sola
+     línea se partía por el separador y dejaba un "·" colgando. */
+  .pos-fecha { display: block; }
   .pos-txt { display: flex; flex-direction: column; gap: 2px; }
   .pos-txt p { max-width: var(--measure); }
 

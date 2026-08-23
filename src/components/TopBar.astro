@@ -146,7 +146,10 @@ try { altHref = route(routeId, other); } catch { altHref = route('home', other);
   .desk-nav a { padding: 0 12px; min-height: 40px; display: inline-flex; align-items: center; border-radius: var(--r-btn); font-size: var(--fs-small); font-weight: 500; color: var(--ink-2); position: relative; }
   .desk-nav a:hover { color: var(--ink); background: var(--bg-2); }
   .desk-nav a[aria-current="page"] { color: var(--ink); }
-  .desk-nav a[aria-current="page"]::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--brand-text); border-radius: 2px; }
+  /* La barrita verde marca el destino ACTIVO de la barra. Va con ">" a
+     propósito: dentro del menú "Más" los enlaces también son .desk-nav a, y sin
+     el hijo directo la raya cruzaba el texto del panel desplegado. */
+  .desk-nav > a[aria-current="page"]::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--brand-text); border-radius: 2px; }
   .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
   .lang-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; letter-spacing: .06em; color: var(--ink-2); border-radius: var(--r-btn); }
   .lang-btn:hover { color: var(--ink); background: var(--bg-2); }

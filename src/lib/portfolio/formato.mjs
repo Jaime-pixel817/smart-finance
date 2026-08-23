@@ -38,6 +38,12 @@ export function pctFirmado(n, loc = 'en', decimales = 2) {
   return signo + s + ' %';
 }
 
+/** Porcentaje sin signo, para pesos de la cartera: 36.8 → "36.8 %". */
+export function pctSimple(n, loc = 'en', decimales = 1) {
+  if (!esNum(n)) return '—';
+  return new Intl.NumberFormat(TAG[loc] || TAG.en, { minimumFractionDigits: decimales, maximumFractionDigits: decimales }).format(n) + ' %';
+}
+
 /** Cantidad con signo en dinero: +$3,000.00 / −$2,000.00. */
 export function dineroFirmado(n, loc = 'en', moneda = 'MXN', decimales = 2) {
   if (!esNum(n)) return '—';

@@ -10,7 +10,7 @@
 // módulo que usa el build y la tarea nocturna. Este archivo solo pide, formatea
 // y mete texto en el DOM.
 import { resumen } from '../lib/portfolio/cartera.mjs';
-import { dinero, dineroFirmado, pctFirmado, claseDir, dia, frase } from '../lib/portfolio/formato.mjs';
+import { dinero, dineroFirmado, pctFirmado, pctSimple, claseDir, dia, frase } from '../lib/portfolio/formato.mjs';
 import { getJSON, type History } from './market-data';
 import { setChip } from './rows';
 import type { Loc } from './format';
@@ -116,9 +116,12 @@ async function montar(raiz: HTMLElement, rt: Runtime) {
     poner(tarjeta, '[data-valor]', fila.valor === null ? '—' : D(fila.valor));
     const pl = tarjeta.querySelector<HTMLElement>('[data-pl]');
     if (pl) {
-      pl.textContent = fila.pct === null ? '—' : `${P(fila.pct)} · ${DF(fila.ganancia)}`;
-      pl.className = 'num ' + claseDir(fila.pct);
+      pl.textContent = fila.pct === null ? '—' : P(fila.pct);
+      pl.className = claseDir(fila.pct);
     }
+    poner(tarjeta, '[data-pl-abs]', fila.ganancia === null ? '' : DF(fila.ganancia));
+    const peso = fila.valor !== null && r.valorTotal ? (fila.valor / r.valorTotal) * 100 : null;
+    poner(tarjeta, '[data-peso]', peso === null ? '—' : pctSimple(peso, loc));
   }
 
   // ---- Lo que falta ----
