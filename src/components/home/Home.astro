@@ -145,17 +145,25 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 
     <!-- ── Herramientas ──────────────────────────────────────────── -->
     <section id="tools" class="tools col-4" aria-labelledby="tools-h">
-      <div class="section-head"><h2 id="tools-h" class="t-h3">{t('tools.title')}</h2></div>
+      <div class="section-head">
+        <h2 id="tools-h" class="t-h3">{t('tools.title')}</h2>
+        <a class="more" href={L('tools')}>{t('tools.all')} →</a>
+      </div>
       <div class="tools-grid">
-        <a class="card card-link tool" href={L('lesson.interes')}>
+        <a class="card card-link tool" href={L('tool.interes')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 19c4-1 6-3 8-7s4-7 10-8"/><path d="M3 19h18"/></svg>
           <span class="t-h3">{t('tools.compound')}</span>
           <span class="t-caption muted">{t('tools.compound.desc')}</span>
         </a>
-        <a class="card card-link tool" href={L('lesson.inflacion')}>
+        <a class="card card-link tool" href={L('tool.inflacion')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
           <span class="t-h3">{t('tools.inflation')}</span>
           <span class="t-caption muted">{t('tools.inflation.desc')}</span>
+        </a>
+        <a class="card card-link tool" href={L('tool.cetes')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V9m5 11V5m5 15v-8m5 8V7"/><path d="M3 20h18"/></svg>
+          <span class="t-h3">{t('tools.cetes')}</span>
+          <span class="t-caption muted">{t('tools.cetes.desc')}</span>
         </a>
       </div>
     </section>

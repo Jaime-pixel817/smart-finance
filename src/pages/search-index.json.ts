@@ -28,8 +28,10 @@ export const GET: APIRoute = async () => {
     for (const g of glossary) {
       items.push({ t: 'term', name: g[lang].term, keys: g[other].term + ' ' + g[lang].def, href: route('lessons.glossary', lang) + '#term-' + g.id, lang });
     }
-    items.push({ t: 'tool', name: t['tools.compound'], keys: t['tools.compound.desc'], href: route('lesson.interes', lang), lang });
-    items.push({ t: 'tool', name: t['tools.inflation'], keys: t['tools.inflation.desc'], href: route('lesson.inflacion', lang), lang });
+    items.push({ t: 'tool', name: t['tools.compound'], keys: t['tools.compound.desc'] + (lang === 'es' ? ' calculadora ahorro mensual aportes' : ' calculator monthly saving contributions'), href: route('tool.interes', lang), lang });
+    items.push({ t: 'tool', name: t['tools.inflation'], keys: t['tools.inflation.desc'] + (lang === 'es' ? ' poder adquisitivo precios calculadora' : ' purchasing power prices calculator'), href: route('tool.inflacion', lang), lang });
+    items.push({ t: 'tool', name: t['tools.cetes'], keys: t['tools.cetes.desc'] + (lang === 'es' ? ' cetes cuenta banco rendimiento real ahorro' : ' cetes bank account real return savings'), href: route('tool.cetes', lang), lang });
+    items.push({ t: 'page', name: t['tools.h1'], keys: lang === 'es' ? 'herramientas calculadoras' : 'tools calculators', href: route('tools', lang), lang });
     items.push({ t: 'page', name: t['nav.today'], keys: lang === 'es' ? 'inicio pulso historia home' : 'home pulse story', href: route('home', lang), lang });
     items.push({ t: 'page', name: t['mkt.title'], keys: lang === 'es' ? 'gráficas divisas cripto vix charts' : 'charts fx crypto vix', href: route('market', lang), lang });
     items.push({ t: 'page', name: t['learn.h1'], keys: lang === 'es' ? 'aprende lecciones rutas' : 'learn lessons paths', href: route('lessons', lang), lang });

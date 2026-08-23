@@ -15,7 +15,7 @@ const links: { id: string; href: string; label: string; wide?: boolean }[] = [
   { id: 'markets', href: route('market', locale), label: t('nav.markets') },
   { id: 'news', href: home + '#story', label: t('nav.news') },
   { id: 'learn', href: route('lessons', locale), label: t('nav.learn') },
-  { id: 'tools', href: home + '#tools', label: t('nav.tools') },
+  { id: 'tools', href: route('tools', locale), label: t('nav.tools') },
   { id: 'research', href: home + '#research', label: t('nav.research') },
   // Séptimo destino: solo desde 1024 px. En pantallas menores vive en el pie.
   { id: 'community', href: route('community', locale), label: t('nav.community'), wide: true }
