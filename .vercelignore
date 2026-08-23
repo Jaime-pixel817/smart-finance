@@ -35,3 +35,11 @@
 # sí se sirven. El original se queda en el repo para poder reencuadrar sin
 # volver a pedírselo a nadie, pero no tiene por qué viajar al despliegue.
 /public/assets/community/grupo-original.jpg
+
+# Los borradores de difusión que genera `npm run derive` (content/derivados/).
+# Nada del build los lee y no se sirven: son material de trabajo (posts,
+# guiones y las láminas del carrusel en PNG). Se quedan en el repo porque son
+# la prueba de qué se publicó y con qué cifras, pero no tienen por qué viajar
+# al despliegue. OJO: /content a secas NO se puede excluir — el build lee
+# content/research/ (ver arriba).
+/content/derivados

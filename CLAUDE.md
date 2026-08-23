@@ -44,6 +44,7 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 - `node scripts/build-geo.mjs` — regenera `public/assets/geo/*.bin` y el SVG del hero (solo si cambian las máscaras)
 - `node scripts/build-photos.mjs` — regenera miniaturas de breakdowns y avatares de Jaime
 - `npm run news:sync` — baja las noticias aprobadas de Redis a `src/data/news/*.json` (después: commit y push)
+- `npm run derive -- <tipo> <slug>` — convierte una pieza del repo en sus borradores de difusión (ver abajo)
 
 ## Publicar una noticia (lo hace Jaime, todos los días)
 
@@ -54,6 +55,17 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 5. Cuando dé la gana (una vez por semana basta), desde la terminal: `npm run news:sync` y commit de `src/data/news/`. Eso le da a cada noticia su página permanente en el siguiente despliegue. Antes de eso la URL ya funciona, servida desde el endpoint.
 
 Sin abrir el navegador, lo mismo con `curl` (ejemplos en el encabezado de `api/_lib/revision.js`).
+
+## Que una pieza genere su difusión sola (`npm run derive`)
+
+`npm run derive -- <tipo> <slug>` lee una pieza REAL del repo y escribe sus borradores en `content/derivados/<tipo>-<slug>/`: `linkedin.{es,en}.md`, `tiktok/01.md … 05.md`, `instagram/carousel.json` con sus láminas `laminas/NN.png` (1080×1350), `newsletter.md`, `checklist.md` y `cifras.json` (el recibo de la guardia). Tipos: `leccion` (`src/content/lessons/{en,es}/<slug>.mdx`), `noticia` (`src/data/news/<slug>.json`, **solo aprobadas y sincronizadas**) y `research` (`content/research/<empresa>/`). Banderas: `--dry`, `--sin-imagenes`, `--revisar`.
+
+- **Ninguna cifra de un derivado puede estar fuera de la pieza de origen, y se comprueba.** `scripts/derive/cifras.mjs` extrae los números de la pieza y los de cada borrador y compara por VALOR (`10,000` = `10000`; la unidad no entra). Si sobra uno, el comando **falla, dice cuál y en qué línea, y no escribe nada**. Fechas ISO aparte (y sus partes valen como números: si la pieza dice `2026-08-21`, un derivado puede decir «21 de agosto de 2026»). Las URL, las rutas (`/api/send-newsletter?dry=1`) y los nombres de archivo no cuentan. **Exenciones, dos y solo dos**: el frontmatter de los `.md` generados (metadatos de producción, no se publican) y la marca de tiempo de un plano con la forma exacta `**0–3 s · Gancho**`. Las dos están probadas.
+- **Después de editar un borrador a mano hay que correr `npm run derive -- <tipo> <slug> --revisar`**, que NO regenera: pasa la guardia por los archivos que ya están. Editar a mano es justo cuando se cuela un número.
+- Los borradores no se redactan: **se copian frases enteras de la pieza**. Lo único que escribe `scripts/derive/plantillas.mjs` son las costuras (rótulos, disclosure, CTA), y las costuras no llevan números. Por eso la guardia comprueba algo que ya es cierto por construcción, en vez de ser un filtro que haya que ir esquivando.
+- Las láminas (`scripts/derive/laminas.mjs`) usan la **misma tipografía que las og:image**: `scripts/lib/tipografia.mjs` (woff2 → .ttf, fontconfig, medir con las tablas del propio .ttf) lo comparten los dos generadores. Mismo `PANGOCAIRO_BACKEND=fc` en Mac, mismo relanzarse solo. Si el dibujo falla no se pierde nada: los textos ya están en `carousel.json`.
+- `content/derivados/` va en `.vercelignore`: es material de trabajo, no se sirve.
+- **Son borradores.** Jaime graba, ajusta el tono y publica. Misma promesa que `/news`: ningún texto de IA sale sin que él lo apruebe.
 
 ## Checklist para una página nueva (Astro)
 
