@@ -859,15 +859,22 @@ async function initRiskSphere() {
       // quede un rastro de aro y la esfera no se lea como un círculo plano.
       uPlano:         { value: 0.92 },
       uSunDir:        { value: new THREE.Vector3(1, 0, 0) },
-      // 0.58: la noche queda al 42 % y el día al 109 % del brillo base.
-      uNoche:         { value: 0.58 },
+      /* La noche baja de 0.58 a 0.30 (del 42 % al 70 % del brillo base).
+         Con la esfera monocroma daba igual, pero ahora el globo es el HERO y
+         medio planeta está siempre de noche: con 0.58, entrar al home a las
+         seis de la tarde en México era encontrarse los continentes en negro.
+         El terminador se sigue viendo perfectamente. */
+      uNoche:         { value: 0.30 },
       /* Geografía. uTierra/uMar son los factores de brillo y uColTierra/
          uColMar los tonos. Los números salieron de mirar capturas a 390 px:
          con el mar por encima de 0.45 los continentes dejan de separarse, y
-         con la tierra por debajo de 1.25 el globo se apaga entero. */
-      uAtras:         { value: 0.34 },
-      uTierra:        { value: 1.32 },
-      uMar:           { value: 0.40 },
+         con la tierra por debajo de 2.0 el globo se apaga entero. La tierra
+         va MUY por encima de 1 a propósito: al apagar la cara de atrás se
+         perdió la mitad de la luz acumulada, y esto la devuelve solo donde
+         interesa, que es en los continentes. */
+      uAtras:         { value: 0.30 },
+      uTierra:        { value: 2.30 },
+      uMar:           { value: 0.72 },
       uColTierra:     { value: new THREE.Color(1.0, 0.95, 0.86) },
       uColMar:        { value: new THREE.Color(0.46, 0.58, 0.78) },
       uHiCountry:     { value: 0 },
