@@ -10,7 +10,8 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 - Nunca decir "en vivo" en datos de mercado: chip de fuente/retraso/hora (`src/components/SourceChip.astro`) con la cadencia real de actualización.
 - Disclaimer educativo obligatorio en el footer de cada página con contenido financiero.
 - **Ningún texto de IA se publica sin que Jaime lo apruebe.** Las noticias de `/news` nacen como `borrador` y solo aparecen en el sitio cuando una persona las pasa a `aprobada`. Pedir borradores por la vía pública (`/api/news?estado=borradores`) devuelve 403 a propósito: es la promesa del sitio, no un detalle.
-- **No añadir símbolos a `/api/markets`** (Twelve Data): la cuota gratis ya va en 672 de 800 créditos/día. Datos nuevos van por `/api/history` (Yahoo Finance, caché 60 s, gratis) o `/api/quotes` (divisas y VIX, Yahoo, caché 15 min). El registro de activos del sitio es `src/data/symbols.ts`.
+- **No añadir símbolos a `/api/markets`** (Twelve Data): la cuota gratis va en ~672 de 800 créditos/día. Datos nuevos van por `/api/history` (Yahoo Finance, caché 60 s, gratis) o `/api/quotes` (divisas y VIX, Yahoo, caché 15 min). El registro de activos del sitio es `src/data/symbols.ts`.
+- **La caché de `/api` es COMPARTIDA, en Redis** (`api/_lib/cache.js`), no una variable por instancia: en serverless eso último era una copia por lambda, y cada arranque en frío volvía a pagarle al proveedor. Cada clave se guarda dos veces — la fresca con el TTL del endpoint y una de 48 h que se sirve marcada `stale:true` cuando el proveedor falla —, hay candado `SET NX EX 20` para que solo una instancia pida, y contadores `INCRBY sf:quota:v1:<proveedor>:<día>`. Pasando **700 de 800 créditos**, Twelve Data se apaga solo hasta la medianoche UTC y las acciones salen de Yahoo. El informe: `GET /api/markets?accion=health` con `Authorization: Bearer $CRON_SECRET`.
 - Los ocho índices del globo del home salen de `/api/world` (Yahoo Finance, caché 15 min, UNA llamada por visita); abierto/cerrado lo decide `src/scripts/exchange-hours.ts` (horario regular, sin festivos) y la leyenda/tarjeta las pinta `src/scripts/world-markets.ts` (`src/components/home/WorldMarkets.astro`). El globo (`public/assets/risk-sphere.js`) escucha `world:data` / `world:select` / `world:pins` / `globe:visible` y emite `globe:marker` y `globe:pins`.
 - Responsive se verifica con iframes locales de distintos anchos (resize_window no sirve en la pestaña automatizada).
 
@@ -28,15 +29,16 @@ Sitio de educación financiera para jóvenes de prepa y universidad, bilingüe E
 - **Noticias explicadas** (`/news`, `/es/noticias`, y una página por noticia): **todo vive en `api/news.js`**, que es el router: `?estado=aprobadas` (público), `?accion=revision` (la cola, `CRON_SECRET`), `POST {accion:'generar'}` (borradores) y `POST {accion:'decidir'}` (aprobar/editar/rechazar). La lógica está en `api/_lib/noticias.js` (almacén en Redis), `api/_lib/borradores.js` y `api/_lib/revision.js`. **No se separan en endpoints propios**: el plan de Vercel admite **12 funciones por despliegue** y el sitio ya está justo en 12 — dos archivos nuevos en `api/` tumban el despliegue entero con `exceeded_serverless_functions_per_deployment`, con el build ya terminado. Lo que empieza por guion bajo (`api/_lib/`) no cuenta. Los borradores los dispara **GitHub Actions** (`.github/workflows/news-draft.yml`, 11:30 UTC; el plan de Vercel no admite un segundo cron) → hasta **3 borradores al día** con `claude-haiku-4-5` (~$0.01/día; el cálculo está en el encabezado de `api/_lib/borradores.js` y el tope de 3 es el freno de gasto). El índice se pinta en cliente desde el endpoint, así que **aprobar se ve en un minuto sin desplegar**; las páginas `/news/<slug>` se generan en el build desde `src/data/news/*.json`. Entre las dos cosas, la reescritura de `vercel.json` manda `/news/<slug>` a `/news-read`, que pinta la misma noticia desde el endpoint: nunca hay enlace roto. Los JSON viven en `src/data/news/` y **no** en `content/` porque `.vercelignore` excluye `/content` del despliegue y el build de Vercel no los vería.
 - El HTML de una noticia lo escriben DOS sitios: `src/components/news/NewsStory.astro` (build) y `src/scripts/news-shared.ts` (navegador). Por eso sus estilos son globales (`src/styles/news.css`) y no `<style>` scoped: con scoped, la versión pintada en cliente saldría sin formato. Si cambia la estructura de uno, cambia el otro.
 - `/about` y `/methodology` (`src/components/about/*`): la metodología documenta cadencias y retrasos reales de `/api`; si cambia un endpoint, se actualiza la tabla y el changelog.
+- **Salud del sitio**: `.github/workflows/healthcheck.yml` cada 6 h. No basta con el 200: comprueba `stale != true` (con la copia de 48 h, un proveedor caído responde 200 con datos viejos y el check se pondría verde), que los borradores sigan dando 403, y que el dato de mercado tenga menos de 26 h **en día hábil** (sábado y domingo se salta: el FX cierra el viernes a las 22:00 UTC).
 - Funciones serverless CommonJS en `/api` (Vercel). Redis de Upstash vía `api/_lib/redis.js`.
-- Boletín diario: cron de Vercel a las 14:00 UTC → `/api/send-newsletter` (Resend, doble opt-in, gráfica del dólar dibujada server-side con `api/_lib/lienzo.js` + `grafica.js`). Modo ensayo: `?dry=1`.
-- Env vars (`.env.local`): `TWELVE_DATA_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `CRON_SECRET` (boletín **y** revisión de noticias), `KV_REST_API_URL`/`KV_REST_API_TOKEN`.
+- **Boletín SEMANAL: cron de Vercel los domingos a las 14:00 UTC** (`"0 14 * * 0"`) → `/api/send-newsletter` (Resend, doble opt-in, gráfica del dólar dibujada server-side con `api/_lib/lienzo.js` + `grafica.js`). Modo ensayo: `?dry=1`. **Por qué semanal:** Resend gratis da 100 correos al DÍA y son los mismos que usan las confirmaciones de alta; con ~90 suscriptores, el envío diario dejaba a la gente sin poder suscribirse. Trae la semana del mercado (`/api/history?range=1W`), la lección de la semana (`tipDeLaSemana`, rotación por semana ISO), **la noticia más reciente YA APROBADA** (`/api/news?estado=aprobadas`) y el research solo si hubo novedad (`/research-latest.json`, página estática de Astro). **El correo no lleva texto de IA sin aprobar y no depende de Anthropic para salir.**
+- Env vars (`.env.local`): `TWELVE_DATA_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `CRON_SECRET` (boletín, revisión de noticias **y** el informe de salud), `KV_REST_API_URL`/`KV_REST_API_TOKEN`.
 
 ## Comandos
 
 - `npm run build:es` — regenera todo `/es` legacy desde las páginas inglesas
 - `npm run check-es` — corre el generador y falla si `/es` quedó desactualizado
-- `npm run build:og` — genera las og:images en español
+- `npm run build:og` — genera las og:images en español de las tres portadas
 - `node scripts/build-geo.mjs` — regenera `public/assets/geo/*.bin` y el SVG del hero (solo si cambian las máscaras)
 - `node scripts/build-photos.mjs` — regenera miniaturas de breakdowns y avatares de Jaime
 - `npm run news:sync` — baja las noticias aprobadas de Redis a `src/data/news/*.json` (después: commit y push)
@@ -65,7 +67,7 @@ Sin abrir el navegador, lo mismo con `curl` (ejemplos en el encabezado de `api/_
 2. **Reto Actinver en vivo** — prácticas hasta inicios de octubre 2026; luego el reto real con actualización diaria.
 3. **Private equity research** — reportes tipo analista con fuentes citadas.
 
-Base transversal: lecciones (6 publicadas en MDX, tres rutas de aprendizaje, glosario al tacto) y el boletín.
+Base transversal: lecciones (6 publicadas en MDX, tres rutas de aprendizaje, glosario al tacto) y el boletín semanal.
 
 ## Equipo de agentes (`.claude/agents/`)
 
