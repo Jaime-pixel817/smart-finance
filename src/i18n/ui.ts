@@ -214,7 +214,7 @@ const en = {
 
   // ---- /lessons, lecciones y glosario ----
   'learn.h1': 'Learn',
-  'learn.sub': 'Three short paths, six lessons, in plain words and with sources. Your progress is saved on this device, no account needed.',
+  'learn.sub': 'Three short paths, ten lessons, in plain words and with sources. Your progress is saved on this device, no account needed.',
   'learn.path.label': 'Path',
   'learn.lesson': 'Lesson',
   'learn.lesson.one': 'lesson',
@@ -566,7 +566,7 @@ const es: typeof en = {
 
   // ---- /lessons, lecciones y glosario ----
   'learn.h1': 'Aprende',
-  'learn.sub': 'Tres rutas cortas, seis lecciones, en palabras normales y con fuentes. Tu avance se guarda en este dispositivo, sin cuenta.',
+  'learn.sub': 'Tres rutas cortas, diez lecciones, en palabras normales y con fuentes. Tu avance se guarda en este dispositivo, sin cuenta.',
   'learn.path.label': 'Ruta',
   'learn.lesson': 'Lección',
   'learn.lesson.one': 'lección',
