@@ -1,0 +1,13 @@
+---
+// El índice del boletín en español: /es/boletin.
+import Base from '../../layouts/Base.astro';
+import IssueList from '../../components/newsletter/IssueList.astro';
+import { useT } from '../../i18n/ui';
+import { ogPropia } from '../../lib/og';
+const t = useT('es');
+---
+<Base locale="es" routeId="newsletter" active="today"
+  title={t('boletin.h1') + ' — Smart Finance'} description={t('boletin.sub')}
+  ogImage={ogPropia('newsletter', 'es')} ogImageAlt="Smart Finance — el boletín semanal">
+  <IssueList locale="es" />
+</Base>

@@ -52,7 +52,7 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['nav.about'], keys: lang === 'es' ? 'Jaime Sandoval quién hace esto contacto' : 'Jaime Sandoval who makes this contact', href: route('about', lang), lang });
     items.push({ t: 'page', name: t['footer.community'], keys: lang === 'es' ? 'comunidad estudiantil grupo bolsa mexicana de valores talleres voluntariado' : 'student community group mexican stock exchange workshops volunteering', href: route('community', lang), lang });
     items.push({ t: 'page', name: t['nav.methodology'], keys: lang === 'es' ? 'metodología fuentes datos IA correcciones' : 'methodology sources data AI corrections', href: route('methodology', lang), lang });
-    items.push({ t: 'page', name: t['nav.newsletter'], keys: lang === 'es' ? 'suscribirme correo boletín' : 'subscribe email', href: route('home', lang) + '#newsletter', lang });
+    items.push({ t: 'page', name: t['nav.newsletter'], keys: lang === 'es' ? 'suscribirme correo boletín números anteriores archivo semanal' : 'subscribe email weekly past issues archive', href: route('newsletter', lang), lang });
     items.push({ t: 'page', name: t['research.title'], keys: lang === 'es' ? 'research reportes acciones DCF valuación fuentes' : 'research reports equity DCF valuation sources', href: route('research', lang), lang });
     for (const rep of PAGED_REPORTS) {
       const meta = loadReport(rep.slug).meta;

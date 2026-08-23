@@ -1,0 +1,59 @@
+---
+// Lectura de un número que YA salió por correo pero todavía no está commiteado.
+//
+// POR QUÉ EXISTE
+// --------------
+// Cada correo lleva un enlace de "ver en el navegador" a /newsletter/<fecha>.
+// Esa página sale del build, desde src/data/newsletter/*.json + `npm run
+// newsletter:sync`, o sea de un despliegue. El correo, en cambio, sale solo el
+// domingo a las 8:00. Entre las dos cosas hay una ventana —normalmente días— en
+// la que el enlace que acabas de mandarle a noventa personas apuntaría a un 404.
+//
+// La reescritura de vercel.json manda /newsletter/<fecha> aquí SOLO cuando ese
+// archivo no existe (las reescrituras se aplican después de mirar el sistema de
+// archivos), así que los números ya construidos siguen sirviéndose como HTML
+// estático y esta página nunca los tapa. La URL del navegador no cambia.
+//
+// Lleva noindex porque es transitoria: la que Google tiene que indexar es la
+// estática, que llega con el siguiente despliegue y vive en la misma URL.
+import '../../styles/newsletter.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const home = route('home', locale);
+
+// Los textos de la página viajan en un data-* y no se importa ui.ts en el
+// navegador: la tabla entera son 720 líneas de cadenas y aquí hacen falta
+// cuatro. (El módulo compartido trae las suyas: ver newsletter-shared.ts.)
+const strings = {
+  cargando: t('boletin.cargando'),
+  error: t('boletin.error'),
+  cta: t('boletin.cta'),
+  volver: t('boletin.volver')
+};
+---
+<article id="nl-read" class="nl container" data-locale={locale}
+  data-indice={route('newsletter', locale)}
+  data-home={home + '#newsletter'}
+  data-strings={JSON.stringify(strings)}>
+
+  <!-- Esqueleto con la forma del número: la página no salta al llegar. -->
+  <div id="nl-skel" class="nl-cab" aria-hidden="true">
+    <span class="skel" style="width: 42%; height: 11px"></span>
+    <span class="skel" style="width: 94%; height: 30px"></span>
+    <span class="skel" style="width: 64%; height: 30px"></span>
+    <span class="skel" style="width: 100%; height: 17px"></span>
+  </div>
+
+  <div id="nl-out" hidden></div>
+
+  <p id="nl-error" class="nl-hueco" hidden>
+    {t('boletin.error')}
+    <br><a href={route('newsletter', locale)}>{t('boletin.volver')} →</a>
+  </p>
+</article>
+
+<script src="../../scripts/newsletter-read.ts"></script>

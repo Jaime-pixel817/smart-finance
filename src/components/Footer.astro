@@ -25,7 +25,11 @@ const home = route('home', locale);
         <a href={route('lessons.glossary', locale)}>{t('nav.glossary')}</a>
         <a href={route('tools', locale)}>{t('nav.tools')}</a>
         <a href={route('challenge', locale)}>{t('nav.challenge')}</a>
-        <a href={home + '#newsletter'}>{t('nav.newsletter')}</a>
+        <!-- Al ÍNDICE del boletín, no al formulario del home: ahora es una
+             página con los números anteriores y su propio botón de alta, así
+             que enlazar aquí enseña qué se recibe antes de pedir el correo.
+             El botón de la barra superior sí sigue yendo directo al alta. -->
+        <a href={route('newsletter', locale)}>{t('nav.newsletter')}</a>
       </nav>
       <nav class="footer-nav" aria-label={locale === 'es' ? 'Sitio y redes' : 'Site and social'}>
         <a href={route('about', locale)}>{t('nav.about')}</a>

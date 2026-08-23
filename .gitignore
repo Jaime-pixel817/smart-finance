@@ -27,3 +27,7 @@ assets/breakdowns/_originales/
 # Salida de Astro (Vercel la genera en cada despliegue)
 dist/
 .astro/
+
+# Salida del ensayo local del boletín (scripts/boletin-ensayo.js): el correo de
+# la semana en HTML para poder mirarlo antes de mandarlo. Se regenera solo.
+tmp/

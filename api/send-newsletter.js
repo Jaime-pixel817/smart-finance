@@ -27,7 +27,10 @@ const suscriptores = require('./_lib/suscriptores');
 const resend = require('./_lib/resend');
 const registro = require('./_lib/registro');
 const { autorizado, origen } = require('./_lib/secreto');
-const { construirContenido, renderizarCorreo, urlSitio } = require('./_lib/boletin');
+const { construirContenido, renderizarCorreo, urlSitio, paraArchivo } = require('./_lib/boletin');
+// El archivo de números: de aquí sale /newsletter/<fecha>, la versión web que
+// enlaza cada correo con "ver en el navegador".
+const archivo = require('./_lib/archivo');
 
 // Margen para no morir a medio envío: Vercel corta la función y quedaría sin
 // saberse a quién se le escribió. Al acercarse al límite se para y se reporta.
@@ -45,6 +48,23 @@ module.exports = async function handler(req, res) {
   // Ensayo: arma y responde el correo sin mandarlo. Sirve para revisar el
   // contenido del día sin gastar cuota ni escribirle a nadie.
   const soloEnsayo = String((req.query && req.query.dry) || '') === '1';
+
+  /*
+   * ?fecha=AAAA-MM-DD — SOLO en ensayo, y por eso se lee aquí dentro.
+   *
+   * Sirve para ver el correo de otro domingo sin esperar a que llegue: cambia
+   * la lección de la semana (rota por semana ISO), el rango de fechas del
+   * encabezado y el número de edición. Los datos de mercado siguen siendo los
+   * de ahora — Yahoo no da la semana pasada por este camino—, así que no vale
+   * para revisar cifras viejas, solo la forma del correo.
+   *
+   * En un envío de verdad se ignora a propósito: un boletín fechado a mano es
+   * un boletín que puede mentir sobre de cuándo son sus números.
+   */
+  const fechaPedida = soloEnsayo ? String((req.query && req.query.fecha) || '').trim() : '';
+  const fechaEnvio = /^\d{4}-\d{2}-\d{2}$/.test(fechaPedida)
+    ? new Date(fechaPedida + 'T14:00:00.000Z')
+    : new Date();
 
   // Toda salida de esta función pasa por aquí, para que no exista ningún camino
   // que responda sin dejar rastro. El registro se anota ANTES de responder pero
@@ -68,7 +88,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const [contenido, lista] = await Promise.all([
-      construirContenido(new Date()),
+      construirContenido(fechaEnvio),
       suscriptores.listarConfirmados()
     ]);
 
@@ -146,11 +166,33 @@ module.exports = async function handler(req, res) {
         // imagen no va a aparecer. En el HTML no se notaría: el bloque
         // simplemente no se pinta.
         grafica: contenido.grafica,
+        // Los que más subieron y bajaron esta semana, o null si no contestaron
+        // bastantes activos. Va en el ensayo porque es la sección con más
+        // partes móviles del correo —doce peticiones con su propio plazo— y
+        // desde fuera no hay forma de distinguir "no salió porque falló" de
+        // "no salió porque no había".
+        movimientos: contenido.movimientos
+          ? contenido.movimientos.suben.concat(contenido.movimientos.bajan)
+              .map((m) => ({ sym: m.sym, cambioPct: Number(m.cambioPct.toFixed(2)) }))
+          : null,
+        // La línea de Jaime de esta semana, o null si no escribió ninguna (o si
+        // la que hay ya caducó). Se enseña entera para poder releerla antes de
+        // que salga: es el único texto del correo que no se puede corregir
+        // después.
+        nota: contenido.nota,
         // La noticia aprobada de la semana, o null si esta semana no hubo
         // ninguna. Que salga null es información, no un fallo.
         titular: contenido.noticia ? contenido.noticia.es.titulo : null,
         autoriaNoticia: contenido.noticia ? contenido.noticia.autoria : null,
-        html: muestra.html
+        html: muestra.html,
+        // La versión de texto plano, que es la que leen algunos clientes y la
+        // que cuenta en los filtros de spam. Va en el ensayo porque es tan
+        // parte del correo como el HTML y nadie la mira nunca.
+        texto: muestra.texto,
+        // El número tal como quedaría ARCHIVADO: es de lo que se pinta
+        // /newsletter/<fecha>, la versión web. Va en el ensayo porque hasta
+        // ahora la única forma de verla era mandar el boletín de verdad.
+        numero: paraArchivo(contenido)
       }, { enviados: 0, confirmados: total, motivo: 'ensayo' });
       return;
     }
@@ -199,6 +241,20 @@ module.exports = async function handler(req, res) {
       }, { ensayo: true, enviados: 0, motivo: 'prueba' });
       return;
     }
+
+    /*
+     * EL ARCHIVO, ANTES DE MANDAR NADA.
+     *
+     * El correo lleva un enlace de "ver en el navegador" que apunta a
+     * /newsletter/<fecha>, y esa página lee de aquí mientras el número no esté
+     * commiteado en el repo. Si se archivara DESPUÉS del envío, un fallo a
+     * mitad de la lista dejaría correos ya entregados con ese enlace roto.
+     *
+     * No bloquea: archivar() se traga sus propios errores y devuelve null. Un
+     * boletín que no se puede archivar se manda igual — la copia es la copia.
+     */
+    const archivado = await archivo.guardar(paraArchivo(contenido));
+    if (!archivado) console.warn('boletín: el número no quedó archivado; /newsletter/<fecha> no lo tendrá hasta el próximo despliegue');
 
     // Cada correo se arma por separado: el idioma es el que eligió cada quien al
     // suscribirse, y el link de baja lleva SU token.
