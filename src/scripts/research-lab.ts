@@ -180,7 +180,9 @@ function mount(root: HTMLElement) {
 
   for (const el of inputs) {
     el.addEventListener('input', schedule);
-    el.addEventListener('change', () => { schedule(); syncUrl(); });
+    // Al soltar el control se recalcula YA (no en el proximo frame): syncUrl
+    // lee `controls`, que solo se actualiza dentro de render().
+    el.addEventListener('change', () => { render(); syncUrl(); });
   }
 
   function syncUrl() {
