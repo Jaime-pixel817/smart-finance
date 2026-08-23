@@ -126,6 +126,10 @@ const en = {
   'tools.open': 'Open',
 
   'hero.label': 'Today at a glance',
+  // Firma del titular del hero. Va en mono, muy pequena y tenue, debajo del
+  // titular: el sitio lo escribe una persona con nombre y apellido, y eso se
+  // dice en la primera pantalla sin robarle sitio al titular.
+  'hero.by': 'By Jaime Sandoval',
   'globe.title': 'World markets',
   'globe.sub': 'Day and night as they are right now; each dot on the globe above is a stock exchange, colored by today\'s change. Tap a city and the globe comes back with its country lit up.',
   'globe.aria': 'Globe of world markets: day and night, stock exchanges with today\'s change',
@@ -468,6 +472,7 @@ const es: typeof en = {
   'tools.open': 'Abrir',
 
   'hero.label': 'Hoy de un vistazo',
+  'hero.by': 'Por Jaime Sandoval',
   'globe.title': 'Mercado global',
   'globe.sub': 'Día y noche como están ahora mismo; cada punto del globo de arriba es una bolsa, coloreada según el cambio del día. Toca una ciudad y el globo vuelve con su país encendido.',
   'globe.aria': 'Globo de mercados: día y noche, bolsas con el cambio del día',
