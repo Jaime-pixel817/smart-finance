@@ -5,10 +5,6 @@
     {
       "path": "/api/send-newsletter",
       "schedule": "0 14 * * *"
-    },
-    {
-      "path": "/api/news-draft",
-      "schedule": "30 11 * * *"
     }
   ],
   "functions": {
