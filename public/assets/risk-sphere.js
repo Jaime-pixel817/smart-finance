@@ -736,62 +736,76 @@ async function initRiskSphere() {
 
   const tex = makeDotTexture(THREE);
 
-  const atom = genAtom(N, R);
-  const HOMES = HERO_FORMS.map((f) => {
-    switch (f.id) {
-      case "GLOBE":   return genGlobe(N, R);
-      case "SPHERE":  return genSphere(N, R);
-      case "THOMAS":  return genThomas(N);
-      case "VORONOI": return genVoronoi(N, R);
-      case "ATOM":    return atom.pos;
-      default:        return genGlobe(N, R);
+  /* ── Las formas, solo cuando se piden ─────────────────────────────────
+   *
+   * Antes se construían las CINCO al arrancar: la esfera, el atractor de
+   * Thomas, el Voronoi, el átomo y la esfera de Fibonacci. Cinco Float32Array
+   * de N*3 (1.2 MB cada uno con N = 99 000) y cinco recorridos completos, más
+   * los 80 semilleros y el ordenado del Voronoi. Y de las cinco, el home usa
+   * UNA: las otras cuatro solo aparecen si alguien llama a
+   * window.riskSphere.select(idx) desde la consola, cosa que no hace nadie.
+   *
+   * Medido con Lighthouse móvil: ese arranque era una sola tarea de 1755 ms
+   * de hilo principal. Ahora cada forma se genera la primera vez que se pide.
+   */
+  let atom = null;
+  const HOMES = new Array(HERO_FORMS.length);
+  function forma(idx) {
+    if (HOMES[idx]) return HOMES[idx];
+    switch (HERO_FORMS[idx].id) {
+      case "THOMAS":  HOMES[idx] = genThomas(N); break;
+      case "VORONOI": HOMES[idx] = genVoronoi(N, R); break;
+      case "ATOM":    atom = genAtom(N, R); HOMES[idx] = atom.pos; break;
+      default:        HOMES[idx] = genGlobe(N, R); break;
     }
-  });
+    return HOMES[idx];
+  }
 
   /* La rejilla se construye sobre las posiciones de reposo de la ESFERA, que
      es la forma en la que el globo vive siempre. Ocho cubos por lado dan una
      arista de 0.46, prácticamente el radio de acción del dedo (0.455): así el
      vecindario de 3x3x3 cubos cubre el casquete entero con margen de sobra
      para lo que las partículas se hayan desplazado. */
-  const rejilla = construirRejilla(HOMES[GLOBE_IDX], N, R, 8);
+  const rejilla = construirRejilla(forma(GLOBE_IDX), N, R, 8);
 
-  const gauss = () => {
-    let u = 0, v = 0;
-    while (u === 0) u = Math.random();
-    while (v === 0) v = Math.random();
-    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-  };
   const fovRad    = THREE.MathUtils.degToRad(camera.fov);
   const visibleHW = 2 * Math.tan(fovRad / 2) * camera.position.z;
   /* En el primer frame el contenedor puede medir 0 (el CSS del hero todavía
-     no le da alto): 0/0 es NaN, los sigmas de abajo salían NaN y ese NaN
-     acababa en computeBoundingSphere ("Computed radius is NaN" en consola).
+     no le da alto): 0/0 es NaN, y ese NaN acababa en computeBoundingSphere
+     ("Computed radius is NaN" en consola).
      Respaldo 1 — onResize ajusta cámara y renderer cuando ya hay tamaño. */
   const aspect    = (container.clientWidth > 0 && container.clientHeight > 0)
     ? container.clientWidth / container.clientHeight
     : 1;
   const groupScale = Math.min(BASE_SCALE, (visibleHW * aspect * 0.85) / (2 * R));
-  const visibleH = visibleHW / groupScale;
-  const visibleW = visibleH * aspect;
-  const sigmaX = visibleW * 0.5;
-  const sigmaY = visibleH * 0.5;
-  const sigmaZ = 1.5;
-  const scatter = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    scatter[i*3]   = gauss() * sigmaX;
-    scatter[i*3+1] = gauss() * sigmaY;
-    scatter[i*3+2] = gauss() * sigmaZ;
-  }
 
+  /* ── EL GLOBO NACE YA FORMADO ──────────────────────────────────────────
+   *
+   * Antes las partículas empezaban dispersas en una nube gaussiana y
+   * convergían durante un segundo. Eso se acabó, por dos motivos, y el de
+   * diseño pesa más que el de rendimiento:
+   *
+   *   1. AHORA HAY UN GLOBO ANTES. El hero pinta el SVG estático desde el
+   *      primer frame (2.3 KB, inline). Si WebGL arranca con polvo suelto, lo
+   *      que se ve es un globo que se DESHACE y se vuelve a hacer. La entrada
+   *      buena es la que no se nota: mismo globo, misma orientación, y encima
+   *      entran el halo, las fronteras y los marcadores con su fundido.
+   *   2. Costaba unos 105 frames moviendo las 99 000 partículas enteras —
+   *      la mayor parte de los 6.4 s de CPU que Lighthouse le achacaba a este
+   *      archivo. Con la esfera ya formada y quieta, el bucle entra por el
+   *      camino rápido desde el primer frame y no toca ni una partícula
+   *      mientras nadie ponga el dedo encima.
+   *
+   * Con ello se fue también la nube gaussiana (N llamadas a Box-Muller, con
+   * su logaritmo y su coseno cada una). El morph sigue existiendo intacto para
+   * select(), que es de donde venía. */
   let currentIdx  = GLOBE_IDX;
-  let prevHome    = scatter;
-  let currHome    = HOMES[GLOBE_IDX];
-  let morphT      = 0;
+  let currHome    = forma(GLOBE_IDX);
+  let prevHome    = currHome;
+  let morphT      = 1;
   let morphDur    = INTRO_MORPH_S;
-  // introActive se quitó: solo servía para saber cuándo encender el modo mapa,
-  // que ya no existe. Lo que ahora marca "la esfera ya está" es morphT.
-  const baseNow  = scatter.slice();
-  const effHome  = scatter.slice();
+  const baseNow  = currHome.slice();
+  const effHome  = currHome.slice();
 
   const dispX = new Float32Array(N), dispY = new Float32Array(N), dispZ = new Float32Array(N);
   const velX  = new Float32Array(N), velY  = new Float32Array(N), velZ  = new Float32Array(N);
@@ -950,7 +964,7 @@ async function initRiskSphere() {
   geoPromesa.then((geo) => {
     if (!geo) return;
     // 1. Tierra/mar y país de cada partícula, sobre las posiciones de reposo.
-    const home = HOMES[GLOBE_IDX];
+    const home = forma(GLOBE_IDX);
     for (let i = 0; i < N; i++) {
       const ix = i * 3;
       const x = home[ix] / R, y = home[ix + 1] / R, z = home[ix + 2] / R;
@@ -1266,9 +1280,9 @@ async function initRiskSphere() {
       focusTarget = -Math.atan2(d.x, d.z);
     },
     select: (idx) => {
-      if (idx < 0 || idx >= HOMES.length || idx === currentIdx) return;
+      if (idx < 0 || idx >= HERO_FORMS.length || idx === currentIdx) return;
       prevHome   = baseNow.slice();
-      currHome   = HOMES[idx];
+      currHome   = forma(idx);
       currentIdx = idx;
       morphT     = 0;
       morphDur   = MORPH_S;
@@ -1288,12 +1302,14 @@ async function initRiskSphere() {
   // Se enciende cuando la entrada termina de asentarse y las posiciones de
   // reposo ya son definitivas. A partir de ahí el camino rápido puede confiar
   // en baseNow. Vuelve a cero si se cambia de forma con select().
-  let asentadoUnaVez = false;
+  let asentadoUnaVez = true;
   let elapsed = 0, animId = 0, lastFrame = 0, nextFrameAt = 0;
   let lastScrollAt = -1e9;
   let mouseActive = false;
   let lastMoveAt  = 0;
-  let settled = false, settleFrames = 0;
+  // Arranca asentado: la esfera ya está en su sitio (ver "EL GLOBO NACE YA
+  // FORMADO"), así que el camino rápido vale desde el primer frame.
+  let settled = true, settleFrames = 0;
   let visible = true;
   let qFrames = 0, qSlow = 0, qDone = DPR <= 1.5;
   const mouseNDC    = new THREE.Vector2();
@@ -1593,7 +1609,7 @@ async function initRiskSphere() {
       : 0;
 
     if (currentIdx === ATOM_IDX) {
-      tickAtom(HOMES[ATOM_IDX], atom.phases, atom.rIdx, elapsed, N, R);
+      tickAtom(forma(ATOM_IDX), atom.phases, atom.rIdx, elapsed, N, R);
     }
 
     if (morphT < 1) morphT = Math.min(1, morphT + dt / morphDur);
