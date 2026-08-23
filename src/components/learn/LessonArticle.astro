@@ -11,8 +11,11 @@ import { render } from 'astro:content';
 import Term from './Term.astro';
 import Callout from './Callout.astro';
 import CompoundCalculator from '../tools/CompoundCalculator.astro';
+import InflationTool from '../tools/InflationTool.astro';
+import RiskReturn from '../tools/RiskReturn.astro';
 import GlossarySheet from './GlossarySheet.astro';
 import LessonCard from './LessonCard.astro';
+import Quiz from './Quiz.astro';
 
 interface Props { locale: Locale; lesson: Lesson; all: Lesson[] }
 const { locale, lesson, all } = Astro.props;
@@ -57,8 +60,10 @@ const levelKey = ('learn.level.' + d.level) as UIKey;
     </header>
 
     <div class="lesson-body">
-      <Content components={{ Term, Callout, CompoundCalculator }} />
+      <Content components={{ Term, Callout, CompoundCalculator, InflationTool, RiskReturn }} />
     </div>
+
+    <Quiz locale={locale} slug={lesson.slug} quiz={d.quiz} />
 
     <div class="lesson-end" data-lesson-end>
       <button type="button" class="btn btn-ghost btn-sm" data-mark-read data-label-read={t('learn.markRead')} data-label-done={t('learn.marked')} aria-pressed="false">{t('learn.markRead')}</button>

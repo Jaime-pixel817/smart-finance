@@ -22,6 +22,24 @@ const source = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 });
 
+// Quiz de comprensión del final de la lección. Son preguntas sobre lo que la
+// lección acaba de explicar (no opiniones ni recomendaciones), y cada una trae
+// escrito el PORQUÉ de la respuesta: sin esa línea el quiz solo califica, no
+// enseña. Se responde en el navegador, sin backend (src/scripts/quiz.ts).
+const quizItem = z.object({
+  /** la pregunta, en segunda persona y sobre el contenido de la lección */
+  q: z.string().min(8),
+  /** 2 a 4 opciones; el orden es el que se pinta */
+  options: z.array(z.string().min(1)).min(2).max(4),
+  /** índice (0…n-1) de la opción correcta dentro de `options` */
+  answer: z.number().int().min(0),
+  /** por qué esa es la respuesta: se muestra al contestar, acierte o no */
+  why: z.string().min(10)
+}).refine((v) => v.answer < v.options.length, {
+  message: 'quiz: answer apunta fuera de options',
+  path: ['answer']
+});
+
 const lessons = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/lessons' }),
   schema: z.object({
@@ -44,6 +62,8 @@ const lessons = defineCollection({
     related: z.array(z.string()).default([]),
     /** ids de src/data/glossary.json que la lección usa */
     glossary: z.array(z.string()).default([]),
+    /** exactamente tres preguntas de comprensión: si faltan, el build falla */
+    quiz: z.array(quizItem).length(3),
     /** cifra destacada bajo la entradilla (opcional) */
     heroStat: z.object({ value: z.string(), label: z.string() }).optional()
   })
