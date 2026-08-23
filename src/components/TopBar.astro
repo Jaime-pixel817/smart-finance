@@ -17,7 +17,7 @@ const home = route('home', locale);
 const links: { id: string; href: string; label: string; wide?: boolean }[] = [
   { id: 'today', href: home, label: t('nav.today') },
   { id: 'markets', href: route('market', locale), label: t('nav.markets') },
-  { id: 'news', href: home + '#story', label: t('nav.news') },
+  { id: 'news', href: route('news', locale), label: t('nav.news') },
   { id: 'learn', href: route('lessons', locale), label: t('nav.learn') },
   { id: 'tools', href: route('tools', locale), label: t('nav.tools') },
   { id: 'research', href: route('research', locale), label: t('nav.research') },

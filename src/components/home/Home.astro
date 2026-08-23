@@ -26,6 +26,9 @@ const L = (id: string) => route(id, locale);
 const showRates = ratesFresh();
 const strings = {
   open: t('today.open'), closed: t('today.closed'), loading: t('src.loading'), unavailable: t('src.unavailable'),
+  // La historia de hoy prefiere la noticia REVISADA; si no hay ninguna, cae al
+  // titular del feed con su opinión, que es lo que hacía antes.
+  storyOpen: t('news.open'), storyRead: t('story.read'), storyAi: t('news.ai'), storyWhat: t('news.what'),
   nlOk: t('nl.ok'), nlBadEmail: t('nl.badEmail'), nlNoConsent: t('nl.noConsent'), nlLimit: t('nl.limit'), nlError: t('nl.error'), nlSending: t('nl.sending')
 };
 // Lecciones desde la colección MDX: la tarjeta grande es la primera de la ruta
@@ -39,6 +42,7 @@ const SPARK = `<svg class="spark skel" viewBox="0 0 56 24" preserveAspectRatio="
 const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
 ---
 <div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)} data-asset-hrefs={JSON.stringify(assetHrefs)}
+  data-news-base={locale === 'es' ? '/es/noticias/' : '/news/'}
   data-rates-verified={RATES.verificado} data-rates-max-days={RATES.maxDias} data-banxico={RATES.banxico} data-fed-min={RATES.fedMin} data-fed-max={RATES.fedMax}>
 
   <Hero locale={locale} />
@@ -83,6 +87,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     <section id="story" class="story col-7" aria-labelledby="story-h" data-state="loading">
       <div class="section-head">
         <h2 id="story-h" class="t-h3">{t('story.title')}</h2>
+        <a class="more" href={L('news')}>{t('news.all')} →</a>
       </div>
       <article class="card story-card">
         <p class="kicker eyebrow"><span>{t('story.kicker')}</span> <span aria-hidden="true">·</span> <span>Bloomberg</span> <span aria-hidden="true">·</span> <span id="story-time">—</span>{t('story.lang') && <span aria-hidden="true">·</span>}{t('story.lang') && <span>{t('story.lang')}</span>}</p>

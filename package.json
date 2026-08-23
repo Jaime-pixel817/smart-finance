@@ -26,6 +26,7 @@
     "build:email-icons": "node scripts/build-email-icons.js",
     "check-es": "node scripts/build-es.js && git diff --quiet -- es sitemap.xml || (echo /es esta desactualizado: corre npm run build:es y commitea el resultado. && exit 1)",
     "build:og": "node scripts/build-og.js",
+    "news:sync": "node scripts/news-sync.js",
     "test": "node --test"
   },
   "dependencies": {

@@ -1,0 +1,92 @@
+---
+// Lectura de una noticia que ya está APROBADA pero todavía no tiene página
+// propia en el build.
+//
+// POR QUÉ EXISTE
+// -------------
+// El índice se pinta desde /api/news?estado=aprobadas, así que una noticia
+// aprobada aparece en /news en un minuto. Su página, en cambio, sale del build
+// (src/data/news/*.json + `npm run news:sync`), que ocurre cuando se despliega.
+// Entre las dos cosas hay una ventana en la que /news/<slug> no existe como
+// archivo, y un enlace roto en la página que acabas de publicar es peor que no
+// publicar.
+//
+// La reescritura de vercel.json manda /news/<slug> aquí SOLO cuando ese archivo
+// no existe (las reescrituras se aplican después de mirar el sistema de
+// archivos), así que las noticias ya construidas siguen sirviéndose como HTML
+// estático y esta página nunca las tapa. La URL del navegador no cambia.
+//
+// Lleva noindex porque es transitoria: la que Google tiene que indexar es la
+// estática, que llega con el siguiente despliegue y vive en la misma URL.
+import '../../styles/news.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { TEMAS } from '../../data/news';
+import { ASSETS, assetRouteId } from '../../data/symbols';
+import { getLessons } from '../../data/lessons';
+import glossary from '../../data/glossary.json';
+import GlossarySheet from '../learn/GlossarySheet.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+
+const activos = ASSETS.map((a) => ({
+  id: a.id, sym: a.sym, name: a.name[locale], feed: a.feed, feedKey: a.feedKey, href: L(assetRouteId(a.id))
+}));
+
+// Las seis lecciones y el glosario entero viajan en la página porque aquí la
+// noticia se arma en el navegador y no se sabe de antemano a cuáles apunta.
+// Son unos pocos KB en una página que casi nadie ve y que nunca se indexa.
+const lecciones = Object.fromEntries(
+  (await getLessons(locale)).map((l) => [l.routeId, { titulo: l.entry.data.title, href: l.href }])
+);
+const glosario = Object.fromEntries(
+  glossary.map((g) => [g.id, {
+    term: g[locale].term, def: g[locale].def, pesos: g[locale].pesos, href: route(g.lesson, locale)
+  }])
+);
+
+const strings = {
+  what: t('news.what'), why: t('news.why'), impact: t('news.impact'),
+  learn: t('news.learn'), lesson: t('news.learn.lesson'), terms: t('news.terms'),
+  read: t('news.read'), source: t('news.source'), reviewed: t('news.reviewed'),
+  howMade: t('story.ai.more'), aiDisclosure: t('news.ai.disclosure'),
+  humanDisclosure: t('news.human.disclosure'), disclaimer: t('news.disclaimer'),
+  spark: t('news.spark'), sparkNote: t('news.impact.note'),
+  ai: t('news.ai'), human: t('news.human'), all: t('news.all'),
+  ...Object.fromEntries(TEMAS.map((x) => ['tema.' + x, t(('news.tema.' + x) as UIKey)]))
+};
+---
+<div id="news-read" class="container" data-locale={locale}
+  data-base={locale === 'es' ? '/es/noticias/' : '/news/'}
+  data-index={L('news')}
+  data-strings={JSON.stringify(strings)}
+  data-activos={JSON.stringify(activos)}
+  data-lecciones={JSON.stringify(lecciones)}
+  data-glosario={JSON.stringify(glosario)}>
+
+  <!-- Esqueleto con la forma de la noticia: la página no salta al llegar. -->
+  <div id="nw-read-skel" class="nw-story" aria-hidden="true">
+    <span class="skel" style="width: 55%; height: 11px"></span>
+    <span class="skel" style="width: 96%; height: 30px"></span>
+    <span class="skel" style="width: 70%; height: 30px"></span>
+    <span class="skel" style="width: 100%; height: 17px"></span>
+    <span class="skel" style="width: 100%; height: 17px"></span>
+    <span class="skel" style="width: 82%; height: 17px"></span>
+  </div>
+
+  <div id="nw-read-out" hidden></div>
+
+  <div id="nw-read-404" class="nw-story nw-note" hidden>
+    <h2>{t('news.notFound')}</h2>
+    <p>{t('news.notFound.note')}</p>
+    <a class="btn btn-ghost btn-sm" href={L('news')}>{t('news.all')} →</a>
+  </div>
+
+  <p id="nw-read-error" class="nw-story nw-note" hidden>{t('news.error')}</p>
+</div>
+
+<GlossarySheet locale={locale} />
+<script src="../../scripts/news-read.ts"></script>

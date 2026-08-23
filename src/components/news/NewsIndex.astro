@@ -1,0 +1,103 @@
+---
+// /news y /es/noticias: el índice de las noticias explicadas.
+//
+// Las tarjetas NO se generan aquí. El sitio es estático y una noticia aprobada
+// tiene que verse el mismo día, así que la lista la pide el navegador a
+// /api/news?estado=aprobadas (src/scripts/news-index.ts). Lo que sí sale del
+// build es todo lo demás: título, filtros, esqueletos con la altura exacta de
+// las tarjetas de verdad, y los estados de "no hay nada" y "no cargó".
+import '../../styles/news.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { TEMAS } from '../../data/news';
+import { ASSETS, assetRouteId } from '../../data/symbols';
+import SourceChip from '../SourceChip.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+
+// Los activos que el sitio sabe pintar, para los chips de cada tarjeta. Va
+// completo porque las tarjetas se arman en el navegador y cualquier noticia
+// puede mencionar cualquiera de ellos.
+const activos = ASSETS.map((a) => ({
+  id: a.id, sym: a.sym, name: a.name[locale], feed: a.feed, feedKey: a.feedKey, href: L(assetRouteId(a.id))
+}));
+
+const strings = {
+  ai: t('news.ai'), human: t('news.human'),
+  count: locale === 'es' ? 'noticias' : 'stories',
+  none: locale === 'es' ? 'sin noticias' : 'no stories',
+  unavailable: t('src.unavailable'),
+  ...Object.fromEntries(TEMAS.map((x) => ['tema.' + x, t(('news.tema.' + x) as UIKey)]))
+};
+---
+<div id="news-page" class="nw" data-locale={locale}
+  data-base={locale === 'es' ? '/es/noticias/' : '/news/'}
+  data-strings={JSON.stringify(strings)}
+  data-activos={JSON.stringify(activos)}>
+
+  <header class="container nw-head">
+    <h1 class="t-h1">{t('news.h1')}</h1>
+    <p class="t-small muted nw-sub">{t('news.sub')}</p>
+  </header>
+
+  <div class="container">
+    <div class="nw-filters rail" role="group" aria-label={t('news.filter.aria')}>
+      <button class="chip" type="button" data-filter="all" aria-pressed="true">{t('news.filter.all')}</button>
+      {TEMAS.map((x) => (
+        <button class="chip" type="button" data-filter={x} aria-pressed="false">{t(('news.tema.' + x) as UIKey)}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Tres esqueletos de la misma altura que las tarjetas: el hueco ya está
+         reservado cuando llegan los datos, así que la página no salta. -->
+    <ul id="nw-list" class="nw-list" data-estado="cargando" aria-busy="true" aria-label={t('news.h1')}>
+      {[0, 1, 2].map(() => (
+        <li class="nw-card nw-skel" aria-hidden="true">
+          <article class="card">
+            <span class="skel s-kicker"></span>
+            <span class="skel s-title"></span>
+            <span class="skel s-title2"></span>
+            <span class="skel s-text"></span>
+            <span class="skel s-text2"></span>
+            <span class="skel s-chip"></span>
+          </article>
+        </li>
+      ))}
+    </ul>
+
+    <div id="nw-empty" class="nw-note" hidden>
+      <h2>{t('news.empty')}</h2>
+      <p>{t('news.empty.note')}</p>
+      <a class="btn btn-ghost btn-sm" href={L('market')}>{t('pulse.all')} →</a>
+    </div>
+
+    <div id="nw-empty-filter" class="nw-note" hidden>
+      <p>{t('news.empty.filter')}</p>
+    </div>
+
+    <div id="nw-error" class="nw-note" hidden>
+      <p>{t('news.error')}</p>
+    </div>
+
+    <!-- La semana en 5 puntos: solo sábado y domingo, y solo si hubo semana.
+         Lo decide el script, que es quien sabe qué noticias llegaron. -->
+    <section id="nw-week" class="nw-week card" aria-labelledby="nw-week-h" hidden>
+      <h2 id="nw-week-h" class="t-h3">{t('news.week')}</h2>
+      <p class="t-caption faint">{t('news.week.note')}</p>
+      <ol></ol>
+    </section>
+
+    <div class="chips-row" style="margin-top: var(--sp-5)">
+      <SourceChip locale={locale} id="chip-news" source={t('news.ai')} />
+    </div>
+
+    <p class="t-caption faint nw-disclaimer" style="margin-top: var(--sp-3)">{t('news.disclaimer')}</p>
+  </div>
+</div>
+
+<script src="../../scripts/news-index.ts"></script>

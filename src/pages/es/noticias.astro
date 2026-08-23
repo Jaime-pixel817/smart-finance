@@ -1,0 +1,27 @@
+---
+// /es/noticias — índice de las noticias explicadas.
+import Base from '../../layouts/Base.astro';
+import NewsIndex from '../../components/news/NewsIndex.astro';
+import { SITE } from '../../i18n/routes';
+import { NEWS } from '../../data/news';
+const title = 'Noticias explicadas: qué pasó y por qué importa — Smart Finance';
+const description = 'Las noticias de mercados y economía en palabras normales, para estudiantes en México y Canadá: qué pasó, por qué te importa y qué movió en los mercados. Cada nota la revisa una persona antes de publicarse.';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Noticias explicadas',
+  description,
+  url: SITE + '/es/noticias',
+  inLanguage: 'es-MX',
+  isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: NEWS.length,
+    itemListElement: NEWS.map((n, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/es/noticias/' + n.slug, name: n.es.titulo }))
+  }
+};
+---
+<Base locale="es" routeId="news" active="news" title={title} description={description} jsonLd={jsonLd}>
+  <NewsIndex locale="es" />
+</Base>

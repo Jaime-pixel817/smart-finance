@@ -1,0 +1,104 @@
+/* ============================================================================
+   Noticias explicadas — /news, /news/[slug] y sus gemelas en español.
+
+   Estas clases son GLOBALES a propósito, no <style> de un componente: el mismo
+   HTML lo escribe Astro en el build (NewsStory.astro) y el navegador desde el
+   endpoint (src/scripts/news-shared.ts). Con estilos scoped, la versión pintada
+   en cliente saldría sin formato — que es exactamente el fallo que este archivo
+   evita.
+   ========================================================================== */
+
+.nw { padding-top: var(--sp-4); }
+.nw-head { display: flex; flex-direction: column; gap: var(--sp-2); }
+.nw-sub { max-width: var(--measure); }
+
+/* ---- Filtros: una fila que se desliza en el teléfono ---- */
+.nw-filters { margin-top: var(--sp-4); gap: var(--sp-2); scroll-snap-type: none; }
+.nw-filters .chip { min-height: 36px; padding: 0 14px; color: var(--ink-2); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+.nw-filters .chip:hover { color: var(--ink); border-color: var(--ink-3); }
+.nw-filters .chip[aria-pressed="true"] { background: var(--brand-wash); color: var(--ink); border-color: transparent; }
+
+/* ---- Lista de tarjetas ---- */
+.nw-list { list-style: none; display: grid; gap: var(--sp-3); margin-top: var(--sp-4); }
+@media (min-width: 768px) { .nw-list { grid-template-columns: 1fr 1fr; gap: var(--sp-4); } }
+@media (min-width: 1100px) { .nw-list { grid-template-columns: repeat(3, 1fr); } }
+.nw-list > li[hidden] { display: none; }
+
+/* Altura mínima igual a la del esqueleto: la tarjeta real ocupa lo mismo que
+   el hueco que ya estaba reservado, así que al llegar los datos nada salta. */
+.nw-card > .card { display: flex; flex-direction: column; gap: var(--sp-2); min-height: 188px; height: 100%; }
+.nw-card .kicker { color: var(--ink-3); }
+.nw-title { font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; line-height: 1.4rem; letter-spacing: -.01em; }
+.nw-title a { color: var(--ink); }
+.nw-title a:hover { color: var(--brand-text); }
+/* El resumen se recorta a tres líneas para que todas las tarjetas midan igual
+   y la rejilla no baile según lo larga que sea cada noticia. */
+.nw-que { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.nw-chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: auto; }
+.chip-ia { background: var(--brand-wash); border-color: transparent; color: var(--ink-2); }
+.chip-activo { color: var(--ink-2); }
+.chip-activo:hover { border-color: var(--ink-3); color: var(--ink); }
+.chip-activo[data-estado="cargando"] .num::before { content: '···'; color: var(--ink-3); }
+.chip-activo[data-estado="sin-dato"] .num::before { content: '—'; color: var(--ink-3); }
+
+/* Esqueletos: mismas medidas que la tarjeta de verdad. */
+.nw-skel .card { min-height: 188px; }
+.nw-skel .skel { display: block; }
+.nw-skel .s-kicker { width: 60%; height: 11px; }
+.nw-skel .s-title { width: 92%; height: 20px; }
+.nw-skel .s-title2 { width: 66%; height: 20px; margin-top: 6px; }
+.nw-skel .s-text { width: 100%; height: 14px; margin-top: 6px; }
+.nw-skel .s-text2 { width: 78%; height: 14px; margin-top: 6px; }
+.nw-skel .s-chip { width: 130px; height: 22px; border-radius: var(--r-pill); margin-top: auto; }
+
+/* ---- Estados honestos ---- */
+.nw-note { margin-top: var(--sp-5); max-width: var(--measure); }
+.nw-note[hidden] { display: none; }
+.nw-note h2 { font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; margin-bottom: var(--sp-1); }
+.nw-note p { color: var(--ink-2); font-size: var(--fs-small); line-height: var(--lh-small); }
+.nw-note .btn { margin-top: var(--sp-3); }
+
+/* ---- La semana en 5 puntos ---- */
+.nw-week { margin-top: var(--sp-5); }
+.nw-week[hidden] { display: none; }
+/* Con numeros: son "5 puntos", y el reseteo global de listas se los quitaba. */
+.nw-week ol { list-style: decimal; margin: var(--sp-2) 0 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: var(--sp-2); }
+.nw-week li::marker { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-caption); }
+.nw-week li { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2); }
+.nw-week li a { color: var(--ink); }
+.nw-week li a:hover { color: var(--brand-text); }
+
+/* ---- Noticia completa ---- */
+.nw-story { max-width: var(--measure); margin-inline: auto; display: flex; flex-direction: column; gap: var(--sp-4); padding-top: var(--sp-4); }
+/* Sin esto el esqueleto de la página de lectura no se iba nunca: el display de
+   la regla de arriba le gana al display:none que el navegador aplica a
+   [hidden], y la noticia salía debajo de sus propias barras grises. */
+.nw-story[hidden] { display: none; }
+.nw-story .kicker { color: var(--ink-3); }
+.nw-h1 { font-size: 1.75rem; line-height: 2.125rem; }
+@media (min-width: 768px) { .nw-h1 { font-size: var(--fs-display); line-height: var(--lh-display); } }
+.nw-block { display: flex; flex-direction: column; gap: var(--sp-1); }
+.nw-label { color: var(--ink-3); }
+.nw-text { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink); }
+.nw-impact, .nw-learn { display: flex; flex-direction: column; gap: var(--sp-2); border-top: 1px solid var(--line); padding-top: var(--sp-4); }
+.nw-impact .nw-text, .nw-learn .nw-text { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2); }
+.nw-spark { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.nw-spark svg { width: 100%; height: 64px; color: var(--neutral); }
+.nw-spark svg[hidden] { display: none; }
+.nw-spark svg.skel { border-radius: var(--r-input); }
+.nw-lesson { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-3); }
+.nw-lesson .t-small { color: var(--ink); font-weight: 500; }
+.nw-terms { line-height: 1.9; }
+.nw-foot { display: flex; flex-direction: column; gap: var(--sp-2); border-top: 1px solid var(--line); padding-top: var(--sp-4); }
+.nw-foot a { color: var(--brand-text); }
+.nw-disclaimer { max-width: var(--measure); }
+.nw-back { align-self: flex-start; }
+
+/* Detalle desplegable "cómo se hace esto": cerrado por defecto, sin flecha del
+   navegador para que no compita con los chips de al lado. */
+.ai-disclosure summary { cursor: pointer; list-style: none; color: var(--ink-3); }
+.ai-disclosure summary::-webkit-details-marker { display: none; }
+.ai-disclosure summary::after { content: ' ⌄'; }
+.ai-disclosure[open] summary::after { content: ' ⌃'; }
+.ai-disclosure summary:hover { color: var(--ink-2); }
+.ai-disclosure p { margin-top: var(--sp-2); max-width: var(--measure); }

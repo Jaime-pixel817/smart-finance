@@ -5,12 +5,13 @@
 import type { APIRoute } from 'astro';
 import { SYMBOLS, assetRouteId } from '../data/symbols';
 import { getLessons } from '../data/lessons';
+import { NEWS, newsRouteId } from '../data/news';
 import glossary from '../data/glossary.json';
 import { LOCALES, route, type Locale } from '../i18n/routes';
 import { ui } from '../i18n/ui';
 import { PAGED_REPORTS, loadReport } from '../lib/research/reports';
 
-type Item = { t: 'asset' | 'lesson' | 'term' | 'tool' | 'page'; name: string; sym?: string; keys?: string; href: string; lang: Locale };
+type Item = { t: 'asset' | 'news' | 'lesson' | 'term' | 'tool' | 'page'; name: string; sym?: string; keys?: string; href: string; lang: Locale };
 
 export const GET: APIRoute = async () => {
   const items: Item[] = [];
@@ -26,6 +27,15 @@ export const GET: APIRoute = async () => {
     for (const l of lessons) {
       items.push({ t: 'lesson', name: l.entry.data.title, keys: l.entry.data.description + ' ' + l.path.name[lang], href: l.href, lang });
     }
+    // Noticias publicadas: solo las que tienen página propia. Las aprobadas que
+    // todavía no están en el repo se leen en /news, que sí está en el índice.
+    for (const n of NEWS) {
+      items.push({
+        t: 'news', name: n[lang].titulo,
+        keys: n[lang].que.slice(0, 160) + ' ' + n.fuente.nombre + ' ' + t[('news.tema.' + n.tema) as keyof typeof t],
+        href: route(newsRouteId(n.slug), lang), lang
+      });
+    }
     for (const g of glossary) {
       items.push({ t: 'term', name: g[lang].term, keys: g[other].term + ' ' + g[lang].def, href: route('lessons.glossary', lang) + '#term-' + g.id, lang });
     }
@@ -35,6 +45,7 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['tools.h1'], keys: lang === 'es' ? 'herramientas calculadoras' : 'tools calculators', href: route('tools', lang), lang });
     items.push({ t: 'page', name: t['nav.today'], keys: lang === 'es' ? 'inicio pulso historia home' : 'home pulse story', href: route('home', lang), lang });
     items.push({ t: 'page', name: t['mkt.title'], keys: lang === 'es' ? 'gráficas divisas cripto vix charts' : 'charts fx crypto vix', href: route('market', lang), lang });
+    items.push({ t: 'page', name: t['news.h1'], keys: lang === 'es' ? 'noticias explicadas titulares hoy actualidad' : 'news explained headlines today', href: route('news', lang), lang });
     items.push({ t: 'page', name: t['learn.h1'], keys: lang === 'es' ? 'aprende lecciones rutas' : 'learn lessons paths', href: route('lessons', lang), lang });
     items.push({ t: 'page', name: t['glossary.h1'], keys: lang === 'es' ? 'glosario términos definiciones' : 'glossary terms definitions', href: route('lessons.glossary', lang), lang });
     items.push({ t: 'page', name: t['nav.about'], keys: lang === 'es' ? 'Jaime Sandoval quién hace esto contacto' : 'Jaime Sandoval who makes this contact', href: route('about', lang), lang });

@@ -1,0 +1,14 @@
+---
+// Destino de la reescritura de /news/<slug> cuando esa página todavía no
+// existe en el build (ver src/components/news/NewsRead.astro y vercel.json).
+// No se enlaza desde ningún sitio y lleva noindex: la URL buena es la que el
+// visitante ya tiene en la barra.
+import Base from '../layouts/Base.astro';
+import NewsRead from '../components/news/NewsRead.astro';
+import { useT } from '../i18n/ui';
+const t = useT('en');
+---
+<Base locale="en" routeId="news.read" active="news" title={t('news.h1') + ' — Smart Finance'} description={t('news.sub')}>
+  <meta slot="head" name="robots" content="noindex, follow">
+  <NewsRead locale="en" />
+</Base>

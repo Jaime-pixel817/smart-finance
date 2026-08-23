@@ -19,6 +19,7 @@ const home = route('home', locale);
       <nav class="footer-nav" aria-label={locale === 'es' ? 'Pie de página' : 'Footer'}>
         <a href={home}>{t('nav.today')}</a>
         <a href={route('market', locale)}>{t('nav.markets')}</a>
+        <a href={route('news', locale)}>{t('nav.news')}</a>
         <a href={route('lessons', locale)}>{t('nav.learn')}</a>
         <a href={route('research', locale)}>{t('nav.research')}</a>
         <a href={route('lessons.glossary', locale)}>{t('nav.glossary')}</a>
