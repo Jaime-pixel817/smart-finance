@@ -437,10 +437,31 @@ test('el número de edición sube de uno en uno cada domingo', () => {
   assert.equal(boletin.numeroDeEdicion(new Date('2026-01-04T14:00:00.000Z')), 1);
 });
 
-test('"ver en el navegador" apunta a la versión web de ESTE número', () => {
-  const { html, texto } = pintar(contenidoDePrueba(), 'es');
-  assert.match(html, /smartfinance\.lat\/newsletter\/2026-08-23/);
-  assert.match(texto, /Ver este número en el navegador: https:\/\/smartfinance\.lat\/newsletter\/2026-08-23/);
+test('"ver en el navegador" apunta a la versión web de ESTE número, en su idioma', () => {
+  // Mismo fallo que el de la lección, repetido: la etiqueta traducida y el
+  // destino en inglés. Un suscriptor en español aterrizaba en <html lang="en">.
+  // Por eso aquí no basta con `match`: hacen falta los cruzados.
+  const es = pintar(contenidoDePrueba(), 'es');
+  assert.match(es.html, /smartfinance\.lat\/es\/boletin\/2026-08-23/);
+  assert.match(es.texto, /Ver este número en el navegador: https:\/\/smartfinance\.lat\/es\/boletin\/2026-08-23/);
+  assert.doesNotMatch(es.html, /smartfinance\.lat\/newsletter/);
+  assert.doesNotMatch(es.texto, /smartfinance\.lat\/newsletter/);
+
+  const en = pintar(contenidoDePrueba(), 'en');
+  assert.match(en.html, /smartfinance\.lat\/newsletter\/2026-08-23/);
+  assert.match(en.texto, /View this issue in your browser: https:\/\/smartfinance\.lat\/newsletter\/2026-08-23/);
+  assert.doesNotMatch(en.html, /smartfinance\.lat\/es\/boletin/);
+  assert.doesNotMatch(en.texto, /smartfinance\.lat\/es\/boletin/);
+});
+
+test('"números anteriores" del pie también va al archivo en su idioma', () => {
+  const es = pintar(contenidoDePrueba(), 'es');
+  assert.match(es.html, /href="https:\/\/smartfinance\.lat\/es\/boletin"/);
+  assert.match(es.texto, /Números anteriores: https:\/\/smartfinance\.lat\/es\/boletin/);
+
+  const en = pintar(contenidoDePrueba(), 'en');
+  assert.match(en.html, /href="https:\/\/smartfinance\.lat\/newsletter"/);
+  assert.match(en.texto, /Past issues: https:\/\/smartfinance\.lat\/newsletter/);
 });
 
 test('el correo trae las reglas del modo oscuro', () => {

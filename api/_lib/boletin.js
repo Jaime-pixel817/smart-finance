@@ -993,12 +993,16 @@ function teaserLeccion(texto) {
 // Las redes, ya sin botón: dos enlaces de texto en el pie, junto al archivo de
 // números anteriores. Siguen estando y siguen siendo fáciles de encontrar; lo
 // que ya no hacen es competir con el único llamado a la acción del correo.
-function pieEnlaces(t, sitio) {
+// `baseBoletin` es la raíz del archivo EN EL IDIOMA DEL CORREO. Se recibe en
+// vez de calcularse aquí porque el idioma lo decide quien renderiza: si esta
+// función se lo inventara, volveríamos al fallo que arregla — la etiqueta
+// traducida y el destino en inglés.
+function pieEnlaces(t, sitio, baseBoletin) {
   const enlace = (texto, url) =>
     `<a href="${escapar(url)}" class="sf-gris" style="color:${GRIS};text-decoration:underline;">${escapar(texto)}</a>`;
 
   return `<div class="sf-gris" style="font-family:${FUENTE};font-size:12px;line-height:1.8;color:${GRIS};">
-    ${enlace('LinkedIn', URL_LINKEDIN)} &nbsp;·&nbsp; ${enlace('TikTok', URL_TIKTOK)} &nbsp;·&nbsp; ${enlace(t.verNumeros, sitio + '/newsletter')}
+    ${enlace('LinkedIn', URL_LINKEDIN)} &nbsp;·&nbsp; ${enlace('TikTok', URL_TIKTOK)} &nbsp;·&nbsp; ${enlace(t.verNumeros, sitio + baseBoletin)}
   </div>`;
 }
 
@@ -1037,10 +1041,15 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
   const linea = (contenido.nota && contenido.nota[es ? 'es' : 'en']) || null;
   const numero = contenido.numero || numeroDeEdicion(contenido.fecha);
   const rango = rangoSemana(contenido.fecha, idioma);
+  // La raíz del archivo del boletín EN EL IDIOMA DE ESTE CORREO. Va aquí arriba
+  // y no repetida en cada sitio donde hace falta porque el fallo que arregla
+  // fue justamente ese: la ruta escrita a mano tres veces, traducida cero.
+  // Un suscriptor en español aterrizaba en la página inglesa.
+  const baseBoletin = es ? '/es/boletin' : '/newsletter';
   // La versión web de ESTE número. La página la genera Astro desde el archivo
   // commiteado, y mientras no lo esté la sirve /newsletter-read leyendo del
   // endpoint: la URL funciona desde el minuto uno.
-  const urlWeb = sitio + '/newsletter/' + diaLocal(contenido.fecha);
+  const urlWeb = sitio + baseBoletin + '/' + diaLocal(contenido.fecha);
   // La semana en una línea: sale de los mismos números que se imprimen abajo.
   const resumen = resumenSemana(contenido.mercado, t, es);
 
@@ -1252,7 +1261,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
           disclaimer. La baja va en TODOS los envíos: es obligatoria por ley, no
           una cortesía, y por eso no depende de ninguna condición de arriba. -->
   <tr><td style="padding:16px 24px 24px;">
-    ${pieEnlaces(t, sitio)}
+    ${pieEnlaces(t, sitio, baseBoletin)}
   </td></tr>
   <tr><td class="sf-linea" style="padding:16px 24px 24px;border-top:1px solid ${LINEA};">
     <div class="sf-gris" style="font-family:${FUENTE};font-size:11px;line-height:1.6;color:${GRIS};">
@@ -1369,7 +1378,7 @@ function renderizarCorreo({ contenido, idioma, urlBaja }) {
     '', t.seguir.toUpperCase(),
     'LinkedIn: ' + URL_LINKEDIN,
     'TikTok: ' + URL_TIKTOK,
-    t.verNumeros + ': ' + sitio + '/newsletter',
+    t.verNumeros + ': ' + sitio + baseBoletin,
     // La misma firma que cierra el HTML. La gráfica en cambio no deja rastro
     // aquí, y es lo correcto: sus datos ya están escritos arriba, así que
     // anunciar una imagen que esta versión no puede enseñar solo sobraría.
