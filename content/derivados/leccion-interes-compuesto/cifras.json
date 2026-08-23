@@ -1,0 +1,73 @@
+{
+  "pieza": {
+    "tipo": "leccion",
+    "slug": "interes-compuesto",
+    "archivos": [
+      "src/content/lessons/en/interes-compuesto.mdx",
+      "src/content/lessons/es/interes-compuesto.mdx"
+    ],
+    "fechaDatos": "2026-08-21"
+  },
+  "generado": "2026-08-23",
+  "guardia": {
+    "regla": "ninguna cifra de un derivado puede estar fuera de la pieza de origen",
+    "exenciones": [
+      "el frontmatter YAML de los .md generados (metadatos de produccion, no se publican)",
+      "la marca de tiempo de un plano de guion con la forma **0-3 s · Titulo**",
+      "las URL y los nombres de archivo",
+      "los campos numericos de carousel.json (lamina, total, lienzo): son la estructura del archivo"
+    ],
+    "archivosRevisados": [
+      "linkedin.es.md",
+      "linkedin.en.md",
+      "tiktok/01.md",
+      "tiktok/02.md",
+      "tiktok/03.md",
+      "tiktok/04.md",
+      "tiktok/05.md",
+      "newsletter.md",
+      "checklist.md",
+      "instagram/carousel.json"
+    ],
+    "estado": "ok"
+  },
+  "cifrasDeLaPieza": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9,
+    10,
+    20,
+    21,
+    25,
+    26,
+    35,
+    40,
+    45,
+    65,
+    72,
+    101,
+    310,
+    1000,
+    1100,
+    1210,
+    2000,
+    2026,
+    10000,
+    11000,
+    12100,
+    30000,
+    40000,
+    67000,
+    200000
+  ],
+  "fechasDeLaPieza": [
+    "2026-07-26",
+    "2026-08-21"
+  ]
+}

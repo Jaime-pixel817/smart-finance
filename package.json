@@ -31,6 +31,7 @@
     "news:sync": "node scripts/news-sync.js",
     "boletin:ensayo": "node scripts/boletin-ensayo.js",
     "newsletter:sync": "node scripts/newsletter-sync.js",
+    "derive": "node scripts/derive.mjs",
     "test": "node --test"
   },
   "dependencies": {

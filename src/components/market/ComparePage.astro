@@ -1,0 +1,177 @@
+---
+// Comparador de activos: dos o tres en la misma gráfica, todos normalizados a
+// 100 al principio del rango.
+//
+// POR QUÉ NO HAY DOS EJES. El dólar vale ~18 pesos y un ETF ~600 dólares.
+// Dibujarlos con sus precios de verdad es una raya recta y otra pegada al
+// suelo; ponerles un eje a cada uno deja que quien dibuja elija quién PARECE
+// que va ganando estirando una escala. Aquí los dos empiezan en 100 y lo que
+// se lee es el porcentaje que se movió cada uno. El cálculo (ventana común +
+// base 100) vive en src/lib/market/comparar.mjs, con pruebas.
+//
+// LEYENDA DIRECTA: cada serie lleva su nombre pegado al final de la línea (el
+// `title` de la serie, que Lightweight Charts pinta en el eje) y además está
+// escrita arriba con su color y su cambio. La versión escrita es la que leen
+// un lector de pantalla y quien no distingue los colores.
+//
+// LOS COLORES SON LOS ACENTOS DE DATOS (--s1 azul, --s2 ámbar, --s3 teal), NO
+// verde y rojo: en este sitio el verde y el rojo significan "sube" y "baja", y
+// aquí el color solo dice de qué activo es la línea.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+import { ASSETS, KINDS, sectionOf, runtimeOf, assetRouteId, type Kind } from '../../data/symbols';
+import { RANGES } from '../../scripts/market-data';
+import SourceChip from '../SourceChip.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const L = (id: string) => route(id, locale);
+
+/** Solo activos con historial: sin serie no hay nada que comparar. */
+const comparables = ASSETS.filter((s) => !!s.history);
+const secciones = KINDS.filter((k) => k !== 'rate')
+  .map((k: Kind) => ({ kind: k, items: comparables.filter((s) => sectionOf(s) === k) }))
+  .filter((g) => g.items.length);
+
+const runtime = comparables.map((s) => ({ ...runtimeOf(s), name: s.name[locale], href: L(assetRouteId(s.id)) }));
+const ranuras = ['a', 'b', 'c'] as const;
+const strings = {
+  since: t('cmp.since'), empty: t('cmp.empty'), nodata: t('cmp.nodata'),
+  dropped: t('cmp.dropped'), dNone: t('cmp.dropped.none'), dWindow: t('cmp.dropped.window'), dRange: t('cmp.dropped.range'),
+  share: t('cmp.share'), shared: t('cmp.shared'), open: t('cmp.open'), base: t('cmp.base'),
+  loading: t('src.loading'), unavailable: t('src.unavailable'), daily: t('src.daily'), weekly: t('src.weekly'), bars5: t('src.bars5')
+};
+---
+<div id="compare" class="cmp" data-locale={locale} data-strings={JSON.stringify(strings)}
+  data-symbols={JSON.stringify(runtime)} data-base={L('market.compare')}>
+  <div class="container">
+    <nav class="cmp-crumb" aria-label={locale === 'es' ? 'Ruta' : 'Breadcrumb'}>
+      <a class="t-small" href={L('market')}>← {t('asset.back')}</a>
+    </nav>
+
+    <header class="cmp-head">
+      <h1 class="t-h1">{t('cmp.title')}</h1>
+      <p class="t-small muted cmp-sub">{t('cmp.sub')}</p>
+    </header>
+
+    <form class="cmp-picks" id="cmp-picks" aria-label={t('cmp.aria')}>
+      {ranuras.map((slot, i) => (
+        <p class="cmp-pick">
+          <label class="t-caption faint" for={'cmp-' + slot}>{t('cmp.pick').replace('{n}', String(i + 1))}</label>
+          <select id={'cmp-' + slot} name={slot} data-slot={slot}>
+            <option value="">{t('cmp.none')}</option>
+            {secciones.map((g) => (
+              <optgroup label={t(('sec.' + g.kind) as UIKey)}>
+                {g.items.map((s) => <option value={s.id}>{s.sym} · {s.name[locale]}</option>)}
+              </optgroup>
+            ))}
+          </select>
+        </p>
+      ))}
+    </form>
+
+    <section class="card cmp-card" aria-labelledby="cmp-legend-h">
+      <div class="cmp-panel-head">
+        <h2 id="cmp-legend-h" class="eyebrow">{t('cmp.legend')}</h2>
+        <div class="cmp-ranges" role="tablist" aria-label={t('range.aria')}>
+          {RANGES.map((r, i) => (
+            <button type="button" role="tab" data-range={r} aria-selected={i === 3 ? 'true' : 'false'} tabindex={i === 3 ? 0 : -1}>{t(('range.' + r) as UIKey)}</button>
+          ))}
+        </div>
+      </div>
+
+      <!-- La leyenda es el dato en texto: es lo que se lee en voz alta y lo
+           que queda si alguien no distingue el azul del ámbar. -->
+      <ul class="cmp-legend" id="cmp-legend" aria-live="polite"></ul>
+      <!-- Los activos van en la URL, así que el servidor no sabe cuántas filas
+           tendrá la leyenda: lo sabe el navegador, y lo sabe ANTES de pintar.
+           Sin esto, las filas aparecían con el módulo (diferido) y bajaban la
+           gráfica de golpe. Solo reserva alto; el contenido lo pone compare.ts. -->
+      <script is:inline>
+        (function () {
+          try {
+            var q = new URLSearchParams(location.search);
+            var n = ['a', 'b', 'c'].filter(function (k) { return q.get(k); }).length || 2;
+            var ul = document.getElementById('cmp-legend');
+            // 25 px de fila y 8 px de hueco: medidos en el navegador, no
+            // estimados (con 20 quedaban 10 px de salto).
+            if (ul && n >= 2) ul.style.minHeight = (n * 25 + (n - 1) * 8) + 'px';
+          } catch (e) { /* sin URLSearchParams no se reserva y ya está */ }
+        })();
+      </script>
+
+      <p class="cmp-state t-caption" id="cmp-state" role="status">{t('cmp.empty')}</p>
+      <div class="cmp-canvas skel" id="cmp-canvas" aria-hidden="true"></div>
+      <p class="t-caption faint cmp-base">{t('cmp.base')}</p>
+
+      <div class="cmp-foot">
+        <SourceChip locale={locale} class="cmp-chip" id="cmp-chip" source="Yahoo Finance" delay={15} note={t('src.daily')} />
+        <div class="cmp-actions">
+          <button type="button" class="btn btn-ghost btn-sm" id="cmp-share">{t('cmp.share')}</button>
+          <a class="t-caption cmp-tv" href="https://www.tradingview.com/" target="_blank" rel="noopener">{t('chart.by')} TradingView ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <p class="t-small muted cmp-why">{t('cmp.why')}</p>
+    <p class="t-caption faint cmp-disc">{t('asset.disclaimer')}</p>
+  </div>
+</div>
+
+<script src="../../scripts/compare.ts"></script>
+
+<style>
+  .cmp { padding-top: var(--sp-3); padding-bottom: var(--sp-8); }
+  .cmp-crumb a { display: inline-flex; align-items: center; min-height: 36px; color: var(--ink-2); }
+  .cmp-crumb a:hover { color: var(--ink); }
+  .cmp-head { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-1); }
+  .cmp-sub { max-width: var(--measure); }
+
+  .cmp-picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-4); }
+  .cmp-pick { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .cmp-pick select { width: 100%; min-height: 44px; padding: 0 var(--sp-3); background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r-btn); font: inherit; font-size: var(--fs-small); }
+  .cmp-pick select:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  @media (max-width: 359px) { .cmp-picks { grid-template-columns: minmax(0, 1fr); } }
+  @media (min-width: 640px) { .cmp-picks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-4); } }
+
+  .cmp-card { margin-top: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-3); }
+  .cmp-panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+  .cmp-ranges { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); }
+  .cmp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: background .15s, color .15s; }
+  .cmp-ranges [role="tab"]:hover { color: var(--ink); }
+  .cmp-ranges [role="tab"][aria-selected="true"] { background: var(--brand-wash); color: var(--ink); }
+
+  /* La leyenda la escribe el script (compare.ts), así que sus reglas van
+     GLOBALES: los elementos creados con innerHTML no llevan el atributo de
+     scope de Astro y con estilos scoped saldrían sin formato — el mismo
+     problema que documenta CLAUDE.md para el HTML de una noticia. */
+  .cmp-legend { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cmp-legend:empty { display: none; }
+  :global(.cmp-legend li) { display: flex; align-items: baseline; gap: var(--sp-2); min-width: 0; }
+  :global(.cmp-swatch) { flex: 0 0 auto; width: 16px; height: 3px; border-radius: 2px; align-self: center; }
+  :global(.cmp-sym) { font-family: var(--font-mono); font-size: var(--fs-small); font-weight: 500; color: var(--ink); white-space: nowrap; }
+  :global(.cmp-name) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :global(.cmp-chg) { margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-small); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); min-width: 8ch; text-align: right; }
+  :global(.cmp-legend a) { color: var(--ink-2); }
+  :global(.cmp-legend a:hover) { color: var(--ink); }
+
+  .cmp-state { color: var(--ink-2); }
+  .cmp-state[hidden] { display: none; }
+  .cmp[data-state="error"] .cmp-state { color: var(--down-text); }
+  .cmp-canvas { display: block; position: relative; width: 100%; height: 240px; border-radius: var(--r-input); touch-action: pan-y; overflow: hidden; }
+  .cmp-canvas.skel { background: var(--bg-2); }
+  .cmp[data-loading="1"] .cmp-canvas { opacity: .7; transition: opacity .15s; }
+  @media (min-width: 768px) { .cmp-canvas { height: 320px; } }
+  @media (min-width: 1024px) { .cmp-canvas { height: 380px; } }
+
+  .cmp-base { margin-top: -4px; }
+  .cmp-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2) var(--sp-4); }
+  .cmp-foot :global(.src-chip) { flex-wrap: wrap; row-gap: 2px; }
+  .cmp-actions { display: flex; align-items: center; gap: var(--sp-3); }
+  .cmp-tv { color: var(--ink-3); white-space: nowrap; min-height: 28px; display: inline-flex; align-items: center; }
+  .cmp-tv:hover { color: var(--ink); }
+
+  .cmp-why, .cmp-disc { max-width: var(--measure); margin-top: var(--sp-4); }
+  @media (prefers-reduced-motion: reduce) { .cmp[data-loading="1"] .cmp-canvas { transition: none; } }
+</style>

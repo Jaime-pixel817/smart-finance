@@ -7,4 +7,6 @@
 // `createSeriesMarkers` es la marca del máximo y del mínimo del periodo: en la
 // v5 los marcadores dejaron de ser un método de la serie y son un plugin
 // aparte, así que hay que traerlo por su nombre para que entre en el recorte.
-export { createChart, createSeriesMarkers, AreaSeries, ColorType, LineStyle, LineType, CrosshairMode } from 'lightweight-charts';
+// LineSeries lo usa el comparador (/market/compare): varias series en el mismo
+// lienzo, sin área rellena — con dos o tres rellenos encimados no se ve nada.
+export { createChart, createSeriesMarkers, AreaSeries, LineSeries, ColorType, LineStyle, LineType, CrosshairMode, TrackingModeExitMode } from 'lightweight-charts';

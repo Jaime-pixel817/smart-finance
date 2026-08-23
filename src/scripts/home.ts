@@ -4,6 +4,9 @@
 // frescura honestos (nunca "en vivo").
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, sparkPath, type Loc } from './format';
 import { nyseOpen, bmvOpen } from './hours';
+import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar } from './watchlist';
+import { paintAssetRow } from './rows';
+import { loadQuotes, quoteFromQuotes, type Quote, type Quotes, type SymbolRT } from './market-data';
 
 const root = document.getElementById('home') as HTMLElement | null;
 if (root) boot(root);
@@ -118,10 +121,73 @@ function boot(root: HTMLElement) {
       chip.hidden = false;
     });
     paintMarkets60(m);
+    ultimoMarkets = m;
+    pintarFilasWatch(leerWatchlist(watchValidos));
     const when = m.updatedAt ? new Date(m.updatedAt) : null;
     setChip('chip-pulse', when, fromCache ? 'stale' : 'fresh', m.refreshMinutes || 15);
     setChip('chip-m60', when, fromCache ? 'stale' : 'fresh', m.refreshMinutes || 15);
   }
+  // ---- 2 bis. Lo que sigues (watchlist local) -----------------------------
+  // La tarjeta solo existe si sigues algo. Los precios salen de /api/markets,
+  // que el home ya pide; SOLO si sigues una divisa o el VIX se pide además
+  // /api/quotes, y una vez. Con la lista vacía no se pide nada de más.
+  const watchSec = $('#home-watch');
+  const watchRows = $('#home-watch-rows');
+  const watchLink = $<HTMLAnchorElement>('#home-watch-compare');
+  const watchSyms = watchSec ? (JSON.parse(watchSec.dataset.watch || '[]') as SymbolRT[]) : [];
+  const watchValidos = new Set(watchSyms.map((x) => x.id));
+  let ultimoMarkets: Markets | null = null;
+  let quotesPedidas: Promise<Quotes> | null = null;
+
+  const quoteDeItem = (it: MarketItem): Quote => ({
+    price: it.price, change: it.change ?? null, changePct: it.changePct, series: it.series || [],
+    prevClose: null, lastTs: null, high52: null, low52: null, source: '', updatedAt: null, refreshMinutes: 15
+  });
+
+  function filaWatch(id: string) { return watchRows ? watchRows.querySelector<HTMLElement>(`[data-row="${id}"]`) : null; }
+
+  function pintarFilasWatch(ids: string[]) {
+    if (!ids.length) return;
+    if (ultimoMarkets) {
+      const byId = new Map<string, MarketItem>();
+      ultimoMarkets.stocks?.items?.forEach((i) => byId.set(i.sym, i));
+      ultimoMarkets.crypto?.items?.forEach((i) => byId.set(i.sym, i));
+      for (const s of watchSyms) {
+        if (!ids.includes(s.id) || s.feed !== 'markets') continue;
+        const it = byId.get(s.feedKey);
+        if (it) paintAssetRow(filaWatch(s.id), s, quoteDeItem(it), loc);
+      }
+    }
+    const necesitaQuotes = watchSyms.some((s) => ids.includes(s.id) && s.feed === 'quotes');
+    if (necesitaQuotes) {
+      if (!quotesPedidas) quotesPedidas = loadQuotes();
+      quotesPedidas
+        .then((q) => { for (const s of watchSyms) { if (ids.includes(s.id) && s.feed === 'quotes') paintAssetRow(filaWatch(s.id), s, quoteFromQuotes(s, q), loc); } })
+        .catch(() => { for (const s of watchSyms) { if (ids.includes(s.id) && s.feed === 'quotes') paintAssetRow(filaWatch(s.id), s, null, loc); } });
+    }
+  }
+
+  function pintarWatch(ids: string[]) {
+    if (!watchSec || !watchRows) return;
+    const enLista = new Set(ids);
+    for (const fila of Array.from(watchRows.children) as HTMLElement[]) fila.hidden = !enLista.has(fila.dataset.row || '');
+    // El orden de la lista manda, y se aplica en el DOM para que el teclado
+    // recorra lo mismo que se ve.
+    ids.forEach((id) => { const f = filaWatch(id); if (f) watchRows.appendChild(f); });
+    watchSec.hidden = ids.length === 0;
+    if (watchLink) {
+      watchLink.href = urlComparar(watchLink.pathname.split('?')[0] || watchLink.href, ids);
+      watchLink.hidden = ids.length < 2;
+    }
+    pintarFilasWatch(ids);
+  }
+
+  if (watchSec) {
+    montarBotones(root);
+    alCambiar(() => pintarWatch(leerWatchlist(watchValidos)));
+    pintarWatch(leerWatchlist(watchValidos));
+  }
+
   function applySparks(s: Sparks, fromCache: boolean) {
     const fx = s.series?.['USD/MXN'];
     if (fx && fx.length > 1) {
