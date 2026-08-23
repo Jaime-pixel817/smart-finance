@@ -20,7 +20,14 @@ export type MarketItem = { sym: string; name: string; note?: string; price: numb
 export type Markets = { updatedAt: string; refreshMinutes: number; stocks: { source: string | null; items: MarketItem[] }; crypto: { source: string | null; items: MarketItem[] } };
 export type QuoteItem = { pair: string; price: number; prevClose: number | null; change: number | null; changePct: number | null; lastTs: number; high52: number | null; low52: number | null; dayHigh: number | null; dayLow: number | null; series: number[]; currency?: string | null };
 export type Quotes = { updatedAt: string; refreshMinutes: number; source: string; items: Record<string, QuoteItem> };
-export type History = { pair: string; range: string; currency?: string; points: Point[] };
+/**
+ * Respuesta de /api/history. Además de los puntos trae tres campos que el
+ * panel necesita para no mentir: `stale` (la copia de 48 h, servida porque el
+ * proveedor falló), `tzOffset` (huso de la BOLSA en segundos, con el que se
+ * sabe de qué sesión es cada punto) y `prevClose` (cierre del día hábil
+ * anterior en las vistas intradía, la base del "cuánto subió" del 1D).
+ */
+export type History = { pair: string; range: string; currency?: string; points: Point[]; stale?: boolean; tzOffset?: number; tz?: string | null; prevClose?: number | null };
 
 /** Cotización normalizada: lo que pintan las filas y la cabecera de la ficha. */
 export interface Quote {

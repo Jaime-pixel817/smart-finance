@@ -23,8 +23,9 @@ const lesson = (await getLessonByRoute(locale, s.lesson)) ?? (await getLessons(l
 const sessionText = t(('asset.session.' + s.session) as UIKey);
 const strings = {
   loading: t('src.loading'), unavailable: t('src.unavailable'), today: t('chart.today'),
-  chartClosed: t('chart.closed'), lastClose: t('chart.lastClose'), empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
-  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'),
+  empty: t('chart.empty'), error: t('chart.error'), errorEmpty: t('chart.errorEmpty'),
+  bars5: t('src.bars5'), daily: t('src.daily'), weekly: t('src.weekly'), cached: t('src.cached'),
+  sessToday: t('chart.session.today'), sessLast: t('chart.session.last'), sess24h: t('chart.session.24h'), sessUpto: t('chart.session.upto'),
   r1D: t('range.1D'), r1M: t('range.1M'), r3M: t('range.3M'), r1Y: t('range.1Y'), r5Y: t('range.5Y')
 };
 const runtime = runtimeOf(s);

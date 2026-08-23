@@ -6,7 +6,7 @@
 import { fmtNum, fmtPct, arrow, dirClass, type Loc } from './format';
 import { loadMarkets, loadQuotes, loadHistory, quoteFromMarkets, quoteFromQuotes, quoteFromHistory, changeOver, minMax, readLS, writeLS, type Quote, type SymbolRT, type Range } from './market-data';
 import { paintAssetRow, setChip } from './rows';
-import { mountPricePanel, type PanelStats } from './chart-panel';
+import { mountPricePanel, panelStrings, type PanelStats } from './chart-panel';
 
 type Sym = SymbolRT & { href?: string };
 const root = document.getElementById('asset');
@@ -105,7 +105,7 @@ function boot(root: HTMLElement) {
     const pair = s.history;
     const panel = mountPricePanel(host, {
       locale: loc,
-      strings: { closed: T.chartClosed, lastClose: T.lastClose, today: T.today, empty: T.empty, error: T.error, errorEmpty: T.errorEmpty, unavailable: T.unavailable, bars5: T.bars5, daily: T.daily, weekly: T.weekly },
+      strings: panelStrings(T),
       onData: (st) => {
         paintRangeStat(st);
         // Sin endpoint de cotización (o caído): la serie 1D hace de cabecera.
@@ -119,7 +119,9 @@ function boot(root: HTMLElement) {
         // El cierre previo viene de la cotización: se espera a las dos para
         // que la línea base del 1D salga desde el primer pintado.
         const [h, q] = await Promise.all([loadHistory(pair, r), r === '1D' ? quoteP : Promise.resolve(null)]);
-        return { points: h.points, prevClose: r === '1D' ? (q?.prevClose ?? null) : null };
+        // Cierre previo: el oficial de la cotización y, si esa se cayó, el que
+        // /api/history saca de la misma serie intradía.
+        return { points: h.points, stale: h.stale, tzOffset: h.tzOffset, prevClose: r === '1D' ? (q?.prevClose ?? h.prevClose ?? null) : null };
       }
     });
 

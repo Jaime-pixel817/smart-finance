@@ -6,7 +6,7 @@ import { fmtTime, fmtDay, type Loc } from './format';
 import { nyseOpen, bmvOpen } from './hours';
 import { loadMarkets, loadQuotes, loadHistory, quoteFromMarkets, quoteFromQuotes, readLS, writeLS, type Markets, type Quotes, type Quote, type SymbolRT } from './market-data';
 import { paintAssetRow, setChip } from './rows';
-import { mountPricePanel, type PricePanel } from './chart-panel';
+import { mountPricePanel, panelStrings, type PricePanel } from './chart-panel';
 
 type Sym = SymbolRT & { href: string; name: string };
 const root = document.getElementById('market-page');
@@ -125,7 +125,7 @@ function boot(root: HTMLElement) {
     if (!panel) {
       const host = $('#mkt-pp');
       if (!host) return;
-      panel = mountPricePanel(host, { locale: loc, strings: { closed: T.chartClosed, lastClose: T.lastClose, today: T.today, empty: T.empty, error: T.error, errorEmpty: T.errorEmpty, unavailable: T.unavailable, bars5: T.bars5, daily: T.daily, weekly: T.weekly } });
+      panel = mountPricePanel(host, { locale: loc, strings: panelStrings(T) });
     }
     const pair = s.history;
     panel.setSource({
@@ -133,10 +133,12 @@ function boot(root: HTMLElement) {
       load: async (r) => {
         const h = await loadHistory(pair, r);
         const q = quotes.get(s.id);
-        // Sin cotización todavía no hay cierre previo: se marca para repintar
-        // el 1D cuando llegue (maybeRefreshPanel).
+        // El cierre previo bueno es el de la cotización (el oficial). Si aún no
+        // ha llegado, /api/history trae el suyo sacado de la misma serie
+        // intradía, así que la línea base del 1D no espera a nadie; cuando
+        // llegue la cotización se repinta (maybeRefreshPanel).
         if (r === '1D' && !q) pendingPrev = true;
-        return { points: h.points, prevClose: r === '1D' ? (q?.prevClose ?? null) : null };
+        return { points: h.points, stale: h.stale, tzOffset: h.tzOffset, prevClose: r === '1D' ? (q?.prevClose ?? h.prevClose ?? null) : null };
       }
     });
     if (push) history.replaceState(null, '', '#' + s.id);
