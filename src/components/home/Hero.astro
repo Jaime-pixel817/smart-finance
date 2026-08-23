@@ -33,7 +33,7 @@
 // INLINE en el HTML, así que se ve en el primer frame, ya orientado a América y
 // exactamente donde va a aparecer el lienzo. Cuando WebGL avisa de que ya puede
 // pintar (evento "globe:ready"), el script del hero le pone .is-live y el SVG
-// se va en 220 ms SIN mover un píxel; solo DESPUÉS empieza la entrada de
+// se va en 160 ms SIN mover un píxel; solo DESPUÉS empieza la entrada de
 // partículas. El orden importa: si las dos cosas se solapan, lo que se ve es un
 // globo deshaciéndose. Ver risk-sphere.js, bloque "LA ENTRADA".
 //
@@ -151,9 +151,9 @@ const t = useT(locale);
   .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
 
   /* El SVG estático y el lienzo ocupan exactamente el mismo hueco. El primero
-     se apaga —rápido, 220 ms— en cuanto WebGL avisa de que ya puede pintar, y
+     se apaga —rápido, 160 ms— en cuanto WebGL avisa de que ya puede pintar, y
      la entrada de partículas no arranca hasta que se ha ido. */
-  .hero-globe-still { display: grid; place-items: center; transition: opacity .22s ease; }
+  .hero-globe-still { display: grid; place-items: center; transition: opacity .16s ease; }
   .hero-globe-still :global(svg) { width: min(92%, 100vh); height: auto; }
   .hero-globe.is-live .hero-globe-still { opacity: 0; }
   /* En claro el SVG es el mismo dibujo del tema oscuro (disco oscuro + puntos

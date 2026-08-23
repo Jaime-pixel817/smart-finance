@@ -208,7 +208,7 @@ function subsolarDir(date) {
  * Y EL SVG DE RESPALDO SE VA ANTES. El hero pinta un globo estático de 2.3 KB
  * desde el primer frame. Si la entrada empezara con él todavía encima, lo que
  * se vería es ese globo deshaciéndose en polvo. Por eso el orden es: lienzo
- * montado → "globe:ready" → el hero funde el SVG en 220 ms → y solo entonces
+ * montado → "globe:ready" → el hero funde el SVG en 160 ms → y solo entonces
  * arranca uForm. Mientras tanto las partículas están a brillo 0 (ver
  * `entrada`), así que no se asoma nada por debajo.
  *
@@ -258,9 +258,12 @@ void main() {
   float t = clamp((uForm - retraso) / (1.0 - retraso), 0.0, 1.0);
   float avance = t * t * (3.0 - 2.0 * t);
   vec3 pos = mix(aScatter, position, avance);
-  // Y se van encendiendo mientras vienen: a uForm = 0 el lienzo está vacío,
-  // que es lo que deja al SVG del hero irse solo y sin cruce.
-  float entrada = smoothstep(0.0, 0.32, t);
+  /* A uForm = 0 el lienzo está VACÍO —es lo que deja al SVG del hero irse solo
+     y sin cruce—, pero en cuanto la partícula arranca se enciende deprisa
+     (0.12, no 0.32): con una rampa larga las partículas solo se veían ya casi
+     colocadas y el hero se quedaba en negro medio segundo. Encendidas pronto,
+     lo que se ve es lo que se pidió: llegan de lejos. */
+  float entrada = smoothstep(0.0, 0.12, t);
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
 
@@ -611,11 +614,13 @@ const HERO_FORMS = [
 const HALO_FADE_S = 0.9;
 /* La entrada: 1.2 s de polvo convergiendo. Menos y no da tiempo a leer que las
    partículas VIENEN de algún sitio; más y se hace esperar al lector.
-   Los 240 ms de espera son los 220 ms que tarda el hero en fundir el SVG
+   Los 170 ms de espera son los 160 ms que tarda el hero en fundir el SVG
    estático (.hero-globe-still en Hero.astro) más un frame de margen: la entrada
-   no puede empezar con el globo de respaldo todavía en pantalla. */
+   no puede empezar con el globo de respaldo todavía en pantalla. Y el fundido
+   es corto a propósito: entre que el SVG se va y el polvo se ve hay un hueco
+   con el hero vacío, y ese hueco se nota. */
 const ENTRADA_S = 1.2;
-const ENTRADA_ESPERA_MS = 240;
+const ENTRADA_ESPERA_MS = 170;
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * REJILLA ESPACIAL — para no recorrer 97 000 partículas por cada frame
@@ -2142,7 +2147,7 @@ async function initRiskSphere() {
    * Un render con uForm = 0 deja el lienzo transparente (las partículas están
    * a brillo 0) pero compila el shader y calienta el contexto, así que la
    * entrada no arranca con un tirón. Con eso hecho se avisa al hero, que funde
-   * su globo estático en 220 ms, y solo entonces empieza uForm a subir. El
+   * su globo estático en 160 ms, y solo entonces empieza uForm a subir. El
    * orden es la mitad del efecto: si se solapan, se ve un globo deshacerse. */
   renderer.render(scene, camera);
   document.dispatchEvent(new CustomEvent("globe:ready"));
