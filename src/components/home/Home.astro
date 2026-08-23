@@ -228,7 +228,7 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
         {BREAKDOWNS.map((b) => (
           <li>
             <a class="card card-link bd-card" href={b.href} target="_blank" rel="noopener">
-              <span class="bd-thumb"><img src={b.img} alt={t(b.altKey)} width={b.w} height={b.h} loading="lazy" decoding="async" /></span>
+              <span class="bd-thumb"><img src={b.img} alt={t(b.altKey)} width={b.w} height={b.h} style={`--focus:${b.focus}`} loading="lazy" decoding="async" /></span>
               <span class="bd-body">
                 <span class="eyebrow">{b.net === 'tiktok' ? 'TikTok' : 'LinkedIn'}</span>
                 <span class="t-small bd-title">{t(b.titleKey)}</span>
@@ -395,7 +395,9 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   .bd-rail li { width: 160px; }
   .bd-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
   .bd-thumb { display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-2); }
-  .bd-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+  /* El punto focal es de CADA foto (src/data/home.ts): un "center 30 %" para
+     todas dejaba a Andy Toh fuera de cuadro y a Jaime sin barbilla en Shibuya. */
+  .bd-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: var(--focus, center); }
   .bd-body { display: flex; flex-direction: column; gap: 4px; padding: var(--sp-3); }
   .bd-title { font-weight: 500; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   @media (min-width: 768px) { .bd-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .bd-rail li { width: auto; } }
