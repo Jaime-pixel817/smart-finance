@@ -673,3 +673,74 @@ test('el asunto de cada semana es distinto aunque no haya noticia', () => {
   }
   assert.equal(asuntos.size, 6, 'seis domingos deberían dar seis asuntos distintos');
 });
+
+// ------------------------------------------- el archivo no bloquea el envío
+
+test('archivar guarda el número y lo devuelve entero', async () => {
+  const archivo = require('./archivo.js');
+  const redis = require('./redis.js');
+  const memoria = new Map();
+  const antes = { comando: redis.comando, obtenerJSON: redis.obtenerJSON };
+  redis.comando = async (...a) => {
+    if (String(a[0]).toUpperCase() === 'SET') { memoria.set(String(a[1]), String(a[2])); return 'OK'; }
+    return memoria.has(String(a[1])) ? memoria.get(String(a[1])) : null;
+  };
+  redis.obtenerJSON = async (k) => { const v = memoria.get(k); return v ? JSON.parse(v) : null; };
+
+  try {
+    const numero = boletin.paraArchivo(contenidoDePrueba());
+    assert.equal(await archivo.guardar(numero), '2026-08-23');
+    assert.deepEqual(await archivo.listarFechas(), ['2026-08-23']);
+    const leido = await archivo.leer('2026-08-23');
+    assert.equal(leido.gancho.es, 'Banxico vuelve a bajar la tasa');
+
+    // Reenviar el mismo domingo no deja la fecha dos veces en el índice: eso se
+    // vería como dos números repetidos en /newsletter.
+    await archivo.guardar(numero);
+    assert.deepEqual(await archivo.listarFechas(), ['2026-08-23']);
+
+    // Una fecha con mala forma ni siquiera toca Redis: la clave se construye
+    // con ella y una clave hecha de lo que llegue de fuera deja leer cualquier
+    // otra cosa que haya guardada.
+    assert.equal(await archivo.leer('../suscriptores'), null);
+  } finally {
+    redis.comando = antes.comando;
+    redis.obtenerJSON = antes.obtenerJSON;
+  }
+});
+
+test('si el archivo falla, el boletín se manda igual', async () => {
+  // La copia es la copia. Un número que no se puede archivar pierde su página
+  // web hasta el siguiente envío; un boletín que no sale lo pierde todo.
+  const archivo = require('./archivo.js');
+  const redis = require('./redis.js');
+  const antes = redis.comando;
+  redis.comando = async () => { throw new Error('Redis respondió 500'); };
+  try {
+    assert.equal(await archivo.guardar(boletin.paraArchivo(contenidoDePrueba())), null);
+    assert.equal(await archivo.leer('2026-08-23'), null);
+    assert.deepEqual(await archivo.listarFechas(), []);
+  } finally {
+    redis.comando = antes;
+  }
+});
+
+test('la nota caduca sola: la de hace dos meses no sale como "esta semana"', async () => {
+  const nota = require('./nota.js');
+  const redis = require('./redis.js');
+  const antes = redis.obtenerJSON;
+  const conFecha = (iso) => { redis.obtenerJSON = async () => ({ texto: 'Una línea de esta semana.', textoEn: null, escritoEn: iso }); };
+  try {
+    conFecha(new Date(DOMINGO.getTime() - 2 * 86400000).toISOString());
+    assert.equal((await nota.leer(DOMINGO)).es, 'Una línea de esta semana.');
+
+    conFecha(new Date(DOMINGO.getTime() - 60 * 86400000).toISOString());
+    assert.equal(await nota.leer(DOMINGO), null, 'una nota de hace dos meses no entra en este número');
+
+    // Y si Redis no contesta, el correo sale sin ese bloque en vez de no salir.
+    redis.obtenerJSON = async () => { throw new Error('Redis caído'); };
+    assert.equal(await nota.leer(DOMINGO), null);
+  } finally {
+    redis.obtenerJSON = antes;
+  }
+});
