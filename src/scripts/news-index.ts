@@ -65,6 +65,11 @@ function arrancar(raiz: HTMLElement) {
       const hora = chipFuente.querySelector('.sc-time');
       if (hora) hora.textContent = items.length ? String(items.length) + ' ' + t.count : t.none;
     }
+    // Estas tarjetas no existen hasta aquí: son las que traen los chips de
+    // activo, y hay un aviso contextual que solo tiene sentido cuando están
+    // puestas (src/lib/avisos/avisos.mjs). Se avisa en vez de que el motor
+    // ande sondeando el DOM.
+    document.dispatchEvent(new CustomEvent('sf:avisos'));
   }
 
   function aplicarFiltro() {

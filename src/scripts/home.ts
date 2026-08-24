@@ -54,13 +54,6 @@ function boot(root: HTMLElement) {
   }
   paintToday();
 
-  // Frase de bienvenida, solo la primera visita.
-  const intro = $('#today-intro');
-  if (intro) {
-    // Si ya la vio, el script inline del <head> puso html.intro-seen antes de pintar (sin CLS).
-    $('#today-intro-x')?.addEventListener('click', () => { intro.hidden = true; try { localStorage.setItem('sf-intro-seen', '1'); } catch {} });
-  }
-
   // ---- chips de fuente ----
   function setChip(id: string, when: Date | null, state: 'fresh' | 'stale' | 'error' | 'loading', minutes?: number) {
     const chip = $('#' + id);
