@@ -78,16 +78,12 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 
   <div class="home-body">
   <div class="container grid">
-    <!-- ── Frase de bienvenida, solo la primera visita ──────────────
-         Es lo primero de .home-body y lo que asoma por debajo del hero: la
-         barra de bolsas y la línea Hoy (fecha · NYSE · BMV) están arriba, en
-         el hero, que es donde se miran. -->
-    <section class="today col-12" aria-label={t('today.label')}>
-      <p id="today-intro" class="today-intro t-small muted">
-        <span>{t('today.intro')}</span>
-        <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
-      </p>
-    </section>
+    <!-- Aquí vivía una frase de bienvenida ("Mercados y dinero, explicados
+         para jóvenes") que repetía palabra por palabra el titular del hero,
+         tres dedos más arriba. Un banner que dice lo que ya está dicho solo
+         empuja hacia abajo lo que sí se viene a ver. Lo que enseña el sitio
+         ahora son los avisos contextuales (src/lib/avisos/avisos.mjs): una
+         frase, en la página donde sirve y en el momento en que sirve. -->
 
     <!-- ── Pulso ─────────────────────────────────────────────────── -->
     <section id="market" class="pulse col-12" aria-labelledby="pulse-h">
@@ -374,14 +370,6 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; }
     .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
   }
-
-  /* Frase de bienvenida */
-  .today { display: flex; flex-direction: column; gap: var(--sp-2); }
-  :global(html.intro-seen) .today { display: none; }
-  .today-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); }
-  :global(html.intro-seen) .today-intro { display: none; }
-  .today-intro button { width: 36px; height: 36px; border-radius: var(--r-btn); color: var(--ink-3); font-size: 1.25rem; line-height: 1; }
-  .today-intro button:hover { background: var(--bg-2); color: var(--ink); }
 
   /* Pulso */
   .pulse-rail li { width: 128px; }

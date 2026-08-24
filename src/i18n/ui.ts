@@ -35,12 +35,9 @@ const en = {
   'search.group.pages': 'Pages',
   'search.group.news': 'News',
 
-  'today.label': 'Today',
   'today.open': 'open',
   'today.closed': 'closed',
   'today.fx': 'FX',
-  'today.intro': 'Markets and money, explained for young people.',
-  'today.dismiss': 'Dismiss',
 
   'pulse.title': 'Pulse',
   'pulse.all': 'All markets',
@@ -134,6 +131,10 @@ const en = {
 
 
   'tools.title': 'Tools',
+  // La tarjeta del reto en el home y en /tools. NO se llama calculadora en
+  // ningún idioma: es un juego y así se dice, o la gente espera un slider.
+  'tools.reto': 'Daily challenge',
+  'tools.reto.desc': 'A game: guess what five real charts did next.',
   'tools.compound': 'Compound interest',
   'tools.compound.desc': 'See how monthly savings grow over 20 years.',
   'tools.inflation': 'How much does inflation eat?',
@@ -389,10 +390,16 @@ const en = {
   'community.h1': 'The Smart Finance student community',
   'community.desc': 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
   'tools.h1': 'Tools',
-  'tools.sub': 'A daily challenge with real charts, and small calculators with your own numbers. Move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
+  'tools.sub': 'A game with real charts, new every day, and three calculators you run with your own numbers: move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
   'tools.cetes': 'CETES vs account vs inflation',
   'tools.cetes.desc': 'Where the same money keeps what it buys.',
   'tools.all': 'All tools',
+  // /tools va en dos grupos porque son dos cosas distintas: el reto se juega y
+  // las otras tres se usan con tus números. Meterlos en una sola lista hacía
+  // que el reto pareciera una calculadora más.
+  'tools.group.game': 'A game',
+  'tools.group.calc': 'Calculators with your numbers',
+  'tools.new': 'New',
   'tool.learn': 'What you learn here',
   'tool.lesson': 'Read the full lesson',
   'tool.copy': 'Copy link',
@@ -468,6 +475,21 @@ const en = {
   'reto.disclaimer': 'Educational challenge built on real historical data. Something having happened does not mean it happens again: this predicts nothing, it is not a recommendation to buy or sell, and it is not financial advice. Nothing is wagered and nothing is won here.',
   'reto.card.desc': 'Five real charts, the last 8 weeks hidden. A new one every day.',
   'reto.card.q': 'Can you tell what happened next?',
+
+  // ---- Avisos contextuales (src/lib/avisos/avisos.mjs) ----
+  // UNA frase por aviso, en el momento en que sirve, con una salida clara. El
+  // texto no explica el sitio entero: dice la única cosa que hace falta aquí.
+  'aviso.ok': 'Got it',
+  'aviso.cerrar': 'Dismiss this tip',
+  'aviso.glosario': 'Tap any underlined word to see what it means.',
+  'aviso.reto': 'Lesson done. Today’s challenge takes two minutes.',
+  'aviso.reto.cta': 'Play the challenge',
+  'aviso.grafica': 'Drag your finger across the chart to read the price at any point.',
+  'aviso.comparar': 'You have looked at two assets — see them on the same chart.',
+  'aviso.comparar.cta': 'Compare them',
+  'aviso.sigues': 'What you follow shows up at the top of Markets.',
+  'aviso.sigues.cta': 'See my list',
+  'aviso.noticias': 'The symbol on each story opens its chart.',
 };
 
 const es: typeof en = {
@@ -502,12 +524,9 @@ const es: typeof en = {
   'search.group.pages': 'Páginas',
   'search.group.news': 'Noticias',
 
-  'today.label': 'Hoy',
   'today.open': 'abierto',
   'today.closed': 'cerrado',
   'today.fx': 'Divisas',
-  'today.intro': 'Mercados y dinero, explicados para jóvenes.',
-  'today.dismiss': 'Cerrar',
 
   'pulse.title': 'Pulso',
   'pulse.all': 'Todos los mercados',
@@ -601,6 +620,8 @@ const es: typeof en = {
 
 
   'tools.title': 'Herramientas',
+  'tools.reto': 'Reto del día',
+  'tools.reto.desc': 'Un juego: adivina qué hicieron cinco gráficas reales.',
   'tools.compound': 'Interés compuesto',
   'tools.compound.desc': 'Mira cómo crece un ahorro mensual en 20 años.',
   'tools.inflation': '¿Cuánto me come la inflación?',
@@ -851,10 +872,13 @@ const es: typeof en = {
   'community.h1': 'La comunidad estudiantil Smart Finance',
   'community.desc': 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
   'tools.h1': 'Herramientas',
-  'tools.sub': 'Un reto diario con gráficas reales y calculadoras chicas con tus propios números. Mueve un slider, lee el número, guarda el enlace. No se guarda nada ni se manda nada a ningún lado.',
+  'tools.sub': 'Un juego con gráficas reales, nuevo cada día, y tres calculadoras que corres con tus propios números: mueve un slider, lee el número, guarda el enlace. No se guarda nada ni se manda nada a ningún lado.',
   'tools.cetes': 'CETES vs cuenta vs inflación',
   'tools.cetes.desc': 'Dónde el mismo dinero conserva lo que compra.',
   'tools.all': 'Todas las herramientas',
+  'tools.group.game': 'Un juego',
+  'tools.group.calc': 'Calculadoras con tus números',
+  'tools.new': 'Nuevo',
   'tool.learn': 'Qué aprendes aquí',
   'tool.lesson': 'Leer la lección completa',
   'tool.copy': 'Copiar enlace',
@@ -930,6 +954,19 @@ const es: typeof en = {
   'reto.disclaimer': 'Reto educativo con datos históricos reales. Que algo haya pasado no significa que vuelva a pasar: esto no predice nada, no es una recomendación de compra ni de venta y no es asesoría financiera. Aquí no se apuesta ni se gana dinero.',
   'reto.card.desc': 'Cinco gráficas reales con las últimas 8 semanas tapadas. Una nueva cada día.',
   'reto.card.q': '¿Le atinas a lo que pasó después?',
+
+  // ---- Avisos contextuales (src/lib/avisos/avisos.mjs) ----
+  'aviso.ok': 'Entendido',
+  'aviso.cerrar': 'Cerrar este aviso',
+  'aviso.glosario': 'Las palabras subrayadas se explican al tocarlas.',
+  'aviso.reto': 'Lección leída. El reto de hoy son dos minutos.',
+  'aviso.reto.cta': 'Jugar el reto',
+  'aviso.grafica': 'Arrastra el dedo sobre la gráfica para leer el precio de cada momento.',
+  'aviso.comparar': 'Ya viste dos activos: puedes verlos en la misma gráfica.',
+  'aviso.comparar.cta': 'Compararlos',
+  'aviso.sigues': 'Lo que sigues aparece arriba, en Mercados.',
+  'aviso.sigues.cta': 'Ver mi lista',
+  'aviso.noticias': 'El símbolo de cada noticia lleva a su gráfica.',
 };
 
 export type UIKey = keyof typeof en;

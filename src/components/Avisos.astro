@@ -1,0 +1,107 @@
+---
+// Avisos contextuales: el hueco donde aparecen y los textos de esta página.
+//
+// Aquí NO se decide nada: la lista vive en src/lib/avisos/avisos.mjs y quien
+// elige y pinta es src/scripts/avisos.ts. Este componente solo hace dos cosas
+// que el navegador no puede hacer solo:
+//
+//  1. Deja en el HTML la región viva (role="status") ANTES de que haya nada
+//     dentro. Un lector de pantalla solo anuncia lo que aparece dentro de una
+//     región que ya existía: si el <div> se creara con el aviso ya puesto, no
+//     se anunciaría nada.
+//  2. Manda los textos YA TRADUCIDOS de los avisos que esta página podría
+//     enseñar. src/i18n/ui.ts son ~950 líneas en dos idiomas y no tiene por
+//     qué viajar al navegador (mismo patrón que data-strings del home), y las
+//     rutas EN/ES tampoco: route() arrastra el registro de activos y noticias.
+//
+// En una página sin avisos posibles (el home, /about, /tools…) esto no pinta
+// nada: sin el elemento, el script se sale en su primera línea.
+import type { Locale } from '../i18n/routes';
+import { route } from '../i18n/routes';
+import { ui, useT, type UIKey } from '../i18n/ui';
+import { avisosDe, tipoDePagina } from '../lib/avisos/avisos.mjs';
+
+const { locale, routeId } = Astro.props as { locale: Locale; routeId: string };
+const t = useT(locale);
+const pagina = tipoDePagina(routeId);
+const avisos = avisosDe(pagina);
+
+// Una clave que falte en ui.ts saldría en la página como "aviso.loquesea" y
+// nadie se enteraría hasta verlo en producción. Aquí tumba el build.
+const clave = (k: string): UIKey => {
+  if (!(k in ui.en) || !(k in ui.es)) throw new Error(`Avisos: falta la clave "${k}" en src/i18n/ui.ts (EN y ES)`);
+  return k as UIKey;
+};
+const textos = Object.fromEntries(
+  avisos.map((a) => [a.id, { texto: t(clave(a.texto)), accion: t(clave(a.accion.etiqueta)) }])
+);
+// Solo las rutas que usan los href de los avisos.
+const rutas = { market: route('market', locale), compare: route('market.compare', locale), challenge: route('challenge', locale) };
+---
+{avisos.length > 0 && (
+  <div id="sf-avisos" class="avisos" role="status"
+    data-pagina={pagina} data-route={routeId}
+    data-textos={JSON.stringify(textos)} data-rutas={JSON.stringify(rutas)}
+    data-cerrar={t('aviso.cerrar')}></div>
+)}
+<!-- El script se empaqueta por página en tiempo de build, así que va fuera del
+     condicional: donde no hay avisos no encuentra el div y se sale en la
+     primera línea, sin leer localStorage ni tocar nada. -->
+<script src="../scripts/avisos.ts"></script>
+
+<style>
+  /* Flota sobre el contenido, POR ENCIMA de la barra de abajo y nunca sobre
+     ella: el offset es la altura del nav + el notch + un respiro. La barra va
+     en z-index 40 y las hojas del glosario y la búsqueda en 60/70, así que 45
+     lo deja encima de la página y por debajo de cualquier cosa modal. */
+  .avisos {
+    position: fixed; z-index: 45; left: 0; right: 0;
+    bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--sp-2));
+    padding-inline: var(--gutter);
+    /* Sin aviso dentro no existe: el hueco vacío no puede tapar un botón. */
+    pointer-events: none;
+  }
+  .avisos:empty { display: none; }
+  @media (min-width: 768px) {
+    .avisos { left: auto; right: var(--sp-5); bottom: var(--sp-5); padding-inline: 0; max-width: 380px; }
+  }
+</style>
+
+<style is:global>
+  /* Globales porque el marcado lo crea el script (mismo motivo que news.css y
+     challenge.css: los <style> con ámbito de Astro no alcanzan a los nodos
+     que nacen en el navegador). */
+
+  /* Mientras hay un aviso puesto, la página se hace más alta por debajo: lo
+     último de la página (un botón del pie, el disclaimer) tiene que poder
+     quedar por encima del aviso con solo seguir bajando. Es padding al final,
+     así que no mueve nada de lo ya pintado: cero CLS. */
+  :root.con-aviso body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 104px); }
+  @media (min-width: 768px) { :root.con-aviso body { padding-bottom: 104px; } }
+
+  .aviso {
+    pointer-events: auto;
+    display: grid; grid-template-columns: 1fr 36px; gap: var(--sp-2) var(--sp-3); align-items: start;
+    max-width: 460px; margin-inline: auto;
+    padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
+    background: var(--bg-3); border: 1px solid var(--line); border-radius: var(--r-card);
+    box-shadow: var(--shadow-sheet);
+    animation: aviso-in .2s var(--ease-sheet);
+  }
+  /* En oscuro --shadow-sheet es `none`: lo que despega la tarjeta del fondo es
+     que --bg-3 (#202027) no es el fondo de página (#09090B), más el borde. */
+  @keyframes aviso-in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .aviso { animation: none; } }
+
+  .aviso-txt { grid-column: 1; grid-row: 1; font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink); }
+  .aviso-cta { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+  .aviso-x {
+    grid-column: 2; grid-row: 1; width: 36px; height: 36px; margin: -6px -4px 0 0;
+    display: inline-grid; place-items: center; border-radius: var(--r-btn); color: var(--ink-3);
+  }
+  .aviso-x:hover { background: var(--bg-2); color: var(--ink); }
+  @media (min-width: 600px) {
+    .aviso { grid-template-columns: 1fr auto 36px; align-items: center; }
+    .aviso-cta { grid-column: 2; grid-row: 1; }
+  }
+</style>

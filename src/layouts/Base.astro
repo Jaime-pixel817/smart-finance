@@ -12,6 +12,7 @@ import TopBar from '../components/TopBar.astro';
 import BottomNav from '../components/BottomNav.astro';
 import SearchOverlay from '../components/SearchOverlay.astro';
 import Footer from '../components/Footer.astro';
+import Avisos from '../components/Avisos.astro';
 
 interface Props {
   locale: Locale;
@@ -82,7 +83,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <!-- Tema ANTES del primer pintado: dark por defecto; la elección guardada
        gana. Sin JS, :root queda sin data-theme y manda prefers-color-scheme. -->
   <script is:inline>
-    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');if(localStorage.getItem('sf-intro-seen')==='1')document.documentElement.classList.add('intro-seen');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
   </script>
   <!-- Idioma: recuerda la elección y, solo en la raíz, respeta lo guardado
        (mismo script que el sitio legacy, así las dos mitades coinciden). -->
@@ -99,5 +100,9 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <Footer locale={locale} routeId={routeId} />
   <BottomNav locale={locale} active={active} />
   <SearchOverlay locale={locale} />
+  <!-- Avisos contextuales: va al final del <body> y flota por encima de la
+       barra de abajo, nunca sobre ella. En las páginas sin ningún aviso
+       posible no pinta nada (src/lib/avisos/avisos.mjs). -->
+  <Avisos locale={locale} routeId={routeId} />
 </body>
 </html>
