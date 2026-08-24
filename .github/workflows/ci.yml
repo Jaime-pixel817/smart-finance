@@ -90,3 +90,9 @@ jobs:
           path: .lighthouseci/
           retention-days: 14
           if-no-files-found: ignore
+          # OBLIGATORIO: .lighthouseci empieza por punto, y upload-artifact@v4
+          # se salta los archivos ocultos sin avisar. Sin esta línea el paso
+          # sale en verde y sube un artefacto VACÍO — que es justo lo que pasó
+          # la primera vez que un presupuesto se puso rojo: el informe que
+          # explicaba el fallo no estaba.
+          include-hidden-files: true
