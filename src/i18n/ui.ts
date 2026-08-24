@@ -468,6 +468,28 @@ const en = {
   'reto.disclaimer': 'Educational challenge built on real historical data. Something having happened does not mean it happens again: this predicts nothing, it is not a recommendation to buy or sell, and it is not financial advice. Nothing is wagered and nothing is won here.',
   'reto.card.desc': 'Five real charts, the last 8 weeks hidden. A new one every day.',
   'reto.card.q': 'Can you tell what happened next?',
+
+  // Smart Finance AI — el botón "Explícame esto" (src/scripts/ia.ts).
+  'ia.explain': 'Explain this to me',
+  'ia.questions': 'Study questions',
+  'ia.chart': 'Read this chart',
+  'ia.aria': 'Explain this with Smart Finance AI',
+  'ia.title': 'Smart Finance AI',
+  'ia.close': 'Close',
+  'ia.loading': 'Reading the data on this page…',
+  'ia.loading.long': 'Still going. This is generated on the spot, so it takes a few seconds.',
+  'ia.error': 'It did not work. Try again in a moment — the rest of the page works as usual.',
+  'ia.retry': 'Try again',
+  'ia.used': 'Data it used',
+  'ia.sources': 'Sources',
+  'ia.asof': 'Data as of',
+  'ia.lesson': 'Read the lesson',
+  'ia.disclosure': 'Generated with AI from the data on this page · not reviewed by a person',
+  'ia.how': 'How this is made',
+  'ia.ask': 'Something you did not get? (optional)',
+  'ia.ask.placeholder': 'e.g. why does the number go up when the peso weakens?',
+  'ia.ask.send': 'Ask',
+  'ia.questions.title': 'Three questions to check you got it',
 };
 
 const es: typeof en = {
@@ -930,6 +952,28 @@ const es: typeof en = {
   'reto.disclaimer': 'Reto educativo con datos históricos reales. Que algo haya pasado no significa que vuelva a pasar: esto no predice nada, no es una recomendación de compra ni de venta y no es asesoría financiera. Aquí no se apuesta ni se gana dinero.',
   'reto.card.desc': 'Cinco gráficas reales con las últimas 8 semanas tapadas. Una nueva cada día.',
   'reto.card.q': '¿Le atinas a lo que pasó después?',
+
+  // Smart Finance AI — el botón "Explícame esto" (src/scripts/ia.ts).
+  'ia.explain': 'Explícame esto',
+  'ia.questions': 'Preguntas de estudio',
+  'ia.chart': 'Léeme esta gráfica',
+  'ia.aria': 'Explicar esto con Smart Finance AI',
+  'ia.title': 'Smart Finance AI',
+  'ia.close': 'Cerrar',
+  'ia.loading': 'Leyendo los datos de esta página…',
+  'ia.loading.long': 'Sigue trabajando. Esto se genera al momento, así que tarda unos segundos.',
+  'ia.error': 'No salió. Inténtalo en un momento — el resto de la página funciona igual.',
+  'ia.retry': 'Intentar otra vez',
+  'ia.used': 'Datos que usó',
+  'ia.sources': 'Fuentes',
+  'ia.asof': 'Datos al',
+  'ia.lesson': 'Leer la lección',
+  'ia.disclosure': 'Generado con IA a partir de los datos de esta página · sin revisar por una persona',
+  'ia.how': 'Cómo se hace esto',
+  'ia.ask': '¿Algo que no entendiste? (opcional)',
+  'ia.ask.placeholder': 'p. ej. ¿por qué sube el número cuando el peso se debilita?',
+  'ia.ask.send': 'Preguntar',
+  'ia.questions.title': 'Tres preguntas para comprobar que lo entendiste',
 };
 
 export type UIKey = keyof typeof en;

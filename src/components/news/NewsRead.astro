@@ -27,6 +27,7 @@ import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
 import glossary from '../../data/glossary.json';
 import GlossarySheet from '../learn/GlossarySheet.astro';
+import AISheet from '../ia/AISheet.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -56,6 +57,8 @@ const strings = {
   humanDisclosure: t('news.human.disclosure'), disclaimer: t('news.disclaimer'),
   spark: t('news.spark'), sparkNote: t('news.impact.note'),
   ai: t('news.ai'), human: t('news.human'), all: t('news.all'),
+  // Los dos botones de Smart Finance AI (los pinta news-shared.ts).
+  iaExplain: t('ia.explain'), iaQuestions: t('ia.questions'),
   ...Object.fromEntries(TEMAS.map((x) => ['tema.' + x, t(('news.tema.' + x) as UIKey)]))
 };
 ---
@@ -89,4 +92,5 @@ const strings = {
 </div>
 
 <GlossarySheet locale={locale} />
+<AISheet locale={locale} />
 <script src="../../scripts/news-read.ts"></script>

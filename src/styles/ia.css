@@ -1,0 +1,111 @@
+/* Smart Finance AI: el botón y su hoja inferior.
+ *
+ * Los estilos son GLOBALES y no un <style> con ámbito de Astro por la misma
+ * razón que news.css: el script crea nodos (las líneas de "datos que usó", las
+ * preguntas, las fuentes) y el atributo de ámbito que Astro le pone al marcado
+ * del servidor nunca llega a lo que nace en el navegador. */
+
+/* ---- El botón ------------------------------------------------------------
+ * Discreto a propósito: no es un chat flotante ni un imán de atención. Es un
+ * botón fantasma más, del tamaño de los demás, pegado a lo que explica. */
+.ia-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ia-btn svg { flex: none; color: var(--brand-text); }
+.ia-acciones { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); }
+
+/* ---- La hoja -------------------------------------------------------------
+ * Misma forma que el glosario al tacto (GlossarySheet): hoja abajo en el
+ * teléfono, centrada en escritorio. */
+.ia-sheet { position: fixed; inset: 0; z-index: 75; display: flex; align-items: flex-end; justify-content: center; }
+.ia-sheet[hidden] { display: none; }
+.ia-sheet-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .55); }
+.ia-sheet-panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 88svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  box-shadow: var(--shadow-sheet);
+  padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  outline: none;
+  animation: ia-sheet-in .24s var(--ease-sheet);
+}
+@keyframes ia-sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Quien pide menos movimiento no ve la hoja deslizarse. */
+@media (prefers-reduced-motion: reduce) {
+  .ia-sheet-panel { animation: none; }
+  .ia-dots i { animation: none !important; opacity: .6; }
+}
+@media (min-width: 768px) {
+  .ia-sheet { align-items: center; }
+  .ia-sheet-panel { border-radius: var(--r-sheet); border-bottom: 1px solid var(--line); padding-bottom: var(--sp-5); max-height: 84svh; }
+}
+
+.ia-sheet-close {
+  position: absolute; top: var(--sp-2); right: var(--sp-2);
+  width: 44px; height: 44px;
+  display: inline-grid; place-items: center;
+  border-radius: var(--r-btn); color: var(--ink-2);
+}
+.ia-sheet-close:hover { background: var(--bg-2); color: var(--ink); }
+
+.ia-eyebrow { display: flex; align-items: center; gap: 6px; padding-right: 44px; color: var(--ink-2); }
+.ia-eyebrow svg { color: var(--brand-text); flex: none; }
+.ia-sheet-title { font-family: var(--font-serif); font-weight: 600; font-size: 1.25rem; line-height: 1.25; letter-spacing: -.01em; }
+
+/* ---- Estado de carga: honesto, sin barra de progreso falsa --------------- */
+.ia-cargando { display: flex; align-items: center; gap: var(--sp-2); color: var(--ink-2); font-size: var(--fs-small); }
+.ia-dots { display: inline-flex; gap: 4px; flex: none; }
+.ia-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-text); animation: ia-dot 1.1s infinite ease-in-out; }
+.ia-dots i:nth-child(2) { animation-delay: .15s; }
+.ia-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes ia-dot { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* ---- El cuerpo de la respuesta ------------------------------------------ */
+.ia-respuesta { color: var(--ink); white-space: pre-wrap; }
+.ia-respuesta p + p { margin-top: var(--sp-2); }
+.ia-preguntas { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; padding-left: 1.2em; }
+.ia-preguntas li { color: var(--ink); }
+.ia-bloque { display: flex; flex-direction: column; gap: 6px; }
+.ia-lista { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ia-lista li { color: var(--ink-2); font-size: var(--fs-caption); line-height: var(--lh-caption); }
+.ia-lista li::before { content: "· "; color: var(--ink-3); }
+.ia-lista a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+.ia-lista a:hover { color: var(--ink); }
+
+/* ---- La pregunta libre --------------------------------------------------- */
+.ia-ask { display: flex; flex-direction: column; gap: 6px; }
+.ia-ask-row { display: flex; gap: var(--sp-2); }
+.ia-ask input {
+  flex: 1 1 auto; min-width: 0; min-height: 40px;
+  padding: 0 var(--sp-3);
+  background: var(--bg-1); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--r-input);
+  font: inherit; font-size: var(--fs-small);
+}
+.ia-ask input::placeholder { color: var(--ink-3); }
+
+/* ---- La etiqueta: no es letra chica, es parte de la respuesta ----------- */
+.ia-disclosure {
+  border-top: 1px solid var(--line);
+  padding-top: var(--sp-3);
+  display: flex; flex-direction: column; gap: 4px;
+  color: var(--ink-2); font-size: var(--fs-caption); line-height: var(--lh-caption);
+}
+.ia-disclosure a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+.ia-disclosure a:hover { color: var(--ink); }
+.ia-disclosure strong { color: var(--ink); font-weight: 500; }
+
+.ia-error { color: var(--ink); font-size: var(--fs-small); }
+.ia-acciones-sheet { display: flex; flex-wrap: wrap; gap: var(--sp-2); }

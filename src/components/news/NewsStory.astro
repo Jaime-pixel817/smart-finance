@@ -22,6 +22,8 @@ import { getLessonByRoute } from '../../data/lessons';
 import glossary from '../../data/glossary.json';
 import Term from '../learn/Term.astro';
 import GlossarySheet from '../learn/GlossarySheet.astro';
+import ExplainButton from '../ia/ExplainButton.astro';
+import AISheet from '../ia/AISheet.astro';
 import { fmtDay, fmtTime24 } from '../../scripts/format';
 
 const { locale, item } = Astro.props as { locale: Locale; item: NewsItem };
@@ -96,6 +98,13 @@ const humana = item.autoria === 'humana';
       )}
     </section>
 
+    <!-- El mismo par de botones los escribe src/scripts/news-shared.ts para
+         una noticia recién aprobada. Si cambia uno, cambia el otro. -->
+    <div class="ia-acciones">
+      <ExplainButton locale={locale} tipo="noticia" id={item.slug} sobre={texto.titulo} />
+      <ExplainButton locale={locale} tipo="noticia" id={item.slug} modo="preguntas" sobre={texto.titulo} />
+    </div>
+
     {(leccion || terminos.length > 0) && (
       <section class="nw-learn" aria-label={t('news.learn')}>
         <p class="nw-label eyebrow">{t('news.learn')}</p>
@@ -135,4 +144,5 @@ const humana = item.autoria === 'humana';
 </div>
 
 <GlossarySheet locale={locale} />
+<AISheet locale={locale} />
 <script src="../../scripts/news-story.ts"></script>

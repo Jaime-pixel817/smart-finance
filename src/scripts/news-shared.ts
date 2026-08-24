@@ -114,6 +114,23 @@ function termino(id: string, ctx: Contexto): string {
     `aria-haspopup="dialog">${esc(g.term)}</button>`;
 }
 
+// Botón "Explícame esto" idéntico al que pinta ExplainButton.astro en el
+// build. Si cambia el marcado de uno, cambia el del otro: son la misma pieza
+// escrita dos veces porque una noticia recién aprobada se pinta aquí y una ya
+// sincronizada se pinta en el servidor (ver la cabecera de este archivo).
+function botonIA(slug: string, sobre: string, modo: 'explicar' | 'preguntas', ctx: Contexto): string {
+  const texto = modo === 'preguntas' ? ctx.t.iaQuestions : ctx.t.iaExplain;
+  if (!texto) return '';
+  return `<button type="button" class="btn btn-ghost btn-sm ia-btn" data-ia data-ia-tipo="noticia" ` +
+    `data-ia-id="${esc(slug)}" data-ia-modo="${modo}" data-ia-sobre="${esc(sobre)}" ` +
+    `aria-haspopup="dialog" aria-label="${esc(texto + ': ' + sobre)}">` +
+    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ` +
+    `stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">` +
+    `<path d="M12 3.5l1.7 4.3 4.3 1.7-4.3 1.7L12 15.5l-1.7-4.3L6 9.5l4.3-1.7z"></path>` +
+    `<path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg>` +
+    `<span>${esc(texto)}</span></button>`;
+}
+
 export function historia(n: NoticiaAPI, ctx: Contexto): HTMLElement {
   const t = texto(n, ctx.loc);
   const d = new Date(n.fuente.publicado);
@@ -141,6 +158,8 @@ export function historia(n: NoticiaAPI, ctx: Contexto): HTMLElement {
         `<figcaption class="t-caption faint">${esc(principal.sym)} <span aria-hidden="true">·</span> ${esc(ctx.t.sparkNote)}</figcaption></figure>`
       : '',
     `</section>`,
+    `<div class="ia-acciones">${botonIA(n.slug, t.titulo, 'explicar', ctx)}` +
+      `${botonIA(n.slug, t.titulo, 'preguntas', ctx)}</div>`,
     leccion || terminos.length
       ? `<section class="nw-learn" aria-label="${esc(ctx.t.learn)}">` +
         `<p class="nw-label eyebrow">${esc(ctx.t.learn)}</p>` +
