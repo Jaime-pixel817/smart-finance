@@ -337,9 +337,10 @@ const FRASE_SIN_DATOS = {
 //     puede decir 18.40 (redondear 18.4032 a dos decimales da 18.40) pero no
 //     18.41.
 //   · Los enteros del 0 al 10 pasan solos SALVO que lleven pegada una unidad,
-//     DETRÁS (%, pesos, dólares, puntos) o DELANTE ($, MXN, USD). "Tres cosas"
-//     y "5 minutos" son prosa; "5 %" y "$9" son cifras y tienen que estar
-//     respaldadas.
+//     DETRÁS (%, pesos, dólares, puntos, y el símbolo: "9$") o DELANTE ($, MXN,
+//     USD). "Tres cosas" y "5 minutos" son prosa; "5 %", "$9" y "9$" son cifras
+//     y tienen que estar respaldadas. Las tres posiciones, porque el dinero se
+//     escribe en las tres.
 
 /** Parte fechas y horas para que sus partes cuenten como números sueltos. */
 function separarFechas(texto) {
@@ -381,7 +382,12 @@ function numerosDe(texto) {
 // espacio y entre dos caracteres que no son de palabra no hay frontera), así
 // que el % va fuera del grupo con frontera. Ese error dejaba pasar justo el
 // caso que más importa — una cifra con unidad.
-const RE_UNIDAD = /^\s*(%|(?:por\s?ciento|percent|pesos?|d[óo]lares?|dollars?|USD|MXN|EUR|JPY|puntos?|points?|mil|millones?|million|billion)\b)/i;
+// El símbolo de moneda cuenta también PEGADO DETRÁS ("9$", "7 €"): es la
+// tercera posición en la que se escribe el dinero, y sin ella quedaba abierto
+// el mismo agujero que ya se tapó delante — un entero ≤ 10 inventado con el
+// pase libre de la prosa. Va junto al %, fuera del grupo con `\b`, por el mismo
+// motivo que él: entre un símbolo y el espacio que le sigue no hay frontera.
+const RE_UNIDAD = /^\s*([%$€£¥]|(?:por\s?ciento|percent|pesos?|d[óo]lares?|dollars?|USD|MXN|EUR|JPY|GBP|puntos?|points?|mil|millones?|million|billion)\b)/i;
 
 // Y la MISMA unidad puesta DELANTE, que es como se escribe el dinero casi
 // siempre: "$9", "MXN 20", "US$ 5". Mirar solo lo que va detrás del número

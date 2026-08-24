@@ -292,6 +292,21 @@ test('la unidad también cuenta DELANTE del número: "$9" no es prosa', () => {
   assert.deepEqual(ia.numerosFuera('Hay 3 cosas que entender aquí.', DATOS), []);
 });
 
+test('y DETRÁS pegado al número: "9$" tampoco es prosa', () => {
+  // La tercera posición en la que se escribe el dinero. Tapado el símbolo
+  // delante, este era el mismo agujero corrido un carácter: un entero chico
+  // inventado con el símbolo detrás seguía pasando por prosa.
+  assert.deepEqual(ia.numerosFuera('Un café que cuesta 9$ se te vuelve más caro.', DATOS), ['9']);
+  assert.deepEqual(ia.numerosFuera('Vale 7 € allá.', DATOS), ['7']);
+  assert.deepEqual(ia.numerosFuera('Cuesta 6£ en Londres.', DATOS), ['6']);
+  // Y lo respaldado sigue pasando escrito así.
+  const conPesos = 'ejemplo en pesos: una comisión de $20 sobre una compra de $1,000';
+  assert.deepEqual(ia.numerosFuera('Te cobran 20$ de comisión.', conPesos), []);
+  assert.deepEqual(ia.numerosFuera('Te cobran 30$ de comisión.', conPesos), ['30']);
+  // Sin símbolo, un entero chico sigue siendo prosa.
+  assert.deepEqual(ia.numerosFuera('Se lee en 2 minutos.', DATOS), []);
+});
+
 // ---------------------------------------------------------------------------
 // 3. El resumen de una serie: las cuentas las hace el servidor.
 
