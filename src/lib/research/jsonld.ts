@@ -37,7 +37,13 @@ export function reportJsonLd(locale: Locale, report: Report, url: string, descri
     },
     author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
     publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' },
-    isPartOf: { '@type': 'CollectionPage', name: 'Smart Finance Research', url: SITE + (locale === 'es' ? '/es/research' : '/research') },
+    // EL MISMO NOMBRE QUE EL HUB. Esta `CollectionPage` es la MISMA página que
+    // declara /research en src/pages/research.astro y /es/research en
+    // src/pages/es/research.astro: mismo URL, así que si el nombre no coincide
+    // el sitio le está dando dos nombres a una sola cosa. Es un nombre propio
+    // —la sección se llama igual en inglés y en español—, por eso no se
+    // traduce. Al renombrar la sección esta línea se quedó atrás una vez.
+    isPartOf: { '@type': 'CollectionPage', name: 'Smart Finance Projects', url: SITE + (locale === 'es' ? '/es/research' : '/research') },
     citation: citations,
     disclaimer: locale === 'es'
       ? 'Contenido educativo. No es asesoría de inversión ni una recomendación de compra o venta.'
