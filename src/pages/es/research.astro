@@ -4,6 +4,7 @@
 import Base from '../../layouts/Base.astro';
 import Hub from '../../components/research/Hub.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 import { useR } from '../../i18n/research';
 const r = useR('es');
 const jsonLd = {
@@ -19,6 +20,7 @@ const jsonLd = {
   publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
 };
 ---
-<Base locale="es" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}>
+<Base locale="es" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc}
+  ogImage={ogPropia('research', 'es')} ogImageAlt="Smart Finance — Equity research hecho en público" jsonLd={jsonLd}>
   <Hub locale="es" />
 </Base>

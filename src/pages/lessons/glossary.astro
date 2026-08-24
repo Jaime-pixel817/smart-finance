@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import GlossaryPage from '../../components/learn/GlossaryPage.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 import glossary from '../../data/glossary.json';
 const title = 'Glossary: ' + glossary.length + ' finance terms in plain words, with examples in pesos — Smart Finance';
 const description = 'Every technical word used on Smart Finance, explained in two lines with an example in pesos and a link to the lesson that goes deeper: inflation, exchange rate, compound interest, ETF, CETES and more.';
@@ -15,6 +16,6 @@ const jsonLd = {
   hasDefinedTerm: glossary.map((g) => ({ '@type': 'DefinedTerm', name: g.en.term, description: g.en.def, url: SITE + '/lessons/glossary#term-' + g.id }))
 };
 ---
-<Base locale="en" routeId="lessons.glossary" active="learn" title={title} description={description} ogImage={SITE + '/og-lessons.jpg'} ogImageAlt="Smart Finance — Glossary" jsonLd={jsonLd}>
+<Base locale="en" routeId="lessons.glossary" active="learn" title={title} description={description} ogImage={ogPropia('glossary', 'en')} ogImageAlt="Smart Finance — Finance words in plain language" jsonLd={jsonLd}>
   <GlossaryPage locale="en" />
 </Base>
