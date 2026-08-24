@@ -81,9 +81,15 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <meta name="twitter:title" content={title}>
   <meta name="twitter:description" content={description}>
   <meta name="twitter:image" content={ogImage}>
-  <!-- Preload de las dos fuentes del primer pintado (Geist 400 y Mono 500). -->
+  <!-- Preload de las TRES fuentes del primer pintado. Fraunces faltaba y es la
+       del titular de cada página (.t-display / .t-h1): con font-display: swap
+       el titular se pintaba en la serif del sistema y saltaba al llegar la
+       buena, moviendo todo lo de abajo. En /research/lululemon eso eran 0.22
+       de CLS medidos con datos reales, once veces el presupuesto. Pesa 18 KB,
+       la mitad que Geist 400. -->
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
   <!-- Tema ANTES del primer pintado: dark por defecto; la elección guardada
        gana. Sin JS, :root queda sin data-theme y manda prefers-color-scheme. -->
   <script is:inline>

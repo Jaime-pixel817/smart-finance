@@ -31,8 +31,16 @@ const t = useT(locale);
     </div>
   </div>
   <p class="pp-session t-caption faint"></p>
-  <p class="pp-state t-caption" role="status" hidden></p>
-  <div class="pp-canvas skel" aria-hidden="true"></div>
+  <!-- El aviso de "sin datos" va ENCIMA del lienzo, no antes: apareciendo como
+       un renglón nuevo empujaba la gráfica y media página hacia abajo (0.18 de
+       CLS medido en /market/spy con el endpoint caído, que es justo cuando el
+       aviso sale). Encima del hueco que ya estaba reservado no mueve nada, y
+       además es donde tiene sentido leerlo. Va fuera del lienzo —que es
+       aria-hidden— para que role="status" siga anunciándose. -->
+  <div class="pp-plot">
+    <div class="pp-canvas skel" aria-hidden="true"></div>
+    <p class="pp-state t-caption" role="status" hidden></p>
+  </div>
   <div class="pp-foot">
     <SourceChip locale={locale} class="pp-chip" source={source} delay={delay} note={t('src.bars5')} />
     <a class="pp-tv t-caption" href="https://www.tradingview.com/" target="_blank" rel="noopener">{t('chart.by')} TradingView ↗</a>
@@ -53,7 +61,8 @@ const t = useT(locale);
   /* Qué sesión se está viendo. Ocupa su renglón desde el primer pintado para
      que la gráfica no salte cuando llega el dato. */
   .pp-session { color: var(--ink-2); min-height: 1rem; }
-  .pp-state { color: var(--warn); }
+  .pp-plot { position: relative; }
+  .pp-state { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; text-align: center; padding: 0 var(--sp-4); color: var(--warn); margin: 0; }
   .pp-state[hidden] { display: none; }
   .pp[data-state="error"] .pp-state { color: var(--down-text); }
   .pp[data-state="empty"] .pp-state { color: var(--ink-2); }

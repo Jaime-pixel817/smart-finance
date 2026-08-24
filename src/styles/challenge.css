@@ -98,7 +98,13 @@
 .reto-op .reto-flecha { font-family: var(--font-mono); color: var(--ink-3); flex: none; }
 .reto-op[data-banda="-2"] .reto-flecha, .reto-op[data-banda="-1"] .reto-flecha { color: var(--down); }
 .reto-op[data-banda="1"] .reto-flecha, .reto-op[data-banda="2"] .reto-flecha { color: var(--up); }
-.reto-op[aria-disabled="true"] { opacity: .45; cursor: default; }
+/* Las opciones que no se eligieron se apagan, pero SIGUEN LEYÉNDOSE: a .45 su
+   texto quedaba en 4.19:1 sobre el fondo de la tarjeta (medido en el
+   navegador), debajo del 4.5:1 que pide la AA, y lo que dicen es justo lo que
+   hay que poder comparar al revelar la ronda. A .65 el texto queda en 7.35:1 y
+   la flecha —decorativa, aria-hidden y repetida por el texto— en 3.12:1, y se
+   sigue viendo perfectamente cuál no era. */
+.reto-op[aria-disabled="true"] { opacity: .65; cursor: default; }
 .reto-op.es-correcta[aria-disabled="true"] { opacity: 1; border-color: var(--up); background: color-mix(in srgb, var(--up) 14%, transparent); }
 .reto-op.es-elegida[aria-disabled="true"] { opacity: 1; }
 .reto-op.es-elegida.es-fallo[aria-disabled="true"] { border-color: var(--down); background: color-mix(in srgb, var(--down) 12%, transparent); }

@@ -267,7 +267,10 @@ const payload = {
   .lab-adv summary:hover { color: var(--ink); }
   .lab-adv-inner { display: flex; flex-direction: column; gap: var(--sp-4); padding-top: var(--sp-2); }
   .lab-buttons { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-  .lab-buttons .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  /* Un botón apagado se sigue leyendo: a .45 su texto quedaba en 4.19:1 en
+     oscuro y 2.93:1 en CLARO (medido en el navegador, los dos temas), debajo
+     del 4.5:1 de la AA. A .65 queda en 7.35 y 5.5. */
+  .lab-buttons .btn[disabled] { opacity: .65; cursor: not-allowed; }
 
   .lab-out { display: flex; flex-direction: column; gap: var(--sp-3); }
   .lab-price { display: flex; flex-direction: column; gap: 2px; }
@@ -296,7 +299,16 @@ const payload = {
   .scen-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--bg-2); border-radius: var(--r-pill); align-self: flex-start; }
   .scen-tab { min-height: 36px; padding: 0 14px; border-radius: var(--r-pill); font-size: var(--fs-small); color: var(--ink-2); }
   .scen-tab.is-on, .scen-tab[aria-pressed="true"] { background: var(--bg-1); color: var(--ink); box-shadow: var(--shadow-1); }
-  .scen-tab[disabled] { opacity: .4; cursor: not-allowed; }
+  /* Bear / Base / Bull salen deshabilitados mientras Jaime no escriba ese
+     escenario, y ESO es justo lo que hay que poder leer: que existen y que
+     están pendientes. A .4 su texto quedaba en 2.2:1 en oscuro y 1.79:1 en
+     claro — ilegible, y la norma solo lo perdona porque el control está
+     apagado, no porque se entienda. La opacidad da poco margen aquí (el color
+     de partida ya es --ink-2), así que se sube hasta donde pasa en los DOS
+     temas: .9 → 5.96 en oscuro y 4.59 en claro. Lo de "no se puede tocar" lo
+     dicen el cursor, la ausencia de hover y el propio atributo disabled, que
+     es lo que oye un lector de pantalla. */
+  .scen-tab[disabled] { opacity: .9; cursor: not-allowed; }
 
   .ff :global(svg) { width: 100%; height: auto; display: block; }
   .ff :global(.fc-grid) { stroke: var(--line); }

@@ -58,7 +58,12 @@ const en = {
   'src.min': 'min',
   'src.refreshed': 'every',
   'src.loading': 'loading…',
-  'src.unavailable': 'unavailable, retrying',
+  // Dos palabras y no una frase: el chip vive en una sola línea y "unavailable,
+  // retrying" la partía en dos, empujando media página hacia abajo en la ficha
+  // de un activo (0.18 de CLS medidos con el endpoint caído, que es justo
+  // cuando este texto sale). Lo de que se reintenta lo dice, con todas sus
+  // letras, el aviso que se pinta sobre la gráfica (chart.errorEmpty).
+  'src.unavailable': 'no data',
   'src.ago': 'updated',
   'src.manual': 'verified by hand',
 
@@ -526,7 +531,7 @@ const es: typeof en = {
   'src.min': 'min',
   'src.refreshed': 'cada',
   'src.loading': 'cargando…',
-  'src.unavailable': 'no disponible, se reintenta',
+  'src.unavailable': 'sin datos',
   'src.ago': 'actualizado',
   'src.manual': 'verificado a mano',
 

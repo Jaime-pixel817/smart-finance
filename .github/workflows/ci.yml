@@ -1,6 +1,13 @@
 # CI de SmartFinance.lat: corre en cada PR y en cada push a main.
-# Verifica que /es y sitemap.xml estén regenerados (check-es) y que no haya
-# enlaces internos rotos en el HTML (lychee en modo offline).
+#
+# Todo va en UN solo job llamado `ci` porque `ci` es el check obligatorio de la
+# rama main: lo que se mete aquí protege main sola, sin tocar la configuración
+# de GitHub. Un job aparte tendría que darse de alta a mano y, hasta que
+# alguien lo hiciera, no bloquearía nada.
+#
+# Orden: primero lo barato (tipos, tests, /es al día) y al final el build y las
+# tres cosas que solo se pueden comprobar sobre el HTML construido — enlaces,
+# guardia de SEO y presupuestos de Lighthouse.
 name: ci
 
 on:
@@ -58,3 +65,28 @@ jobs:
             --fallback-extensions html
             './dist/**/*.html'
           fail: true
+
+      # Guardia de SEO sobre el HTML ya construido: cabeza completa, sin títulos
+      # ni descripciones repetidas, hreflang, sitemap y HTML diciendo lo mismo,
+      # JSON-LD sin referencias @id colgando, robots.txt sin tapar nada del
+      # sitemap, y api/*.js todavía en 12 (el tope del plan de Vercel: con 13 el
+      # despliegue entero se cae DESPUÉS de construir). Ver el encabezado de
+      # scripts/check-seo.mjs: cada regla está por un bug que ya pasó.
+      - name: Guardia de SEO (npm run check-seo)
+        run: npm run check-seo
+
+      # Presupuestos de rendimiento y accesibilidad que fallan de verdad, sobre
+      # seis rutas: rendimiento ≥ 88 y accesibilidad ≥ 95 en móvil, CLS ≤ 0.02 y
+      # JS ≤ 180 KB de transferencia. Los umbrales y el porqué de cada uno están
+      # en lighthouserc.json. Si un PR los rompe, lo que se arregla es el PR.
+      - name: Presupuestos de Lighthouse (npm run check-lh)
+        run: npm run check-lh
+
+      - name: Guardar los informes de Lighthouse
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          retention-days: 14
+          if-no-files-found: ignore

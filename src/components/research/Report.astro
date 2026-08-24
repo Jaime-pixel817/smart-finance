@@ -374,6 +374,14 @@ const fmtV = (v: any) => {
   .rep-price-k { align-self: center; }
   .rep-price-v { font-size: var(--fs-num-l); color: var(--ink); min-width: 7ch; }
   .rep-price-src { align-self: center; min-width: 22ch; }
+  /* En el teléfono los cuatro trozos caben en tres renglones, pero CUÁLES caben
+     juntos depende del texto: con "—" y "loading…" salían tres renglones y con
+     "$121.07" y "Aug 21" salían dos, así que al volver /api/history el bloque
+     encogía 20 px y se llevaba el resto de la página con él (0.19 de CLS
+     medidos). Fijando el chip y la nota a renglón propio, el alto es 82 px
+     siempre, diga lo que diga el dato. De 768 px para arriba todo cabe en UN
+     renglón en cualquier estado (46 px, medido), así que ahí no hace falta. */
+  @media (max-width: 767px) { .rep-price-src, .rep-note { flex-basis: 100%; } }
   .rep-note { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
 
   .rep-draft { display: flex; flex-direction: column; gap: var(--sp-2); border-left: 3px solid var(--warn); }

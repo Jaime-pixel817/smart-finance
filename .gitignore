@@ -31,3 +31,7 @@ dist/
 # Salida del ensayo local del boletín (scripts/boletin-ensayo.js): el correo de
 # la semana en HTML para poder mirarlo antes de mandarlo. Se regenera solo.
 tmp/
+
+# Informes de Lighthouse CI (npm run check-lh). Son 18 JSON por corrida y se
+# regeneran solos; en el CI se suben como artefacto del job, no al repo.
+.lighthouseci/

@@ -125,11 +125,17 @@ input, select, textarea { font: inherit; color: inherit; }
   scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;
   padding-inline: var(--gutter); margin-inline: calc(-1 * var(--gutter));
   scroll-padding-inline: var(--gutter);
+  /* 4 px de aire arriba y abajo, devueltos con margen negativo: el carril y sus
+     chips medían EXACTAMENTE lo mismo (36 px los dos, medido), y como
+     overflow-x: auto convierte también el eje Y en auto, el anillo de foco
+     —que sobresale 4 px— se recortaba arriba y abajo. Se veía un filo verde en
+     vez de un anillo, justo en los chips que solo se alcanzan con el teclado. */
+  padding-block: 4px; margin-block: -4px;
 }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { scroll-snap-align: start; flex: none; }
 @media (min-width: 768px) {
-  .rail { padding-inline: 0; margin-inline: 0; scroll-padding-inline: 0; flex-wrap: wrap; overflow: visible; }
+  .rail { padding-inline: 0; margin-inline: 0; scroll-padding-inline: 0; flex-wrap: wrap; overflow: visible; padding-block: 0; margin-block: 0; }
 }
 
 /* ---- Sparkline SVG ---- */
