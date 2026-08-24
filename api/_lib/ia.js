@@ -299,7 +299,9 @@ function numerosFuera(respuesta, datos) {
   const fuera = [];
 
   for (const m of texto.matchAll(RE_NUMERO)) {
-    const token = m[0];
+    // Sin el punto final de la frase: el reintento le dice al modelo qué cifra
+    // sobra, y "380." no es una cifra.
+    const token = m[0].replace(/[.,]+$/, '');
     const n = normalizar(token);
     if (n === null) continue;
     const abs = Math.abs(n);
@@ -432,7 +434,10 @@ async function datosDeActivo(pedido, deps) {
       const resumen = resumirSerie(r.valor, a.decimales);
       serieTexto = resumen.texto + (r.stale ? '\n  aviso: es el último dato conocido, el proveedor no respondió.' : '');
       asOf = resumen.asOf;
-      fuentes.push({ titulo: 'Yahoo Finance', url: null });
+      // La gráfica siempre es de Yahoo, pero el precio de la ficha puede ser de
+      // otro proveedor (Twelve Data en las acciones). Sin este filtro, una
+      // divisa listaba "Yahoo Finance · Yahoo Finance".
+      if (!fuentes.some((f) => f.titulo === 'Yahoo Finance')) fuentes.push({ titulo: 'Yahoo Finance', url: null });
     } catch (err) {
       console.warn('ia: sin serie para ' + a.history + ':', err && err.message);
     }

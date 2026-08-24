@@ -73,9 +73,16 @@
 @keyframes ia-dot { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
 
 /* ---- El cuerpo de la respuesta ------------------------------------------ */
-.ia-respuesta { color: var(--ink); white-space: pre-wrap; }
+/* El cuerpo separa sus bloques por su cuenta: el `gap` del panel solo cuenta
+ * los hijos directos, y aquí dentro nace TODO lo que pinta el script. Sin esto,
+ * "Datos que usó" salía pegado al último párrafo de la respuesta. */
+.ia-cuerpo { display: flex; flex-direction: column; gap: var(--sp-3); }
+.ia-respuesta { color: var(--ink); }
 .ia-respuesta p + p { margin-top: var(--sp-2); }
-.ia-preguntas { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; padding-left: 1.2em; }
+/* list-style explícito: el reset del sitio quita las viñetas a todas las
+ * listas, y aquí el número ES la pregunta ("la 2 la fallé"). */
+.ia-preguntas { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; padding-left: 1.4em; list-style: decimal outside; }
+.ia-preguntas li::marker { color: var(--ink-3); font-family: var(--font-mono); }
 .ia-preguntas li { color: var(--ink); }
 .ia-bloque { display: flex; flex-direction: column; gap: 6px; }
 .ia-lista { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
@@ -85,7 +92,11 @@
 .ia-lista a:hover { color: var(--ink); }
 
 /* ---- La pregunta libre --------------------------------------------------- */
+/* OJO: sin esta línea, `form.hidden = true` NO esconde nada — un `display`
+ * propio le gana al `[hidden] { display: none }` del navegador. Pasaba: tras
+ * rechazar "¿compro?" la caja seguía ahí con la pregunta escrita. */
 .ia-ask { display: flex; flex-direction: column; gap: 6px; }
+.ia-ask[hidden] { display: none; }
 .ia-ask-row { display: flex; gap: var(--sp-2); }
 .ia-ask input {
   flex: 1 1 auto; min-width: 0; min-height: 40px;

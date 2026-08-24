@@ -45,6 +45,7 @@ if (sheet) {
   const titulo = sheet.querySelector<HTMLElement>('#ia-sheet-title')!;
   const cuerpo = sheet.querySelector<HTMLElement>('.ia-cuerpo')!;
   const asOf = sheet.querySelector<HTMLElement>('.ia-asof')!;
+  const disclosure = sheet.querySelector<HTMLElement>('.ia-disclosure-txt')!;
   const form = sheet.querySelector<HTMLFormElement>('.ia-ask')!;
   const input = sheet.querySelector<HTMLInputElement>('#ia-ask-input')!;
   const cerrar = sheet.querySelector<HTMLButtonElement>('.ia-sheet-close')!;
@@ -119,15 +120,19 @@ if (sheet) {
     limpiar();
     cuerpo.setAttribute('aria-busy', 'false');
 
-    const respuesta = crear('div', 'ia-respuesta');
-    pintarTexto(respuesta, r.respuesta || '');
-    cuerpo.append(respuesta);
-
-    if (r.preguntas && r.preguntas.length) {
+    const preguntas = r.preguntas || [];
+    // Cuando hay preguntas, el rótulo lo pone el sitio y no el modelo: si no,
+    // salían dos encabezados seguidos diciendo lo mismo ("Tres preguntas para
+    // comprobar que lo entendiste" dos veces, una traducida y otra no).
+    if (!preguntas.length) {
+      const respuesta = crear('div', 'ia-respuesta');
+      pintarTexto(respuesta, r.respuesta || '');
+      cuerpo.append(respuesta);
+    } else {
       const bloque = crear('div', 'ia-bloque');
       bloque.append(crear('p', 'eyebrow', txt.questionsTitle));
       const ol = crear('ol', 'ia-preguntas');
-      for (const p of r.preguntas) ol.append(crear('li', undefined, p));
+      for (const p of preguntas) ol.append(crear('li', undefined, p));
       bloque.append(ol);
       cuerpo.append(bloque);
     }
@@ -146,15 +151,22 @@ if (sheet) {
 
     // La fecha del dato va en la etiqueta, siempre pegada a la respuesta.
     asOf.textContent = r.asOf ? txt.asof + ' ' + r.asOf : '';
-    // La caja de preguntar solo aparece cuando hubo una explicación de verdad:
-    // ofrecerla debajo de "hoy ya no hay presupuesto" sería tomar el pelo.
-    form.hidden = contexto?.modo === 'preguntas' || !!r.rechazada;
+    // Y la etiqueta dice la verdad en los dos sentidos: una frase fija del
+    // sitio (un rechazo, un tope) NO la escribió la IA, y llamarla "generada
+    // con IA" sería mentir a la inversa.
+    disclosure.textContent = r.generadoPor === 'ia' ? txt.disclosure : txt.disclosureFixed;
+    // La caja de preguntar desaparece cuando no hay nada que preguntar (no hay
+    // presupuesto, no hay datos). Tras rechazar un consejo SE QUEDA: la
+    // siguiente pregunta puede ser buena.
+    form.hidden = contexto?.modo === 'preguntas' ||
+      (!!r.rechazada && r.rechazada !== 'consejo');
   }
 
   function pintarError() {
     limpiar();
     cuerpo.setAttribute('aria-busy', 'false');
     cuerpo.append(crear('p', 'ia-error', txt.error));
+    disclosure.textContent = txt.disclosureFixed;
     const acciones = crear('div', 'ia-acciones-sheet');
     const btn = crear('button', 'btn btn-ghost btn-sm', txt.retry);
     btn.type = 'button';

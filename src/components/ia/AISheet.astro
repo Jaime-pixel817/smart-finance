@@ -21,7 +21,8 @@ const t = useT(locale);
 const strings = {
   loading: t('ia.loading'), loadingLong: t('ia.loading.long'), error: t('ia.error'),
   retry: t('ia.retry'), used: t('ia.used'), sources: t('ia.sources'), asof: t('ia.asof'),
-  lesson: t('ia.lesson'), questionsTitle: t('ia.questions.title'), title: t('ia.title')
+  lesson: t('ia.lesson'), questionsTitle: t('ia.questions.title'), title: t('ia.title'),
+  disclosure: t('ia.disclosure'), disclosureFixed: t('ia.disclosure.fixed')
 };
 ---
 <div class="ia-sheet" id="ia-sheet" role="dialog" aria-modal="true" aria-labelledby="ia-sheet-title"
@@ -57,7 +58,7 @@ const strings = {
     </form>
 
     <p class="ia-disclosure">
-      <span><strong>{t('ia.disclosure')}</strong></span>
+      <span><strong class="ia-disclosure-txt">{t('ia.disclosure')}</strong></span>
       <span class="ia-asof"></span>
       <span><a href={route('methodology', locale)}>{t('ia.how')} →</a></span>
     </p>
