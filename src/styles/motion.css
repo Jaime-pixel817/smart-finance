@@ -59,6 +59,10 @@
   /* Cuánto se hunde lo que se presiona y cuánto se levanta al pasar el ratón. */
   --press: .98;
   --lift: 2px;
+  /* Cuánto sube un número al cambiar. En em, o sea proporcional a su tamaño:
+     el precio grande de una ficha y el de una fila se mueven lo mismo *para su
+     cuerpo de letra*, que es como se percibe igual. Lo lee src/scripts/num.ts. */
+  --num-rise: .3em;
 }
 
 /* Con el sistema en «menos movimiento» las duraciones se van a cero DESDE EL
@@ -69,7 +73,7 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-1: .01ms; --dur-2: .01ms; --dur-3: .01ms; --dur-4: .01ms;
-    --stagger: 0ms; --rise: 0px; --press: 1; --lift: 0px;
+    --stagger: 0ms; --rise: 0px; --num-rise: 0px; --press: 1; --lift: 0px;
   }
 }
 
@@ -131,11 +135,17 @@
    llega, no hay nada con opacidad 0 que se quede invisible para siempre. Y
    solo se esconde lo que está POR DEBAJO del pliegue, así que el primer
    pantallazo —el que mide el LCP— se pinta exactamente igual que antes. */
-[data-reveal].is-out {
+   Quién entra: cada `<section>` HOJA de `<main>` (una sección que contiene
+   secciones anima por dentro, no entera). A nivel de bloque y nunca por cada
+   fila de una lista: veinte filas apareciendo de una en una no es un sitio
+   vivo, es una lista que tarda en cargar.
+
+   El guion está en src/layouts/Base.astro, en línea al final del <body>. */
+.sf-out {
   opacity: 0;
   transform: translateY(var(--rise));
 }
-[data-reveal].is-in {
+.sf-in {
   opacity: 1;
   transform: none;
   transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out);
@@ -167,11 +177,6 @@
    mientras el número entra: si cambiara, la fila de al lado se movería y eso
    sería CLS con lazo. */
 [data-num] { display: inline-block; }
-[data-num].is-num { animation: sf-num-in var(--dur-3) var(--ease-out) both; }
-@keyframes sf-num-in {
-  from { opacity: 0; transform: translateY(.3em); }
-  to { opacity: 1; transform: none; }
-}
 
 /* ============================================================================
    4) TÁCTIL, FOCO Y HOVER

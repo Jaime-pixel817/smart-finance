@@ -6,6 +6,7 @@ import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, sparkPath, type Loc }
 import { nyseOpen, bmvOpen } from './hours';
 import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar } from './watchlist';
 import { paintAssetRow } from './rows';
+import { setNum } from './num';
 import { loadQuotes, quoteFromQuotes, type Quote, type Quotes, type SymbolRT } from './market-data';
 import { medir } from '../lib/analytics';
 
@@ -74,19 +75,19 @@ function boot(root: HTMLElement) {
     if (!tile) return;
     const p = $('.tile-price', tile), c = $('.tile-chg', tile), s = $<SVGSVGElement>('svg.spark', tile);
     if (p) {
-      p.textContent = opts.text ?? (price != null ? fmtNum(price, loc, decimals) : '—');
+      setNum(p, opts.text ?? (price != null ? fmtNum(price, loc, decimals) : '—'));
       p.classList.remove('skel');
     }
     if (c) {
       c.classList.remove('skel', 'up', 'down', 'flat');
       if (pct != null) {
         c.classList.add(dirClass(pct));
-        c.innerHTML = `<span aria-hidden="true">${arrow(pct)}</span> ${fmtPct(pct, loc)}`;
+        setNum(c, arrow(pct) + fmtPct(pct, loc), `<span aria-hidden="true">${arrow(pct)}</span> ${fmtPct(pct, loc)}`);
         c.setAttribute('aria-label', (pct >= 0 ? '+' : '−') + fmtPct(pct, loc));
       } else if (opts.closed) {
         c.classList.add('flat');
-        c.textContent = T.closed;
-      } else { c.textContent = ''; }
+        setNum(c, T.closed);
+      } else { setNum(c, ''); }
     }
     if (s) {
       const { line, area } = series ? sparkPath(series, 56, 24) : { line: '', area: '' };
@@ -231,8 +232,9 @@ function boot(root: HTMLElement) {
       const dec = i.price < 100 ? 2 : i.price < 10000 ? 2 : 0;
       const sy = $('.m60-sym', row)!; sy.textContent = i.sym; sy.classList.remove('skel');
       const nm = $('.m60-name', row)!; nm.textContent = i.name || ''; nm.classList.remove('skel');
-      const pr = $('.m60-price', row)!; pr.textContent = fmtNum(i.price, loc, dec); pr.classList.remove('skel');
-      const ch = $('.m60-chg', row)!; ch.className = 'm60-chg num ' + dirClass(i.changePct); ch.innerHTML = `<span aria-hidden="true">${arrow(i.changePct)}</span> ${fmtPct(i.changePct, loc)}`;
+      const pr = $('.m60-price', row)!; setNum(pr, fmtNum(i.price, loc, dec)); pr.classList.remove('skel');
+      const ch = $('.m60-chg', row)!; ch.className = 'm60-chg num ' + dirClass(i.changePct);
+      setNum(ch, arrow(i.changePct) + fmtPct(i.changePct, loc), `<span aria-hidden="true">${arrow(i.changePct)}</span> ${fmtPct(i.changePct, loc)}`);
       const s = $<SVGSVGElement>('svg.spark', row);
       if (s) { const { line } = sparkPath(i.series || [], 64, 24); s.querySelector('.line')?.setAttribute('d', line); s.classList.remove('skel'); s.setAttribute('class', 'spark ' + dirClass(i.changePct)); }
       row.classList.remove('is-loading');
