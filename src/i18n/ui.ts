@@ -1032,7 +1032,9 @@ const es: typeof en = {
   'reto.cal.legend': 'Un cuadrito por día. Relleno quiere decir que jugaste; mientras más fuerte el color, más puntos sacaste.',
   'reto.cal.dows': 'L,M,M,J,V,S,D',
   'reto.cal.dows.full': 'lunes,martes,miércoles,jueves,viernes,sábado,domingo',
-  'reto.cal.summary': 'Este mes llevas {n} días jugados de los {m} que han pasado.',
+  // Sin «{n} días»: con n = 1 saldría «llevas 1 días». Contando sobre el
+  // sustantivo del final («{n} de los {m} días») concuerda con cualquier cifra.
+  'reto.cal.summary': 'Este mes llevas {n} de los {m} días que han pasado.',
   'reto.cal.day': '{d}: {p} de {max}',
   'reto.cal.none': '{d}: sin jugar',
 

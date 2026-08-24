@@ -92,8 +92,14 @@ input, select, textarea { font: inherit; color: inherit; }
 .chip .num { font-size: var(--fs-caption); }
 
 /* ---- Chip de fuente/frescura ---- */
+/* `flex-wrap` no es cosmético: sin él, en un teléfono los trozos no caben, se
+   encogen TODOS a la vez y cada uno parte su texto en dos líneas mientras los
+   «·» se quedan centrados en medio del bloque, sin tocar nada. El chip más
+   largo del sitio es el del reto (fuente + nota + fecha del último cierre) y
+   ahí se veía roto a 390 px. Envolviendo, cada trozo se queda en su línea y el
+   chip pasa a dos renglones legibles. */
 .src-chip {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: 2px 6px;
   font-family: var(--font-mono); font-size: var(--fs-caption); line-height: var(--lh-caption);
   color: var(--ink-3); font-variant-numeric: tabular-nums;
 }
