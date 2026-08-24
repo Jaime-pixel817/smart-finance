@@ -41,7 +41,16 @@ const VERDE = lienzo.color('#16C47F');
 const GROSOR = 2.6;
 const RELLENO = 18;   // margen interno de la caja
 
-/** Las reglas del juego son ESM en src/: se cargan una vez y se guardan. */
+/*
+ * Las reglas del juego son ESM en src/ y esta función es CommonJS, así que se
+ * cargan con import() dinámico, una vez y guardadas.
+ *
+ * Y en vercel.json esta función lleva `includeFiles: "src/lib/challenge/**"`.
+ * El rastreador de Vercel sí sigue un import() con la ruta escrita a pelo, pero
+ * si algún día no lo hiciera, el fallo sería en producción, en silencio y solo
+ * en la tarjeta que se comparte: mejor decírselo y no depender de que lo
+ * adivine. No cuesta nada — son tres archivos de texto.
+ */
 let reglas = null;
 async function cargarReglas() {
   if (!reglas) {

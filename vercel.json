@@ -13,6 +13,9 @@
     },
     "api/news.js": {
       "maxDuration": 60
+    },
+    "api/newsletter-chart.js": {
+      "includeFiles": "src/lib/challenge/**"
     }
   },
   "headers": [
