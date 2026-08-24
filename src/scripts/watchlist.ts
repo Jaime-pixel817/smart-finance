@@ -14,6 +14,8 @@
 // La clave lleva versión (`-v1`) por si algún día cambia el formato: una lista
 // vieja que ya no se entienda se ignora en vez de reventar.
 
+import { medir } from '../lib/analytics';
+
 const LS = 'sf-watchlist-v1';
 /** Se dispara en `document` cada vez que la lista cambia (también entre pestañas). */
 export const EVENTO = 'sf:watchlist';
@@ -91,7 +93,11 @@ export function montarBotones(raiz: ParentNode = document) {
       // La fila entera es un enlace a la ficha: el botón no puede navegar.
       e.preventDefault();
       e.stopPropagation();
-      alternar(b.dataset.follow || '');
+      const id = b.dataset.follow || '';
+      const ahora = alternar(id);
+      // La lista NO sale del navegador; lo que se cuenta es qué activos se
+      // marcan, no quién los marca ni cuál es la lista de nadie.
+      medir('activo_seguido', { activo: id, sigue: ahora });
     });
   }
   alCambiar(pintar);

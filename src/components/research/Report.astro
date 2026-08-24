@@ -90,7 +90,7 @@ const fmtV = (v: any) => {
   return String(v);
 };
 ---
-<article class="rep">
+<article class="rep" data-report={report.slug}>
   <div class="container rep-wrap">
 
     <!-- Cabecera de credibilidad -->
@@ -312,6 +312,40 @@ const fmtV = (v: any) => {
 </article>
 
 <script>
+  import { medir, medirUnaVez } from '../../lib/analytics';
+
+  // Cuántos reportes se abren y hasta dónde se leen. Un reporte de research es
+  // lo más largo del sitio: saber que se abre no dice nada, y saber que la
+  // mitad de la gente llega al bloque 6 sí. Se mide con IntersectionObserver
+  // sobre cuatro marcas del propio artículo, no con el scroll (que en móvil
+  // dispara sesenta veces por segundo y no mide lectura, mide dedo).
+  const rep = document.querySelector<HTMLElement>('[data-report]');
+  if (rep) {
+    const reporte = rep.dataset.report || '';
+    medirUnaVez('research_abierto', { reporte });
+    if ('IntersectionObserver' in window) {
+      const alto = rep.offsetHeight;
+      const marcas = [25, 50, 75, 100];
+      const io = new IntersectionObserver((entradas) => {
+        for (const e of entradas) {
+          if (!e.isIntersecting) continue;
+          medirUnaVez('research_leido', { reporte, hasta: Number((e.target as HTMLElement).dataset.marca) });
+          io.unobserve(e.target);
+        }
+      }, { threshold: 0 });
+      for (const pct of marcas) {
+        const marca = document.createElement('div');
+        marca.dataset.marca = String(pct);
+        // Una marca de 1 px colocada en su porcentaje del artículo. No estorba
+        // al lector de pantalla ni al foco: no tiene contenido ni es tabulable.
+        marca.setAttribute('aria-hidden', 'true');
+        marca.style.cssText = 'position:absolute;left:0;width:1px;height:1px;pointer-events:none;top:' + (alto * pct / 100 - 1) + 'px';
+        rep.appendChild(marca);
+        io.observe(marca);
+      }
+    }
+  }
+
   document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
   // La tabla de siete años arranca mostrando el año MÁS RECIENTE: en el
   // teléfono es la columna que importa y el histórico queda a la izquierda.
@@ -321,7 +355,9 @@ const fmtV = (v: any) => {
 </script>
 
 <style>
-  .rep { padding-top: var(--sp-4); }
+  /* position: relative para las cuatro marcas de lectura que inyecta el
+     script (25/50/75/100 % del artículo). */
+  .rep { padding-top: var(--sp-4); position: relative; }
   .rep-wrap { display: flex; flex-direction: column; gap: var(--section-gap); max-width: 1000px; }
   .rep-head { display: flex; flex-direction: column; gap: var(--sp-3); }
   .rep-back a { color: var(--ink-2); font-size: var(--fs-small); min-height: 36px; display: inline-flex; align-items: center; }

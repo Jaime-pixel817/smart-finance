@@ -9,6 +9,7 @@
 // palabras "Correcto"/"Casi" viajan en data-* desde el componente, que las saca
 // de src/i18n/ui.ts. Así el mismo script sirve en inglés y en español.
 import { getQuiz, setQuiz } from './lessons-progress';
+import { medir } from '../lib/analytics';
 
 function montar(raiz: HTMLElement) {
   const slug = raiz.dataset.quiz || '';
@@ -92,6 +93,8 @@ function montar(raiz: HTMLElement) {
         pintarPregunta(i);
         pintarMarcador();
         guardar();
+        // Viaja el slug de la lección y si acertó, nunca qué opción eligió.
+        medir('quiz_respondido', { leccion: slug, acierto: elegidas[i] === Number(q.dataset.answer) });
       });
     }
   }

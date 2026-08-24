@@ -19,6 +19,7 @@ import {
   RONDAS, VENTANA, OCULTAS
 } from '../lib/challenge/reto.mjs';
 import { fmtNum, type Loc } from './format';
+import { medir, medirUnaVez } from '../lib/analytics';
 
 type Activo = { id: string; pair: string; sym: string; name: string; href: string };
 type Ronda = ReturnType<typeof armarRonda> & { activo: Activo };
@@ -248,6 +249,9 @@ function montar(raiz: HTMLElement) {
     if (elFig.dataset.fase === 'revelado') return;
     const gana = puntosDeRonda(elegida, r.banda);
     respuestas.push({ elegida, real: r.banda });
+    // Una sola vez por partida: lo que se quiere saber es cuánta gente empieza
+    // el reto de las que abren la página, no cuántas rondas contesta.
+    medirUnaVez('reto_empezado');
 
     elFig.dataset.fase = 'revelado';
     elFig.dataset.dir = r.cambio >= 0 ? 'up' : 'down';
@@ -309,6 +313,9 @@ function montar(raiz: HTMLElement) {
   // ---- Resultado ----
   function terminar() {
     const res = resumen(respuestas);
+    // Puntos (0–10, con parcial por acertar la dirección) y aciertos limpios
+    // (0–5). Los dos, porque terminar con 5/5 y con 0/5 se lee distinto.
+    medir('reto_terminado', { puntos: res.puntos, aciertos: res.exactas });
     elJuego.hidden = true;
     elFinal.hidden = false;
 

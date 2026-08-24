@@ -42,6 +42,8 @@ const t = useT(locale);
   .gsheet.is-here .gsheet-here { display: inline; }
 </style>
 <script>
+  import { medir } from '../../lib/analytics';
+
   const sheet = document.getElementById('gsheet');
   if (sheet) {
     const panel = sheet.querySelector<HTMLElement>('.gsheet-panel')!;
@@ -63,6 +65,9 @@ const t = useT(locale);
       sheet!.hidden = false;
       document.body.style.overflow = 'hidden';
       closeBtn.focus();
+      // El glosario al tacto ES el "explícame esto" del sitio: viaja el id del
+      // término del propio repo, nada de lo que la persona estaba leyendo.
+      medir('explicame', { termino: btn.dataset.term || '' });
     }
     function close() {
       sheet!.hidden = true;

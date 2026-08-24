@@ -92,6 +92,34 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <!-- Idioma: recuerda la elección y, solo en la raíz, respeta lo guardado
        (mismo script que el sitio legacy, así las dos mitades coinciden). -->
   <script is:inline src="/assets/lang.js"></script>
+  <!-- Analítica sin cookies: Vercel Web Analytics (visitas y los once eventos
+       de src/lib/analytics.ts) y Speed Insights (Core Web Vitals de visitas
+       reales). Los dos scripts los sirve el propio dominio desde /_vercel/, no
+       ponen cookies y no guardan identificadores.
+
+       SI EL NAVEGADOR DICE QUE NO, NO SE CARGA NADA: se mira Global Privacy
+       Control y Do Not Track ANTES de inyectarlos, así que no es que se manden
+       menos datos, es que no hay ni petición. En local los dos archivos no
+       existen (los pone Vercel) y el sitio funciona igual: `va` se queda sin
+       definir y `medir()` no hace nada.
+
+       La cola `va`/`vaq` va antes del script porque un evento puede salir
+       mientras todavía está descargándose. Ver /methodology → "Analítica". -->
+  <script is:inline>
+    (function () {
+      try {
+        var n = navigator;
+        if (n.globalPrivacyControl === true || n.doNotTrack === '1' || window.doNotTrack === '1' || n.msDoNotTrack === '1') return;
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+        var rutas = ['/_vercel/insights/script.js', '/_vercel/speed-insights/script.js'];
+        for (var i = 0; i < rutas.length; i++) {
+          var s = document.createElement('script');
+          s.defer = true; s.src = rutas[i];
+          document.head.appendChild(s);
+        }
+      } catch (e) { /* sin analítica, el sitio va igual */ }
+    })();
+  </script>
   <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)}></script>
   <slot name="head" />
 </head>
