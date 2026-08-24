@@ -95,7 +95,7 @@ export const ROUTES: RouteEntry[] = [
   { id: 'actinver', en: '/actinver', es: '/es/actinver', lastmod: '2026-08-23', changefreq: 'daily', priority: '0.8' },
   { id: 'portfolio', en: '/portfolio', es: '/es/portafolio', lastmod: '2026-08-23', changefreq: 'weekly', priority: '0.8' },
   { id: 'about', en: '/about', es: '/es/acerca', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' },
-  { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' }
+  { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.5' }
 ];
 
 export function route(id: string, locale: Locale): string {
