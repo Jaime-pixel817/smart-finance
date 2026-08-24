@@ -95,7 +95,10 @@ const fmtV = (v: any) => {
 
     <!-- Cabecera de credibilidad -->
     <header class="rep-head">
-      <p class="rep-back"><a href={L('research')}>← {r.back}</a></p>
+      <!-- Al bloque de equity research, no al principio de la página: la
+           sección ahora tiene dos proyectos y volver de un reporte es volver a
+           la lista de reportes, no al índice de la sección. -->
+      <p class="rep-back"><a href={L('research') + '#equity-research'}>← {r.back}</a></p>
       <p class="eyebrow">{r.reportKicker} <span aria-hidden="true">·</span> {m.exchange}: {m.ticker}</p>
       <h1 class="t-display">{m.name}</h1>
       <!-- El precio de mercado va en su propia fila y con hueco reservado: lo

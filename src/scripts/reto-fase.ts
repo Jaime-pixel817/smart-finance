@@ -63,9 +63,11 @@ if (raiz) {
     }
   };
 
-  pinta();
-
-  // Alguien puede dejar la pestaña abierta y volver al día siguiente. Al
-  // volver a ella se recalcula: es una comparación de cadenas, no cuesta nada.
+  // El oyente se registra ANTES de la primera pasada: si `pinta()` se cayera,
+  // registrarlo después lo dejaría sin registrar y la página se quedaría con la
+  // fase del build para siempre. Así, al menos, cada vuelta a la pestaña es
+  // otra oportunidad. Alguien puede dejarla abierta y volver al día siguiente;
+  // recalcular es comparar cadenas, no cuesta nada.
   document.addEventListener('visibilitychange', () => { if (!document.hidden) pinta(); });
+  pinta();
 }

@@ -76,8 +76,10 @@ const revLine = locale === 'es'
 
     <!-- ── Proyecto 1: equity research ──────────────────────────────── -->
     <section id="equity-research" class="proj" aria-labelledby="er-h">
-      <h2 id="er-h" class="t-h2 proj-h">{r.researchH}</h2>
-      <p class="proj-lede">{r.researchLede}</p>
+      <div class="proj-intro">
+        <h2 id="er-h" class="t-h2 proj-h">{r.researchH}</h2>
+        <p class="proj-lede">{r.researchLede}</p>
+      </div>
 
     <section class="hub-sec" aria-labelledby="std-h">
       <h3 id="std-h" class="t-h2">{r.standardsH}</h3>
@@ -193,9 +195,9 @@ const revLine = locale === 'es'
      subsecciones con h3, así que el orden de encabezados de la página es
      h1 → h2 (proyecto) → h3 (apartado) → h4 (tarjeta) sin saltos. */
   .proj { display: flex; flex-direction: column; gap: var(--section-gap); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .proj-intro { display: flex; flex-direction: column; gap: var(--sp-3); }
   .proj-h { padding-top: var(--sp-3); border-top: 2px solid var(--ink); }
-  .proj > .proj-h { margin-bottom: calc(var(--sp-3) - var(--section-gap)); }
-  .proj-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); margin-top: calc(var(--sp-3) - var(--section-gap)); }
+  .proj-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
 
   .proj-index { gap: var(--sp-3); }
   .proj-cards { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }

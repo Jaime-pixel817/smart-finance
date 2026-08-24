@@ -72,16 +72,22 @@ const filas = [
 const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
 ---
 <section id="reto-actinver" class="proj" aria-labelledby="reto-h">
-  <div class="reto-head">
-    <span class="marca">
-      <img src={foto('reto-actinver.webp')} alt={r.retoLogoAlt} width="182" height="108" loading="lazy" decoding="async" />
-    </span>
-    <div class="reto-head-txt">
-      <p class="eyebrow">{r.retoEdition}</p>
-      <h2 id="reto-h" class="t-h2">{r.retoH}</h2>
+  <div class="reto-intro">
+    <div class="reto-head">
+      <span class="marca">
+        <!-- Sin loading="lazy" a propósito: son 2 KB y es la atribución de una
+             marca ajena, que va al lado de la línea de "no estamos afiliados".
+             En diferido la placa se queda vacía hasta que alguien llega
+             scrolleando, y eso es justo lo que no puede pasar con un crédito. -->
+        <img src={foto('reto-actinver.webp')} alt={r.retoLogoAlt} width="182" height="108" decoding="async" />
+      </span>
+      <div class="reto-head-txt">
+        <p class="eyebrow">{r.retoEdition}</p>
+        <h2 id="reto-h" class="t-h2">{r.retoH}</h2>
+      </div>
     </div>
+    <p class="proj-lede">{r.retoLede}</p>
   </div>
-  <p class="proj-lede">{r.retoLede}</p>
 
   <!-- Cómo va hoy. Las seis fases van pintadas; el script deja una. -->
   <div class="card reto-estado" data-reto data-reto-textos={textosScript}>
@@ -146,12 +152,16 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
     </div>
   </div>
 
-  <!-- Fuente y no afiliación -->
+  <!-- Fuente -->
   <div class="reto-sub">
     <h3 class="t-h3">{r.retoSourceH}</h3>
     <p class="t-small muted">
       {r.retoSourceP.replace('{d}', D(cal.fuente.consultada))}
     </p>
+  </div>
+
+  <!-- No afiliación -->
+  <div class="reto-sub">
     <h3 class="t-h3">{r.retoDiscH}</h3>
     <p class="t-small muted">{r.retoDisc}</p>
   </div>
@@ -162,7 +172,17 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
 </script>
 
 <style>
-  .reto-head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+  /* OJO: los estilos de Astro tienen ÁMBITO POR COMPONENTE. `.proj` y
+     `.proj-lede` están definidos también en Hub.astro, pero esas reglas no
+     alcanzan a este archivo —Astro les pone el hash del componente en el que
+     se escriben—, así que el bloque salía sin separación entre apartados
+     aunque en el otro fichero pusiera `gap: var(--section-gap)`. Aquí van otra
+     vez, a propósito: es el mismo motivo por el que news.css y challenge.css
+     son globales. */
+  .proj { display: flex; flex-direction: column; gap: var(--section-gap); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+
+  .reto-intro { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .reto-head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding-top: var(--sp-3); border-top: 2px solid var(--ink); }
   .reto-head-txt { display: flex; flex-direction: column; gap: 2px; }
   /* Placa oscura FIJA en los dos temas: el logo de Actinver es blanco con el
      punto dorado y está hecho para fondo oscuro. Recolorearlo sería deformar
