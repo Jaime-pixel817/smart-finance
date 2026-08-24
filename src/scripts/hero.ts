@@ -245,6 +245,7 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   const capa = document.getElementById('hero-pins');
   if (!capa) return;
   const pins = new Map<string, HTMLElement>();
+  const anchos = new Map<string, number>();
   let elegidas: string[] = [];
 
   function elegir(items: Item[]): string[] {
@@ -283,6 +284,10 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
         ? '<span class="flat">—</span>'
         : `<span class="${dirClass(it.changePct)}">${arrow(it.changePct)} ${fmtPct(it.changePct, loc)}</span>`;
       el.innerHTML = `<b>${CORTO[it.id] || it.id.toUpperCase()}</b> ${chg}`;
+      // El ancho de la pastilla, medido AQUÍ y no en cada frame: cambia solo
+      // cuando cambia el texto, o sea cada vez que llegan datos (cada 15 min).
+      // Es lo que hace falta para sujetarla al borde sin cortarla, ver abajo.
+      anchos.set(it.id, el.offsetWidth);
     }
   }
 
@@ -302,7 +307,13 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
       // sube 16 px: la etiqueta va encima del punto, no tapándolo. Si arriba
       // no cabe —Toronto y Nueva York quedan bajo la barra superior— se pone
       // debajo del punto en vez de meterse detrás de la barra.
-      const x = Math.min(Math.max(p.x, 52), ancho - 52);
+      //
+      // El tope es la MITAD DE ESTA pastilla más 6 px de aire, no un 52 fijo:
+      // la pastilla va centrada en x, así que con 52 una de 96 px (SÃO ▲ 1.50 %)
+      // se quedaba a 4 px del borde y una de 110 se salía y la cortaba el
+      // overflow del contenedor.
+      const medio = (anchos.get(p.id) || 100) / 2 + 6;
+      const x = Math.min(Math.max(p.x, medio), ancho - medio);
       const barra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 52;
       const arriba = p.y - 16 - 26 > barra + 6;
       el.style.transform = arriba
