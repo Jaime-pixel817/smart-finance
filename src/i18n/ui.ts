@@ -133,6 +133,9 @@ const en = {
   'tools.title': 'Tools',
   // La tarjeta del reto en el home y en /tools. NO se llama calculadora en
   // ningún idioma: es un juego y así se dice, o la gente espera un slider.
+  // Y se llama IGUAL en los dos sitios (y en el nav, y en el eyebrow de su
+  // página): "¿Y luego qué pasó?" es el titular del juego, no su nombre — con
+  // los dos nombres a un clic de distancia parecían dos cosas distintas.
   'tools.reto': 'Daily challenge',
   'tools.reto.desc': 'A game: guess what five real charts did next.',
   'tools.compound': 'Compound interest',
@@ -622,7 +625,7 @@ const es: typeof en = {
 
   'tools.title': 'Herramientas',
   'tools.reto': 'Reto del día',
-  'tools.reto.desc': 'Un juego: adivina qué hicieron cinco gráficas reales.',
+  'tools.reto.desc': 'Un juego: adivina qué hicieron después cinco gráficas reales.',
   'tools.compound': 'Interés compuesto',
   'tools.compound.desc': 'Mira cómo crece un ahorro mensual en 20 años.',
   'tools.inflation': '¿Cuánto me come la inflación?',

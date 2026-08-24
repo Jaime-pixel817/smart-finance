@@ -54,7 +54,11 @@ const TOOLS = [
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16l4-6 4 4 3-6"/><path d="M15 8h6v6"/><path d="M18 15v6M15 18h6"/></svg>
           </span>
           <span class="tools-nuevo">{t('tools.new')}</span>
-          <span class="t-h3">{t('reto.h1')}</span>
+          <!-- El MISMO nombre que en el home y en el nav. El titular del juego
+               ("¿Y luego qué pasó?") ya está aquí abajo, en reto.card.q: como
+               título hacía que la tarjeta del home y esta, a un clic de
+               distancia y al mismo sitio, parecieran dos cosas distintas. -->
+          <span class="t-h3">{t('tools.reto')}</span>
           <span class="t-small muted">{t('reto.card.desc')}</span>
           <span class="t-caption faint">{t('reto.card.q')}</span>
           <span class="tools-go">{t('tools.open')} →</span>
