@@ -11,12 +11,21 @@
     "",
     "Sin /api: el servidor estático no lo tiene, y ese es justo el escenario que",
     "conviene medir — cada página tiene que pintarse entera sin que ningún",
-    "endpoint conteste. Si un presupuesto se rompe por eso, el bug es del sitio.",
+    "endpoint conteste. Encender esto encontró tres bugs de CLS ahí (el chip de",
+    "fuente partiéndose en dos líneas, Fraunces sin preload y la fila del precio",
+    "del research reacomodándose); si un presupuesto se rompe por esto, el bug es",
+    "del sitio, no del escenario.",
     "",
-    "El JS del home va apretado a propósito: son ~169 KB de transferencia y el",
-    "tope son 180, casi todo three.js desde cdnjs (~121 KB br). Ese margen de 11",
-    "KB es el aviso de que el globo ya no admite otra librería; si un día no",
-    "cabe, lo que se cambia es el globo, no el número de aquí abajo.",
+    "MEDIDO HOY (mediana de 3 corridas, móvil): rendimiento 93–98, accesibilidad",
+    "100 en las seis, CLS ≤ 0.005 y JS entre 12 y 178 KB.",
+    "",
+    "EL HOME VA AL 99 % DEL PRESUPUESTO DE JS: 178 KB de 180, y 119 de esos son",
+    "three.js r128 entero, servido desde cdnjs para dibujar una esfera de",
+    "partículas. En producción hay que sumarle los dos scripts de /_vercel",
+    "(analítica y Speed Insights, ~7 KB), que aquí no existen. O sea: el home ya",
+    "no admite ni una librería más. Cuando este número se ponga rojo, lo que se",
+    "cambia es el globo —un build recortado de three.js, o WebGL a pelo—, no el",
+    "180 de aquí abajo.",
     "",
     "numberOfRuns 3 y mediana: una corrida suelta en un runner compartido se",
     "mueve varios puntos."
@@ -34,17 +43,43 @@
         "http://localhost/challenge.html"
       ],
       "settings": {
-        "onlyCategories": ["performance", "accessibility"]
+        "onlyCategories": [
+          "performance",
+          "accessibility"
+        ]
       }
     },
     "assert": {
       "assertions": {
-        "categories:performance": ["error", { "minScore": 0.88 }],
-        "categories:accessibility": ["error", { "minScore": 0.95 }],
-        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.02 }],
-        "resource-summary:script:size": ["error", { "maxNumericValue": 184320 }]
+        "categories:performance": [
+          "error",
+          {
+            "minScore": 0.88
+          }
+        ],
+        "categories:accessibility": [
+          "error",
+          {
+            "minScore": 0.95
+          }
+        ],
+        "cumulative-layout-shift": [
+          "error",
+          {
+            "maxNumericValue": 0.02
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
       }
     },
-    "upload": { "target": "filesystem", "outputDir": "./.lighthouseci" }
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "./.lighthouseci"
+    }
   }
 }
