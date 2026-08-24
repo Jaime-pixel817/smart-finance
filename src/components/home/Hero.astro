@@ -79,6 +79,12 @@ const t = useT(locale);
     <div class="hero-pins" id="hero-pins" aria-hidden="true"></div>
   </div>
 
+  <!-- El hueco de encima del titular. Mide justo hasta 24 px por debajo del
+       marcador de São Paulo, y es lo ÚNICO que puede encoger en el hero: si en
+       una pantalla baja el contenido no cabe, cede este hueco (el titular sube)
+       antes que dejar el chip de fuente debajo del bottom nav. -->
+  <div class="hero-gap" aria-hidden="true"></div>
+
   <div class="hero-head">
     <div class="container hero-copy">
       <h1 class="hero-title">{t('site.tagline')} <span class="hero-by t-mono">{t('hero.by')}</span></h1>
@@ -186,10 +192,21 @@ const t = useT(locale);
 
     position: relative;
     min-height: var(--hero-h);
-    /* Columna flex para que el chip de fuente (.hero-source) se pueda empujar
-       con margin-top: auto hasta el borde de abajo del hero. */
+    /* Columna flex: el chip de fuente (.hero-source) se empuja con
+       margin-top: auto hasta el borde de abajo del hero. */
     display: flex;
     flex-direction: column;
+    /* CUÁNTO PUEDE PASARSE EL HERO DE LA PRIMERA PANTALLA. Puede crecer, pero
+       no hasta meterse debajo del bottom nav: de los --hero-peek px que asoman,
+       los últimos --bottomnav-h están tapados por él. En un teléfono de 844 px
+       el contenido se pasa 14 px y no hay nada que hacer; en uno de 667 se
+       pasaba 102 y el chip de fuente quedaba ENTERO detrás de la barra de
+       abajo. Con el tope puesto, lo que cede es .hero-gap y el titular sube —
+       en una pantalla baja acaba por encima de São Paulo, que es justo lo que
+       hacía antes, y el chip se ve. Nada de media queries de alto: en iOS la
+       barra del navegador cambia el alto del viewport a media página y el hero
+       daría un salto; svh no se mueve. */
+    max-height: calc(var(--hero-h) + max(0px, var(--hero-peek) - var(--bottomnav-h) - var(--sp-2)));
   }
 
   /* Modo día: el fondo del globo se aclara (ver .hero-globe) y con él tiene que
@@ -274,11 +291,8 @@ const t = useT(locale);
      por arriba cubre solo el último tercio, y lo que crezca por debajo (la
      barra de bolsas) sigue sin mover el conjunto globo+titular. Los 24 px son
      el aire entre el punto de São Paulo y la primera línea. */
-  .hero-head {
-    display: flex;
-    align-items: flex-start;
-    padding-top: calc(var(--sao-y) + 24px);
-  }
+  .hero-gap { flex: 0 1 calc(var(--sao-y) + 24px); min-height: 0; }
+  .hero-head { flex: none; display: flex; }
   .hero-copy {
     position: relative;
     z-index: 3;
