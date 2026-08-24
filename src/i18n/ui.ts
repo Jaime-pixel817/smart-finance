@@ -495,7 +495,6 @@ const en = {
   'reto.prog.best': 'Best streak',
   'reto.prog.days': 'Days played',
   'reto.prog.hits': 'Rounds nailed',
-  'reto.prog.days_unit': 'days',
   'reto.prog.of': 'of {n}',
   'reto.prog.empty': 'Nothing here yet. Play today’s challenge and this fills in on its own.',
   'reto.prog.local': 'This lives in this browser only: no account, and nothing about it is sent anywhere. Switching phone or clearing your browsing data starts it from zero, and that is the honest price of not asking you to sign up.',
@@ -505,7 +504,6 @@ const en = {
   'reto.prog.clear.no': 'Keep it',
   'reto.prog.cleared': 'Progress deleted. Nothing about the challenge is left in this browser.',
   'reto.cal.legend': 'One square per day. Filled in means you played; the stronger the colour, the more points you got.',
-  'reto.cal.aria': 'Calendar for {m}',
   'reto.cal.dows': 'M,T,W,T,F,S,S',
   'reto.cal.dows.full': 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
   'reto.cal.summary': 'This month you have played {n} of the {m} days that have gone by.',
@@ -534,8 +532,6 @@ const en = {
 
   // ---- Sharing ----
   'reto.share.note': 'What gets copied is the grid, your score, the date and your streak — and the link, so whoever opens it plays the same challenge. Nothing else about you leaves this browser.',
-  'reto.share.link': 'Copy the link to today’s challenge',
-  'reto.share.linked': 'Link copied',
 };
 
 const es: typeof en = {
@@ -1025,7 +1021,6 @@ const es: typeof en = {
   'reto.prog.best': 'Mejor racha',
   'reto.prog.days': 'Días jugados',
   'reto.prog.hits': 'Rondas clavadas',
-  'reto.prog.days_unit': 'días',
   'reto.prog.of': 'de {n}',
   'reto.prog.empty': 'Aquí todavía no hay nada. Juega el reto de hoy y esto se llena solo.',
   'reto.prog.local': 'Esto vive solo en este navegador: sin cuenta y sin que nada de esto salga a ningún lado. Si cambias de teléfono o borras los datos de navegación, empieza de cero, y ese es el precio honesto de no pedirte que te registres.',
@@ -1035,7 +1030,6 @@ const es: typeof en = {
   'reto.prog.clear.no': 'Mejor no',
   'reto.prog.cleared': 'Progreso borrado. En este navegador ya no queda nada del reto.',
   'reto.cal.legend': 'Un cuadrito por día. Relleno quiere decir que jugaste; mientras más fuerte el color, más puntos sacaste.',
-  'reto.cal.aria': 'Calendario de {m}',
   'reto.cal.dows': 'L,M,M,J,V,S,D',
   'reto.cal.dows.full': 'lunes,martes,miércoles,jueves,viernes,sábado,domingo',
   'reto.cal.summary': 'Este mes llevas {n} días jugados de los {m} que han pasado.',
@@ -1064,8 +1058,6 @@ const es: typeof en = {
 
   // ---- Compartir ----
   'reto.share.note': 'Lo que se copia es la cuadrícula, tu puntuación, la fecha y tu racha — y el enlace, para que quien lo abra juegue el mismo reto. Nada más tuyo sale de este navegador.',
-  'reto.share.link': 'Copiar el enlace del reto de hoy',
-  'reto.share.linked': 'Enlace copiado',
 };
 
 export type UIKey = keyof typeof en;

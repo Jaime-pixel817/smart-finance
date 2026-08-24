@@ -49,7 +49,7 @@ type Textos = {
   next: string; see: string; tips: string[]; you: string; random: string;
   labels: { low: string; mid: string; high: string; top: string };
   streak: string; streakOne: string; copied: string; copyFailed: string;
-  shareTitle: string; shareLine: string; shareFree: string; linked: string; copyLink: string;
+  shareTitle: string; shareLine: string; shareFree: string;
   challenged: string; asOf: string; doneToday: string; otherDay: string; otherToday: string;
   freeNew: string; how1: string; eyebrowDaily: string; eyebrowFree: string;
   why: { size: string; t1: string; t2: string; t3: string; t4: string; t0: string };
