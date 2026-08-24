@@ -39,15 +39,18 @@ const textos = Object.fromEntries(
 const rutas = { market: route('market', locale), compare: route('market.compare', locale), challenge: route('challenge', locale) };
 ---
 {avisos.length > 0 && (
-  <div id="sf-avisos" class="avisos" role="status"
-    data-pagina={pagina} data-route={routeId}
-    data-textos={JSON.stringify(textos)} data-rutas={JSON.stringify(rutas)}
-    data-cerrar={t('aviso.cerrar')}></div>
+  <Fragment>
+    <div id="sf-avisos" class="avisos" role="status"
+      data-pagina={pagina} data-route={routeId}
+      data-textos={JSON.stringify(textos)} data-rutas={JSON.stringify(rutas)}
+      data-cerrar={t('aviso.cerrar')}></div>
+    <!-- El <script> va DENTRO del condicional a propósito: así el home, /about
+         o /tools no piden un módulo que no van a usar. Fuera, se colaba en
+         todas las páginas del sitio (5 KB y una petición de más en el home,
+         que es la página que menos margen tiene). -->
+    <script src="../scripts/avisos.ts"></script>
+  </Fragment>
 )}
-<!-- El script se empaqueta por página en tiempo de build, así que va fuera del
-     condicional: donde no hay avisos no encuentra el div y se sale en la
-     primera línea, sin leer localStorage ni tocar nada. -->
-<script src="../scripts/avisos.ts"></script>
 
 <style>
   /* Flota sobre el contenido, POR ENCIMA de la barra de abajo y nunca sobre
@@ -63,7 +66,7 @@ const rutas = { market: route('market', locale), compare: route('market.compare'
   }
   .avisos:empty { display: none; }
   @media (min-width: 768px) {
-    .avisos { left: auto; right: var(--sp-5); bottom: var(--sp-5); padding-inline: 0; max-width: 380px; }
+    .avisos { left: auto; right: var(--sp-5); bottom: var(--sp-5); padding-inline: 0; max-width: 420px; }
   }
 </style>
 
@@ -93,6 +96,11 @@ const rutas = { market: route('market', locale), compare: route('market.compare'
   @keyframes aviso-in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .aviso { animation: none; } }
 
+  /* Siempre en dos filas —frase con su ✕ arriba, acción abajo a la izquierda—
+     y no en línea a partir de cierto ancho de VENTANA: la tarjeta mide lo
+     mismo (~360-420 px) en el teléfono y en el escritorio, así que el ancho de
+     la ventana no dice nada sobre lo que cabe aquí dentro. En línea, la frase
+     se partía en tres renglones para dejarle sitio al botón. */
   .aviso-txt { grid-column: 1; grid-row: 1; font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink); }
   .aviso-cta { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
   .aviso-x {
@@ -100,8 +108,4 @@ const rutas = { market: route('market', locale), compare: route('market.compare'
     display: inline-grid; place-items: center; border-radius: var(--r-btn); color: var(--ink-3);
   }
   .aviso-x:hover { background: var(--bg-2); color: var(--ink); }
-  @media (min-width: 600px) {
-    .aviso { grid-template-columns: 1fr auto 36px; align-items: center; }
-    .aviso-cta { grid-column: 2; grid-row: 1; }
-  }
 </style>

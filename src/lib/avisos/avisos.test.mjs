@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import {
   AVISOS, MAX_VISTAS, TOPE_ACTIVOS, LLAVE,
   tipoDePagina, idDeActivo, anterior,
-  estadoVacio, normalizar, cerrar, anotarVista, recordarActivo, disponible, elegir, avisosDe
+  estadoVacio, normalizar, cerrar, anotarVista, recordarActivo, disponible, elegir, casa, avisosDe
 } from './avisos.mjs';
 
 const RUTAS = { market: '/market', compare: '/market/compare', challenge: '/challenge' };
@@ -187,6 +187,18 @@ test('lección: glosario mientras haya términos; el reto solo al terminarla', (
 test('noticias: el aviso espera a que el índice haya pintado los chips', () => {
   assert.equal(elegir(ctx({ pagina: 'noticias' }), estadoVacio()), null);
   assert.equal(elegir(ctx({ pagina: 'noticias', hayChips: true }), estadoVacio()).id, 'noticias-chips');
+});
+
+test('casa: un aviso puesto deja de casar cuando lo que decía ya no está', () => {
+  const aviso = AVISOS.find((a) => a.id === 'noticias-chips');
+  // El índice pinta desde la caché (hay chips) y luego el endpoint contesta sin
+  // noticias: el motor usa esto para retirar el aviso en vez de dejarlo
+  // hablando de unas tarjetas que ya no existen.
+  assert.equal(casa(aviso, ctx({ pagina: 'noticias', hayChips: true })), true);
+  assert.equal(casa(aviso, ctx({ pagina: 'noticias', hayChips: false })), false);
+  // Y nunca casa fuera de su página.
+  assert.equal(casa(aviso, ctx({ pagina: 'mercado', hayChips: true })), false);
+  assert.equal(casa({ paginas: ['mercado'], cuando: () => { throw new Error('x'); } }, ctx({ pagina: 'mercado' })), false);
 });
 
 test('avisosDe reparte la lista real por página', () => {

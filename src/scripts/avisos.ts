@@ -20,7 +20,7 @@
 // al cerrarlo, vuelve a <main>, que no es un sitio sorpresa.
 import {
   AVISOS, LLAVE, idDeActivo, anterior,
-  normalizar, estadoVacio, recordarActivo, anotarVista, cerrar, elegir
+  normalizar, estadoVacio, recordarActivo, anotarVista, cerrar, elegir, casa
 } from '../lib/avisos/avisos.mjs';
 import { leer as leerWatchlist } from './watchlist';
 import { readProgress } from './lessons-progress';
@@ -63,8 +63,16 @@ function arrancar(raiz: HTMLElement) {
   }
 
   function revisar() {
-    if (puesto) return;
-    const aviso = elegir(contexto(), estado, AVISOS);
+    const ctx = contexto();
+    if (puesto) {
+      // Lo que decía puede haber dejado de estar en la pantalla (el índice de
+      // noticias pinta desde la caché y luego repinta con lo que conteste el
+      // endpoint). Se retira SIN darlo por cerrado: no lo leyó nadie.
+      const actual = AVISOS.find((a) => a.id === puesto!.dataset.aviso);
+      if (!actual || casa(actual, ctx)) return;
+      quitar(false);
+    }
+    const aviso = elegir(ctx, estado, AVISOS);
     if (aviso) mostrar(aviso);
   }
 
@@ -97,7 +105,10 @@ function arrancar(raiz: HTMLElement) {
       b.addEventListener('click', () => { descartar(aviso); });
       cta = b;
     }
-    cta.className = 'btn btn-primary btn-sm aviso-cta';
+    // Verde relleno solo cuando el botón LLEVA a algún sitio. Un "Entendido"
+    // que únicamente cierra no merece el color de marca: sería el elemento más
+    // llamativo de la pantalla para no hacer nada.
+    cta.className = 'btn btn-sm aviso-cta ' + (aviso.accion.tipo === 'enlace' ? 'btn-primary' : 'btn-ghost');
     cta.textContent = txt.accion;
 
     const x = document.createElement('button');

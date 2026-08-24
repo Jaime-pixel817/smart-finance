@@ -219,15 +219,27 @@ export function disponible(aviso, estado) {
 }
 
 /**
+ * ¿Este aviso viene a cuento AHORA MISMO? Se usa dos veces: para elegir el que
+ * sale y para comprobar que el que ya está puesto sigue teniendo sentido — el
+ * índice de noticias pinta desde la caché y luego repinta con lo que conteste
+ * el endpoint, y un aviso que habla de unas tarjetas que ya no están en la
+ * pantalla es justo el estorbo que este sistema vino a quitar.
+ *
+ * Una condición que reviente NO tumba la página: ese aviso simplemente no sale.
+ */
+export function casa(aviso, ctx) {
+  if (!aviso.paginas.includes(ctx.pagina)) return false;
+  try { return !!aviso.cuando(ctx); } catch { return false; }
+}
+
+/**
  * El aviso que toca enseñar, o null. Primero de la lista que case: la lista es
  * la prioridad y nunca sale más de uno.
  */
 export function elegir(ctx, estado, avisos = AVISOS) {
   for (const a of avisosDe(ctx.pagina, avisos)) {
     if (!disponible(a, estado)) continue;
-    let ok = false;
-    try { ok = !!a.cuando(ctx); } catch { ok = false; }
-    if (ok) return a;
+    if (casa(a, ctx)) return a;
   }
   return null;
 }
