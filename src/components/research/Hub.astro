@@ -1,12 +1,20 @@
 ---
-// /research y /es/research: qué es Smart Finance Research, el reporte
-// destacado, la lista de reportes, cómo se hace uno (resumen de metodología),
-// cómo se usa la IA, qué viene y el disclaimer educativo.
+// /research y /es/research: SMART FINANCE PROJECTS, los dos proyectos que
+// Jaime construye en público.
+//
+//   1. Equity research — el reporte destacado, la lista de reportes, cómo se
+//      hace uno, cómo se usa la IA, qué viene y su disclaimer educativo.
+//   2. Reto Actinver   — RetoActinver.astro, con la fase calculada por fecha.
+//
+// EL NOMBRE CAMBIÓ, LA RUTA NO: sigue siendo /research y /es/research porque
+// ya están indexadas y en el sitemap (ver src/i18n/research.ts). /projects y
+// /es/proyectos redirigen aquí desde vercel.json.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useR } from '../../i18n/research';
 import { REPORTS, loadReport, loadFinancials } from '../../lib/research/reports';
 import { day, billions } from '../../lib/research/format.mjs';
+import RetoActinver from './RetoActinver.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const r = useR(locale);
@@ -53,13 +61,33 @@ const revLine = locale === 'es'
       <p class="hub-lede">{r.lede}</p>
     </header>
 
+    <nav class="hub-sec proj-index" aria-labelledby="idx-h">
+      <h2 id="idx-h" class="t-h3">{r.indexH}</h2>
+      <ol class="proj-cards">
+        {r.projects.map((p, i) => (
+          <li class="card card-link proj-card">
+            <p class="eyebrow">{String(i + 1).padStart(2, '0')}</p>
+            <h3 class="t-h3"><a href={'#' + p.id}>{p.h} <span aria-hidden="true">↓</span></a></h3>
+            <p class="t-small muted">{p.p}</p>
+          </li>
+        ))}
+      </ol>
+    </nav>
+
+    <!-- ── Proyecto 1: equity research ──────────────────────────────── -->
+    <section id="equity-research" class="proj" aria-labelledby="er-h">
+      <div class="proj-intro">
+        <h2 id="er-h" class="t-h2 proj-h">{r.researchH}</h2>
+        <p class="proj-lede">{r.researchLede}</p>
+      </div>
+
     <section class="hub-sec" aria-labelledby="std-h">
-      <h2 id="std-h" class="t-h2">{r.standardsH}</h2>
+      <h3 id="std-h" class="t-h2">{r.standardsH}</h3>
       <ol class="std">
         {r.standards.map((s, i) => (
           <li class="card std-card">
             <p class="eyebrow">{String(i + 1).padStart(2, '0')}</p>
-            <h3 class="t-h3">{s.h}</h3>
+            <h4 class="t-h3">{s.h}</h4>
             <p class="t-small muted">{s.p}</p>
           </li>
         ))}
@@ -67,14 +95,14 @@ const revLine = locale === 'es'
     </section>
 
     <section class="hub-sec" aria-labelledby="feat-h">
-      <h2 id="feat-h" class="t-h2">{r.featuredH}</h2>
+      <h3 id="feat-h" class="t-h2">{r.featuredH}</h3>
       <a class="card card-link feat" href={L(featured.routeId)}>
         <p class="eyebrow">
           {featured.meta.exchange}: {featured.meta.ticker}
           <span aria-hidden="true"> · </span>
           <span class="feat-status">{r.status[(featured.meta.status || 'draft') as keyof typeof r.status]}</span>
         </p>
-        <h3 class="t-h1 feat-name">{featured.meta.name}</h3>
+        <h4 class="t-h1 feat-name">{featured.meta.name}</h4>
         <dl class="feat-meta t-caption">
           <div><dt>{r.hdr.dataAsOf}</dt><dd class="num">{day(featured.meta.dataAsOf, locale)}</dd></div>
           <div><dt>{r.hdr.version}</dt><dd class="num">{featured.meta.version}</dd></div>
@@ -89,7 +117,7 @@ const revLine = locale === 'es'
     </section>
 
     <section class="hub-sec" aria-labelledby="list-h">
-      <h2 id="list-h" class="t-h2">{r.reportsH}</h2>
+      <h3 id="list-h" class="t-h2">{r.reportsH}</h3>
       <div class="table-wrap">
         <table class="rep-table">
           <thead>
@@ -117,14 +145,14 @@ const revLine = locale === 'es'
     </section>
 
     <section class="hub-sec" aria-labelledby="meth-h">
-      <h2 id="meth-h" class="t-h2">{r.methodH}</h2>
+      <h3 id="meth-h" class="t-h2">{r.methodH}</h3>
       <p class="muted">{r.methodLede}</p>
       <ol class="steps">
         {r.method.map((m, i) => (
           <li>
             <span class="step-n num" aria-hidden="true">{i + 1}</span>
             <div>
-              <h3 class="t-h3">{m.h}</h3>
+              <h4 class="t-h3">{m.h}</h4>
               <p class="t-small muted">{m.p}</p>
             </div>
           </li>
@@ -134,20 +162,24 @@ const revLine = locale === 'es'
     </section>
 
     <section class="hub-sec" aria-labelledby="ai-h">
-      <h2 id="ai-h" class="t-h2">{r.aiH}</h2>
+      <h3 id="ai-h" class="t-h2">{r.aiH}</h3>
       <p>{r.aiP}</p>
     </section>
 
     <section class="hub-sec" aria-labelledby="next-h">
-      <h2 id="next-h" class="t-h2">{r.nextH}</h2>
+      <h3 id="next-h" class="t-h2">{r.nextH}</h3>
       <ul class="dot-list">{r.next.map((n) => <li>{n}</li>)}</ul>
     </section>
 
     <section class="hub-sec" aria-labelledby="disc-h">
-      <h2 id="disc-h" class="t-h3">{r.disclaimerH}</h2>
+      <h3 id="disc-h" class="t-h3">{r.disclaimerH}</h3>
       <p class="t-small muted">{r.disclaimer}</p>
       <p class="t-small"><a class="more-link" href={L('portfolio')}>{r.positionsLink} →</a></p>
     </section>
+    </section>
+
+    <!-- ── Proyecto 2: el Reto Actinver ─────────────────────────────── -->
+    <RetoActinver locale={locale} />
   </div>
 </article>
 
@@ -158,6 +190,26 @@ const revLine = locale === 'es'
   .hub-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
   .hub-sec { display: flex; flex-direction: column; gap: var(--sp-3); scroll-margin-top: calc(var(--topbar-h) + 8px); }
   .hub-sec > p { max-width: var(--measure); }
+
+  /* Los dos proyectos. Cada uno es una sección con su h2 y dentro sus
+     subsecciones con h3, así que el orden de encabezados de la página es
+     h1 → h2 (proyecto) → h3 (apartado) → h4 (tarjeta) sin saltos. */
+  .proj { display: flex; flex-direction: column; gap: var(--section-gap); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+  .proj-intro { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .proj-h { padding-top: var(--sp-3); border-top: 2px solid var(--ink); }
+  .proj-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
+
+  .proj-index { gap: var(--sp-3); }
+  .proj-cards { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .proj-cards { grid-template-columns: 1fr 1fr; } }
+  .proj-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .proj-card a { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
+  .proj-card a:hover { color: var(--brand-text); }
+  /* La tarjeta entera es el objetivo del enlace, pero el <a> se queda dentro
+     del h3 para que un lector de pantalla lo anuncie como el encabezado que
+     es (y no como una tarjeta con texto suelto detrás). */
+  .proj-card a::after { content: ''; position: absolute; inset: 0; }
+  .proj-card { position: relative; }
 
   .std { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
   @media (min-width: 768px) { .std { grid-template-columns: repeat(3, 1fr); } }

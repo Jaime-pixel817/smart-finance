@@ -85,9 +85,19 @@ export const ROUTES: RouteEntry[] = [
   // cada día es la partida, que se arma en el navegador con /api/history.
   { id: 'challenge', en: '/challenge', es: '/es/reto', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.8' },
   { id: 'community', en: '/community', es: '/es/comunidad', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.6' },
-  // Research: /research es marca y se usa igual en los dos idiomas (como
-  // "Smart Finance Research"); lo que cambia es el idioma del contenido.
-  { id: 'research', en: '/research', es: '/es/research', lastmod: '2026-08-22', changefreq: 'weekly', priority: '0.8' },
+  // SMART FINANCE PROJECTS: equity research arriba y el Reto Actinver debajo.
+  // La ruta se usa igual en los dos idiomas (el nombre de la sección es marca,
+  // no una palabra que se traduzca); lo que cambia es el idioma del contenido.
+  //
+  // EL ID Y LA URL SIGUEN SIENDO 'research'. La sección se llamaba "Smart
+  // Finance Research" y ahora se llama "Smart Finance Projects", pero /research
+  // y /research/<empresa> ya están indexadas y en el sitemap, y renombrarlas
+  // por un cambio de rótulo tira a la basura lo que Google ya sabe del sitio.
+  // El id identifica el URL, no el rótulo: el rótulo vive en 'nav.projects'
+  // (src/i18n/ui.ts). /projects y /es/proyectos existen solo como redirección
+  // permanente hacia aquí (vercel.json), no como páginas: dos URL sirviendo el
+  // mismo contenido es exactamente lo que un canonical evita.
+  { id: 'research', en: '/research', es: '/es/research', lastmod: '2026-08-23', changefreq: 'weekly', priority: '0.8' },
   { id: 'research.lululemon', en: '/research/lululemon', es: '/es/research/lululemon', lastmod: '2026-08-22', changefreq: 'monthly', priority: '0.7' },
   // Las dos carteras. /actinver cambia todos los días hábiles mientras dure el
   // reto (5-oct → 13-nov de 2026), porque la foto nocturna le escribe un punto

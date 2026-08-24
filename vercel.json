@@ -55,6 +55,26 @@
   ],
   "redirects": [
     {
+      "source": "/projects",
+      "destination": "/research",
+      "permanent": true
+    },
+    {
+      "source": "/projects/:path*",
+      "destination": "/research/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/es/proyectos",
+      "destination": "/es/research",
+      "permanent": true
+    },
+    {
+      "source": "/es/proyectos/:path*",
+      "destination": "/es/research/:path*",
+      "permanent": true
+    },
+    {
       "source": "/articles/tipo-de-cambio",
       "destination": "/lessons/peso-tipo-de-cambio",
       "permanent": true

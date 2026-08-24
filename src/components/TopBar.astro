@@ -1,6 +1,6 @@
 ---
 // Barra superior: wordmark · (escritorio) Hoy · Mercados · Noticias · Aprende ·
-// Herramientas · Reto · Research · Más · EN/ES · tema · Boletín. En móvil solo
+// Herramientas · Reto · Proyectos · Más · EN/ES · tema · Boletín. En móvil solo
 // wordmark, idioma, tema y buscar; los destinos van en BottomNav.
 import type { Locale } from '../i18n/routes';
 import { route, otherLocale } from '../i18n/routes';
@@ -24,7 +24,7 @@ const links: { id: string; href: string; label: string; wide?: boolean }[] = [
   // destino (se sale ~91 px en producción a 768) y meterlo ahí lo empeoraba.
   // En tablet se llega al reto por /herramientas, el pie y el buscador.
   { id: 'challenge', href: route('challenge', locale), label: t('nav.challenge'), wide: true },
-  { id: 'research', href: route('research', locale), label: t('nav.research') }
+  { id: 'research', href: route('research', locale), label: t('nav.projects') }
 ];
 // Menú "Más": los destinos que no caben en la barra. Es un <details>, así que
 // abre, cierra y navega con el teclado sin una línea de JavaScript; el script

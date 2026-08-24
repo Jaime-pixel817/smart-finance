@@ -227,3 +227,19 @@ test('footballField: filas sin datos salen como "pendiente" y la marca de precio
 test('footballField: sin ninguna fila con datos no dibuja nada', () => {
   assert.equal(footballField({ rows: [{ label: 'a', low: NaN, high: NaN }] }), '');
 });
+
+// --- El nombre de la sección ------------------------------------------------
+// La sección se renombró a "Smart Finance Projects" y el `isPartOf` de cada
+// reporte se quedó diciendo "Smart Finance Research": dos nombres para el
+// MISMO URL en el JSON-LD del sitio. Esto lo vigila leyendo los ficheros como
+// texto porque son TypeScript y `node --test` no los importa.
+test('el hub y el isPartOf de los reportes le dan UN solo nombre a /research', () => {
+  const lee = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
+  const nombre = (txt) => (txt.match(/'@type': 'CollectionPage',\s*\n?\s*name: '([^']+)'/) || [])[1];
+  const hubEn = nombre(lee('../../pages/research.astro'));
+  const hubEs = nombre(lee('../../pages/es/research.astro'));
+  const reporte = (lee('./jsonld.ts').match(/'@type': 'CollectionPage', name: '([^']+)'/) || [])[1];
+  assert.equal(hubEn, 'Smart Finance Projects');
+  assert.equal(hubEs, hubEn); // es un nombre propio: no se traduce
+  assert.equal(reporte, hubEn);
+});

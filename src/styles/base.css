@@ -29,7 +29,20 @@ a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--r-input); }
+/* EL ANILLO DE FOCO VA EN `outline`, NO EN `box-shadow`.
+   Estuvo en box-shadow y lo borraba en silencio cualquier regla POSTERIOR que
+   pusiera sombra: `.card` (más abajo en este mismo fichero) y `.tile` de
+   Home.astro. Con la misma especificidad gana la última, y las scoped de Astro
+   además valen más (`.tile[data-astro-cid-…]`), así que una tarjeta o un
+   mosaico enfocados con Tab se quedaban SIN NADA: medido en el navegador con
+   un Tab de verdad, `:focus-visible` daba true y `outline-style: none` con
+   `box-shadow: none` en oscuro (--shadow-1 es `none`) y, en claro, la misma
+   sombra de reposo, byte a byte. Secciones enteras se navegaban a ciegas.
+   `outline` es la propiedad que nadie más toca aquí, no la puede tapar una
+   sombra nueva de un componente futuro, y ocupa lo mismo que ocupaba el
+   anillo (2 px de hueco + 2 px de color). --focus-ring sigue vivo para los
+   pocos sitios que declaran el suyo con `outline: none` a propósito. */
+:focus-visible { outline: 2px solid var(--brand-text); outline-offset: 2px; border-radius: var(--r-input); }
 ::selection { background: var(--brand-wash); }
 
 /* ---- Tipografía de rol ---- */
