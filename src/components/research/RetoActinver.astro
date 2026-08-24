@@ -1,0 +1,203 @@
+---
+// El bloque del RETO ACTINVER dentro de /research (Smart Finance Projects).
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LA FASE NO ESTÁ ESCRITA EN NINGÚN SITIO: SE CALCULA
+// ═══════════════════════════════════════════════════════════════════════════
+// Aquí se pintan las SEIS fases del reto y se esconden cinco. La que queda a la
+// vista la elige `fase()` de src/lib/reto/actinver.mjs con la fecha de hoy en
+// Ciudad de México, y src/scripts/reto-fase.ts la vuelve a elegir en el
+// navegador con el reloj de quien lee.
+//
+// Por qué las dos veces: el sitio es estático, así que sin el script la página
+// se quedaría diciendo lo que fuera verdad el día del build — y este bloque se
+// escribió el 23 de agosto de 2026, cuando faltaban 36 días para la semana de
+// práctica. Sin el script, en octubre seguiría diciendo "faltan 36 días".
+// Y sin el pintado del servidor, quien llegue sin JavaScript no vería fase
+// ninguna. Con los dos, la página nunca dice algo falso.
+//
+// El calendario y el millón virtual salen de retoactinver.com con su fecha de
+// consulta (está en el módulo). Ninguna fecha se escribe a mano en este
+// archivo ni en src/i18n/research.ts.
+//
+// MARCA DE UN TERCERO: el logo va pequeño, al lado del nombre del concurso y
+// con la línea de "no estamos afiliados" en el mismo bloque. Es blanco con el
+// punto dorado —así lo publica Actinver, para fondo oscuro— y por eso va sobre
+// una placa oscura FIJA en los dos temas: recolorear una marca ajena para que
+// encaje en el tema claro sería deformarla.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import { foto } from '../../lib/photos';
+import { day } from '../../lib/research/format.mjs';
+import { RETO_2026, FASES, fase, estadoHitos, fechaLocal } from '../../lib/reto/actinver.mjs';
+
+const { locale } = Astro.props as { locale: Locale };
+const r = useR(locale);
+const cal = RETO_2026;
+
+// Lo que sabe el SERVIDOR: el día del build. El navegador lo recalcula.
+const hoy = fechaLocal();
+const actual = fase(hoy, cal);
+const hitos = estadoHitos(hoy, cal);
+
+const D = (iso: string) => day(iso, locale);
+const rango = (t: { desde: string; hasta: string }) => D(t.desde) + ' – ' + D(t.hasta);
+
+// El hito que le toca a cada fase: es a lo que apunta la cuenta atrás.
+const HITO_DE: Record<string, keyof typeof r.retoCuenta | null> = {
+  antes: 'inscripciones', inscripciones: 'practica', practica: 'reto',
+  vispera: 'reto', reto: 'cierre', resultados: null
+};
+
+/** La plantilla de la cuenta atrás partida en dos por su {n}. */
+function partes(clave: keyof typeof r.retoCuenta) {
+  const [antes, despues] = r.retoCuenta[clave].split('{n}');
+  return { antes, despues: despues ?? '' };
+}
+
+const dias = (n: number) => n + ' ' + (n === 1 ? r.retoDay : r.retoDays);
+
+// Renglones del calendario. `premiacion` no tiene rango porque Actinver solo
+// publica el mes y el lugar; no se le inventa un día.
+const filas = [
+  { id: 'inscripciones', cuando: rango(cal.inscripciones) },
+  { id: 'practica', cuando: rango(cal.practica) },
+  { id: 'reto', cuando: rango(cal.reto) },
+  { id: 'premiacion', cuando: r.retoPremiacion }
+] as { id: keyof typeof r.retoCal; cuando: string }[];
+
+// Textos que el script necesita para reescribir la cuenta atrás sin volver a
+// traducir nada: van en un data-, no repetidos dentro del JavaScript.
+const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
+---
+<section id="reto-actinver" class="proj" aria-labelledby="reto-h">
+  <div class="reto-head">
+    <span class="marca">
+      <img src={foto('reto-actinver.webp')} alt={r.retoLogoAlt} width="182" height="108" loading="lazy" decoding="async" />
+    </span>
+    <div class="reto-head-txt">
+      <p class="eyebrow">{r.retoEdition}</p>
+      <h2 id="reto-h" class="t-h2">{r.retoH}</h2>
+    </div>
+  </div>
+  <p class="proj-lede">{r.retoLede}</p>
+
+  <!-- Cómo va hoy. Las seis fases van pintadas; el script deja una. -->
+  <div class="card reto-estado" data-reto data-reto-textos={textosScript}>
+    <h3 class="t-h3">{r.retoNow}</h3>
+    {FASES.map((f: string) => {
+      const hito = HITO_DE[f];
+      const p = hito ? partes(hito) : null;
+      const esta = f === actual.id;
+      return (
+        <div class="fase" data-fase={f} hidden={!esta}>
+          <p class:list={['chip', 'fase-chip', 'f-' + f]}>{r.retoFase[f as keyof typeof r.retoFase]}</p>
+          <p class="t-small">{r.retoEstado[f as keyof typeof r.retoEstado]}</p>
+          {p && hito && (
+            <p class="cuenta" data-cuenta>
+              <span>{p.antes}</span><b class="num" data-dias>{dias(esta && actual.faltan !== null ? actual.faltan : 0)}</b><span>{p.despues}</span>
+            </p>
+          )}
+          {hito && (
+            <p class="cuenta" data-cuenta-hoy hidden={!(esta && actual.faltan === 0)}>{r.retoCuentaHoy[hito]}</p>
+          )}
+          {(f === 'practica' || f === 'vispera') && (
+            <p class="t-caption muted" data-abiertas hidden={!(esta && actual.inscripciones)}>{r.retoStillOpen}</p>
+          )}
+        </div>
+      );
+    })}
+  </div>
+
+  <!-- Qué es -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoWhatH}</h3>
+    <p>{r.retoWhat}</p>
+  </div>
+
+  <!-- El calendario -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoCalH}</h3>
+    <p class="t-small muted">{r.retoCalP}</p>
+    <ol class="cal">
+      {filas.map((fila) => (
+        <li data-hito={fila.id} data-estado={hitos[fila.id]}>
+          <span class="cal-dot" aria-hidden="true"></span>
+          <span class="cal-que">{r.retoCal[fila.id]}</span>
+          <span class="cal-cuando num">{fila.cuando}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <!-- A dónde ir -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoLinksH}</h3>
+    <div class="reto-links">
+      <a class="card card-link" href={cal.sitio} target="_blank" rel="noopener nofollow">
+        <span class="t-h3">{r.retoSite} <span aria-hidden="true">↗</span></span>
+        <span class="t-small muted">{r.retoSiteNote}</span>
+      </a>
+      <a class="card card-link" href={route('actinver', locale)}>
+        <span class="t-h3">{r.retoMine} <span aria-hidden="true">→</span></span>
+        <span class="t-small muted">{r.retoMineNote}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Fuente y no afiliación -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoSourceH}</h3>
+    <p class="t-small muted">
+      {r.retoSourceP.replace('{d}', D(cal.fuente.consultada))}
+    </p>
+    <h3 class="t-h3">{r.retoDiscH}</h3>
+    <p class="t-small muted">{r.retoDisc}</p>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/reto-fase';
+</script>
+
+<style>
+  .reto-head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+  .reto-head-txt { display: flex; flex-direction: column; gap: 2px; }
+  /* Placa oscura FIJA en los dos temas: el logo de Actinver es blanco con el
+     punto dorado y está hecho para fondo oscuro. Recolorearlo sería deformar
+     una marca ajena, y sobre el tema claro a pelo no se vería. */
+  .marca { display: inline-flex; align-items: center; justify-content: center; background: #111820; border: 1px solid #232c38; border-radius: var(--r-btn); padding: 8px 12px; flex: none; }
+  .marca img { display: block; width: auto; height: 34px; }
+
+  .proj-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
+  .reto-sub { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .reto-sub > p { max-width: var(--measure); }
+
+  .reto-estado { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .fase { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
+  .fase[hidden] { display: none; }
+  .fase-chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+  .fase-chip.f-inscripciones, .fase-chip.f-practica, .fase-chip.f-vispera { color: var(--warn); }
+  .fase-chip.f-reto { color: var(--up-text); }
+  .cuenta { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink); }
+  .cuenta[hidden] { display: none; }
+  .cuenta b { font-weight: 600; white-space: nowrap; }
+
+  .cal { display: flex; flex-direction: column; gap: 0; margin-top: var(--sp-2); }
+  .cal li { display: grid; grid-template-columns: 14px 1fr; gap: var(--sp-2) var(--sp-3); align-items: baseline; padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+  .cal-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); align-self: center; justify-self: center; }
+  .cal-que { color: var(--ink-2); }
+  .cal-cuando { grid-column: 2; color: var(--ink-3); font-size: var(--fs-small); }
+  .cal li[data-estado="ahora"] .cal-dot { background: var(--brand-text); box-shadow: 0 0 0 4px var(--brand-wash); }
+  .cal li[data-estado="ahora"] .cal-que { color: var(--ink); font-weight: 600; }
+  .cal li[data-estado="pasado"] .cal-que, .cal li[data-estado="pasado"] .cal-cuando { color: var(--ink-3); }
+  @media (min-width: 560px) {
+    .cal li { grid-template-columns: 14px 1fr auto; }
+    .cal-cuando { grid-column: 3; text-align: right; }
+  }
+
+  .reto-links { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .reto-links { grid-template-columns: 1fr 1fr; } }
+  .reto-links a { display: flex; flex-direction: column; gap: 4px; }
+</style>

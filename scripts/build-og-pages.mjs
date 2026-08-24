@@ -518,6 +518,17 @@ const TARJETAS_FIJAS = [
       pie: 'Visitas a la BMV · Pláticas · Voluntariados' }
   },
   {
+    // El hub de la sección. Se llama 'research' como su ruta (/research), que
+    // no cambió al renombrarla a Smart Finance Projects.
+    nombre: 'research',
+    en: { etiqueta: 'Projects', titular: 'Equity research and a stock-market contest',
+      bajada: 'Two projects built in the open: reports with every figure from a filing, and a contest played with a million virtual pesos.',
+      pie: 'Sources cited · Assumptions written out · Not advice' },
+    es: { etiqueta: 'Proyectos', titular: 'Equity research y un concurso de bolsa',
+      bajada: 'Dos proyectos hechos a la vista: reportes con cada cifra sacada de un filing, y un concurso que se juega con un millón de pesos virtuales.',
+      pie: 'Fuentes citadas · Supuestos escritos · No es asesoría' }
+  },
+  {
     nombre: 'actinver',
     en: { etiqueta: 'Actinver Challenge', titular: 'A contest portfolio, position by position',
       bajada: 'A student stock-market contest played with fictional money, with the thesis behind every position.',

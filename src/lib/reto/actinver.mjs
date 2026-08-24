@@ -77,6 +77,34 @@ export function fechaLocal(d = new Date(), zona = 'America/Mexico_City') {
   return new Intl.DateTimeFormat('en-CA', { timeZone: zona, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 }
 
+/** Los cuatro renglones del calendario, en el orden en que se pintan. */
+export const HITOS = ['inscripciones', 'practica', 'reto', 'premiacion'];
+
+/**
+ * Cómo va cada renglón del calendario ese día: 'pasado' | 'ahora' | 'futuro'.
+ *
+ * Va por FECHAS y no por la fase, a propósito: el 3 y el 4 de octubre la fase
+ * es 'vispera' (ni práctica ni reto) pero las inscripciones SIGUEN abiertas, y
+ * ese renglón tiene que decir "ahora". Con un mapa fase → renglón, esos dos
+ * días el calendario se quedaría sin nada marcado o marcaría el renglón
+ * equivocado.
+ *
+ * @param {string} hoy 'AAAA-MM-DD'
+ * @returns {Record<string, 'pasado'|'ahora'|'futuro'>}
+ */
+export function estadoHitos(hoy, cal = RETO_2026) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(hoy))) throw new Error('estadoHitos: hace falta una fecha AAAA-MM-DD, llegó ' + hoy);
+  const tramo = ({ desde, hasta }) => (hoy < desde ? 'futuro' : hoy > hasta ? 'pasado' : 'ahora');
+  return {
+    inscripciones: tramo(cal.inscripciones),
+    practica: tramo(cal.practica),
+    reto: tramo(cal.reto),
+    // La premiación solo tiene mes publicado: es "ahora" el mes entero y nunca
+    // pasa a "pasado", porque no hay día de cierre que se pueda comprobar.
+    premiacion: hoy.slice(0, 7) < cal.premiacion.mes ? 'futuro' : 'ahora'
+  };
+}
+
 /** Días enteros de `desde` a `hasta`, las dos 'AAAA-MM-DD'. Negativo si `hasta` ya pasó. */
 export function diasEntre(desde, hasta) {
   const a = Date.parse(desde + 'T00:00:00Z');

@@ -239,6 +239,39 @@ console.log('Jaime');
   }
 }
 
+/* ── Marcas de terceros ────────────────────────────────────────────────────
+ *
+ * El logo del RETO ACTINVER, para el bloque del reto en /research (Smart
+ * Finance Projects). Es marca de un tercero y va como REFERENCIA al evento:
+ * pequeño, junto al nombre del reto, con la línea de "no estamos afiliados"
+ * al lado. Ni se recorta ni se recolorea ni se le quita nada — se publica tal
+ * como lo publica Actinver, solo reencodeado y con huella.
+ *
+ * ORIGEN: https://www.retoactinver.com, el logo de su propia cabecera
+ * (/documents/d/reto-actinver/logoretoactinver_white-1), bajado el 23 de
+ * agosto de 2026. Es blanco con el punto dorado sobre la i, pensado para ir
+ * sobre fondo oscuro; por eso la página lo pone sobre una placa oscura fija en
+ * los dos temas, que es como se ve en su propio sitio. Recolorearlo para que
+ * funcione en tema claro sería deformar una marca ajena.
+ *
+ * Pasa por aquí y no se copia a pelo a public/ por la misma razón que las
+ * fotos: /assets/fotos/ se sirve con `immutable` un año, así que todo lo que
+ * vive ahí lleva huella de contenido por construcción. */
+{
+  const src = p('public/assets/marcas/reto-actinver-original.webp');
+  if (!fs.existsSync(src)) {
+    console.log('marcas: no está public/assets/marcas/reto-actinver-original.webp — me la salto');
+  } else {
+    const g = await sharp(src).metadata();
+    console.log('marcas de terceros (sin recortar, sin recolorear)');
+    // Sin resize: 182x108 es el tamaño en que Actinver lo publica y la página
+    // lo enseña a 36 px de alto, o sea que ya va a 3x. Reescalar solo perdería.
+    const buf = await sharp(src).webp({ quality: 90, alphaQuality: 100 }).toBuffer();
+    const archivo = publicar('reto-actinver.webp', buf);
+    console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   ' + g.width + 'x' + g.height + ' (tal cual)');
+  }
+}
+
 /* ── Huérfanas y manifiesto ────────────────────────────────────────────────
  * Con huella, cambiar una foto deja el archivo viejo en la carpeta para
  * siempre. Aquí se barre: lo que no se acaba de escribir, fuera. Si el script

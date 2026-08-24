@@ -1,24 +1,35 @@
 ---
-// /es/research — hub de Smart Finance Research (español). La ruta se llama
-// igual en los dos idiomas porque "Research" es el nombre de la sección.
+// /es/research — hub de SMART FINANCE PROJECTS (español): equity research
+// arriba y el Reto Actinver debajo. La ruta se llama igual en los dos idiomas
+// porque "Smart Finance Projects" es el nombre de la sección, no una palabra
+// que se traduzca; lo que cambia es el idioma del contenido.
+//
+// LA RUTA NO CAMBIA con el cambio de nombre: sigue siendo /es/research porque
+// ya está indexada y en el sitemap. /es/proyectos redirige aquí (vercel.json).
 import Base from '../../layouts/Base.astro';
 import Hub from '../../components/research/Hub.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 import { useR } from '../../i18n/research';
 const r = useR('es');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'Smart Finance Research',
+  name: 'Smart Finance Projects',
   description: r.hubDesc,
   url: SITE + '/es/research',
   inLanguage: 'es-MX',
-  dateModified: '2026-08-22',
+  dateModified: '2026-08-23',
   isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  hasPart: [
+    { '@type': 'CreativeWork', name: 'Equity research', url: SITE + '/es/research#equity-research' },
+    { '@type': 'CreativeWork', name: 'Reto Actinver', url: SITE + '/es/research#reto-actinver' }
+  ],
   author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/es/acerca' },
   publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
 };
 ---
-<Base locale="es" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}>
+<Base locale="es" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}
+  ogImage={ogPropia('research', 'es')} ogImageAlt="Smart Finance Projects — equity research y el Reto Actinver">
   <Hub locale="es" />
 </Base>

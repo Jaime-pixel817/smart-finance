@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { RETO_2026, FASES, fase, diasEntre, fechaLocal, inscripcionesAbiertas } from './actinver.mjs';
+import { RETO_2026, FASES, HITOS, fase, estadoHitos, diasEntre, fechaLocal, inscripcionesAbiertas } from './actinver.mjs';
 
 test('el calendario es el que publica retoactinver.com', () => {
   assert.equal(RETO_2026.inscripciones.desde, '2026-07-27');
@@ -106,6 +106,35 @@ test('una fecha mal escrita se cae en vez de enseñar la fase equivocada', () =>
   assert.throws(() => fase(undefined), /AAAA-MM-DD/);
   assert.throws(() => diasEntre('2026-08-23', 'mañana'), /AAAA-MM-DD/);
   assert.throws(() => fechaLocal(new Date('nada')), /fecha válida/);
+});
+
+test('el calendario marca el renglón que está corriendo hoy', () => {
+  assert.deepEqual(estadoHitos('2026-08-23'),
+    { inscripciones: 'ahora', practica: 'futuro', reto: 'futuro', premiacion: 'futuro' });
+  assert.deepEqual(estadoHitos('2026-09-30'),
+    { inscripciones: 'ahora', practica: 'ahora', reto: 'futuro', premiacion: 'futuro' });
+  assert.deepEqual(estadoHitos('2026-10-20'),
+    { inscripciones: 'pasado', practica: 'pasado', reto: 'ahora', premiacion: 'futuro' });
+  assert.deepEqual(estadoHitos('2026-12-10'),
+    { inscripciones: 'pasado', practica: 'pasado', reto: 'pasado', premiacion: 'ahora' });
+});
+
+test('el 3 y el 4 de octubre el calendario sigue marcando las inscripciones', () => {
+  // La razón de que estadoHitos vaya por fechas y no por fase: esos dos días
+  // la fase es 'vispera' pero las inscripciones siguen abiertas hasta el 4.
+  for (const d of ['2026-10-03', '2026-10-04']) {
+    assert.equal(fase(d).id, 'vispera');
+    assert.equal(estadoHitos(d).inscripciones, 'ahora');
+    assert.equal(estadoHitos(d).practica, 'pasado');
+    assert.equal(estadoHitos(d).reto, 'futuro');
+  }
+  // El 5 ya no.
+  assert.equal(estadoHitos('2026-10-05').inscripciones, 'pasado');
+});
+
+test('estadoHitos devuelve exactamente los renglones de HITOS', () => {
+  assert.deepEqual(Object.keys(estadoHitos('2026-08-23')).sort(), [...HITOS].sort());
+  assert.throws(() => estadoHitos('agosto'), /AAAA-MM-DD/);
 });
 
 test('FASES lista todas las fases que puede devolver fase()', () => {

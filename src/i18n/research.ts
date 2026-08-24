@@ -1,20 +1,42 @@
-// Textos EN/ES de /research y /research/<empresa>. Van aquí y no en ui.ts
-// porque son párrafos largos de una sola sección, como hace
-// src/components/about/Methodology.astro con los suyos.
+// Textos EN/ES de /research —que en pantalla se llama SMART FINANCE PROJECTS—
+// y de /research/<empresa>. Van aquí y no en ui.ts porque son párrafos largos
+// de una sola sección, como hace src/components/about/Methodology.astro con
+// los suyos.
+//
+// EL NOMBRE CAMBIÓ, LA RUTA NO. La sección se llamaba "Smart Finance Research"
+// y ahora es "Smart Finance Projects", con el equity research arriba y el Reto
+// Actinver debajo. Las URL siguen siendo /research y /research/<empresa>
+// (/es/research, /es/research/<empresa>): ya están indexadas y en el sitemap, y
+// cambiarlas por un cambio de nombre tiraría a la basura lo que Google ya sabe
+// del sitio. /projects y /es/proyectos existen como alias que redirigen
+// (vercel.json). El id de ruta en src/i18n/routes.ts sigue siendo 'research'
+// porque identifica el URL, no el rótulo.
 //
 // LÍMITE DE AUTORÍA: en este fichero NO hay una sola frase de análisis sobre
 // ninguna empresa. Solo se describe la página, el proceso y lo que significa
 // cada dato. La tesis, los supuestos, los riesgos y las conclusiones los
 // escribe Jaime en content/research/<empresa>/model.json.
+//
+// EL RETO ACTINVER es un evento de un tercero. Aquí solo se describe lo que
+// Actinver publica en su propio sitio, con la fecha en que se consultó; el
+// calendario y la fase viven en src/lib/reto/actinver.mjs, con pruebas, y NO
+// se escriben a mano en ningún texto de este archivo.
 import type { Locale } from './routes';
 
 const en = {
   // ---- Hub ----
-  hubTitle: 'Smart Finance Research: equity research built in public — Smart Finance',
-  hubDesc: 'Equity research written by a student and held to an analyst’s standards: every figure taken from SEC filings, every assumption with a written reason, and a DCF you can move in your browser.',
-  eyebrow: 'Research',
-  h1: 'Smart Finance Research',
-  lede: 'Equity research written by a student, held to an analyst’s standards, and built in public. Every figure links to the filing it came from. Every assumption waits for the reason its author writes for it.',
+  hubTitle: 'Smart Finance Projects: equity research and the Actinver Challenge — Smart Finance',
+  hubDesc: 'The two projects Jaime builds in public: equity research with every figure taken from SEC filings and a DCF you can move, and the Actinver Challenge, a stock-market contest played with a million virtual pesos.',
+  eyebrow: 'Projects',
+  h1: 'Smart Finance Projects',
+  lede: 'Two projects, built in the open and to the same standard: nothing goes on the page before the reason behind it is written, and nothing is claimed that a source cannot back. One is equity research. The other is a stock-market contest played with fictional money.',
+  indexH: 'On this page',
+  projects: [
+    { id: 'equity-research', h: 'Equity research', p: 'Analyst-style reports on listed companies. Every figure comes from a filing with the SEC; every assumption waits for the reason its author writes for it.' },
+    { id: 'reto-actinver', h: 'Actinver Challenge', p: 'A six-week stock-market contest run by Actinver, played with a million virtual pesos on the Mexican exchange. My positions and the reason for each one go up as I open them.' }
+  ],
+  researchH: 'Equity research',
+  researchLede: 'Equity research written by a student, held to an analyst’s standards, and built in public. Every figure links to the filing it came from. Every assumption waits for the reason its author writes for it.',
   standardsH: 'The three rules',
   standards: [
     { h: 'Primary sources only', p: 'The numbers come from filings with the U.S. Securities and Exchange Commission — 10-K, 10-Q, 8-K — pulled from EDGAR and compared line by line against the document. The comparison itself is published in the repository.' },
@@ -57,8 +79,73 @@ const en = {
   disclaimer: 'These reports are a student’s work, published to learn in the open. They are not financial, investment or tax advice, and they are not a recommendation to buy or sell anything. Whether the author holds a position in a company he covers is declared on the report itself, and every position he holds is published on the portfolio page. Verify every figure at its source before deciding anything.',
   positionsLink: 'Where my own positions are published',
 
+  // ---- Reto Actinver ----------------------------------------------------
+  // Todo lo de aquí describe un evento de un TERCERO. Las fechas, el millón
+  // virtual y el lugar de la premiación salen de retoactinver.com y están en
+  // src/lib/reto/actinver.mjs con su fecha de consulta; ninguna se repite
+  // escrita a mano en estas cadenas, para que no puedan quedar desfasadas.
+  retoH: 'Actinver Challenge',
+  retoEdition: '2026 edition',
+  retoLede: 'A contest run by Actinver, not by Smart Finance. It hands every entrant the same million virtual pesos and lets them invest it on the Mexican stock exchange in real time for six weeks. I am playing it, and every position I open goes up with the reason I opened it.',
+  retoWhatH: 'What it is',
+  retoWhat: 'In Actinver’s own words, a simulator with one million virtual pesos to learn to invest on the Mexican stock exchange (BMV) in real time. The money is fictional — Actinver calls it “actipesos” and says outright that it is not legal tender — so nothing is bought, nothing is sold and nothing can be cashed in. Each entrant’s portfolio competes against everyone else’s.',
+  retoCalH: 'The 2026 calendar',
+  retoCalP: 'Actinver’s published dates. The phase you see marked is not written into this page: it is worked out from today’s date in Mexico City, so it stays right whether you read this in August or in November.',
+  retoCal: {
+    inscripciones: 'Registration',
+    practica: 'Practice week',
+    reto: 'The contest',
+    premiacion: 'Prizegiving'
+  },
+  retoPremiacion: 'December 2026, at the Mexican stock exchange',
+  retoNow: 'Where it stands today',
+  // Un estado por fase. Los pinta todos el servidor y el navegador enseña el
+  // que toca (src/scripts/reto-fase.ts), así que aquí no hay ninguna frase que
+  // dependa del día en que se hizo el build.
+  retoFase: {
+    antes: 'Registration has not opened',
+    inscripciones: 'Registration open',
+    practica: 'Practice week',
+    vispera: 'About to start',
+    reto: 'Contest under way',
+    resultados: 'Contest over'
+  },
+  retoEstado: {
+    antes: 'Actinver has not opened registration for the 2026 edition yet.',
+    inscripciones: 'Registration is open. The contest itself has not started, so there are no positions to show yet.',
+    practica: 'This is the practice week: the simulator is open so entrants can try it out, and none of it counts towards the result.',
+    vispera: 'The practice week is over and the contest has not started. Nothing counts yet.',
+    reto: 'The contest is running. My positions and the value of the portfolio are on the Actinver Challenge page.',
+    resultados: 'The contest is over. What is left is the prizegiving, and on my side the post-mortem: what I got right, what I got wrong, and what I would not do again.'
+  },
+  retoCuenta: {
+    inscripciones: 'Registration opens in {n}.',
+    practica: 'The practice week starts in {n}.',
+    reto: 'The contest starts in {n}.',
+    cierre: 'The contest closes in {n}.'
+  },
+  retoCuentaHoy: {
+    inscripciones: 'Registration opens today.',
+    practica: 'The practice week starts today.',
+    reto: 'The contest starts today.',
+    cierre: 'The contest closes today.'
+  },
+  retoDay: 'day',
+  retoDays: 'days',
+  retoStillOpen: 'Registration is still open, and closes with the date above.',
+  retoLinksH: 'Where to go from here',
+  retoSite: 'The contest’s own site',
+  retoSiteNote: 'retoactinver.com — the rules, the prices and the terms are theirs, not mine.',
+  retoMine: 'My positions in the contest',
+  retoMineNote: 'Each one with the thesis I wrote before knowing whether it worked, and the value of the portfolio.',
+  retoDiscH: 'Not affiliated with Actinver',
+  retoDisc: 'The Actinver Challenge is Actinver’s event and Actinver’s trademark. Smart Finance is not affiliated with, sponsored by or endorsed by Actinver: the logo is here to identify the contest I am taking part in, nothing more. Everything on this section describes what Actinver publishes on its own site, with the date it was consulted, and it is educational — not financial advice and not a recommendation to enter the contest or to buy anything.',
+  retoLogoAlt: 'Reto Actinver, the contest’s logo',
+  retoSourceH: 'Source',
+  retoSourceP: 'Dates, the amount of virtual money and the venue come from retoactinver.com, from the “frequently asked questions” section, consulted on {d}. Its front page banner and its FAQ do not agree on the last day to register: the FAQ calendar is the one used here.',
+
   // ---- Reporte ----
-  back: 'All research',
+  back: 'All the reports',
   reportKicker: 'Equity research',
   draftBannerH: 'Draft — being built in public',
   draftBannerP: 'What you can see is verified: seven fiscal years taken from filings with the SEC and checked against the 10-K. What is missing is the part Jaime writes — thesis, assumptions, risks, conclusions — and it shows as pending until he writes it. No section of this page was drafted by an AI pretending to be an analyst.',
@@ -264,11 +351,18 @@ const en = {
 };
 
 const es: typeof en = {
-  hubTitle: 'Smart Finance Research: equity research construido en público — Smart Finance',
-  hubDesc: 'Equity research escrito por un estudiante con estándares de analista: cada cifra sale de un filing de la SEC, cada supuesto lleva su razón escrita y el DCF se puede mover en el navegador.',
-  eyebrow: 'Research',
-  h1: 'Smart Finance Research',
-  lede: 'Equity research escrito por un estudiante, con estándares de analista y construido en público. Cada cifra enlaza al documento del que salió. Cada supuesto espera la razón que su autor escriba.',
+  hubTitle: 'Smart Finance Projects: equity research y Reto Actinver — Smart Finance',
+  hubDesc: 'Los dos proyectos que Jaime construye en público: equity research con cada cifra sacada de un filing de la SEC y un DCF que se puede mover, y el Reto Actinver, un concurso de bolsa que se juega con un millón de pesos virtuales.',
+  eyebrow: 'Proyectos',
+  h1: 'Smart Finance Projects',
+  lede: 'Dos proyectos, hechos a la vista y con la misma regla: nada llega a la página antes que la razón por la que está ahí, y no se afirma nada que una fuente no sostenga. Uno es equity research. El otro es un concurso de bolsa que se juega con dinero ficticio.',
+  indexH: 'En esta página',
+  projects: [
+    { id: 'equity-research', h: 'Equity research', p: 'Reportes tipo analista sobre empresas que cotizan. Cada cifra sale de un reporte presentado ante la SEC; cada supuesto espera la razón que su autor escriba.' },
+    { id: 'reto-actinver', h: 'Reto Actinver', p: 'Un concurso de bolsa de seis semanas que organiza Actinver y se juega con un millón de pesos virtuales en la Bolsa Mexicana de Valores. Mis posiciones y la razón de cada una se publican conforme las abro.' }
+  ],
+  researchH: 'Equity research',
+  researchLede: 'Equity research escrito por un estudiante, con estándares de analista y construido en público. Cada cifra enlaza al documento del que salió. Cada supuesto espera la razón que su autor escriba.',
   standardsH: 'Las tres reglas',
   standards: [
     { h: 'Solo fuentes primarias', p: 'Los números salen de los reportes que la empresa presenta ante la SEC de Estados Unidos —10-K, 10-Q, 8-K—, bajados de EDGAR y comparados renglón por renglón contra el documento. Esa comparación también se publica en el repositorio.' },
@@ -311,7 +405,65 @@ const es: typeof en = {
   disclaimer: 'Estos reportes son el trabajo de un estudiante, publicados para aprender a la vista de todos. No son asesoría financiera, de inversión ni fiscal, y no son una recomendación para comprar ni vender nada. Si el autor tiene posición en una empresa que cubre, se declara en el propio reporte, y todas sus posiciones están publicadas en la página del portafolio. Verifica cada cifra en su fuente antes de decidir nada.',
   positionsLink: 'Dónde se publican mis propias posiciones',
 
-  back: 'Todo el research',
+  // ---- Reto Actinver ----
+  retoH: 'Reto Actinver',
+  retoEdition: 'Edición 2026',
+  retoLede: 'Un concurso que organiza Actinver, no Smart Finance. Le da a cada participante el mismo millón de pesos virtuales para invertirlo en la Bolsa Mexicana de Valores en tiempo real durante seis semanas. Yo lo estoy jugando, y cada posición que abro se publica con la razón por la que la abrí.',
+  retoWhatH: 'Qué es',
+  retoWhat: 'En palabras del propio Actinver, un simulador con 1 millón de pesos virtuales para aprender a invertir en la Bolsa Mexicana de Valores en tiempo real. El dinero es ficticio —Actinver los llama “actipesos” y dice con todas sus letras que no son moneda de curso legal—, así que no se compra nada, no se vende nada y no se puede cobrar nada. El portafolio de cada participante compite contra el del resto.',
+  retoCalH: 'El calendario 2026',
+  retoCalP: 'Las fechas que publica Actinver. La fase que ves marcada no está escrita en esta página: se calcula con la fecha de hoy en Ciudad de México, así que sigue siendo cierta la leas en agosto o en noviembre.',
+  retoCal: {
+    inscripciones: 'Inscripciones',
+    practica: 'Semana de práctica',
+    reto: 'El reto',
+    premiacion: 'Premiación'
+  },
+  retoPremiacion: 'Diciembre de 2026, en la Bolsa Mexicana de Valores',
+  retoNow: 'Cómo va hoy',
+  retoFase: {
+    antes: 'Las inscripciones no abren',
+    inscripciones: 'Inscripciones abiertas',
+    practica: 'Semana de práctica',
+    vispera: 'A punto de arrancar',
+    reto: 'Reto en marcha',
+    resultados: 'Reto terminado'
+  },
+  retoEstado: {
+    antes: 'Actinver todavía no abre las inscripciones de la edición 2026.',
+    inscripciones: 'Las inscripciones están abiertas. El reto todavía no arranca, así que todavía no hay posiciones que enseñar.',
+    practica: 'Es la semana de práctica: el simulador está abierto para probarlo y nada de lo que pase aquí cuenta para el resultado.',
+    vispera: 'La semana de práctica terminó y el reto no ha arrancado. Todavía no cuenta nada.',
+    reto: 'El reto está en marcha. Mis posiciones y el valor de la cartera están en la página del Reto Actinver.',
+    resultados: 'El reto terminó. Falta la premiación y, de mi lado, el post mortem: qué acerté, qué fallé y qué no volvería a hacer.'
+  },
+  retoCuenta: {
+    inscripciones: 'Las inscripciones abren en {n}.',
+    practica: 'La semana de práctica arranca en {n}.',
+    reto: 'El reto arranca en {n}.',
+    cierre: 'El reto cierra en {n}.'
+  },
+  retoCuentaHoy: {
+    inscripciones: 'Las inscripciones abren hoy.',
+    practica: 'La semana de práctica arranca hoy.',
+    reto: 'El reto arranca hoy.',
+    cierre: 'El reto cierra hoy.'
+  },
+  retoDay: 'día',
+  retoDays: 'días',
+  retoStillOpen: 'Las inscripciones siguen abiertas, y cierran en la fecha de arriba.',
+  retoLinksH: 'A dónde ir desde aquí',
+  retoSite: 'El sitio del reto',
+  retoSiteNote: 'retoactinver.com — las bases, los precios y los términos son suyos, no míos.',
+  retoMine: 'Mis posiciones en el reto',
+  retoMineNote: 'Cada una con la tesis que escribí antes de saber si funcionaba, y el valor de la cartera.',
+  retoDiscH: 'Sin afiliación con Actinver',
+  retoDisc: 'El Reto Actinver es un evento de Actinver y una marca de Actinver. Smart Finance no está afiliado a Actinver, ni patrocinado ni avalado por Actinver: el logo está aquí para identificar el concurso en el que participo, nada más. Todo lo de esta sección describe lo que Actinver publica en su propio sitio, con la fecha en que se consultó, y es educativo: no es asesoría financiera ni una recomendación de entrar al concurso ni de comprar nada.',
+  retoLogoAlt: 'Reto Actinver, el logo del concurso',
+  retoSourceH: 'Fuente',
+  retoSourceP: 'Las fechas, el monto virtual y el lugar de la premiación salen de retoactinver.com, de la sección de preguntas frecuentes, consultada el {d}. Su banner de portada y sus preguntas frecuentes no coinciden en el último día para inscribirse: aquí se usa el calendario de las preguntas frecuentes.',
+
+  back: 'Todos los reportes',
   reportKicker: 'Equity research',
   draftBannerH: 'Borrador — construido en público',
   draftBannerP: 'Lo que sí puedes ver está verificado: siete años fiscales tomados de los reportes a la SEC y comparados contra el 10-K. Lo que falta es la parte que escribe Jaime —tesis, supuestos, riesgos, conclusiones— y aparece marcada como pendiente hasta que él la escriba. Ninguna sección de esta página la redactó una IA haciéndose pasar por analista.',

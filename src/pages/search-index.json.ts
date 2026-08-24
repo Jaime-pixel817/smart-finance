@@ -54,7 +54,10 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['footer.community'], keys: lang === 'es' ? 'comunidad estudiantil grupo bolsa mexicana de valores talleres voluntariado' : 'student community group mexican stock exchange workshops volunteering', href: route('community', lang), lang });
     items.push({ t: 'page', name: t['nav.methodology'], keys: lang === 'es' ? 'metodología fuentes datos IA correcciones' : 'methodology sources data AI corrections', href: route('methodology', lang), lang });
     items.push({ t: 'page', name: t['nav.newsletter'], keys: lang === 'es' ? 'suscribirme correo boletín números anteriores archivo semanal' : 'subscribe email weekly past issues archive', href: route('newsletter', lang), lang });
-    items.push({ t: 'page', name: t['research.title'], keys: lang === 'es' ? 'research reportes acciones DCF valuación fuentes' : 'research reports equity DCF valuation sources', href: route('research', lang), lang });
+    // La sección se llama Smart Finance Projects; la ruta sigue siendo
+    // /research, así que "research" se queda entre las palabras que la
+    // encuentran (es lo que alguien que ya la conocía va a teclear).
+    items.push({ t: 'page', name: t['projects.title'], keys: lang === 'es' ? 'proyectos projects research reportes acciones DCF valuación fuentes reto actinver bolsa mexicana simulador' : 'projects research reports equity DCF valuation sources actinver challenge mexican exchange simulator', href: route('research', lang), lang });
     items.push({
       t: 'page', name: t['nav.portfolio'],
       keys: lang === 'es' ? 'portafolio posiciones tesis cartera personal acciones qué tengo' : 'portfolio positions thesis holdings what I own',
