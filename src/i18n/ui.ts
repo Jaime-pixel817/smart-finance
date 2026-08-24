@@ -501,6 +501,70 @@ const en = {
   'ia.ask.placeholder': 'e.g. why does the number go up when the peso weakens?',
   'ia.ask.send': 'Ask',
   'ia.questions.title': 'Three questions to check you got it',
+
+  // ---- Modes ----
+  'reto.mode.aria': 'Challenge mode',
+  'reto.mode.daily': 'Today’s challenge',
+  'reto.mode.free': 'Free play',
+  'reto.free.note': 'Free rounds do not use up today’s challenge and do not count towards your streak. Same rules, different charts.',
+  'reto.free.new': 'Deal me another one',
+  'reto.free.share': 'Smart Finance · free challenge',
+  'reto.filter.label': 'What do you want to play with?',
+  'reto.filter.all': 'Everything',
+  'reto.filter.index': 'Indexes',
+  'reto.filter.stock': 'Stocks',
+  'reto.filter.fx': 'Currencies',
+  'reto.filter.crypto': 'Crypto',
+  'reto.filter.why.h': 'Why there is no difficulty filter',
+  'reto.filter.note': 'There is no easy/hard filter, and there will not be one. Each round’s threshold is that asset’s own median 8-week move, so exactly half of its history lands on each side: a quiet currency and a wild coin are equally hard to call. This filter is about what you feel like looking at, not about difficulty.',
+  'reto.other.day': 'You are playing the challenge of {d}, the one from the link.',
+  'reto.other.today': 'Play today’s instead',
+  'reto.done.today': 'You already played today’s challenge: {p} out of {max}.',
+  'reto.done.replay': 'See it again (your score for today stays as it is)',
+
+  // ---- Streak and progress ----
+  'reto.prog.h': 'Your streak',
+  'reto.prog.streak': 'Current streak',
+  'reto.prog.best': 'Best streak',
+  'reto.prog.days': 'Days played',
+  'reto.prog.hits': 'Rounds nailed',
+  'reto.prog.of': 'of {n}',
+  'reto.prog.empty': 'Nothing here yet. Play today’s challenge and this fills in on its own.',
+  'reto.prog.local': 'This lives in this browser only: no account, and nothing about it is sent anywhere. Switching phone or clearing your browsing data starts it from zero, and that is the honest price of not asking you to sign up.',
+  'reto.prog.clear': 'Delete my progress',
+  'reto.prog.clear.ask': 'Delete your streak, your calendar and your totals? This cannot be undone.',
+  'reto.prog.clear.yes': 'Yes, delete it',
+  'reto.prog.clear.no': 'Keep it',
+  'reto.prog.cleared': 'Progress deleted. Nothing about the challenge is left in this browser.',
+  'reto.cal.legend': 'One square per day. Filled in means you played; the stronger the colour, the more points you got.',
+  'reto.cal.dows': 'M,T,W,T,F,S,S',
+  'reto.cal.dows.full': 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+  'reto.cal.summary': 'This month you have played {n} of the {m} days that have gone by.',
+  'reto.cal.day': '{d}: {p} out of {max}',
+  'reto.cal.none': '{d}: not played',
+
+  // ---- What the reveal teaches ----
+  'reto.why.size': 'Out of every 100 eight-week stretches this asset has had in these five years, {p} moved this much or more.',
+  'reto.why.t.up.sig': 'The part you could see was going up, and it kept going up.',
+  'reto.why.t.up.giro': 'The part you could see was going up, and it turned around.',
+  'reto.why.t.down.sig': 'The part you could see was going down, and it kept going down.',
+  'reto.why.t.down.giro': 'The part you could see was going down, and it turned around.',
+  'reto.why.t.flat': 'The part you could see ended eight weeks later almost exactly where it started.',
+  'reto.why.cause': 'Why it moved is not in the price: this comes out of the closes, not out of the news of those weeks.',
+  'reto.learn.more': 'To understand this one better',
+  'reto.learn.lesson': 'Lesson: {t}',
+  'reto.learn.term': 'Glossary: {t}',
+
+  // ---- How the daily seed works ----
+  'reto.how.h': 'How today’s challenge is picked',
+  'reto.how.1': 'The only ingredient is today’s date in Mexico City: “{d}”. Not the time, not your language, not your device.',
+  'reto.how.2': 'That date seeds a small reproducible random generator (xmur3 + mulberry32, 30 lines, no libraries).',
+  'reto.how.3': 'With it we shuffle the {n} assets and take five, and then draw five cut points along their five years of weekly closes.',
+  'reto.how.4': 'So the same day gives the same challenge to everyone, anywhere, and yesterday’s can be rebuilt from the date alone. No server and no account are involved.',
+  'reto.how.code': 'The rules are one file with tests: src/lib/challenge/reto.mjs.',
+
+  // ---- Sharing ----
+  'reto.share.note': 'What gets copied is the grid, your score, the date and your streak — and the link, so whoever opens it plays the same challenge. Nothing else about you leaves this browser.',
 };
 
 const es: typeof en = {
@@ -987,6 +1051,72 @@ const es: typeof en = {
   'ia.ask.placeholder': 'p. ej. ¿por qué sube el número cuando el peso se debilita?',
   'ia.ask.send': 'Preguntar',
   'ia.questions.title': 'Tres preguntas para comprobar que lo entendiste',
+
+  // ---- Modos ----
+  'reto.mode.aria': 'Modo del reto',
+  'reto.mode.daily': 'Reto de hoy',
+  'reto.mode.free': 'Reto libre',
+  'reto.free.note': 'El reto libre no gasta el de hoy ni cuenta para la racha. Mismas reglas, otras gráficas.',
+  'reto.free.new': 'Repárteme otro',
+  'reto.free.share': 'Smart Finance · reto libre',
+  'reto.filter.label': '¿Con qué quieres jugar?',
+  'reto.filter.all': 'Todo',
+  'reto.filter.index': 'Índices',
+  'reto.filter.stock': 'Acciones',
+  'reto.filter.fx': 'Divisas',
+  'reto.filter.crypto': 'Cripto',
+  'reto.filter.why.h': 'Por qué no hay filtro de dificultad',
+  'reto.filter.note': 'No hay filtro de fácil/difícil, y no lo va a haber. El umbral de cada ronda es la mediana del movimiento de 8 semanas del propio activo, así que exactamente la mitad de su historia cae de cada lado: una divisa tranquila y una cripto salvaje son igual de difíciles de adivinar. Este filtro es para elegir qué te da curiosidad, no para elegir dificultad.',
+  'reto.other.day': 'Estás jugando el reto del {d}, el del enlace.',
+  'reto.other.today': 'Jugar el de hoy',
+  'reto.done.today': 'Hoy ya jugaste el reto: {p} de {max}.',
+  'reto.done.replay': 'Verlo otra vez (tu marcador de hoy no cambia)',
+
+  // ---- Racha y progreso ----
+  'reto.prog.h': 'Tu racha',
+  'reto.prog.streak': 'Racha actual',
+  'reto.prog.best': 'Mejor racha',
+  'reto.prog.days': 'Días jugados',
+  'reto.prog.hits': 'Rondas clavadas',
+  'reto.prog.of': 'de {n}',
+  'reto.prog.empty': 'Aquí todavía no hay nada. Juega el reto de hoy y esto se llena solo.',
+  'reto.prog.local': 'Esto vive solo en este navegador: sin cuenta y sin que nada de esto salga a ningún lado. Si cambias de teléfono o borras los datos de navegación, empieza de cero, y ese es el precio honesto de no pedirte que te registres.',
+  'reto.prog.clear': 'Borrar mi progreso',
+  'reto.prog.clear.ask': '¿Borro tu racha, tu calendario y tus totales? Esto no se puede deshacer.',
+  'reto.prog.clear.yes': 'Sí, borrarlo',
+  'reto.prog.clear.no': 'Mejor no',
+  'reto.prog.cleared': 'Progreso borrado. En este navegador ya no queda nada del reto.',
+  'reto.cal.legend': 'Un cuadrito por día. Relleno quiere decir que jugaste; mientras más fuerte el color, más puntos sacaste.',
+  'reto.cal.dows': 'L,M,M,J,V,S,D',
+  'reto.cal.dows.full': 'lunes,martes,miércoles,jueves,viernes,sábado,domingo',
+  // Sin «{n} días»: con n = 1 saldría «llevas 1 días». Contando sobre el
+  // sustantivo del final («{n} de los {m} días») concuerda con cualquier cifra.
+  'reto.cal.summary': 'Este mes llevas {n} de los {m} días que han pasado.',
+  'reto.cal.day': '{d}: {p} de {max}',
+  'reto.cal.none': '{d}: sin jugar',
+
+  // ---- Lo que enseña el revelado ----
+  'reto.why.size': 'De cada 100 periodos de 8 semanas que ha tenido este activo en estos cinco años, {p} se movieron tanto o más que este.',
+  'reto.why.t.up.sig': 'La parte que veías venía subiendo, y siguió subiendo.',
+  'reto.why.t.up.giro': 'La parte que veías venía subiendo, y se dio la vuelta.',
+  'reto.why.t.down.sig': 'La parte que veías venía bajando, y siguió bajando.',
+  'reto.why.t.down.giro': 'La parte que veías venía bajando, y se dio la vuelta.',
+  'reto.why.t.flat': 'La parte que veías acababa ocho semanas después casi donde había empezado.',
+  'reto.why.cause': 'Por qué se movió no está en el precio: esto sale de los cierres, no de las noticias de esas semanas.',
+  'reto.learn.more': 'Para entender esta ronda',
+  'reto.learn.lesson': 'Lección: {t}',
+  'reto.learn.term': 'Glosario: {t}',
+
+  // ---- Cómo se elige el reto del día ----
+  'reto.how.h': 'Cómo se elige el reto de hoy',
+  'reto.how.1': 'El único ingrediente es la fecha de hoy en Ciudad de México: «{d}». Ni la hora, ni tu idioma, ni tu dispositivo.',
+  'reto.how.2': 'Esa fecha siembra un generador de azar reproducible y chiquito (xmur3 + mulberry32, 30 líneas, sin librerías).',
+  'reto.how.3': 'Con él se barajan los {n} activos y se toman cinco, y luego se sortean cinco puntos de corte a lo largo de sus cinco años de cierres semanales.',
+  'reto.how.4': 'Así el mismo día le toca el mismo reto a todo el mundo, esté donde esté, y el de ayer se puede reconstruir con solo la fecha. Aquí no hay servidor ni cuenta de por medio.',
+  'reto.how.code': 'Las reglas son un solo archivo con pruebas: src/lib/challenge/reto.mjs.',
+
+  // ---- Compartir ----
+  'reto.share.note': 'Lo que se copia es la cuadrícula, tu puntuación, la fecha y tu racha — y el enlace, para que quien lo abra juegue el mismo reto. Nada más tuyo sale de este navegador.',
 };
 
 export type UIKey = keyof typeof en;

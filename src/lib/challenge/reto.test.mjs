@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  fechaLocal, generador, barajar, planDelReto,
+  fechaLocal, generador, barajar, planDelReto, planLibre, planDesdeSemilla,
   cambioPct, mediana, movimientoTipico, umbralBonito, banda, puntosDeRonda,
   indexar, armarRonda, resumen, cuadricula, nuevaRacha,
-  RONDAS, ESPERADO_AL_AZAR, BANDAS
+  percentilDeMovimiento, tendencia,
+  RONDAS, ESPERADO_AL_AZAR, BANDAS, OCULTAS
 } from './reto.mjs';
 
 const cerca = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `esperaba ${b}, obtuve ${a}`);
@@ -181,6 +182,123 @@ test('fechaLocal: el reto cambia a medianoche en Ciudad de México, no en UTC', 
   assert.equal(fechaLocal(new Date('2026-08-24T06:30:00Z')), '2026-08-24');
   assert.equal(fechaLocal(new Date('2026-08-24T02:30:00Z'), 'UTC'), '2026-08-24');
   assert.throws(() => fechaLocal('2026-08-24'), /fecha válida/);
+});
+
+const CATALOGO = ['spy', 'qqq', 'aapl', 'msft', 'nvda', 'amzn', 'btc', 'eth', 'usdmxn', 'eurusd'];
+
+test('planDelReto: un año entero de días distintos, sin repetir el reto', () => {
+  // La promesa que se le hace a quien juega todos los días: el reto de hoy no es
+  // el de ninguno de los últimos 365. Se comprueba con la huella completa
+  // (activos + cortes), que es lo que define la partida.
+  const huellas = new Set();
+  const d = new Date(Date.UTC(2026, 0, 1));
+  for (let i = 0; i < 365; i++) {
+    const fecha = new Date(d.getTime() + i * 86400000).toISOString().slice(0, 10);
+    const p = planDelReto(fecha, CATALOGO);
+    huellas.add(p.activos.join(',') + '|' + p.cortes.map((c) => c.toFixed(6)).join(','));
+  }
+  assert.equal(huellas.size, 365, 'dos días distintos no pueden dar el mismo reto');
+});
+
+test('planDelReto: la hora, la zona y el idioma no entran en la semilla', () => {
+  // Dos teléfonos, uno en México y otro en Tokio, a horas distintas del mismo
+  // día mexicano: el mismo reto. Es lo que permite hablar de "el reto de hoy".
+  const enMexico = fechaLocal(new Date('2026-08-23T14:05:00Z'));
+  const enTokio = fechaLocal(new Date('2026-08-24T04:59:00Z'));
+  assert.equal(enMexico, enTokio);
+  assert.deepEqual(planDelReto(enMexico, CATALOGO), planDelReto(enTokio, CATALOGO));
+  // Y el reto de ayer se puede reconstruir con solo la fecha, sin guardar nada.
+  assert.deepEqual(planDelReto('2026-08-22', CATALOGO), planDelReto('2026-08-22', CATALOGO.slice()));
+});
+
+test('planLibre: misma ficha mismo reto, y admite catálogos más chicos que las rondas', () => {
+  const a = planLibre('abc123', CATALOGO);
+  assert.deepEqual(a, planLibre('abc123', CATALOGO));
+  assert.notDeepEqual(a.activos.concat(a.cortes.map(String)), planLibre('abc124', CATALOGO).activos.concat(planLibre('abc124', CATALOGO).cortes.map(String)));
+  // Filtrando por tipo quedan tres índices y las rondas son cinco: se repiten
+  // con otro corte, pero solo después de que hayan salido todos.
+  const tres = planLibre('solo-indices', ['spy', 'qqq', 'dia']);
+  assert.equal(tres.activos.length, RONDAS);
+  assert.equal(new Set(tres.activos.slice(0, 3)).size, 3, 'los tres salen antes de que se repita ninguno');
+  assert.equal(new Set(tres.cortes).size, RONDAS, 'un activo repetido lleva otro corte');
+  // El reto del día NUNCA repite: ahí el catálogo corto es un error.
+  assert.throws(() => planDelReto('2026-08-23', ['spy', 'qqq']), /al menos 5/);
+  assert.throws(() => planLibre('MAYÚSCULAS', CATALOGO), /minúsculas/);
+  assert.throws(() => planDesdeSemilla('', CATALOGO), /no vacío/);
+  assert.throws(() => planDesdeSemilla('x', []), /vacío/);
+});
+
+// ---------------------------------------------------------------------------
+// Lo que se le cuenta al jugador al revelar: sale de los precios y de nada más
+// ---------------------------------------------------------------------------
+test('percentilDeMovimiento: dice si el movimiento fue de los raros o de los de siempre', () => {
+  // Movimientos de un paso: +10 %, −18.18 %, +10 %.
+  const s = [100, 110, 90, 99];
+  // Un cambio de 0 % es más chico que los tres → percentil 0.
+  cerca(percentilDeMovimiento(s, 0, 1), 0);
+  // Uno de 50 % es más grande que los tres → percentil 100.
+  cerca(percentilDeMovimiento(s, 50, 1), 100);
+  // Uno de 15 % deja debajo a los dos de 10 % → dos de tres.
+  cerca(percentilDeMovimiento(s, 15, 1), (2 / 3) * 100);
+  // El signo no importa: lo que se compara es el TAMAÑO del movimiento.
+  cerca(percentilDeMovimiento(s, -15, 1), percentilDeMovimiento(s, 15, 1));
+  assert.throws(() => percentilDeMovimiento([1, 2], 5, 8), /más de 8 puntos/);
+});
+
+test('tendencia: hacia dónde venía la parte visible, sin decir por qué', () => {
+  assert.equal(tendencia([100, 101, 102, 103], 2), 1);
+  assert.equal(tendencia([103, 102, 101, 100], 2), -1);
+  assert.equal(tendencia([100, 100, 80, 100], 2), 0); // dos barras después, en el mismo sitio
+  assert.throws(() => tendencia([100, 101], 8), /más de 8 puntos/);
+});
+
+test('armarRonda: trae el percentil y si la tendencia siguió o se dio la vuelta', () => {
+  // Sube 10 semanas seguidas y sigue subiendo: la tendencia continúa.
+  const sube = Array.from({ length: 20 }, (_, i) => 100 + i);
+  const fechas = sube.map((_, i) => Date.UTC(2026, 0, 1 + i * 7));
+  const r = armarRonda({ id: 'x', cierres: sube, fechas, fraccion: 0, ventana: 10, ocultas: 4 });
+  assert.equal(r.tendencia, 1);
+  assert.equal(r.siguio, true);
+  assert.ok(r.percentil >= 0 && r.percentil <= 100);
+  // Ahora una que venía subiendo y se da la vuelta justo en el corte.
+  const gira = [...Array.from({ length: 12 }, (_, i) => 100 + i), ...Array.from({ length: 8 }, (_, i) => 111 - i * 3)];
+  const f2 = gira.map((_, i) => Date.UTC(2026, 0, 1 + i * 7));
+  const g = armarRonda({ id: 'x', cierres: gira, fechas: f2, fraccion: 0, ventana: 10, ocultas: 4 });
+  assert.equal(g.tendencia, 1);
+  assert.equal(g.siguio, false, 'venía subiendo y bajó');
+});
+
+// ---------------------------------------------------------------------------
+// Por qué NO hay filtro de dificultad
+// ---------------------------------------------------------------------------
+test('el umbral parte cada activo por la mitad: no hay activos “fáciles”', () => {
+  // El umbral de cada ronda es la MEDIANA del |movimiento| de 8 semanas del
+  // propio activo. Por definición de mediana, la mitad de sus periodos se pasan
+  // de ahí y la otra mitad no: la probabilidad de que la respuesta sea "fuerte"
+  // es ~50 % en TODOS los activos, tranquilos o nerviosos. Por eso un filtro de
+  // "fácil / difícil" por activo prometería algo que no existe.
+  const rnd = generador('prueba-dificultad');
+  const serie = (vol) => {
+    const out = [100];
+    for (let i = 1; i < 300; i++) out.push(Math.max(1, out[i - 1] * (1 + (rnd() - 0.5) * vol)));
+    return out;
+  };
+  for (const vol of [0.01, 0.4]) {
+    const s = serie(vol);
+    const med = movimientoTipico(s, OCULTAS);
+    let fuertes = 0, total = 0;
+    for (let i = 0; i + OCULTAS < s.length; i++) {
+      total++;
+      if (Math.abs(cambioPct(s[i], s[i + OCULTAS])) >= med) fuertes++;
+    }
+    cerca(fuertes / total, 0.5, 0.01);
+    // Con el umbral ya redondeado a una cifra legible el reparto se mueve un
+    // poco, pero nunca hasta convertir un activo en “el fácil”.
+    const u = umbralBonito(med);
+    let fuertesU = 0;
+    for (let i = 0; i + OCULTAS < s.length; i++) if (Math.abs(cambioPct(s[i], s[i + OCULTAS])) >= u) fuertesU++;
+    assert.ok(fuertesU / total > 0.3 && fuertesU / total < 0.7, 'reparto con umbral redondeado: ' + fuertesU / total);
+  }
 });
 
 test('nuevaRacha: suma si jugaste ayer, se reinicia si te saltaste un día', () => {

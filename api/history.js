@@ -195,11 +195,20 @@ async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
 
 /**
  * La serie de un par y un rango, pasando por la MISMA caché compartida que el
- * endpoint. Existe para que otro módulo del servidor (hoy _lib/ia.js, que arma
- * el bloque DATOS del explicador) lea exactamente los mismos puntos que ve la
- * gráfica, sin dar la vuelta por HTTP ni pagarle a Yahoo una segunda vez.
+ * endpoint. Se sacó del handler para que otro módulo del servidor pida la MISMA
+ * serie con la MISMA clave, sin dar la vuelta por HTTP ni pagarle a Yahoo una
+ * segunda vez. Hoy la usan dos:
  *
- * Devuelve `{ valor, stale }` o lanza si no hay nada que servir.
+ *   - `_lib/ia.js`, que arma el bloque DATOS del explicador y tiene que leer
+ *     exactamente los puntos que ve la gráfica de la página.
+ *   - `_lib/og-reto.js`, que dibuja la og:image del reto del día y tiene que
+ *     ver exactamente los cierres que ve quien lo juega.
+ *
+ * Si se copiara la llamada a Yahoo serían dos claves de caché, dos créditos y,
+ * algún día, dos series distintas en la tarjeta y en el juego.
+ *
+ * Devuelve el sobre de la caché —`{ valor, stale, ... }`— o lanza si no hay
+ * nada que servir.
  */
 async function serie(pair, range) {
   const symbolCfg = SYMBOLS[pair];
@@ -240,5 +249,7 @@ module.exports = async function handler(req, res) {
 
 // El User-Agent se comparte con api/world.js (mismo proveedor, misma cabecera).
 module.exports.USER_AGENT = USER_AGENT;
+// La serie cacheada, para _lib/ia.js y _lib/og-reto.js (ver el comentario de
+// `serie`), y la lista de rangos que este endpoint sabe servir.
 module.exports.serie = serie;
 module.exports.RANGOS = Object.keys(RANGE_MAP);

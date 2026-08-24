@@ -28,6 +28,7 @@
     "check-es": "node scripts/build-es.js && git diff --quiet -- es sitemap.xml || (echo /es esta desactualizado: corre npm run build:es y commitea el resultado. && exit 1)",
     "build:og": "node scripts/build-og.js",
     "build:og-pages": "node scripts/build-og-pages.mjs --strict",
+    "build:og-reto": "node scripts/build-og-reto.mjs",
     "news:sync": "node scripts/news-sync.js",
     "boletin:ensayo": "node scripts/boletin-ensayo.js",
     "newsletter:sync": "node scripts/newsletter-sync.js",
