@@ -92,6 +92,14 @@
   ],
   "rewrites": [
     {
+      "source": "/og-reto.png",
+      "destination": "/api/newsletter-chart?reto=hoy"
+    },
+    {
+      "source": "/og-reto-es.png",
+      "destination": "/api/newsletter-chart?reto=hoy&lang=es"
+    },
+    {
       "source": "/news/:slug",
       "destination": "/news-read"
     },

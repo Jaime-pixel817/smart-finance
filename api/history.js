@@ -193,25 +193,39 @@ async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
   };
 }
 
+/*
+ * La serie de un par, ya pasada por la cache COMPARTIDA. Se saco del handler
+ * para que otro modulo pueda pedir la MISMA serie con la MISMA clave:
+ * api/_lib/og-reto.js dibuja la og:image del reto del dia y tiene que ver
+ * exactamente los cierres que ve quien lo juega. Si se copiara la llamada a
+ * Yahoo, serian dos claves de cache, dos creditos y, algun dia, dos series
+ * distintas en la tarjeta y en el juego.
+ *
+ * Devuelve el sobre de la cache: { valor, stale, ... }.
+ */
+async function serie(pair, range) {
+  const symbolCfg = SYMBOLS[pair];
+  const rangeCfg = RANGE_MAP[range];
+  if (!symbolCfg || !rangeCfg) throw new Error('invalid pair or range');
+  return cache.conCache({
+    clave: 'history:v1:' + pair + ':' + range,
+    ttl: CACHE_TTL_MS / 1000,
+    proveedor: { nombre: 'yahoo', creditos: 1 },
+    calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
+  });
+}
+
 module.exports = async function handler(req, res) {
   const pair = String(req.query.pair || '').toUpperCase();
   const range = String(req.query.range || '').toUpperCase();
 
-  const symbolCfg = SYMBOLS[pair];
-  const rangeCfg = RANGE_MAP[range];
-
-  if (!symbolCfg || !rangeCfg) {
+  if (!SYMBOLS[pair] || !RANGE_MAP[range]) {
     res.status(400).json({ error: 'invalid pair or range' });
     return;
   }
 
   try {
-    const r = await cache.conCache({
-      clave: 'history:v1:' + pair + ':' + range,
-      ttl: CACHE_TTL_MS / 1000,
-      proveedor: { nombre: 'yahoo', creditos: 1 },
-      calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
-    });
+    const r = await serie(pair, range);
     res.setHeader('Cache-Control', CACHE_CONTROL);
     // `stale` es un campo AÑADIDO: la gráfica sigue leyendo `points` igual, y
     // con esto puede decir "último dato conocido" en vez de quedarse vacía.
@@ -224,3 +238,5 @@ module.exports = async function handler(req, res) {
 
 // El User-Agent se comparte con api/world.js (mismo proveedor, misma cabecera).
 module.exports.USER_AGENT = USER_AGENT;
+// La serie cacheada, para api/_lib/og-reto.js (ver el comentario de `serie`).
+module.exports.serie = serie;

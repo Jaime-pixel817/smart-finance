@@ -11,6 +11,13 @@
 //   GET /api/newsletter-chart?d=<AAAA-MM-DD>&v=<huella>   → el PNG de la gráfica
 //   GET /api/newsletter-chart?issue=<AAAA-MM-DD>          → el número, en JSON
 //   GET /api/newsletter-chart?issues=1                    → las fechas archivadas
+//   GET /api/newsletter-chart?reto=hoy&lang=es            → la og:image del reto de hoy
+//
+// La cuarta es de otra sección del sitio y aun así vive aquí, por lo mismo que
+// las otras tres: el plan de Vercel admite 12 funciones y el sitio está en 12.
+// De las doce, esta es la que dibuja imágenes y la que casi nadie llama, así que
+// es donde el trabajo extra no le cuesta un arranque en frío a nadie. Lo que
+// dibuja está en _lib/og-reto.js.
 //
 // ---------------------------------------------------------------------------
 // LA GRÁFICA
@@ -31,6 +38,7 @@
 const redis = require('./_lib/redis');
 const grafica = require('./_lib/grafica');
 const archivo = require('./_lib/archivo');
+const ogReto = require('./_lib/og-reto');
 
 /*
  * EL NÚMERO EN JSON: lo que pinta /newsletter/<fecha> mientras esa página
@@ -70,7 +78,45 @@ async function servirNumero(res, fecha) {
   res.status(200).json(numero);
 }
 
+/*
+ * LA og:image DEL RETO DEL DÍA.
+ *
+ * Es la tarjeta que sale cuando alguien comparte /challenge o /es/reto, y
+ * enseña la gráfica CIEGA de hoy (nunca la respuesta). El HTML es estático y se
+ * sirve cacheado, así que la etiqueta og:image apunta a una URL fija —
+ * /og-reto.png, reescrita a esto en vercel.json— y es la función la que sabe qué
+ * día es. Se pide `hoy` y no una fecha suelta para que no se pueda usar como un
+ * generador de imágenes a la carta con nuestros créditos de Yahoo.
+ *
+ * SI ALGO FALLA, REDIRIGE A LA TARJETA ESTÁTICA de siempre en vez de devolver un
+ * error: WhatsApp y Twitter cachean lo que reciben durante días, así que una
+ * tarjeta rota no se arregla desplegando.
+ */
+async function servirOgDelReto(req, res) {
+  const lang = String((req.query && req.query.lang) || '') === 'es' ? 'es' : 'en';
+  const respaldo = '/og/challenge' + (lang === 'es' ? '-es' : '') + '.jpg';
+  try {
+    const bytes = await ogReto.tarjetaDeHoy(lang);
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Length', String(bytes.length));
+    // Ni immutable ni un día: la tarjeta cambia a medianoche en Ciudad de
+    // México. Quince minutos deja el coste en una lectura por cuarto de hora y
+    // el desfase en, como mucho, un cuarto de hora de madrugada.
+    res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=3600');
+    res.status(200).end(bytes);
+  } catch (e) {
+    console.error('newsletter-chart: no pude dibujar la og:image del reto:', e && e.message);
+    res.setHeader('Cache-Control', 'public, s-maxage=60');
+    res.redirect(302, respaldo);
+  }
+}
+
 module.exports = async function handler(req, res) {
+  if (String((req.query && req.query.reto) || '') === 'hoy') {
+    await servirOgDelReto(req, res);
+    return;
+  }
+
   // El índice del archivo: solo fechas. Lo usa `npm run newsletter:sync` para
   // saber qué bajar al repo, y es público por el mismo motivo que los números:
   // son las URL de páginas que ya existen.

@@ -2,7 +2,6 @@
 import Base from '../../layouts/Base.astro';
 import Challenge from '../../components/challenge/Challenge.astro';
 import { SITE } from '../../i18n/routes';
-import { ogPropia } from '../../lib/og';
 import { ui } from '../../i18n/ui';
 const t = ui.es;
 const title = '¿Y luego qué pasó? El reto diario del mercado — Smart Finance';
@@ -25,8 +24,13 @@ const jsonLd = {
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'MXN' }
   }
 };
+// La og:image NO es una imagen fija: /og-reto-es.png lo reescribe vercel.json a
+// api/newsletter-chart?reto=hoy&lang=es, que dibuja la gráfica CIEGA del reto de
+// hoy sobre la tarjeta de siempre (api/_lib/og-reto.js). Si algo falla, esa
+// función redirige a /og/challenge-es.jpg, la que este archivo usaba antes.
+const ogImage = SITE + '/og-reto-es.png';
 ---
 <Base locale="es" routeId="challenge" active="tools" title={title} description={description}
-  ogImage={ogPropia('challenge', 'es')} ogImageAlt="Smart Finance — ¿Y luego qué pasó? El reto diario del mercado" jsonLd={jsonLd}>
+  ogImage={ogImage} ogImageAlt="Smart Finance — ¿Y luego qué pasó? El reto diario del mercado" jsonLd={jsonLd}>
   <Challenge locale="es" />
 </Base>
