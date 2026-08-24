@@ -47,6 +47,10 @@ function arrancar(raiz: HTMLElement) {
   }
 
   let puesto: HTMLElement | null = null;
+  // Un aviso puede salir, retirarse porque su condición dejó de cumplirse y
+  // volver a salir en la misma página. Eso es UNA vista, no tres: el contador
+  // de paciencia (maxVistas) cuenta visitas, no repintados.
+  const vistosAqui = new Set<string>();
 
   function contexto() {
     return {
@@ -123,8 +127,11 @@ function arrancar(raiz: HTMLElement) {
     puesto = caja;
     // El final de la página tiene que seguir alcanzándose por debajo del aviso.
     document.documentElement.classList.add('con-aviso');
-    estado = anotarVista(estado, aviso);
-    guardar(estado);
+    if (!vistosAqui.has(aviso.id)) {
+      vistosAqui.add(aviso.id);
+      estado = anotarVista(estado, aviso);
+      guardar(estado);
+    }
   }
 
   /** Cerrado o usado: en los dos casos ya hizo su trabajo y no vuelve. */

@@ -61,10 +61,13 @@ const rutas = { market: route('market', locale), compare: route('market.compare'
     position: fixed; z-index: 45; left: 0; right: 0;
     bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--sp-2));
     padding-inline: var(--gutter);
-    /* Sin aviso dentro no existe: el hueco vacío no puede tapar un botón. */
+    /* Vacío mide cero de alto, pero además NO recibe el ratón: el hueco donde
+       va a salir un aviso no puede tapar un botón mientras no hay ninguno.
+       Y no se esconde con `display: none` a propósito — una región viva que
+       aparece y desaparece del árbol es justo donde los lectores de pantalla
+       se saltan el anuncio. */
     pointer-events: none;
   }
-  .avisos:empty { display: none; }
   @media (min-width: 768px) {
     .avisos { left: auto; right: var(--sp-5); bottom: var(--sp-5); padding-inline: 0; max-width: 420px; }
   }
