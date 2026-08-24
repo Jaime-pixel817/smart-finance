@@ -74,7 +74,7 @@ const strings = {
     <section class="card cmp-card" aria-labelledby="cmp-legend-h">
       <div class="cmp-panel-head">
         <h2 id="cmp-legend-h" class="eyebrow">{t('cmp.legend')}</h2>
-        <div class="cmp-ranges" role="tablist" aria-label={t('range.aria')}>
+        <div class="cmp-ranges" role="tablist" data-slide aria-label={t('range.aria')}>
           {RANGES.map((r, i) => (
             <button type="button" role="tab" data-range={r} aria-selected={i === 3 ? 'true' : 'false'} tabindex={i === 3 ? 0 : -1}>{t(('range.' + r) as UIKey)}</button>
           ))}
@@ -137,10 +137,12 @@ const strings = {
 
   .cmp-card { margin-top: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-3); }
   .cmp-panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); }
-  .cmp-ranges { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); }
-  .cmp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: background .15s, color .15s; }
+  /* El lavado de la pestaña elegida lo pinta la marca deslizante del grupo
+     (src/styles/motion.css), no cada pestaña. */
+  .cmp-ranges { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); --tab-r: 8px; }
+  .cmp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: color var(--dur-2) var(--ease-std); }
   .cmp-ranges [role="tab"]:hover { color: var(--ink); }
-  .cmp-ranges [role="tab"][aria-selected="true"] { background: var(--brand-wash); color: var(--ink); }
+  .cmp-ranges [role="tab"][aria-selected="true"] { color: var(--ink); }
 
   /* La leyenda la escribe el script (compare.ts), así que sus reglas van
      GLOBALES: los elementos creados con innerHTML no llevan el atributo de

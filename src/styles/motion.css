@@ -37,8 +37,11 @@
    `filter`. Son las tres que el compositor resuelve sin volver a calcular el
    diseño; animar `height`, `width`, `top` o `margin` obliga al navegador a
    remedir la página en cada frame y además mueve lo que hay alrededor, que es
-   CLS. `width` de una barra de progreso es la única excepción viva del sitio
-   (LessonsIndex) y está aislada dentro de su barra.
+   CLS. Hay DOS excepciones vivas y las dos están escritas donde ocurren: el
+   `width` de la barra de progreso de lecciones (LessonsIndex, dentro de su
+   propia barra) y el `width` de la marca deslizante de pestañas (más abajo,
+   pseudo-elemento fuera del flujo). Ninguna de las dos puede mover nada de su
+   alrededor; una tercera habría que discutirla.
    ========================================================================== */
 
 :root {
@@ -58,6 +61,10 @@
   --rise: 12px;
   /* Cuánto se hunde lo que se presiona y cuánto se levanta al pasar el ratón. */
   --press: .98;
+  /* Las filas a lo ancho se hunden MENOS. Un 0.98 en un control de 100 px mueve
+     su borde 1 px; en una fila de 390 px lo mueve 4 px por lado, y entonces la
+     fila parece despegarse de la lista en vez de hundirse dentro de ella. */
+  --press-wide: .995;
   --lift: 2px;
   /* Cuánto sube un número al cambiar. En em, o sea proporcional a su tamaño:
      el precio grande de una ficha y el de una fila se mueven lo mismo *para su
@@ -73,7 +80,7 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-1: .01ms; --dur-2: .01ms; --dur-3: .01ms; --dur-4: .01ms;
-    --stagger: 0ms; --rise: 0px; --num-rise: 0px; --press: 1; --lift: 0px;
+    --stagger: 0ms; --rise: 0px; --num-rise: 0px; --press: 1; --press-wide: 1; --lift: 0px;
   }
 }
 
@@ -114,6 +121,15 @@
 .topbar { view-transition-name: sf-topbar; }
 .bottom-nav { view-transition-name: sf-bottomnav; }
 
+/* Y lo que sí tiene que MOVERSE al cambiar de página es la marca del destino
+   activo. Con nombre propio sale del fotograma de su barra y el navegador la
+   lleva de su sitio viejo al nuevo: en escritorio la barrita verde se desliza
+   de «Mercados» a «Aprende», y en el teléfono la pastilla de la barra de abajo
+   viaja de una pestaña a otra. Es el mismo gesto que la marca deslizante de los
+   chips, pero entre documentos. */
+.desk-nav > a[aria-current="page"]::after { view-transition-name: sf-navink; }
+.bottom-nav a[aria-current="page"]::before { view-transition-name: sf-navpill; }
+
 /* «Menos movimiento»: la transición sigue existiendo (el navegador la pide
    igual) pero sin una sola animación, así que termina en el primer fotograma y
    el cambio de página es instantáneo, como antes de todo esto. */
@@ -134,7 +150,8 @@
    El estado escondido lo pone el guion, no esta hoja: si el JavaScript no
    llega, no hay nada con opacidad 0 que se quede invisible para siempre. Y
    solo se esconde lo que está POR DEBAJO del pliegue, así que el primer
-   pantallazo —el que mide el LCP— se pinta exactamente igual que antes. */
+   pantallazo —el que mide el LCP— se pinta exactamente igual que antes.
+
    Quién entra: cada `<section>` HOJA de `<main>` (una sección que contiene
    secciones anima por dentro, no entera). A nivel de bloque y nunca por cada
    fila de una lista: veinte filas apareciendo de una en una no es un sitio
@@ -187,7 +204,13 @@
 
    El hover con elevación es SOLO para ratón (`hover: hover` + `pointer: fine`):
    en un teléfono `:hover` se queda pegado después de tocar y la tarjeta se
-   quedaría levantada hasta que toques otra cosa. */
+   quedaría levantada hasta que toques otra cosa.
+
+   Y EL HUNDIDO VA DESPUÉS DE LA ELEVACIÓN, a propósito. Con un ratón, al hacer
+   clic las dos cosas son ciertas a la vez (`:hover` y `:active`), tienen la
+   misma especificidad y gana la última escrita. Estando primero el hundido, en
+   escritorio el clic no hundía nada: se quedaba la tarjeta levantada 2 px, y en
+   el navegador se medía `matrix(1,0,0,1,0,-2)` con el botón apretado. */
 .btn,
 .card-link,
 .chip-btn,
@@ -201,6 +224,11 @@
               border-color var(--dur-2) var(--ease-std),
               color var(--dur-2) var(--ease-std);
 }
+@media (hover: hover) and (pointer: fine) {
+  .card-link:hover,
+  [data-lift]:hover { transform: translateY(calc(-1 * var(--lift))); }
+}
+
 .btn:active,
 .card-link:active,
 .chip-btn:active,
@@ -210,30 +238,42 @@
 .topbar .search-btn:active,
 [data-press]:active { transform: scale(var(--press)); }
 
-@media (hover: hover) and (pointer: fine) {
-  .card-link:hover,
-  [data-lift]:hover { transform: translateY(calc(-1 * var(--lift))); }
-}
+/* ---- Pestañas y chips: la marca se desliza -------------------------------
+   La marca no es de la pestaña activa, es del GRUPO: una sola, que viaja de una
+   pestaña a otra. Antes cada pestaña pintaba su propio fondo, así que la marca
+   desaparecía de un sitio y aparecía en otro; si viaja, el ojo la sigue.
 
-/* ---- Pestañas y chips: subrayado que se desliza --------------------------
-   La barrita no es de la pestaña activa, es de la LISTA: una sola, que se mueve
-   de una pestaña a otra. Su sitio lo escriben --tab-x y --tab-w desde
-   src/scripts/tabs.ts leyendo el ancho real de cada pestaña; sin ese guion la
-   lista se ve como siempre (la barrita nace con ancho 0 y no se pinta). */
+   Conserva la forma que ya tenía el sitio —el lavado de marca, no un subrayado
+   nuevo—: esto es un PR de movimiento, no de repintar la interfaz. Va POR
+   ENCIMA (12 % de alfa) en vez de por debajo porque los chips tienen fondo
+   opaco y la marca se escondería detrás de ellos al pasar; encima, el lavado
+   barre las pestañas por las que va pasando, que es lo que hace legible el
+   viaje. Donde el sitio sí usa un subrayado —el destino activo de la barra
+   superior en escritorio— ese subrayado se desliza de verdad, entre páginas,
+   con su propio view-transition-name.
+
+   Mide src/scripts/tabs.ts (--tab-x/-y/-w/-h). Sin guion no se pinta nada:
+   --tab-w nace en 0.
+
+   EL `width` DE AQUÍ ES LA ÚNICA EXCEPCIÓN A «solo transform/opacity/filter»
+   de este fichero, y está acotada: es un pseudo-elemento FUERA DEL FLUJO y con
+   pointer-events: none, o sea que al cambiar de ancho no puede remedir ni mover
+   absolutamente nada más. Hacerlo con scaleX habría deformado el radio de la
+   píldora en una elipse. */
 [data-slide] { position: relative; }
 [data-slide]::after {
   content: '';
   position: absolute;
   left: 0;
-  bottom: 0;
-  height: 2px;
+  top: var(--tab-y, 0);
   width: var(--tab-w, 0);
-  border-radius: 2px;
-  background: var(--brand-text);
+  height: var(--tab-h, 100%);
+  border-radius: var(--tab-r, var(--r-pill));
+  background: var(--brand-wash);
   transform: translateX(var(--tab-x, 0));
   transition: transform var(--dur-2) var(--ease-std), width var(--dur-2) var(--ease-std);
   pointer-events: none;
 }
-/* Hasta que el guion mide, no hay barrita que enseñar (width: 0 no pinta). Y
-   en el primer posicionamiento no se desliza desde la izquierda: se pone. */
+/* El primer posicionamiento se pone, no se desliza: una marca entrando volando
+   desde la izquierda al cargar es justo la animación de bienvenida que sobra. */
 [data-slide][data-slide-init]::after { transition: none; }

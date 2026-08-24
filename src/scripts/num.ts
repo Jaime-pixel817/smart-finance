@@ -33,12 +33,28 @@ let dur = -1;
 let ease = '';
 let rise = '';
 
+/**
+ * Lee una duración de CSS en milisegundos.
+ *
+ * NO vale `parseFloat` a secas, y esto costó una tarde: motion.css escribe
+ * `--dur-3: 240ms`, pero el minificador del build lo reescribe como `.24s`
+ * —que es el mismo tiempo y dos caracteres menos—, así que en producción
+ * `parseFloat` devolvía 0.24. Con eso, la guardia de «menos movimiento»
+ * (`dur < 20`) daba positivo SIEMPRE y ningún número volvía a animarse. En
+ * desarrollo funcionaba, porque ahí el CSS no se minifica: el peor tipo de
+ * fallo. Se mira el sufijo.
+ */
+function enMs(v: string, porOmision: number): number {
+  const s = v.trim();
+  const n = parseFloat(s);
+  if (!isFinite(n)) return porOmision;
+  return s.endsWith('ms') ? n : n * 1000;
+}
+
 function tokens() {
   if (dur < 0) {
     const cs = getComputedStyle(document.documentElement);
-    // Los tokens de duración se escriben en ms (`240ms`), así que parseFloat da
-    // el número. Si alguna vez se escribieran en segundos habría que mirarlo.
-    dur = parseFloat(cs.getPropertyValue('--dur-3')) || 240;
+    dur = enMs(cs.getPropertyValue('--dur-3'), 240);
     ease = cs.getPropertyValue('--ease-out').trim() || 'ease-out';
     rise = cs.getPropertyValue('--num-rise').trim() || '.3em';
   }
