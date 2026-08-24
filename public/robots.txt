@@ -9,8 +9,21 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-# Pantallas a las que solo se llega desde un correo. Llevan noindex en el HTML;
-# esto es el cinturón además del tirante.
-Disallow: /newsletter/
+# Las DOS pantallas de estado del boletín, a las que solo se llega desde un
+# correo. Llevan noindex en el HTML; esto es el cinturón además del tirante.
+#
+# OJO: aquí decía `Disallow: /newsletter/` a secas, y eso tapaba también
+# /newsletter/<fecha> — el archivo de cada número, que SÍ está en el sitemap y
+# sí queremos indexado. Un Disallow gana sobre un sitemap: Google no habría
+# rastreado ni un número del boletín, y ni siquiera habría podido leer su
+# noindex. Se listan las dos rutas concretas, no la carpeta.
+Disallow: /newsletter/baja
+Disallow: /newsletter/confirmado
+
+# La consola donde Jaime revisa los borradores de noticias. Lleva
+# noindex,nofollow en el HTML y pide el CRON_SECRET; no tiene nada que hacer en
+# un buscador.
+Disallow: /review
+Disallow: /review.html
 
 Sitemap: https://smartfinance.lat/sitemap.xml

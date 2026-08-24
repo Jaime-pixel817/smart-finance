@@ -8,6 +8,9 @@ const en = {
   'site.tagline': 'Markets and money, explained for young people',
   'site.desc': 'Markets and money, explained for young people. Today\'s pulse, one story explained, short lessons and tools. Bilingual EN/ES, by Jaime Sandoval Ricaño.',
   'skip': 'Skip to content',
+  // Primera miga del BreadcrumbList (src/lib/jsonld.ts). No es "Today": en un
+  // rastro de migas lo que se lee es de dónde cuelga la página.
+  'seo.home': 'Home',
   'nav.today': 'Today',
   'nav.markets': 'Markets',
   'nav.news': 'News',
@@ -57,7 +60,12 @@ const en = {
   'src.min': 'min',
   'src.refreshed': 'every',
   'src.loading': 'loading…',
-  'src.unavailable': 'unavailable, retrying',
+  // Dos palabras y no una frase: el chip vive en una sola línea y "unavailable,
+  // retrying" la partía en dos, empujando media página hacia abajo en la ficha
+  // de un activo (0.18 de CLS medidos con el endpoint caído, que es justo
+  // cuando este texto sale). Lo de que se reintenta lo dice, con todas sus
+  // letras, el aviso que se pinta sobre la gráfica (chart.errorEmpty).
+  'src.unavailable': 'no data',
   'src.ago': 'updated',
   'src.manual': 'verified by hand',
 
@@ -477,6 +485,7 @@ const es: typeof en = {
   'site.tagline': 'Mercados y dinero, explicados para jóvenes',
   'site.desc': 'Mercados y dinero, explicados para jóvenes. El pulso de hoy, una noticia explicada, lecciones cortas y herramientas. Bilingüe ES/EN, por Jaime Sandoval Ricaño.',
   'skip': 'Saltar al contenido',
+  'seo.home': 'Inicio',
   'nav.today': 'Hoy',
   'nav.markets': 'Mercados',
   'nav.news': 'Noticias',
@@ -524,7 +533,7 @@ const es: typeof en = {
   'src.min': 'min',
   'src.refreshed': 'cada',
   'src.loading': 'cargando…',
-  'src.unavailable': 'no disponible, se reintenta',
+  'src.unavailable': 'sin datos',
   'src.ago': 'actualizado',
   'src.manual': 'verificado a mano',
 

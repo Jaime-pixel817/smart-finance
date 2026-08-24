@@ -20,7 +20,7 @@ const copy = {
     eyebrow: 'Methodology',
     title: 'How Smart Finance is made',
     lede: 'Where every number comes from, how fresh it is, what the AI does and does not do, and how mistakes get fixed. This page changes whenever the site does.',
-    updated: 'Last updated 21 Aug 2026',
+    updated: 'Last updated 23 Aug 2026',
     dataH: 'Data: what we use and from whom',
     dataIntro: 'Every surface shows a source chip with the provider, the delay and the time of the last refresh. These are the real cadences, taken from the code that serves the data (the /api folder of the public repository).',
     cols: ['Surface', 'Source', 'Refresh', 'Delay / notes'],
@@ -57,10 +57,28 @@ const copy = {
       { n: '4', texto: 'Only what I approve is served to the site, so it appears within a minute. If I rewrote the text, the label changes from “AI summary · reviewed by Jaime” to “Written by Jaime”.' },
       { n: '5', texto: 'Approved stories are then copied into the repository, so each one gets its own permanent page at the next deploy. The URL is the same before and after.' }
     ] as Paso[],
+    anaH: 'Analytics: what gets counted, and what does not',
+    anaIntro: 'Smart Finance sets no cookies and has no accounts, so there is nothing here that follows you around. What it does count is which parts of the site people actually use — with Vercel Web Analytics and Speed Insights, both served from this domain, neither of which stores an identifier for you. If your browser sends Global Privacy Control or Do Not Track, the scripts are not even downloaded.',
+    anaDoesH: 'What is counted',
+    anaDoes: [
+      'Page views: which URL, which language, roughly where the visit came from (country and referrer), and the device type. No identifier, no cookie, no profile across visits.',
+      'Core Web Vitals of real visits (how fast a page paints, whether it jumps while loading). That is what Speed Insights is for.',
+      'Eleven named events, and only these eleven: the daily challenge started; the daily challenge finished, with the score and how many rounds were exact; a lesson finished; a quiz question answered, with whether it was right; a calculator used; an asset followed or unfollowed; a comparison drawn; a glossary term tapped; a newsletter sign-up accepted; a research report opened; and how far down that report was read (25, 50, 75 or 100 %).'
+    ],
+    anaNotH: 'What is not counted',
+    anaNot: [
+      'No email address, ever. The newsletter sign-up sends one event that says a sign-up happened and from which page; the address goes to the subscription endpoint and nowhere else.',
+      'None of the numbers you type into a calculator. The event carries the name of the calculator and nothing else.',
+      'Not your watchlist. It lives in your browser and never leaves it; what is counted is that some asset was followed, one event at a time.',
+      'No free text of any kind. Every value sent is checked against a short list-of-labels format first, so anything longer or more specific is dropped before it is sent.',
+      'No cookies, no fingerprinting, no cross-site tracking, no advertising, and nothing sold or shared with anyone.'
+    ],
+    anaWhy: 'Why so few events: the site now has lessons, tools, a daily challenge, portfolios, research and a newsletter, and until now nobody knew which of those anyone used. Eleven questions can be answered every month and acted on. Thirty would just be a dashboard nobody reads.',
     corrH: 'Corrections',
     corrIntro: 'If something is wrong, it gets fixed and logged here, with the date.',
     changelog: [
       ['2026-08-23', 'The research section is now Smart Finance Projects: equity research at the top and the Actinver Challenge below it. The addresses did not change (/research and /research/<company> are the same pages they were), only the name. On the contest block, which phase it is in is worked out from today’s date rather than written down, so the page cannot end up claiming the practice week has started when it has not.'],
+      ['2026-08-23', 'Analytics turned on, and written down: no cookies, no accounts, no identifier — page views, Core Web Vitals of real visits and eleven named events, listed one by one in the section above. If your browser sends Global Privacy Control or Do Not Track, nothing loads at all.'],
       ['2026-08-23', 'Charts: 1D is now one whole session, cut by the exchange’s own day, so it is never empty when the market is closed; a line above the chart says which session you are looking at; you can drag your finger across it at any time to read the hour, the price and how much it had moved; and the period’s high and low are marked.'],
       ['2026-08-23', 'The newsletter now carries a “what moved this week” table (biggest weekly gainers and losers from the site’s own register), a source chip on every figure, the reading time of the lesson and a slot for a line written by me. Every issue is published as a page at /newsletter.'],
       ['2026-08-23', 'Portfolio pages published: /portfolio (my own positions) and /actinver (the student contest, played with fictional money). Every position carries the thesis I wrote when I opened it; the value of each portfolio is snapshotted into the repository every trading night, and that file is what the chart draws.'],
@@ -86,7 +104,7 @@ const copy = {
     eyebrow: 'Metodología',
     title: 'Cómo se hace Smart Finance',
     lede: 'De dónde sale cada número, qué tan fresco está, qué hace y qué no hace la IA, y cómo se corrigen los errores. Esta página cambia cada vez que cambia el sitio.',
-    updated: 'Última actualización: 21 ago 2026',
+    updated: 'Última actualización: 23 ago 2026',
     dataH: 'Datos: qué usamos y de quién',
     dataIntro: 'Cada superficie muestra un chip de fuente con el proveedor, el retraso y la hora de la última actualización. Estas son las cadencias reales, tomadas del código que sirve los datos (la carpeta /api del repositorio público).',
     cols: ['Superficie', 'Fuente', 'Actualización', 'Retraso / notas'],
@@ -123,10 +141,28 @@ const copy = {
       { n: '4', texto: 'Solo lo que apruebo se sirve al sitio, y aparece en menos de un minuto. Si reescribí el texto, la etiqueta cambia de “Resumen IA · revisado por Jaime” a “Escrito por Jaime”.' },
       { n: '5', texto: 'Después, las aprobadas se copian al repositorio, para que cada una tenga su página permanente en el siguiente despliegue. La dirección es la misma antes y después.' }
     ] as Paso[],
+    anaH: 'Analítica: qué se cuenta y qué no',
+    anaIntro: 'Smart Finance no pone cookies y no tiene cuentas, así que aquí no hay nada que te siga. Lo que sí se cuenta es qué partes del sitio se usan de verdad, con Vercel Web Analytics y Speed Insights, los dos servidos desde este mismo dominio y ninguno de los dos guarda un identificador tuyo. Si tu navegador manda Global Privacy Control o Do Not Track, los scripts ni se descargan.',
+    anaDoesH: 'Qué se cuenta',
+    anaDoes: [
+      'Visitas por página: qué URL, en qué idioma, más o menos de dónde llegó la visita (país y desde qué sitio) y qué tipo de aparato. Sin identificador, sin cookie y sin unir una visita con la siguiente.',
+      'Los Core Web Vitals de visitas reales (cuánto tarda una página en pintarse, si se mueve mientras carga). Para eso es Speed Insights.',
+      'Once eventos con nombre, y solo esos once: reto del día empezado; reto del día terminado, con los puntos y cuántas rondas fueron exactas; lección terminada; pregunta de quiz contestada, con si se acertó; calculadora usada; activo seguido o dejado de seguir; comparación dibujada; término del glosario tocado; alta al boletín aceptada; reporte de research abierto; y hasta dónde se leyó ese reporte (25, 50, 75 o 100 %).'
+    ],
+    anaNotH: 'Qué no se cuenta',
+    anaNot: [
+      'Ningún correo, nunca. El alta al boletín manda un evento que dice que hubo un alta y desde qué página; la dirección va al endpoint de suscripción y a ningún otro sitio.',
+      'Ninguno de los números que tecleas en una calculadora. El evento lleva el nombre de la calculadora y nada más.',
+      'Tu watchlist tampoco. Vive en tu navegador y no sale de ahí; lo que se cuenta es que se siguió algún activo, un evento a la vez.',
+      'Nada de texto libre. Cada valor que se manda pasa antes por un filtro que solo deja etiquetas cortas, así que cualquier cosa más larga o más específica se tira antes de salir.',
+      'Sin cookies, sin huella del navegador, sin seguimiento entre sitios, sin publicidad, y nada que se venda o se comparta con nadie.'
+    ],
+    anaWhy: 'Por qué tan pocos eventos: el sitio ya tiene lecciones, herramientas, un reto diario, carteras, research y boletín, y hasta ahora nadie sabía cuál de esas cosas usaba alguien. Once preguntas se pueden contestar cada mes y hacer algo con ellas. Treinta serían un tablero que nadie mira.',
     corrH: 'Correcciones',
     corrIntro: 'Si algo está mal, se corrige y se registra aquí, con fecha.',
     changelog: [
       ['2026-08-23', 'La sección de research pasa a llamarse Smart Finance Projects: el equity research arriba y el Reto Actinver debajo. Las direcciones NO cambiaron (/es/research y /es/research/<empresa> son las mismas páginas de siempre), solo el nombre. En el bloque del reto, la fase se calcula con la fecha de hoy en vez de estar escrita, para que la página no pueda acabar diciendo que ya empezó la semana de práctica cuando no ha empezado.'],
+      ['2026-08-23', 'Analítica encendida, y escrita: sin cookies, sin cuentas y sin identificador — visitas por página, Core Web Vitals de visitas reales y once eventos con nombre, listados uno por uno en la sección de arriba. Si tu navegador manda Global Privacy Control o Do Not Track, no se carga nada.'],
       ['2026-08-23', 'Gráficas: el 1D es ahora una sesión entera, cortada por el día de la propia bolsa, así que nunca sale vacío con el mercado cerrado; una línea encima dice qué sesión estás viendo; se puede recorrer con el dedo en cualquier momento para leer la hora, el precio y cuánto había subido o bajado; y quedan marcados el máximo y el mínimo del periodo.'],
       ['2026-08-23', 'El boletín trae ahora una tabla de “qué se movió esta semana” (los que más subieron y bajaron del registro del sitio), chip de fuente en cada cifra, el tiempo de lectura de la lección y un hueco para una línea escrita por mí. Cada número se publica además como página en /es/boletin.'],
       ['2026-08-23', 'Se publican las páginas de cartera: /es/portafolio (mis propias posiciones) y /es/actinver (el concurso estudiantil, con dinero ficticio). Cada posición lleva la tesis que escribí al abrirla; el valor de cada cartera se fotografía en el repositorio cada noche hábil, y ese archivo es lo que dibuja la gráfica.'],
@@ -161,6 +197,7 @@ const copy = {
         <a class="chip" href="#fallback">{copy.fallbackH}</a>
         <a class="chip" href="#ai">{copy.aiH}</a>
         <a class="chip" href="#review">{copy.revH}</a>
+        <a class="chip" href="#analytics">{copy.anaH}</a>
         <a class="chip" href="#corrections">{copy.corrH}</a>
         <a class="chip" href="#coi">{copy.coiH}</a>
         <a class="chip" href="#advice">{copy.adviceH}</a>
@@ -209,6 +246,22 @@ const copy = {
           <li><span class="num t-caption" aria-hidden="true">{p.n}</span><span class="t-small">{p.texto}</span></li>
         ))}
       </ol>
+    </section>
+
+    <section id="analytics" class="meth-sec" aria-labelledby="ana-h">
+      <h2 id="ana-h" class="t-h2">{copy.anaH}</h2>
+      <p class="muted">{copy.anaIntro}</p>
+      <div class="meth-two">
+        <div class="card">
+          <p class="eyebrow">{copy.anaDoesH}</p>
+          <ul class="meth-list">{copy.anaDoes.map((x) => <li>{x}</li>)}</ul>
+        </div>
+        <div class="card">
+          <p class="eyebrow">{copy.anaNotH}</p>
+          <ul class="meth-list">{copy.anaNot.map((x) => <li>{x}</li>)}</ul>
+        </div>
+      </div>
+      <p class="t-small muted">{copy.anaWhy}</p>
     </section>
 
     <section id="corrections" class="meth-sec" aria-labelledby="corr-h">

@@ -79,7 +79,7 @@ function montar(raiz: HTMLElement) {
   }
   // Escuchar sliders, aplicar/guardar los parámetros de la URL y montar el
   // botón "Copiar enlace" (todo eso vive en tools/url-state.ts).
-  conectar(raiz, pintar);
+  conectar(raiz, pintar, 'interes-compuesto');
 }
 
 document.querySelectorAll<HTMLElement>('[data-widget="compound"]').forEach(montar);

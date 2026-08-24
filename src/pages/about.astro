@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import About from '../components/about/About.astro';
 import { SITE } from '../i18n/routes';
+import { ogPropia } from '../lib/og';
 import { foto } from '../lib/photos';
 const title = 'About Jaime Sandoval Ricaño, who makes Smart Finance — Smart Finance';
 const description = 'Student and content creator from Mexico explaining markets and money for young people on TikTok, LinkedIn and smartfinance.lat: mission, who he has learned from, how he works and how to reach him.';
@@ -20,6 +21,7 @@ const jsonLd = {
   }
 };
 ---
-<Base locale="en" routeId="about" active="today" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="en" routeId="about" active="today" title={title} description={description}
+  ogImage={ogPropia('about', 'en')} ogImageAlt="Smart Finance — Who makes this, and why it is public" jsonLd={jsonLd}>
   <About locale="en" />
 </Base>

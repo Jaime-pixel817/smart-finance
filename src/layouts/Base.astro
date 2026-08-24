@@ -6,6 +6,7 @@
 import '../styles/base.css';
 import type { Locale } from '../i18n/routes';
 import { alternates, route, SITE } from '../i18n/routes';
+import { grafo } from '../lib/jsonld';
 import { useT } from '../i18n/ui';
 import SkipLink from '../components/SkipLink.astro';
 import TopBar from '../components/TopBar.astro';
@@ -38,15 +39,19 @@ const alts = alternates(routeId);
 const canonical = SITE + route(routeId, locale);
 const ogImage = Astro.props.ogImage ?? (locale === 'es' ? SITE + '/og-image-es.jpg' : SITE + '/og-image.jpg');
 const ogImageAlt = Astro.props.ogImageAlt ?? title;
-const ld = jsonLd ?? {
-  '@context': 'https://schema.org',
+// JSON-LD: el nodo de la página (el que ella pasa, o un WebSite por defecto)
+// dentro de un @graph con la Organization y la Person del sitio, más las migas
+// si la ruta cuelga de una sección. Ver src/lib/jsonld.ts: hasta ahora cuarenta
+// páginas apuntaban a un '#organization' que no existía en ningún documento.
+const nodoPagina = jsonLd ?? {
   '@type': 'WebSite',
   name: 'Smart Finance',
   url: SITE + '/',
   description,
   inLanguage: locale === 'es' ? 'es-MX' : 'en',
-  publisher: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/#who' }
+  publisher: { '@id': SITE + '/#organization' }
 };
+const ld = grafo(locale, routeId, title, nodoPagina);
 const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E";
 ---
 <!doctype html>
@@ -76,9 +81,15 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <meta name="twitter:title" content={title}>
   <meta name="twitter:description" content={description}>
   <meta name="twitter:image" content={ogImage}>
-  <!-- Preload de las dos fuentes del primer pintado (Geist 400 y Mono 500). -->
+  <!-- Preload de las TRES fuentes del primer pintado. Fraunces faltaba y es la
+       del titular de cada página (.t-display / .t-h1): con font-display: swap
+       el titular se pintaba en la serif del sistema y saltaba al llegar la
+       buena, moviendo todo lo de abajo. En /research/lululemon eso eran 0.22
+       de CLS medidos con datos reales, once veces el presupuesto. Pesa 18 KB,
+       la mitad que Geist 400. -->
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
   <!-- Tema ANTES del primer pintado: dark por defecto; la elección guardada
        gana. Sin JS, :root queda sin data-theme y manda prefers-color-scheme. -->
   <script is:inline>
@@ -87,6 +98,34 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <!-- Idioma: recuerda la elección y, solo en la raíz, respeta lo guardado
        (mismo script que el sitio legacy, así las dos mitades coinciden). -->
   <script is:inline src="/assets/lang.js"></script>
+  <!-- Analítica sin cookies: Vercel Web Analytics (visitas y los once eventos
+       de src/lib/analytics.ts) y Speed Insights (Core Web Vitals de visitas
+       reales). Los dos scripts los sirve el propio dominio desde /_vercel/, no
+       ponen cookies y no guardan identificadores.
+
+       SI EL NAVEGADOR DICE QUE NO, NO SE CARGA NADA: se mira Global Privacy
+       Control y Do Not Track ANTES de inyectarlos, así que no es que se manden
+       menos datos, es que no hay ni petición. En local los dos archivos no
+       existen (los pone Vercel) y el sitio funciona igual: `va` se queda sin
+       definir y `medir()` no hace nada.
+
+       La cola `va`/`vaq` va antes del script porque un evento puede salir
+       mientras todavía está descargándose. Ver /methodology → "Analítica". -->
+  <script is:inline>
+    (function () {
+      try {
+        var n = navigator;
+        if (n.globalPrivacyControl === true || n.doNotTrack === '1' || window.doNotTrack === '1' || n.msDoNotTrack === '1') return;
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+        var rutas = ['/_vercel/insights/script.js', '/_vercel/speed-insights/script.js'];
+        for (var i = 0; i < rutas.length; i++) {
+          var s = document.createElement('script');
+          s.defer = true; s.src = rutas[i];
+          document.head.appendChild(s);
+        }
+      } catch (e) { /* sin analítica, el sitio va igual */ }
+    })();
+  </script>
   <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)}></script>
   <slot name="head" />
 </head>

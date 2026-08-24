@@ -37,7 +37,9 @@ input, select, textarea { font: inherit; color: inherit; }
    mosaico enfocados con Tab se quedaban SIN NADA: medido en el navegador con
    un Tab de verdad, `:focus-visible` daba true y `outline-style: none` con
    `box-shadow: none` en oscuro (--shadow-1 es `none`) y, en claro, la misma
-   sombra de reposo, byte a byte. Secciones enteras se navegaban a ciegas.
+   sombra de reposo, byte a byte. Pasaba en serio y a lo grande: en el home, las
+   8 fichas del ticker y TODAS las tarjetas de lección se tabulaban sin ninguna
+   señal, y Lighthouse daba 100 de accesibilidad igual, porque no prueba el foco.
    `outline` es la propiedad que nadie más toca aquí, no la puede tapar una
    sombra nueva de un componente futuro, y ocupa lo mismo que ocupaba el
    anillo (2 px de hueco + 2 px de color). --focus-ring sigue vivo para los
@@ -138,11 +140,17 @@ input, select, textarea { font: inherit; color: inherit; }
   scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;
   padding-inline: var(--gutter); margin-inline: calc(-1 * var(--gutter));
   scroll-padding-inline: var(--gutter);
+  /* 4 px de aire arriba y abajo, devueltos con margen negativo: el carril y sus
+     chips medían EXACTAMENTE lo mismo (36 px los dos, medido), y como
+     overflow-x: auto convierte también el eje Y en auto, el anillo de foco
+     —que sobresale 4 px— se recortaba arriba y abajo. Se veía un filo verde en
+     vez de un anillo, justo en los chips que solo se alcanzan con el teclado. */
+  padding-block: 4px; margin-block: -4px;
 }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { scroll-snap-align: start; flex: none; }
 @media (min-width: 768px) {
-  .rail { padding-inline: 0; margin-inline: 0; scroll-padding-inline: 0; flex-wrap: wrap; overflow: visible; }
+  .rail { padding-inline: 0; margin-inline: 0; scroll-padding-inline: 0; flex-wrap: wrap; overflow: visible; padding-block: 0; margin-block: 0; }
 }
 
 /* ---- Sparkline SVG ---- */

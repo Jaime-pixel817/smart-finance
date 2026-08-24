@@ -32,6 +32,8 @@
     "boletin:ensayo": "node scripts/boletin-ensayo.js",
     "newsletter:sync": "node scripts/newsletter-sync.js",
     "derive": "node scripts/derive.mjs",
+    "check-seo": "node scripts/check-seo.mjs dist",
+    "check-lh": "npx -y @lhci/cli@0.15.1 autorun --config=lighthouserc.json",
     "test": "node --test"
   },
   "dependencies": {

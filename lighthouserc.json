@@ -1,0 +1,133 @@
+{
+  "_comentario": [
+    "Presupuestos de Lighthouse que FALLAN el CI, no que avisan. Seis rutas: el",
+    "home (globo + WebGL, la más pesada), /market (listas y precios), una ficha",
+    "de activo, una lección, el reporte de research (la página más larga) y el",
+    "reto del día.",
+    "",
+    "Se miden con las URL .html a propósito: lhci sirve dist/ con un servidor",
+    "estático propio y no hace el cleanUrls de Vercel, así que /market daría 404",
+    "y la corrida entera saldría con un cero que no significa nada.",
+    "",
+    "Sin /api: el servidor estático no lo tiene, y ese es justo el escenario que",
+    "conviene medir — cada página tiene que pintarse entera sin que ningún",
+    "endpoint conteste. Encender esto encontró tres bugs de CLS ahí (el chip de",
+    "fuente partiéndose en dos líneas, Fraunces sin preload y la fila del precio",
+    "del research reacomodándose); si un presupuesto se rompe por esto, el bug es",
+    "del sitio, no del escenario.",
+    "",
+    "MEDIDO EN EL RUNNER (mediana de 3, móvil): las cinco rutas sin WebGL dan",
+    "rendimiento 0.97-0.98, accesibilidad 1.00, TBT 0 ms y CLS ≤ 0.008.",
+    "",
+    "═══════════════════════════════════════════════════════════════════════",
+    "POR QUÉ EL HOME NO LLEVA NOTA DE RENDIMIENTO (y no es que se le perdone)",
+    "═══════════════════════════════════════════════════════════════════════",
+    "",
+    "El home saca 0.65 en el runner y 0.95 en cualquier máquina con tarjeta",
+    "gráfica. La diferencia NO es el código y NO es un runner lento: el runner",
+    "de GitHub marca benchmarkIndex 3402 contra 2869 de este Mac, o sea que es",
+    "MÁS rápido de CPU.",
+    "",
+    "Lo que le falta al runner es GPU. Sin ella, Chrome dibuja el WebGL con",
+    "SwiftShader, por software, en el hilo principal. El informe del runner lo",
+    "dice sin ambigüedad: risk-sphere.js suma 12 504 ms de hilo principal, y de",
+    "esos SOLO 1 793 ms son JavaScript. Los otros ~10 700 ms son 'other', que es",
+    "el rasterizador metiendo cada frame de ~99 000 sprites con mezcla aditiva",
+    "por CPU. De ahí un TBT de 6 450-7 880 ms y un TTI de 16 s: el hilo no se",
+    "calla nunca porque el globo anima.",
+    "",
+    "COMPROBADO A PROPÓSITO, no deducido. Mismo Mac, misma página, mismo",
+    "Chrome, cambiando solo el backend de gráficos:",
+    "",
+    "  ANGLE Metal (M1)                   frames 16.7 ms medianos, 0 tareas largas",
+    "  SwiftShader (--disable-gpu)        frames 32.5 ms medianos, 609 ms en largas",
+    "",
+    "El doble, y eso en un M1. En el runner, que rasteriza por software con",
+    "cores de servidor, cada frame sale entre 150 y 220 ms.",
+    "",
+    "O sea: la nota de rendimiento del home en el runner mide el rasterizador",
+    "por software, no la página. Ningún aparato real pasa por ahí — hasta un",
+    "Android barato tiene GPU. Poner un mínimo ahí sería o un número falso (si",
+    "se baja hasta que pase) o un CI rojo para siempre.",
+    "",
+    "ASÍ QUE EL HOME SÍ SE MIDE, con lo que en esa máquina sigue significando",
+    "algo: accesibilidad, CLS, peso de JavaScript y LCP. Son justo las cuatro",
+    "que atrapan lo que de verdad se rompe — una librería nueva, un bloque que",
+    "salta, un titular que tarda. Lo único que se cae es la nota compuesta.",
+    "",
+    "LO QUE ESTO NO ARREGLA, y hay que decidir aparte: el home lleva 178 KB de",
+    "JavaScript de 180, y 153 de esos son el globo (119 de three.js r128 entero",
+    "desde cdnjs + 35 de risk-sphere.js). Sin globo el home mide 25 KB y 0.95 de",
+    "rendimiento con TBT de 8 ms. Ese es el tamaño real de la decisión, y no la",
+    "toma un archivo de configuración.",
+    "",
+    "numberOfRuns 3 y aggregationMethod median. El median NO es el valor por",
+    "omisión de lhci: por omisión es OPTIMISTIC, o sea la MEJOR de las tres",
+    "corridas. Se vio al probarlo — subiendo el mínimo a 0.99 a propósito,",
+    "/research/lululemon (corridas 0.97, 0.97, 0.99) pasaba tan tranquilo. Un",
+    "presupuesto que se conforma con la mejor de tres no es un presupuesto."
+  ],
+  "ci": {
+    "collect": {
+      "staticDistDir": "dist",
+      "numberOfRuns": 3,
+      "url": [
+        "http://localhost/index.html",
+        "http://localhost/market.html",
+        "http://localhost/market/spy.html",
+        "http://localhost/lessons/etfs.html",
+        "http://localhost/research/lululemon.html",
+        "http://localhost/challenge.html"
+      ],
+      "settings": {
+        "onlyCategories": [
+          "performance",
+          "accessibility"
+        ]
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "_comentario": [
+            "Para TODAS, home incluido. Estas cuatro no dependen de que la",
+            "máquina tenga GPU, así que valen igual en el runner que en un",
+            "teléfono.",
+            "",
+            "El tope de JS es el que sujeta al home: hoy va en 178 KB de 180.",
+            "Cuando se ponga rojo, lo que se cambia es el globo, no el 180."
+          ],
+          "matchingUrlPattern": ".*",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:accessibility": ["error", { "minScore": 0.95 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.02 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 184320 }],
+            "largest-contentful-paint": ["error", { "maxNumericValue": 3200 }]
+          }
+        },
+        {
+          "_comentario": [
+            "La nota compuesta de rendimiento, solo donde el runner puede",
+            "medirla: las cinco rutas sin WebGL. Ahí da 0.97-0.98, así que un",
+            "mínimo de 0.88 deja margen de sobra para el ruido del runner y",
+            "aun así atrapa una regresión de verdad.",
+            "",
+            "El lookahead excluye el home (index.html). Ver el comentario",
+            "largo de arriba: no es un perdón, es que ahí el número mide",
+            "SwiftShader."
+          ],
+          "matchingUrlPattern": "^(?!.*/index\\.html$).*$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["error", { "minScore": 0.88 }]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "./.lighthouseci"
+    }
+  }
+}

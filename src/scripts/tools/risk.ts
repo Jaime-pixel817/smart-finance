@@ -9,6 +9,7 @@
 // todo el mundo y para que una captura sea repetible; "simular otra vez" solo
 // cambia ese número.
 import { simular } from '../../lib/finance/risk.mjs';
+import { medirUnaVez } from '../../lib/analytics';
 
 function montar(raiz: HTMLElement) {
   const locale = raiz.dataset.locale === 'es' ? 'es' : 'en';
@@ -111,8 +112,10 @@ function montar(raiz: HTMLElement) {
     }
   }
 
-  slAcciones.addEventListener('input', pintar);
-  slAnios.addEventListener('input', pintar);
+  // Se mide al primer arrastre, no al cargar: interesa con qué juega la gente.
+  const usada = () => medirUnaVez('herramienta_usada', { herramienta: 'riesgo' });
+  slAcciones.addEventListener('input', () => { pintar(); usada(); });
+  slAnios.addEventListener('input', () => { pintar(); usada(); });
   otraVez?.addEventListener('click', () => {
     semilla = (Math.floor(Math.random() * 0xFFFFFFFF) >>> 0) || 1;
     pintar();

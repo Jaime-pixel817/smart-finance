@@ -17,6 +17,7 @@
 import { fmtNum, fmtDay, fmtTime, type Loc } from './format';
 import { loadHistory, RANGES, type Range, type Point, type SymbolRT } from './market-data';
 import { comparar } from '../lib/market/comparar.mjs';
+import { medir } from '../lib/analytics';
 
 type LWC = typeof import('./lwc');
 type IChartApi = import('lightweight-charts').IChartApi;
@@ -312,6 +313,13 @@ function boot(root: HTMLElement) {
       // diarios y poner una hora sería fingir una precisión que no hay.
       if (hora) hora.textContent = range === '1D' ? fmtTime(new Date(ultimo.hasta * 1000), loc) : fmtDay(new Date(ultimo.hasta * 1000), loc);
     }
+    // Una comparación que SÍ salió (las que se caen ya salieron por el return
+    // de arriba). Viajan los ids de los activos ordenados y cuántos son, que es
+    // justo la pregunta: qué pares le interesan a la gente.
+    medir('comparacion_hecha', {
+      activos: ultimo.series.map((x) => x.clave).sort().join('-').toLowerCase(),
+      n: ultimo.series.length
+    });
     pintarLeyenda(ultimo);
     estado.textContent = pieDeRango();
     dibujar(ultimo);
