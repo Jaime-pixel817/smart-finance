@@ -6,13 +6,14 @@
 //
 //   .hero-globe   position: fixed, a --globe-top del borde de arriba, --globe-h
 //                 de alto y ancho completo. Dentro van, en el mismo sitio y del
-//                 mismo tamaño, el lienzo WebGL y el SVG de respaldo. Se funde
-//                 hacia abajo con mask-image: no hay borde ni caja, el globo se
-//                 disuelve en la página. z-index 1: por debajo del contenido.
-//   .hero-head    un bloque vacío de alto EXACTO —hasta el borde de abajo de la
-//                 banda del globo— con el titular alineado a su final. El
-//                 conjunto globo+titular queda así anclado ARRIBA: lo que
-//                 crezca por debajo (la barra de bolsas) no lo mueve un píxel.
+//                 mismo tamaño, el cielo, el lienzo WebGL y el SVG de respaldo.
+//                 Se funde hacia abajo con mask-image: no hay borde ni caja, el
+//                 globo se disuelve en la página. z-index 1: bajo el contenido.
+//   .hero-head    un bloque vacío cuyo padding de arriba llega EXACTAMENTE hasta
+//                 24 px por debajo del marcador de São Paulo (--sao-y): el
+//                 titular arranca ahí y tapa solo el casquete de abajo del
+//                 planeta. Anclado por arriba, o sea que lo que crezca por
+//                 debajo (la barra de bolsas) no lo mueve un píxel.
 //   .hero-copy    el titular en Fraunces con la firma pegada al final de su
 //                 última línea, y la línea mono con la fecha y el estado de los
 //                 mercados. z-index 3, o sea encima del globo. pointer-events:
@@ -24,21 +25,26 @@
 //                 esta sí recibe toques. Cae por debajo del disco de partículas
 //                 (que acaba bastante antes que la banda), así que va con los
 //                 colores normales de la página y no con los del hero.
+//   .hero-source  el chip de fuente (retraso · Yahoo · hora), empujado con
+//                 margin-top: auto hasta el borde de abajo del hero. Pegado a
+//                 los ocho chips se leía como una novena ciudad; aquí abajo se
+//                 lee como el pie del hero.
 //   .home-body    (en Home.astro) todo lo demás, opaco y también en z-index 3:
 //                 al hacer scroll sube y tapa el globo.
 //
 // LA PRIMERA PANTALLA, MEDIDA
 //
-// El hero mide 100 svh MENOS --hero-peek, y dentro caben las cuatro cosas que
-// se abren en el teléfono: globo, titular con la firma, línea de estado y la
-// barra de las ocho bolsas. Lo que asoma por debajo (--hero-peek) es ya el
-// principio de .home-body, que dice que hay más página sin robarle sitio a
-// nada de lo anterior.
+// El hero mide 100 svh MENOS --hero-peek, y dentro caben las cinco cosas que se
+// abren en el teléfono: globo, titular con la firma, línea de estado, la barra
+// de las ocho bolsas y el chip de fuente. Lo que asoma por debajo (--hero-peek)
+// es ya el principio de .home-body, que dice que hay más página sin robarle
+// sitio a nada de lo anterior.
 //
 // Y el conjunto globo+titular va CENTRADO en esa pantalla: --globe-top reparte
-// el hueco sobrante 50/50 y el titular cuelga del borde de abajo de la banda.
-// A 390×844 son 130 px por encima de la banda y 130 por debajo, y en esos 130
-// de abajo es donde entra la barra de bolsas.
+// el hueco sobrante 50/50 (a 390×844, 130 px por encima de la banda y 130 por
+// debajo) y el titular arranca por debajo del marcador de São Paulo. El disco
+// ocupa --globe-fill del ancho del lienzo: 80 % en el teléfono, para que quede
+// aire a los lados y se lea centrado, y 85 % desde 768 px.
 //
 // EL SVG ESTÁTICO ES UN RESPALDO, NO EL PRIMER PINTADO. src/generated/
 // globe-fallback.svg (2.3 KB, lo genera scripts/build-geo.mjs desde la máscara
@@ -119,11 +125,11 @@ const t = useT(locale);
        página sigue, poco para robarle sitio al hero. */
     --hero-peek: 124px;
     --hero-h: calc(100svh - var(--hero-peek));
-    /* La banda del globo. El disco siempre mide el 85 % del ANCHO del lienzo
-       (la esfera se ajusta al lado corto), así que este alto no cambia el
-       tamaño del globo: decide cuánto aire tiene alrededor y dónde cae el
-       fundido de abajo. svh y no vh: en iOS vh cuenta la barra del navegador
-       que se esconde, y el globo salía cortado por abajo al cargar. */
+    /* La banda del globo. El disco mide --globe-fill del ANCHO del lienzo
+       mientras quepa de alto, así que este alto casi nunca cambia el tamaño
+       del globo: decide cuánto aire tiene alrededor y dónde cae el fundido de
+       abajo. svh y no vh: en iOS vh cuenta la barra del navegador que se
+       esconde, y el globo salía cortado por abajo al cargar. */
     --globe-h: clamp(300px, 56svh, 460px);
     /* Centrado: mismo hueco arriba que abajo. max(0px, …) por si alguien abre
        el sitio en una ventana más baja que la propia banda. */

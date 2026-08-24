@@ -17,9 +17,13 @@
 //    EL MISMO transform con un scroll pasivo leído dentro de un rAF.
 //    Todo lo que es geometría —dónde empieza la banda, cuánto mide, dónde está
 //    el hueco del wordmark— se mide UNA vez y se guarda: por frame solo quedan
-//    multiplicaciones y una escritura de estilo. (Antes se leía `top`,
-//    `offsetHeight` y `getComputedStyle` en cada frame, o sea un layout
-//    forzado por frame durante todo el scroll.)
+//    multiplicaciones y una escritura de estilo. Antes se leían `top`,
+//    `offsetHeight` y `getComputedStyle` dentro del rAF; medido con
+//    Performance.getMetrics sobre 120 pasos de scroll eso NO estaba costando
+//    nada (1 layout, 0.05 ms), así que esto es higiene y no un arreglo: son
+//    lecturas que fuerzan un cálculo síncrono en cuanto algo más ensucie el
+//    árbol, y quien lo ensucia —las pastillas, que se mueven cada dos frames—
+//    está justo al lado.
 //    En los dos caminos, un segundo IntersectionObserver avisa cuando el globo
 //    ya aterrizó: entonces se esconde y se manda "globe:visible" para que
 //    risk-sphere.js pare el bucle. Sin eso, el lienzo seguiría pintando a 60
