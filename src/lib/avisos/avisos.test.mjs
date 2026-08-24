@@ -14,12 +14,12 @@ import {
 
 const RUTAS = { market: '/market', compare: '/market/compare', challenge: '/challenge' };
 
-/** Contexto por defecto: nadie sigue nada, nadie ha leído nada. */
+/** Contexto por defecto: nadie sigue nada, nadie ha leído nada, y hay ratón. */
 function ctx(extra = {}) {
   return {
     pagina: null, routeId: '', activo: null, activos: [], anterior: null,
     siguiendo: [], leidas: [], leccion: null, hayTerminos: false, hayChips: false,
-    rutas: RUTAS, ...extra
+    punteroGrueso: false, rutas: RUTAS, ...extra
   };
 }
 
@@ -145,9 +145,22 @@ test('la lista real está bien formada y sin ids repetidos', () => {
   assert.equal(LLAVE, 'sf-avisos-v1');
 });
 
-test('primera ficha de activo: sale el aviso de arrastrar la gráfica', () => {
-  const c = ctx({ pagina: 'activo', activo: 'spy', activos: ['spy'] });
-  assert.equal(elegir(c, estadoVacio()).id, 'grafica-arrastre');
+test('primera ficha de activo: el aviso de la gráfica dice el gesto que se puede hacer', () => {
+  // Con el dedo se arrastra; con el ratón basta pasar por encima. Decirle
+  // "arrastra el dedo" a quien tiene ratón es mandar algo imposible.
+  const dedo = ctx({ pagina: 'activo', activo: 'spy', activos: ['spy'], punteroGrueso: true });
+  assert.equal(elegir(dedo, estadoVacio()).id, 'grafica-arrastre');
+  const raton = ctx({ pagina: 'activo', activo: 'spy', activos: ['spy'] });
+  assert.equal(elegir(raton, estadoVacio()).id, 'grafica-raton');
+  // Se excluyen: en la misma pantalla nunca casan los dos (ni ninguno de más).
+  for (const punteroGrueso of [true, false]) {
+    const c = ctx({ pagina: 'activo', activo: 'spy', activos: ['spy'], punteroGrueso });
+    const casan = AVISOS.filter((a) => casa(a, c)).map((a) => a.id);
+    assert.deepEqual(casan, [punteroGrueso ? 'grafica-arrastre' : 'grafica-raton']);
+  }
+  // Y en la segunda ficha ya no sale ninguno de los dos: se enseña una vez.
+  const segunda = ctx({ pagina: 'activo', activo: 'btc', activos: ['spy', 'btc'], anterior: 'spy', punteroGrueso: true });
+  assert.equal(AVISOS.filter((a) => casa(a, segunda) && a.texto.startsWith('aviso.grafica')).length, 0);
 });
 
 test('segunda ficha distinta: sale comparar, con LOS DOS activos en el enlace', () => {

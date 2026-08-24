@@ -62,6 +62,12 @@ function arrancar(raiz: HTMLElement) {
       leccion: document.querySelector<HTMLElement>('[data-lesson-page]')?.dataset.lessonPage || null,
       hayTerminos: !!document.querySelector('.lesson-body [data-term]'),
       hayChips: !!document.querySelector('.nw-card .chip-activo'),
+      // El puntero primario es un dedo. Decide QUÉ frase se enseña para leer
+      // la gráfica: con el dedo se arrastra, con el ratón basta pasar por
+      // encima (chart-panel.ts trata los dos casos distinto de verdad). Se
+      // consulta en cada revisión, no una vez al arrancar: un convertible que
+      // pasa de tableta a portátil cambia de respuesta sin recargar.
+      punteroGrueso: !!window.matchMedia?.('(pointer: coarse)').matches,
       rutas
     };
   }

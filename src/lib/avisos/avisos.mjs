@@ -3,9 +3,14 @@
 // QUÉ ES ESTO. Una lista declarativa de frases cortas que aparecen UNA a la vez,
 // abajo, cuando el contexto dice que sirven: al abrir la segunda ficha de activo
 // se ofrece compararlas con las dos ya puestas; al terminar una lección se
-// ofrece el reto del día; la primera vez que se abre una gráfica se dice que se
-// arrastra el dedo. No hay temporizadores ni "vuelve pronto": un aviso aparece
-// porque el estado de la persona lo pide, no porque hayan pasado cinco segundos.
+// ofrece el reto del día; la primera vez que se abre una gráfica se dice cómo se
+// recorre — con el dedo o con el ratón, según lo que tenga quien lee. No hay
+// temporizadores ni "vuelve pronto": un aviso aparece porque el estado de la
+// persona lo pide, no porque hayan pasado cinco segundos.
+//
+// UN AVISO SE LEE EN LA PANTALLA DONDE SALE. Una frase que manda hacer algo que
+// no se puede hacer con el aparato que hay delante no enseña: estorba. Por eso
+// el contexto trae `punteroGrueso` y hay dos avisos para la gráfica.
 //
 // LA REGLA QUE MANDA: si un aviso no ahorra un clic o no enseña algo que no se
 // ve, no va. Un banner que repite el titular de arriba no es un aviso, es
@@ -28,7 +33,11 @@
 //   accion    { tipo: 'enlace', etiqueta, href(ctx) } — el botón navega.
 //             { tipo: 'ok', etiqueta }               — el botón solo cierra.
 //   cuando    (ctx) => boolean. Puro: recibe el contexto ya leído, no toca DOM
-//             ni localStorage. Por eso se puede probar (avisos.test.mjs).
+//             ni localStorage. Por eso se puede probar (avisos.test.mjs). El
+//             contexto lo arma src/scripts/avisos.ts: página y ruta, activos
+//             vistos y el `anterior`, lo que se sigue, las lecciones leídas,
+//             si la página tiene términos o chips, las rutas EN/ES y
+//             `punteroGrueso` (true = el puntero primario es un dedo).
 //   maxVistas opcional; por defecto MAX_VISTAS. Un aviso que se ignora tres
 //             veces se retira solo: quien no lo cerró tampoco lo quiere.
 //
@@ -106,15 +115,31 @@ export const AVISOS = [
     accion: { tipo: 'enlace', etiqueta: 'aviso.reto.cta', href: (c) => c.rutas.challenge },
     cuando: (c) => !!c.leccion && c.leidas.includes(c.leccion)
   },
-  // Primera ficha de activo de la vida. La gráfica se lee con el dedo encima
-  // (precio y hora bajo el punto que tocas) y eso no lo anuncia nada.
+  // Primera ficha de activo de la vida. La gráfica se lee con el puntero
+  // encima (precio y hora bajo el punto) y eso no lo anuncia nada.
+  //
+  // Son DOS avisos y no uno porque el gesto NO es el mismo, y decirlo mal es
+  // peor que no decirlo: con el dedo hay que arrastrar (por eso chart-panel.ts
+  // monta su propia capa .pp-hit: la librería exigía mantener el dedo ~250 ms
+  // quieto y un barrido normal no movía nada), y con ratón basta pasar por
+  // encima, sin pulsar nada. "Arrastra el dedo" en un escritorio es una
+  // instrucción imposible de seguir, que es justo lo contrario de enseñar.
+  // Se excluyen entre sí por `punteroGrueso`: nunca casan los dos.
   {
     id: 'grafica-arrastre',
     version: 1,
     paginas: ['activo'],
     texto: 'aviso.grafica',
     accion: { tipo: 'ok', etiqueta: 'aviso.ok' },
-    cuando: (c) => c.activos.length === 1
+    cuando: (c) => c.activos.length === 1 && c.punteroGrueso
+  },
+  {
+    id: 'grafica-raton',
+    version: 1,
+    paginas: ['activo'],
+    texto: 'aviso.grafica.raton',
+    accion: { tipo: 'ok', etiqueta: 'aviso.ok' },
+    cuando: (c) => c.activos.length === 1 && !c.punteroGrueso
   },
   // Segunda ficha distinta: el comparador con LOS DOS puestos. La ficha ya
   // tiene un botón "Comparar", pero llega con uno solo y hay que elegir el
