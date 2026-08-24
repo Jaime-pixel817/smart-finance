@@ -256,6 +256,24 @@ const t = useT(locale);
     mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
   }
   .hero-globe { z-index: 1; touch-action: pan-y; will-change: transform, opacity; }
+  /* EN CLARO EL GLOBO SE DISUELVE ANTES, Y SOLO EL GLOBO (el cielo se queda con
+     el fundido de arriba). No es simetría rota por capricho: en oscuro las
+     partículas son LUZ sobre negro y bajarles el alfa las apaga hacia el fondo;
+     en claro la tierra se pinta con tinta casi negra (colTierra 0.05 en
+     risk-sphere.js) sobre papel, y la tinta no se disuelve en el papel — se
+     queda como puntos oscuros. Justo debajo, a partir de --sao-y, arranca el
+     titular, que también es tinta.
+
+     Medido a 390×844 sobre una vuelta entera de guiñada (46 muestras cada 2 s,
+     el peor píxel del fondo bajo la caja del h1, SIN contar la sombra del
+     texto): con el .55 de arriba el peor caía a 2.89:1 —un punto suelto del
+     estipulado de tierra en la primera fila de la caja— y con este .38 sube a
+     4.68:1. Sobre el trazo de las letras, de 3.57:1 a 5.86:1. En oscuro no
+     cambia nada: esta regla no existe ahí. */
+  :global(:root[data-theme="light"]) .hero-globe {
+    -webkit-mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.38) 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.38) 78%, transparent 100%);
+  }
   /* EL CIELO. El lienzo del globo es transparente: este degradado es lo que hay
      detrás de las partículas, y por eso cambia con el tema. En claro no puede
      ser blanco puro — las partículas son casi blancas en el mar y desaparecían;
@@ -334,10 +352,24 @@ const t = useT(locale);
     line-height: 1.12;
     letter-spacing: -.015em;
     color: var(--hero-ink);
-    /* Contraste garantizado sobre un fondo que se mueve: la sombra hace de
-       fondo local. Dos capas — una cerrada y opaca que separa el trazo de las
-       partículas, y una abierta que apoya el conjunto. Medido sobre el peor
-       píxel del globo (partícula de tierra iluminada, ~#C9C6BE): 4.9:1. */
+    /* El fondo de este texto se MUEVE, así que un contraste no se mide con una
+       foto: el globo gira 0.075 rad/s y una vuelta entera son 84 s. Lo que hay
+       medido son 46 muestras cada 2 s a 390×844, peor píxel, con la sombra
+       APAGADA (la sombra ayuda de verdad, pero no cuenta como fondo) y con dos
+       varas, porque dan números distintos y conviene no confundirlas:
+
+                        caja entera del h1        solo el trazo de las letras
+         claro          4.61:1  (0/46 < 3)        6.07:1  (0/46 < 3)
+         oscuro         6.12:1  (0/46 < 3)        6.83:1  (0/46 < 3)
+
+       La caja incluye el interlineado y el hueco tras la última palabra, donde
+       nunca cae una letra; es la vara conservadora y es la que manda aquí. El
+       umbral es 3:1 (32 px y peso 600 = texto grande). En 94beff7 esto era
+       2.22:1 en claro con las 46 muestras por debajo del umbral.
+
+       La sombra sigue estando y sigue haciendo falta: dos capas, una cerrada y
+       opaca que separa el trazo de las partículas y una abierta que apoya el
+       conjunto. Lo que NO hace es aparecer en los números de arriba. */
     text-shadow: var(--hero-halo);
   }
   /* La firma va DENTRO del titular, pegada al final de la última palabra y en
