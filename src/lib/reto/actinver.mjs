@@ -11,10 +11,12 @@
 // (src/lib/market/bmv.mjs).
 //
 // Así que la fase NO se escribe: se calcula con la fecha, a partir del
-// calendario publicado por Actinver. La página pinta las cinco fases y enseña
-// la que toca; src/scripts/reto-fase.ts la vuelve a calcular en el navegador
-// con el reloj de quien lee, así que aunque el sitio lleve meses sin
-// desplegarse la página sigue diciendo la verdad.
+// calendario publicado por Actinver. La página sirve VIVA una sola fase —la
+// de hoy— y deja las SEIS dentro de un <template> inerte;
+// src/scripts/reto-fase.ts la vuelve a calcular en el navegador con el reloj
+// de quien lee y, si el día ya cambió, saca del <template> la que toca. Así,
+// aunque el sitio lleve meses sin desplegarse, la página sigue diciendo la
+// verdad — y el HTML servido no lleva escondidas cinco frases falsas.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // DE DÓNDE SALEN LAS FECHAS
@@ -142,7 +144,7 @@ export function inscripcionesAbiertas(hoy, cal = RETO_2026) {
 /**
  * La fase del reto en la fecha `hoy` ('AAAA-MM-DD').
  *
- * Las fases NO son los cinco renglones del calendario: las inscripciones y la
+ * Las fases NO son los cuatro renglones del calendario: las inscripciones y la
  * semana de práctica SE SOLAPAN (inscripciones hasta el 4 de octubre, práctica
  * del 28 de septiembre al 2), y entre el fin de la práctica y el arranque del
  * reto quedan dos días sueltos. Meter esos dos días dentro de "semana de

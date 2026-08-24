@@ -1,9 +1,10 @@
 // La fase del Reto Actinver, recalculada en el NAVEGADOR.
 //
 // El HTML llega con UNA fase viva —la que era verdad el día del build— y las
-// otras cinco dentro de un <template> inerte (RetoActinver.astro). Este módulo
-// mira qué día es de verdad y, si no coincide, saca del <template> la que toca
-// y la pone en su sitio.
+// SEIS dentro de un <template> inerte (RetoActinver.astro; van las seis, no
+// las otras cinco, porque clonar REEMPLAZA el bloque vivo). Este módulo mira
+// qué día es de verdad y, si no coincide, saca del <template> la que toca y
+// la pone en su sitio.
 //
 // POR QUÉ HACE FALTA. El sitio es estático: si nadie despliega entre agosto y
 // octubre, el HTML servido sigue siendo el de agosto y la página diría "faltan

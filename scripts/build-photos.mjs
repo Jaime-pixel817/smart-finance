@@ -265,7 +265,8 @@ console.log('Jaime');
     const g = await sharp(src).metadata();
     console.log('marcas de terceros (sin recortar, sin recolorear)');
     // Sin resize: 182x108 es el tamaño en que Actinver lo publica y la página
-    // lo enseña a 36 px de alto, o sea que ya va a 3x. Reescalar solo perdería.
+    // lo enseña a 34 px de alto (`.marca img` en RetoActinver.astro), o sea
+    // que ya va a más de 3x. Reescalar solo perdería.
     const buf = await sharp(src).webp({ quality: 90, alphaQuality: 100 }).toBuffer();
     const archivo = publicar('reto-actinver.webp', buf);
     console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   ' + g.width + 'x' + g.height + ' (tal cual)');

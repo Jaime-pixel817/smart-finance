@@ -3,12 +3,15 @@
 // está pasando, la cuenta atrás hacia el hito que viene y, cuando toca, el
 // aviso de que las inscripciones siguen abiertas.
 //
-// Existe como componente propio porque el mismo marcado se pinta DOS veces en
-// RetoActinver.astro: una viva (la fase de hoy) y las otras cinco dentro de un
-// <template>, de donde src/scripts/reto-fase.ts las saca si el día cambió. El
-// <template> es la parte importante: su contenido no se renderiza ni lo indexa
-// nadie, así que el HTML que se sirve NO lleva cinco frases falsas sobre hoy
-// esperando escondidas. Solo lleva la que era verdad al construirlo.
+// Existe como componente propio porque el mismo marcado se pinta SIETE veces
+// en RetoActinver.astro: una viva (la fase de hoy) y las seis dentro de un
+// <template>, de donde src/scripts/reto-fase.ts saca la que toque si el día
+// cambió. Van las seis y no las otras cinco a propósito: al clonar se
+// REEMPLAZA el bloque vivo, así que si la de hoy no estuviera también dentro
+// no habría de dónde recuperarla. El <template> es la parte importante: su
+// contenido no se renderiza ni lo indexa nadie, así que el HTML que se sirve
+// NO lleva cinco frases falsas sobre hoy esperando escondidas. Solo lleva la
+// que era verdad al construirlo.
 import type { Locale } from '../../i18n/routes';
 import type { ResearchCopy } from '../../i18n/research';
 import { conDatos } from '../../lib/reto/actinver.mjs';

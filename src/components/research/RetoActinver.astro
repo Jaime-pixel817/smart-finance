@@ -4,10 +4,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // LA FASE NO ESTÁ ESCRITA EN NINGÚN SITIO: SE CALCULA
 // ═══════════════════════════════════════════════════════════════════════════
-// Aquí se pintan las SEIS fases del reto y se esconden cinco. La que queda a la
-// vista la elige `fase()` de src/lib/reto/actinver.mjs con la fecha de hoy en
-// Ciudad de México, y src/scripts/reto-fase.ts la vuelve a elegir en el
-// navegador con el reloj de quien lee.
+// Aquí se sirve VIVA una sola fase: la que elige `fase()` de
+// src/lib/reto/actinver.mjs con la fecha de hoy en Ciudad de México. Las SEIS
+// van además dentro de un <template> inerte, y de ahí saca
+// src/scripts/reto-fase.ts la que toque si el reloj de quien lee dice otra.
 //
 // Por qué las dos veces: el sitio es estático, así que sin el script la página
 // se quedaría diciendo lo que fuera verdad el día del build — y este bloque se
@@ -87,12 +87,12 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
 
   <!-- Cómo va hoy.
        VIVA va UNA sola fase: la que era verdad al construir la página. Las
-       otras cinco van dentro de un <template>, que el navegador no renderiza y
-       nadie indexa, y de ahí las saca src/scripts/reto-fase.ts si el día ya
-       cambió. Pintarlas todas y esconder cinco con `hidden` era más simple,
-       pero dejaba en el HTML servido cinco frases falsas sobre hoy —"el reto
-       está en marcha" en agosto— para cualquiera que leyera el código fuente o
-       lo raspara. -->
+       seis van dentro de un <template> (el porqué de las seis y no cinco,
+       abajo), que el navegador no renderiza y nadie indexa, y de ahí saca
+       src/scripts/reto-fase.ts la que toca si el día ya cambió. Pintarlas
+       todas y esconder cinco con `hidden` era más simple, pero dejaba en el
+       HTML servido cinco frases falsas sobre hoy —"el reto está en marcha"
+       en agosto— para cualquiera que leyera el código fuente o lo raspara. -->
   <div class="card reto-estado" data-reto data-reto-textos={textosScript}>
     <h3 class="t-h3">{r.retoNow}</h3>
     <div data-reto-actual>
