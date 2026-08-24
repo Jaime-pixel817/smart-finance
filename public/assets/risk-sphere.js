@@ -679,16 +679,28 @@ function construirRejilla(pos, n, radio, lado) {
 }
 
 const R = 1.8;
-/* Cuánto del ANCHO del lienzo ocupa el disco. En escritorio sigue en 0.85; en
-   el teléfono baja a 0.80 y esos cinco puntos son la diferencia entre un globo
+/* Cuánto del ANCHO del lienzo ocupa el disco. En escritorio es 0.85; en el
+   teléfono baja a 0.80 y esos cinco puntos son la diferencia entre un globo
    que se lee centrado y uno que parece salirse por la derecha. A 390 px, con
    0.85 el disco medía 331 px y con el halo 370: diez píxeles de aire a cada
    lado. El lienzo estaba centrado al píxel —medido: centro del disco 195.3
    contra 195 de viewport— pero con ese margen el ojo no tiene contra qué
    comparar, y como el terminador deja la mitad izquierda en negro, lo que se
-   ve es un planeta pegado al borde derecho. Con 0.80 el aire pasa a ~25 px por
-   lado y el círculo flota dentro de la pantalla. */
-const relleno = (w) => (w < 560 ? 0.80 : 0.85);
+   ve es un planeta pegado al borde derecho. Con 0.80 el aire pasa a ~22 px por
+   lado y el círculo flota dentro de la pantalla.
+
+   EL NÚMERO NO VIVE AQUÍ. Vive en --globe-fill (Hero.astro), porque el CSS lo
+   necesita antes que nadie: de ahí salen --globe-d y --sao-y, que son los que
+   colocan el titular sin preguntarle al lienzo. Este archivo lo LEE de ahí,
+   igual que hace hero.ts para medir el aterrizaje. Antes eran dos copias con
+   dos cortes distintos —768 px en el CSS, 560 px aquí— y entre 560 y 767 px
+   decían cosas distintas; no se veía (en esa banda manda siempre el tope de
+   cámara, min(fill·W, 0.8692·H)), pero era una trampa puesta para el próximo
+   que tocara el relleno. El 0.80 de respaldo es el valor base del CSS, para el
+   caso de que el lienzo se monte fuera del hero y la variable no exista. */
+const RELLENO_BASE = 0.80;
+const relleno = (el) =>
+  parseFloat(getComputedStyle(el).getPropertyValue("--globe-fill")) || RELLENO_BASE;
 const FOCUS_LERP = 0.06;
 const MORPH_S = 1.4;
 const INTRO_MORPH_S = 1.0;
@@ -876,7 +888,7 @@ async function initRiskSphere() {
   const aspect    = (container.clientWidth > 0 && container.clientHeight > 0)
     ? container.clientWidth / container.clientHeight
     : 1;
-  const groupScale = Math.min(BASE_SCALE, (visibleHW * aspect * relleno(container.clientWidth)) / (2 * R));
+  const groupScale = Math.min(BASE_SCALE, (visibleHW * aspect * relleno(container)) / (2 * R));
 
   /* ── LAS POSICIONES DE REPOSO NACEN YA EN SU SITIO ─────────────────────
    *
@@ -2090,7 +2102,7 @@ async function initRiskSphere() {
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
-    const newScale = Math.min(BASE_SCALE, (visibleHW * camera.aspect * relleno(container.clientWidth)) / (2 * R));
+    const newScale = Math.min(BASE_SCALE, (visibleHW * camera.aspect * relleno(container)) / (2 * R));
     group.scale.set(newScale, newScale, newScale);
     updatePixelsPerUnit();
   };

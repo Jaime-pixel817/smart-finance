@@ -165,12 +165,23 @@ const t = useT(locale);
        El primer término es el caso normal (el disco ocupa `relleno` del ancho);
        el segundo es el tope BASE_SCALE de la cámara, que manda en bandas muy
        bajas. El 0.8692 sale de 2·R·BASE_SCALE / visibleHW = 4.68 / 5.3848.
-       Comprobado contra el lienzo real a 360/390/430 px: menos de 2 px de
-       diferencia.
+       El diámetro sí es exacto: comprobado leyendo el framebuffer a
+       360/390/430 px.
 
-       Y de ahí sale --sao-y, la altura del marcador de São Paulo: está a
-       0.51 radios por debajo del centro del disco (latitud −23.55° más la
-       perspectiva, medido en el lienzo), o sea 0.255 diámetros. */
+       Y de ahí sale --sao-y, la altura del marcador de São Paulo. AQUÍ NO HAY
+       NÚMERO EXACTO QUE VALGA, y conviene saberlo antes de tocarlo: el globo
+       gira (0.075 rad/s) y se ladea (sin(t·0.2)·0.07), así que São Paulo NO
+       está quieto. Muestreado del evento "globe:pins" cada 250 ms durante
+       180 s a 390×844, su y de viewport barre de 402.4 a 459.6 px — de 0.136 a
+       0.319 diámetros por debajo del centro del disco, con media 0.219.
+
+       El 0.255 de aquí es una constante elegida DENTRO de ese barrido, no una
+       medición: preguntarle al lienzo dónde está el marcador movería el
+       titular en cuanto el globo arrancara (= CLS), así que se fija. Lo que
+       importa es la consecuencia, y esa sí está medida: con los 24 px de aire
+       de .hero-gap, el titular arranca entre 4 px (peor instante, marcador
+       abajo del todo) y 61 px por debajo del marcador. Nunca lo pisa. Si algún
+       día se sube el 0.255, ese margen de 4 px es lo primero que se gasta. */
     --globe-w: 100vw;
     --globe-cx: 50vw;
     --globe-fill: .80;
@@ -441,18 +452,21 @@ const t = useT(locale);
     37.5% { transform: translate3d(calc(var(--orbit-x) * .4922), calc(var(--orbit-y) * -.1172), 0) scale(calc(1 + (var(--park-s) - 1) * .4792)); opacity: 1; }
     50%   { transform: translate3d(calc(var(--orbit-x) * .625),  calc(var(--orbit-y) * -.025),  0) scale(calc(1 + (var(--park-s) - 1) * .5946)); opacity: 1; }
     62.5% { transform: translate3d(calc(var(--orbit-x) * .7422), calc(var(--orbit-y) * .1328),  0) scale(calc(1 + (var(--park-s) - 1) * .7031)); opacity: .97; }
-    75%   { transform: translate3d(calc(var(--orbit-x) * .8438), calc(var(--orbit-y) * .3563),  0) scale(calc(1 + (var(--park-s) - 1) * .8067)); opacity: .9; }
-    87.5% { transform: translate3d(calc(var(--orbit-x) * .9297), calc(var(--orbit-y) * .6453),  0) scale(calc(1 + (var(--park-s) - 1) * .9061)); opacity: .55; }
+    75%   { transform: translate3d(calc(var(--orbit-x) * .8438), calc(var(--orbit-y) * .3563),  0) scale(calc(1 + (var(--park-s) - 1) * .8059)); opacity: .9; }
+    87.5% { transform: translate3d(calc(var(--orbit-x) * .9297), calc(var(--orbit-y) * .6453),  0) scale(calc(1 + (var(--park-s) - 1) * .9047)); opacity: .55; }
     100%  { transform: translate3d(var(--orbit-x), var(--orbit-y), 0) scale(var(--park-s)); opacity: 0; }
   }
-  /* El giro sobre su eje y el desenfoque van en el lienzo, no en la banda. */
+  /* El giro sobre su eje y el desenfoque van en el lienzo, no en la banda.
+     Los números son las MISMAS funciones de hero.ts evaluadas en cada muestra
+     —giro = −20·t^1.25, desenfoque = 1.4·(t−0.625)/0.375— redondeadas a dos
+     decimales, no valores a ojo: así las dos rutas no se separan. */
   @keyframes hero-park-spin {
     0%    { transform: rotate(0deg); filter: none; }
     25%   { transform: rotate(-3.54deg); }
     50%   { transform: rotate(-8.41deg); }
     62.5% { filter: blur(0px); }
-    75%   { transform: rotate(-13.9deg); filter: blur(.4px); }
-    87.5% { transform: rotate(-16.9deg); filter: blur(.9px); }
+    75%   { transform: rotate(-13.96deg); filter: blur(.47px); }
+    87.5% { transform: rotate(-16.93deg); filter: blur(.93px); }
     100%  { transform: rotate(-20deg); filter: blur(1.4px); }
   }
   /* Las pastillas se van en cuanto arranca la órbita: van pegadas a un
@@ -520,10 +534,12 @@ const t = useT(locale);
     .hero {
       --hero-peek: 150px;
       --globe-h: clamp(400px, 64svh, 700px);
-      /* Mismo número que `relleno()` en risk-sphere.js: en pantallas anchas el
-         disco vuelve al 85 % — ahí sobra aire a los lados y no hace falta
-         quitárselo al globo. Y como el disco es mucho mayor, la escala de
-         aterrizaje tiene que ser mucho menor para caber en los mismos 26 px. */
+      /* En pantallas anchas el disco vuelve al 85 %: ahí sobra aire a los
+         lados y no hace falta quitárselo al globo. Este 768 es EL corte, el
+         único: `relleno()` en risk-sphere.js lee esta misma variable, así que
+         no hay un segundo número que se pueda quedar atrás. Y como el disco es
+         mucho mayor, la escala de aterrizaje tiene que ser mucho menor para
+         caber en los mismos 26 px. */
       --globe-fill: .85;
       --park-s: .046;
     }
