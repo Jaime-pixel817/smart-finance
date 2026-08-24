@@ -111,21 +111,40 @@ const LETRA = 'a-z0-9áéíóúüñ';
 const FIN = '(?![' + LETRA + '])';
 const RESTO = '[' + LETRA + ']*';   // el resto de una palabra, acentos incluidos
 
-/** Predicción de precio en español, con las formas acentuadas que sí casan. */
-const RE_PREDICE_ES = new RegExp(
-  '\\b(?:va\\s+a\\s+(?:subir|bajar|caer|valer)|subir[áa]|bajar[áa]|caer[áa]|' +
-  'alcanzar[áa]|llegar[áa]\\s+a)' + FIN, 'i');
+/**
+ * Predicción de precio en español, con las formas acentuadas que sí casan.
+ *
+ * Dos versiones, y la diferencia es "valer". En la ENTRADA, "¿cuánto va a valer
+ * el dólar?" es pedir un pronóstico. En la SALIDA no vale: la lección de la
+ * tarjeta de crédito dice "un historial que a los veinticinco va a valer dinero
+ * de verdad", que no predice ningún precio, y meterlo en la lista de salida
+ * dejaba muda esa lección entera.
+ */
+const PREDICE = '(?:va\\s+a\\s+(?:subir|bajar|caer{VALER})|subir[áa]|bajar[áa]|caer[áa]|' +
+  'alcanzar[áa]|llegar[áa]\\s+a)';
+const RE_PREDICE_ES = new RegExp('\\b' + PREDICE.replace('{VALER}', '|valer') + FIN, 'i');
+const RE_PREDICE_ES_SALIDA = new RegExp('\\b' + PREDICE.replace('{VALER}', '') + FIN, 'i');
 
 const PATRONES_CONSEJO = [
   // Comprar / vender / invertir, en primera persona o como recomendación.
   /\b(compro|vendo|invierto|le\s+entro|me\s+meto)\b/i,
   /\b(deber[íi]as?|conviene|vale\s+la\s+pena|recomiendas?|recomiendan|recomendar[íi]as?)\b/i,
+  // "debo" no es "debería", y "¿debo comprar dólares?" no lo veía nadie.
+  new RegExp('\\b(?:debo|deber[íi]a|debiera|debiese|me\\s+conviene)\\s+(?:comprar|vender|invertir|' +
+    'entrar|entrarle|meter' + RESTO + '|salir' + RESTO + '|mantener|holdear|aguantar)' + FIN, 'i'),
   /\b(should\s+i|would\s+you|do\s+you\s+recommend|is\s+it\s+worth|worth\s+buying)\b/i,
   /\b(qu[ée]|d[óo]nde|en\s+qu[ée])\s+(me\s+conviene|invierto|compro)\b/i,
   /\b(what|where|which)\s+(should|to)\s+(i\s+)?(buy|sell|invest)/i,
   /\bbuy\s+or\s+sell\b/i,
   /\b(es|ser[íi]a)\s+(una\s+)?buena\s+(inversi[óo]n|compra|idea\s+de\s+inversi[óo]n)\b/i,
+  // "¿es momento de entrar?" y "is now a good time?" son la misma pregunta.
+  new RegExp('\\b(?:es|ser[íi]a|ya\\s+es)\\s+(?:el\\s+|un\\s+|buen\\s+)*momento\\s+(?:de|para)\\s+' +
+    '(?:comprar|vender|invertir|entrar|entrarle|meter' + RESTO + '|salir' + RESTO + ')' + FIN, 'i'),
+  /\bgood\s+time\b/i,
   /\b(good|bad)\s+(investment|buy|time\s+to\s+(buy|sell))\b/i,
+  // "¿tú qué harías?" es pedir el consejo por la puerta de atrás.
+  new RegExp('\\b(?:t[úu]\\s+)?qu[ée]\\s+(?:har[íi]as|me\\s+recomiendas|me\\s+dices\\s+que\\s+haga)' + FIN, 'i'),
+  /\bwhat\s+would\s+you\s+do\b/i,
   // Predicción de precio.
   RE_PREDICE_ES,
   /\b(cu[áa]nto\s+(va\s+a\s+|)(subir|bajar|valer|costar))\b/i,
@@ -136,11 +155,32 @@ const PATRONES_CONSEJO = [
   /\b(what\s+stocks?\s+should|where\s+(should|do)\s+i\s+(put|invest))\b/i
 ];
 
+// PEDIR UNA VALUACIÓN ES PEDIR UN CONSEJO, pero preguntar por una causa no.
+//
+//   "¿está barato?"                  → es pedir el juicio, o sea el consejo
+//   "¿por qué está caro el dólar?"   → es pedir la causa, y eso sí se explica
+//
+// Por eso estos patrones van aparte: solo cuentan cuando la pregunta no viene
+// con un porqué delante. En la SALIDA no hay excepción — el prompt le prohíbe
+// al modelo decir que algo está barato o caro, con porqué o sin él.
+const PATRONES_VALUACION = [
+  new RegExp('\\b(?:est[áa]|es|luce|parece|se\\s+ve)\\s+(?:muy\\s+|algo\\s+|bastante\\s+|' +
+    'demasiado\\s+)?(?:barat|car)[oa]' + FIN, 'i'),
+  new RegExp('\\b(?:infra|sobre|sub)valorad[oa]s?' + FIN, 'i'),
+  /\b(undervalued|overvalued)\b/i,
+  /\b(is|are|looks|seems)\s+(it|this|that|now)?\s*(really\s+|quite\s+|pretty\s+|too\s+|so\s+)?(cheap|expensive)\b/i
+];
+
+// Y aquí otra vez el `\b` tras vocal acentuada: /por\s?qu[ée]\b/ no casa con
+// "por qué ". Se termina con FIN, como todo lo que puede acabar en acento.
+const RE_PORQUE = new RegExp('\\b(?:por\\s?qu[ée]|why|c[óo]mo\\s+es\\s+que|what\\s+makes)' + FIN, 'i');
+
 /** true si el texto PIDE un consejo de inversión o una predicción de precio. */
 function esConsejo(texto) {
   const t = String(texto || '');
   if (!t.trim()) return false;
-  return PATRONES_CONSEJO.some((re) => re.test(t));
+  if (PATRONES_CONSEJO.some((re) => re.test(t))) return true;
+  return !RE_PORQUE.test(t) && PATRONES_VALUACION.some((re) => re.test(t));
 }
 
 // El otro lado del mismo problema: que el modelo DÉ un consejo aunque nadie se
@@ -159,13 +199,27 @@ const PATRONES_CONSEJO_DADO = [
   /\b(te|le)\s+(recomiendo|recomendar[íi]a|aconsejo|sugiero|conviene)\b/i,
   /\b(yo\s+)?(comprar[íi]a|vender[íi]a)\b/i,
   /\bes\s+(un\s+)?(buen|mal)\s+(momento|precio|punto|negocio|nivel|entrada)\b/i,
-  /\b(s[íi]|no)\s+vale\s+la\s+pena\s+(comprar|invertir|entrar)\b/i,
-  RE_PREDICE_ES,
+  // "Es momento de comprar" no lleva "buen" delante y se colaba entero.
+  new RegExp('\\b(?:es|ser[íi]a|ya\\s+es|hoy\\s+es)\\s+(?:el\\s+|un\\s+)?momento\\s+(?:de|para)\\s+' +
+    '(?:comprar|vender|invertir|entrar|entrarle|meter' + RESTO + '|salir' + RESTO + ')' + FIN, 'i'),
+  // Sin exigir el sí/no delante: "Vale la pena comprar ahora" es la forma
+  // normal, y "no vale la pena comprar" también es recomendar (que no compres).
+  new RegExp('\\bvale\\s+la\\s+pena\\s+(?:comprar|invertir|entrar|entrarle|meter' + RESTO + ')' + FIN, 'i'),
+  // Empujar a mover la posición es dar consejo aunque no diga "compra".
+  new RegExp('\\b(?:considera|plant[ée]ate|piensa\\s+en|te\\s+toca)\\s+(?:comprar|vender|invertir|' +
+    'entrar|aumentar|reducir|meter' + RESTO + ')' + FIN, 'i'),
+  new RegExp('\\b(?:aumentar|reducir|abrir|cerrar|subir|bajar)\\s+(?:tu|su)\\s+posici[óo]n' + FIN, 'i'),
+  /\bconsider\s+(buying|selling|adding|increasing|reducing|trimming)\b/i,
+  RE_PREDICE_ES_SALIDA,
   /\byou\s+should\s+(buy|sell|hold|invest|avoid)\b/i,
   /\bi\s+(recommend|would\s+(buy|sell))\b/i,
-  /\bit(?:'s|\s+is)\s+a\s+(good|bad)\s+(time|buy|entry|investment)\b/i,
+  // "This is a good time to buy" no dice "it's": el sujeto podía ser cualquiera.
+  /\b(it|this|that|now|today)(?:'s|\s+is)\s+a\s+(good|bad)\s+(time|buy|entry|investment|moment|point|level)\b/i,
   /\b(will|is\s+going\s+to)\s+(go\s+up|go\s+down|rise|fall|drop|climb|reach)\b/i,
-  /\bprice\s+target\b/i
+  /\bprice\s+target\b/i,
+  // El prompt le prohíbe decir que algo está barato, caro o infravalorado; el
+  // prompt no es una garantía, así que también se comprueba aquí.
+  ...PATRONES_VALUACION
 ];
 
 // QUÉ NEGACIÓN CONVIERTE UNA PREDICCIÓN EN ADVERTENCIA.
@@ -981,7 +1035,8 @@ async function explicar(query, req, deps) {
 module.exports = {
   explicar,
   // Para las pruebas y para quien venga a cambiar los topes.
-  esConsejo, daConsejo, numerosDe, numerosFuera, permitidosDe, separarFechas, normalizar,
+  esConsejo, daConsejo, PATRONES_CONSEJO, PATRONES_VALUACION, PATRONES_CONSEJO_DADO,
+  numerosDe, numerosFuera, permitidosDe, separarFechas, normalizar,
   armarDatos, resumirSerie, validar, leerPedido, ipDe, cobrar,
   MODELO, MAX_DIA, MAX_IP, MAX_PREGUNTA, TIPOS, MODOS, RANGOS,
   FRASE_CONSEJO, FRASE_SIN_VERIFICAR, FRASE_TOPE, FRASE_SIN_CONTADOR, FRASE_SIN_DATOS

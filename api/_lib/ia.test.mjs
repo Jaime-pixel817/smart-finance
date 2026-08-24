@@ -87,6 +87,95 @@ test('caza al modelo dando consejo, y deja pasar la advertencia negada', () => {
   for (const a of advertencias) assert.equal(ia.daConsejo(a), false, 'falso positivo en: ' + a);
 });
 
+test('las otras formas de pedir el consejo, que no son "¿compro?"', () => {
+  const consejos = [
+    '¿debo comprar dólares?', '¿debo vender ahora?', '¿me conviene entrarle?',
+    '¿es momento de entrar?', '¿ya es buen momento para comprar?',
+    '¿tú qué harías?', '¿qué me recomiendas?', 'what would you do?',
+    'is now a good time?', '¿está barato?', '¿está caro el dólar?',
+    '¿la acción está infravalorada?', 'is this cheap?'
+  ];
+  for (const c of consejos) assert.equal(ia.esConsejo(c), true, 'no detectó consejo en: ' + c);
+});
+
+test('preguntar por la CAUSA no es pedir una valuación', () => {
+  // "¿está barato?" pide el juicio; "¿por qué está caro?" pide la causa, y esa
+  // sí se explica. La diferencia es el porqué, y solo vale en la ENTRADA.
+  assert.equal(ia.esConsejo('¿por qué está caro el dólar?'), false);
+  assert.equal(ia.esConsejo('why is gold so expensive right now?'), false);
+  // En la SALIDA no hay excepción: el prompt le prohíbe al modelo decirlo.
+  assert.equal(ia.daConsejo('El dólar está caro porque subió mucho.'), true);
+});
+
+test('caza al modelo recomendando sin decir "deberías comprar"', () => {
+  const consejos = [
+    'Es momento de comprar: el peso está barato en este punto de la serie.',
+    'Vale la pena comprar ahora.',
+    'This is a good time to buy.',
+    'Now is a good entry.',
+    'El peso está barato a este nivel.',
+    'La acción está infravalorada.',
+    'Considera aumentar tu posición.',
+    'You should consider buying more.',
+    'A este precio parece barata.'
+  ];
+  for (const c of consejos) assert.equal(ia.daConsejo(c), true, 'no detectó consejo dado en: ' + c);
+});
+
+test('"va a valer" pregunta un pronóstico, pero no lo da', () => {
+  // La frase está tal cual en la lección de la tarjeta de crédito. Meter
+  // "valer" en la lista de SALIDA dejaba muda la lección entera.
+  assert.equal(ia.esConsejo('¿cuánto va a valer el dólar en diciembre?'), true);
+  assert.equal(
+    ia.daConsejo('Deja que los pagos puntuales te construyan un historial que a los veinticinco va a valer dinero de verdad.'),
+    false
+  );
+  assert.equal(ia.daConsejo('El dólar va a subir la próxima semana.'), true);
+});
+
+test('el clasificador de salida no enmudece el texto real del sitio', () => {
+  // 1,438 frases de las diez lecciones y del glosario. Un falso positivo aquí
+  // no es teórico: es una lección que ya no se puede explicar.
+  const sospechosas = [];
+  const mirar = (etiqueta, texto) => {
+    if (typeof texto !== 'string') return;
+    for (const f of texto.split(/(?<=[.!?])\s+/)) {
+      if (f.trim() && ia.daConsejo(f)) sospechosas.push(etiqueta + ' :: ' + f.trim().slice(0, 90));
+    }
+  };
+  for (const l of contexto.lecciones) {
+    mirar('leccion ' + l.slug + ' es', l.es.cuerpo);
+    mirar('leccion ' + l.slug + ' en', l.en.cuerpo);
+  }
+  // Una sola, conocida y aceptada: "prices will rise 6%" de la lección de
+  // inflación, que habla de expectativas y no del precio de un activo. Se deja
+  // pasar a propósito — estrechar `will rise` abriría la puerta a una
+  // predicción de verdad, y la asimetría de este archivo manda al revés.
+  assert.deepEqual(
+    sospechosas.filter((s) => !/leccion inflacion en/.test(s)), [],
+    'el clasificador de salida enmudece texto legítimo del sitio'
+  );
+  assert.equal(sospechosas.length, 1, 'apareció (o desapareció) un falso positivo conocido');
+});
+
+test('ningún patrón vivo termina en `\\b` detrás de una vocal acentuada', () => {
+  // El bug que dejaba pasar "subirá", "bajará", "caerá" y "alcanzará". Es
+  // invisible leyendo el patrón, así que lo vigila una prueba.
+  const listas = {
+    PATRONES_CONSEJO: ia.PATRONES_CONSEJO,
+    PATRONES_VALUACION: ia.PATRONES_VALUACION,
+    PATRONES_CONSEJO_DADO: ia.PATRONES_CONSEJO_DADO
+  };
+  const trampa = /(?:[áéíóúüñ]|\[[^\]]*[áéíóúüñ][^\]]*\])\\b/;
+  for (const [nombre, lista] of Object.entries(listas)) {
+    assert.ok(lista.length, nombre + ' no llegó a la prueba');
+    for (const re of lista) {
+      assert.ok(!trampa.test(re.source),
+        nombre + ': `\\b` detrás de una vocal acentuada nunca casa. Termina con FIN. → ' + re.source);
+    }
+  }
+});
+
 test('las predicciones acentuadas SÍ se cazan, en los dos clasificadores', () => {
   // `\b` no es una frontera detrás de una vocal acentuada: /subir[áa]\b/ no
   // casa con "subirá". Las cuatro formas estaban escritas así y las cuatro
