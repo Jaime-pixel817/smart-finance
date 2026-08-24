@@ -30,7 +30,7 @@ import { route } from '../../i18n/routes';
 import { useR } from '../../i18n/research';
 import { foto } from '../../lib/photos';
 import { day } from '../../lib/research/format.mjs';
-import { RETO_2026, FASES, fase, estadoHitos, fechaLocal } from '../../lib/reto/actinver.mjs';
+import { RETO_2026, FASES, fase, estadoHitos, fechaLocal, conDatos } from '../../lib/reto/actinver.mjs';
 import FaseReto from './FaseReto.astro';
 
 const { locale } = Astro.props as { locale: Locale };
@@ -43,6 +43,9 @@ const actual = fase(hoy, cal);
 const hitos = estadoHitos(hoy, cal);
 
 const D = (iso: string) => day(iso, locale);
+// Los textos dejan `{y}` (la edición) y `{mes}` (el mes de la premiación) en
+// blanco: los rellena el calendario, no la traducción.
+const T = (txt: string) => conDatos(txt, locale);
 const rango = (t: { desde: string; hasta: string }) => D(t.desde) + ' – ' + D(t.hasta);
 
 // El hito que le toca a cada fase: es a lo que apunta la cuenta atrás.
@@ -57,7 +60,7 @@ const filas = [
   { id: 'inscripciones', cuando: rango(cal.inscripciones) },
   { id: 'practica', cuando: rango(cal.practica) },
   { id: 'reto', cuando: rango(cal.reto) },
-  { id: 'premiacion', cuando: r.retoPremiacion }
+  { id: 'premiacion', cuando: T(r.retoPremiacion) }
 ] as { id: keyof typeof r.retoCal; cuando: string }[];
 
 // Textos que el script necesita para reescribir la cuenta atrás sin volver a
@@ -75,7 +78,7 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
         <img src={foto('reto-actinver.webp')} alt={r.retoLogoAlt} width="182" height="108" decoding="async" />
       </span>
       <div class="reto-head-txt">
-        <p class="eyebrow">{r.retoEdition}</p>
+        <p class="eyebrow">{T(r.retoEdition)}</p>
         <h2 id="reto-h" class="t-h2">{r.retoH}</h2>
       </div>
     </div>
@@ -93,7 +96,7 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
   <div class="card reto-estado" data-reto data-reto-textos={textosScript}>
     <h3 class="t-h3">{r.retoNow}</h3>
     <div data-reto-actual>
-      <FaseReto f={actual.id} r={r} hito={HITO_DE[actual.id]} faltan={actual.faltan} inscripciones={actual.inscripciones} />
+      <FaseReto f={actual.id} r={r} locale={locale} hito={HITO_DE[actual.id]} faltan={actual.faltan} inscripciones={actual.inscripciones} />
     </div>
     <!-- LAS SEIS, incluida la que está viva arriba. Tener solo las otras cinco
          parecía más limpio y estaba mal: el bloque vivo se REEMPLAZA al
@@ -103,7 +106,7 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
          verdad hoy, que no le hace daño a nadie. -->
     <template data-reto-fases>
       {FASES.map((f: string) => (
-        <FaseReto f={f} r={r} hito={HITO_DE[f]} faltan={null} inscripciones={true} />
+        <FaseReto f={f} r={r} locale={locale} hito={HITO_DE[f]} faltan={null} inscripciones={true} />
       ))}
     </template>
   </div>
@@ -116,7 +119,7 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
 
   <!-- El calendario -->
   <div class="reto-sub">
-    <h3 class="t-h3">{r.retoCalH}</h3>
+    <h3 class="t-h3">{T(r.retoCalH)}</h3>
     <p class="t-small muted">{r.retoCalP}</p>
     <ol class="cal">
       {filas.map((fila) => (

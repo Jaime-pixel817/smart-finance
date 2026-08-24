@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { RETO_2026, FASES, HITOS, fase, estadoHitos, diasEntre, fechaLocal, inscripcionesAbiertas } from './actinver.mjs';
+import { readFileSync } from 'node:fs';
+import { RETO_2026, FASES, HITOS, fase, estadoHitos, diasEntre, fechaLocal, inscripcionesAbiertas, conDatos } from './actinver.mjs';
 
 test('el calendario es el que publica retoactinver.com', () => {
   assert.equal(RETO_2026.inscripciones.desde, '2026-07-27');
@@ -142,4 +143,37 @@ test('FASES lista todas las fases que puede devolver fase()', () => {
     ['2026-01-01', '2026-08-23', '2026-09-30', '2026-10-03', '2026-10-20', '2026-12-01'].map((d) => fase(d).id)
   );
   assert.deepEqual([...vistas].sort(), [...FASES].sort());
+});
+
+test('conDatos rellena la edición y el mes de la premiación, en su idioma', () => {
+  assert.equal(conDatos('Edición {y}', 'es'), 'Edición 2026');
+  assert.equal(conDatos('{y} edition', 'en'), '2026 edition');
+  assert.equal(conDatos('{mes}, en la BMV', 'es'), 'Diciembre de 2026, en la BMV');
+  assert.equal(conDatos('{mes}, at the BMV', 'en'), 'December 2026, at the BMV');
+  // Un texto sin huecos sale igual, y el mes se lee del calendario que se pase.
+  assert.equal(conDatos('sin huecos', 'es'), 'sin huecos');
+  assert.equal(
+    conDatos('{y}: {mes}', 'en', { ...RETO_2026, edicion: 2027, premiacion: { mes: '2027-01' } }),
+    '2027: January 2027'
+  );
+});
+
+test('ninguna cadena del reto escribe la edición ni el mes de la premiación', () => {
+  // La razón de que exista conDatos(). El comentario de src/i18n/research.ts
+  // ya juraba que ninguna fecha se repetía a mano y cuatro cadenas la
+  // repetían ("2026 edition", "December 2026" y sus versiones en español):
+  // el día que el calendario pase a 2027 habrían seguido diciendo 2026, en
+  // los dos idiomas, sin que nada falle. Se lee el fichero como texto porque
+  // es TypeScript y `node --test` no lo puede importar.
+  const src = readFileSync(new URL('../../i18n/research.ts', import.meta.url), 'utf8');
+  const bloques = [...src.matchAll(/\n  retoH:[\s\S]*?\n  retoSourceP:.*\n/g)].map((m) => m[0]);
+  assert.equal(bloques.length, 2, 'tiene que haber un bloque de textos del reto por idioma');
+  for (const b of bloques) {
+    assert.ok(!b.includes(String(RETO_2026.edicion)), 'la edición va en {y}, no escrita: ' + String(RETO_2026.edicion));
+    for (const mes of ['December', 'Diciembre', 'diciembre']) {
+      assert.ok(!b.includes(mes), 'el mes de la premiación va en {mes}, no escrito: ' + mes);
+    }
+  }
+  // Y los huecos están de verdad puestos, no es que se hayan borrado.
+  assert.equal(bloques.filter((b) => b.includes('{y}') && b.includes('{mes}')).length, 2);
 });

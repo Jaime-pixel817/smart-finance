@@ -43,6 +43,8 @@
 // Smart Finance no está afiliado a Actinver ni al Reto Actinver: esto es el
 // calendario de un evento de terceros, copiado de su sitio.
 
+import { month } from '../research/format.mjs';
+
 /** Calendario 2026, tal como lo publica retoactinver.com. Fechas civiles en México. */
 export const RETO_2026 = {
   edicion: 2026,
@@ -61,6 +63,25 @@ export const RETO_2026 = {
 
 /** Las fases, en orden. El id es la clave de los textos en src/i18n/research.ts. */
 export const FASES = ['antes', 'inscripciones', 'practica', 'vispera', 'reto', 'resultados'];
+
+/**
+ * Rellena los dos huecos que los textos del reto dejan a propósito:
+ * `{y}` la edición y `{mes}` el mes de la premiación, ya escrito en su idioma.
+ *
+ * Es la misma regla que la fase, un escalón más abajo: la edición y el mes
+ * son DATOS del calendario, así que si se escriben en src/i18n/research.ts
+ * hay que acordarse de cambiarlos en cuatro cadenas y dos idiomas el día que
+ * cambie el calendario — y nadie se acuerda. Aquí solo hay un sitio.
+ *
+ * @param {string} txt texto con `{y}` y/o `{mes}`
+ * @param {'en'|'es'} loc
+ * @param {typeof RETO_2026} cal
+ */
+export function conDatos(txt, loc = 'en', cal = RETO_2026) {
+  return String(txt)
+    .replaceAll('{y}', String(cal.edicion))
+    .replaceAll('{mes}', month(cal.premiacion.mes, loc));
+}
 
 /**
  * Fecha civil (YYYY-MM-DD) en una zona horaria.

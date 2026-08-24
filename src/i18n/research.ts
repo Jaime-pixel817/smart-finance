@@ -82,14 +82,20 @@ const en = {
   // ---- Reto Actinver ----------------------------------------------------
   // Todo lo de aquí describe un evento de un TERCERO. Las fechas, el millón
   // virtual y el lugar de la premiación salen de retoactinver.com y están en
-  // src/lib/reto/actinver.mjs con su fecha de consulta; ninguna se repite
-  // escrita a mano en estas cadenas, para que no puedan quedar desfasadas.
+  // src/lib/reto/actinver.mjs con su fecha de consulta.
+  //
+  // NI UN AÑO NI UN MES ESCRITOS AQUÍ. Los dos huecos —`{y}` la edición,
+  // `{mes}` el mes de la premiación— los rellena `conDatos()` del módulo con
+  // el calendario. Estuvieron escritos ("2026 edition", "December 2026") con
+  // este mismo comentario encima jurando que no: el día que se cambie el
+  // calendario a 2027, esas cuatro cadenas habrían seguido diciendo 2026 en
+  // los dos idiomas, y nadie se entera. Lo vigila una prueba (actinver.test).
   retoH: 'Actinver Challenge',
-  retoEdition: '2026 edition',
+  retoEdition: '{y} edition',
   retoLede: 'A contest run by Actinver, not by Smart Finance. It hands every entrant the same million virtual pesos and lets them invest it on the Mexican stock exchange in real time for six weeks. I am playing it, and every position I open goes up with the reason I opened it.',
   retoWhatH: 'What it is',
   retoWhat: 'In Actinver’s own words, a simulator with one million virtual pesos to learn to invest on the Mexican stock exchange (BMV) in real time. The money is fictional — Actinver calls it “actipesos” and says outright that it is not legal tender — so nothing is bought, nothing is sold and nothing can be cashed in. Each entrant’s portfolio competes against everyone else’s.',
-  retoCalH: 'The 2026 calendar',
+  retoCalH: 'The {y} calendar',
   retoCalP: 'Actinver’s published dates. The phase you see marked is not written into this page: it is worked out from today’s date in Mexico City, so it stays right whether you read this in August or in November.',
   retoCal: {
     inscripciones: 'Registration',
@@ -97,11 +103,12 @@ const en = {
     reto: 'The contest',
     premiacion: 'Prizegiving'
   },
-  retoPremiacion: 'December 2026, at the Mexican stock exchange',
+  retoPremiacion: '{mes}, at the Mexican stock exchange',
   retoNow: 'Where it stands today',
-  // Un estado por fase. Los pinta todos el servidor y el navegador enseña el
-  // que toca (src/scripts/reto-fase.ts), así que aquí no hay ninguna frase que
-  // dependa del día en que se hizo el build.
+  // Un estado por fase. El servidor sirve VIVO el de la fase de hoy y deja
+  // los seis dentro de un <template> inerte; si el día ya cambió, el
+  // navegador saca de ahí el que toca (src/scripts/reto-fase.ts). Así que
+  // aquí no hay ninguna frase que dependa del día en que se hizo el build.
   retoFase: {
     antes: 'Registration has not opened',
     inscripciones: 'Registration open',
@@ -111,7 +118,7 @@ const en = {
     resultados: 'Contest over'
   },
   retoEstado: {
-    antes: 'Actinver has not opened registration for the 2026 edition yet.',
+    antes: 'Actinver has not opened registration for the {y} edition yet.',
     inscripciones: 'Registration is open. The contest itself has not started, so there are no positions to show yet.',
     practica: 'This is the practice week: the simulator is open so entrants can try it out, and none of it counts towards the result.',
     vispera: 'The practice week is over and the contest has not started. Nothing counts yet.',
@@ -407,11 +414,11 @@ const es: typeof en = {
 
   // ---- Reto Actinver ----
   retoH: 'Reto Actinver',
-  retoEdition: 'Edición 2026',
+  retoEdition: 'Edición {y}',
   retoLede: 'Un concurso que organiza Actinver, no Smart Finance. Le da a cada participante el mismo millón de pesos virtuales para invertirlo en la Bolsa Mexicana de Valores en tiempo real durante seis semanas. Yo lo estoy jugando, y cada posición que abro se publica con la razón por la que la abrí.',
   retoWhatH: 'Qué es',
   retoWhat: 'En palabras del propio Actinver, un simulador con 1 millón de pesos virtuales para aprender a invertir en la Bolsa Mexicana de Valores en tiempo real. El dinero es ficticio —Actinver los llama “actipesos” y dice con todas sus letras que no son moneda de curso legal—, así que no se compra nada, no se vende nada y no se puede cobrar nada. El portafolio de cada participante compite contra el del resto.',
-  retoCalH: 'El calendario 2026',
+  retoCalH: 'El calendario {y}',
   retoCalP: 'Las fechas que publica Actinver. La fase que ves marcada no está escrita en esta página: se calcula con la fecha de hoy en Ciudad de México, así que sigue siendo cierta la leas en agosto o en noviembre.',
   retoCal: {
     inscripciones: 'Inscripciones',
@@ -419,7 +426,7 @@ const es: typeof en = {
     reto: 'El reto',
     premiacion: 'Premiación'
   },
-  retoPremiacion: 'Diciembre de 2026, en la Bolsa Mexicana de Valores',
+  retoPremiacion: '{mes}, en la Bolsa Mexicana de Valores',
   retoNow: 'Cómo va hoy',
   retoFase: {
     antes: 'Las inscripciones no abren',
@@ -430,7 +437,7 @@ const es: typeof en = {
     resultados: 'Reto terminado'
   },
   retoEstado: {
-    antes: 'Actinver todavía no abre las inscripciones de la edición 2026.',
+    antes: 'Actinver todavía no abre las inscripciones de la edición {y}.',
     inscripciones: 'Las inscripciones están abiertas. El reto todavía no arranca, así que todavía no hay posiciones que enseñar.',
     practica: 'Es la semana de práctica: el simulador está abierto para probarlo y nada de lo que pase aquí cuenta para el resultado.',
     vispera: 'La semana de práctica terminó y el reto no ha arrancado. Todavía no cuenta nada.',
