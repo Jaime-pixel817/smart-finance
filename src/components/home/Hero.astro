@@ -4,15 +4,21 @@
 //
 // CÓMO ESTÁ MONTADO, DE ABAJO A ARRIBA
 //
-//   .hero-globe   position: fixed, a --globe-top del borde de arriba, --globe-h
-//                 de alto y ancho completo. Dentro van, en el mismo sitio y del
-//                 mismo tamaño, el lienzo WebGL y el SVG de respaldo. Se funde
-//                 hacia abajo con mask-image: no hay borde ni caja, el globo se
-//                 disuelve en la página. z-index 1: por debajo del contenido.
-//   .hero-head    un bloque vacío de alto EXACTO —hasta el borde de abajo de la
-//                 banda del globo— con el titular alineado a su final. El
-//                 conjunto globo+titular queda así anclado ARRIBA: lo que
-//                 crezca por debajo (la barra de bolsas) no lo mueve un píxel.
+//   .hero-sky     position: fixed, la banda de fondo: el degradado que hay
+//                 detrás de las partículas. Se queda quieta y solo se apaga —
+//                 quien viaja en la órbita es el globo. z-index 0.
+//   .hero-globe   position: fixed, en el mismo sitio y del mismo tamaño que el
+//                 cielo. Dentro van, superpuestos, el lienzo WebGL y el SVG de
+//                 respaldo. Se funde hacia abajo con mask-image: no hay borde ni
+//                 caja, el globo se disuelve en la página. z-index 1: por debajo
+//                 del contenido.
+//   .hero-gap     un bloque vacío que mide EXACTAMENTE hasta 24 px por debajo
+//                 del marcador de São Paulo (--sao-y): el titular arranca ahí y
+//                 tapa solo el casquete de abajo del planeta. Es además lo único
+//                 que puede encoger si la pantalla es muy baja (ver el tope de
+//                 alto del hero).
+//   .hero-head    el titular, anclado por arriba: lo que crezca por debajo (la
+//                 barra de bolsas) no lo mueve un píxel.
 //   .hero-copy    el titular en Fraunces con la firma pegada al final de su
 //                 última línea, y la línea mono con la fecha y el estado de los
 //                 mercados. z-index 3, o sea encima del globo. pointer-events:
@@ -24,21 +30,26 @@
 //                 esta sí recibe toques. Cae por debajo del disco de partículas
 //                 (que acaba bastante antes que la banda), así que va con los
 //                 colores normales de la página y no con los del hero.
+//   .hero-source  el chip de fuente (retraso · Yahoo · hora), empujado con
+//                 margin-top: auto hasta el borde de abajo del hero. Pegado a
+//                 los ocho chips se leía como una novena ciudad; aquí abajo se
+//                 lee como el pie del hero.
 //   .home-body    (en Home.astro) todo lo demás, opaco y también en z-index 3:
 //                 al hacer scroll sube y tapa el globo.
 //
 // LA PRIMERA PANTALLA, MEDIDA
 //
-// El hero mide 100 svh MENOS --hero-peek, y dentro caben las cuatro cosas que
-// se abren en el teléfono: globo, titular con la firma, línea de estado y la
-// barra de las ocho bolsas. Lo que asoma por debajo (--hero-peek) es ya el
-// principio de .home-body, que dice que hay más página sin robarle sitio a
-// nada de lo anterior.
+// El hero mide 100 svh MENOS --hero-peek, y dentro caben las cinco cosas que se
+// abren en el teléfono: globo, titular con la firma, línea de estado, la barra
+// de las ocho bolsas y el chip de fuente. Lo que asoma por debajo (--hero-peek)
+// es ya el principio de .home-body, que dice que hay más página sin robarle
+// sitio a nada de lo anterior.
 //
 // Y el conjunto globo+titular va CENTRADO en esa pantalla: --globe-top reparte
-// el hueco sobrante 50/50 y el titular cuelga del borde de abajo de la banda.
-// A 390×844 son 130 px por encima de la banda y 130 por debajo, y en esos 130
-// de abajo es donde entra la barra de bolsas.
+// el hueco sobrante 50/50 (a 390×844, 130 px por encima de la banda y 130 por
+// debajo) y el titular arranca por debajo del marcador de São Paulo. El disco
+// ocupa --globe-fill del ancho del lienzo: 80 % en el teléfono, para que quede
+// aire a los lados y se lea centrado, y 85 % desde 768 px.
 //
 // EL SVG ESTÁTICO ES UN RESPALDO, NO EL PRIMER PINTADO. src/generated/
 // globe-fallback.svg (2.3 KB, lo genera scripts/build-geo.mjs desde la máscara
@@ -60,6 +71,7 @@ import type { Locale } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import fallbackSvg from '../../generated/globe-fallback.svg?raw';
 import WorldMarkets from './WorldMarkets.astro';
+import SourceChip from '../SourceChip.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -70,6 +82,20 @@ const t = useT(locale);
     <div id="globalRiskGlobe" class="globe-host" role="img" aria-label={t('globe.aria')}></div>
     <div class="hero-pins" id="hero-pins" aria-hidden="true"></div>
   </div>
+
+  <!-- El cielo: la banda de fondo detrás de las partículas. Va FUERA de
+       .hero-globe y ocupa exactamente su mismo sitio, porque durante la órbita
+       el globo se encoge y el cielo no puede encogerse con él: lo que viajaba
+       por la página era un rectángulo con un planeta dentro, muy visible en
+       modo claro. Aquí se queda quieto y se disuelve en el primer 22 % del
+       recorrido; lo que se va de viaje es la esfera sola. -->
+  <div class="hero-sky" aria-hidden="true"></div>
+
+  <!-- El hueco de encima del titular. Mide justo hasta 24 px por debajo del
+       marcador de São Paulo, y es lo ÚNICO que puede encoger en el hero: si en
+       una pantalla baja el contenido no cabe, cede este hueco (el titular sube)
+       antes que dejar el chip de fuente debajo del bottom nav. -->
+  <div class="hero-gap" aria-hidden="true"></div>
 
   <div class="hero-head">
     <div class="container hero-copy">
@@ -85,6 +111,18 @@ const t = useT(locale);
     <div class="container">
       <WorldMarkets locale={locale} />
       <p class="hero-motion t-caption faint">{t('globe.motion')}</p>
+    </div>
+  </div>
+
+  <!-- El chip de fuente, al FINAL del hero y no pegado a los chips de ciudad.
+       Pegado debajo de la barra de bolsas se leía como una novena ciudad; aquí
+       abajo, con el hueco de por medio, se lee como lo que es: el pie de
+       página del hero, la letra pequeña de todo lo que hay encima. Lo empuja
+       hasta el borde de abajo el margin-top: auto (el hero es una columna
+       flex), así que cae justo donde arranca el contenido de la página. -->
+  <div class="hero-source">
+    <div class="container">
+      <SourceChip locale={locale} id="chip-world" source="Yahoo Finance" delay={15} />
     </div>
   </div>
 
@@ -105,15 +143,72 @@ const t = useT(locale);
        página sigue, poco para robarle sitio al hero. */
     --hero-peek: 124px;
     --hero-h: calc(100svh - var(--hero-peek));
-    /* La banda del globo. El disco siempre mide el 85 % del ANCHO del lienzo
-       (la esfera se ajusta al lado corto), así que este alto no cambia el
-       tamaño del globo: decide cuánto aire tiene alrededor y dónde cae el
-       fundido de abajo. svh y no vh: en iOS vh cuenta la barra del navegador
-       que se esconde, y el globo salía cortado por abajo al cargar. */
+    /* La banda del globo. El disco mide --globe-fill del ANCHO del lienzo
+       mientras quepa de alto, así que este alto casi nunca cambia el tamaño
+       del globo: decide cuánto aire tiene alrededor y dónde cae el fundido de
+       abajo. svh y no vh: en iOS vh cuenta la barra del navegador que se
+       esconde, y el globo salía cortado por abajo al cargar. */
     --globe-h: clamp(300px, 56svh, 460px);
     /* Centrado: mismo hueco arriba que abajo. max(0px, …) por si alguien abre
        el sitio en una ventana más baja que la propia banda. */
     --globe-top: max(0px, calc((var(--hero-h) - var(--globe-h)) * 0.5));
+
+    /* ── DÓNDE CAE EL DISCO, EN CSS ────────────────────────────────────────
+       El titular y la órbita necesitan saber dónde está el globo, y el globo
+       lo dibuja WebGL. Preguntárselo al lienzo sería un salto de maquetación
+       (el globo arranca diferido: la posición llegaría tarde y movería el
+       titular = CLS). Así que se calcula, con las MISMAS cuentas que
+       risk-sphere.js:
+
+         diámetro = min(relleno · ancho del lienzo, 0.8692 · alto del lienzo)
+
+       El primer término es el caso normal (el disco ocupa `relleno` del ancho);
+       el segundo es el tope BASE_SCALE de la cámara, que manda en bandas muy
+       bajas. El 0.8692 sale de 2·R·BASE_SCALE / visibleHW = 4.68 / 5.3848.
+       El diámetro sí es exacto: comprobado leyendo el framebuffer a
+       360/390/430 px.
+
+       Y de ahí sale --sao-y, la altura del marcador de São Paulo. AQUÍ NO HAY
+       NÚMERO EXACTO QUE VALGA, y conviene saberlo antes de tocarlo: el globo
+       gira (0.075 rad/s) y se ladea (sin(t·0.2)·0.07), así que São Paulo NO
+       está quieto. Muestreado del evento "globe:pins" a 390×844, 807 muestras
+       cada 250 ms durante 180 s, su y de viewport barre así:
+
+                                        mín     máx    media   diámetros
+         siempre (incluida la de atrás)  402.4  459.6   429.0   .136–.319
+         solo con la pastilla encendida  428.2  459.6   443.8   .219–.319
+
+       (El evento solo se emite si algo se movió más de 0.5 px desde la
+       comprobación anterior, o sea que se calla justo en los extremos, donde
+       dy/dt → 0. Para muestrear de verdad hay que redespachar "world:pins",
+       que fuerza la emisión; a pelo el mínimo sale en 428 y no en 402.)
+
+       El 0.255 de aquí es una constante elegida DENTRO de ese barrido, no una
+       medición: preguntarle al lienzo dónde está el marcador movería el
+       titular en cuanto el globo arrancara (= CLS), así que se fija. Lo que
+       importa es la consecuencia, y esa sí está medida: con los 24 px de aire
+       de .hero-gap el h1 arranca en y 463.55, o sea entre 3.9 px (peor
+       instante) y 61.2 px por debajo del marcador — y 35.4 px en el peor
+       instante en que además se le VE. Nunca lo pisa. Si algún día se sube el
+       0.255, esos 3.9 px son lo primero que se gasta. */
+    --globe-w: 100vw;
+    --globe-cx: 50vw;
+    --globe-fill: .80;
+    --globe-d: min(calc(var(--globe-fill) * var(--globe-w)), calc(.8692 * var(--globe-h)));
+    --sao-y: calc(var(--globe-top) + var(--globe-h) * .5 + var(--globe-d) * .255);
+
+    /* Dónde aterriza el globo: el centro del hueco de 26 px del wordmark
+       (TopBar.astro), que va al principio del .container de la barra — o sea
+       pegado al margen, salvo desde 1200 px, donde el contenedor deja de tocar
+       el borde. Estos tres son el valor por defecto: src/scripts/hero.ts los
+       vuelve a escribir midiendo el ícono de verdad al arrancar y en cada
+       resize, que es lo único exacto (el tamaño del disco depende de si manda
+       el ancho del lienzo o el tope de la cámara). */
+    --park-x: calc(max(0px, (100vw - var(--container)) / 2) + var(--gutter) + 13px);
+    --park-y: calc(var(--topbar-h) / 2);
+    --park-s: .083;
+    --orbit-x: calc(var(--park-x) - var(--globe-cx));
+    --orbit-y: calc(var(--park-y) - var(--globe-top) - var(--globe-h) / 2);
 
     /* Colores del texto que va SOBRE el globo. Son propios y no los tokens
        generales porque el fondo es el globo, no la página: en oscuro el texto
@@ -129,6 +224,21 @@ const t = useT(locale);
 
     position: relative;
     min-height: var(--hero-h);
+    /* Columna flex: el chip de fuente (.hero-source) se empuja con
+       margin-top: auto hasta el borde de abajo del hero. */
+    display: flex;
+    flex-direction: column;
+    /* CUÁNTO PUEDE PASARSE EL HERO DE LA PRIMERA PANTALLA. Puede crecer, pero
+       no hasta meterse debajo del bottom nav: de los --hero-peek px que asoman,
+       los últimos --bottomnav-h están tapados por él. En un teléfono de 844 px
+       el contenido se pasa 14 px y no hay nada que hacer; en uno de 667 se
+       pasaba 102 y el chip de fuente quedaba ENTERO detrás de la barra de
+       abajo. Con el tope puesto, lo que cede es .hero-gap y el titular sube —
+       en una pantalla baja acaba por encima de São Paulo, que es justo lo que
+       hacía antes, y el chip se ve. Nada de media queries de alto: en iOS la
+       barra del navegador cambia el alto del viewport a media página y el hero
+       daría un salto; svh no se mueve. */
+    max-height: calc(var(--hero-h) + max(0px, var(--hero-peek) - var(--bottomnav-h) - var(--sp-2)));
   }
 
   /* Modo día: el fondo del globo se aclara (ver .hero-globe) y con él tiene que
@@ -143,30 +253,55 @@ const t = useT(locale);
     --hero-warn: #8A5600;
   }
 
-  .hero-globe {
+  /* La banda del globo y la del cielo ocupan EXACTAMENTE el mismo sitio: la de
+     arriba lleva el lienzo y viaja en la órbita, la de abajo se queda quieta.
+     Las dos con el mismo fundido: sin borde duro, se disuelven en la página, y
+     el degradado tapa además el canto del lienzo. */
+  .hero-globe, .hero-sky {
     position: fixed;
     top: var(--globe-top); left: 0; right: 0;
     height: var(--globe-h);
-    z-index: 1;
-    /* El lienzo del globo es transparente: este degradado ES el cielo detrás
-       de las partículas, y por eso cambia con el tema. En claro no puede ser
-       blanco puro — las partículas son casi blancas en el mar y desaparecían;
-       con el hueso de --bg-0 y un centro un pelo más claro el disco se separa
-       del fondo. */
-    background: radial-gradient(circle at 50% 42%, var(--globe-sky-1), var(--globe-sky-2) 72%);
-    --globe-sky-1: #17171B;
-    --globe-sky-2: #08080A;
-    /* Fundido hacia abajo: sin borde duro, el globo se disuelve en la página.
-       El degradado tapa además el canto del lienzo. */
     -webkit-mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
     mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
-    touch-action: pan-y;
-    will-change: transform, opacity;
   }
+  .hero-globe { z-index: 1; touch-action: pan-y; will-change: transform, opacity; }
+  /* EN CLARO EL GLOBO SE DISUELVE ANTES, Y SOLO EL GLOBO (el cielo se queda con
+     el fundido de arriba). No es simetría rota por capricho: en oscuro las
+     partículas son LUZ sobre negro y bajarles el alfa las apaga hacia el fondo;
+     en claro la tierra se pinta con tinta casi negra (colTierra 0.05 en
+     risk-sphere.js) sobre papel, y la tinta no se disuelve en el papel — se
+     queda como puntos oscuros. Justo debajo, a partir de --sao-y, arranca el
+     titular, que también es tinta.
+
+     Medido a 390×844 sobre una vuelta entera de guiñada (46 muestras cada 2 s,
+     el peor píxel del fondo bajo la caja del h1, SIN contar la sombra del
+     texto): con el .55 de arriba el peor caía a 2.89:1 —un punto suelto del
+     estipulado de tierra en la primera fila de la caja— y con este .38 sube a
+     4.68:1. Sobre el trazo de las letras, de 3.57:1 a 5.86:1. En oscuro no
+     cambia nada: esta regla no existe ahí. */
   :global(:root[data-theme="light"]) .hero-globe {
+    -webkit-mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.38) 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.38) 78%, transparent 100%);
+  }
+  /* EL CIELO. El lienzo del globo es transparente: este degradado es lo que hay
+     detrás de las partículas, y por eso cambia con el tema. En claro no puede
+     ser blanco puro — las partículas son casi blancas en el mar y desaparecían;
+     con el hueso de --bg-0 y un centro un pelo más claro el disco se separa del
+     fondo. */
+  .hero-sky {
+    z-index: 0; pointer-events: none;
+    --globe-sky-1: #17171B;
+    --globe-sky-2: #08080A;
+    background: radial-gradient(circle at 50% 42%, var(--globe-sky-1), var(--globe-sky-2) 72%);
+  }
+  :global(:root[data-theme="light"]) .hero-sky {
     --globe-sky-1: #FDFDFB;
     --globe-sky-2: #E7E7E0;
   }
+  /* Cuando el globo aterriza, el cielo ya está a cero desde el 22 %: esto es
+     para sacarlo también del compositor. */
+  .hero-globe.is-parked ~ .hero-sky { visibility: hidden; }
+
   .hero-globe > * { position: absolute; inset: 0; }
   .globe-host { width: 100%; height: 100%; }
   .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
@@ -178,7 +313,9 @@ const t = useT(locale);
      sin JS de por medio (ver más abajo). .is-live —que es el "ya pinta el
      lienzo"— gana a las dos: va después y con más especificidad. */
   .hero-globe-still { display: grid; place-items: center; opacity: 0; transition: opacity .16s ease; }
-  .hero-globe-still :global(svg) { width: min(92%, 100vh); height: auto; }
+  /* El SVG mide lo mismo que el disco del lienzo (su círculo llena el viewBox),
+     así que si el respaldo entra en juego no cambia de tamaño nada. */
+  .hero-globe-still :global(svg) { width: min(var(--globe-d), 100%); height: auto; }
   .hero-globe.is-still .hero-globe-still { opacity: 1; }
   .hero-globe.is-live .hero-globe-still { opacity: 0; }
   /* En claro el SVG es el mismo dibujo del tema oscuro (disco oscuro + puntos
@@ -190,18 +327,23 @@ const t = useT(locale);
 
   .hero-mark { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; }
   .hero-mark-top { top: 4px; }
-  .hero-mark-end { top: 80%; }
+  /* El MISMO número que animation-range (y que el recorrido del respaldo en
+     hero.ts): la órbita tiene que terminar exactamente en el frame en que este
+     testigo cruza el borde de arriba y el globo se da por aterrizado. Con el
+     80 % en porcentaje del hero —que crece si el contenido no cabe— las dos
+     cosas se separaban y el aterrizaje daba un salto. */
+  .hero-mark-end { top: calc(var(--hero-h) * .8); }
 
   /* Copy */
-  /* El titular cuelga del borde de abajo de la BANDA del globo, no del hero:
-     este bloque mide exactamente hasta ahí y alinea su contenido al final. Va
-     con min-height y no height para que en una ventana muy baja el texto
-     empuje hacia abajo en vez de salirse por arriba. */
-  .hero-head {
-    display: flex;
-    align-items: flex-end;
-    min-height: calc(var(--globe-top) + var(--globe-h) - var(--sp-4));
-  }
+  /* El titular ARRANCA justo por debajo del marcador de São Paulo (--sao-y),
+     que es la bolsa que queda más abajo a la derecha del globo. Antes colgaba
+     del borde de abajo de la banda y su primera línea caía a la altura del
+     marcador: el texto se comía toda la mitad de abajo del planeta. Anclado
+     por arriba cubre solo el último tercio, y lo que crezca por debajo (la
+     barra de bolsas) sigue sin mover el conjunto globo+titular. Los 24 px son
+     el aire entre el punto de São Paulo y la primera línea. */
+  .hero-gap { flex: 0 1 calc(var(--sao-y) + 24px); min-height: 0; }
+  .hero-head { flex: none; display: flex; }
   .hero-copy {
     position: relative;
     z-index: 3;
@@ -219,10 +361,24 @@ const t = useT(locale);
     line-height: 1.12;
     letter-spacing: -.015em;
     color: var(--hero-ink);
-    /* Contraste garantizado sobre un fondo que se mueve: la sombra hace de
-       fondo local. Dos capas — una cerrada y opaca que separa el trazo de las
-       partículas, y una abierta que apoya el conjunto. Medido sobre el peor
-       píxel del globo (partícula de tierra iluminada, ~#C9C6BE): 4.9:1. */
+    /* El fondo de este texto se MUEVE, así que un contraste no se mide con una
+       foto: el globo gira 0.075 rad/s y una vuelta entera son 84 s. Lo que hay
+       medido son 46 muestras cada 2 s a 390×844, peor píxel, con la sombra
+       APAGADA (la sombra ayuda de verdad, pero no cuenta como fondo) y con dos
+       varas, porque dan números distintos y conviene no confundirlas:
+
+                        caja entera del h1        solo el trazo de las letras
+         claro          4.61:1  (0/46 < 3)        6.07:1  (0/46 < 3)
+         oscuro         6.12:1  (0/46 < 3)        6.83:1  (0/46 < 3)
+
+       La caja incluye el interlineado y el hueco tras la última palabra, donde
+       nunca cae una letra; es la vara conservadora y es la que manda aquí. El
+       umbral es 3:1 (32 px y peso 600 = texto grande). En 94beff7 esto era
+       2.22:1 en claro con las 46 muestras por debajo del umbral.
+
+       La sombra sigue estando y sigue haciendo falta: dos capas, una cerrada y
+       opaca que separa el trazo de las partículas y una abierta que apoya el
+       conjunto. Lo que NO hace es aparecer en los números de arriba. */
     text-shadow: var(--hero-halo);
   }
   /* La firma va DENTRO del titular, pegada al final de la última palabra y en
@@ -248,6 +404,12 @@ const t = useT(locale);
      final del hero. z-index 3 y pointer-events propios — el hero-copy de
      encima los tiene apagados, esto no. */
   .hero-world { position: relative; z-index: 3; margin-top: var(--sp-5); }
+  /* El chip de fuente: empujado al borde de abajo del hero, con un hueco
+     mínimo por si la pantalla es tan baja que no sobra sitio. */
+  .hero-source {
+    position: relative; z-index: 3;
+    margin-top: auto; padding-top: var(--sp-5); padding-bottom: var(--sp-4);
+  }
   /* El aviso de "animación en pausa" solo aparece cuando de verdad lo está. */
   .hero-motion { display: none; margin-top: var(--sp-3); }
   @media (prefers-reduced-motion: reduce) { .hero-motion { display: block; } }
@@ -291,28 +453,86 @@ const t = useT(locale);
   .hero-pins :global(.pin .down) { color: var(--pin-down); }
   .hero-pins :global(.pin .flat) { color: var(--pin-flat); }
 
-  /* ── La transición de scroll ──────────────────────────────────────────
-     UNA sola animación: el globo se encoge y se va a la esquina donde está el
-     ícono de la barra, y a la vez se apaga mientras el ícono de la barra se
-     enciende (ese lado vive en TopBar.astro). Se prefiere scroll-timeline, que
-     corre en el compositor y no toca el hilo principal; donde no hay,
-     src/scripts/hero.ts hace lo mismo con un scroll pasivo + rAF. */
+  /* ── LA ÓRBITA ────────────────────────────────────────────────────────
+     Al bajar, el globo NO se va en línea recta hasta el ícono de la barra: se
+     aleja como se alejaría en el espacio. Describe un arco —baja y se abre
+     hacia la izquierda, y desde ahí sube hasta el logo— mientras se encoge, se
+     ladea sobre su eje y se difumina.
+
+     LA CURVA es una Bézier cuadrática con P0 en el centro de la banda, P2 en
+     el hueco del wordmark y el punto de control colgado ABAJO a la izquierda:
+
+       P1 = P0 + (0.75·Tx, −0.55·Ty)   con T = P2 − P0 (Tx y Ty negativos)
+
+     que desarrollada da, para la traslación en cada eje:
+
+       x(t) = Tx · (1.5·t·(1−t) + t²)
+       y(t) = Ty · (−1.1·t·(1−t) + t²)
+
+     y(t) sale POSITIVA hasta t ≈ 0.52 aunque Ty sea negativa: eso es el globo
+     bajando (hasta ~48 px a 390 px de ancho) antes de subir. Los @keyframes son
+     esa curva muestreada cada 12.5 %; entre muestra y muestra el navegador
+     interpola recto y no se nota. Las mismas cuentas, esta vez cerradas, están
+     en src/scripts/hero.ts para donde no hay scroll-timeline.
+
+     LA PROFUNDIDAD son tres cosas a la vez, todas de compositor: la escala cae
+     con t^0.75 (más deprisa al principio, como algo que se aleja de verdad),
+     la opacidad aguanta hasta el 50 % y se va al final, y el propio globo
+     —.globe-host, no la banda: rotar la banda ladearía también el rectángulo
+     del cielo— gira 20° y coge 1.4 px de desenfoque en el último tercio.
+
+     Y TERMINA ENCAJADO: en el 100 % el centro de la banda está exactamente en
+     (--park-x, --park-y), que es el centro del hueco de 26 px del wordmark, y
+     el disco mide --globe-d · --park-s ≈ 26 px. El testigo .hero-mark-end está
+     en el mismo punto del scroll, así que el globo se apaga justo cuando el
+     ícono se enciende (ese lado vive en TopBar.astro). */
   @keyframes hero-park {
-    from { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
-    70%  { opacity: .85; }
-    to   {
-      /* El centro de la banda está en --globe-top + --globe-h / 2; el hueco del
-         ícono de la barra, en (28, 26). */
-      transform: translate3d(calc(28px - 50vw), calc(26px - var(--globe-top) - var(--globe-h) / 2), 0) scale(.075);
-      opacity: 0;
-    }
+    0%    { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+    12.5% { transform: translate3d(calc(var(--orbit-x) * .1797), calc(var(--orbit-y) * -.1047), 0) scale(calc(1 + (var(--park-s) - 1) * .2102)); opacity: 1; }
+    25%   { transform: translate3d(calc(var(--orbit-x) * .3438), calc(var(--orbit-y) * -.1438), 0) scale(calc(1 + (var(--park-s) - 1) * .3536)); opacity: 1; }
+    37.5% { transform: translate3d(calc(var(--orbit-x) * .4922), calc(var(--orbit-y) * -.1172), 0) scale(calc(1 + (var(--park-s) - 1) * .4792)); opacity: 1; }
+    50%   { transform: translate3d(calc(var(--orbit-x) * .625),  calc(var(--orbit-y) * -.025),  0) scale(calc(1 + (var(--park-s) - 1) * .5946)); opacity: 1; }
+    62.5% { transform: translate3d(calc(var(--orbit-x) * .7422), calc(var(--orbit-y) * .1328),  0) scale(calc(1 + (var(--park-s) - 1) * .7031)); opacity: .97; }
+    75%   { transform: translate3d(calc(var(--orbit-x) * .8438), calc(var(--orbit-y) * .3563),  0) scale(calc(1 + (var(--park-s) - 1) * .8059)); opacity: .9; }
+    87.5% { transform: translate3d(calc(var(--orbit-x) * .9297), calc(var(--orbit-y) * .6453),  0) scale(calc(1 + (var(--park-s) - 1) * .9047)); opacity: .55; }
+    100%  { transform: translate3d(var(--orbit-x), var(--orbit-y), 0) scale(var(--park-s)); opacity: 0; }
+  }
+  /* El giro sobre su eje y el desenfoque van en el lienzo, no en la banda.
+     Los números son las MISMAS funciones de hero.ts evaluadas en cada muestra
+     —giro = −20·t^1.25, desenfoque = 1.4·(t−0.625)/0.375— redondeadas a dos
+     decimales, no valores a ojo: así las dos rutas no se separan. */
+  @keyframes hero-park-spin {
+    0%    { transform: rotate(0deg); filter: none; }
+    25%   { transform: rotate(-3.54deg); }
+    50%   { transform: rotate(-8.41deg); }
+    62.5% { filter: blur(0px); }
+    75%   { transform: rotate(-13.96deg); filter: blur(.47px); }
+    87.5% { transform: rotate(-16.93deg); filter: blur(.93px); }
+    100%  { transform: rotate(-20deg); filter: blur(1.4px); }
+  }
+  /* Las pastillas se van en cuanto arranca la órbita: van pegadas a un
+     marcador que a partir de aquí gira, y una etiqueta despegada de su punto
+     canta más que no tenerla. */
+  @keyframes hero-park-pins {
+    0%   { opacity: 1; }
+    15%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+  /* El cielo se queda en el hero: lo que se va de viaje es la esfera. */
+  @keyframes hero-park-sky {
+    0%   { opacity: 1; }
+    22%  { opacity: 0; }
+    100% { opacity: 0; }
   }
   @supports (animation-timeline: scroll()) {
-    .hero-globe {
+    .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-sky {
       animation: hero-park linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 calc(var(--hero-h) * .8);
     }
+    .hero-globe .globe-host { animation-name: hero-park-spin; }
+    .hero-globe .hero-pins { animation-name: hero-park-pins; }
+    .hero-sky { animation-name: hero-park-sky; }
   }
   /* Aterrizado: fuera de la pantalla y fuera del compositor. El bucle de
      WebGL se para por evento (ver hero.ts); esto es la parte visual. */
@@ -325,7 +545,25 @@ const t = useT(locale);
      como no va a haber animación ninguna, aquí sí se ve el SVG de respaldo
      desde el primer frame, hasta que el lienzo tenga su fotograma quieto. */
   @media (prefers-reduced-motion: reduce) {
-    .hero-globe { position: absolute; animation: none; will-change: auto; }
+    /* Nada de órbita: ni arco, ni giro, ni desenfoque. El globo se queda dentro
+       del hero y se va con la página; cuando el hero termina, se apaga con una
+       transición corta en vez de desaparecer de golpe. */
+    /* La visibility se retrasa lo que dura el fundido: si no, el navegador la
+       aplica en el mismo frame y no se ve transición ninguna. */
+    .hero-globe {
+      position: absolute; will-change: auto;
+      transition: opacity .18s linear, visibility 0s linear .18s;
+      /* base.css deja TODAS las transiciones en .01ms cuando se pide menos
+         movimiento, y con razón: ahí no puede haber nada que se desplace. Un
+         fundido de 180 ms no se desplaza —solo baja la opacidad— y es lo que
+         hace falta para que el globo no desaparezca de golpe. Por eso, y solo
+         para el globo, se recupera la duración. */
+      transition-duration: .18s, 0s !important;
+    }
+    .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-sky { animation: none; }
+    .hero-globe .globe-host { transform: none; filter: none; }
+    .hero-sky { position: absolute; opacity: 1; }
+    .hero-globe.is-parked { opacity: 0; }
     .hero-globe-still { opacity: 1; transition: none; }
     .hero-pins :global(.pin) { transition: none; }
   }
@@ -337,14 +575,25 @@ const t = useT(locale);
     .hero {
       --hero-peek: 150px;
       --globe-h: clamp(400px, 64svh, 700px);
+      /* En pantallas anchas el disco vuelve al 85 %: ahí sobra aire a los
+         lados y no hace falta quitárselo al globo. Este 768 es EL corte, el
+         único: `relleno()` en risk-sphere.js lee esta misma variable, así que
+         no hay un segundo número que se pueda quedar atrás. Y como el disco es
+         mucho mayor, la escala de aterrizaje tiene que ser mucho menor para
+         caber en los mismos 26 px. */
+      --globe-fill: .85;
+      --park-s: .046;
     }
     .hero-title { max-width: 18ch; font-size: clamp(2.5rem, 4.6vw, 3.75rem); }
     .hero-by { font-size: 12px; }
   }
   @media (min-width: 1100px) {
     /* En pantallas anchas el globo se corre a la derecha para dejar el titular
-       sobre fondo limpio: mismo hero, dos tercios de aire. */
-    .hero-globe { left: 22%; }
+       sobre fondo limpio: mismo hero, dos tercios de aire. Ojo: al moverse el
+       lienzo se mueve también su centro, y con él el origen de la órbita y la
+       vertical de São Paulo. */
+    .hero-globe, .hero-sky { left: 22%; }
+    .hero { --globe-w: 78vw; --globe-cx: 61vw; }
     .hero-title { max-width: 16ch; }
   }
 </style>

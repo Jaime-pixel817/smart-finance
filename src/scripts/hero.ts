@@ -8,10 +8,23 @@
 //    hero. Mientras se ve, la barra está encima del globo y va transparente;
 //    en cuanto se sale, se pone sólida. Cero listeners de scroll.
 //
-// 2. EL ATERRIZAJE. Lo hace el CSS con scroll-timeline (Hero.astro), que corre
-//    en el compositor y no toca el hilo principal. Donde no lo hay, aquí se
-//    calcula el MISMO transform con un scroll pasivo leído dentro de un rAF.
-//    En los dos casos, un segundo IntersectionObserver avisa cuando el globo
+// 2. LA ÓRBITA. El globo no se va en línea recta hasta el ícono de la barra:
+//    describe un arco —baja, se abre a la izquierda y desde ahí sube al logo—
+//    encogiéndose, ladeándose y difuminándose, como algo que se aleja en el
+//    espacio. La curva es una Bézier cuadrática y está explicada en
+//    Hero.astro. Lo hace el CSS con scroll-timeline, que corre en el
+//    compositor y no toca el hilo principal; donde no lo hay, aquí se calcula
+//    EL MISMO transform con un scroll pasivo leído dentro de un rAF.
+//    Todo lo que es geometría —dónde empieza la banda, cuánto mide, dónde está
+//    el hueco del wordmark— se mide UNA vez y se guarda: por frame solo quedan
+//    multiplicaciones y una escritura de estilo. Antes se leían `top`,
+//    `offsetHeight` y `getComputedStyle` dentro del rAF; medido con
+//    Performance.getMetrics sobre 120 pasos de scroll eso NO estaba costando
+//    nada (1 layout, 0.05 ms), así que esto es higiene y no un arreglo: son
+//    lecturas que fuerzan un cálculo síncrono en cuanto algo más ensucie el
+//    árbol, y quien lo ensucia —las pastillas, que se mueven cada dos frames—
+//    está justo al lado.
+//    En los dos caminos, un segundo IntersectionObserver avisa cuando el globo
 //    ya aterrizó: entonces se esconde y se manda "globe:visible" para que
 //    risk-sphere.js pare el bucle. Sin eso, el lienzo seguiría pintando a 60
 //    fps detrás de una página que ya no lo enseña — es position:fixed y su
@@ -59,37 +72,103 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   // ---- 2. El aterrizaje ----------------------------------------------------
   const testigoFin = hero.querySelector('.hero-mark-end');
   if (testigoFin && 'IntersectionObserver' in window) {
+    // El globo se apaga al final del recorrido, ni un píxel antes: ahí es
+    // cuando la órbita lo ha dejado exactamente encima del hueco del wordmark.
     new IntersectionObserver(([e]) => {
       const aterrizado = !e.isIntersecting && e.boundingClientRect.top < 0;
       globo.classList.toggle('is-parked', aterrizado);
-      topbar?.classList.toggle('is-parked', aterrizado);
       document.dispatchEvent(new CustomEvent('globe:visible', { detail: { on: !aterrizado } }));
     }, { threshold: 0 }).observe(testigoFin);
+    // El ícono de la barra se enciende 80 px ANTES (rootMargin negativo arriba).
+    // Es el cruce: el globo llega ya pequeño y medio apagado, el ícono sube
+    // debajo de él y cuando el globo se va del todo el ícono ya está puesto. Sin
+    // esos 80 px había un frame con el globo a opacidad 0 y el ícono todavía sin
+    // encender, y el aterrizaje se veía como un parpadeo en vez de un encaje.
+    new IntersectionObserver(([e]) => {
+      topbar?.classList.toggle('is-parked', !e.isIntersecting && e.boundingClientRect.top < 80);
+    }, { threshold: 0, rootMargin: '-80px 0px 0px 0px' }).observe(testigoFin);
   }
 
-  // El respaldo del transform, solo donde no hay scroll-timeline y solo si no
+  // ---- El destino de la órbita, medido y no supuesto -----------------------
+  //
+  // Los @keyframes de Hero.astro traen unos valores razonables por defecto,
+  // pero el hueco del wordmark no está siempre donde dice la cuenta: desde
+  // 1200 px el contenedor deja de tocar el borde y el ícono se corre con él (a
+  // 1280 px, 40 px más adentro), y el tamaño del disco depende de si manda el
+  // ancho del lienzo o el tope de la cámara. Así que --park-x / --park-y /
+  // --park-s se miden aquí, UNA vez y en cada resize, sobre el ícono de verdad.
+  // No mueven nada de la maquetación (solo alimentan la animación), así que
+  // llegar tarde no cuesta CLS.
+  const marca = document.querySelector<HTMLElement>('.topbar .wm-mark');
+  let recorrido = 1, destinoX = 0, destinoY = 0, escalaFin = .083;
+  const medir = () => {
+    const alto = globo.offsetHeight || 1;
+    const arriba = parseFloat(getComputedStyle(globo).top) || 0;
+    // El recorrido lo marca el mismo testigo que decide el aterrizaje, que en
+    // el CSS está puesto en calc(--hero-h * .8) igual que animation-range: así
+    // la órbita termina EXACTAMENTE en el frame en que el globo se apaga.
+    recorrido = (testigoFin as HTMLElement | null)?.offsetTop || (hero.offsetHeight * 0.8) || 1;
+    const r = marca?.getBoundingClientRect();
+    const iconoX = r ? (r.left + r.right) / 2 : 29;
+    const iconoY = r ? (r.top + r.bottom) / 2 : 26;
+    // El diámetro del disco, con la misma cuenta que risk-sphere.js y que
+    // --globe-d: manda el ancho del lienzo, salvo que el tope de la cámara
+    // (BASE_SCALE) lo deje más pequeño en una banda muy baja.
+    const relleno = parseFloat(getComputedStyle(hero).getPropertyValue('--globe-fill')) || .8;
+    const disco = Math.min(relleno * globo.offsetWidth, .8692 * alto) || 1;
+    escalaFin = (r ? r.width : 26) / disco;
+    hero.style.setProperty('--park-x', iconoX + 'px');
+    hero.style.setProperty('--park-y', iconoY + 'px');
+    hero.style.setProperty('--park-s', String(+escalaFin.toFixed(5)));
+    destinoX = iconoX - (globo.offsetLeft + globo.offsetWidth / 2);
+    destinoY = iconoY - arriba - alto / 2;
+  };
+  medir();
+  addEventListener('resize', medir);
+
+  // El respaldo de la órbita, solo donde no hay scroll-timeline y solo si no
   // se pidió menos movimiento (ahí el globo ni se mueve: se va con la página).
   const conTimeline = typeof CSS !== 'undefined' && typeof CSS.supports === 'function'
     && CSS.supports('animation-timeline', 'scroll()');
   if (!conTimeline && !menos.matches) {
+    const lienzo = globo.querySelector<HTMLElement>('.globe-host');
+    const capaPins = globo.querySelector<HTMLElement>('.hero-pins');
+    // El cielo es hermano del globo, no hijo: no viaja en la órbita.
+    const cielo = hero.querySelector<HTMLElement>('.hero-sky');
+    // La opacidad, muestreada en los MISMOS puntos que @keyframes hero-park.
+    const OPACIDAD: [number, number][] = [[0, 1], [.5, 1], [.625, .97], [.75, .9], [.875, .55], [1, 0]];
+
     let pedido = false;
     const pintar = () => {
       pedido = false;
-      const h = globo.offsetHeight || 1;
-      // El recorrido es el alto del HERO (no el de la banda del globo, que
-      // desde que el hero ocupa la primera pantalla entera son dos cosas
-      // distintas), igual que animation-range en Hero.astro.
-      const recorrido = (hero.offsetHeight || h) * 0.8;
       const t = Math.min(1, Math.max(0, window.scrollY / recorrido));
-      // Mismos números que @keyframes hero-park, para que las dos rutas se
-      // vean igual: centro del globo al hueco del ícono (28, 26) y escala 7.5 %.
-      // El centro está en --globe-top + alto/2, y por eso hay que leer el top.
-      const arriba = parseFloat(getComputedStyle(globo).top) || 0;
-      const tx = t * (28 - window.innerWidth / 2);
-      const ty = t * (26 - arriba - h / 2);
-      const s = 1 + t * (0.075 - 1);
+      const u = 1 - t;
+      // La Bézier cuadrática de Hero.astro, ya desarrollada. La y sale positiva
+      // hasta t ≈ 0.52 aunque destinoY sea negativa: el globo BAJA antes de
+      // subir, que es lo que hace el arco.
+      const tx = destinoX * (1.5 * t * u + t * t);
+      const ty = destinoY * (-1.1 * t * u + t * t);
+      const s = 1 + (escalaFin - 1) * Math.pow(t, .75);
       globo.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
-      globo.style.opacity = String(t <= 0.7 ? 1 - 0.15 * (t / 0.7) : Math.max(0, 0.85 * (1 - (t - 0.7) / 0.3)));
+      let op = 0;
+      for (let i = 1; i < OPACIDAD.length; i++) {
+        if (t <= OPACIDAD[i][0]) {
+          const [t0, o0] = OPACIDAD[i - 1], [t1, o1] = OPACIDAD[i];
+          op = o0 + (o1 - o0) * (t - t0) / (t1 - t0);
+          break;
+        }
+      }
+      globo.style.opacity = op.toFixed(3);
+      if (lienzo) {
+        const desenfoque = t <= .625 ? 0 : 1.4 * (t - .625) / .375;
+        lienzo.style.transform = `rotate(${(-20 * Math.pow(t, 1.25)).toFixed(2)}deg)`;
+        lienzo.style.filter = desenfoque ? `blur(${desenfoque.toFixed(2)}px)` : 'none';
+      }
+      // Las pastillas se van con el primer 15 % del recorrido: a partir de ahí
+      // el lienzo gira y la etiqueta ya no cae sobre su marcador. El cielo, con
+      // el 22 %: lo que se aleja es la esfera, no un rectángulo con un planeta.
+      if (capaPins) capaPins.style.opacity = String(Math.max(0, 1 - t / .15));
+      if (cielo) cielo.style.opacity = String(Math.max(0, 1 - t / .22));
     };
     addEventListener('scroll', () => { if (!pedido) { pedido = true; requestAnimationFrame(pintar); } }, { passive: true });
     addEventListener('resize', pintar);
@@ -166,6 +245,7 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   const capa = document.getElementById('hero-pins');
   if (!capa) return;
   const pins = new Map<string, HTMLElement>();
+  const anchos = new Map<string, number>();
   let elegidas: string[] = [];
 
   function elegir(items: Item[]): string[] {
@@ -204,6 +284,10 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
         ? '<span class="flat">—</span>'
         : `<span class="${dirClass(it.changePct)}">${arrow(it.changePct)} ${fmtPct(it.changePct, loc)}</span>`;
       el.innerHTML = `<b>${CORTO[it.id] || it.id.toUpperCase()}</b> ${chg}`;
+      // El ancho de la pastilla, medido AQUÍ y no en cada frame: cambia solo
+      // cuando cambia el texto, o sea cada vez que llegan datos (cada 15 min).
+      // Es lo que hace falta para sujetarla al borde sin cortarla, ver abajo.
+      anchos.set(it.id, el.offsetWidth);
     }
   }
 
@@ -223,7 +307,13 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
       // sube 16 px: la etiqueta va encima del punto, no tapándolo. Si arriba
       // no cabe —Toronto y Nueva York quedan bajo la barra superior— se pone
       // debajo del punto en vez de meterse detrás de la barra.
-      const x = Math.min(Math.max(p.x, 52), ancho - 52);
+      //
+      // El tope es la MITAD DE ESTA pastilla más 6 px de aire, no un 52 fijo:
+      // la pastilla va centrada en x, así que con 52 una de 96 px (SÃO ▲ 1.50 %)
+      // se quedaba a 4 px del borde y una de 110 se salía y la cortaba el
+      // overflow del contenedor.
+      const medio = (anchos.get(p.id) || 100) / 2 + 6;
+      const x = Math.min(Math.max(p.x, medio), ancho - medio);
       const barra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 52;
       const arriba = p.y - 16 - 26 > barra + 6;
       el.style.transform = arriba
