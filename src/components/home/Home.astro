@@ -9,6 +9,7 @@
 // los chips son el mismo dato en texto —lo que leen un lector de pantalla y
 // quien no tiene WebGL— y donde se toca para abrir la tarjeta de cada bolsa,
 // así que van pegados al globo y no treinta secciones más abajo.
+import '../../styles/trazo.css';
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
@@ -67,8 +68,8 @@ const first = lessons.find((l) => l.path.id === 'desde-cero' && l.pathIndex === 
 const nextList = lessons.map((l) => ({ slug: l.slug, href: l.href, title: l.entry.data.title, desc: l.entry.data.description, min: l.entry.data.readingMinutes, path: l.path.name[locale], i: l.pathIndex, n: l.pathTotal }));
 // Mercados en 60 s: de la clave del endpoint (SPY, BTC…) a la ficha del activo.
 const assetHrefs = Object.fromEntries(ASSETS.filter((a) => a.feed === 'markets').map((a) => [a.feedKey, L(assetRouteId(a.id))]));
-const SPARK = `<svg class="spark skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill" d=""/><path class="line" d=""/></svg>`;
-const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
+const SPARK = `<svg class="spark trazo-destape skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill trazo-luego" d=""/><path class="line" d=""/></svg>`;
+const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
 ---
 <div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)} data-asset-hrefs={JSON.stringify(assetHrefs)}
   data-news-base={locale === 'es' ? '/es/noticias/' : '/news/'}

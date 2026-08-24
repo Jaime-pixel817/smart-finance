@@ -3,6 +3,7 @@
 // y seis gráficas SVG generadas EN EL BUILD desde data/financials.json.
 // Aquí no hay interpretación: solo los datos que la empresa reportó a la SEC,
 // las divisiones que se hacen a la vista (márgenes, crecimiento) y la fuente.
+import '../../styles/trazo.css';
 import type { Locale } from '../../i18n/routes';
 import { useR } from '../../i18n/research';
 import type { Report } from '../../lib/research/reports';
@@ -177,6 +178,14 @@ const repoDir = 'https://github.com/Jaime-pixel817/smart-finance/tree/main/conte
     </p>
   </div>
 </div>
+
+<script>
+  // Las gráficas se dibujan al aparecer. El estado lo pone SIEMPRE este
+  // módulo, nunca el HTML del build: si no llega, las gráficas se ven
+  // dibujadas y quietas, que es la degradación correcta.
+  import { trazar } from '../../scripts/trazo';
+  document.querySelectorAll('.fin-chart [data-fc]').forEach((svg) => trazar(svg));
+</script>
 
 <style>
   .fin { display: flex; flex-direction: column; gap: var(--sp-5); }

@@ -48,7 +48,10 @@ function frame({ scale, labels, fmtY, showZero = true }) {
 }
 
 function wrap({ inner, ariaLabel, cls = '' }) {
-  return `<svg class="fc ${cls}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ariaLabel)}" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
+  // `data-fc` marca las gráficas que se trazan al aparecer: lo busca el guion
+  // de FinancialBlock.astro. El estado (`data-trazo`) lo pone ÉL, nunca este
+  // HTML — una gráfica del build tiene que verse aunque el módulo no llegue.
+  return `<svg class="fc ${cls}" data-fc viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ariaLabel)}" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
 }
 
 /**
@@ -66,8 +69,8 @@ export function barChart({ labels, values, fmtY = str, fmtVal = str, ariaLabel =
     const yy = y(v);
     const top = Math.min(yy, y0), h = Math.max(1, Math.abs(yy - y0));
     const on = i === highlight;
-    return `<rect class="fc-bar${on ? ' is-on' : ''}" x="${n2(cx - bw / 2)}" y="${n2(top)}" width="${n2(bw)}" height="${n2(h)}" rx="2" style="fill:${color}"/>` +
-      `<text class="fc-val" x="${n2(cx)}" y="${n2(v >= 0 ? top - 5 : top + h + 11)}" text-anchor="middle">${esc(fmtVal(values[i]))}</text>`;
+    return `<rect class="fc-bar trazo-barra${on ? ' is-on' : ''}" x="${n2(cx - bw / 2)}" y="${n2(top)}" width="${n2(bw)}" height="${n2(h)}" rx="2" style="fill:${color};--i:${i}"/>` +
+      `<text class="fc-val trazo-barra" x="${n2(cx)}" y="${n2(v >= 0 ? top - 5 : top + h + 11)}" text-anchor="middle" style="--i:${i}">${esc(fmtVal(values[i]))}</text>`;
   }).join('');
   return wrap({ inner: grid + bars + xlabels, ariaLabel });
 }
@@ -88,7 +91,7 @@ export function groupedBarChart({ labels, series, fmtY = str, ariaLabel = '' }) 
     const x = M.left + step * (i + 0.5) - gw / 2 + bw * k;
     const yy = y(v);
     const top = Math.min(yy, y0), h = Math.max(1, Math.abs(yy - y0));
-    return `<rect class="fc-bar" x="${n2(x)}" y="${n2(top)}" width="${n2(Math.max(1, bw - 1.5))}" height="${n2(h)}" rx="1.5" style="fill:${s.color}"/>`;
+    return `<rect class="fc-bar trazo-barra" x="${n2(x)}" y="${n2(top)}" width="${n2(Math.max(1, bw - 1.5))}" height="${n2(h)}" rx="1.5" style="fill:${s.color};--i:${i}"/>`;
   }).join('')).join('');
   return wrap({ inner: grid + bars + xlabels, ariaLabel });
 }
@@ -106,12 +109,12 @@ export function lineChart({ labels, series, fmtY = str, fmtVal = str, ariaLabel 
     const pts = s.values.map((v, i) => (Number.isFinite(v) ? [x(i), y(v)] : null)).filter(Boolean);
     if (!pts.length) return '';
     const d = pts.map((p, i) => (i ? 'L' : 'M') + n2(p[0]) + ' ' + n2(p[1])).join(' ');
-    const dots = pts.map((p) => `<circle class="fc-dot" cx="${n2(p[0])}" cy="${n2(p[1])}" r="2.6" style="fill:${s.color}"/>`).join('');
+    const dots = pts.map((p) => `<circle class="fc-dot trazo-luego" cx="${n2(p[0])}" cy="${n2(p[1])}" r="2.6" style="fill:${s.color}"/>`).join('');
     const lastI = s.values.length - 1;
     const label = Number.isFinite(s.values[lastI])
-      ? `<text class="fc-val" x="${n2(x(lastI) + 2)}" y="${n2(y(s.values[lastI]) - 9)}" text-anchor="end" style="fill:${s.color}">${esc(fmtVal(s.values[lastI]))}</text>`
+      ? `<text class="fc-val trazo-luego" x="${n2(x(lastI) + 2)}" y="${n2(y(s.values[lastI]) - 9)}" text-anchor="end" style="fill:${s.color}">${esc(fmtVal(s.values[lastI]))}</text>`
       : '';
-    return `<path class="fc-line" d="${d}" style="stroke:${s.color}"/>${dots}${label}`;
+    return `<path class="fc-line trazo-linea" pathLength="1" d="${d}" style="stroke:${s.color}"/>${dots}${label}`;
   }).join('');
   return wrap({ inner: grid + paths + xlabels, ariaLabel });
 }

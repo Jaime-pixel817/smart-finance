@@ -13,6 +13,7 @@
 // aquí, cambia allí: por eso los estilos viven en src/styles/news.css y no en
 // un <style> de este componente.
 import '../../styles/news.css';
+import '../../styles/trazo.css';
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT, type UIKey } from '../../i18n/ui';
@@ -89,9 +90,9 @@ const humana = item.autoria === 'humana';
       )}
       {principal && (
         <figure class="nw-spark">
-          <svg class="spark skel" data-spark={principal.id} viewBox="0 0 240 64" preserveAspectRatio="none"
+          <svg class="spark trazo-destape skel" data-spark={principal.id} viewBox="0 0 240 64" preserveAspectRatio="none"
             role="img" aria-label={principal.sym + ' — ' + t('news.spark')}>
-            <path class="fill" d=""></path><path class="line" d=""></path>
+            <path class="fill trazo-luego" d=""></path><path class="line" d=""></path>
           </svg>
           <figcaption class="t-caption faint">{principal.sym} <span aria-hidden="true">·</span> {t('news.impact.note')}</figcaption>
         </figure>

@@ -1,4 +1,5 @@
 ---
+import '../../styles/trazo.css';
 // Calculadora de interés compuesto. Nació dentro de la lección "Interés
 // simple vs. compuesto" y ahora vive aquí porque la comparten dos superficies:
 //   - la lección (<CompoundCalculator /> desde el MDX, variante "lesson");
@@ -48,9 +49,9 @@ const t = useT(locale);
     </div>
   </div>
   <div class="lw-chart">
-    <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={t('calc.chartAria')} data-lw-svg>
+    <svg class="trazo-destape" viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={t('calc.chartAria')} data-lw-svg>
       <g class="lw-grid" data-lw-grid></g>
-      <path class="lw-area" data-lw-area d=""></path>
+      <path class="lw-area trazo-luego" data-lw-area d=""></path>
       <path class="lw-line lw-contrib" data-lw-contrib d=""></path>
       <path class="lw-line lw-compound" data-lw-compound d=""></path>
     </svg>

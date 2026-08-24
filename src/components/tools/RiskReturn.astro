@@ -1,4 +1,5 @@
 ---
+import '../../styles/trazo.css';
 // Módulo interactivo "Riesgo y retorno" de la lección "3 errores comunes al
 // empezar a invertir": dos controles (cuánto va en acciones, cuántos años),
 // un abanico p10–p90 de 200 caminos dibujado en SVG propio, el retorno típico,
@@ -105,9 +106,9 @@ const inicialTxt = pesos0.format(INICIAL);
 
   <h3 class="t-h3 rr-h">{copy.chartTitle}</h3>
   <div class="lw-chart">
-    <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={copy.aria} data-rr-svg>
+    <svg class="trazo-destape" viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={copy.aria} data-rr-svg>
       <g class="lw-grid" data-rr-grid></g>
-      <path class="rr-band" data-rr-band d=""></path>
+      <path class="rr-band trazo-luego" data-rr-band d=""></path>
       <path class="rr-start" data-rr-start d=""></path>
       <path class="rr-median" data-rr-median-path d=""></path>
     </svg>

@@ -152,9 +152,9 @@ export function historia(n: NoticiaAPI, ctx: Contexto): HTMLElement {
     `<p class="nw-text">${esc(t.impacto)}</p>`,
     n.simbolos && n.simbolos.length ? `<div class="nw-chips">${chipsActivos(n, ctx)}</div>` : '',
     principal
-      ? `<figure class="nw-spark"><svg class="spark skel" data-spark="${esc(principal.id)}" viewBox="0 0 240 64" ` +
+      ? `<figure class="nw-spark"><svg class="spark trazo-destape skel" data-spark="${esc(principal.id)}" viewBox="0 0 240 64" ` +
         `preserveAspectRatio="none" role="img" aria-label="${esc(principal.sym + ' — ' + ctx.t.spark)}">` +
-        `<path class="fill" d=""/><path class="line" d=""/></svg>` +
+        `<path class="fill trazo-luego" d=""/><path class="line" d=""/></svg>` +
         `<figcaption class="t-caption faint">${esc(principal.sym)} <span aria-hidden="true">·</span> ${esc(ctx.t.sparkNote)}</figcaption></figure>`
       : '',
     `</section>`,

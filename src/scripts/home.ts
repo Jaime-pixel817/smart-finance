@@ -3,6 +3,7 @@
 // último valor conocido en localStorage para pintar al instante, y chips de
 // frescura honestos (nunca "en vivo").
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, sparkPath, type Loc } from './format';
+import { trazar } from './trazo';
 import { nyseOpen, bmvOpen } from './hours';
 import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar } from './watchlist';
 import { paintAssetRow } from './rows';
@@ -96,6 +97,7 @@ function boot(root: HTMLElement) {
       s.classList.remove('skel');
       s.classList.remove('up', 'down', 'flat');
       if (pct != null) s.classList.add(dirClass(pct));
+      if (line) trazar(s);
     }
     tile.dataset.state = 'ready';
   }
@@ -234,7 +236,7 @@ function boot(root: HTMLElement) {
       const pr = $('.m60-price', row)!; pr.textContent = fmtNum(i.price, loc, dec); pr.classList.remove('skel');
       const ch = $('.m60-chg', row)!; ch.className = 'm60-chg num ' + dirClass(i.changePct); ch.innerHTML = `<span aria-hidden="true">${arrow(i.changePct)}</span> ${fmtPct(i.changePct, loc)}`;
       const s = $<SVGSVGElement>('svg.spark', row);
-      if (s) { const { line } = sparkPath(i.series || [], 64, 24); s.querySelector('.line')?.setAttribute('d', line); s.classList.remove('skel'); s.setAttribute('class', 'spark ' + dirClass(i.changePct)); }
+      if (s) { const { line } = sparkPath(i.series || [], 64, 24); s.querySelector('.line')?.setAttribute('d', line); s.classList.remove('skel'); s.setAttribute('class', 'spark trazo-destape ' + dirClass(i.changePct)); if (line) trazar(s); }
       row.classList.remove('is-loading');
       (row as HTMLElement).dataset.state = 'ready';
     });

@@ -1,0 +1,135 @@
+// El trazado de las gráficas: la línea se dibuja de izquierda a derecha
+// cuando la gráfica APARECE, una sola vez por carga.
+//
+// Este archivo no dibuja nada. Solo lleva el estado (`data-trazo` en la raíz
+// de cada gráfica) y decide CUÁNDO empieza; el movimiento entero vive en
+// src/styles/trazo.css, que es lo barato: `stroke-dashoffset` en las gráficas
+// de SVG propio y un destape con `clip-path` sobre el lienzo de Lightweight
+// Charts, que al ser un <canvas> no tiene línea que alargar.
+//
+// Tres estados y ya:
+//   espera → la línea está escondida (guion completo), esperando a verse
+//   va     → la transición corre; el relleno entra detrás, con su retraso
+//   fin    → dibujada, sin reglas encima
+//
+// Reglas que este archivo hace cumplir:
+//   · UNA vez por carga. Subir y bajar la página no vuelve a trazar nada.
+//   · Solo si la gráfica está a la vista (IntersectionObserver compartido:
+//     una lista de precios tiene treinta sparklines y no hacen falta treinta
+//     observadores).
+//   · Con `prefers-reduced-motion` no hay trazado: la gráfica aparece
+//     dibujada. El estado ni se pone, y el CSS tampoco esconde nada (la regla
+//     que esconde vive dentro de `prefers-reduced-motion: no-preference`).
+//   · Al cambiar de rango se repite, pero más rápido: es la respuesta a un
+//     toque, no una entrada.
+
+/** La entrada: aparecer trazándose. */
+export const ENTRADA = 600;
+/** La respuesta a un toque (cambiar de rango). Más corta a propósito. */
+export const TOQUE = 300;
+
+export function menosMovimiento(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// ---- Un solo IntersectionObserver para todo el sitio ------------------------
+const enCola = new WeakMap<Element, () => void>();
+let observador: IntersectionObserver | null = null;
+
+/** Llama a `fn` la primera vez que `el` se ve. Sin IO, llama y ya. */
+export function alVerse(el: Element, fn: () => void): void {
+  if (typeof IntersectionObserver === 'undefined') { fn(); return; }
+  if (!observador) {
+    observador = new IntersectionObserver((entradas) => {
+      for (const e of entradas) {
+        if (!e.isIntersecting) continue;
+        observador!.unobserve(e.target);
+        const cb = enCola.get(e.target);
+        enCola.delete(e.target);
+        cb?.();
+      }
+    }, { threshold: 0.15 });
+  }
+  enCola.set(el, fn);
+  observador.observe(el);
+}
+
+/** Deja de esperar a que `el` se vea (se destruyó, o el trazo ya no toca). */
+export function olvidar(el: Element): void {
+  enCola.delete(el);
+  observador?.unobserve(el);
+}
+
+// ---- El estado -------------------------------------------------------------
+const yaTrazadas = new WeakSet<Element>();
+const relojes = new WeakMap<Element, ReturnType<typeof setTimeout>>();
+
+/** ¿Cuánto dura el trazado entero, línea + relleno? Para saber cuándo limpiar. */
+const largo = (ms: number) => ms + 320;
+
+function acabar(raiz: HTMLElement | SVGElement) {
+  const t = relojes.get(raiz);
+  if (t) { clearTimeout(t); relojes.delete(raiz); }
+  raiz.dataset.trazo = 'fin';
+}
+
+function arrancar(raiz: HTMLElement | SVGElement, ms: number) {
+  raiz.dataset.trazo = 'va';
+  relojes.set(raiz, setTimeout(() => acabar(raiz), largo(ms)));
+}
+
+/**
+ * Marca una gráfica de SVG propio para que se trace. `raiz` es el elemento
+ * que lleva `data-trazo` (el <svg> o su contenedor); las líneas que se dibujan
+ * llevan la clase `trazo-linea`, y lo que entra detrás, `trazo-luego`.
+ *
+ * `rapido` es el cambio de rango: se repite el trazado, más corto, y sin
+ * esperar a nada — quien tocó la pestaña está mirando la gráfica.
+ */
+export function trazar(
+  raiz: Element | null | undefined,
+  opciones: { rapido?: boolean; alArrancar?: () => void } = {}
+): void {
+  if (!raiz) return;
+  const el = raiz as HTMLElement | SVGElement;
+  if (menosMovimiento()) { delete el.dataset.trazo; return; }
+  const rapido = !!opciones.rapido;
+  if (!rapido && yaTrazadas.has(el)) return;
+  yaTrazadas.add(el);
+
+  // El guion se mide sobre `pathLength="1"`, así que el largo de la línea no
+  // se le pregunta al navegador (getTotalLength() es una lectura de layout por
+  // gráfica, y aquí hay treinta). Las gráficas del build ya lo traen escrito;
+  // esto es el cinturón para las que pinta el navegador.
+  el.querySelectorAll('.trazo-linea').forEach((p) => {
+    if (!p.hasAttribute('pathLength')) p.setAttribute('pathLength', '1');
+  });
+
+  const ms = rapido ? TOQUE : ENTRADA;
+  el.style.setProperty('--trazo-dur', ms + 'ms');
+  const t = relojes.get(el);
+  if (t) clearTimeout(t);
+  el.dataset.trazo = 'espera';
+
+  const empezar = () => {
+    if (el.dataset.trazo !== 'espera') return;   // lo cortaron mientras esperaba
+    arrancar(el, ms);
+    opciones.alArrancar?.();
+  };
+  if (rapido) {
+    // Dos fotogramas: el navegador tiene que haber calculado el estado
+    // escondido antes de cambiarlo, o la transición no existe.
+    requestAnimationFrame(() => requestAnimationFrame(empezar));
+    return;
+  }
+  alVerse(el, empezar);
+}
+
+/** Corta el trazado y deja la gráfica dibujada (el usuario tiene prisa). */
+export function cortar(raiz: Element | null | undefined): void {
+  if (!raiz) return;
+  const el = raiz as HTMLElement | SVGElement;
+  if (!el.dataset.trazo || el.dataset.trazo === 'fin') return;
+  olvidar(el);
+  acabar(el);
+}

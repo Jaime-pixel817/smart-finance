@@ -10,6 +10,7 @@
 // pinta el <li> y no el enlace. `data-row` puede repetirse (el mismo activo
 // sale en "Lo que sigues" y en su sección), así que los scripts pintan TODAS
 // las filas que casan, no la primera.
+import '../../styles/trazo.css';
 import type { Locale } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import { sectionOf, type SymbolEntry } from '../../data/symbols';
@@ -36,7 +37,7 @@ const nombreSolo = s.name[locale];
     {rate ? (
       <span class="ar-spark ar-rate-note t-caption faint">{rate.note}</span>
     ) : (
-      <span class="ar-spark" aria-hidden="true"><svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg></span>
+      <span class="ar-spark" aria-hidden="true"><svg class="spark trazo-destape skel" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg></span>
     )}
     {rate ? (
       <span class="ar-price num">{rate.value}</span>
