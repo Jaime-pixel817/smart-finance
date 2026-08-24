@@ -191,6 +191,14 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
         <a class="more" href={L('tools')}>{t('tools.all')} →</a>
       </div>
       <div class="tools-grid">
+        <!-- El reto va primero: es lo único de esta sección que se juega, y
+             es el mismo orden que /tools. Su icono es la gráfica con la parte
+             tapada por delante — no una calculadora. -->
+        <a class="card card-link tool" href={L('challenge')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16l4-6 4 4 3-6"/><path d="M15 8h6v6"/><path d="M18 15v6M15 18h6"/></svg>
+          <span class="t-h3">{t('tools.reto')}</span>
+          <span class="t-caption muted">{t('tools.reto.desc')}</span>
+        </a>
         <a class="card card-link tool" href={L('tool.interes')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 19c4-1 6-3 8-7s4-7 10-8"/><path d="M3 19h18"/></svg>
           <span class="t-h3">{t('tools.compound')}</span>

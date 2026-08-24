@@ -1,8 +1,13 @@
 ---
-// Índice /tools y /es/herramientas: las tres calculadoras, cada una con su
-// icono de línea, lo que responde y el enlace a su página. El orden es el de
-// dificultad: primero la que engancha (interés compuesto), luego la que duele
-// (inflación) y al final la que se usa para decidir (CETES vs cuenta).
+// Índice /tools y /es/herramientas.
+//
+// DOS GRUPOS, NO UNA LISTA. Arriba el reto del día, que se JUEGA; abajo las
+// tres calculadoras, que se usan con tus números. En una sola lista el reto
+// parecía una calculadora más — y quien esperaba un slider se encontraba una
+// partida —, así que cada grupo lleva su encabezado y su promesa. El orden de
+// las calculadoras es el de siempre: primero la que engancha (interés
+// compuesto), luego la que duele (inflación) y al final la que se usa para
+// decidir (CETES vs cuenta).
 import '../../styles/tools.css';
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
@@ -33,8 +38,6 @@ const TOOLS = [
     q: { en: 'Where does my money hold its value?', es: '¿Dónde aguanta mi dinero?' }
   }
 ];
-const open = locale === 'es' ? 'Abrir' : 'Open';
-const nuevo = locale === 'es' ? 'Nuevo' : 'New';
 ---
 <section class="container tools-index" aria-labelledby="tools-h">
   <header class="tool-head">
@@ -42,33 +45,44 @@ const nuevo = locale === 'es' ? 'Nuevo' : 'New';
     <p class="tool-lede">{t('tools.sub')}</p>
   </header>
 
-  <ul class="tools-list">
-    <li class="tools-destacada">
-      <a class="card card-link tools-card tools-reto" href={route('challenge', locale)}>
-        <span class="tools-icon" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16l4-6 4 4 3-6"/><path d="M15 8h6v6"/><path d="M18 15v6M15 18h6"/></svg>
-        </span>
-        <span class="tools-nuevo">{nuevo}</span>
-        <span class="t-h3">{t('reto.h1')}</span>
-        <span class="t-small muted">{t('reto.card.desc')}</span>
-        <span class="t-caption faint">{t('reto.card.q')}</span>
-        <span class="tools-go">{open} →</span>
-      </a>
-    </li>
-    {TOOLS.map((tool) => (
-      <li>
-        <a class="card card-link tools-card" href={route(tool.routeId, locale)}>
+  <section class="tools-group" aria-labelledby="tools-game-h">
+    <h2 id="tools-game-h" class="eyebrow">{t('tools.group.game')}</h2>
+    <ul class="tools-list">
+      <li class="tools-destacada">
+        <a class="card card-link tools-card tools-reto" href={route('challenge', locale)}>
           <span class="tools-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={tool.icon} />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16l4-6 4 4 3-6"/><path d="M15 8h6v6"/><path d="M18 15v6M15 18h6"/></svg>
           </span>
-          <span class="t-h3">{tool.name}</span>
-          <span class="t-small muted">{tool.desc}</span>
-          <span class="t-caption faint">{tool.q[locale]}</span>
-          <span class="tools-go">{open} →</span>
+          <span class="tools-nuevo">{t('tools.new')}</span>
+          <span class="t-h3">{t('reto.h1')}</span>
+          <span class="t-small muted">{t('reto.card.desc')}</span>
+          <span class="t-caption faint">{t('reto.card.q')}</span>
+          <span class="tools-go">{t('tools.open')} →</span>
         </a>
       </li>
-    ))}
-  </ul>
+    </ul>
+  </section>
 
-  <p class="tool-disclaimer">{t('tool.disclaimer')}</p>
+  <section class="tools-group" aria-labelledby="tools-calc-h">
+    <h2 id="tools-calc-h" class="eyebrow">{t('tools.group.calc')}</h2>
+    <ul class="tools-list">
+      {TOOLS.map((tool) => (
+        <li>
+          <a class="card card-link tools-card" href={route(tool.routeId, locale)}>
+            <span class="tools-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={tool.icon} />
+            </span>
+            <span class="t-h3">{tool.name}</span>
+            <span class="t-small muted">{tool.desc}</span>
+            <span class="t-caption faint">{tool.q[locale]}</span>
+            <span class="tools-go">{t('tools.open')} →</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <!-- El disclaimer va DENTRO del grupo de las calculadoras: habla de tasas
+         constantes y de impuestos, que es lo que suponen ellas. El reto tiene
+         el suyo en su propia página, y dice otra cosa. -->
+    <p class="tool-disclaimer">{t('tool.disclaimer')}</p>
+  </section>
 </section>

@@ -78,6 +78,11 @@
 
 /* ---- Índice /tools ---- */
 .tools-index { padding-top: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-6); }
+/* Dos grupos: el juego y las calculadoras. El encabezado es un eyebrow (mono,
+   11 px) y no un título: separa sin competir con el h1 de la página. */
+.tools-group { display: flex; flex-direction: column; gap: var(--sp-3); }
+.tools-group + .tools-group { margin-top: var(--sp-2); }
+.tools-group .tool-disclaimer { margin-top: var(--sp-2); }
 .tools-list { display: grid; gap: var(--sp-3); }
 @media (min-width: 860px) { .tools-list { grid-template-columns: repeat(3, 1fr); } }
 .tools-card { display: flex; flex-direction: column; gap: var(--sp-2); color: var(--ink); height: 100%; }
