@@ -1,0 +1,1188 @@
+{
+  "activos": [
+    {
+      "id": "spy",
+      "sym": "SPY",
+      "nombre": {
+        "en": "S&P 500",
+        "es": "S&P 500"
+      },
+      "tipo": "index",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "SPY",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "An ETF that tracks the S&P 500: the 500 largest US companies in one price. When someone says “the market went up”, they usually mean this.",
+        "es": "Un ETF que sigue al S&P 500: las 500 empresas más grandes de EE. UU. en un solo precio. Cuando dicen “el mercado subió”, casi siempre hablan de esto."
+      }
+    },
+    {
+      "id": "qqq",
+      "sym": "QQQ",
+      "nombre": {
+        "en": "Nasdaq 100",
+        "es": "Nasdaq 100"
+      },
+      "tipo": "index",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "QQQ",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "An ETF that tracks the Nasdaq 100: the 100 largest non-financial companies on the Nasdaq, heavy on tech like Apple, Microsoft and Nvidia.",
+        "es": "Un ETF que sigue al Nasdaq 100: las 100 empresas no financieras más grandes del Nasdaq, con mucho peso en tecnología (Apple, Microsoft, Nvidia)."
+      }
+    },
+    {
+      "id": "dia",
+      "sym": "DIA",
+      "nombre": {
+        "en": "Dow Jones",
+        "es": "Dow Jones"
+      },
+      "tipo": "index",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "DIA",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "An ETF that tracks the Dow Jones Industrial Average: 30 large, established US companies. Older and narrower than the S&P 500, but still in every headline.",
+        "es": "Un ETF que sigue al Dow Jones: 30 empresas grandes y veteranas de EE. UU. Más viejo y más estrecho que el S&P 500, pero sale en todos los titulares."
+      }
+    },
+    {
+      "id": "vix",
+      "sym": "VIX",
+      "nombre": {
+        "en": "Fear index",
+        "es": "Índice del miedo"
+      },
+      "tipo": "vol",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "VIX",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "How much fear there is in the market: the size of the swing traders expect in the S&P 500 over the next 30 days. Under 20 is calm; over 30, people are nervous.",
+        "es": "Qué tanto miedo hay en el mercado: el tamaño del movimiento que los operadores esperan en el S&P 500 en los próximos 30 días. Debajo de 20 es calma; arriba de 30, nervios."
+      }
+    },
+    {
+      "id": "aapl",
+      "sym": "AAPL",
+      "nombre": {
+        "en": "Apple",
+        "es": "Apple"
+      },
+      "tipo": "stock",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "AAPL",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "iPhone, Mac and services. One of the most valuable companies in the world and the largest weight in the S&P 500, so when it moves, the index moves.",
+        "es": "iPhone, Mac y servicios. Una de las empresas más valiosas del mundo y el mayor peso del S&P 500, así que cuando se mueve, mueve al índice."
+      }
+    },
+    {
+      "id": "msft",
+      "sym": "MSFT",
+      "nombre": {
+        "en": "Microsoft",
+        "es": "Microsoft"
+      },
+      "tipo": "stock",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "MSFT",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "Windows, Office, the Azure cloud and a big stake in OpenAI. A bet on software that businesses pay for every month.",
+        "es": "Windows, Office, la nube Azure y una participación grande en OpenAI. Una apuesta por software que las empresas pagan cada mes."
+      }
+    },
+    {
+      "id": "nvda",
+      "sym": "NVDA",
+      "nombre": {
+        "en": "Nvidia",
+        "es": "Nvidia"
+      },
+      "tipo": "stock",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "NVDA",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "Designs the chips that train and run AI models. Its price reacts to every AI headline, which is why it moves more than the other giants.",
+        "es": "Diseña los chips con los que se entrenan y corren los modelos de IA. Su precio reacciona a cada titular de IA; por eso se mueve más que los otros gigantes."
+      }
+    },
+    {
+      "id": "amzn",
+      "sym": "AMZN",
+      "nombre": {
+        "en": "Amazon",
+        "es": "Amazon"
+      },
+      "tipo": "stock",
+      "moneda": "USD",
+      "sesion": "us",
+      "fuente": "Twelve Data",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "AMZN",
+      "leccion": "lesson.sp500",
+      "que": {
+        "en": "Online retail, Prime and AWS, the cloud unit that makes most of the profit. A read on both consumers and the internet’s plumbing.",
+        "es": "Tienda en línea, Prime y AWS, la nube que deja la mayor parte de la ganancia. Una lectura del consumidor y de la tubería de internet a la vez."
+      }
+    },
+    {
+      "id": "usdmxn",
+      "sym": "USD/MXN",
+      "nombre": {
+        "en": "US dollar in pesos",
+        "es": "Dólar en pesos"
+      },
+      "tipo": "fx",
+      "moneda": "MXN",
+      "sesion": "fx",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 4,
+      "history": "USDMXN",
+      "leccion": "lesson.peso",
+      "que": {
+        "en": "How many pesos one US dollar costs. Up means the peso weakened; down, it strengthened. It touches imported phones, trips and scholarships in dollars.",
+        "es": "Cuántos pesos cuesta un dólar. Si sube, el peso se depreció; si baja, se apreció. Toca el celular importado, el viaje y la beca en dólares."
+      }
+    },
+    {
+      "id": "eurmxn",
+      "sym": "EUR/MXN",
+      "nombre": {
+        "en": "Euro in pesos",
+        "es": "Euro en pesos"
+      },
+      "tipo": "fx",
+      "moneda": "MXN",
+      "sesion": "fx",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 4,
+      "history": "EURMXN",
+      "leccion": "lesson.peso",
+      "que": {
+        "en": "How many pesos one euro costs. Matters if you study, travel or buy from Europe; it moves with both the peso and the euro.",
+        "es": "Cuántos pesos cuesta un euro. Importa si estudias, viajas o compras en Europa; se mueve con el peso y con el euro a la vez."
+      }
+    },
+    {
+      "id": "chfmxn",
+      "sym": "CHF/MXN",
+      "nombre": {
+        "en": "Swiss franc in pesos",
+        "es": "Franco suizo en pesos"
+      },
+      "tipo": "fx",
+      "moneda": "MXN",
+      "sesion": "fx",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 4,
+      "history": "CHFMXN",
+      "leccion": "lesson.peso",
+      "que": {
+        "en": "How many pesos one Swiss franc costs. The franc is a classic “safe haven”: it tends to rise when markets get scared.",
+        "es": "Cuántos pesos cuesta un franco suizo. El franco es un “refugio” clásico: suele subir cuando los mercados se asustan."
+      }
+    },
+    {
+      "id": "eurusd",
+      "sym": "EUR/USD",
+      "nombre": {
+        "en": "Euro in dollars",
+        "es": "Euro en dólares"
+      },
+      "tipo": "fx",
+      "moneda": "USD",
+      "sesion": "fx",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 4,
+      "history": "EURUSD",
+      "leccion": "lesson.peso",
+      "que": {
+        "en": "How many dollars one euro costs: the most traded currency pair in the world and a quick read on Europe versus the US.",
+        "es": "Cuántos dólares cuesta un euro: el par de divisas más operado del mundo y una lectura rápida de Europa frente a EE. UU."
+      }
+    },
+    {
+      "id": "gbpusd",
+      "sym": "GBP/USD",
+      "nombre": {
+        "en": "British pound in dollars",
+        "es": "Libra en dólares"
+      },
+      "tipo": "fx",
+      "moneda": "USD",
+      "sesion": "fx",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 4,
+      "history": "GBPUSD",
+      "leccion": "lesson.peso",
+      "que": {
+        "en": "How many dollars one British pound costs. Traders call it “cable”; it reacts to UK inflation, rates and politics.",
+        "es": "Cuántos dólares cuesta una libra esterlina. Los operadores le dicen “cable”; reacciona a la inflación, las tasas y la política del Reino Unido."
+      }
+    },
+    {
+      "id": "usdjpy",
+      "sym": "USD/JPY",
+      "nombre": {
+        "en": "US dollar in yen",
+        "es": "Dólar en yenes"
+      },
+      "tipo": "fx",
+      "moneda": "JPY",
+      "sesion": "fx",
+      "fuente": "Yahoo Finance",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "USDJPY",
+      "leccion": "lesson.peso",
+      "que": {
+        "en": "How many yen one US dollar costs. Japan kept rates near zero for decades, so this pair moves a lot on US rates and on what the Bank of Japan does.",
+        "es": "Cuántos yenes cuesta un dólar. Japón tuvo tasas casi en cero por décadas, así que este par se mueve mucho con las tasas de EE. UU. y con lo que haga el Banco de Japón."
+      }
+    },
+    {
+      "id": "btc",
+      "sym": "BTC",
+      "nombre": {
+        "en": "Bitcoin",
+        "es": "Bitcoin"
+      },
+      "tipo": "crypto",
+      "moneda": "USD",
+      "sesion": "crypto",
+      "fuente": "CoinGecko",
+      "retrasoMin": 15,
+      "decimales": 0,
+      "history": "BTC",
+      "leccion": "lesson.errores",
+      "que": {
+        "en": "The first and largest cryptocurrency: a digital asset with a fixed supply of 21 million, traded 24/7. Very volatile; the price here is in US dollars.",
+        "es": "La primera y más grande criptomoneda: un activo digital con oferta fija de 21 millones que se opera 24/7. Muy volátil; el precio aquí es en dólares."
+      }
+    },
+    {
+      "id": "eth",
+      "sym": "ETH",
+      "nombre": {
+        "en": "Ethereum",
+        "es": "Ethereum"
+      },
+      "tipo": "crypto",
+      "moneda": "USD",
+      "sesion": "crypto",
+      "fuente": "CoinGecko",
+      "retrasoMin": 15,
+      "decimales": 0,
+      "history": "ETH",
+      "leccion": "lesson.errores",
+      "que": {
+        "en": "The coin of the Ethereum network, where apps, tokens and smart contracts run. Second-largest crypto; it moves with Bitcoin but swings harder.",
+        "es": "La moneda de la red Ethereum, donde corren apps, tokens y contratos inteligentes. Segunda cripto más grande; se mueve con Bitcoin pero brinca más."
+      }
+    },
+    {
+      "id": "xrp",
+      "sym": "XRP",
+      "nombre": {
+        "en": "XRP",
+        "es": "XRP"
+      },
+      "tipo": "crypto",
+      "moneda": "USD",
+      "sesion": "crypto",
+      "fuente": "CoinGecko",
+      "retrasoMin": 15,
+      "decimales": 4,
+      "history": "XRP",
+      "leccion": "lesson.errores",
+      "que": {
+        "en": "The token of the XRP Ledger, built for fast, cheap cross-border payments. Its price has long been tied to Ripple’s legal fights with US regulators.",
+        "es": "El token del XRP Ledger, pensado para pagos internacionales rápidos y baratos. Su precio ha dependido de las batallas legales de Ripple con los reguladores de EE. UU."
+      }
+    },
+    {
+      "id": "sol",
+      "sym": "SOL",
+      "nombre": {
+        "en": "Solana",
+        "es": "Solana"
+      },
+      "tipo": "crypto",
+      "moneda": "USD",
+      "sesion": "crypto",
+      "fuente": "CoinGecko",
+      "retrasoMin": 15,
+      "decimales": 2,
+      "history": "SOL",
+      "leccion": "lesson.errores",
+      "que": {
+        "en": "The coin of the Solana network, known for fast and cheap transactions. High growth, high risk: it has had huge rallies and huge crashes.",
+        "es": "La moneda de la red Solana, conocida por transacciones rápidas y baratas. Mucho crecimiento y mucho riesgo: ha tenido subidas y caídas enormes."
+      }
+    }
+  ],
+  "lecciones": [
+    {
+      "slug": "como-funciona-la-bolsa",
+      "routeId": "lesson.bolsa",
+      "href": {
+        "en": "/lessons/como-funciona-la-bolsa",
+        "es": "/es/lecciones/como-funciona-la-bolsa"
+      },
+      "es": {
+        "titulo": "Cómo funciona una Bolsa de Valores",
+        "descripcion": "Qué pasa entre que aprietas comprar y eres dueño de una acción: el libro de órdenes, la BMV, sus horarios, quién la regula, qué es un índice y qué verías si la visitas.",
+        "entradilla": "Aprietas un botón y tres segundos después eres dueño de un pedazo de una empresa. Entre el botón y la propiedad hay una máquina completa, y es mucho menos misteriosa de lo que parece.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Horarios de Negociación y Calendario de Días Festivos",
+            "url": "https://www.bmv.com.mx/es/Grupo_BMV/Calendario_de_dias_festivos/_rid/662/_mod/TAB_HORARIOS_NEG",
+            "editor": "Bolsa Mexicana de Valores",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Reglamento Interior de la BMV, Título Quinto: Operaciones del Mercado de Capitales",
+            "url": "https://www.bmv.com.mx/docs-pub/MARCO_NORMATIVO/CTEN_MNNB/REGLAMENTO%20INTERIOR%20BMV%20-%20T%C3%ADtulo%20V.pdf",
+            "editor": "Bolsa Mexicana de Valores",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "How Stock Markets Work: Market Participants",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/market-participants",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "How Stock Markets Work: Types of Orders",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Ley del Mercado de Valores",
+            "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LMV.pdf",
+            "editor": "Cámara de Diputados del H. Congreso de la Unión",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "Qué pasa cuando aprietas comprar\n\nNo entras a ningún edificio. Le mandas una instrucción a tu casa de bolsa, y la casa de bolsa —que es miembro de la bolsa— la pasa al sistema electrónico de la bolsa. Ahí tu instrucción entra a una fila junto con la de todos los demás, y el sistema busca a alguien cuya instrucción sea el espejo de la tuya.\n\nHay dos instrucciones básicas, y la diferencia importa más de lo que espera quien empieza. Una orden de mercado dice *compra al precio que haya ahorita*, así que se llena de inmediato a un precio que te enteras después. Una orden limitada dice *compra, pero nunca arriba de este precio*, así que se llena al precio que elegiste o no se llena. La primera te da certeza sobre la ejecución; la segunda, sobre el precio. Las dos a la vez no se puede.\n\nEl libro de órdenes: una fila de compradores y una de vendedores\n\nImagina dos listas. De un lado, todos los que quieren comprar, ordenados por quién está dispuesto a pagar más. Del otro, todos los que quieren vender, ordenados por quién acepta menos. Eso es el libro de órdenes, y la punta de cada lista es el precio que ves cotizado.\n\nLa distancia entre las dos es el spread de compra-venta. Si la mejor compra está en 99.90 y la mejor venta en 100.10, comprar te cuesta 100.10 y vender de inmediato te deja 99.90. Veinte centavos que se fueron antes de que nada se moviera. Esa distancia es el costo real de operar, y es estrecha en lo que todo el mundo opera y ancha en lo que casi nadie — que es una definición práctica de liquidez.\n\nQue siempre haya alguien del otro lado es un trabajo, no una casualidad. Los formadores de mercado cotizan un precio de compra y uno de venta al mismo tiempo, toda la sesión, y ganan el spread por la molestia. Son la razón de que tu orden de dos mil pesos encuentre contraparte en un segundo en vez de esperar a un humano al que le cuadren tus planes.\n\nDos mercados en el mismo edificio\n\nLa bolsa hace dos trabajos distintos y es fácil confundirlos.\n\nEn el mercado primario, una empresa vende acciones nuevas y recibe el dinero: eso es una oferta pública inicial o una emisión posterior, y es la forma en que listarse levanta capital para construir cosas.\n\nEn el mercado secundario, los inversionistas compran y venden esas mismas acciones entre ellos. Aquí operas tú y casi todo el mundo. La empresa no recibe nada de esto. Lo que sí recibe es algo más sutil y igual de valioso: como la gente sabe que después va a poder vender, se anima a comprar en primer lugar.\n\nLa BMV: horarios, festivos y quién está adentro\n\nLa bolsa principal de México es la Bolsa Mexicana de Valores, fundada en 1894 y con sede en Paseo de la Reforma, en la Ciudad de México. Una sesión corre de lunes a viernes y dura como seis horas y media, y abre con una subasta que junta órdenes antes de que arranque el mercado continuo. Las horas exactas se recorren cuando Estados Unidos cambia de horario —la BMV mantiene su sesión alineada con Nueva York— así que la fuente confiable es el horario que la propia bolsa publica, que es el primer enlace de las fuentes de abajo, junto con el calendario de días festivos. Esos días no se opera, muestre lo que muestre tu app.\n\nAdentro están las emisoras, las casas de bolsa operando por sus clientes y por ellas mismas, los formadores de mercado, y las instituciones que liquidan y resguardan los valores una vez que la operación se cerró. La bolsa misma nunca es dueña de lo que se opera. Ella pone el lugar de encuentro y las reglas.\n\nQuién vigila\n\nEl mercado corre sobre reglas escritas en tres capas: la Ley del Mercado de Valores, el regulador y el reglamento interior de la propia bolsa. El regulador es la CNBV, que autoriza y supervisa bancos, casas de bolsa y bolsas. \"Regulado\" significa supervisado: que la firma existe, reporta y le responde a alguien. Nunca ha significado que tu inversión no pueda bajar.\n\nQué es un índice\n\nUn índice no es algo que puedas comprar. Es un número que resume una canasta de empresas, para que \"el mercado subió hoy\" sea una sola cifra en vez de quinientas. El índice de referencia de México es el S&P/BMV IPC, armado con las empresas más operadas de la bolsa y ponderado por tamaño; el estadounidense del que tanto oyes es el S&P 500. La misma idea, otra canasta.\n\nSi visitas la BMV no vas a ver gente gritando. Las operaciones son totalmente electrónicas desde hace años, y lo que queda es un edificio, pantallas, una campana que suena cuando alguien se lista y personas que explican qué están haciendo esas pantallas. Es mucho más tranquilo que en las películas y bastante más interesante en cuanto sabes qué estás viendo. El grupo estudiantil de Smart Finance organiza visitas y talleres: las fechas, cuando hay, viven en la página de comunidad.\n\nPracticarlo sin arriesgar un peso\n\nTodo esto se entiende mucho mejor cuando pones una orden y la ves llenarse. Un simulador te deja hacerlo sin dinero de verdad: el Reto Actinver es un concurso de bolsa para estudiantes que se juega con dinero ficticio. En esa página publico cada posición con la razón por la que la abrí y con lo que más puede salir mal, antes de saber cómo termina.\n\nLa versión corta\n\nUna bolsa es una máquina de cruzar órdenes. La tuya entra a una fila, encuentra su espejo y la propiedad cambia de manos en segundos. La empresa solo recibe dinero la primera vez, en el mercado primario; después son inversionistas operando entre ellos. La BMV corre seis horas y media al día bajo reglas que la CNBV supervisa, y un índice no es más que una forma de describir a toda esa multitud con un solo número."
+      },
+      "en": {
+        "titulo": "How a stock exchange actually works",
+        "descripcion": "What happens between pressing buy and owning a share: the order book, the BMV, its hours, who regulates it, what an index is and what you would see if you walked in.",
+        "entradilla": "You press a button and three seconds later you own part of a company. Between the button and the ownership there is a whole machine, and it is much less mysterious than it looks.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Horarios de Negociación y Calendario de Días Festivos",
+            "url": "https://www.bmv.com.mx/es/Grupo_BMV/Calendario_de_dias_festivos/_rid/662/_mod/TAB_HORARIOS_NEG",
+            "editor": "Bolsa Mexicana de Valores",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Reglamento Interior de la BMV, Título Quinto: Operaciones del Mercado de Capitales",
+            "url": "https://www.bmv.com.mx/docs-pub/MARCO_NORMATIVO/CTEN_MNNB/REGLAMENTO%20INTERIOR%20BMV%20-%20T%C3%ADtulo%20V.pdf",
+            "editor": "Bolsa Mexicana de Valores",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "How Stock Markets Work: Market Participants",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/market-participants",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "How Stock Markets Work: Types of Orders",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Ley del Mercado de Valores",
+            "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LMV.pdf",
+            "editor": "Cámara de Diputados del H. Congreso de la Unión",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "What happens when you press buy\n\nYou do not walk into a building. You send an instruction to your brokerage, and the brokerage — which is a member of the exchange — passes it to the exchange's electronic system. There, your instruction goes into a queue with everybody else's, and the system looks for someone whose instruction is the mirror of yours.\n\nThere are two basic instructions, and the difference matters more than beginners expect. A market order says *buy at whatever the price is right now*, so it fills immediately at a price you find out afterwards. A limit order says *buy, but never above this price*, so it fills at a price you chose or does not fill at all. The first one gives you certainty about the fill; the second gives you certainty about the price. You cannot have both.\n\nThe order book: a queue of buyers and a queue of sellers\n\nPicture two lists. On one side, everyone who wants to buy, sorted by who is willing to pay the most. On the other, everyone who wants to sell, sorted by who will accept the least. That is the order book, and the top of each list is the price you see quoted.\n\nThe gap between them is the bid-ask spread. If the highest bid is 99.90 and the lowest ask is 100.10, then buying costs you 100.10 and selling right away gets you 99.90. Twenty centavos, gone, before anything has moved. That gap is the real cost of trading, and it is narrow on things everyone trades and wide on things almost nobody does — which is a working definition of liquidity.\n\nMaking sure there is always somebody on the other side is a job, not a coincidence. Market makers quote a buy price and a sell price at the same time, all session, and earn the spread for the trouble. They are the reason your two-thousand-peso order finds a counterparty in a second instead of waiting for a human whose plans happen to match yours.\n\nTwo markets in the same building\n\nThe exchange does two different jobs and they are easy to confuse.\n\nIn the primary market, a company sells new shares and receives the money — that is an IPO or a later issue, and it is how listing raises capital to build things.\n\nIn the secondary market, investors buy and sell those same shares among themselves. This is where you and almost everyone else operates. The company gets nothing from it. What it gets is something subtler and just as valuable: because people know they can sell later, they are willing to buy in the first place.\n\nThe BMV: hours, holidays, and who is inside\n\nMexico's main exchange is the Bolsa Mexicana de Valores, founded in 1894 and based on Paseo de la Reforma in Mexico City. A session runs Monday to Friday and lasts about six and a half hours, opening with an auction that gathers orders before continuous trading begins. The exact clock times shift when the United States changes its own — the BMV keeps its session lined up with New York — so the trustworthy source is the exchange's own published schedule, which is the first link in the sources below, along with the holiday calendar. On those days nothing trades, whatever your app shows.\n\nInside are issuers, brokerages trading for clients and for themselves, market makers, and the institutions that settle and safeguard the securities once a trade is done. The exchange itself never owns what is being traded. It runs the meeting place and the rules.\n\nWho watches\n\nThe market runs on rules written in three layers: the Ley del Mercado de Valores, the regulator, and the exchange's own internal rulebook. The regulator is the CNBV, which authorizes and supervises banks, brokerages and exchanges. \"Regulated\" means supervised — that the firm exists, reports, and answers to somebody. It has never meant that your investment cannot fall.\n\nWhat an index is\n\nAn index is not something you can buy. It is a number that summarizes a basket of companies, so that \"the market went up today\" becomes a single figure instead of five hundred. Mexico's reference index is the S&P/BMV IPC, built from the most traded companies on the exchange and weighted by size; the American one you hear about is the S&P 500. Same idea, different basket.\n\nIf you visit the BMV you will not see people shouting. Trading has been fully electronic for years, and what is left is a building, screens, a bell that rings for a listing, and staff who explain what the screens are doing. It is much calmer than the movies and considerably more interesting once you know what you are looking at. The Smart Finance student group organizes visits and workshops — dates, when there are dates, live on the community page.\n\nPractising it without risking a peso\n\nAll of this makes far more sense once you place an order and watch it fill. A simulator lets you do that with no real money: the Actinver Challenge is a student stock-market contest played with fictional money. On that page I publish every position with the reason I opened it and with what can go wrong, before knowing how it ends.\n\nThe short version\n\nAn exchange is a matching machine. Your order joins a queue, meets the mirror of itself, and ownership changes hands in seconds. The company only gets money the first time, in the primary market; after that it is investors trading with each other. The BMV runs six and a half hours a day under rules the CNBV supervises, and an index is just a way of describing that whole crowd with one number."
+      }
+    },
+    {
+      "slug": "errores-al-invertir",
+      "routeId": "lesson.errores",
+      "href": {
+        "en": "/lessons/errores-al-invertir",
+        "es": "/es/lecciones/errores-al-invertir"
+      },
+      "es": {
+        "titulo": "3 errores comunes al empezar a invertir",
+        "descripcion": "Ahorrar e invertir hacen trabajos distintos. Este es el orden que sí funciona, y la señal de que ya estás listo para empezar a invertir.",
+        "entradilla": "Casi nadie pierde dinero al principio por haber escogido mal el fondo. Lo pierde por tres razones mucho más aburridas — y las tres se evitan en cuanto puedes nombrarlas.",
+        "minutos": 6,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Save and Invest",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "cetesdirecto: ahorro e inversión en valores gubernamentales",
+            "url": "https://www.cetesdirecto.com/",
+            "editor": "Gobierno de México (SHCP / Nacional Financiera)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Valores gubernamentales (CETES, Bonos, Udibonos)",
+            "url": "https://www.banxico.org.mx/mercados/valores-gubernamentales-secto.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Calculadora del Costo Anual Total (CAT)",
+            "url": "https://www.banxico.org.mx/CAT/",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "Los tres errores, de entrada\n\n1. Invertir dinero que vas a necesitar el mes que entra. Al mercado le da igual tu calendario. Si de ese dinero depende la renta, no es una inversión: es una apuesta con fecha límite, y vas a acabar vendiendo al precio que se aparezca esa semana.\n2. Perseguir lo que más subió la semana pasada. Para cuando algo lleva 80% de subida y todo el mundo habla de eso, estás comprando la parte del movimiento que ya ocurrió. Es el hábito más caro para quien empieza.\n3. Revisar tu cuenta todos los días. Los movimientos normales empiezan a sentirse como emergencias, y las emergencias hacen que la gente venda. Ver menos seguido es una estrategia de verdad, no flojera.\n\nLos tres salen de la misma raíz: meter dinero antes de que la base de abajo estuviera lista. Así que empecemos por ahí.\n\nAhorrar e invertir hacen dos trabajos distintos\n\nAhorrar es dinero que estás protegiendo. Tiene que estar ahí el día exacto que lo necesitas, por el monto que esperas. Su trabajo es la certeza, no el crecimiento. Una cuenta de ahorro que paga menos que la inflación técnicamente está perdiendo poder de compra, y ese es un precio aceptable por dinero que podrías necesitar el martes.\n\nInvertir es dinero que estás haciendo crecer. Compra activos que pueden caer 20% en un mal año y recuperarse en los siguientes. Su trabajo es ganarle a la inflación en tramos largos, y el boleto de entrada es aceptar que no controlas cuándo baja.\n\nEn cuanto los ves como trabajos distintos en vez de opciones que compiten, la pregunta se responde sola: no eliges uno, los pones en orden.\n\nEl orden que sí funciona\n\n1. Un colchón inicial chico. Un mes de gastos esenciales, líquido. Suficiente para que una llanta ponchada no se vuelva saldo en la tarjeta.\n2. Mata la deuda cara. Todo lo que ande arriba de 20% anual: tarjetas de crédito, tarjetas departamentales, préstamos exprés. Pagar una tarjeta al 45% es un rendimiento garantizado del 45%. Nada en el mercado te ofrece eso con certeza.\n3. Termina el fondo de emergencia. De tres a seis meses de gastos esenciales. Seis si tu ingreso es irregular o si mantienes a alguien más.\n4. Y entonces invierte. Con dinero que de verdad no vas a tocar en al menos cinco años.\n\nSaltarse directo al paso cuatro es el error más común que veo. Se siente productivo, y funciona justo hasta el mes en que algo se descompone: y ahí andas vendiendo tus inversiones al precio que el mercado se le ocurra ofrecer esa semana.\n\nLa señal de que ya estás listo: podrías cubrir un gasto inesperado del tamaño de un mes de sueldo sin pedir prestado y sin tocar tus inversiones. Mientras eso no sea cierto, ahorrar más le gana a invertir más, sin importar lo que esté haciendo el mercado.\n\nLa regla de verdad es el tiempo, no el monto\n\nOlvídate del número en pesos un segundo. La pregunta que decide a dónde va el dinero es: *¿cuándo voy a necesitar esto?*\n\n- Menos de 2 años — instrumentos de ahorro. Cetes, un fondo de mercado de dinero, una cuenta de ahorro estable. Aburrido a propósito.\n- De 2 a 5 años — mayormente conservador, con una porción chica de crecimiento si aguantas los movimientos.\n- 5 años o más — aquí es donde invertir se gana su lugar, porque tienes tiempo para aguantar sentado los años malos.\n\nEl enganche que necesitas en dieciocho meses no va en la bolsa, por más bien que se vea el mercado ahorita. El dinero para el retiro a los 22 años no va en una cuenta de ahorro, por más seguro que se sienta.\n\nQué te compra de verdad tener más acciones\n\nAbajo están los mismos veinte años vividos doscientas veces. Mueve cuánto va en acciones y cuánto tiempo lo dejas quieto, y fíjate en dos cosas a la vez: el centro del abanico sube, y el abanico se abre. Lo segundo es el precio de lo primero, y es la parte que nadie pone en el anuncio.\n\nCómo se ve \"invertir\" cuando apenas empiezas\n\nEs menos emocionante de lo que la gente espera. Para la mayoría de los principiantes significa comprar un fondo indexado o ETF amplio y diversificado en una casa de bolsa regulada, aportar una cantidad fija cada mes, y no hacer nada más. Ya. Esa es la estrategia.\n\nNo significa escoger acciones individuales, seguir las señales de alguien, ni operar cripto con dinero que vas a necesitar. Esas cosas pueden ser parte de un portafolio después, en cantidades chicas, una vez que la base está sólida.\n\nTres cosas que arruinan esto en silencio\n\n1. Invertir dinero prestado. Las pérdidas duelen; las pérdidas con intereses encima se componen en tu contra.\n2. Dejar de aportar cuando el mercado cae. Es precisamente cuando estás comprando con descuento. Que los mercados bajen es parte del plan, no evidencia de que se rompió.\n3. Ignorar las comisiones. Un 2% anual suena chiquito y se come una parte enorme de tu rendimiento a lo largo de décadas. Compara antes de comprometerte.\n\nLa versión corta\n\nAhorra hasta que una emergencia no te pueda pegar. Mata la deuda cara en el camino. Y entonces invierte, cada mes, en algo aburrido y diversificado, con dinero que tenga tiempo de recuperarse. El salto no es una fecha en el calendario: es el momento en que tu red de seguridad aguanta un golpe sin que tengas que vender nada."
+      },
+      "en": {
+        "titulo": "3 common mistakes when you start investing",
+        "descripcion": "Saving and investing do different jobs. Here's the order that works, and the signal that tells you you're ready to start investing.",
+        "entradilla": "Almost nobody loses money at the start because they picked the wrong fund. They lose it for three much more boring reasons — and all three are avoidable once you can name them.",
+        "minutos": 6,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Save and Invest",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "cetesdirecto: ahorro e inversión en valores gubernamentales",
+            "url": "https://www.cetesdirecto.com/",
+            "editor": "Gobierno de México (SHCP / Nacional Financiera)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Valores gubernamentales (CETES, Bonos, Udibonos)",
+            "url": "https://www.banxico.org.mx/mercados/valores-gubernamentales-secto.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Calculadora del Costo Anual Total (CAT)",
+            "url": "https://www.banxico.org.mx/CAT/",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "The three mistakes, up front\n\n1. Investing money you'll need next month. The market does not care about your calendar. If rent depends on that money, it isn't an investment — it's a bet with a deadline, and you'll be selling at whatever price shows up that week.\n2. Chasing whatever went up the most last week. By the time something is up 80% and everyone is talking about it, you're buying the part of the move that already happened. This is the single most expensive habit for beginners.\n3. Checking your account every single day. Normal swings start to feel like emergencies, and emergencies make people sell. Looking less often is a real strategy, not laziness.\n\nAll three come from the same root: putting money in before the base underneath it was ready. So let's start there.\n\nSaving and investing do two different jobs\n\nSaving is money you're protecting. It has to be there on the exact day you need it, at the amount you expect. Its job is certainty, not growth. A savings account paying below inflation is technically losing purchasing power — and that's an acceptable price for money you might need on Tuesday.\n\nInvesting is money you're growing. It buys assets that can fall 20% in a bad year and recover over the following ones. Its job is beating inflation over long stretches, and the price of admission is accepting that you cannot control when it goes down.\n\nOnce you see them as different jobs instead of competing options, the question answers itself: you don't pick one, you sequence them.\n\nThe order that works\n\n1. A small starter cushion. One month of essential expenses, liquid. Enough that a flat tire doesn't become a credit card balance.\n2. Kill expensive debt. Anything above roughly 20% annual interest — credit cards, store cards, payday-style loans. Paying off a 45% card is a guaranteed 45% return. Nothing in the market offers that with certainty.\n3. Finish the emergency fund. Three to six months of essential expenses. Six if your income is irregular or you support other people.\n4. Then invest. With money you genuinely will not touch for at least five years.\n\nSkipping straight to step four is the most common mistake I see. It feels productive, and it works right up until the month something breaks — and then you're selling your investments at whatever price the market happens to offer that week.\n\nThe signal you're ready: you could cover an unexpected expense of a month's salary without borrowing money and without touching your investments. Until that's true, more saving beats more investing — regardless of what the market is doing.\n\nThe real rule is time, not amount\n\nForget the peso figure for a second. The question that decides where money goes is: *when will I need this?*\n\n- Under 2 years — savings instruments. Cetes, a money-market fund, a stable savings account. Boring on purpose.\n- 2 to 5 years — mostly conservative, with a small growth portion if you can tolerate the swings.\n- 5 years or more — this is where investing earns its keep, because you have time to sit through the bad years.\n\nA down payment you need in eighteen months does not belong in the stock market, no matter how good the market looks right now. Retirement money at 22 years old does not belong in a savings account, no matter how safe it feels.\n\nWhat more stocks actually buys you\n\nBelow is the same twenty years lived two hundred times. Move how much goes into stocks and how long you leave it alone, and watch two things at once: the middle of the fan climbs, and the fan gets wider. That second part is the price of the first one, and it is the part nobody puts in the ad.\n\nWhat \"investing\" looks like when you start\n\nIt's less exciting than people expect. For most beginners it means buying a broad, diversified index fund or ETF through a regulated brokerage, adding a fixed amount every month, and doing nothing else. That's it. That's the strategy.\n\nIt doesn't mean picking individual stocks, following someone's signals, or trading crypto with money you'll need. Those things can be part of a portfolio later, in small amounts, once the base is solid.\n\nThree things that quietly ruin this\n\n1. Investing borrowed money. Losses hurt, losses with interest attached compound against you.\n2. Stopping contributions when the market falls. That's precisely when you're buying at a discount. Falling markets are a feature of the plan, not evidence it broke.\n3. Ignoring fees. A 2% annual commission sounds small and eats a large share of your returns over decades. Compare before you commit.\n\nThe short version\n\nSave until an emergency can't hurt you. Kill expensive debt on the way. Then invest, monthly, in something boring and diversified, with money that has time to recover. The jump isn't a date on the calendar — it's the moment your safety net can take a hit without you having to sell anything."
+      }
+    },
+    {
+      "slug": "etfs",
+      "routeId": "lesson.etfs",
+      "href": {
+        "en": "/lessons/etfs",
+        "es": "/es/lecciones/etfs"
+      },
+      "es": {
+        "titulo": "ETFs: 500 empresas de un solo golpe",
+        "descripcion": "Qué es un ETF, por qué diversifica, cuánto te cuesta de verdad su comisión, dos ejemplos reales (un ETF del S&P 500 y NAFTRAC) y en qué se diferencia de comprar acciones sueltas.",
+        "entradilla": "La primera inversión que casi todos deberían hacer es también la más aburrida que existe. Un ETF es cómo compras un mercado completo con una sola orden — y la razón de que funcione no es ingeniosa, es aritmética.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Exchange-Traded Fund (ETF) (glosario)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/exchange-traded-fund-etf",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Index Fund (glosario)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/index-fund",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "SPDR S&P 500 ETF Trust (SPY): datos del fondo y comisión anual bruta",
+            "url": "https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-500-etf-trust-spy",
+            "editor": "State Street Global Advisors",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "iShares NAFTRAC: objetivo de inversión y comisiones",
+            "url": "https://www.blackrock.com/mx/productos/251895/ishares-naftrac-fund",
+            "editor": "BlackRock México",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "Qué es un ETF, en una frase\n\nUn ETF es una canasta de muchos activos que se opera en una bolsa como si fuera una sola acción. Pones una orden, pagas un precio, y lo que te llevas es una astilla proporcional de todo lo que hay adentro de la canasta.\n\nCasi todos los que le importan a quien empieza son fondos indexados: en vez de contratar a alguien que escoja ganadores, simplemente tienen lo que está en un índice, en las mismas proporciones, y se actualizan cuando el índice se actualiza. Ahí no se está ejerciendo ningún criterio, y eso es la virtud, no el sacrificio.\n\nPor qué diversifica, y qué no arregla\n\nLa diversificación es de las poquísimas cosas gratis que hay en finanzas. Tener quinientas empresas en vez de una no te baja el rendimiento esperado —el promedio es el mismo— pero te quita la posibilidad de que un solo fraude, una sola quiebra o un solo director malo se lleven tu dinero. Que una empresa de quinientas llegue a cero te cuesta una fracción de punto.\n\nAhora, hay que ser honesto con el límite. La diversificación te protege de *una empresa*. No te protege del *mercado*. Cuando todo cae al mismo tiempo, y sí pasa, un ETF amplio cae con todo. Quien te venda un ETF como protección contra los años malos te está vendiendo otra cosa.\n\nLas comisiones: el número chiquito que decide mucho\n\nTodo fondo cobra una comisión anual, que se descuenta en silencio del fondo mismo, así que nunca ves un recibo. Eso es el expense ratio, y es el único costo que controlas por completo antes de comprar nada.\n\nHaz la cuenta una vez y ya no se te olvida. Sobre 50,000 pesos, 0.25 % al año son 125 pesos. Dos por ciento al año son 1,000 pesos. Ocho veces más, cobrados cada año, en los buenos y en los malos, sobre dinero que quizá tengas treinta años. A lo largo de una vida laboral, la diferencia entre un fondo indexado barato y uno administrado caro suele sumar una parte enorme del bote final — y por eso la comisión es lo primero que se mira y lo último en lo que se cede.\n\nDos ejemplos reales\n\nEl ETF más viejo del mercado estadounidense es SPY, que sigue al índice S&P 500. Su comisión anual bruta es de 0.0945 % al año y nació en enero de 1993; al 20 de agosto de 2026, State Street reportaba que administraba unos 818 mil millones de dólares. Como nueve pesos al año por cada diez mil invertidos, para tener una rebanada de quinientas empresas grandes de Estados Unidos. Eso le hace la escala a un precio.\n\nEl equivalente mexicano es NAFTRAC, que se opera en la BMV en pesos y sigue al S&P/BMV IPC: las 35 empresas que BlackRock describe como el índice de alta capitalización mexicano. Su comisión de administración declarada es de 0.25 % al año, el fondo existe desde abril de 2002 y reparte dividendos en vez de reinvertirlos.\n\nLa comparación enseña más que cualquiera de los dos datos por separado. NAFTRAC cuesta un poco más y tiene muchísimas menos empresas, porque el mercado mexicano es más chico — pero cotiza en pesos, así que si tú ganas en pesos no hay un tipo de cambio sentado entre tú y tu rendimiento. El S&P 500 tiene quinientos nombres y una capa de divisa encima. Ninguno es la respuesta correcta: son apuestas distintas y vale la pena saber cuál estás haciendo.\n\nUn ETF no es automáticamente barato ni automáticamente diversificado. Esas son propiedades del fondo concreto, y las dos vienen impresas en su ficha. Lee la comisión anual, qué índice sigue y cuántas empresas tiene antes de comprar: tres números, dos minutos, y los tres son públicos.\n\nEn qué se diferencia de comprar acciones sueltas\n\nComprar una acción individual es una afirmación sobre una empresa: que sabes algo que el precio no. Eso es algo legítimo de intentar, y es un trabajo, con reportes trimestrales que leer y una tesis que seguir poniendo a prueba. Comprar un ETF amplio es la afirmación contraria: que no sabes cuál gana, así que las tendrás todas y te llevarás el promedio.\n\nDe ahí salen tres diferencias prácticas. Necesitas una decisión en vez de docenas, así que hay muchísimo menos que equivocar. Te llevas el rendimiento del mercado menos una comisión minúscula en vez de tus propios resultados, que para casi todo el mundo es una mejora. Y no puedes superar al mercado, nunca, por construcción — lo cual solo te molesta si realmente ibas a hacerlo.\n\nHay una cosa que un ETF no elimina: se opera en una bolsa, así que tiene spread de compra-venta como todo lo demás. En un ETF grande y líquido esa distancia es despreciable. En uno chico y poco operado es un costo real, pagado dos veces: al entrar y al salir.\n\nLa versión corta\n\nUn ETF es una canasta que se opera como una acción. Los ETF de índice tienen un mercado completo por una comisión que se mide en centésimas de punto, lo cual mata el riesgo de que una sola empresa te hunda y te deja expuesto al mercado mismo, que es como debe ser. Revisa la comisión, el índice y cuántas empresas trae, cómpralo en una casa de bolsa regulada, y luego haz la parte de verdad difícil: nada, durante años."
+      },
+      "en": {
+        "titulo": "ETFs: five hundred companies in one go",
+        "descripcion": "What an ETF is, why it diversifies, what its fee really costs you, two real examples (an S&P 500 ETF and NAFTRAC), and how it differs from picking single shares.",
+        "entradilla": "The first investment most people should make is also the most boring one available. An ETF is how you buy a whole market with one order — and the reason it works is not clever, it is arithmetic.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Exchange-Traded Fund (ETF) (glossary)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/exchange-traded-fund-etf",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Index Fund (glossary)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/index-fund",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "SPDR S&P 500 ETF Trust (SPY): fund facts and gross expense ratio",
+            "url": "https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-500-etf-trust-spy",
+            "editor": "State Street Global Advisors",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "iShares NAFTRAC: objetivo de inversión y comisiones",
+            "url": "https://www.blackrock.com/mx/productos/251895/ishares-naftrac-fund",
+            "editor": "BlackRock México",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "What an ETF is, in one sentence\n\nAn ETF is a basket of many assets that trades on an exchange like a single share. You place one order, you pay one price, and what you get is a proportional sliver of everything inside the basket.\n\nMost of the ones a beginner should care about are index funds: instead of hiring someone to pick winners, they simply hold whatever is in an index, in the same proportions, and update when the index updates. There is no judgement being exercised and that is the feature, not the compromise.\n\nWhy it diversifies, and what it does not fix\n\nDiversification is one of the very few things in finance that is free. Owning five hundred companies instead of one does not lower your expected return — the average is the same — but it removes the possibility that a single fraud, a single bankruptcy, a single bad CEO takes your money with it. One company out of five hundred going to zero costs you a fraction of a percent.\n\nBe honest about the limit, though. Diversification protects you from *a company*. It does not protect you from *the market*. When everything falls at once, and it does, a broad ETF falls with it. Anyone selling you an ETF as protection against down years is selling you something else.\n\nFees: the small number that decides a lot\n\nEvery fund charges an annual fee, taken quietly out of the fund itself, so you never see a receipt. That is the expense ratio, and it is the one cost you control completely before you buy anything.\n\nDo the arithmetic once and you never forget it. On 50,000 pesos, 0.25 % a year is 125 pesos. Two percent a year is 1,000 pesos. That is eight times more, charged every year, in good years and bad, on money you may hold for thirty years. Over a working life, the difference between a cheap index fund and an expensive managed one routinely adds up to a large fraction of the final pot — which is why the fee is the first thing to look at and the last thing to compromise on.\n\nTwo real examples\n\nThe oldest ETF on the American market is SPY, which tracks the S&P 500 index. Its gross expense ratio is 0.0945 % a year and it launched in January 1993; as of 20 August 2026 State Street reported it holding around 818 billion dollars. Roughly nine pesos a year per ten thousand invested, for a slice of five hundred large American companies. That is what scale does to a price.\n\nThe Mexican equivalent is NAFTRAC, which trades on the BMV in pesos and tracks the S&P/BMV IPC — the 35 companies BlackRock describes as the Mexican large-cap index. Its stated management fee is 0.25 % a year, the fund dates back to April 2002, and it distributes dividends rather than reinvesting them.\n\nThe comparison teaches more than either fact alone. NAFTRAC costs a little more and holds far fewer companies, because the Mexican market is smaller — but it quotes in pesos, so if you earn in pesos there is no exchange rate sitting between you and your return. The S&P 500 has five hundred names and a currency layer on top. Neither is the right answer; they are different bets and it is worth knowing which one you are making.\n\nAn ETF is not automatically cheap or automatically diversified. Those are properties of the specific fund, and both are printed on its fact sheet. Read the expense ratio, what index it tracks and how many holdings it has before you buy — three numbers, two minutes, and they are all public.\n\nHow it differs from buying single shares\n\nBuying an individual share is a claim about one company: that you know something the price does not. That is a real thing to attempt, and it is a job, with quarterly reports to read and a thesis to keep testing. Buying a broad ETF is the opposite claim — that you do not know which company wins, so you will own all of them and take the average.\n\nThree practical differences follow. You need one decision instead of dozens, so there is far less to get wrong. You get the market's return minus a tiny fee rather than your own results, which for most people is an upgrade. And you cannot outperform, ever, by construction — which only bothers you if you were realistically going to.\n\nThere is one thing an ETF does not remove: it trades on an exchange, so it has a bid-ask spread like anything else. On a large, liquid ETF that gap is negligible. On a small, thinly traded one it is a real cost, paid twice — going in and coming out.\n\nThe short version\n\nAn ETF is a basket that trades like a share. Index ETFs hold a whole market for a fee measured in hundredths of a percent, which kills the risk of any single company sinking you and leaves you exposed to the market itself, as it should. Check the fee, the index and the number of holdings, buy it through a regulated brokerage, and then do the genuinely hard part: nothing, for years."
+      }
+    },
+    {
+      "slug": "inflacion",
+      "routeId": "lesson.inflacion",
+      "href": {
+        "en": "/lessons/inflacion",
+        "es": "/es/lecciones/inflacion"
+      },
+      "es": {
+        "titulo": "Qué es la inflación y cómo te afecta",
+        "descripcion": "Por qué el mismo dinero compra menos con el tiempo, cómo un aumento puede ser en realidad un recorte, y qué hacen los bancos centrales cuando suben las tasas.",
+        "entradilla": "La inflación es lo más silencioso que le pasa a tu dinero. No te sacan nada de la cuenta, no aparece ningún movimiento, y aun así el mismo sueldo compra notoriamente menos que hace tres años.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Índice Nacional de Precios al Consumidor (INPC)",
+            "url": "https://www.inegi.org.mx/temas/inpc/",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Calculadora de inflación",
+            "url": "https://www.inegi.org.mx/app/indicesdeprecios/CalculadoraInflacion.aspx",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Anuncios de las decisiones de política monetaria",
+            "url": "https://www.banxico.org.mx/publicaciones-y-prensa/anuncios-de-las-decisiones-de-politica-monetaria/anuncios-politica-monetaria-t.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Why does the Federal Reserve aim for inflation of 2 percent over the longer run?",
+            "url": "https://www.federalreserve.gov/faqs/economy_14400.htm",
+            "editor": "Junta de Gobernadores de la Reserva Federal",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Consumer Price Index for All Urban Consumers: All Items in U.S. City Average (CPIAUCSL)",
+            "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+            "editor": "FRED, Banco de la Reserva Federal de San Luis",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "La definición que sí sirve\n\nInflación significa que los precios, en promedio, están subiendo. La forma útil de leerlo es desde el otro lado: tu dinero está perdiendo poder de compra. Son la misma frase, pero la segunda es la que cambia decisiones.\n\nEl \"en promedio\" está haciendo trabajo real en esa frase. La inflación se mide con una canasta que busca representar el gasto típico de un hogar: comida, vivienda, transporte, servicios. Tu inflación personal puede ser mucho más alta o más baja según lo que de verdad compras. Si la mayor parte de tu dinero se va en renta, en una ciudad donde la renta está subiendo rápido, el número oficial te va a sonar corto, y no te lo estás imaginando.\n\nDe dónde sale\n\n- La demanda le gana a la oferta. Más gente queriendo comprar que cosas para vender. Los precios son la forma en que esa fila se resuelve.\n- Suben los costos. Energía, materias primas, sueldos, fletes. Cuando producir algo se encarece, una parte llega al anaquel.\n- Se debilita la moneda. Para un país que importa mucho, un peso más débil significa que lo importado cuesta más en moneda local, y eso se pasa con un retraso de meses.\n- Las expectativas. La más rara y no la menos importante. Si todos creen que los precios van a subir 6%, los negocios suben precios y los trabajadores piden aumentos que igualen — lo cual hace que ocurra. A los bancos centrales les importa muchísimo este circuito.\n\nCómo le pega a tu sueldo\n\nSi tu pago sube 4% y la inflación es 5%, te aumentaron en papel y te bajaron el sueldo en la práctica. Tu salario nominal subió, tu salario real bajó. Este es el par de palabras más útil de toda la lección: nominal es el número, real es lo que compra.\n\nLa misma lógica aplica al ahorro. Una cuenta que paga 3% mientras los precios suben 5% no está guardando tu dinero a salvo: está perdiendo como 2% al año, despacio y sin que se vea. El dinero quieto no es neutral. Quedarte parado mientras el piso se mueve es ir hacia atrás.\n\nPonle número con algo que de verdad compres. Tacos y refresco a cien pesos viene por defecto; mueve el precio a tu pasaje, a tu plan de celular o a una colegiatura y mira qué sigue comprando el mismo dinero.\n\nEl número que importa no es la tasa que te ofrecen, es la tasa menos la inflación. Cuatro por ciento suena mejor que dos, pero cuatro por ciento con inflación de seis pierde contra dos por ciento con inflación de uno. Siempre compara en términos reales.\n\nPor qué los bancos centrales suben tasas\n\nCuando la inflación se calienta, Banxico y la Fed suben su tasa de referencia. La cadena es deliberadamente tosca: tasas más altas encarecen el crédito, el crédito caro hace que personas y empresas pidan prestado y gasten menos, menos gasto enfría la demanda, y la demanda más fría frena las subidas de precios.\n\nFunciona, y duele en el camino. La misma medicina que frena la inflación también frena la contratación y encarece hipotecas y deuda de tarjeta. Por eso se discuten tanto las decisiones de tasas: no hay versión donde alguien no salga peor. También explica por qué no esperan a que la inflación llegue: los cambios de tasa tardan muchos meses en aparecer en los precios, así que los bancos centrales siempre están actuando sobre un pronóstico.\n\nQué sí puedes hacer\n\n1. No dejes cantidades grandes en una cuenta que paga casi cero. El dinero de emergencia debe ser líquido, pero líquido no tiene que significar sin rendimiento. Instrumentos como Cetes o un fondo de mercado de dinero existen exactamente para esto.\n2. Piensa en términos reales. Cuando evalúes un aumento, un rendimiento o una tasa de ahorro, réstale la inflación primero. Cambia una cantidad sorprendente de conclusiones.\n3. Ten cosas que crezcan con la economía. En tramos largos, los activos productivos han tendido a superar a la inflación mientras el efectivo confiablemente no. Ese es el argumento para invertir el dinero de largo plazo, no el entusiasmo por los mercados.\n4. La deuda a tasa fija se vuelve más ligera. Si debes una cantidad fija, la inflación va encogiendo en silencio el peso real de ese pago con los años. Es de los pocos lugares donde juega a tu favor.\n\nLa versión corta\n\nLa inflación es tu dinero perdiendo poder de compra. Viene de la demanda, los costos, la moneda y las expectativas. Convierte aumentos en recortes y ahorro seguro en pérdidas lentas, y es la razón de que los bancos centrales suban tasas aunque subirlas sea impopular. No la puedes detener, pero en cuanto empiezas a leer cada número en términos reales, dejas de llevarte sorpresas."
+      },
+      "en": {
+        "titulo": "What inflation is, and how it hits you",
+        "descripcion": "Why the same money buys less over time, how a raise can still be a pay cut, and what central banks are actually doing when they raise rates.",
+        "entradilla": "Inflation is the quietest thing that happens to your money. Nothing is taken from your account, no transaction shows up, and yet the same salary buys noticeably less than it did three years ago.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Índice Nacional de Precios al Consumidor (INPC)",
+            "url": "https://www.inegi.org.mx/temas/inpc/",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Calculadora de inflación",
+            "url": "https://www.inegi.org.mx/app/indicesdeprecios/CalculadoraInflacion.aspx",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Anuncios de las decisiones de política monetaria",
+            "url": "https://www.banxico.org.mx/publicaciones-y-prensa/anuncios-de-las-decisiones-de-politica-monetaria/anuncios-politica-monetaria-t.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Why does the Federal Reserve aim for inflation of 2 percent over the longer run?",
+            "url": "https://www.federalreserve.gov/faqs/economy_14400.htm",
+            "editor": "Board of Governors of the Federal Reserve System",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Consumer Price Index for All Urban Consumers: All Items in U.S. City Average (CPIAUCSL)",
+            "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+            "editor": "FRED, Federal Reserve Bank of St. Louis",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "The definition that actually helps\n\nInflation means prices, on average, are rising. The useful way to read that is from the other side: your money is losing purchasing power. Those are the same sentence, but the second one is the one that changes decisions.\n\n\"On average\" is doing real work in that sentence. Inflation is measured with a basket meant to represent typical household spending — food, housing, transport, services. Your personal inflation can be much higher or lower depending on what you actually buy. If most of your money goes to rent in a city where rent is climbing fast, the official number will feel like an understatement, and you're not imagining it.\n\nWhere it comes from\n\n- Demand runs ahead of supply. More people wanting to buy than there are things to sell. Prices are how that queue resolves.\n- Costs go up. Energy, raw materials, wages, shipping. When producing something gets more expensive, part of that reaches the shelf.\n- The currency weakens. For a country that imports a lot, a weaker peso means imported goods cost more in local money, and that feeds through with a delay of months.\n- Expectations. The strangest one and not the least important. If everyone believes prices will rise 6%, businesses raise prices and workers ask for raises to match — which makes it happen. Central banks care enormously about this loop.\n\nHow it hits your salary\n\nIf your pay rises 4% and inflation is 5%, you got a raise on paper and a pay cut in practice. Your nominal salary went up, your real salary went down. This is the single most useful pair of words in this lesson: nominal is the number, real is what it buys.\n\nThe same logic applies to savings. A savings account paying 3% while prices rise 5% is not keeping your money safe — it's losing about 2% a year, slowly and invisibly. Money sitting still is not neutral. Standing still while the ground moves is going backwards.\n\nPut a number on it with something you actually buy. Tacos and a soda at a hundred pesos is the default; move the price to your bus fare, your phone plan or a term of tuition and watch what the same money still buys.\n\nThe number that matters isn't the rate you're offered, it's the rate minus inflation. Four percent sounds better than two, but four percent with six percent inflation loses to two percent with one percent inflation. Always compare in real terms.\n\nWhy central banks raise rates\n\nWhen inflation runs hot, Banxico and the Fed raise their reference rate. The chain is deliberately blunt: higher rates make credit more expensive, expensive credit means people and companies borrow and spend less, less spending cools demand, and cooler demand slows price increases.\n\nIt works, and it hurts on the way. The same medicine that slows inflation also slows hiring and makes mortgages and card debt more expensive. That's why rate decisions are argued about so much — there's no version where somebody isn't worse off. It also explains why they don't wait for inflation to arrive: rate changes take many months to show up in prices, so central banks are always acting on a forecast.\n\nWhat you can actually do\n\n1. Don't leave large amounts in an account paying near zero. Emergency money should be liquid, but liquid doesn't have to mean unpaid. Instruments like Cetes or a money-market fund exist for exactly this.\n2. Think in real terms. When you evaluate a raise, a return, or a savings rate, subtract inflation first. It changes a surprising number of conclusions.\n3. Own things that grow with the economy. Over long stretches, productive assets have tended to outrun inflation while cash reliably hasn't. That's the argument for investing long-term money, not enthusiasm about markets.\n4. Fixed-rate debt gets easier. If you owe a fixed amount, inflation quietly shrinks the real weight of that payment over the years. It's one of the few places it works in your favor.\n\nThe short version\n\nInflation is your money losing purchasing power. It comes from demand, costs, the currency, and expectations. It turns raises into pay cuts and safe savings into slow losses, and it's why central banks raise rates even when raising them is unpopular. You can't stop it — but once you start reading every number in real terms, you stop being surprised by it."
+      }
+    },
+    {
+      "slug": "interes-compuesto",
+      "routeId": "lesson.interes",
+      "href": {
+        "en": "/lessons/interes-compuesto",
+        "es": "/es/lecciones/interes-compuesto"
+      },
+      "es": {
+        "titulo": "Interés simple vs. interés compuesto",
+        "descripcion": "Qué es de verdad el interés compuesto, por qué el tiempo pesa más que el monto con el que empiezas, y cómo esa misma fuerza corre en tu contra en una tarjeta de crédito.",
+        "entradilla": "Todo el mundo ha oído que el interés compuesto es poderoso. Mucha menos gente ha visto qué hace de verdad en veinte años, o se ha dado cuenta de que esa misma fuerza está corriendo en su contra en una tarjeta de crédito.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Time Value of Money in Finance (lectura de repaso)",
+            "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/time-value-money",
+            "editor": "CFA Institute",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Calculadora del Costo Anual Total (CAT)",
+            "url": "https://www.banxico.org.mx/CAT/",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Tasas de Interés en el Mercado de Dinero (CF101)",
+            "url": "https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF101",
+            "editor": "Banco de México, Sistema de Información Económica",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "The Rule of 72: Definition, Usefulness, and How to Use It",
+            "url": "https://www.investopedia.com/terms/r/ruleof72.asp",
+            "editor": "Investopedia",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "La diferencia, en una frase\n\nEl interés simple solo te paga sobre el dinero que metiste. El interés compuesto te paga sobre tu dinero *y* sobre los intereses que ese dinero ya generó. Mismo depósito, misma tasa: el segundo va construyendo sobre una base cada vez más grande.\n\nMete 10,000 pesos al 10% anual. Con interés simple ganas 1,000 pesos cada año, siempre. Con interés compuesto ganas 1,000 el primer año, 1,100 el segundo y 1,210 el tercero, porque ahora estás ganando sobre 11,000, y luego sobre 12,100.\n\nAl tercer año la diferencia son 310 pesos y parece error de redondeo. Por eso la mayoría deja de poner atención justo aquí. Pero sigue: a los veinte años la versión simple tiene 30,000 pesos y la compuesta cerca de 67,000. Mismo depósito, misma tasa, más del doble de dinero.\n\nEl tiempo trabaja más que la cantidad\n\nEsta es la parte que sorprende. El interés compuesto no te está premiando por ser rico: te está premiando por empezar temprano.\n\nAlguien que invierte 2,000 pesos al mes de los 25 a los 35 y luego para por completo, sin aportar nada durante los siguientes treinta años, normalmente termina arriba de alguien que empieza a los 35 y aporta cada mes hasta los 65. El segundo mete tres veces más dinero y aun así queda atrás. La única diferencia es que el dinero del primero tuvo diez años extra para multiplicarse.\n\nLa conclusión práctica no es \"invierte una fortuna\". Es que una cantidad chica empezada hoy le gana a una cantidad grande empezada después, y ningún entusiasmo a los 40 te devuelve la década que te saltaste a los 25.\n\nLa curva es aburrida, hasta que deja de serlo\n\nEl interés compuesto no es una línea recta, y justo por eso la gente se sale. Los primeros años el crecimiento se ve casi plano, indistinguible de nada más ahorrar. Casi todo el avance visible en ese tramo viene de tus propios depósitos, no de los rendimientos.\n\nLa parte interesante llega después, cuando los intereses que genera tu dinero empiezan a ser más grandes que lo que tú estás metiendo. Llegar a ese punto exige hacer algo poco glamoroso durante años mientras parece que no está pasando nada. Esa, y no las matemáticas, es la dificultad real.\n\nUna regla que vale la pena memorizar: divide 72 entre tu tasa anual y te da más o menos los años que tardas en duplicar tu dinero. Al 8%, unos nueve años. Al 3%, veinticuatro. Es aproximada, y alcanza para checar cualquier promesa que te hagan.\n\nLa misma fuerza, apuntándote a ti\n\nLas tarjetas de crédito también componen. Una tarjeta al 45% anual en la que sigues pagando el mínimo no te está cobrando 45% de la compra original: te está cobrando intereses sobre los intereses, mes tras mes. (En México el costo completo de una tarjeta, comisiones incluidas, es el CAT que todo banco está obligado a mostrarte.)\n\nPor eso un saldo puede sentirse como que nunca se mueve aunque pagues cada mes: el pago mínimo muchas veces apenas cubre lo que el interés compuesto acaba de agregar. Atacar la deuda cara no es \"irse a lo seguro\" en vez de invertir. Es apagar una máquina de interés compuesto que está corriendo en tu contra a una tasa que ninguna inversión iguala de forma confiable.\n\nTres cosas que lo rompen sin que te des cuenta\n\n1. Sacar dinero en el camino. Cada vez que retiras, reinicias la base sobre la que todo lo demás estaba construyendo. Al interés compuesto hay que dejarlo en paz.\n2. Las comisiones. Un 2% anual suena a nada al lado de un rendimiento de 9%. En treinta años puede llevarse en silencio un tercio de lo que habrías terminado teniendo, porque también se compone.\n3. La inflación. Si tu dinero gana 4% y los precios suben 5%, estás componiendo hacia atrás en términos reales. El número de la cuenta crece y lo que compra se encoge.\n\nLa versión corta\n\nEl interés compuesto es simplemente interés ganando interés. Premia mucho más el tiempo que el tamaño, se ve decepcionante durante años antes de verse impresionante, y funciona igual de bien en tu contra cuando debes dinero. Empieza antes de lo que parece necesario, déjalo quieto, y paga primero lo caro."
+      },
+      "en": {
+        "titulo": "Simple vs. compound interest",
+        "descripcion": "What compound interest actually is, why time matters more than the amount you start with, and how the same force works against you on a credit card.",
+        "entradilla": "Everyone has heard that compound interest is powerful. Far fewer people have seen what it actually does over twenty years, or noticed that the exact same force is running against them on a credit card.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Time Value of Money in Finance (refresher reading)",
+            "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/time-value-money",
+            "editor": "CFA Institute",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Calculadora del Costo Anual Total (CAT)",
+            "url": "https://www.banxico.org.mx/CAT/",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Tasas de Interés en el Mercado de Dinero (CF101)",
+            "url": "https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF101",
+            "editor": "Banco de México, Sistema de Información Económica",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "The Rule of 72: Definition, Usefulness, and How to Use It",
+            "url": "https://www.investopedia.com/terms/r/ruleof72.asp",
+            "editor": "Investopedia",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "The difference, in one sentence\n\nSimple interest only ever pays you on the money you put in. Compound interest pays you on your money *and* on the interest that money already earned. Same deposit, same rate — the second one keeps building on a bigger and bigger base.\n\nPut 10,000 pesos at 10% a year. With simple interest you earn 1,000 pesos every single year, forever. With compound interest you earn 1,000 the first year, then 1,100 the second, then 1,210 the third — because now you're earning on 11,000, then on 12,100.\n\nYear three, the gap is 310 pesos and it looks like a rounding error. That's why most people stop paying attention right here. Keep going, though, and after twenty years the simple version holds 30,000 pesos while the compound version holds about 67,000. Same deposit, same rate, more than double the money.\n\nTime does more work than the amount\n\nThis is the part that surprises people. Compounding is not really rewarding you for being rich — it's rewarding you for being early.\n\nSomeone who invests 2,000 pesos a month from age 25 to 35 and then stops completely, contributing nothing for the next thirty years, usually ends up ahead of someone who starts at 35 and contributes every month until 65. The second person puts in three times more money and still finishes behind. The only difference is that the first person's money had ten extra years to multiply.\n\nThe practical takeaway isn't \"invest a fortune\". It's that a small amount started now beats a large amount started later, and no amount of enthusiasm at 40 buys back a decade you skipped at 25.\n\nThe curve is boring, then it isn't\n\nCompounding is not a straight line, and that's exactly why people quit. For the first several years the growth looks almost flat, indistinguishable from just saving. Most of the visible progress in that stretch comes from your own deposits, not from returns.\n\nThe interesting part happens later, when the interest your money generates starts to be bigger than what you're adding yourself. Getting to that point requires doing something unglamorous for years while it looks like nothing is happening. That, not math, is the actual difficulty.\n\nA rule worth memorizing: divide 72 by your annual rate and you get roughly the years it takes to double your money. At 8%, about nine years. At 3%, twenty-four. It's approximate, and it's enough to sanity-check any promise anyone makes you.\n\nThe same force, pointed at you\n\nCredit cards compound too. A card at 45% annual interest that you keep paying the minimum on isn't charging you 45% of the original purchase — it's charging interest on the interest, month after month. (In Mexico the full cost of a card, fees included, is the CAT that every bank must show you.)\n\nThat's why a balance can feel like it never moves even though you pay every month: the minimum payment often barely covers what compounding just added. Attacking expensive debt is not \"playing it safe\" instead of investing. It's turning off a compounding machine that's running against you at a rate no investment reliably matches.\n\nThree things that quietly break it\n\n1. Withdrawing along the way. Every time you pull money out, you reset the base that everything else was building on. Compounding needs to be left alone.\n2. Fees. A 2% annual commission sounds trivial next to a 9% return. Over thirty years it can quietly take a third of what you would have ended up with, because it compounds too.\n3. Inflation. If your money earns 4% and prices rise 5%, you are compounding backwards in real terms. The number in the account grows and what it can buy shrinks.\n\nThe short version\n\nCompound interest is just interest earning interest. It rewards time far more than it rewards size, it looks disappointing for years before it looks impressive, and it works identically well against you when you owe money. Start earlier than feels necessary, leave it alone, and pay off anything expensive first."
+      }
+    },
+    {
+      "slug": "peso-tipo-de-cambio",
+      "routeId": "lesson.peso",
+      "href": {
+        "en": "/lessons/peso-tipo-de-cambio",
+        "es": "/es/lecciones/peso-tipo-de-cambio"
+      },
+      "es": {
+        "titulo": "Qué significa que el peso se deprecie",
+        "descripcion": "Guía para principiantes sobre cómo funciona el tipo de cambio peso-dólar: quién lo mueve, por qué brinca y qué significa para tu dinero.",
+        "entradilla": "Todo el mundo cotiza el dólar. Casi nadie explica qué significa ese número, quién lo mueve, ni por qué puede saltar en una sola tarde. Aquí va completo, sin jerga.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Tipos de cambio diarios (CF102)",
+            "url": "https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF102",
+            "editor": "Banco de México, Sistema de Información Económica",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Ingresos por Remesas (CE81)",
+            "url": "https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CE81",
+            "editor": "Banco de México, Sistema de Información Económica",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Mexican Pesos to U.S. Dollar Spot Exchange Rate (DEXMXUS)",
+            "url": "https://fred.stlouisfed.org/series/DEXMXUS",
+            "editor": "FRED, Banco de la Reserva Federal de San Luis",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Tipo de cambio FIX",
+            "url": "https://www.banxico.org.mx/tipcamb/main.do?page=tip&idioma=sp",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "Qué significa el número, en realidad\n\nCuando ves \"USD/MXN 18.40\", es un precio como cualquier otro: el precio de un dólar, cotizado en pesos. Si pasa a 19.00, el dólar se encareció, porque ahora necesitas más pesos para comprar el mismo dólar. A eso se refiere la gente cuando dice que el peso se \"debilitó\" o se \"depreció\".\n\nEsto confunde a mucha gente, porque el número subiendo significa que tu moneda está más débil. Ayuda leerlo en voz alta como etiqueta de precio: \"un dólar cuesta 18.40 pesos\". Nadie se confunde cuando sube el precio de la gasolina.\n\n¿Quién lo fija? Nadie, y ese es el punto\n\nMéxico tiene tipo de cambio flotante. O sea, no hay una oficina que decida cada mañana cuánto vale el dólar. El precio sale de millones de órdenes de compra y venta: empresas pagando importaciones, exportadores convirtiendo sus dólares, turistas, inversionistas metiendo y sacando dinero, y bancos operando entre ellos a toda hora.\n\nBanxico, el banco central, no persigue un nivel específico. Tiene herramientas por si el mercado deja de funcionar bien, pero su trabajo normal es la inflación, no defender un número. Así que cuando el peso se mueve, casi siempre es el mercado revalorando algo, no una decisión que alguien anunció.\n\nPor qué se sacude\n\nCuatro fuerzas explican casi todo el movimiento que vas a ver:\n\n- Las tasas de interés. El dinero se va a donde le pagan más por el mismo riesgo. Cuando la tasa de Banxico está bastante arriba de la de la Fed, tener pesos paga mejor, entran dólares y el peso tiende a fortalecerse. Cuando esa brecha se cierra, el incentivo se encoge.\n- El apetito de riesgo. Cuando los inversionistas se ponen nerviosos —una guerra, una crisis, una mala sorpresa en cualquier parte del mundo— corren hacia el dólar, porque es la moneda que todos aceptan. Las monedas emergentes como el peso se venden primero, aunque en México no haya pasado nada.\n- Comercio y remesas. México le vende mucho a Estados Unidos y recibe miles de millones de dólares al año de gente que manda dinero a casa. Esos son dólares reales entrando al país y convirtiéndose en pesos, lo cual sostiene al peso día tras día.\n- Las expectativas. Los mercados cotizan el futuro, no el presente. Una elección, una amenaza comercial o un rumor sobre aranceles pueden mover el tipo de cambio antes de que pase nada.\n\nQué significa para tu dinero\n\nUn peso más débil encarece todo lo importado: gasolina, electrónicos, refacciones, suscripciones cobradas en dólares, un viaje al extranjero. Eso se pasa a la inflación con un retraso de semanas o meses, y por eso el banco central lo vigila.\n\nUn peso más fuerte es el espejo: importar y viajar sale más barato, pero los exportadores y quien recibe remesas obtienen menos pesos por los mismos dólares. No existe un nivel \"bueno\" o \"malo\": depende por completo de qué lado de la transacción estés.\n\n¿Quieres verlo moverse? La ficha del USD/MXN en Mercados traza el tipo de cambio y otros cinco pares, con rangos de un día a cinco años. Verla un par de semanas enseña más que cualquier explicación.\n\nTres errores que vale la pena evitar\n\n1. Leer el movimiento del día como noticia. Un movimiento de unos centavos es ruido normal. Lo que importa es la dirección a lo largo de meses, no lo que pasó antes de la comida.\n2. Comprar dólares en pánico. Para cuando el salto ya salió en las noticias, el precio ya se movió. Comprar en el pico del miedo es la forma clásica de perder dinero con el tipo de cambio.\n3. Tratar los dólares como inversión. Tener dólares en efectivo te protege de que el peso se deprecie, pero no te paga nada mientras la inflación se lo come. Es una cobertura, no un plan.\n\nLa versión corta\n\nEl tipo de cambio es un precio que fija todo el mundo al mismo tiempo, movido por tasas, miedo, comercio y expectativas. No lo puedes predecir, y quien dice que sí normalmente te está vendiendo algo. Lo que *sí* puedes hacer es entender qué dirección te ayuda y cuál te pega, y dejar de tratar cada movimiento diario como una emergencia."
+      },
+      "en": {
+        "titulo": "What it means when the peso weakens",
+        "descripcion": "A beginner's guide to how the peso-dollar exchange rate works: who moves it, why it swings, and what it means for your money.",
+        "entradilla": "Everyone quotes the dollar. Almost nobody explains what the number means, who moves it, or why it can jump in a single afternoon. Here's the whole thing, without the jargon.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Tipos de cambio diarios (CF102)",
+            "url": "https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF102",
+            "editor": "Banco de México, Sistema de Información Económica",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Ingresos por Remesas (CE81)",
+            "url": "https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CE81",
+            "editor": "Banco de México, Sistema de Información Económica",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Mexican Pesos to U.S. Dollar Spot Exchange Rate (DEXMXUS)",
+            "url": "https://fred.stlouisfed.org/series/DEXMXUS",
+            "editor": "FRED, Federal Reserve Bank of St. Louis",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Tipo de cambio FIX",
+            "url": "https://www.banxico.org.mx/tipcamb/main.do?page=tip&idioma=sp",
+            "editor": "Banco de México",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "What the number actually means\n\nWhen you see \"USD/MXN 18.40\", it's a price like any other. It's the price of one dollar, quoted in pesos. If it goes to 19.00, the dollar got more expensive: you now need more pesos to buy the same dollar. That's what people mean when they say the peso \"weakened\" or \"depreciated\".\n\nThis trips up a lot of people, because the number going *up* means your currency got *weaker*. It helps to read it out loud as a price tag: \"a dollar costs 18.40 pesos\". Nobody gets confused when the price of gas goes up.\n\nWho sets it? Nobody, and that's the point\n\nMexico has a floating exchange rate. That means no office decides each morning what the dollar is worth. The price comes out of millions of buy and sell orders: companies paying for imports, exporters converting their dollars, tourists, investors moving money in and out, and banks trading with each other around the clock.\n\nBanxico, the central bank, does not target a specific level. It has tools it can use if the market stops working properly, but its normal job is inflation, not defending a number. So when the peso moves, it's usually the market repricing something — not a decision someone announced.\n\nWhy it swings\n\nFour forces explain most of the movement you'll see:\n\n- Interest rates. Money goes where it gets paid more for the same risk. When Banxico's rate is well above the Fed's, holding pesos pays better, dollars flow in, and the peso tends to strengthen. When that gap narrows, the incentive shrinks.\n- Risk appetite. When investors get nervous — a war, a crisis, a bad surprise anywhere in the world — they run toward the dollar because it's the currency everyone accepts. Emerging currencies like the peso get sold first, even when nothing happened in Mexico.\n- Trade and remittances. Mexico sells a lot to the United States and receives billions of dollars a year from people sending money home. Those are real dollars entering the country and being converted to pesos, which supports the peso day after day.\n- Expectations. Markets price the future, not the present. An election, a trade threat, or a rumor about tariffs can move the rate before anything actually happens.\n\nWhat it means for your money\n\nA weaker peso makes anything imported more expensive: gasoline, electronics, car parts, streaming subscriptions billed in dollars, a trip abroad. That feeds into inflation with a delay of weeks or months, which is why the central bank pays attention to it.\n\nA stronger peso is the mirror image: imports and travel get cheaper, but exporters and anyone receiving remittances get fewer pesos for the same dollars. There is no \"good\" or \"bad\" level — it depends entirely on which side of the transaction you're on.\n\nWant to see it move? The USD/MXN card in Markets plots the exchange rate and five other pairs, with ranges from one day to five years. Watching it for a couple of weeks teaches you more than any explanation.\n\nThree mistakes worth avoiding\n\n1. Reading the daily move as news. A move of a few cents is normal noise. What matters is the direction over months, not what happened before lunch.\n2. Buying dollars in a panic. By the time a jump is on the news, the price already moved. Buying at the peak of the fear is the classic way to lose money on the exchange rate.\n3. Treating dollars as an investment. Holding cash dollars protects you from peso depreciation, but pays you nothing while inflation eats it. It's a hedge, not a plan.\n\nThe short version\n\nThe exchange rate is a price set by everyone at once, moved by interest rates, fear, trade, and expectations. You can't predict it, and the people who claim they can are usually selling something. What you *can* do is understand which direction helps you and which one hurts you, and stop treating every daily move like an emergency."
+      }
+    },
+    {
+      "slug": "presupuesto-50-30-20",
+      "routeId": "lesson.presupuesto",
+      "href": {
+        "en": "/lessons/presupuesto-50-30-20",
+        "es": "/es/lecciones/presupuesto-50-30-20"
+      },
+      "es": {
+        "titulo": "La regla 50/30/20 para tu primer presupuesto",
+        "descripcion": "Cómo armar tu primer presupuesto en México: de lo que de verdad te llega libre a un plan que sobrevive un mes normal.",
+        "entradilla": "La mayoría de los presupuestos se mueren en la segunda semana. No por falta de disciplina, sino porque el plan se armó con números que nunca fueron reales. Así se arma uno que aguanta un mes normal.",
+        "minutos": 6,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) 2024",
+            "url": "https://www.inegi.org.mx/programas/enigh/nc/2024/",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Encuesta Nacional de Inclusión Financiera (ENIF) 2024",
+            "url": "https://www.inegi.org.mx/programas/enif/2024/",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Save and Invest: paga la deuda cara, ahorra para imprevistos",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "The 50/30/20 Budget Rule Explained With Examples",
+            "url": "https://www.investopedia.com/ask/answers/022916/what-502030-budget-rule.asp",
+            "editor": "Investopedia",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "Paso 1: Encuentra tu número real\n\nNo tu sueldo bruto. El número que de verdad te cae en la cuenta, ya con ISR, IMSS y todo lo que te retiene tu empleador: tu ingreso neto. Si eres freelance o vendes algo, usa el promedio de tus últimos tres meses, y quédate con el más bajo de los tres si los meses varían mucho.\n\nSi recibes aguinaldo, bono o prima vacacional, déjalos completamente fuera del plan mensual. Presupuestar con dinero que llega una vez al año es justo como acabas corto en marzo.\n\nPaso 2: Anota un mes de gastos, con honestidad\n\nAntes de decidir cuánto *deberías* gastar, necesitas ver cuánto *sí* gastas. Abre la app del banco y revisa los últimos 30 días. Todo: renta, súper, transporte, la taquería, suscripciones que ya ni recordabas, la ida al OXXO.\n\nEste paso es incómodo y es el que la gente se salta. No lo hagas. Casi todos descubren entre mil y tres mil pesos al mes yéndose a algo que no habrían podido nombrar. Ese descubrimiento es justo el punto.\n\nPaso 3: Divídelo en tres cubetas\n\nLa regla 50/30/20 es el punto de partida más fácil para un presupuesto:\n\n- 50% necesidades. Renta, comida, transporte, servicios, plan del celular, pagos mínimos de deuda. Cosas que te rompen la vida si dejas de pagarlas.\n- 30% gustos. Salir a comer, streaming, ropa, salidas, viajes. Sin culpa: es simplemente la parte opcional.\n- 20% futuro. Primero el fondo de emergencia, luego pagar deuda cara, luego invertir.\n\nSi vives en CDMX o Monterrey y rentas, tus necesidades se van a pasar del 50% sin problema. Eso no significa que la regla falló: significa que tus costos fijos son altos, y lo honesto es recortar de gustos por ahora en vez de fingir que los números cuadran.\n\nPaso 4: Arma el fondo de emergencia antes que nada\n\nDe tres a seis meses de gastos esenciales —tu fondo de emergencia— en algo de donde puedas sacar el dinero en uno o dos días. No en la misma cuenta de la que gastas, porque se te va a desaparecer. Tampoco encerrado en algo que no puedes tocar en un año.\n\nNo es la parte emocionante, y es la que decide si un mal mes se convierte en deuda al 60% anual. Un fondo estable de Cetes o de mercado de dinero en una casa de bolsa regulada es donde mucha gente lo deja: el punto es que sea aburrido, líquido y aparte.\n\nUn baño de realidad rápido: si una tarjeta te está cobrando 45% al año y tu cuenta de ahorro te paga 9%, pagar esa tarjeta es el rendimiento garantizado más alto que tienes disponible. Ninguna inversión le compite, y ninguna inversión está garantizada.\n\nPaso 5: Automatiza la parte que se te va a olvidar\n\nEl día que te cae el pago, saca tu ahorro. El mismo día, automático si tu banco lo permite. Cada peso que se queda en tu cuenta de gasto es un peso que tu cerebro trata como gastable, diga lo que diga la hoja de cálculo.\n\nEste cambio solito hace más que cualquier cantidad de fuerza de voluntad. No estás peleando contra la tentación 30 días: estás tomando una decisión una sola vez.\n\nPaso 6: Revisa cada mes, ajusta cada trimestre\n\nUna vez al mes, tómate quince minutos y compara plan contra realidad. No te estás calificando: estás checando si el plan le queda a tu vida. Si te pasaste del presupuesto de comida tres meses seguidos, el que está mal es el presupuesto, no tú.\n\nCambia los porcentajes cada tres meses si hace falta. Un presupuesto es un documento vivo, no una promesa.\n\nLa forma más común de fallar\n\nLa gente arma un presupuesto perfecto y agresivo: 40% de ahorro, cero salidas, cero diversión. Funciona tres semanas, un mal fin de semana lo rompe, y abandonan todo. Un presupuesto que sí vas a seguir con 10% de ahorro le gana a uno perfecto que dejas en febrero.\n\nEmpieza con números que sí puedas cumplir. Súbelos cuando cumplirlos se vuelva fácil."
+      },
+      "en": {
+        "titulo": "The 50/30/20 rule for your first budget",
+        "descripcion": "How to build your first budget in Mexico: from your real take-home pay to a plan that survives a normal month.",
+        "entradilla": "Most budgets die in week two. Not because people lack discipline, but because the plan was built on numbers that were never real. Here's how to build one that survives a normal month.",
+        "minutos": 6,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) 2024",
+            "url": "https://www.inegi.org.mx/programas/enigh/nc/2024/",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Encuesta Nacional de Inclusión Financiera (ENIF) 2024",
+            "url": "https://www.inegi.org.mx/programas/enif/2024/",
+            "editor": "INEGI",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Save and Invest: pay off high-interest debt, save for a rainy day",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "The 50/30/20 Budget Rule Explained With Examples",
+            "url": "https://www.investopedia.com/ask/answers/022916/what-502030-budget-rule.asp",
+            "editor": "Investopedia",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "Step 1: Find your real number\n\nNot your gross salary. The number that actually lands in your account, after ISR, IMSS, and anything else your employer withholds — your take-home pay. If you're freelancing or selling something, use the average of your last three months, and use the lowest of the three if the months vary a lot.\n\nIf you get an aguinaldo, a bonus, or vacation pay, leave them out of the monthly plan entirely. Budgeting with money that arrives once a year is how you end up short in March.\n\nStep 2: Write down one month of spending, honestly\n\nBefore deciding what you *should* spend, you need to see what you *do* spend. Open your banking app and go through the last 30 days. Everything: rent, groceries, transport, the taquería, subscriptions you forgot about, the OXXO run.\n\nThis step is uncomfortable and it's the one people skip. Don't. Almost everyone discovers between one and three thousand pesos a month going somewhere they couldn't have named. That discovery is the whole point.\n\nStep 3: Split it into three buckets\n\nThe 50/30/20 rule is the easiest starting point for a budget:\n\n- 50% needs. Rent, food, transport, utilities, phone plan, minimum debt payments. Things that break your life if you stop paying them.\n- 30% wants. Eating out, streaming, clothes, going out, travel. Not guilt — just the part that's optional.\n- 20% future. Emergency fund first, then paying off expensive debt, then investing.\n\nIf you live in Mexico City or Monterrey and rent, your needs will blow past 50%. That doesn't mean the rule failed. It means your fixed costs are high, and the honest move is to cut from wants for now instead of pretending the numbers work.\n\nStep 4: Build the emergency fund before anything else\n\nThree to six months of essential expenses — your emergency fund — in something you can withdraw from within a day or two. Not in the same account you spend from, because it'll disappear. Not locked into something you can't touch for a year either.\n\nThis isn't the exciting part, and it's the part that decides whether one bad month turns into debt at 60% annual interest. A stable Cetes or money-market fund through a regulated brokerage is a common place people park it — the point is that it's boring, liquid, and separate.\n\nA quick reality check: if a credit card is charging you 45% a year and your savings account pays 9%, paying off that card is the highest guaranteed return available to you. No investment competes with that, and no investment is guaranteed.\n\nStep 5: Automate the part you'll forget\n\nThe day your pay lands, move your savings out. Same day, automatically if your bank allows it. Every peso that stays in your checking account is a peso your brain treats as spendable, no matter what the spreadsheet says.\n\nThis single change does more than any amount of willpower. You're not fighting temptation for 30 days — you're making one decision once.\n\nStep 6: Review monthly, adjust quarterly\n\nOnce a month, take fifteen minutes and compare plan to reality. You're not grading yourself — you're checking whether the plan matches your life. If you blew past the food budget three months in a row, the budget is wrong, not you.\n\nChange the percentages every three months if you need to. A budget is a working document, not a promise.\n\nThe common failure\n\nPeople build a perfect, aggressive budget: 40% savings, no eating out, no fun. It works for three weeks, one bad weekend breaks it, and they quit the whole thing. A budget you'll actually follow at 10% savings beats a perfect one you abandon in February.\n\nStart with numbers you can hit. Raise them when hitting them gets easy."
+      }
+    },
+    {
+      "slug": "que-es-una-accion",
+      "routeId": "lesson.accion",
+      "href": {
+        "en": "/lessons/que-es-una-accion",
+        "es": "/es/lecciones/que-es-una-accion"
+      },
+      "es": {
+        "titulo": "Qué compras realmente cuando compras una acción",
+        "descripcion": "Una acción es un pedazo de una empresa, no un número en una pantalla. De dónde sale su valor, por qué sube y baja, qué es un dividendo y por qué no es un boleto de lotería.",
+        "entradilla": "Todo el mundo sabe que se pueden comprar acciones. Muchos menos saben decir qué tienen después — y en ese hueco viven casi todos los errores caros.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Stocks",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/stocks",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Dividend (glosario)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/dividend",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Initial Public Offering (IPO) (glosario)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/initial-public-offering-ipo",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Market Participants",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/market-participants",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "Una acción es una rebanada de una empresa\n\nUna acción es un pedazo de propiedad de un negocio. No una apuesta sobre el negocio, no una ficha que sigue al negocio: un pedazo de él. Si una empresa emitió cien millones de acciones y tú tienes cien, eres dueño de una millonésima parte de todo lo que tiene y de una millonésima parte de todo lo que gana.\n\nSuena abstracto hasta que ves lo que viene incluido: el derecho a una parte de las utilidades cuando la empresa decida repartirlas y, en la mayoría de las acciones, un voto en la asamblea de accionistas. Con cien acciones no vas a decidir ninguna votación. Aun así, legalmente eres dueño y no cliente.\n\nLas empresas cuyas acciones se operan en una bolsa se llaman emisoras, y estar listada tiene un precio: resultados auditados publicados en un calendario fijo, para que cualquiera los lea. Esa obligación es exactamente lo que hace posible que un desconocido sea dueño de un pedazo de un negocio que nunca va a visitar.\n\nEl valor sale de las utilidades futuras\n\nAquí va la frase que acomoda todo lo demás. Una acción es un derecho sobre las utilidades que la empresa va a generar en el futuro.\n\nNo las del año pasado: esas ya se gastaron, se repartieron o están en el balance, y el precio las tomó en cuenta hace mucho. Lo que estás comprando es una rebanada de todo lo que el negocio gane de hoy hasta que deje de existir, traído a lo que ese chorro vale ahorita.\n\nEsa sola idea explica cosas que desde fuera parecen absurdas. Explica cómo una empresa que nunca ha ganado un peso puede valer una fortuna, si suficiente gente cree que las utilidades vienen. Explica por qué una empresa con resultados excelentes cae el día que dice que el año que entra será más flojo. Y explica por qué las tasas de interés mueven el precio de las acciones: cuando los bonos seguros pagan más, el dinero futuro vale menos hoy, así que las mismas utilidades esperadas valen un precio menor.\n\nPor qué sube y baja\n\nPorque el precio es una votación en vivo sobre esas utilidades futuras, y los votantes cambian de opinión. Cuatro cosas lo mueven más que ninguna otra:\n\n- Noticias de las utilidades mismas. Un contrato grande, un producto nuevo, una planta que se incendia.\n- Noticias del mundo. Tasas de interés, recesiones, guerras, aranceles. Nada de eso es sobre la empresa, y todo eso cambia cuánto van a valer sus utilidades.\n- La brecha contra lo esperado. Una empresa puede reportar su mejor trimestre de la historia y caer, porque el mercado ya tenía cotizado algo mejor. Los precios se mueven por sorpresas, no por niveles.\n- El ánimo. El miedo y el entusiasmo son fuerzas reales en plazos cortos, y explican casi todo lo que pasa en cualquier semana suelta.\n\nLas tres primeras son señal. La cuarta es ruido que se ve idéntico a la señal mientras está pasando, y por eso la volatilidad castiga a quien mira la pantalla diario y casi no toca a quien no.\n\nVale la pena hacerlo una vez: abre la ficha del S&P 500 en Mercados, pon el rango en cinco años y luego ponlo en un día. El mismo activo, dos experiencias emocionales completamente distintas. Solo una de las dos te está diciendo algo.\n\nEl precio no es el tamaño\n\nUna acción de 500 pesos no es \"cara\" y una de 50 no es \"barata\". El precio de una acción depende por completo de en cuántos pedazos decidió cortarse la empresa. Lo que mide a la empresa es su capitalización de mercado —precio por acción por número de acciones— y ese es el número a comparar cuando quieres saber si estás viendo a un gigante o a un negocio que apenas arranca.\n\nDividendos: que te paguen sin vender\n\nAlgunas empresas reparten parte de sus utilidades entre sus accionistas en efectivo, normalmente cada tres meses. Eso es un dividendo. Nadie está obligado a pagarlo: una empresa que crece rápido normalmente reinvierte todo, y eso no es tacañería, es una apuesta a que un peso adentro del negocio crece más rápido que un peso en tu cuenta.\n\nAsí que una acción te puede pagar de dos formas: el dividendo, y el precio si un día vendes más caro. Las empresas maduras y aburridas suelen apoyarse en lo primero. Las que crecen rápido, en lo segundo. Ninguna es mejor: son tratos distintos, y conviene saber cuál firmaste.\n\nEl dinero le llega a la empresa una sola vez. En la oferta pública inicial, o en una emisión posterior, el negocio vende acciones y recibe el efectivo para construir cosas. Todo lo que pasa después son inversionistas vendiéndose entre ellos. Cuando compras acciones hoy, se las estás comprando a otro inversionista, y la empresa no ve un peso.\n\nPor qué una acción no es un boleto de lotería\n\nUn boleto de lotería no tiene nada abajo. Nada en él trabaja, produce, contrata ni vende; es un número que coincide o no, y su valor esperado es negativo por diseño. Una acción está encima de un negocio con bodegas, empleados, clientes y contratos, y por eso el mercado completo ha tendido a valer más con las décadas en vez de vencer sin valor.\n\nLa trampa es que una acción suelta sí puede portarse como boleto de lotería en un horizonte corto, y las empresas sí llegan a cero. Eso no es un argumento contra las acciones: es el argumento para repartir tu dinero entre muchas, que es lo que hace solo un índice como el S&P 500, y para comprarlas por una casa de bolsa regulada y no por quien publicó la gráfica.\n\nLa versión corta\n\nUna acción es un pedazo de una empresa y un derecho sobre sus utilidades futuras. El precio se mueve porque se mueven las expectativas sobre esas utilidades, y porque en el camino la gente se asusta y se entusiasma. Los dividendos te pagan sin vender; el precio te paga si vendes. Y la razón de que nada de esto sea apostar es que abajo hay un negocio de verdad — siempre que tengas suficientes como para que ninguno solo decida tu resultado."
+      },
+      "en": {
+        "titulo": "What you actually buy when you buy a share",
+        "descripcion": "A share is a piece of a company, not a number on a screen. Where its value comes from, why the price moves, what a dividend is, and why it is not a lottery ticket.",
+        "entradilla": "Everyone knows you can buy shares. Far fewer people can say what they own afterwards — and that gap is where most of the expensive mistakes live.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Stocks",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/stocks",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Dividend (glossary)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/dividend",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Initial Public Offering (IPO) (glossary)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/initial-public-offering-ipo",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Market Participants",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/market-participants",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "A share is a slice of a company\n\nA share is a piece of ownership in a business. Not a bet on a business, not a token that tracks a business — a piece of it. If a company has issued a hundred million shares and you hold a hundred, you own one millionth of everything it owns and one millionth of everything it earns.\n\nThat sounds abstract until you notice what comes with it: the right to a share of the profits when the company decides to hand them out, and, on most shares, a vote at the shareholders' meeting. You will not swing an election with a hundred shares. You are still, legally, an owner rather than a customer.\n\nCompanies whose shares trade on an exchange are called issuers, and being listed has a price: audited results published on a fixed calendar, for anyone to read. That obligation is exactly what makes it possible for a stranger to own a piece of a business they will never visit.\n\nThe value comes from future profits\n\nHere is the sentence that makes everything else click. A share is a claim on the profits a company will make in the future.\n\nNot the profits it made last year — those are already spent, distributed, or sitting on the balance sheet, and the price took them into account long ago. What you are buying is a slice of everything the business earns from today until it stops existing, discounted back to what that stream is worth right now.\n\nThat single idea explains a lot of things that look bizarre from the outside. It explains how a company that has never made a peso of profit can be worth a fortune, if enough people believe the profits are coming. It explains why a company with excellent current results can fall on the day it says next year will be softer. And it explains why interest rates move share prices at all: when safe bonds pay more, future money is worth less today, so the same expected profits are worth a lower price.\n\nWhy the price moves\n\nBecause the price is a live vote on those future profits, and the voters change their minds. Four things move it more than anything else:\n\n- News about the profits themselves. A big contract, a new product, a factory that burns down.\n- News about the world. Interest rates, recessions, wars, tariffs. None of it is about the company, all of it changes what its profits will be worth.\n- The gap against expectations. A company can report its best quarter ever and drop, because the market had priced in something better. Prices move on surprises, not on levels.\n- Mood. Fear and enthusiasm are real forces on a short timescale, and they explain most of what happens in any given week.\n\nThe first three are signal. The fourth is noise that looks exactly like signal while it is happening, which is why volatility punishes people who watch the screen daily and barely touches people who do not.\n\nWorth doing once: open the S&P 500 card in Markets, set the range to five years, and then set it to one day. Same asset, two completely different emotional experiences. Only one of them is telling you anything.\n\nPrice is not size\n\nA share at 500 pesos is not \"expensive\" and one at 50 pesos is not \"cheap\". The price of one share depends entirely on how many shares the company chose to cut itself into. What measures the company is its market capitalization — price per share times number of shares — and that is the number to compare when you want to know whether you are looking at a giant or a startup.\n\nDividends: getting paid without selling\n\nSome companies hand part of their profits to shareholders in cash, usually every three months. That is a dividend. Nobody is obliged to pay one: a company that is growing fast normally reinvests everything instead, and that is not stinginess, it is a bet that a peso inside the business grows faster than a peso in your account.\n\nSo a share can pay you in two ways: the dividend, and the price if you eventually sell higher. Mature, boring companies tend to lean on the first. Fast-growing ones lean on the second. Neither is better; they are different deals, and you should know which one you signed up for.\n\nThe money only reaches the company once. In the IPO, or in a later issue, the business sells shares and gets the cash to build things. Everything after that is investors selling to each other. When you buy shares today, you are buying from another investor, and the company does not see a peso of it.\n\nWhy a share is not a lottery ticket\n\nA lottery ticket has no underlying asset. Nothing about it works, produces, hires or sells; it is a number that either matches or doesn't, and its expected value is negative by design. A share sits on top of a business with warehouses, employees, customers and contracts, which is why the whole market has tended to be worth more over decades rather than expiring worthless.\n\nThe trap is that a single share can absolutely behave like a lottery ticket over a short horizon, and companies do go to zero. That is not an argument against shares — it is the argument for spreading your money across many of them, which is what an index like the S&P 500 does automatically, and for buying through a regulated brokerage rather than whoever posted the chart.\n\nThe short version\n\nA share is a piece of a company and a claim on its future profits. The price moves because expectations about those profits move, and because people get scared and excited on the way. Dividends pay you without selling; the price pays you if you do. And the reason none of this is gambling is that there is a real business underneath — as long as you own enough of them that no single one can decide your outcome."
+      }
+    },
+    {
+      "slug": "sp500",
+      "routeId": "lesson.sp500",
+      "href": {
+        "en": "/lessons/sp500",
+        "es": "/es/lecciones/sp500"
+      },
+      "es": {
+        "titulo": "¿Por qué sube o baja el S&P 500?",
+        "descripcion": "Qué mide en realidad el S&P 500, las cuatro fuerzas que lo mueven y por qué el número de cada día es casi puro ruido.",
+        "entradilla": "Es el número que todo el mundo cita cuando dice \\\"el mercado\\\". Casi nadie explica qué trae adentro, ni por qué puede caer 2% en un día en el que no pasó nada visiblemente malo.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "S&P 500 (SP500), cierre diario del índice",
+            "url": "https://fred.stlouisfed.org/series/SP500",
+            "editor": "S&P Dow Jones Indices LLC, vía FRED (Banco de la Reserva Federal de San Luis)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Index Fund (glosario)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/index-fund",
+            "editor": "Investor.gov, Comisión de Valores de EE. UU. (SEC)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Open Market Operations: rango objetivo de la tasa de fondos federales",
+            "url": "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+            "editor": "Junta de Gobernadores de la Reserva Federal",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "Qué es, en realidad\n\nEl S&P 500 es una lista de alrededor de 500 de las empresas públicas más grandes de Estados Unidos, empaquetadas en un solo número. Cuando oyes \"el mercado subió hoy\", casi siempre es esto lo que se está midiendo.\n\nNo es un reparto parejo. El índice se pondera por tamaño de empresa, así que los nombres más grandes pesan muchísimo más que los chicos. Un puñado de tecnológicas enormes puede mover el índice completo solas, mientras que un mal día de la empresa número 400 es invisible. Vale la pena saberlo antes de llamarlo \"toda la economía de Estados Unidos\": son las empresas listadas más grandes, que no es lo mismo.\n\nLas cuatro fuerzas que lo mueven\n\n- Las utilidades esperadas. Una acción es un derecho sobre las ganancias futuras de una empresa. Cuando los inversionistas suben sus expectativas de lo que esas empresas van a ganar, pagan más por la misma acción y el índice sube. Ojo con la palabra esperadas: los mercados cotizan el futuro, no el trimestre pasado.\n- Las tasas de interés. Esta es la que se le escapa a quien empieza. Cuando las tasas suben, los bonos de gobierno seguros empiezan a pagar decente, así que lo riesgoso tiene que competir. Además, tasas más altas hacen que las ganancias futuras valgan menos hoy. Las expectativas de tasas mueven el índice más que las noticias de casi cualquier empresa.\n- El miedo y el apetito de riesgo. Guerras, crisis, sustos bancarios, sorpresas políticas. Cuando los inversionistas quieren salirse del riesgo, primero venden y luego leen los detalles. No hace falta que cambie nada de las empresas de abajo.\n- Las sorpresas contra lo esperado. Una empresa puede reportar utilidades récord y caer 8%, porque el mercado esperaba todavía más. Lo que mueve los precios es la brecha entre la realidad y lo que ya estaba cotizado.\n\nPor qué a veces las buenas noticias lo hunden\n\nUn reporte de empleo fuerte puede empujar el índice hacia abajo. Suena absurdo hasta que sigues la cadena: empleo fuerte significa economía fuerte, economía fuerte significa que es menos probable que la inflación se enfríe, menos enfriamiento significa que el banco central deja las tasas altas más tiempo, y las tasas altas pesan sobre el precio de las acciones.\n\nEl mercado no está reaccionando a si la noticia es buena para la gente. Está reaccionando a lo que la noticia implica para tasas y utilidades. En cuanto ves eso, la mitad de los titulares que parecen contradictorios dejan de serlo.\n\nUn día es ruido. Un año es señal. Históricamente el índice ha tenido un año positivo más o menos tres de cada cuatro veces, y también ha caído más de 30% varias veces en el camino. Las dos cosas son ciertas, y cualquier plan que solo contemple una se va a romper.\n\nPor qué es la referencia por defecto\n\nComprar el índice completo significa tener un pedacito de cientos de empresas al mismo tiempo. Si dos quiebran, apenas se nota. Esa diversificación, más las comisiones muy bajas de los fondos indexados, es la razón de que se volviera el punto de comparación estándar: cualquier estrategia que te cobre más tiene que ganarle para valer el costo, y la mayoría no lo logra en tramos largos.\n\nTiene limitaciones reales. Está concentrado en unas cuantas empresas enormes, es enteramente estadounidense, y se cotiza en dólares — lo cual, para quien gana en pesos, agrega una segunda pieza en movimiento encima del mercado mismo.\n\nCómo leerlo sin volverte loco\n\n1. Ignora el porcentaje del día. Los movimientos de menos de 1% son respiración normal, no eventos, por más titular que les pongan.\n2. Las caídas son parte del trato. Una baja de 10% o más aparece en promedio como una vez al año. Es el precio de entrada a los rendimientos de largo plazo, no una señal de que el plan falló.\n3. Nadie le atina al momento de forma confiable. Perderte los mejores puñados de días de una década destruye la mayor parte del rendimiento — y esos días suelen llegar en medio de los tramos más feos, justo cuando vender se siente más inteligente.\n\nLa versión corta\n\nEl S&P 500 sigue a 500 empresas grandes de Estados Unidos ponderadas por tamaño, y se mueve por utilidades esperadas, tasas de interés, miedo y sorpresas contra lo esperado. Del día a día es ruido. En años es uno de los puntos de referencia más útiles que hay en finanzas, siempre y cuando aguantes los malos."
+      },
+      "en": {
+        "titulo": "Why the S&P 500 goes up or down",
+        "descripcion": "What the S&P 500 actually measures, the four forces that move it, and why the daily number is mostly noise.",
+        "entradilla": "It's the number everyone quotes when they say \\\"the market\\\". Almost nobody explains what's inside it, or why it can fall 2% on a day when nothing visibly bad happened.",
+        "minutos": 5,
+        "actualizada": "2026-08-21",
+        "fuentes": [
+          {
+            "titulo": "S&P 500 (SP500), daily index close",
+            "url": "https://fred.stlouisfed.org/series/SP500",
+            "editor": "S&P Dow Jones Indices LLC, via FRED (Federal Reserve Bank of St. Louis)",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Index Fund (glossary)",
+            "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/index-fund",
+            "editor": "Investor.gov, U.S. Securities and Exchange Commission",
+            "fecha": "2026-08-21"
+          },
+          {
+            "titulo": "Open Market Operations: federal funds target range",
+            "url": "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+            "editor": "Board of Governors of the Federal Reserve System",
+            "fecha": "2026-08-21"
+          }
+        ],
+        "cuerpo": "What it actually is\n\nThe S&P 500 is a list of roughly 500 of the largest public companies in the United States, bundled into a single number. When you hear \"the market was up today\", this is almost always what's being measured.\n\nIt is not an equal split. The index is weighted by company size, so the biggest names carry far more influence than the smallest ones. A handful of large technology companies can move the whole index on their own, while a bad day at company number 400 is invisible. That's worth knowing before you call it \"the whole US economy\" — it's the largest listed companies, which is not the same thing.\n\nThe four forces that move it\n\n- Expected profits. A share is a claim on a company's future earnings. When investors raise their expectations of what those companies will earn, they pay more for the same share, and the index rises. Notice the word expected: markets price the future, not last quarter.\n- Interest rates. This is the one beginners miss. When rates go up, safe government bonds start paying decently, so the risky stuff has to compete. Higher rates also make future profits worth less today. Rate expectations move the index more than almost any company's news.\n- Fear and appetite for risk. Wars, crises, banking scares, political surprises. When investors want out of risk, they sell first and read the details afterward. Nothing about the underlying companies has to change.\n- Surprises against expectations. A company can report record profits and fall 8%, because the market expected even more. What moves prices is the gap between reality and what was already priced in.\n\nWhy good news sometimes sinks it\n\nA strong jobs report can push the index down. It looks absurd until you follow the chain: strong employment means a strong economy, a strong economy means inflation is less likely to cool, less cooling means the central bank keeps rates high for longer, and high rates weigh on stock prices.\n\nThe market isn't reacting to whether the news is good for people. It's reacting to what the news implies about rates and profits. Once you see that, half of the headlines that seem contradictory stop being contradictory.\n\nA day is noise. A year is a signal. Historically the index has had a positive year roughly three times out of four, and it has also fallen more than 30% multiple times along the way. Both facts are true, and any plan that only accounts for one of them will break.\n\nWhy it's the default reference\n\nBuying the whole index means owning a slice of hundreds of companies at once. If two go bankrupt, it barely registers. That diversification, plus very low fees on index funds, is why it became the standard comparison point: any strategy that charges you more has to beat it to be worth the cost, and most don't over long stretches.\n\nThere are real limitations. It's concentrated in a few enormous companies, it's entirely US-listed, and it's quoted in dollars — which for someone earning pesos adds a second moving part on top of the market itself.\n\nHow to read it without losing your mind\n\n1. Ignore the daily percentage. Moves under 1% are ordinary breathing, not events, no matter how they're headlined.\n2. Falls are part of the deal. A drop of 10% or more shows up on average about once a year. It's the entry price for the long-term returns, not a sign the plan failed.\n3. Nobody times it reliably. Missing the best handful of days in a decade destroys most of the return — and those days tend to arrive in the middle of the ugliest stretches, right when selling feels smartest.\n\nThe short version\n\nThe S&P 500 tracks 500 large US companies weighted by size, and it moves on expected profits, interest rates, fear, and surprises against expectations. Day to day it's noise. Over years it's one of the most useful reference points in finance — as long as you can sit through the bad ones."
+      }
+    },
+    {
+      "slug": "tarjeta-de-credito",
+      "routeId": "lesson.tarjeta",
+      "href": {
+        "en": "/lessons/tarjeta-de-credito",
+        "es": "/es/lecciones/tarjeta-de-credito"
+      },
+      "es": {
+        "titulo": "Tu primera tarjeta de crédito (y cómo no arruinarte)",
+        "descripcion": "Qué es de verdad el CAT, por qué el pago mínimo es una trampa, cuándo empiezan a correr los intereses y para qué te sirve después el historial crediticio.",
+        "entradilla": "Una tarjeta de crédito no es dinero gratis, y tampoco es una estafa. Es una herramienta con un filo muy afilado — y el filo es justo la parte que nadie te explica antes de dártela.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Calculadora del Costo Anual Total (CAT)",
+            "url": "https://www.banxico.org.mx/CAT/",
+            "editor": "Banco de México",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Circular 13/2011: Pago mínimo para tarjetas de crédito",
+            "url": "https://www.banxico.org.mx/marco-normativo/normativa-emitida-por-el-banco-de-mexico/circular-13-2011/pago-minimo-tarjetas-disposic.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Reportes de Indicadores Básicos de Tarjetas de Crédito",
+            "url": "https://www.banxico.org.mx/publicaciones-y-prensa/rib-tarjetas-de-credito/rib-tarjetas-credito--tasas-i.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Reporte de Crédito Especial: gratis una vez cada 12 meses",
+            "url": "https://www.burodecredito.com.mx/",
+            "editor": "Buró de Crédito",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "El trato, en una frase\n\nUna tarjeta de crédito te presta el dinero del banco unas semanas y no te cobra nada si lo devuelves todo a tiempo. Si devuelves menos que todo, empieza a cobrarte intereses a tasas que hacen ver chiquito a todo lo demás de este sitio. El mismo pedazo de plástico, dos productos completamente distintos — y cuál te toca lo decides tú, cada mes.\n\nEso es un crédito revolvente: lo usas, lo pagas y lo vuelves a usar hasta tu línea sin volver a pedirlo. La comodidad es real. También es real que los bancos ganan con la gente que no paga completo.\n\nEl CAT es el único número que sirve para comparar\n\nToda tarjeta anuncia una tasa de interés, y esa tasa no es lo que te cuesta la tarjeta. Deja fuera la anualidad, los seguros, el cargo por el estado de cuenta en papel y lo demás. Lo que quieres es el CAT, Costo Anual Total, que el Banco de México define como una medida estandarizada del costo del financiamiento, en términos porcentuales anuales, que incorpora todos los costos y gastos del crédito.\n\nDe ahí salen dos cosas. Una: comparar dos tarjetas por su tasa de interés es comparar el número equivocado, y una con tasa más baja y comisiones más pesadas puede salir más cara. Dos: como el CAT está estandarizado por regulación, 60 % en un banco y 90 % en otro significan exactamente lo mismo. Es la única cifra que de verdad compara peras con peras, y todo emisor está obligado a mostrártela.\n\nBanxico publica una calculadora de CAT gratuita y, dos veces al año, un reporte que compara las tarjetas reales del mercado por tasa y por tipo de producto. Los dos están en las fuentes de abajo. Diez minutos ahí antes de firmar valen más que cualquier consejo, incluido este.\n\nPor qué el pago mínimo es una trampa\n\nEl pago mínimo no es la opinión de tu banco sobre cuánto deberías pagar. En México el Banco de México fija la fórmula por circular, justamente para que cada pago mínimo abone al menos algo al capital — porque cuando cada quien la ponía, el número era lo bastante chico como para que la deuda nunca se moviera.\n\nAun con la regla, el mínimo está hecho para mantenerte a flote, no para sacarte. Con números redondos: debes 10,000 pesos en una tarjeta al 45 % anual. Un mes de intereses son unos 375 pesos. Si tu mínimo sale en unos 500 y pagas exactamente eso, 375 se fueron en intereses y 125 a la deuda. Pagaste 500 pesos y tu saldo se movió 125.\n\nRepite eso y el saldo avanza como glaciar mientras tú sientes que pagas religiosamente. Esto es interés compuesto apuntándote a ti: el interés que no cubriste se suma al saldo, y el mes que entra pagas intereses también sobre eso.\n\nUna línea vale la pena memorizarla. El pago mínimo es el número que deja contento al banco. El número que te saca es el saldo completo.\n\nCuándo empiezan a correr los intereses de verdad\n\nCasi todas las tarjetas te dan una ventana sin intereses: del día que compras a la fecha límite de pago, normalmente entre veinte y cincuenta días según en qué parte del ciclo cayó la compra. Paga el saldo completo del estado de cuenta antes de esa fecha y los intereses del periodo son cero. Eso no es una promoción, así está construido el producto.\n\nEn el momento en que pagas menos que el saldo completo pasan dos cosas y solo una es obvia. La obvia: lo que quedó empieza a generar intereses. La que sorprende a todo el mundo: en muchas tarjetas también pierdes la ventana sin intereses para las compras nuevas, así que el café de mañana empieza a cobrar intereses desde mañana. Revisa tu contrato en ese punto exacto. Es la diferencia entre una herramienta gratis y una cara.\n\nPara qué te sirve todo esto después\n\nAquí está la parte por la que vale la pena tener tarjeta a los dieciocho en vez de esquivarla. Cada mes que pagas a tiempo se reporta y se convierte en tu historial crediticio, que es lo que lee un banco antes de prestarte para un coche, un departamento o un negocio.\n\nNo tener historial no es neutral. Para quien presta, alguien sin registro es un desconocido, y a los desconocidos les dan peores condiciones que a alguien con dos años aburridos de pagos chicos hechos a tiempo. En México ese registro vive en Buró de Crédito, y tienes derecho a tu propio reporte gratis una vez cada doce meses. Pedir tu propio reporte no te lo daña. Hazlo una vez al año, como leerías un estado de cuenta.\n\nToda la lección en un solo hábito: compra únicamente lo que tu presupuesto ya cubría, paga el estado de cuenta completo antes de la fecha límite, cada mes, y nunca leas la línea como dinero que tienes. Con eso la tarjeta no te cuesta nada mientras te construye, en silencio, lo que te va a conseguir una tasa decente a los veinticinco.\n\nTres formas de salir lastimado\n\n1. Leer la línea como ingreso. Una línea de 30,000 significa que el banco te deja deber 30,000, no que te alcance. Las herramientas de este sitio están para que veas qué hace de verdad un pago con el tiempo antes de comprometerte.\n2. Pagar un día tarde. Comisión por atraso, más intereses, más una marca en tu historial: tres castigos por un resbalón. Programa el pago automático del saldo total y deja de depender de tu memoria.\n3. Pagar una tarjeta con otra tarjeta. Mover deuda cara de un lado a otro no la encoge. Lo único que la encoge es dinero.\n\nLa versión corta\n\nUna tarjeta de crédito es gratis si la pagas completa y brutal si no. Compara tarjetas por CAT, nunca por la tasa anunciada. Trata el pago mínimo como lo que es: el piso del banco, no tu plan. Paga todo el estado de cuenta antes de la fecha límite para que los intereses nunca arranquen, y deja que los meses de pagos puntuales te construyan un historial que a los veinticinco va a valer dinero de verdad."
+      },
+      "en": {
+        "titulo": "Your first credit card (and how not to wreck yourself)",
+        "descripcion": "What the CAT really is, why the minimum payment is a trap, how the interest starts running, and what a credit history buys you later.",
+        "entradilla": "A credit card is not free money, and it is not a scam either. It is a tool with one very sharp edge — and the edge is the part nobody explains before they hand you one.",
+        "minutos": 6,
+        "actualizada": "2026-08-23",
+        "fuentes": [
+          {
+            "titulo": "Calculadora del Costo Anual Total (CAT)",
+            "url": "https://www.banxico.org.mx/CAT/",
+            "editor": "Banco de México",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Circular 13/2011: Pago mínimo para tarjetas de crédito",
+            "url": "https://www.banxico.org.mx/marco-normativo/normativa-emitida-por-el-banco-de-mexico/circular-13-2011/pago-minimo-tarjetas-disposic.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Reportes de Indicadores Básicos de Tarjetas de Crédito",
+            "url": "https://www.banxico.org.mx/publicaciones-y-prensa/rib-tarjetas-de-credito/rib-tarjetas-credito--tasas-i.html",
+            "editor": "Banco de México",
+            "fecha": "2026-08-23"
+          },
+          {
+            "titulo": "Reporte de Crédito Especial: gratis una vez cada 12 meses",
+            "url": "https://www.burodecredito.com.mx/",
+            "editor": "Buró de Crédito",
+            "fecha": "2026-08-23"
+          }
+        ],
+        "cuerpo": "The deal, in one sentence\n\nA credit card lends you the bank's money for a few weeks and charges you nothing if you give all of it back on time. If you give back less than all of it, it starts charging interest at rates that make everything else on this site look small. Same piece of plastic, two completely different products — and which one you get is decided by you, every month.\n\nThat is what revolving credit means: you use it, pay it, and use it again up to your limit without asking twice. The convenience is real. So is the fact that banks make their money from the people who do not pay in full.\n\nThe CAT is the only number worth comparing\n\nEvery card advertises an interest rate, and that rate is not what the card costs you. It leaves out the annual fee, the insurance, the charge for a paper statement and the rest. What you want is the CAT, Costo Anual Total, which Banco de México defines as a standardized measure of financing cost, in annual percentage terms, that includes every cost and fee attached to the credit.\n\nTwo things follow. First: comparing two cards by their interest rate is comparing the wrong number, and one with a lower rate and heavier fees can easily be the more expensive one. Second: because the CAT is standardized by regulation, 60 % at one bank and 90 % at another mean exactly the same thing. It is the one figure that is genuinely apples to apples, and every issuer is required to show it to you.\n\nBanxico publishes a free CAT calculator and, twice a year, a report comparing the real cards on the market by rate and by card type. Both are in the sources below. Ten minutes there before you sign beats any advice anybody can give you, including this lesson.\n\nWhy the minimum payment is a trap\n\nThe minimum payment is not your bank's opinion about how much you should pay. In Mexico, Banco de México sets the formula by circular, precisely so that each minimum payment chips at least something off the principal — because left to themselves, the numbers were small enough that the debt never moved.\n\nEven with the rule, the minimum is built to keep you afloat, not to get you out. Round numbers: you owe 10,000 pesos on a card at 45 % a year. One month of interest is roughly 375 pesos. If your minimum comes to about 500 and you pay exactly that, then 375 went to interest and 125 went to the debt. You paid 500 pesos and your balance moved 125.\n\nRepeat that and the balance crawls while you feel like you are paying religiously. This is compound interest pointed at you: whatever interest you did not cover gets added to the balance, and next month you pay interest on that too.\n\nOne line worth memorizing. The minimum payment is the number that keeps the bank happy. The number that gets you out is the whole balance.\n\nWhen the interest actually starts\n\nMost cards give you an interest-free window: from the day you buy to the payment due date, usually somewhere between twenty and fifty days depending on where in the billing cycle the purchase landed. Pay the full statement balance by that date and the interest for the period is zero. That is not a promotion, it is how the product is built.\n\nThe moment you pay less than the full balance, two things happen and only one of them is obvious. The obvious one: the leftover starts accruing interest. The one that surprises everybody: on many cards you also lose the interest-free window on new purchases, so the coffee you buy tomorrow starts charging interest tomorrow. Check your contract on this exact point. It is the difference between a free tool and an expensive one.\n\nWhat all of this buys you later\n\nHere is the part that makes a card worth having at eighteen rather than avoiding. Every month you pay on time gets reported and becomes your credit history, which is what a bank reads before lending you money for a car, a flat or a business.\n\nHaving no history is not neutral. To a lender, someone with no record is an unknown, and unknowns get worse terms than someone with two boring years of small payments made on time. In Mexico that record lives at Buró de Crédito, and you are entitled to your own report free once every twelve months. Asking for your own report does not damage it. Do it once a year, the way you would read a bank statement.\n\nThe whole lesson as one habit: only buy things your budget already covered, pay the statement in full before the due date, every month, and never read the limit as money you have. Do that and the card costs you nothing while quietly building the thing that gets you a decent rate at twenty-five.\n\nThree ways people get hurt\n\n1. Reading the limit as income. A 30,000-peso limit means the bank will let you owe 30,000, not that you can afford it. The tools on this site exist so you can watch what a payment actually does over time before you commit to it.\n2. Paying one day late. A late fee, plus interest, plus a mark on your history: three punishments for one slip. Set up an automatic payment for the full balance and stop relying on memory.\n3. Paying a card with another card. Moving expensive debt from one place to another does not shrink it. Only money shrinks it.\n\nThe short version\n\nA credit card is free if you pay it in full and brutal if you do not. Compare cards by CAT, never by the advertised rate. Treat the minimum payment as what it is — the bank's floor, not your plan. Pay the whole statement before the due date so the interest never starts, and let the months of on-time payments build a credit history that will be worth real money to you at twenty-five."
+      }
+    }
+  ],
+  "rutas": {
+    "lesson.peso": {
+      "en": "/lessons/peso-tipo-de-cambio",
+      "es": "/es/lecciones/peso-tipo-de-cambio"
+    },
+    "lesson.interes": {
+      "en": "/lessons/interes-compuesto",
+      "es": "/es/lecciones/interes-compuesto"
+    },
+    "lesson.sp500": {
+      "en": "/lessons/sp500",
+      "es": "/es/lecciones/sp500"
+    },
+    "lesson.presupuesto": {
+      "en": "/lessons/presupuesto-50-30-20",
+      "es": "/es/lecciones/presupuesto-50-30-20"
+    },
+    "lesson.inflacion": {
+      "en": "/lessons/inflacion",
+      "es": "/es/lecciones/inflacion"
+    },
+    "lesson.errores": {
+      "en": "/lessons/errores-al-invertir",
+      "es": "/es/lecciones/errores-al-invertir"
+    },
+    "lesson.tarjeta": {
+      "en": "/lessons/tarjeta-de-credito",
+      "es": "/es/lecciones/tarjeta-de-credito"
+    },
+    "lesson.accion": {
+      "en": "/lessons/que-es-una-accion",
+      "es": "/es/lecciones/que-es-una-accion"
+    },
+    "lesson.bolsa": {
+      "en": "/lessons/como-funciona-la-bolsa",
+      "es": "/es/lecciones/como-funciona-la-bolsa"
+    },
+    "lesson.etfs": {
+      "en": "/lessons/etfs",
+      "es": "/es/lecciones/etfs"
+    },
+    "lessons.glossary": {
+      "en": "/lessons/glossary",
+      "es": "/es/lecciones/glosario"
+    },
+    "methodology": {
+      "en": "/methodology",
+      "es": "/es/metodologia"
+    }
+  }
+}

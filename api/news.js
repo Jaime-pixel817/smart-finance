@@ -449,6 +449,8 @@ async function servirRevisadas(req, res, pedido) {
 //
 //   GET  /api/news                          titulares del día con su opinión
 //   GET  /api/news?estado=aprobadas         noticias revisadas y publicadas
+//   GET  /api/news?accion=explicar&…        Smart Finance AI          (público)
+//   POST /api/news {accion:'explicar',…}    ...con pregunta escrita   (público)
 //   GET  /api/news?accion=revision          la cola de revisión      (secreto)
 //   POST /api/news {accion:'generar'}       escribe los borradores   (secreto)
 //   POST /api/news {accion:'decidir',...}   aprueba/edita/rechaza    (secreto)
@@ -469,6 +471,41 @@ function fallo(res, err, contexto) {
     error: noConfigurado ? String(err.code).toLowerCase() : contexto + '_fallido',
     detalle: err && err.message ? err.message : String(err)
   });
+}
+
+// ---- Smart Finance AI: "Explícame esto" ----------------------------------
+//
+// GET /api/news?accion=explicar&tipo=…&id=…  — PÚBLICO, y la única acción de
+// este endpoint que gasta dinero por visita. Todo lo delicado (el bloque DATOS
+// que se arma en el servidor, el clasificador de consejo financiero, la guardia
+// de cifras y el tope de gasto) vive en _lib/ia.js; aquí solo se enruta.
+//
+// Está en api/news.js por lo mismo que los borradores: api/ tiene 12 funciones
+// y el plan de Vercel no admite una más. Este archivo ya era el router de todo
+// el texto generado del sitio.
+async function servirExplicacion(req, res, cuerpo) {
+  const ia = require('./_lib/ia');
+  try {
+    // POR QUÉ ADMITE POST: el botón a secas viaja en la URL (así lo cachea el
+    // CDN y sale gratis), pero la PREGUNTA que alguien escribe con sus palabras
+    // va en el cuerpo. Una pregunta escrita por una persona no tiene por qué
+    // quedarse en los registros de acceso, y una URL sí se guarda entera.
+    const pedido = cuerpo ? Object.assign({}, req.query, cuerpo) : (req.query || {});
+    // Con el CRON_SECRET no cuenta el tope por IP: Jaime tiene que poder probar
+    // el botón sin gastarse la cuota pública del día. El tope global sí cuenta.
+    const r = await ia.explicar(pedido, req, { saltarTopeIp: autorizado(req) });
+    // Solo se cachea en el CDN lo que salió bien: un "hoy ya no hay presupuesto"
+    // cacheado una hora sería mentira en cuanto el contador se reinicie.
+    res.setHeader(
+      'Cache-Control',
+      r.codigo === 200 && !r.cuerpo.rechazada && !cuerpo
+        ? 'public, s-maxage=900, stale-while-revalidate=3600'
+        : 'no-store'
+    );
+    res.status(r.codigo).json(r.cuerpo);
+  } catch (err) {
+    fallo(res, err, 'explicacion');
+  }
 }
 
 async function servirPrivado(req, res, accion) {
@@ -525,6 +562,13 @@ module.exports = async function handler(req, res) {
   if (metodo === 'POST') {
     const cuerpo = leerCuerpo(req);
     const accion = String((cuerpo && cuerpo.accion) || (req.query && req.query.accion) || '').toLowerCase();
+    // La única acción pública por POST: explicar con una pregunta escrita a
+    // mano, que va en el cuerpo para no acabar en la URL. Va ANTES de
+    // servirPrivado, que exige el secreto.
+    if (accion === 'explicar') {
+      if (!cuerpo) { res.status(400).json({ error: 'json_invalido' }); return; }
+      return servirExplicacion(req, res, cuerpo);
+    }
     return servirPrivado(req, res, accion);
   }
   if (metodo !== 'GET') {
@@ -534,6 +578,8 @@ module.exports = async function handler(req, res) {
   }
   const accionGet = String((req.query && req.query.accion) || '').toLowerCase();
   if (accionGet) {
+    // La única acción pública de este endpoint (y la única que gasta por visita).
+    if (accionGet === 'explicar') return servirExplicacion(req, res);
     // Generar y decidir cambian cosas: por GET no, ni con el secreto.
     if (accionGet !== 'revision') {
       res.setHeader('Cache-Control', 'no-store');

@@ -14,6 +14,8 @@ import CompoundCalculator from '../tools/CompoundCalculator.astro';
 import InflationTool from '../tools/InflationTool.astro';
 import RiskReturn from '../tools/RiskReturn.astro';
 import GlossarySheet from './GlossarySheet.astro';
+import ExplainButton from '../ia/ExplainButton.astro';
+import AISheet from '../ia/AISheet.astro';
 import { foto } from '../../lib/photos';
 import LessonCard from './LessonCard.astro';
 import Quiz from './Quiz.astro';
@@ -66,6 +68,13 @@ const levelKey = ('learn.level.' + d.level) as UIKey;
 
     <Quiz locale={locale} slug={lesson.slug} quiz={d.quiz} />
 
+    <!-- Explicar la lección más simple y sacar preguntas de estudio. Va al
+         final del texto, donde alguien que no lo pilló ya sabe que no lo pilló. -->
+    <div class="ia-acciones">
+      <ExplainButton locale={locale} tipo="leccion" id={lesson.slug} sobre={d.title} />
+      <ExplainButton locale={locale} tipo="leccion" id={lesson.slug} modo="preguntas" sobre={d.title} />
+    </div>
+
     <div class="lesson-end" data-lesson-end>
       <button type="button" class="btn btn-ghost btn-sm" data-mark-read data-label-read={t('learn.markRead')} data-label-done={t('learn.marked')} aria-pressed="false">{t('learn.markRead')}</button>
       <span class="t-caption faint">{t('learn.progress.note')}</span>
@@ -117,6 +126,7 @@ const levelKey = ('learn.level.' + d.level) as UIKey;
   </div>
 </article>
 <GlossarySheet locale={locale} />
+<AISheet locale={locale} />
 <script src="../../scripts/lesson-page.ts"></script>
 
 <style>

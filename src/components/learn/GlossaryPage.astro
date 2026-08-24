@@ -7,6 +7,8 @@ import { useT } from '../../i18n/ui';
 import { getLessons } from '../../data/lessons';
 import glossary from '../../data/glossary.json';
 import GlossarySheet from './GlossarySheet.astro';
+import ExplainButton from '../ia/ExplainButton.astro';
+import AISheet from '../ia/AISheet.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -37,6 +39,7 @@ const groups = letters.map((L) => ({ L, items: sorted.filter((g) => norm(g[local
               <dd class="t-small">{it[locale].def}</dd>
               <dd class="t-small gloss-pesos"><strong>{t('glossary.pesos')}</strong> {it[locale].pesos}</dd>
               <dd class="t-caption"><a class="gloss-link" href={route(it.lesson, locale)}>{t('glossary.lesson')}: {titleOf(it.lesson)} →</a></dd>
+              <dd><ExplainButton locale={locale} tipo="termino" id={it.id} sobre={it[locale].term} /></dd>
             </div>
           ))}
         </dl>
@@ -46,6 +49,7 @@ const groups = letters.map((L) => ({ L, items: sorted.filter((g) => norm(g[local
   </div>
 </div>
 <GlossarySheet locale={locale} />
+<AISheet locale={locale} />
 <style>
   .gloss { padding-top: var(--sp-3); }
   .gloss-head { display: flex; flex-direction: column; gap: var(--sp-2); }

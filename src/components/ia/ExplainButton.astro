@@ -1,0 +1,53 @@
+---
+// El botón "Explícame esto". Va PEGADO a lo que explica (la noticia, la ficha,
+// la gráfica, el término), no flotando en una esquina: si no sabes a qué se
+// refiere, el botón está mal puesto.
+//
+// No abre nada por sí solo: todo lo mueve src/scripts/ia.ts, que escucha los
+// clics de `.ia-btn[data-ia]` en el documento. El contexto viaja en atributos
+// data-* y son SOLO identificadores (qué activo, qué rango, qué noticia) —
+// nunca cifras. Las cifras las pone el servidor, que es el único que puede
+// garantizar que son de verdad.
+import type { Locale } from '../../i18n/routes';
+import { useT, type UIKey } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  /** noticia | activo | grafica | termino | leccion */
+  tipo: 'noticia' | 'activo' | 'grafica' | 'termino' | 'leccion';
+  /** slug de la noticia o la lección, id del activo o del término */
+  id: string;
+  /** explicar (por defecto) o preguntas */
+  modo?: 'explicar' | 'preguntas';
+  /** rango de la gráfica, solo para activo/grafica */
+  rango?: string;
+  /** texto del botón; por defecto el que le toca al modo */
+  label?: UIKey;
+  /** de qué habla, para el lector de pantalla y para el título de la hoja */
+  sobre: string;
+  clase?: string;
+}
+const { locale, tipo, id, modo = 'explicar', rango, label, sobre, clase } = Astro.props;
+const t = useT(locale);
+const porDefecto: UIKey = modo === 'preguntas' ? 'ia.questions' : (tipo === 'grafica' ? 'ia.chart' : 'ia.explain');
+const texto = t(label ?? porDefecto);
+---
+<button
+  type="button"
+  class={'btn btn-ghost btn-sm ia-btn' + (clase ? ' ' + clase : '')}
+  data-ia
+  data-ia-tipo={tipo}
+  data-ia-id={id}
+  data-ia-modo={modo}
+  data-ia-rango={rango}
+  data-ia-sobre={sobre}
+  aria-haspopup="dialog"
+  aria-label={texto + ': ' + sobre}
+>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 3.5l1.7 4.3 4.3 1.7-4.3 1.7L12 15.5l-1.7-4.3L6 9.5l4.3-1.7z"></path>
+    <path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path>
+  </svg>
+  <span>{texto}</span>
+</button>

@@ -13,6 +13,8 @@ import { getLessonByRoute, getLessons } from '../../data/lessons';
 import AssetRow from './AssetRow.astro';
 import PricePanel from './PricePanel.astro';
 import SourceChip from '../SourceChip.astro';
+import ExplainButton from '../ia/ExplainButton.astro';
+import AISheet from '../ia/AISheet.astro';
 
 interface Props { locale: Locale; s: SymbolEntry }
 const { locale, s } = Astro.props;
@@ -69,6 +71,10 @@ const stats: [string, string][] = [
           <span class="asset-follow-text">{t('watch.follow')}</span>
         </button>
         <a class="btn btn-ghost btn-sm" href={compararHref}>{t('asset.compare')}</a>
+        <!-- El explicador va aquí y no flotando: explica ESTE activo. El rango
+             lo lee del panel de precio en el momento de pedirlo, así que habla
+             del tramo que se está viendo. -->
+        <ExplainButton locale={locale} tipo="activo" id={s.id} rango="1M" sobre={s.name[locale]} />
       </div>
       <p id="asset-follow-note" class="t-caption faint asset-follow-note">{t('watch.note')}</p>
     </header>
@@ -77,6 +83,10 @@ const stats: [string, string][] = [
       <div class="asset-main">
         <section class="card asset-chart" aria-label={t('chart.aria')}>
           <PricePanel locale={locale} id="asset-pp" source="Yahoo Finance" />
+          <div class="ia-acciones">
+            <ExplainButton locale={locale} tipo="grafica" id={s.id} rango="1M" sobre={s.name[locale]} />
+            <ExplainButton locale={locale} tipo="activo" id={s.id} modo="preguntas" rango="1M" sobre={s.name[locale]} />
+          </div>
         </section>
 
         <section class="asset-stats" aria-labelledby="stats-h">
@@ -123,6 +133,8 @@ const stats: [string, string][] = [
     </div>
   </div>
 </article>
+
+<AISheet locale={locale} />
 
 <script src="../../scripts/asset.ts"></script>
 
