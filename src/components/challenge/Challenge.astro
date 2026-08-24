@@ -96,6 +96,7 @@ const textos = {
   // Modos
   doneToday: t('reto.done.today'), otherDay: t('reto.other.day'), otherToday: t('reto.other.today'),
   freeNew: t('reto.free.new'), how1: t('reto.how.1'),
+  eyebrowDaily: t('reto.eyebrow'), eyebrowFree: t('reto.mode.free'),
   // Lo que enseña el revelado
   why: {
     size: t('reto.why.size'),
@@ -133,7 +134,7 @@ const filtros = [
     data-por-ronda={PUNTOS_POR_RONDA}>
 
     <header class="reto-head">
-      <p class="eyebrow">{t('reto.eyebrow')} · <span data-reto-fecha class="num"></span></p>
+      <p class="eyebrow"><span data-reto-eyebrow>{t('reto.eyebrow')}</span><span data-reto-fecha-wrap> · <span data-reto-fecha class="num"></span></span></p>
       <h1 class="t-display">{t('reto.h1')}</h1>
       <p class="reto-lede">{t('reto.lede')}</p>
     </header>

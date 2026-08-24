@@ -202,9 +202,11 @@
   margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero;
   font-size: var(--fs-h3); line-height: 1.1; color: var(--ink);
 }
+.reto-stats dd small { font-size: .62em; color: var(--ink-3); margin-left: .2em; }
 
 .reto-cal { margin: 0; display: flex; flex-direction: column; gap: 6px; max-width: 320px; }
-.reto-cal figcaption { text-transform: capitalize; }
+/* capitalize pondria mayuscula en cada palabra: "Agosto De 2026". */
+.reto-cal figcaption::first-letter { text-transform: uppercase; }
 .reto-cal-dows, .reto-cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .reto-cal-dows span { text-align: center; font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-3); }
 .reto-cal-dia {
@@ -217,9 +219,9 @@
 /* Cuatro tonos de la marca, no un semáforo: aquí el color dice "viniste y te
    fue así", y el rojo por sacar poco castigaría justo lo que el reto enseña
    (que casi nadie le atina). */
-.reto-cal-dia[data-n="1"] { background: color-mix(in srgb, var(--brand-fill) 18%, var(--bg-2)); color: var(--ink-2); }
-.reto-cal-dia[data-n="2"] { background: color-mix(in srgb, var(--brand-fill) 38%, var(--bg-2)); color: var(--ink); }
-.reto-cal-dia[data-n="3"] { background: color-mix(in srgb, var(--brand-fill) 62%, var(--bg-2)); color: var(--on-brand, #fff); }
+.reto-cal-dia[data-n="1"] { background: color-mix(in srgb, var(--brand-fill) 30%, var(--bg-2)); color: var(--ink); }
+.reto-cal-dia[data-n="2"] { background: color-mix(in srgb, var(--brand-fill) 50%, var(--bg-2)); color: var(--ink); }
+.reto-cal-dia[data-n="3"] { background: color-mix(in srgb, var(--brand-fill) 72%, var(--bg-2)); color: var(--on-brand, #fff); }
 .reto-cal-dia[data-n="4"] { background: var(--brand-fill); color: var(--on-brand, #fff); }
 .reto-cal-dia[data-hoy="si"] { border-color: var(--ink); font-weight: 600; }
 

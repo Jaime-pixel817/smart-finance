@@ -51,7 +51,7 @@ type Textos = {
   streak: string; streakOne: string; copied: string; copyFailed: string;
   shareTitle: string; shareLine: string; shareFree: string; linked: string; copyLink: string;
   challenged: string; asOf: string; doneToday: string; otherDay: string; otherToday: string;
-  freeNew: string; how1: string;
+  freeNew: string; how1: string; eyebrowDaily: string; eyebrowFree: string;
   why: { size: string; t1: string; t2: string; t3: string; t4: string; t0: string };
   lesson: string; term: string;
   prog: { empty: string; of: string; cleared: string; day: string; none: string; calSummary: string; calLegend: string };
@@ -123,6 +123,8 @@ function montar(raiz: HTMLElement) {
   const btnOtra = q<HTMLButtonElement>('[data-reto-otra]')!;
   const etiquetaOtra = btnOtra.textContent || '';
   const elManana = q<HTMLElement>('[data-reto-manana]')!;
+  const elEyebrow = q<HTMLElement>('[data-reto-eyebrow]')!;
+  const elFechaWrap = q<HTMLElement>('[data-reto-fecha-wrap]')!;
   const modos = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-reto-modo]'));
   const chips = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-reto-filtro]'));
   const chip = document.getElementById('reto-chip');
@@ -210,6 +212,9 @@ function montar(raiz: HTMLElement) {
     for (const c of chips) c.setAttribute('aria-pressed', String(c.dataset.retoFiltro === filtro));
     elLibre.hidden = modo !== 'libre';
     elManana.hidden = modo !== 'diario';
+    // En el reto libre no hay "reto del día": el rótulo dice lo que se juega.
+    elEyebrow.textContent = modo === 'libre' ? T.eyebrowFree : T.eyebrowDaily;
+    elFechaWrap.hidden = modo === 'libre';
     btnOtra.textContent = modo === 'libre' ? T.freeNew : etiquetaOtra;
     // Aviso de "hoy ya jugaste" o "estás jugando el de otro día".
     elYa.replaceChildren();
@@ -459,11 +464,11 @@ function montar(raiz: HTMLElement) {
     // A dónde ir a entender esta ronda: la lección del activo y su término.
     const aLeccion = q<HTMLAnchorElement>('[data-reto-leccion]')!;
     aLeccion.href = r.activo.leccion.href;
-    aLeccion.textContent = rellena(T.lesson, { t: r.activo.leccion.t }) + ' →';
+    aLeccion.textContent = rellena(T.lesson, { t: r.activo.leccion.t }) + '\u00A0→';
     aLeccion.hidden = !r.activo.leccion.t;
     const aTermino = q<HTMLAnchorElement>('[data-reto-termino]')!;
     aTermino.href = r.activo.termino.href;
-    aTermino.textContent = rellena(T.term, { t: r.activo.termino.t }) + ' →';
+    aTermino.textContent = rellena(T.term, { t: r.activo.termino.t }) + '\u00A0→';
     btnSiguiente.textContent = i === RONDAS - 1 ? T.see : T.next;
     elRevelado.hidden = false;
     // En un teléfono el revelado nace debajo del pliegue: sin esto se contesta
@@ -561,8 +566,10 @@ function montar(raiz: HTMLElement) {
     q<HTMLElement>('[data-reto-st-racha]')!.textContent = String(rachaVigente(prog, hoy));
     q<HTMLElement>('[data-reto-st-mejor]')!.textContent = String(tot.mejorRacha);
     q<HTMLElement>('[data-reto-st-dias]')!.textContent = String(tot.dias);
-    q<HTMLElement>('[data-reto-st-clavadas]')!.textContent =
-      tot.exactas + ' ' + rellena(T.prog.of, { n: tot.max / PUNTOS_POR_RONDA });
+    const elClavadas = q<HTMLElement>('[data-reto-st-clavadas]')!;
+    const deN = document.createElement('small');
+    deN.textContent = rellena(T.prog.of, { n: tot.max / PUNTOS_POR_RONDA });
+    elClavadas.replaceChildren(document.createTextNode(String(tot.exactas)), deN);
 
     const [ano, mes] = [Number(hoy.slice(0, 4)), Number(hoy.slice(5, 7))];
     const cal = calendario(prog, ano, mes, hoy);
