@@ -460,6 +460,31 @@ test('GET /api/news?accion=explicar con una query mal formada da 400 y no cachea
   assert.equal(res.cabeceras['cache-control'], 'no-store');
 });
 
+test('la pregunta escrita a mano viaja por POST y no se cachea en el CDN', async () => {
+  const handler = require('../news.js');
+  const res = resFalso();
+  // Sin ANTHROPIC_API_KEY ni Redis esto no puede generar nada; lo que se
+  // comprueba es el ENRUTADO: que POST {accion:'explicar'} no choque con la
+  // puerta del secreto (como sí hacen generar y decidir) y que la respuesta
+  // nunca se guarde en un caché compartido.
+  await handler({
+    method: 'POST', headers: {},
+    body: { accion: 'explicar', tipo: 'inventado', id: 'x', pregunta: 'algo personal' }
+  }, res);
+  assert.equal(res.codigo, 400, 'llegó a la validación del pedido, no al 401 del secreto');
+  assert.equal(res.cuerpo.error, 'tipo_desconocido');
+  assert.equal(res.cabeceras['cache-control'], 'no-store');
+});
+
+test('un POST de las acciones privadas sigue necesitando el secreto', async () => {
+  const handler = require('../news.js');
+  for (const accion of ['generar', 'decidir']) {
+    const res = resFalso();
+    await handler({ method: 'POST', headers: {}, body: { accion } }, res);
+    assert.equal(res.codigo, 401, accion + ' se coló sin secreto');
+  }
+});
+
 test('explicar es la ÚNICA acción pública: revisar sigue pidiendo el secreto', async () => {
   const handler = require('../news.js');
   const res = resFalso();

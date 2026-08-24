@@ -149,8 +149,10 @@ if (sheet) {
       cuerpo.append(acciones);
     }
 
-    // La fecha del dato va en la etiqueta, siempre pegada a la respuesta.
-    asOf.textContent = r.asOf ? txt.asof + ' ' + r.asOf : '';
+    // La fecha del dato va pegada a la respuesta... cuando hay respuesta. Debajo
+    // de "hoy ya no hay presupuesto" no se usó ningún dato, y ponerle fecha a
+    // algo que no se leyó es ruido con pinta de rigor.
+    asOf.textContent = r.generadoPor === 'ia' && r.asOf ? txt.asof + ' ' + r.asOf : '';
     // Y la etiqueta dice la verdad en los dos sentidos: una frase fija del
     // sitio (un rechazo, un tope) NO la escribió la IA, y llamarla "generada
     // con IA" sería mentir a la inversa.
@@ -190,6 +192,7 @@ if (sheet) {
       modo: contexto.modo,
       lang
     });
+
     // El rango que se explica es el que se está VIENDO, no el que tenía la
     // página al cargar: el panel de precio deja su rango actual en
     // data-range cada vez que alguien toca 1M/3M/1A (chart-panel.ts). Sin
@@ -197,10 +200,22 @@ if (sheet) {
     const panelPrecio = document.querySelector<HTMLElement>('[data-price-panel][data-range]');
     const rango = (panelPrecio && panelPrecio.dataset.range) || contexto.rango;
     if (rango) q.set('rango', rango);
-    if (pregunta) q.set('pregunta', pregunta);
+
+    // El botón a secas va por GET: la URL no lleva nada que no esté ya en la
+    // página, y así el CDN puede cachear la respuesta y no se paga dos veces.
+    // Una PREGUNTA escrita a mano va por POST, en el cuerpo: lo que alguien
+    // escribe con sus palabras no tiene por qué quedarse en los registros de
+    // acceso, y una URL se guarda entera.
+    const peticionHTTP = pregunta
+      ? fetch('/api/news', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.fromEntries([...q.entries(), ['pregunta', pregunta]]))
+        })
+      : fetch('/api/news?' + q.toString(), { headers: { Accept: 'application/json' } });
 
     try {
-      const res = await fetch('/api/news?' + q.toString(), { headers: { Accept: 'application/json' } });
+      const res = await peticionHTTP;
       const datos = (await res.json()) as Respuesta;
       if (id !== peticion) return;               // llegó tarde: manda la última
       // 400/404/429 traen respuesta honesta en el cuerpo; solo un 5xx sin texto
