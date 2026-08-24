@@ -154,6 +154,23 @@ test('un número chico pasa como prosa, pero no si lleva unidad pegada', () => {
   assert.deepEqual(ia.numerosFuera('Costaría 7 pesos más.', DATOS), ['7']);
 });
 
+test('la unidad también cuenta DELANTE del número: "$9" no es prosa', () => {
+  // Es como se escribe el dinero casi siempre, y como lo escribe el glosario
+  // en 32 de sus 61 entradas. Mirando solo lo que va detrás, un entero chico
+  // con el símbolo delante se colaba entero.
+  assert.deepEqual(ia.numerosFuera('Un café que cuesta $9 se te vuelve más caro.', DATOS), ['9']);
+  assert.deepEqual(ia.numerosFuera('Cuesta MXN 9 en la esquina.', DATOS), ['9']);
+  assert.deepEqual(ia.numerosFuera('It costs USD 8 today.', DATOS), ['8']);
+  assert.deepEqual(ia.numerosFuera('Vale €7 allá.', DATOS), ['7']);
+  // Y lo que el bloque SÍ respalda sigue pasando, escrito con símbolo delante.
+  assert.deepEqual(ia.numerosFuera('Pasó de $18.4032 a $19.0100.', DATOS), []);
+  const conPesos = 'ejemplo en pesos: una comisión de $20 sobre una compra de $1,000';
+  assert.deepEqual(ia.numerosFuera('Sobre $1,000 te cobran $20.', conPesos), []);
+  assert.deepEqual(ia.numerosFuera('Sobre $1,000 te cobran $30.', conPesos), ['30']);
+  // Un número chico SIN moneda delante sigue siendo prosa.
+  assert.deepEqual(ia.numerosFuera('Hay 3 cosas que entender aquí.', DATOS), []);
+});
+
 // ---------------------------------------------------------------------------
 // 3. El resumen de una serie: las cuentas las hace el servidor.
 

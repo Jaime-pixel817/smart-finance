@@ -218,9 +218,10 @@ const FRASE_SIN_DATOS = {
 //   · Se admite redondear, nunca inventar: si DATOS trae 18.4032, la respuesta
 //     puede decir 18.40 (redondear 18.4032 a dos decimales da 18.40) pero no
 //     18.41.
-//   · Los enteros del 0 al 10 pasan solos SALVO que lleven pegada una unidad
-//     (%, pesos, dólares, puntos). "Tres cosas" y "5 minutos" son prosa; "5 %"
-//     es una cifra y tiene que estar respaldada.
+//   · Los enteros del 0 al 10 pasan solos SALVO que lleven pegada una unidad,
+//     DETRÁS (%, pesos, dólares, puntos) o DELANTE ($, MXN, USD). "Tres cosas"
+//     y "5 minutos" son prosa; "5 %" y "$9" son cifras y tienen que estar
+//     respaldadas.
 
 /** Parte fechas y horas para que sus partes cuenten como números sueltos. */
 function separarFechas(texto) {
@@ -263,6 +264,15 @@ function numerosDe(texto) {
 // que el % va fuera del grupo con frontera. Ese error dejaba pasar justo el
 // caso que más importa — una cifra con unidad.
 const RE_UNIDAD = /^\s*(%|(?:por\s?ciento|percent|pesos?|d[óo]lares?|dollars?|USD|MXN|EUR|JPY|puntos?|points?|mil|millones?|million|billion)\b)/i;
+
+// Y la MISMA unidad puesta DELANTE, que es como se escribe el dinero casi
+// siempre: "$9", "MXN 20", "US$ 5". Mirar solo lo que va detrás del número
+// dejaba un agujero del tamaño del glosario: 32 de sus 61 entradas escriben su
+// ejemplo en pesos con el símbolo delante ("$368", "$20", "$1,000") y la
+// instrucción de `termino` le pide al modelo justo un ejemplo en pesos. Sin
+// esto, un "$9" inventado conservaba el pase libre de los enteros del 0 al 10 —
+// el mismo bug que ya se había cazado con "7 pesos", pero espejado.
+const RE_MONEDA_ANTES = /(?:[$€£¥]|\b(?:MXN|USD|EUR|JPY|GBP))\s*$/i;
 
 const RE_FECHA_ISO = /\b\d{4}-\d{2}-\d{2}(?:[ T]\d{1,2}:\d{2}(?::\d{2})?)?/g;
 
@@ -307,7 +317,8 @@ function numerosFuera(respuesta, datos) {
     const abs = Math.abs(n);
     const dec = decimalesDe(token);
     const cola = texto.slice(m.index + token.length, m.index + token.length + 16);
-    const llevaUnidad = RE_UNIDAD.test(cola);
+    const cabeza = texto.slice(Math.max(0, m.index - 8), m.index);
+    const llevaUnidad = RE_UNIDAD.test(cola) || RE_MONEDA_ANTES.test(cabeza);
     const respalda = (lista) => lista.some((p) => p === abs || Number(p.toFixed(dec)) === abs);
 
     if (llevaUnidad) {
