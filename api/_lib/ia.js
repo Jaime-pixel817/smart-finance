@@ -1040,13 +1040,23 @@ async function explicar(query, req, deps) {
     if (v.motivo !== 'cifras_inventadas') break;
   }
 
+  // Cada rechazo con su frase. Si el modelo se puso a recomendar no falló
+  // ninguna comprobación de cifras, y decirle a la persona "no pude comprobar
+  // la respuesta contra los datos de esta página" sería contarle algo que no
+  // pasó. Lo que pasó es que el modelo dio un consejo, así que sale la frase
+  // que lo dice —la misma del rechazo de entrada— con su enlace a la lección
+  // de errores al invertir.
+  const porConsejo = ultimo && ultimo.motivo === 'consejo';
+
   return {
     codigo: 200,
     cuerpo: Object.assign({}, base, {
       rechazada: ultimo ? ultimo.motivo : 'sin_respuesta',
-      respuesta: FRASE_SIN_VERIFICAR[pedido.lang],
+      respuesta: porConsejo ? FRASE_CONSEJO[pedido.lang] : FRASE_SIN_VERIFICAR[pedido.lang],
       preguntas: [], datosUsados: [], fuentes: bloque.fuentes, asOf: bloque.asOf,
-      titulo: bloque.titulo, leccion: bloque.leccion, generadoPor: 'regla'
+      titulo: bloque.titulo,
+      leccion: porConsejo ? enlaceRiesgo : bloque.leccion,
+      generadoPor: 'regla'
     })
   };
 }

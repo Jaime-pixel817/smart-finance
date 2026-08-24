@@ -497,7 +497,18 @@ test('si el modelo se pone a recomendar, la respuesta no sale y no se reintenta'
   const r = await ia.explicar(QUERY_ACTIVO, REQ, deps({ crearCliente: () => cliente }));
   assert.equal(cliente.llamadas.length, 1, 'reintentar un consejo es pagar dos veces por el mismo fallo');
   assert.equal(r.cuerpo.rechazada, 'consejo');
-  assert.equal(r.cuerpo.respuesta, ia.FRASE_SIN_VERIFICAR.es);
+  // La frase tiene que decir lo que PASÓ. Aquí no falló ninguna comprobación de
+  // cifras: el modelo dio un consejo, y esa es la frase que lo dice.
+  assert.equal(r.cuerpo.respuesta, ia.FRASE_CONSEJO.es);
+  assert.notEqual(r.cuerpo.respuesta, ia.FRASE_SIN_VERIFICAR.es);
+  assert.match(r.cuerpo.leccion, /errores/, 'y enlaza a la lección de errores al invertir');
+  // Cuando el fallo SÍ es de cifras, la frase sigue siendo la otra.
+  const cifras = clienteFalso([
+    { respuesta: 'Cerró en 25.0000 pesos.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' }
+  ]);
+  const r2 = await ia.explicar(QUERY_ACTIVO, REQ, deps({ crearCliente: () => cifras }));
+  assert.equal(r2.cuerpo.rechazada, 'cifras_inventadas');
+  assert.equal(r2.cuerpo.respuesta, ia.FRASE_SIN_VERIFICAR.es);
 });
 
 test('"¿compro?" ni siquiera llega al modelo', async () => {
