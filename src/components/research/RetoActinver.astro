@@ -187,14 +187,13 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
   .reto-sub > p { max-width: var(--measure); }
 
   .reto-estado { display: flex; flex-direction: column; gap: var(--sp-2); }
-  .fase { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
-  .fase[hidden] { display: none; }
-  .fase-chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
-  .fase-chip.f-inscripciones, .fase-chip.f-practica, .fase-chip.f-vispera { color: var(--warn); }
-  .fase-chip.f-reto { color: var(--up-text); }
-  .cuenta { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink); }
-  .cuenta[hidden] { display: none; }
-  .cuenta b { font-weight: 600; white-space: nowrap; }
+  /* AQUÍ NO VAN `.fase` NI `.cuenta`: ese marcado es de FaseReto.astro y sus
+     estilos viven allí. Estuvieron repetidos aquí y no pintaban NADA —el
+     ámbito de Astro les ponía el hash de este componente y en el HTML
+     construido los 14 `.fase`, los 7 `.fase-chip` y los 12 `.cuenta` llevan
+     el de FaseReto—, 861 bytes de CSS que no tocaban un solo nodo. Que
+     `.proj` y `.proj-lede` sí haya que repetirlos (arriba) no vuelve verdad
+     lo contrario: se repite lo que este archivo pinta, nada más. */
 
   .cal { display: flex; flex-direction: column; gap: 0; margin-top: var(--sp-2); }
   .cal li { display: grid; grid-template-columns: 14px 1fr; gap: var(--sp-2) var(--sp-3); align-items: baseline; padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
