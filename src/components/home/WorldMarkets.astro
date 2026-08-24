@@ -12,6 +12,13 @@
 // título de sección — el "toca una ciudad" de la propia barra dice lo que hay
 // que saber — ni márgenes propios: el hueco y el ancho los pone el hero, que
 // la mete en su .container.
+//
+// EL CHIP DE FUENTE DE LA BARRA (#chip-world) NO ESTÁ AQUÍ: vive en Hero.astro,
+// al final del hero. Pegado debajo de los ocho chips se leía como una novena
+// ciudad; abajo del todo se lee como el pie del hero. Sigue siendo este script
+// (world-markets.ts) el que lo pone al día por id, así que moverlo de sitio en
+// el DOM no cambia nada de la lógica. El de la tarjeta (#chip-world-sheet) sí
+// se queda aquí, dentro de la tarjeta.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
@@ -44,7 +51,6 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
       </li>
     ))}
   </ul>
-  <SourceChip locale={locale} id="chip-world" source="Yahoo Finance" delay={15} />
 </div>
 
 <div class="world-sheet" id="world-sheet" hidden role="dialog" aria-labelledby="world-sheet-title">
