@@ -36,9 +36,28 @@ export function menosMovimiento(): boolean {
 const enCola = new WeakMap<Element, () => void>();
 let observador: IntersectionObserver | null = null;
 
+/**
+ * Sobre QUÉ se observa.
+ *
+ * Un elemento al que se le está aplicando `clip-path` NUNCA intersecta: el
+ * navegador cuenta el recorte al calcular el área visible, así que una gráfica
+ * escondida con el destape sale con `intersectionRatio: 0` estando en mitad de
+ * la pantalla — y como el trazado esperaba a verla, se quedaba escondida para
+ * siempre. Se vio en /market: dieciocho sparklines a la vista, todas en
+ * `espera` a los tres segundos. Por eso lo que se observa es el PADRE de la
+ * gráfica destapada, que no lleva recorte. Las que se trazan con guion no
+ * tienen este problema y se observan ellas mismas (observar al padre de un
+ * panel entero sería casi siempre "a la vista", que es lo contrario de lo que
+ * se quiere).
+ */
+function objetivo(el: Element): Element {
+  return el.classList.contains('trazo-destape') && el.parentElement ? el.parentElement : el;
+}
+
 /** Llama a `fn` la primera vez que `el` se ve. Sin IO, llama y ya. */
-export function alVerse(el: Element, fn: () => void): void {
+export function alVerse(nodo: Element, fn: () => void): void {
   if (typeof IntersectionObserver === 'undefined') { fn(); return; }
+  const el = objetivo(nodo);
   if (!observador) {
     observador = new IntersectionObserver((entradas) => {
       for (const e of entradas) {
@@ -55,7 +74,8 @@ export function alVerse(el: Element, fn: () => void): void {
 }
 
 /** Deja de esperar a que `el` se vea (se destruyó, o el trazo ya no toca). */
-export function olvidar(el: Element): void {
+export function olvidar(nodo: Element): void {
+  const el = objetivo(nodo);
   enCola.delete(el);
   observador?.unobserve(el);
 }

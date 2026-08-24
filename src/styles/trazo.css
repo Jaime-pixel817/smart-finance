@@ -63,7 +63,7 @@
   --trazo-luego-dur: 240ms;
   /* Salida suave: rápido al principio, frenando al final, como una mano que
      termina el trazo. */
-  --trazo-curva: cubic-bezier(.22, .61, .36, 1);
+  --trazo-curva: cubic-bezier(0, 0, .45, 1);
   /* Barra a barra, en las gráficas de barras del research. */
   --trazo-paso: 70ms;
 }

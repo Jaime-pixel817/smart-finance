@@ -70,7 +70,8 @@ const t = useT(locale);
   /* La tarjeta, los controles, el lienzo y los ejes son compartidos y viven en
      src/styles/lesson-widget.css. Aquí solo van las dos curvas de esta
      calculadora y la variante de página de herramienta. */
-  .lw-area { fill: var(--brand-fill); opacity: .12; }
+  /* fill-opacity y no opacity: ver el comentario de .spark .fill en base.css. */
+  .lw-area { fill: var(--brand-fill); fill-opacity: .12; }
   .lw-line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
   .lw-contrib { stroke: var(--ink-3); stroke-dasharray: 5 4; stroke-width: 1.5; }
   .lw-compound { stroke: var(--brand-text); }

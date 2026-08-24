@@ -169,7 +169,8 @@ const inicialTxt = pesos0.format(INICIAL);
 </style>
 <style is:global>
   /* El abanico: banda p10–p90, la corrida típica y la raya de lo que pusiste. */
-  .rr-band { fill: var(--brand-fill); opacity: .16; }
+  /* fill-opacity y no opacity: ver el comentario de .spark .fill en base.css. */
+  .rr-band { fill: var(--brand-fill); fill-opacity: .16; }
   .rr-median { fill: none; stroke: var(--brand-text); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
   .rr-start { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
   .rr-dot-band { background: var(--brand-fill); opacity: .28; height: 11px; border-radius: 2px; }

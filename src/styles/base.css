@@ -162,7 +162,11 @@ input, select, textarea { font: inherit; color: inherit; }
 /* ---- Sparkline SVG ---- */
 .spark { width: 100%; height: 100%; overflow: visible; }
 .spark path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.spark .fill { fill: currentColor; opacity: .10; stroke: none; }
+/* fill-opacity y no opacity: `opacity` es lo que anima el trazado
+   (src/styles/trazo.css) y una regla de reposo con la misma propiedad le
+   ganaría por especificidad, dejando el relleno visible desde el primer
+   fotograma. Pintan igual. */
+.spark .fill { fill: currentColor; fill-opacity: .10; stroke: none; }
 
 /* ---- Glosario al tacto (elemento firma): término con subrayado punteado ---- */
 .term {
