@@ -92,7 +92,11 @@ const en = {
   // los dos idiomas, y nadie se entera. Lo vigila una prueba (actinver.test).
   retoH: 'Actinver Challenge',
   retoEdition: '{y} edition',
-  retoLede: 'A contest run by Actinver, not by Smart Finance. It hands every entrant the same million virtual pesos and lets them invest it on the Mexican stock exchange in real time for six weeks. I am playing it, and every position I open goes up with the reason I opened it.',
+  // "En tiempo real" NO va aquí: en la entradilla habla Smart Finance, y este
+  // sitio no dice nunca que un dato de mercado sea de ahora mismo (sus propios
+  // precios de la BMV, los de /actinver, llegan con retraso). La frase es de
+  // Actinver y está justo debajo, en retoWhat, con su atribución delante.
+  retoLede: 'A contest run by Actinver, not by Smart Finance. It hands every entrant the same million virtual pesos and lets them invest it on the Mexican stock exchange for six weeks. I am playing it, and every position I open goes up with the reason I opened it.',
   retoWhatH: 'What it is',
   retoWhat: 'In Actinver’s own words, a simulator with one million virtual pesos to learn to invest on the Mexican stock exchange (BMV) in real time. The money is fictional — Actinver calls it “actipesos” and says outright that it is not legal tender — so nothing is bought, nothing is sold and nothing can be cashed in. Each entrant’s portfolio competes against everyone else’s.',
   retoCalH: 'The {y} calendar',
@@ -415,7 +419,8 @@ const es: typeof en = {
   // ---- Reto Actinver ----
   retoH: 'Reto Actinver',
   retoEdition: 'Edición {y}',
-  retoLede: 'Un concurso que organiza Actinver, no Smart Finance. Le da a cada participante el mismo millón de pesos virtuales para invertirlo en la Bolsa Mexicana de Valores en tiempo real durante seis semanas. Yo lo estoy jugando, y cada posición que abro se publica con la razón por la que la abrí.',
+  // Sin "en tiempo real": ver la nota en la versión inglesa.
+  retoLede: 'Un concurso que organiza Actinver, no Smart Finance. Le da a cada participante el mismo millón de pesos virtuales para invertirlo en la Bolsa Mexicana de Valores durante seis semanas. Yo lo estoy jugando, y cada posición que abro se publica con la razón por la que la abrí.',
   retoWhatH: 'Qué es',
   retoWhat: 'En palabras del propio Actinver, un simulador con 1 millón de pesos virtuales para aprender a invertir en la Bolsa Mexicana de Valores en tiempo real. El dinero es ficticio —Actinver los llama “actipesos” y dice con todas sus letras que no son moneda de curso legal—, así que no se compra nada, no se vende nada y no se puede cobrar nada. El portafolio de cada participante compite contra el del resto.',
   retoCalH: 'El calendario {y}',
