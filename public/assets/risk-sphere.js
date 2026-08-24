@@ -704,6 +704,20 @@ const DAMPING            = 0.88;
 const REDUCED_MOTION = typeof window.matchMedia === "function"
   && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* Arrancar el globo era UNA tarea de 650-710 ms en un aparato 14 veces más
+ * lento que el portátil (perfilador de Chrome, x14 ≈ Android de gama baja):
+ * medio segundo largo sin atender ni un toque. `await ceder()` la parte; el
+ * trabajo total es el mismo pero entre trozo y trozo el navegador respira
+ * (peor latencia de entrada medida: 609 ms → 406 ms).
+ * scheduler.yield() donde lo hay, si no setTimeout(0): un `await` a secas NO
+ * corta tarea, sigue en la misma — que era justo el error. */
+function ceder() {
+  if (typeof scheduler === "object" && scheduler && typeof scheduler.yield === "function") {
+    return scheduler.yield();
+  }
+  return new Promise((r) => setTimeout(r, 0));
+}
+
 function whenThree() {
   if (window.THREE) return Promise.resolve(window.THREE);
   return new Promise((resolve, reject) => {
@@ -808,6 +822,9 @@ async function initRiskSphere() {
   const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
   camera.position.z = 6.5;
 
+  // El trozo más caro del arranque: 200 ms a x14, y 228 sin GPU — o sea
+  // JavaScript de three.js armando su máquina de estados, no el driver.
+  await ceder();
   const renderer = new THREE.WebGLRenderer({ antialias: !isSmall, alpha: true });
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(DPR);
@@ -854,8 +871,13 @@ async function initRiskSphere() {
      es la forma en la que el globo vive siempre. Ocho cubos por lado dan una
      arista de 0.46, prácticamente el radio de acción del dedo (0.455): así el
      vecindario de 3x3x3 cubos cubre el casquete entero con margen de sobra
-     para lo que las partículas se hayan desplazado. */
-  const rejilla = construirRejilla(forma(GLOBE_IDX), N, R, 8);
+     para lo que las partículas se hayan desplazado.
+
+     Se construye A LA PRIMERA QUE HAGA FALTA: son 61-71 ms (a x14) que solo
+     sirven cuando un dedo toca el globo. Se precalienta en cuanto el hilo
+     queda ocioso, tras "globe:ready". */
+  let rejilla = null;
+  const obtenerRejilla = () => (rejilla || (rejilla = construirRejilla(forma(GLOBE_IDX), N, R, 8)));
 
   const fovRad    = THREE.MathUtils.degToRad(camera.fov);
   const visibleHW = 2 * Math.tan(fovRad / 2) * camera.position.z;
@@ -923,6 +945,9 @@ async function initRiskSphere() {
     activos[nActivos++] = i;
   }
 
+  // Los dos únicos bucles de N que quedan (59 y 51 ms a x14), cada uno en
+  // su tarea: juntos pasaban de 110 ms sin soltar el hilo.
+  await ceder();
   const jPhase  = new Float32Array(N);
   for (let i = 0; i < N; i++) jPhase[i] = Math.random() * Math.PI * 2;
 
@@ -942,6 +967,7 @@ async function initRiskSphere() {
    *
    * Se calcula UNA vez, cuesta unos 5 ms con N = 160 000 y de ahí en adelante
    * vive en la GPU. */
+  await ceder();
   const aScatter = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     const u = Math.random() * 2 - 1;
@@ -1052,6 +1078,7 @@ async function initRiskSphere() {
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     side: THREE.BackSide,
   });
+  await ceder();
   const atmo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.06, 64, 48), atmoMat);
   group.add(atmo);
 
@@ -1892,7 +1919,7 @@ async function initRiskSphere() {
       if (mouseActive) {
         /* Vecindario de 3x3x3 cubos alrededor del dedo. Se marcan como
            activas; el bucle de abajo ya se encarga de empujarlas. */
-        const g = rejilla;
+        const g = obtenerRejilla();
         let cx = ((mouseLocal.x - g.min) / g.tam) | 0;
         let cy = ((mouseLocal.y - g.min) / g.tam) | 0;
         let cz = ((mouseLocal.z - g.min) / g.tam) | 0;
@@ -2149,11 +2176,21 @@ async function initRiskSphere() {
    * entrada no arranca con un tirón. Con eso hecho se avisa al hero, que funde
    * su globo estático en 160 ms, y solo entonces empieza uForm a subir. El
    * orden es la mitad del efecto: si se solapan, se ve un globo deshacerse. */
+  // Compila los shaders y sube los buffers: 170-185 ms a x14, el segundo
+  // trozo más caro. Tarea propia.
+  await ceder();
   renderer.render(scene, camera);
   document.dispatchEvent(new CustomEvent("globe:ready"));
   setTimeout(() => { entrando = true; }, ENTRADA_ESPERA_MS);
 
   animate();
+
+  /* La rejilla del dedo, ya con el globo girando y el hilo libre.
+     bind: requestIdleCallback suelto de window da "Illegal invocation". */
+  const ocioso = window.requestIdleCallback
+    ? window.requestIdleCallback.bind(window)
+    : (f) => setTimeout(f, 200);
+  ocioso(() => obtenerRejilla(), { timeout: 2000 });
 
   const vio = new IntersectionObserver(([entry]) => {
     if (entry.isIntersecting) {
