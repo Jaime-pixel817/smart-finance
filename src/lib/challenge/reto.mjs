@@ -32,6 +32,30 @@
 // comparen su resultado, que es justo lo que no podemos añadir (las 12 funciones
 // de Vercel están ocupadas). El generador es un mulberry32 sembrado con un hash
 // xmur3 de la fecha: 30 líneas, sin dependencias y reproducible.
+//
+// CÓMO SE CALCULA EL RETO DE HOY, PASO POR PASO
+// ---------------------------------------------
+// 1. `fechaLocal(new Date())` da la fecha civil en America/Mexico_City, p. ej.
+//    "2026-08-23". Es lo único que entra: ni la hora, ni el idioma, ni nada del
+//    dispositivo. Dos teléfonos distintos el mismo día sacan la misma cadena.
+// 2. La semilla es esa fecha con el prefijo de versión: `sf-reto-v1:2026-08-23`.
+//    El prefijo existe para poder cambiar el sorteo algún día sin que el reto
+//    del pasado cambie de forma retroactiva: se sube a `v2` y ya.
+// 3. `hash32` (xmur3) convierte la semilla en un entero de 32 bits y ese entero
+//    siembra un `mulberry32`, que es el generador. Mismo texto → misma secuencia
+//    de números, en cualquier navegador y en Node.
+// 4. Con esa secuencia se baraja el catálogo (Fisher-Yates) y se toman los
+//    primeros cinco activos.
+// 5. Con los cinco siguientes números del generador salen los cinco cortes, cada
+//    uno una fracción 0–1 de la serie del activo. La fracción y no el índice
+//    porque el índice depende de cuántos cierres devuelva el endpoint ese día.
+//
+// No hay reloj, no hay servidor y no hay estado: quien abra la página en otro
+// país verá exactamente el mismo reto que quien la abra en México, y el de ayer
+// se puede reconstruir con solo la fecha.
+//
+// El "reto libre" usa la MISMA maquinaria con otra semilla (`planLibre`), así que
+// también se puede compartir por enlace, pero no toca la racha ni el calendario.
 
 const esNum = (x) => typeof x === 'number' && Number.isFinite(x);
 
@@ -108,27 +132,75 @@ export function barajar(lista, rnd) {
 }
 
 /**
- * El plan del reto de un día: qué activos tocan y en qué punto de su historia se
+ * Prefijo de versión de la semilla del reto diario. Va delante de la fecha para
+ * que un cambio futuro en el sorteo pueda subir a `v2` sin reescribir el pasado.
+ */
+export const PREFIJO_DIARIO = 'sf-reto-v1:';
+/** Lo mismo para el reto libre, que no gasta el del día. */
+export const PREFIJO_LIBRE = 'sf-libre-v1:';
+
+/**
+ * El plan de una partida: qué activos tocan y en qué punto de su historia se
  * corta cada uno. Se calcula ANTES de pedir los datos (así el navegador solo
  * baja las series que va a usar) y por eso el corte va como fracción 0–1: el
  * índice exacto depende de cuántos puntos devuelva el endpoint.
+ *
+ * @param {string} semilla  texto que siembra el generador
+ * @param {string[]} catalogo ids de activo disponibles
+ * @param {{ rondas?: number, repetir?: boolean }} [opts]
+ *   `repetir` deja armar la partida con menos activos que rondas, repitiéndolos
+ *   con otro corte. Lo usa el reto libre cuando filtras por tipo: de índices hay
+ *   tres y las rondas son cinco. El reto del día NUNCA repite.
+ * @returns {{ semilla: string, activos: string[], cortes: number[] }}
+ */
+export function planDesdeSemilla(semilla, catalogo, opts = {}) {
+  const rondas = opts.rondas ?? RONDAS;
+  const repetir = opts.repetir === true;
+  if (typeof semilla !== 'string' || !semilla) throw new Error('planDesdeSemilla: la semilla debe ser un texto no vacío');
+  if (!Array.isArray(catalogo) || !catalogo.length) throw new Error('planDesdeSemilla: el catálogo está vacío');
+  if (!repetir && catalogo.length < rondas) {
+    throw new Error('planDesdeSemilla: el catálogo necesita al menos ' + rondas + ' activos');
+  }
+  const rnd = generador(semilla);
+  let activos = [];
+  // Se baraja la lista ENTERA tantas veces como haga falta y luego se corta: así
+  // ningún activo sale dos veces antes de que hayan salido todos los demás.
+  while (activos.length < rondas) activos = activos.concat(barajar(catalogo, rnd));
+  activos = activos.slice(0, rondas);
+  const cortes = activos.map(() => rnd());
+  return { semilla, activos, cortes };
+}
+
+/**
+ * El reto del día: la semilla es la fecha civil en Ciudad de México.
  * @param {string} fecha   YYYY-MM-DD
  * @param {string[]} catalogo ids de activo disponibles
  * @param {{ rondas?: number }} [opts]
  * @returns {{ fecha: string, activos: string[], cortes: number[] }}
  */
 export function planDelReto(fecha, catalogo, opts = {}) {
-  const rondas = opts.rondas ?? RONDAS;
   if (typeof fecha !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
     throw new Error('planDelReto: fecha debe ser YYYY-MM-DD');
   }
-  if (!Array.isArray(catalogo) || catalogo.length < rondas) {
-    throw new Error('planDelReto: el catálogo necesita al menos ' + rondas + ' activos');
-  }
-  const rnd = generador('sf-reto-v1:' + fecha);
-  const activos = barajar(catalogo, rnd).slice(0, rondas);
-  const cortes = activos.map(() => rnd());
+  const { activos, cortes } = planDesdeSemilla(PREFIJO_DIARIO + fecha, catalogo, { ...opts, repetir: false });
   return { fecha, activos, cortes };
+}
+
+/**
+ * El reto libre: mismo sorteo, otra semilla. La ficha es un texto corto que
+ * viaja en la URL (`?libre=<ficha>`), así que dos personas pueden jugar el mismo
+ * reto libre sin gastar el del día.
+ * @param {string} ficha
+ * @param {string[]} catalogo
+ * @param {{ rondas?: number, repetir?: boolean }} [opts]
+ * @returns {{ ficha: string, activos: string[], cortes: number[] }}
+ */
+export function planLibre(ficha, catalogo, opts = {}) {
+  if (typeof ficha !== 'string' || !/^[a-z0-9-]{1,32}$/.test(ficha)) {
+    throw new Error('planLibre: la ficha debe ser de 1 a 32 letras minúsculas, dígitos o guiones');
+  }
+  const { activos, cortes } = planDesdeSemilla(PREFIJO_LIBRE + ficha, catalogo, { repetir: true, ...opts });
+  return { ficha, activos, cortes };
 }
 
 // ---------------------------------------------------------------------------
@@ -166,6 +238,51 @@ export function movimientoTipico(cierres, pasos = OCULTAS) {
     movs.push(Math.abs(cambioPct(cierres[i], cierres[i + pasos])));
   }
   return mediana(movs);
+}
+
+/**
+ * Qué tan grande fue este movimiento DENTRO DE LA HISTORIA DEL PROPIO ACTIVO:
+ * porcentaje de sus periodos de `pasos` barras en los que se movió menos (en
+ * valor absoluto) que este.
+ *
+ * Es el único "por qué" que los precios pueden sostener. No dice qué lo causó —
+ * eso no está en la serie— sino si el movimiento fue de los raros o de los de
+ * todas las semanas. La página lo dice con esas palabras, y dice también que la
+ * causa no la sabemos.
+ */
+export function percentilDeMovimiento(cierres, cambio, pasos = OCULTAS) {
+  if (!esNum(cambio)) throw new Error('percentilDeMovimiento: cambio debe ser un número');
+  if (!Array.isArray(cierres) || cierres.length <= pasos) {
+    throw new Error('percentilDeMovimiento: la serie necesita más de ' + pasos + ' puntos');
+  }
+  const objetivo = Math.abs(cambio);
+  let menores = 0, total = 0;
+  for (let i = 0; i + pasos < cierres.length; i++) {
+    if (!esNum(cierres[i]) || !esNum(cierres[i + pasos]) || cierres[i] === 0) continue;
+    total++;
+    if (Math.abs(cambioPct(cierres[i], cierres[i + pasos])) < objetivo) menores++;
+  }
+  if (!total) throw new Error('percentilDeMovimiento: no hay periodos completos que comparar');
+  return (menores / total) * 100;
+}
+
+/**
+ * Hacia dónde venía la parte VISIBLE, medida en el mismo plazo que se tapa: +1
+ * si el último punto visible está por encima del de hace `pasos` barras, −1 si
+ * por debajo, 0 si es exactamente igual.
+ *
+ * Sirve para decir, con datos y sin inventar causas, si la tendencia que se veía
+ * siguió o se dio la vuelta. Que la respuesta sea "más o menos la mitad de las
+ * veces cada cosa" es justo la lección del reto.
+ */
+export function tendencia(visibles, pasos = OCULTAS) {
+  if (!Array.isArray(visibles) || visibles.length <= pasos) {
+    throw new Error('tendencia: hacen falta más de ' + pasos + ' puntos visibles');
+  }
+  const fin = visibles[visibles.length - 1];
+  const ini = visibles[visibles.length - 1 - pasos];
+  if (!esNum(ini) || !esNum(fin) || ini === 0) throw new Error('tendencia: puntos inválidos');
+  return Math.sign(cambioPct(ini, fin));
 }
 
 /**
@@ -216,7 +333,8 @@ export function indexar(cierres, base) {
  * @param {number} [v.ocultas]     barras tapadas
  * @returns {{
  *   id: string, corte: number, umbral: number, cambio: number, banda: number,
- *   visibles: number[], ocultos: number[], desde: number, hasta: number, finVisible: number
+ *   visibles: number[], ocultos: number[], desde: number, hasta: number, finVisible: number,
+ *   percentil: number, tendencia: number, siguio: boolean
  * }}
  */
 export function armarRonda(v) {
@@ -240,6 +358,8 @@ export function armarRonda(v) {
   const ocultos = cierres.slice(corte + 1, corte + 1 + ocultas);
   const umbral = umbralBonito(movimientoTipico(cierres, ocultas));
   const cambio = cambioPct(cierres[corte], cierres[corte + ocultas]);
+  // Lo que se le cuenta al jugador al revelar, y que sale SOLO de los precios.
+  const venia = tendencia(visibles, ocultas);
 
   return {
     id,
@@ -251,7 +371,10 @@ export function armarRonda(v) {
     ocultos,
     desde: fechas[corte - ventana + 1],
     finVisible: fechas[corte],
-    hasta: fechas[corte + ocultas]
+    hasta: fechas[corte + ocultas],
+    percentil: percentilDeMovimiento(cierres, cambio, ocultas),
+    tendencia: venia,
+    siguio: venia !== 0 && Math.sign(cambio) === venia
   };
 }
 
