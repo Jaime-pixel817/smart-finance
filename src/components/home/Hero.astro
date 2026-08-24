@@ -171,17 +171,26 @@ const t = useT(locale);
        Y de ahí sale --sao-y, la altura del marcador de São Paulo. AQUÍ NO HAY
        NÚMERO EXACTO QUE VALGA, y conviene saberlo antes de tocarlo: el globo
        gira (0.075 rad/s) y se ladea (sin(t·0.2)·0.07), así que São Paulo NO
-       está quieto. Muestreado del evento "globe:pins" cada 250 ms durante
-       180 s a 390×844, su y de viewport barre de 402.4 a 459.6 px — de 0.136 a
-       0.319 diámetros por debajo del centro del disco, con media 0.219.
+       está quieto. Muestreado del evento "globe:pins" a 390×844, 807 muestras
+       cada 250 ms durante 180 s, su y de viewport barre así:
+
+                                        mín     máx    media   diámetros
+         siempre (incluida la de atrás)  402.4  459.6   429.0   .136–.319
+         solo con la pastilla encendida  428.2  459.6   443.8   .219–.319
+
+       (El evento solo se emite si algo se movió más de 0.5 px desde la
+       comprobación anterior, o sea que se calla justo en los extremos, donde
+       dy/dt → 0. Para muestrear de verdad hay que redespachar "world:pins",
+       que fuerza la emisión; a pelo el mínimo sale en 428 y no en 402.)
 
        El 0.255 de aquí es una constante elegida DENTRO de ese barrido, no una
        medición: preguntarle al lienzo dónde está el marcador movería el
        titular en cuanto el globo arrancara (= CLS), así que se fija. Lo que
        importa es la consecuencia, y esa sí está medida: con los 24 px de aire
-       de .hero-gap, el titular arranca entre 4 px (peor instante, marcador
-       abajo del todo) y 61 px por debajo del marcador. Nunca lo pisa. Si algún
-       día se sube el 0.255, ese margen de 4 px es lo primero que se gasta. */
+       de .hero-gap el h1 arranca en y 463.55, o sea entre 3.9 px (peor
+       instante) y 61.2 px por debajo del marcador — y 35.4 px en el peor
+       instante en que además se le VE. Nunca lo pisa. Si algún día se sube el
+       0.255, esos 3.9 px son lo primero que se gasta. */
     --globe-w: 100vw;
     --globe-cx: 50vw;
     --globe-fill: .80;

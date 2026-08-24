@@ -681,23 +681,34 @@ function construirRejilla(pos, n, radio, lado) {
 const R = 1.8;
 /* Cuánto del ANCHO del lienzo ocupa el disco. En escritorio es 0.85; en el
    teléfono baja a 0.80 y esos cinco puntos son la diferencia entre un globo
-   que se lee centrado y uno que parece salirse por la derecha. A 390 px, con
-   0.85 el disco medía 331 px y con el halo 370: diez píxeles de aire a cada
-   lado. El lienzo estaba centrado al píxel —medido: centro del disco 195.3
-   contra 195 de viewport— pero con ese margen el ojo no tiene contra qué
-   comparar, y como el terminador deja la mitad izquierda en negro, lo que se
-   ve es un planeta pegado al borde derecho. Con 0.80 el aire pasa a ~22 px por
-   lado y el círculo flota dentro de la pantalla.
+   que se lee centrado y uno que parece salirse por la derecha.
+
+   OJO CON EL "AIRE": hay dos varas y dan números muy distintos, así que no se
+   cita una sin decir cuál. El DISCO es --globe-d, geométrico. CON HALO es
+   hasta dónde llega luz en el framebuffer (luminancia > 8), bastante más
+   ancho. A 390 px, medido sobre dist/ de 94beff7 (0.85 fijo) y sobre esta
+   rama:
+
+     disco     331 -> 312 px     aire por lado  29.3 -> 39.0 px
+     con halo  370 -> 347 px     aire por lado  10.0 -> 21.6 px
+
+   La mejora es la misma con las dos varas, ~+10 px por lado. El lienzo ya
+   estaba centrado al píxel —medido: centro del disco 195.00 contra 195 de
+   viewport— pero con aquel margen el ojo no tiene contra qué comparar, y como
+   el terminador deja la mitad izquierda en negro, lo que se ve es un planeta
+   pegado al borde derecho. Con 0.80 el círculo flota dentro de la pantalla.
 
    EL NÚMERO NO VIVE AQUÍ. Vive en --globe-fill (Hero.astro), porque el CSS lo
    necesita antes que nadie: de ahí salen --globe-d y --sao-y, que son los que
    colocan el titular sin preguntarle al lienzo. Este archivo lo LEE de ahí,
    igual que hace hero.ts para medir el aterrizaje. Antes eran dos copias con
    dos cortes distintos —768 px en el CSS, 560 px aquí— y entre 560 y 767 px
-   decían cosas distintas; no se veía (en esa banda manda siempre el tope de
-   cámara, min(fill·W, 0.8692·H)), pero era una trampa puesta para el próximo
-   que tocara el relleno. El 0.80 de respaldo es el valor base del CSS, para el
-   caso de que el lienzo se monte fuera del hero y la variable no exista. */
+   decían cosas distintas. No se veía, porque en esa banda manda siempre el
+   tope de cámara (min(fill·W, 0.8692·H): a 600 px, 0.8692·460 = 399.8 contra
+   0.80·600 = 480), y medido da disco de 457.6 px a 600 y 458.4 px a 700 —el
+   mismo—, pero era una trampa puesta para el próximo que tocara el relleno.
+   El 0.80 de respaldo es el valor base del CSS, para el caso de que el lienzo
+   se monte fuera del hero y la variable no exista. */
 const RELLENO_BASE = 0.80;
 const relleno = (el) =>
   parseFloat(getComputedStyle(el).getPropertyValue("--globe-fill")) || RELLENO_BASE;
