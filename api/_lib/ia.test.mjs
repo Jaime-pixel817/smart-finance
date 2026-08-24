@@ -446,6 +446,37 @@ test('una cifra inventada se reintenta una vez, diciéndole cuál sobra', async 
   assert.match(r.cuerpo.respuesta, /18\.4032/);
 });
 
+test('el reintento también se paga: la cuota cuenta LLAMADAS, no consultas', async () => {
+  // El reintento cuesta lo mismo que la primera llamada. Contando una sola por
+  // consulta, el techo real era el DOBLE del escrito en el encabezado.
+  const cache = cacheFalsa();
+  const cliente = clienteFalso([
+    { respuesta: 'El mes cerró en 25.0000 pesos.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' },
+    { respuesta: 'Perdón: cerró en 24.0000 pesos.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' }
+  ]);
+  await ia.explicar(QUERY_ACTIVO, REQ, deps({ cache, crearCliente: () => cliente }));
+
+  assert.equal(cliente.llamadas.length, 2);
+  assert.equal(cache.cuotas.get('ia'), 2, 'dos llamadas al modelo, dos unidades de cuota');
+  assert.equal([...cache.cuotas.keys()].filter((k) => k.startsWith('ia:ip:')).length, 1);
+  assert.equal([...cache.cuotas.values()].filter((v) => v === 2).length, 2, 'la de la IP también');
+});
+
+test('si el tope se agota justo antes del reintento, sale el mensaje honesto y no un 429', async () => {
+  const cache = cacheFalsa();
+  let n = 0;
+  cache.contarCuota = async () => { n += 1; return n <= 2 ? 1 : ia.MAX_DIA + 1; };
+  const cliente = clienteFalso([
+    { respuesta: 'El mes cerró en 25.0000 pesos.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' }
+  ]);
+  const r = await ia.explicar(QUERY_ACTIVO, REQ, deps({ cache, crearCliente: () => cliente }));
+
+  assert.equal(cliente.llamadas.length, 1, 'el reintento que no se puede pagar no se hace');
+  assert.equal(r.codigo, 200);
+  assert.equal(r.cuerpo.rechazada, 'cifras_inventadas');
+  assert.doesNotMatch(r.cuerpo.respuesta, /25\.0000/);
+});
+
 test('si vuelve a inventar, la persona ve un mensaje honesto y NO la respuesta', async () => {
   const cliente = clienteFalso([
     { respuesta: 'El mes cerró en 25.0000 pesos.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' },

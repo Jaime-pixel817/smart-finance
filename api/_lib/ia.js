@@ -40,12 +40,17 @@
 //   Entrada  ~1,600 tokens (sistema ~800 + bloque DATOS 400–1,500)  → $0.0016
 //   Salida   ~350 tokens (respuesta + datosUsados + fuentes)        → $0.0018
 //   ------------------------------------------------------------------------
-//   ≈ $0.0034 por consulta GENERADA. Las repetidas no cuestan nada: la
+//   ≈ $0.0034 por LLAMADA AL MODELO. Las repetidas no cuestan nada: la
 //   respuesta se guarda en Redis 24 h con el hash del bloque DATOS, así que dos
 //   personas leyendo la misma noticia pagan una sola vez.
-//   TOPE DURO: MAX_DIA = 100 consultas generadas al día → $0.34 al día, $10 al
-//   mes en el peor caso absoluto. Lo esperado con el tráfico de hoy es menos de
-//   $1 al mes. Bajar el techo es cambiar esa constante.
+//   TOPE DURO: MAX_DIA = 100 LLAMADAS al día → $0.34 al día, $10 al mes en el
+//   peor caso absoluto. Lo esperado con el tráfico de hoy es menos de $1 al mes.
+//   Bajar el techo es cambiar esa constante.
+//   OJO: el techo cuenta LLAMADAS, no consultas, y por eso es de verdad. Una
+//   consulta que dispara la guardia de cifras hace DOS llamadas (la primera y
+//   el reintento) y paga las dos. Contando una sola por consulta —como se hacía
+//   antes—, el peor caso real era el doble del escrito: 200 generaciones,
+//   ~$0.68 al día, ~$20 al mes.
 //
 // POR QUÉ HAIKU Y NO SONNET
 //   La tarea es reescribir en lenguaje simple un bloque de datos que ya viene
@@ -70,7 +75,7 @@ const TIMEOUT_MS = 20000;
 const MAX_TOKENS = 1200;
 
 // Tope de gasto. Ver el cálculo del encabezado.
-const MAX_DIA = 100;          // consultas GENERADAS al día en todo el sitio
+const MAX_DIA = 100;          // LLAMADAS al modelo al día en todo el sitio
 const MAX_IP = 8;             // por IP y día: suficiente para leer, corto para raspar
 const TTL_CACHE = 24 * 60 * 60;   // la respuesta vale 24 h para el mismo bloque DATOS
 
@@ -875,6 +880,9 @@ function ipDe(req) {
 /**
  * Suma uno a los contadores y dice si se puede seguir.
  *
+ * Se llama UNA VEZ POR LLAMADA AL MODELO, incluido el reintento: lo que se paga
+ * son llamadas, así que es lo que se cuenta.
+ *
  * Se INCREMENTA antes de mirar, a propósito: es lo único atómico y por tanto lo
  * único que funciona con varias instancias a la vez. Y si Redis no contesta,
  * `contarCuota` devuelve null y aquí se PARA — no saber cuánto se lleva gastado
@@ -977,24 +985,35 @@ async function explicar(query, req, deps) {
     return { codigo: 200, cuerpo: Object.assign({}, guardado.valor, { cacheado: true }) };
   }
 
-  // 4. Tope de gasto.
-  const cobro = await cobrar(d.saltarTopeIp ? null : huella(ipDe(req)), d);
-  if (!cobro.permitido) {
-    console.warn('ia: no se genera —', cobro.motivo);
-    return {
-      codigo: 429,
-      cuerpo: Object.assign({}, base, {
-        rechazada: cobro.motivo,
-        respuesta: cobro.motivo === 'sin_contador' ? FRASE_SIN_CONTADOR[pedido.lang] : FRASE_TOPE[pedido.lang],
-        preguntas: [], datosUsados: [], fuentes: [], asOf: bloque.asOf, generadoPor: 'regla'
-      })
-    };
-  }
-
-  // 5. Generar, validar y —si hace falta— reintentar UNA vez.
-  const cliente = d.crearCliente();
+  // 4 y 5. Tope de gasto, generar, validar y —si hace falta— reintentar UNA vez.
+  //
+  // LA CUOTA SE DESCUENTA ANTES DE CADA LLAMADA, no una vez por consulta. El
+  // reintento es una llamada más y cuesta exactamente lo mismo que la primera:
+  // contando solo una, el techo real era el DOBLE del escrito (200 generaciones
+  // al día, ~$0.68, no ~$0.34). Por eso MAX_DIA es un techo de LLAMADAS AL
+  // MODELO, que es lo que se paga, y el cálculo del encabezado sale exacto.
+  const claveIp = d.saltarTopeIp ? null : huella(ipDe(req));
+  let cliente = null;
   let ultimo = null;
+
   for (const correccion of [null, 'reintento']) {
+    const cobro = await cobrar(claveIp, d);
+    if (!cobro.permitido) {
+      console.warn('ia: no se genera —', cobro.motivo);
+      // Si lo que no se puede pagar es el REINTENTO, no hay 429: ya hay una
+      // respuesta rechazada y lo que toca es el mensaje honesto de abajo.
+      if (correccion) break;
+      return {
+        codigo: 429,
+        cuerpo: Object.assign({}, base, {
+          rechazada: cobro.motivo,
+          respuesta: cobro.motivo === 'sin_contador' ? FRASE_SIN_CONTADOR[pedido.lang] : FRASE_TOPE[pedido.lang],
+          preguntas: [], datosUsados: [], fuentes: [], asOf: bloque.asOf, generadoPor: 'regla'
+        })
+      };
+    }
+
+    if (!cliente) cliente = d.crearCliente();
     let cruda;
     try {
       cruda = await pedirAlModelo(cliente, pedido, bloque, correccion ? ultimo.cifras : null);
