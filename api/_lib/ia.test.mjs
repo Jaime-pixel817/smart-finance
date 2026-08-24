@@ -87,6 +87,38 @@ test('caza al modelo dando consejo, y deja pasar la advertencia negada', () => {
   for (const a of advertencias) assert.equal(ia.daConsejo(a), false, 'falso positivo en: ' + a);
 });
 
+test('las predicciones acentuadas SÍ se cazan, en los dos clasificadores', () => {
+  // `\b` no es una frontera detrás de una vocal acentuada: /subir[áa]\b/ no
+  // casa con "subirá". Las cuatro formas estaban escritas así y las cuatro
+  // pasaban de largo por los dos clasificadores.
+  for (const c of ['¿el dólar subirá?', '¿bajará el peso?', '¿caerá el Nasdaq?', '¿alcanzará los 21?']) {
+    assert.equal(ia.esConsejo(c), true, 'la entrada no cazó: ' + c);
+  }
+  for (const c of ['El precio subirá.', 'El dólar bajará mañana.', 'La acción caerá pronto.',
+    'El índice alcanzará máximos este año.']) {
+    assert.equal(ia.daConsejo(c), true, 'la salida no cazó: ' + c);
+  }
+});
+
+test('la negación solo salva lo que niega el saber o el decir, y en su misma oración', () => {
+  // Advertencias: lo negado es el SABER o el DECIR.
+  assert.equal(ia.daConsejo('Nadie sabe si va a subir o a bajar.'), false);
+  assert.equal(ia.daConsejo('Esta explicación no te dice si deberías comprar nada.'), false);
+  assert.equal(ia.daConsejo('No sé si subirá, y quien lo diga se lo está inventando.'), false);
+
+  // Predicción de verdad con un "no" de la oración ANTERIOR: no se salva.
+  assert.equal(ia.daConsejo('No hay duda: el precio subirá con fuerza.'), true);
+  assert.equal(ia.daConsejo('Esto no es un consejo. El dólar va a subir.'), true);
+
+  // Un "no" pegado al consejo tampoco lo salva: recomendar no comprar también
+  // es recomendar.
+  assert.equal(ia.daConsejo('No vale la pena comprar a este nivel.'), true);
+
+  // Y se miran TODAS las coincidencias, no la primera: si la primera viene
+  // negada, la segunda —el consejo de verdad— tiene que seguir cayendo.
+  assert.equal(ia.daConsejo('Nadie sabe si va a subir. El dólar va a bajar la próxima semana.'), true);
+});
+
 test('las frases fijas del sitio no disparan el clasificador de salida', () => {
   const fijas = [ia.FRASE_CONSEJO, ia.FRASE_SIN_VERIFICAR, ia.FRASE_TOPE, ia.FRASE_SIN_CONTADOR, ia.FRASE_SIN_DATOS];
   for (const f of fijas) {

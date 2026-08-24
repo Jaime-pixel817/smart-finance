@@ -99,6 +99,23 @@ try {
 // negativo cuesta que un sitio educativo hecho por alguien de 18 años le diga a
 // un desconocido qué comprar. La asimetría manda, y por eso barre ancho.
 
+// LA FRONTERA DE PALABRA QUE SÍ FUNCIONA EN ESPAÑOL.
+// Para JavaScript `\b` es el borde de [A-Za-z0-9_], y la "á" no está ahí: entre
+// la "á" de "subirá" y el espacio que sigue NO hay frontera, así que
+// /subir[áa]\b/ no casa NUNCA con "subirá". Los dos clasificadores tenían las
+// cuatro predicciones de precio escritas así, y las cuatro pasaban de largo:
+// "¿el dólar subirá?" entraba al modelo y "el precio subirá con fuerza" salía a
+// pantalla. Detrás de una palabra acentuada hay que preguntar por lo que NO
+// viene detrás — otra letra —, no por una frontera que no existe.
+const LETRA = 'a-z0-9áéíóúüñ';
+const FIN = '(?![' + LETRA + '])';
+const RESTO = '[' + LETRA + ']*';   // el resto de una palabra, acentos incluidos
+
+/** Predicción de precio en español, con las formas acentuadas que sí casan. */
+const RE_PREDICE_ES = new RegExp(
+  '\\b(?:va\\s+a\\s+(?:subir|bajar|caer|valer)|subir[áa]|bajar[áa]|caer[áa]|' +
+  'alcanzar[áa]|llegar[áa]\\s+a)' + FIN, 'i');
+
 const PATRONES_CONSEJO = [
   // Comprar / vender / invertir, en primera persona o como recomendación.
   /\b(compro|vendo|invierto|le\s+entro|me\s+meto)\b/i,
@@ -110,7 +127,7 @@ const PATRONES_CONSEJO = [
   /\b(es|ser[íi]a)\s+(una\s+)?buena\s+(inversi[óo]n|compra|idea\s+de\s+inversi[óo]n)\b/i,
   /\b(good|bad)\s+(investment|buy|time\s+to\s+(buy|sell))\b/i,
   // Predicción de precio.
-  /\b(va\s+a\s+(subir|bajar|caer|valer)|subir[áa]|bajar[áa]|caer[áa]|llegar[áa]\s+a)\b/i,
+  RE_PREDICE_ES,
   /\b(cu[áa]nto\s+(va\s+a\s+|)(subir|bajar|valer|costar))\b/i,
   /\b(will\s+it\s+(go\s+up|go\s+down|rise|fall|crash|moon)|price\s+target|forecast|prediction)\b/i,
   /\b(pron[óo]stico|predicci[óo]n|predice|va\s+a\s+llegar)\b/i,
@@ -143,7 +160,7 @@ const PATRONES_CONSEJO_DADO = [
   /\b(yo\s+)?(comprar[íi]a|vender[íi]a)\b/i,
   /\bes\s+(un\s+)?(buen|mal)\s+(momento|precio|punto|negocio|nivel|entrada)\b/i,
   /\b(s[íi]|no)\s+vale\s+la\s+pena\s+(comprar|invertir|entrar)\b/i,
-  /\b(va\s+a\s+(subir|bajar|caer)|subir[áa]|bajar[áa]|caer[áa]|llegar[áa]\s+a|alcanzar[áa])\b/i,
+  RE_PREDICE_ES,
   /\byou\s+should\s+(buy|sell|hold|invest|avoid)\b/i,
   /\bi\s+(recommend|would\s+(buy|sell))\b/i,
   /\bit(?:'s|\s+is)\s+a\s+(good|bad)\s+(time|buy|entry|investment)\b/i,
@@ -151,19 +168,61 @@ const PATRONES_CONSEJO_DADO = [
   /\bprice\s+target\b/i
 ];
 
-const RE_NEGACION = /\b(no|ni|nunca|jam[áa]s|nadie|ning[úu]n|not|never|nobody|cannot|can'?t)\b/i;
+// QUÉ NEGACIÓN CONVIERTE UNA PREDICCIÓN EN ADVERTENCIA.
+//
+// La versión anterior era "cualquier 'no' en los 26 caracteres de antes", y eso
+// se le volvía en contra:
+//
+//   "No hay duda: el precio subirá"  →  se leía como advertencia. El "no" era
+//                                       de la oración anterior y no negaba el
+//                                       precio: es una predicción de manual.
+//
+// Lo que de verdad distingue una advertencia de un consejo no es que haya un
+// "no" cerca, sino QUÉ se niega: el SABER o el DECIR, nunca el precio.
+//
+//   "nadie sabe si va a subir"        → advertencia (niega el saber)
+//   "esto no te dice si deberías…"    → advertencia (niega el decir)
+//   "no vale la pena comprar"         → CONSEJO igual: recomienda no comprar
+//
+// Y la negación tiene que estar en la MISMA oración: un punto, unos dos puntos
+// o un punto y coma cortan su alcance.
+const RE_NEG_ABSOLUTA = new RegExp(
+  '\\b(?:nadie|nunca|jam[áa]s|ning[úu]n[oa]?|nobody|never|no\\s+one)' + FIN, 'i');
+
+const RE_NEG_SABER = new RegExp(
+  '\\b(?:no|not|ni|cannot|can\'?t)\\b[^.:;!?]{0,24}?\\b(?:s[ée]|sab' + RESTO + '|dic' + RESTO +
+  '|digo|decir|afirm' + RESTO + '|promet' + RESTO + '|garantiz' + RESTO +
+  '|recomendaci[óo]n|adivin' + RESTO + '|know' + RESTO + '|say' + RESTO + '|tell' + RESTO +
+  '|recommendation|advice|predict' + RESTO + ')' + FIN, 'i');
+
+/** El último corte de oración: lo de más allá no niega nada de más acá. */
+const RE_CORTE = /[.:;!?—\n][^.:;!?—\n]*$/;
+
+/** true si la coincidencia que empieza en `indice` viene negada de verdad. */
+function negada(texto, indice) {
+  let antes = texto.slice(Math.max(0, indice - 60), indice);
+  const corte = antes.search(RE_CORTE);
+  if (corte !== -1) antes = antes.slice(corte + 1);
+  return RE_NEG_ABSOLUTA.test(antes) || RE_NEG_SABER.test(antes);
+}
+
+// Se miran TODAS las coincidencias de cada patrón, no la primera. Con `match` a
+// secas, "Nadie sabe si va a subir. El dólar va a bajar" se salvaba entera: la
+// primera coincidencia venía negada y la segunda —el consejo de verdad— no se
+// llegaba a mirar.
+const PATRONES_CONSEJO_DADO_G = PATRONES_CONSEJO_DADO.map(
+  (re) => new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g')
+);
 
 /** true si el texto DA un consejo o predice un precio, sin contar lo negado. */
 function daConsejo(texto) {
   const t = String(texto || '');
   if (!t.trim()) return false;
-  return PATRONES_CONSEJO_DADO.some((re) => {
-    const m = t.match(re);
-    if (!m) return false;
-    // 26 caracteres de contexto por delante: lo que cabe entre "no" y el verbo
-    // en una frase normal, sin llegar a la oración anterior.
-    const antes = t.slice(Math.max(0, m.index - 26), m.index);
-    return !RE_NEGACION.test(antes);
+  return PATRONES_CONSEJO_DADO_G.some((re) => {
+    for (const m of t.matchAll(re)) {
+      if (!negada(t, m.index)) return true;
+    }
+    return false;
   });
 }
 
