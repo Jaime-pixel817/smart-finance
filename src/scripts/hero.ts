@@ -85,6 +85,43 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
     }, { threshold: 0, rootMargin: '-80px 0px 0px 0px' }).observe(testigoFin);
   }
 
+  // ---- El destino de la órbita, medido y no supuesto -----------------------
+  //
+  // Los @keyframes de Hero.astro traen unos valores razonables por defecto,
+  // pero el hueco del wordmark no está siempre donde dice la cuenta: desde
+  // 1200 px el contenedor deja de tocar el borde y el ícono se corre con él (a
+  // 1280 px, 40 px más adentro), y el tamaño del disco depende de si manda el
+  // ancho del lienzo o el tope de la cámara. Así que --park-x / --park-y /
+  // --park-s se miden aquí, UNA vez y en cada resize, sobre el ícono de verdad.
+  // No mueven nada de la maquetación (solo alimentan la animación), así que
+  // llegar tarde no cuesta CLS.
+  const marca = document.querySelector<HTMLElement>('.topbar .wm-mark');
+  let recorrido = 1, destinoX = 0, destinoY = 0, escalaFin = .083;
+  const medir = () => {
+    const alto = globo.offsetHeight || 1;
+    const arriba = parseFloat(getComputedStyle(globo).top) || 0;
+    // El recorrido lo marca el mismo testigo que decide el aterrizaje, que en
+    // el CSS está puesto en calc(--hero-h * .8) igual que animation-range: así
+    // la órbita termina EXACTAMENTE en el frame en que el globo se apaga.
+    recorrido = (testigoFin as HTMLElement | null)?.offsetTop || (hero.offsetHeight * 0.8) || 1;
+    const r = marca?.getBoundingClientRect();
+    const iconoX = r ? (r.left + r.right) / 2 : 29;
+    const iconoY = r ? (r.top + r.bottom) / 2 : 26;
+    // El diámetro del disco, con la misma cuenta que risk-sphere.js y que
+    // --globe-d: manda el ancho del lienzo, salvo que el tope de la cámara
+    // (BASE_SCALE) lo deje más pequeño en una banda muy baja.
+    const relleno = parseFloat(getComputedStyle(hero).getPropertyValue('--globe-fill')) || .8;
+    const disco = Math.min(relleno * globo.offsetWidth, .8692 * alto) || 1;
+    escalaFin = (r ? r.width : 26) / disco;
+    hero.style.setProperty('--park-x', iconoX + 'px');
+    hero.style.setProperty('--park-y', iconoY + 'px');
+    hero.style.setProperty('--park-s', String(+escalaFin.toFixed(5)));
+    destinoX = iconoX - (globo.offsetLeft + globo.offsetWidth / 2);
+    destinoY = iconoY - arriba - alto / 2;
+  };
+  medir();
+  addEventListener('resize', medir);
+
   // El respaldo de la órbita, solo donde no hay scroll-timeline y solo si no
   // se pidió menos movimiento (ahí el globo ni se mueve: se va con la página).
   const conTimeline = typeof CSS !== 'undefined' && typeof CSS.supports === 'function'
@@ -95,28 +132,6 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
     const cielo = globo.querySelector<HTMLElement>('.hero-sky');
     // La opacidad, muestreada en los MISMOS puntos que @keyframes hero-park.
     const OPACIDAD: [number, number][] = [[0, 1], [.5, 1], [.625, .97], [.75, .9], [.875, .55], [1, 0]];
-
-    // ---- Geometría: se mide una vez y en cada resize, nunca por frame ------
-    let recorrido = 1, destinoX = 0, destinoY = 0, escalaFin = .083;
-    const medir = () => {
-      const est = getComputedStyle(globo);
-      const alto = globo.offsetHeight || 1;
-      const arriba = parseFloat(est.top) || 0;
-      // El recorrido lo marca el mismo testigo que decide el aterrizaje, que
-      // en el CSS está puesto en calc(--hero-h * .8) igual que animation-range:
-      // así la órbita termina EXACTAMENTE en el frame en que el globo se apaga
-      // y el ícono de la barra se enciende. Sin globo (offsetTop 0) queda el
-      // 80 % del hero, que es lo mismo mientras el contenido quepa.
-      recorrido = (testigoFin as HTMLElement | null)?.offsetTop || (hero.offsetHeight * 0.8) || 1;
-      const raiz = getComputedStyle(document.documentElement);
-      const canal = parseFloat(raiz.getPropertyValue('--gutter')) || 16;
-      const barra = parseFloat(raiz.getPropertyValue('--topbar-h')) || 52;
-      const s = parseFloat(getComputedStyle(hero).getPropertyValue('--park-s'));
-      escalaFin = s > 0 ? s : .083;
-      // Del centro de la banda al centro del hueco de 26 px del wordmark.
-      destinoX = (canal + 13) - (globo.offsetLeft + globo.offsetWidth / 2);
-      destinoY = barra / 2 - arriba - alto / 2;
-    };
 
     let pedido = false;
     const pintar = () => {
@@ -151,8 +166,7 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
       if (cielo) cielo.style.opacity = String(Math.max(0, 1 - t / .22));
     };
     addEventListener('scroll', () => { if (!pedido) { pedido = true; requestAnimationFrame(pintar); } }, { passive: true });
-    addEventListener('resize', () => { medir(); pintar(); });
-    medir();
+    addEventListener('resize', pintar);
     pintar();
   }
 

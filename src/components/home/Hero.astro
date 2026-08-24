@@ -154,8 +154,13 @@ const t = useT(locale);
     --sao-y: calc(var(--globe-top) + var(--globe-h) * .5 + var(--globe-d) * .255);
 
     /* Dónde aterriza el globo: el centro del hueco de 26 px del wordmark
-       (TopBar.astro), que va pegado al margen del contenedor. */
-    --park-x: calc(var(--gutter) + 13px);
+       (TopBar.astro), que va al principio del .container de la barra — o sea
+       pegado al margen, salvo desde 1200 px, donde el contenedor deja de tocar
+       el borde. Estos tres son el valor por defecto: src/scripts/hero.ts los
+       vuelve a escribir midiendo el ícono de verdad al arrancar y en cada
+       resize, que es lo único exacto (el tamaño del disco depende de si manda
+       el ancho del lienzo o el tope de la cámara). */
+    --park-x: calc(max(0px, (100vw - var(--container)) / 2) + var(--gutter) + 13px);
     --park-y: calc(var(--topbar-h) / 2);
     --park-s: .083;
     --orbit-x: calc(var(--park-x) - var(--globe-cx));
@@ -457,7 +462,16 @@ const t = useT(locale);
        transición corta en vez de desaparecer de golpe. */
     /* La visibility se retrasa lo que dura el fundido: si no, el navegador la
        aplica en el mismo frame y no se ve transición ninguna. */
-    .hero-globe { position: absolute; will-change: auto; transition: opacity .18s linear, visibility 0s linear .18s; }
+    .hero-globe {
+      position: absolute; will-change: auto;
+      transition: opacity .18s linear, visibility 0s linear .18s;
+      /* base.css deja TODAS las transiciones en .01ms cuando se pide menos
+         movimiento, y con razón: ahí no puede haber nada que se desplace. Un
+         fundido de 180 ms no se desplaza —solo baja la opacidad— y es lo que
+         hace falta para que el globo no desaparezca de golpe. Por eso, y solo
+         para el globo, se recupera la duración. */
+      transition-duration: .18s, 0s !important;
+    }
     .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-globe .hero-sky { animation: none; }
     .hero-globe .globe-host { transform: none; filter: none; }
     .hero-globe .hero-sky { opacity: 1; }
