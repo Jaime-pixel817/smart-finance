@@ -364,6 +364,11 @@
   "lecciones": [
     {
       "slug": "como-funciona-la-bolsa",
+      "routeId": "lesson.bolsa",
+      "href": {
+        "en": "/lessons/como-funciona-la-bolsa",
+        "es": "/es/lecciones/como-funciona-la-bolsa"
+      },
       "es": {
         "titulo": "Cómo funciona una Bolsa de Valores",
         "descripcion": "Qué pasa entre que aprietas comprar y eres dueño de una acción: el libro de órdenes, la BMV, sus horarios, quién la regula, qué es un índice y qué verías si la visitas.",
@@ -447,6 +452,11 @@
     },
     {
       "slug": "errores-al-invertir",
+      "routeId": "lesson.errores",
+      "href": {
+        "en": "/lessons/errores-al-invertir",
+        "es": "/es/lecciones/errores-al-invertir"
+      },
       "es": {
         "titulo": "3 errores comunes al empezar a invertir",
         "descripcion": "Ahorrar e invertir hacen trabajos distintos. Este es el orden que sí funciona, y la señal de que ya estás listo para empezar a invertir.",
@@ -518,6 +528,11 @@
     },
     {
       "slug": "etfs",
+      "routeId": "lesson.etfs",
+      "href": {
+        "en": "/lessons/etfs",
+        "es": "/es/lecciones/etfs"
+      },
       "es": {
         "titulo": "ETFs: 500 empresas de un solo golpe",
         "descripcion": "Qué es un ETF, por qué diversifica, cuánto te cuesta de verdad su comisión, dos ejemplos reales (un ETF del S&P 500 y NAFTRAC) y en qué se diferencia de comprar acciones sueltas.",
@@ -589,6 +604,11 @@
     },
     {
       "slug": "inflacion",
+      "routeId": "lesson.inflacion",
+      "href": {
+        "en": "/lessons/inflacion",
+        "es": "/es/lecciones/inflacion"
+      },
       "es": {
         "titulo": "Qué es la inflación y cómo te afecta",
         "descripcion": "Por qué el mismo dinero compra menos con el tiempo, cómo un aumento puede ser en realidad un recorte, y qué hacen los bancos centrales cuando suben las tasas.",
@@ -672,6 +692,11 @@
     },
     {
       "slug": "interes-compuesto",
+      "routeId": "lesson.interes",
+      "href": {
+        "en": "/lessons/interes-compuesto",
+        "es": "/es/lecciones/interes-compuesto"
+      },
       "es": {
         "titulo": "Interés simple vs. interés compuesto",
         "descripcion": "Qué es de verdad el interés compuesto, por qué el tiempo pesa más que el monto con el que empiezas, y cómo esa misma fuerza corre en tu contra en una tarjeta de crédito.",
@@ -743,6 +768,11 @@
     },
     {
       "slug": "peso-tipo-de-cambio",
+      "routeId": "lesson.peso",
+      "href": {
+        "en": "/lessons/peso-tipo-de-cambio",
+        "es": "/es/lecciones/peso-tipo-de-cambio"
+      },
       "es": {
         "titulo": "Qué significa que el peso se deprecie",
         "descripcion": "Guía para principiantes sobre cómo funciona el tipo de cambio peso-dólar: quién lo mueve, por qué brinca y qué significa para tu dinero.",
@@ -814,6 +844,11 @@
     },
     {
       "slug": "presupuesto-50-30-20",
+      "routeId": "lesson.presupuesto",
+      "href": {
+        "en": "/lessons/presupuesto-50-30-20",
+        "es": "/es/lecciones/presupuesto-50-30-20"
+      },
       "es": {
         "titulo": "La regla 50/30/20 para tu primer presupuesto",
         "descripcion": "Cómo armar tu primer presupuesto en México: de lo que de verdad te llega libre a un plan que sobrevive un mes normal.",
@@ -885,6 +920,11 @@
     },
     {
       "slug": "que-es-una-accion",
+      "routeId": "lesson.accion",
+      "href": {
+        "en": "/lessons/que-es-una-accion",
+        "es": "/es/lecciones/que-es-una-accion"
+      },
       "es": {
         "titulo": "Qué compras realmente cuando compras una acción",
         "descripcion": "Una acción es un pedazo de una empresa, no un número en una pantalla. De dónde sale su valor, por qué sube y baja, qué es un dividendo y por qué no es un boleto de lotería.",
@@ -956,6 +996,11 @@
     },
     {
       "slug": "sp500",
+      "routeId": "lesson.sp500",
+      "href": {
+        "en": "/lessons/sp500",
+        "es": "/es/lecciones/sp500"
+      },
       "es": {
         "titulo": "¿Por qué sube o baja el S&P 500?",
         "descripcion": "Qué mide en realidad el S&P 500, las cuatro fuerzas que lo mueven y por qué el número de cada día es casi puro ruido.",
@@ -1015,6 +1060,11 @@
     },
     {
       "slug": "tarjeta-de-credito",
+      "routeId": "lesson.tarjeta",
+      "href": {
+        "en": "/lessons/tarjeta-de-credito",
+        "es": "/es/lecciones/tarjeta-de-credito"
+      },
       "es": {
         "titulo": "Tu primera tarjeta de crédito (y cómo no arruinarte)",
         "descripcion": "Qué es de verdad el CAT, por qué el pago mínimo es una trampa, cuándo empiezan a correr los intereses y para qué te sirve después el historial crediticio.",
@@ -1084,5 +1134,55 @@
         "cuerpo": "The deal, in one sentence\n\nA credit card lends you the bank's money for a few weeks and charges you nothing if you give all of it back on time. If you give back less than all of it, it starts charging interest at rates that make everything else on this site look small. Same piece of plastic, two completely different products — and which one you get is decided by you, every month.\n\nThat is what revolving credit means: you use it, pay it, and use it again up to your limit without asking twice. The convenience is real. So is the fact that banks make their money from the people who do not pay in full.\n\nThe CAT is the only number worth comparing\n\nEvery card advertises an interest rate, and that rate is not what the card costs you. It leaves out the annual fee, the insurance, the charge for a paper statement and the rest. What you want is the CAT, Costo Anual Total, which Banco de México defines as a standardized measure of financing cost, in annual percentage terms, that includes every cost and fee attached to the credit.\n\nTwo things follow. First: comparing two cards by their interest rate is comparing the wrong number, and one with a lower rate and heavier fees can easily be the more expensive one. Second: because the CAT is standardized by regulation, 60 % at one bank and 90 % at another mean exactly the same thing. It is the one figure that is genuinely apples to apples, and every issuer is required to show it to you.\n\nBanxico publishes a free CAT calculator and, twice a year, a report comparing the real cards on the market by rate and by card type. Both are in the sources below. Ten minutes there before you sign beats any advice anybody can give you, including this lesson.\n\nWhy the minimum payment is a trap\n\nThe minimum payment is not your bank's opinion about how much you should pay. In Mexico, Banco de México sets the formula by circular, precisely so that each minimum payment chips at least something off the principal — because left to themselves, the numbers were small enough that the debt never moved.\n\nEven with the rule, the minimum is built to keep you afloat, not to get you out. Round numbers: you owe 10,000 pesos on a card at 45 % a year. One month of interest is roughly 375 pesos. If your minimum comes to about 500 and you pay exactly that, then 375 went to interest and 125 went to the debt. You paid 500 pesos and your balance moved 125.\n\nRepeat that and the balance crawls while you feel like you are paying religiously. This is compound interest pointed at you: whatever interest you did not cover gets added to the balance, and next month you pay interest on that too.\n\nOne line worth memorizing. The minimum payment is the number that keeps the bank happy. The number that gets you out is the whole balance.\n\nWhen the interest actually starts\n\nMost cards give you an interest-free window: from the day you buy to the payment due date, usually somewhere between twenty and fifty days depending on where in the billing cycle the purchase landed. Pay the full statement balance by that date and the interest for the period is zero. That is not a promotion, it is how the product is built.\n\nThe moment you pay less than the full balance, two things happen and only one of them is obvious. The obvious one: the leftover starts accruing interest. The one that surprises everybody: on many cards you also lose the interest-free window on new purchases, so the coffee you buy tomorrow starts charging interest tomorrow. Check your contract on this exact point. It is the difference between a free tool and an expensive one.\n\nWhat all of this buys you later\n\nHere is the part that makes a card worth having at eighteen rather than avoiding. Every month you pay on time gets reported and becomes your credit history, which is what a bank reads before lending you money for a car, a flat or a business.\n\nHaving no history is not neutral. To a lender, someone with no record is an unknown, and unknowns get worse terms than someone with two boring years of small payments made on time. In Mexico that record lives at Buró de Crédito, and you are entitled to your own report free once every twelve months. Asking for your own report does not damage it. Do it once a year, the way you would read a bank statement.\n\nThe whole lesson as one habit: only buy things your budget already covered, pay the statement in full before the due date, every month, and never read the limit as money you have. Do that and the card costs you nothing while quietly building the thing that gets you a decent rate at twenty-five.\n\nThree ways people get hurt\n\n1. Reading the limit as income. A 30,000-peso limit means the bank will let you owe 30,000, not that you can afford it. The tools on this site exist so you can watch what a payment actually does over time before you commit to it.\n2. Paying one day late. A late fee, plus interest, plus a mark on your history: three punishments for one slip. Set up an automatic payment for the full balance and stop relying on memory.\n3. Paying a card with another card. Moving expensive debt from one place to another does not shrink it. Only money shrinks it.\n\nThe short version\n\nA credit card is free if you pay it in full and brutal if you do not. Compare cards by CAT, never by the advertised rate. Treat the minimum payment as what it is — the bank's floor, not your plan. Pay the whole statement before the due date so the interest never starts, and let the months of on-time payments build a credit history that will be worth real money to you at twenty-five."
       }
     }
-  ]
+  ],
+  "rutas": {
+    "lesson.peso": {
+      "en": "/lessons/peso-tipo-de-cambio",
+      "es": "/es/lecciones/peso-tipo-de-cambio"
+    },
+    "lesson.interes": {
+      "en": "/lessons/interes-compuesto",
+      "es": "/es/lecciones/interes-compuesto"
+    },
+    "lesson.sp500": {
+      "en": "/lessons/sp500",
+      "es": "/es/lecciones/sp500"
+    },
+    "lesson.presupuesto": {
+      "en": "/lessons/presupuesto-50-30-20",
+      "es": "/es/lecciones/presupuesto-50-30-20"
+    },
+    "lesson.inflacion": {
+      "en": "/lessons/inflacion",
+      "es": "/es/lecciones/inflacion"
+    },
+    "lesson.errores": {
+      "en": "/lessons/errores-al-invertir",
+      "es": "/es/lecciones/errores-al-invertir"
+    },
+    "lesson.tarjeta": {
+      "en": "/lessons/tarjeta-de-credito",
+      "es": "/es/lecciones/tarjeta-de-credito"
+    },
+    "lesson.accion": {
+      "en": "/lessons/que-es-una-accion",
+      "es": "/es/lecciones/que-es-una-accion"
+    },
+    "lesson.bolsa": {
+      "en": "/lessons/como-funciona-la-bolsa",
+      "es": "/es/lecciones/como-funciona-la-bolsa"
+    },
+    "lesson.etfs": {
+      "en": "/lessons/etfs",
+      "es": "/es/lecciones/etfs"
+    },
+    "lessons.glossary": {
+      "en": "/lessons/glossary",
+      "es": "/es/lecciones/glosario"
+    },
+    "methodology": {
+      "en": "/methodology",
+      "es": "/es/metodologia"
+    }
+  }
 }

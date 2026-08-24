@@ -123,6 +123,32 @@ function leerLeccion(locale, archivo) {
   };
 }
 
+// ---- Rutas -----------------------------------------------------------------
+
+/**
+ * Las rutas EN/ES que el explicador necesita enlazar (la lección de cada tema,
+ * el glosario y /methodology). Se leen del REGISTRO, src/i18n/routes.ts, pero
+ * a nivel de texto: ese archivo importa symbols.ts, news.ts y newsletter.ts en
+ * tiempo de ejecución, así que no se puede evaluar suelto como symbols.ts. Las
+ * líneas que interesan son literales, y si alguien cambia una URL sin
+ * regenerar, la prueba de sincronía lo caza.
+ */
+function rutasDe() {
+  const fuente = readFileSync(fileURLToPath(new URL('src/i18n/routes.ts', RAIZ)), 'utf8');
+  const re = /\{\s*id:\s*'([^']+)'\s*,\s*en:\s*'([^']+)'\s*,\s*es:\s*'([^']+)'/g;
+  const rutas = {};
+  for (const m of fuente.matchAll(re)) {
+    const [, id, en, es] = m;
+    if (id.startsWith('lesson.') || id === 'methodology' || id === 'lessons.glossary') {
+      rutas[id] = { en, es };
+    }
+  }
+  for (const obligatoria of ['methodology', 'lesson.errores']) {
+    if (!rutas[obligatoria]) throw new Error('build-ia-contexto: falta la ruta ' + obligatoria + ' en routes.ts');
+  }
+  return rutas;
+}
+
 // ---- El manifiesto ---------------------------------------------------------
 
 export function construir() {
@@ -148,13 +174,26 @@ export function construir() {
     .map((f) => f.replace(/\.mdx$/, ''))
     .sort();
 
-  const lecciones = slugs.map((slug) => ({
-    slug,
-    es: leerLeccion('es', slug + '.mdx'),
-    en: leerLeccion('en', slug + '.mdx')
-  }));
+  const rutas = rutasDe();
+  // El id de ruta de cada lección sale de la propia tabla de rutas: la entrada
+  // cuyo camino en inglés termina en el slug. Así no hay una segunda tabla
+  // slug → routeId que mantener a mano.
+  const routeIdDe = (slug) =>
+    Object.keys(rutas).find((id) => id.startsWith('lesson.') && rutas[id].en.endsWith('/' + slug)) || null;
 
-  return { activos, lecciones };
+  const lecciones = slugs.map((slug) => {
+    const routeId = routeIdDe(slug);
+    if (!routeId) throw new Error('build-ia-contexto: la lección ' + slug + ' no está en routes.ts');
+    return {
+      slug,
+      routeId,
+      href: rutas[routeId],
+      es: leerLeccion('es', slug + '.mdx'),
+      en: leerLeccion('en', slug + '.mdx')
+    };
+  });
+
+  return { activos, lecciones, rutas };
 }
 
 const esteArchivo = fileURLToPath(import.meta.url);

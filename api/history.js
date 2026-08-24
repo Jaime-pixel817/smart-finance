@@ -193,25 +193,41 @@ async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
   };
 }
 
+/**
+ * La serie de un par y un rango, pasando por la MISMA caché compartida que el
+ * endpoint. Existe para que otro módulo del servidor (hoy _lib/ia.js, que arma
+ * el bloque DATOS del explicador) lea exactamente los mismos puntos que ve la
+ * gráfica, sin dar la vuelta por HTTP ni pagarle a Yahoo una segunda vez.
+ *
+ * Devuelve `{ valor, stale }` o lanza si no hay nada que servir.
+ */
+async function serie(pair, range) {
+  const symbolCfg = SYMBOLS[pair];
+  const rangeCfg = RANGE_MAP[range];
+  if (!symbolCfg || !rangeCfg) {
+    const err = new Error('par o rango desconocido: ' + pair + ' ' + range);
+    err.code = 'HISTORY_PAR_DESCONOCIDO';
+    throw err;
+  }
+  return cache.conCache({
+    clave: 'history:v1:' + pair + ':' + range,
+    ttl: CACHE_TTL_MS / 1000,
+    proveedor: { nombre: 'yahoo', creditos: 1 },
+    calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
+  });
+}
+
 module.exports = async function handler(req, res) {
   const pair = String(req.query.pair || '').toUpperCase();
   const range = String(req.query.range || '').toUpperCase();
 
-  const symbolCfg = SYMBOLS[pair];
-  const rangeCfg = RANGE_MAP[range];
-
-  if (!symbolCfg || !rangeCfg) {
+  if (!SYMBOLS[pair] || !RANGE_MAP[range]) {
     res.status(400).json({ error: 'invalid pair or range' });
     return;
   }
 
   try {
-    const r = await cache.conCache({
-      clave: 'history:v1:' + pair + ':' + range,
-      ttl: CACHE_TTL_MS / 1000,
-      proveedor: { nombre: 'yahoo', creditos: 1 },
-      calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
-    });
+    const r = await serie(pair, range);
     res.setHeader('Cache-Control', CACHE_CONTROL);
     // `stale` es un campo AÑADIDO: la gráfica sigue leyendo `points` igual, y
     // con esto puede decir "último dato conocido" en vez de quedarse vacía.
@@ -224,3 +240,5 @@ module.exports = async function handler(req, res) {
 
 // El User-Agent se comparte con api/world.js (mismo proveedor, misma cabecera).
 module.exports.USER_AGENT = USER_AGENT;
+module.exports.serie = serie;
+module.exports.RANGOS = Object.keys(RANGE_MAP);
