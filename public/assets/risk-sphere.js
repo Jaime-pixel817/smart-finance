@@ -704,13 +704,10 @@ const DAMPING            = 0.88;
 const REDUCED_MOTION = typeof window.matchMedia === "function"
   && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* Arrancar el globo era UNA tarea de 650-710 ms en un aparato 14 veces más
- * lento que el portátil (perfilador de Chrome, x14 ≈ Android de gama baja):
- * medio segundo largo sin atender ni un toque. `await ceder()` la parte; el
- * trabajo total es el mismo pero entre trozo y trozo el navegador respira
- * (peor latencia de entrada medida: 609 ms → 406 ms).
- * scheduler.yield() donde lo hay, si no setTimeout(0): un `await` a secas NO
- * corta tarea, sigue en la misma — que era justo el error. */
+/* Arrancar el globo era UNA tarea de ~650 ms a x14 (Android de gama baja):
+ * medio segundo sin atender un toque. ceder() la parte en trozos; misma
+ * cuenta de trabajo, peor latencia de entrada 609 → 406 ms. Ojo: un `await`
+ * a secas NO corta tarea, sigue en la misma. */
 function ceder() {
   if (typeof scheduler === "object" && scheduler && typeof scheduler.yield === "function") {
     return scheduler.yield();
@@ -822,9 +819,8 @@ async function initRiskSphere() {
   const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
   camera.position.z = 6.5;
 
-  // El trozo más caro del arranque: 200 ms a x14, y 228 sin GPU — o sea
-  // JavaScript de three.js armando su máquina de estados, no el driver.
-  await ceder();
+  await ceder();   // lo más caro del arranque: 200 ms a x14
+
   const renderer = new THREE.WebGLRenderer({ antialias: !isSmall, alpha: true });
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(DPR);
@@ -873,9 +869,8 @@ async function initRiskSphere() {
      vecindario de 3x3x3 cubos cubre el casquete entero con margen de sobra
      para lo que las partículas se hayan desplazado.
 
-     Se construye A LA PRIMERA QUE HAGA FALTA: son 61-71 ms (a x14) que solo
-     sirven cuando un dedo toca el globo. Se precalienta en cuanto el hilo
-     queda ocioso, tras "globe:ready". */
+     Se construye A LA PRIMERA QUE HAGA FALTA (61-71 ms a x14 que solo
+     sirven si un dedo toca el globo) y se precalienta al quedar ocioso. */
   let rejilla = null;
   const obtenerRejilla = () => (rejilla || (rejilla = construirRejilla(forma(GLOBE_IDX), N, R, 8)));
 
@@ -945,9 +940,8 @@ async function initRiskSphere() {
     activos[nActivos++] = i;
   }
 
-  // Los dos únicos bucles de N que quedan (59 y 51 ms a x14), cada uno en
-  // su tarea: juntos pasaban de 110 ms sin soltar el hilo.
-  await ceder();
+  await ceder();   // los dos bucles de N que quedan: 59 y 51 ms a x14
+
   const jPhase  = new Float32Array(N);
   for (let i = 0; i < N; i++) jPhase[i] = Math.random() * Math.PI * 2;
 
@@ -2176,17 +2170,15 @@ async function initRiskSphere() {
    * entrada no arranca con un tirón. Con eso hecho se avisa al hero, que funde
    * su globo estático en 160 ms, y solo entonces empieza uForm a subir. El
    * orden es la mitad del efecto: si se solapan, se ve un globo deshacerse. */
-  // Compila los shaders y sube los buffers: 170-185 ms a x14, el segundo
-  // trozo más caro. Tarea propia.
-  await ceder();
+  await ceder();   // compilar shaders y subir buffers: 170 ms a x14
+
   renderer.render(scene, camera);
   document.dispatchEvent(new CustomEvent("globe:ready"));
   setTimeout(() => { entrando = true; }, ENTRADA_ESPERA_MS);
 
   animate();
 
-  /* La rejilla del dedo, ya con el globo girando y el hilo libre.
-     bind: requestIdleCallback suelto de window da "Illegal invocation". */
+  // La rejilla, ya con el globo girando. bind: rIC suelto da "Illegal invocation".
   const ocioso = window.requestIdleCallback
     ? window.requestIdleCallback.bind(window)
     : (f) => setTimeout(f, 200);
