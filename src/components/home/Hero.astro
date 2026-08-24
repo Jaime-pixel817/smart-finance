@@ -4,16 +4,21 @@
 //
 // CÓMO ESTÁ MONTADO, DE ABAJO A ARRIBA
 //
-//   .hero-globe   position: fixed, a --globe-top del borde de arriba, --globe-h
-//                 de alto y ancho completo. Dentro van, en el mismo sitio y del
-//                 mismo tamaño, el cielo, el lienzo WebGL y el SVG de respaldo.
-//                 Se funde hacia abajo con mask-image: no hay borde ni caja, el
-//                 globo se disuelve en la página. z-index 1: bajo el contenido.
-//   .hero-head    un bloque vacío cuyo padding de arriba llega EXACTAMENTE hasta
-//                 24 px por debajo del marcador de São Paulo (--sao-y): el
-//                 titular arranca ahí y tapa solo el casquete de abajo del
-//                 planeta. Anclado por arriba, o sea que lo que crezca por
-//                 debajo (la barra de bolsas) no lo mueve un píxel.
+//   .hero-sky     position: fixed, la banda de fondo: el degradado que hay
+//                 detrás de las partículas. Se queda quieta y solo se apaga —
+//                 quien viaja en la órbita es el globo. z-index 0.
+//   .hero-globe   position: fixed, en el mismo sitio y del mismo tamaño que el
+//                 cielo. Dentro van, superpuestos, el lienzo WebGL y el SVG de
+//                 respaldo. Se funde hacia abajo con mask-image: no hay borde ni
+//                 caja, el globo se disuelve en la página. z-index 1: por debajo
+//                 del contenido.
+//   .hero-gap     un bloque vacío que mide EXACTAMENTE hasta 24 px por debajo
+//                 del marcador de São Paulo (--sao-y): el titular arranca ahí y
+//                 tapa solo el casquete de abajo del planeta. Es además lo único
+//                 que puede encoger si la pantalla es muy baja (ver el tope de
+//                 alto del hero).
+//   .hero-head    el titular, anclado por arriba: lo que crezca por debajo (la
+//                 barra de bolsas) no lo mueve un píxel.
 //   .hero-copy    el titular en Fraunces con la firma pegada al final de su
 //                 última línea, y la línea mono con la fecha y el estado de los
 //                 mercados. z-index 3, o sea encima del globo. pointer-events:
@@ -73,11 +78,18 @@ const t = useT(locale);
 ---
 <section class="hero" aria-label={t('hero.label')}>
   <div class="hero-globe" id="hero-globe">
-    <div class="hero-sky" aria-hidden="true"></div>
     <div class="hero-globe-still" aria-hidden="true" set:html={fallbackSvg} />
     <div id="globalRiskGlobe" class="globe-host" role="img" aria-label={t('globe.aria')}></div>
     <div class="hero-pins" id="hero-pins" aria-hidden="true"></div>
   </div>
+
+  <!-- El cielo: la banda de fondo detrás de las partículas. Va FUERA de
+       .hero-globe y ocupa exactamente su mismo sitio, porque durante la órbita
+       el globo se encoge y el cielo no puede encogerse con él: lo que viajaba
+       por la página era un rectángulo con un planeta dentro, muy visible en
+       modo claro. Aquí se queda quieto y se disuelve en el primer 22 % del
+       recorrido; lo que se va de viaje es la esfera sola. -->
+  <div class="hero-sky" aria-hidden="true"></div>
 
   <!-- El hueco de encima del titular. Mide justo hasta 24 px por debajo del
        marcador de São Paulo, y es lo ÚNICO que puede encoger en el hero: si en
@@ -221,37 +233,38 @@ const t = useT(locale);
     --hero-warn: #8A5600;
   }
 
-  .hero-globe {
+  /* La banda del globo y la del cielo ocupan EXACTAMENTE el mismo sitio: la de
+     arriba lleva el lienzo y viaja en la órbita, la de abajo se queda quieta.
+     Las dos con el mismo fundido: sin borde duro, se disuelven en la página, y
+     el degradado tapa además el canto del lienzo. */
+  .hero-globe, .hero-sky {
     position: fixed;
     top: var(--globe-top); left: 0; right: 0;
     height: var(--globe-h);
-    z-index: 1;
-    --globe-sky-1: #17171B;
-    --globe-sky-2: #08080A;
-    /* Fundido hacia abajo: sin borde duro, el globo se disuelve en la página.
-       El degradado tapa además el canto del lienzo. */
     -webkit-mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
     mask-image: linear-gradient(to bottom, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
-    touch-action: pan-y;
-    will-change: transform, opacity;
   }
-  :global(:root[data-theme="light"]) .hero-globe {
+  .hero-globe { z-index: 1; touch-action: pan-y; will-change: transform, opacity; }
+  /* EL CIELO. El lienzo del globo es transparente: este degradado es lo que hay
+     detrás de las partículas, y por eso cambia con el tema. En claro no puede
+     ser blanco puro — las partículas son casi blancas en el mar y desaparecían;
+     con el hueso de --bg-0 y un centro un pelo más claro el disco se separa del
+     fondo. */
+  .hero-sky {
+    z-index: 0; pointer-events: none;
+    --globe-sky-1: #17171B;
+    --globe-sky-2: #08080A;
+    background: radial-gradient(circle at 50% 42%, var(--globe-sky-1), var(--globe-sky-2) 72%);
+  }
+  :global(:root[data-theme="light"]) .hero-sky {
     --globe-sky-1: #FDFDFB;
     --globe-sky-2: #E7E7E0;
   }
+  /* Cuando el globo aterriza, el cielo ya está a cero desde el 22 %: esto es
+     para sacarlo también del compositor. */
+  .hero-globe.is-parked ~ .hero-sky { visibility: hidden; }
 
   .hero-globe > * { position: absolute; inset: 0; }
-  /* EL CIELO. El lienzo del globo es transparente: este degradado es lo que
-     hay detrás de las partículas, y por eso cambia con el tema. En claro no
-     puede ser blanco puro — las partículas son casi blancas en el mar y
-     desaparecían; con el hueso de --bg-0 y un centro un pelo más claro el
-     disco se separa del fondo.
-     Va en su propia capa y no en el fondo de .hero-globe porque durante la
-     órbita el globo se encoge: con el cielo pegado a la banda, lo que viajaba
-     por la página era un rectángulo oscuro con un planeta dentro. Así el cielo
-     se disuelve en el primer 22 % del recorrido y lo que se aleja es la
-     esfera sola. */
-  .hero-sky { background: radial-gradient(circle at 50% 42%, var(--globe-sky-1), var(--globe-sky-2) 72%); }
   .globe-host { width: 100%; height: 100%; }
   .globe-host :global(canvas) { width: 100% !important; height: 100% !important; }
 
@@ -457,14 +470,14 @@ const t = useT(locale);
     100% { opacity: 0; }
   }
   @supports (animation-timeline: scroll()) {
-    .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-globe .hero-sky {
+    .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-sky {
       animation: hero-park linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 calc(var(--hero-h) * .8);
     }
     .hero-globe .globe-host { animation-name: hero-park-spin; }
     .hero-globe .hero-pins { animation-name: hero-park-pins; }
-    .hero-globe .hero-sky { animation-name: hero-park-sky; }
+    .hero-sky { animation-name: hero-park-sky; }
   }
   /* Aterrizado: fuera de la pantalla y fuera del compositor. El bucle de
      WebGL se para por evento (ver hero.ts); esto es la parte visual. */
@@ -492,9 +505,9 @@ const t = useT(locale);
          para el globo, se recupera la duración. */
       transition-duration: .18s, 0s !important;
     }
-    .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-globe .hero-sky { animation: none; }
+    .hero-globe, .hero-globe .globe-host, .hero-globe .hero-pins, .hero-sky { animation: none; }
     .hero-globe .globe-host { transform: none; filter: none; }
-    .hero-globe .hero-sky { opacity: 1; }
+    .hero-sky { position: absolute; opacity: 1; }
     .hero-globe.is-parked { opacity: 0; }
     .hero-globe-still { opacity: 1; transition: none; }
     .hero-pins :global(.pin) { transition: none; }
@@ -522,7 +535,7 @@ const t = useT(locale);
        sobre fondo limpio: mismo hero, dos tercios de aire. Ojo: al moverse el
        lienzo se mueve también su centro, y con él el origen de la órbita y la
        vertical de São Paulo. */
-    .hero-globe { left: 22%; }
+    .hero-globe, .hero-sky { left: 22%; }
     .hero { --globe-w: 78vw; --globe-cx: 61vw; }
     .hero-title { max-width: 16ch; }
   }

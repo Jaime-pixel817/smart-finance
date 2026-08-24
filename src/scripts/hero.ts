@@ -133,7 +133,8 @@ function boot(hero: HTMLElement, globo: HTMLElement) {
   if (!conTimeline && !menos.matches) {
     const lienzo = globo.querySelector<HTMLElement>('.globe-host');
     const capaPins = globo.querySelector<HTMLElement>('.hero-pins');
-    const cielo = globo.querySelector<HTMLElement>('.hero-sky');
+    // El cielo es hermano del globo, no hijo: no viaja en la órbita.
+    const cielo = hero.querySelector<HTMLElement>('.hero-sky');
     // La opacidad, muestreada en los MISMOS puntos que @keyframes hero-park.
     const OPACIDAD: [number, number][] = [[0, 1], [.5, 1], [.625, .97], [.75, .9], [.875, .55], [1, 0]];
 
