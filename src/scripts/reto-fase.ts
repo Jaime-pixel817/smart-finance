@@ -1,8 +1,9 @@
 // La fase del Reto Actinver, recalculada en el NAVEGADOR.
 //
-// El HTML llega con las seis fases pintadas y con la que era verdad el día del
-// build a la vista (RetoActinver.astro). Este módulo la vuelve a calcular con
-// el reloj de quien lee y enseña la que toca.
+// El HTML llega con UNA fase viva —la que era verdad el día del build— y las
+// otras cinco dentro de un <template> inerte (RetoActinver.astro). Este módulo
+// mira qué día es de verdad y, si no coincide, saca del <template> la que toca
+// y la pone en su sitio.
 //
 // POR QUÉ HACE FALTA. El sitio es estático: si nadie despliega entre agosto y
 // octubre, el HTML servido sigue siendo el de agosto y la página diría "faltan
@@ -12,16 +13,25 @@
 // módulo puro con pruebas (src/lib/reto/actinver.mjs) y la usan el servidor y
 // el navegador, no dos copias que se van separando.
 //
-// No pide nada a la red y no toca ningún texto traducido: los textos ya están
-// en el HTML, uno por fase. Lo único que este script ESCRIBE es el número de
-// días, y su palabra ("día"/"días", "day"/"days") viene en un data- del propio
-// bloque para no meter idioma en el JavaScript.
+// POR QUÉ UN <template> Y NO SEIS BLOQUES CON `hidden`. Con `hidden` el HTML
+// servido llevaría cinco frases falsas sobre hoy —"el reto está en marcha", en
+// agosto— escondidas pero presentes para quien lea el código fuente, lo raspe
+// o lo resuma. El contenido de un <template> no se renderiza ni cuenta como
+// contenido de la página; los nodos clonados conservan el atributo de ámbito
+// de Astro, así que salen con formato igual.
+//
+// No pide nada a la red y no traduce nada: los textos ya vienen escritos, uno
+// por fase. Lo único que este script ESCRIBE es el número de días, y su
+// palabra ("día"/"días", "day"/"days") viene en un data- del propio bloque
+// para no meter idioma en el JavaScript.
 import { fase, estadoHitos, fechaLocal } from '../lib/reto/actinver.mjs';
 
 const raiz = document.querySelector<HTMLElement>('[data-reto]');
 const calendario = document.querySelectorAll<HTMLElement>('[data-hito]');
 
 if (raiz) {
+  const hueco = raiz.querySelector<HTMLElement>('[data-reto-actual]');
+  const plantilla = raiz.querySelector<HTMLTemplateElement>('[data-reto-fases]');
   const textos = (() => {
     try { return JSON.parse(raiz.dataset.retoTextos || '{}'); }
     catch { return {}; }
@@ -41,26 +51,34 @@ if (raiz) {
       if (id && hitos[id]) fila.dataset.estado = hitos[id];
     }
 
-    for (const bloque of Array.from(raiz.querySelectorAll<HTMLElement>('.fase'))) {
-      const esta = bloque.dataset.fase === f.id;
-      bloque.hidden = !esta;
-      if (!esta) continue;
+    if (!hueco) return;
+    let bloque = hueco.querySelector<HTMLElement>('.fase');
 
-      const hoyMismo = f.faltan === 0;
-      const conNumero = bloque.querySelector<HTMLElement>('[data-cuenta]');
-      const soloHoy = bloque.querySelector<HTMLElement>('[data-cuenta-hoy]');
-      if (conNumero) conNumero.hidden = hoyMismo || f.faltan === null;
-      if (soloHoy) soloHoy.hidden = !hoyMismo;
-
-      const n = bloque.querySelector<HTMLElement>('[data-dias]');
-      if (n && typeof f.faltan === 'number' && f.faltan > 0) {
-        n.textContent = f.faltan + ' ' + (f.faltan === 1 ? textos.dia : textos.dias);
+    // ¿Cambió el día desde que se construyó la página? Se trae la otra fase.
+    if (bloque && bloque.dataset.fase !== f.id && plantilla) {
+      const otra = plantilla.content.querySelector<HTMLElement>('[data-fase="' + f.id + '"]');
+      if (otra) {
+        hueco.replaceChildren(otra.cloneNode(true));
+        bloque = hueco.querySelector<HTMLElement>('.fase');
       }
-
-      // "Las inscripciones siguen abiertas": solo mientras de verdad lo estén.
-      const abiertas = bloque.querySelector<HTMLElement>('[data-abiertas]');
-      if (abiertas) abiertas.hidden = !f.inscripciones;
     }
+    if (!bloque || bloque.dataset.fase !== f.id) return; // no había recambio: se queda lo servido
+
+    const hoyMismo = f.faltan === 0;
+    const conNumero = bloque.querySelector<HTMLElement>('[data-cuenta]');
+    const soloHoy = bloque.querySelector<HTMLElement>('[data-cuenta-hoy]');
+    if (conNumero) conNumero.hidden = hoyMismo || f.faltan === null;
+    if (soloHoy) soloHoy.hidden = !hoyMismo;
+
+    const n = bloque.querySelector<HTMLElement>('[data-dias]');
+    if (n && typeof f.faltan === 'number' && f.faltan > 0) {
+      // Espacio duro, igual que en el servidor: "36 días" no se parte.
+      n.textContent = f.faltan + '\u00a0' + (f.faltan === 1 ? textos.dia : textos.dias);
+    }
+
+    // "Las inscripciones siguen abiertas": solo mientras de verdad lo estén.
+    const abiertas = bloque.querySelector<HTMLElement>('[data-abiertas]');
+    if (abiertas) abiertas.hidden = !f.inscripciones;
   };
 
   // El oyente se registra ANTES de la primera pasada: si `pinta()` se cayera,

@@ -31,6 +31,7 @@ import { useR } from '../../i18n/research';
 import { foto } from '../../lib/photos';
 import { day } from '../../lib/research/format.mjs';
 import { RETO_2026, FASES, fase, estadoHitos, fechaLocal } from '../../lib/reto/actinver.mjs';
+import FaseReto from './FaseReto.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const r = useR(locale);
@@ -49,14 +50,6 @@ const HITO_DE: Record<string, keyof typeof r.retoCuenta | null> = {
   antes: 'inscripciones', inscripciones: 'practica', practica: 'reto',
   vispera: 'reto', reto: 'cierre', resultados: null
 };
-
-/** La plantilla de la cuenta atrás partida en dos por su {n}. */
-function partes(clave: keyof typeof r.retoCuenta) {
-  const [antes, despues] = r.retoCuenta[clave].split('{n}');
-  return { antes, despues: despues ?? '' };
-}
-
-const dias = (n: number) => n + ' ' + (n === 1 ? r.retoDay : r.retoDays);
 
 // Renglones del calendario. `premiacion` no tiene rango porque Actinver solo
 // publica el mes y el lugar; no se le inventa un día.
@@ -89,31 +82,30 @@ const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
     <p class="proj-lede">{r.retoLede}</p>
   </div>
 
-  <!-- Cómo va hoy. Las seis fases van pintadas; el script deja una. -->
+  <!-- Cómo va hoy.
+       VIVA va UNA sola fase: la que era verdad al construir la página. Las
+       otras cinco van dentro de un <template>, que el navegador no renderiza y
+       nadie indexa, y de ahí las saca src/scripts/reto-fase.ts si el día ya
+       cambió. Pintarlas todas y esconder cinco con `hidden` era más simple,
+       pero dejaba en el HTML servido cinco frases falsas sobre hoy —"el reto
+       está en marcha" en agosto— para cualquiera que leyera el código fuente o
+       lo raspara. -->
   <div class="card reto-estado" data-reto data-reto-textos={textosScript}>
     <h3 class="t-h3">{r.retoNow}</h3>
-    {FASES.map((f: string) => {
-      const hito = HITO_DE[f];
-      const p = hito ? partes(hito) : null;
-      const esta = f === actual.id;
-      return (
-        <div class="fase" data-fase={f} hidden={!esta}>
-          <p class:list={['chip', 'fase-chip', 'f-' + f]}>{r.retoFase[f as keyof typeof r.retoFase]}</p>
-          <p class="t-small">{r.retoEstado[f as keyof typeof r.retoEstado]}</p>
-          {p && hito && (
-            <p class="cuenta" data-cuenta>
-              <span>{p.antes}</span><b class="num" data-dias>{dias(esta && actual.faltan !== null ? actual.faltan : 0)}</b><span>{p.despues}</span>
-            </p>
-          )}
-          {hito && (
-            <p class="cuenta" data-cuenta-hoy hidden={!(esta && actual.faltan === 0)}>{r.retoCuentaHoy[hito]}</p>
-          )}
-          {(f === 'practica' || f === 'vispera') && (
-            <p class="t-caption muted" data-abiertas hidden={!(esta && actual.inscripciones)}>{r.retoStillOpen}</p>
-          )}
-        </div>
-      );
-    })}
+    <div data-reto-actual>
+      <FaseReto f={actual.id} r={r} hito={HITO_DE[actual.id]} faltan={actual.faltan} inscripciones={actual.inscripciones} />
+    </div>
+    <!-- LAS SEIS, incluida la que está viva arriba. Tener solo las otras cinco
+         parecía más limpio y estaba mal: el bloque vivo se REEMPLAZA al
+         clonar, así que la fase del build desaparecía del documento y no había
+         de dónde recuperarla. Con las seis, `pinta()` es idempotente y da
+         igual en qué orden se llame. Lo que se duplica es la frase que SÍ es
+         verdad hoy, que no le hace daño a nadie. -->
+    <template data-reto-fases>
+      {FASES.map((f: string) => (
+        <FaseReto f={f} r={r} hito={HITO_DE[f]} faltan={null} inscripciones={true} />
+      ))}
+    </template>
   </div>
 
   <!-- Qué es -->
