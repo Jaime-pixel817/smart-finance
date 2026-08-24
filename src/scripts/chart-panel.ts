@@ -437,9 +437,18 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
     trazoPendiente = null;
     if (menosMovimiento() || !series) return;
     const ms = modo === 'entrada' ? ENTRADA : TOQUE;
-    areaAlfa = 0;
-    series.applyOptions({ topColor: withAlpha(colorFor(dir), 0) });
-    trazar(root, { rapido: modo === 'toque', alArrancar: () => animarRelleno(ms) });
+    // El área se apaga cuando el trazado ARRANCA, no al pedirlo: en ese
+    // instante el lienzo está tapado del todo, así que no se ve el apagón, y
+    // una gráfica que se queda esperando a verse (o que nunca llega a
+    // trazarse) no se queda sin relleno.
+    trazar(root, {
+      rapido: modo === 'toque',
+      alArrancar: () => {
+        areaAlfa = 0;
+        series?.applyOptions({ topColor: withAlpha(colorFor(dir), 0) });
+        animarRelleno(ms);
+      }
+    });
   }
 
   function applyTheme() {

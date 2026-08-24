@@ -99,12 +99,16 @@ function arrancar(raiz: HTMLElement | SVGElement, ms: number) {
 }
 
 /**
- * Marca una gráfica de SVG propio para que se trace. `raiz` es el elemento
- * que lleva `data-trazo` (el <svg> o su contenedor); las líneas que se dibujan
- * llevan la clase `trazo-linea`, y lo que entra detrás, `trazo-luego`.
+ * Marca una gráfica para que se trace. `raiz` es el elemento que lleva
+ * `data-trazo`: el propio <svg> en las sparklines, el <div> del panel de
+ * precio. Lo que se mueve lo eligen las clases (`trazo-linea` la línea que se
+ * dibuja, `trazo-luego` lo que entra detrás, `trazo-destape` lo que se
+ * descubre de izquierda a derecha) y las reglas están en trazo.css.
  *
  * `rapido` es el cambio de rango: se repite el trazado, más corto, y sin
  * esperar a nada — quien tocó la pestaña está mirando la gráfica.
+ * `alArrancar` avisa en el instante en que empieza, para lo que no puede ir
+ * en CSS (el relleno del lienzo de Lightweight Charts).
  */
 export function trazar(
   raiz: Element | null | undefined,
@@ -137,6 +141,7 @@ export function trazar(
     opciones.alArrancar?.();
   };
   if (rapido) {
+    olvidar(el);   // si la entrada seguía esperando a verse, ya no toca
     // Dos fotogramas: el navegador tiene que haber calculado el estado
     // escondido antes de cambiarlo, o la transición no existe.
     requestAnimationFrame(() => requestAnimationFrame(empezar));
