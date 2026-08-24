@@ -1,10 +1,12 @@
 ---
 // El reto del día: "¿Y luego qué pasó?" (/challenge y /es/reto).
 //
-// Aquí solo vive el cascarón: el encabezado, el esqueleto de la partida y el
-// pie (fuente, "qué aprendes" y disclaimer). Las reglas del juego están en
-// src/lib/challenge/reto.mjs (puras, con pruebas) y quien las mueve en el
-// navegador es src/scripts/challenge.ts.
+// Aquí solo vive el cascarón: el encabezado, el selector de modo, el esqueleto
+// de la partida, el bloque de racha y el pie (fuente, "cómo se elige", "qué
+// aprendes" y disclaimer). Las reglas del juego están en
+// src/lib/challenge/reto.mjs y la racha en src/lib/challenge/progreso.mjs (las
+// dos puras, con pruebas); quien las mueve en el navegador es
+// src/scripts/challenge.ts.
 //
 // POR QUÉ NO HAY BACKEND: las 12 funciones serverless del plan de Vercel están
 // ocupadas (CLAUDE.md). El reto se arma en el teléfono con /api/history, que ya
@@ -17,22 +19,61 @@ import '../../styles/challenge.css';
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
-import { bySymbolId, assetRouteId } from '../../data/symbols';
+import { bySymbolId, assetRouteId, sectionOf } from '../../data/symbols';
+import { getLessons } from '../../data/lessons';
+import glosario from '../../data/glossary.json';
 import SourceChip from '../SourceChip.astro';
-import { RONDAS, VENTANA, OCULTAS } from '../../lib/challenge/reto.mjs';
+import { RONDAS, VENTANA, OCULTAS, PUNTOS_POR_RONDA } from '../../lib/challenge/reto.mjs';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
 
-// Los doce activos del sorteo: reconocibles para alguien de 16–20 y todos con
-// serie en /api/history. Fuera el VIX (sube cuando todo baja: la intuición de
-// "subir es bueno" se rompe y el reto dejaría de enseñar lo que quiere enseñar)
-// y fuera los cruces sin peso en México (USD/JPY, GBP/USD, EUR/USD).
-const POOL = ['spy', 'qqq', 'dia', 'aapl', 'msft', 'nvda', 'amzn', 'usdmxn', 'eurmxn', 'btc', 'eth', 'sol'];
-const catalogo = POOL.map((id) => {
+// Los doce activos del sorteo DIARIO: reconocibles para alguien de 16–20 y
+// todos con serie en /api/history. Fuera el VIX (sube cuando todo baja: la
+// intuición de "subir es bueno" se rompe y el reto dejaría de enseñar lo que
+// quiere enseñar) y fuera los cruces sin peso en México (USD/JPY, GBP/USD,
+// EUR/USD).
+//
+// EL ORDEN DE ESTA LISTA ES PARTE DE LA SEMILLA: el sorteo baraja el catálogo,
+// así que mover un id de sitio cambia el reto de todos los días pasados y
+// futuros. Se añade al final, nunca en medio (y ojo: añadir uno también cambia
+// el sorteo — es un cambio de versión, ver PREFIJO_DIARIO en reto.mjs).
+const POOL_DIARIO = ['spy', 'qqq', 'dia', 'aapl', 'msft', 'nvda', 'amzn', 'usdmxn', 'eurmxn', 'btc', 'eth', 'sol'];
+// El reto LIBRE juega con más: los cruces que no salen en el diario y XRP. Como
+// no cuenta para la racha, aquí la variedad no le debe nada a nadie.
+const EXTRA_LIBRE = ['chfmxn', 'eurusd', 'gbpusd', 'usdjpy', 'xrp'];
+
+// Qué término del glosario explica QUÉ ES lo que se acaba de revelar. Va por
+// tipo de activo y no por activo: quien ve por primera vez una gráfica sin
+// nombre necesita saber qué es un índice, no la historia de Nvidia.
+const TERMINO: Record<string, string> = {
+  index: 'indice-bursatil',
+  stock: 'accion',
+  fx: 'tipo-de-cambio',
+  crypto: 'volatilidad'
+};
+
+const lecciones = await getLessons(locale);
+const tituloLeccion = (routeId: string) => lecciones.find((l) => l.routeId === routeId)?.entry.data.title || '';
+const hrefGlosario = route('lessons.glossary', locale);
+
+const catalogo = [...POOL_DIARIO, ...EXTRA_LIBRE].map((id) => {
   const s = bySymbolId(id);
   if (!s || !s.history) throw new Error('Reto: el activo ' + id + ' no tiene serie en /api/history');
-  return { id, pair: s.history, sym: s.sym, name: s.name[locale], href: route(assetRouteId(id), locale) };
+  const seccion = sectionOf(s);
+  const termino = glosario.find((g) => g.id === TERMINO[seccion]);
+  if (!termino) throw new Error('Reto: falta el término de glosario de ' + seccion);
+  return {
+    id,
+    pair: s.history,
+    sym: s.sym,
+    name: s.name[locale],
+    href: route(assetRouteId(id), locale),
+    tipo: seccion,
+    diario: POOL_DIARIO.includes(id),
+    leccion: { href: route(s.lesson, locale), t: tituloLeccion(s.lesson) },
+    termino: { href: hrefGlosario + '#term-' + termino.id, t: termino[locale].term }
+  };
 });
 
 // Todo lo que el script escribe en pantalla, en el idioma de la página.
@@ -49,11 +90,38 @@ const textos = {
   labels: { low: t('reto.final.label.low'), mid: t('reto.final.label.mid'), high: t('reto.final.label.high'), top: t('reto.final.label.top') },
   streak: t('reto.streak'), streakOne: t('reto.streak.one'),
   copied: t('reto.copied'), copyFailed: t('reto.copy.failed'),
-  shareTitle: t('reto.share.title'), shareLine: t('reto.share.line'),
-  challenged: t('reto.challenged'), asOf: t('reto.src.asof')
+  shareTitle: t('reto.share.title'), shareLine: t('reto.share.line'), shareFree: t('reto.free.share'),
+  linked: t('reto.share.linked'), copyLink: t('reto.share.link'),
+  challenged: t('reto.challenged'), asOf: t('reto.src.asof'),
+  // Modos
+  doneToday: t('reto.done.today'), otherDay: t('reto.other.day'), otherToday: t('reto.other.today'),
+  freeNew: t('reto.free.new'), how1: t('reto.how.1'),
+  // Lo que enseña el revelado
+  why: {
+    size: t('reto.why.size'),
+    t1: t('reto.why.t.up.sig'), t2: t('reto.why.t.up.giro'),
+    t3: t('reto.why.t.down.sig'), t4: t('reto.why.t.down.giro'), t0: t('reto.why.t.flat')
+  },
+  lesson: t('reto.learn.lesson'), term: t('reto.learn.term'),
+  // Racha y calendario
+  prog: {
+    empty: t('reto.prog.empty'), of: t('reto.prog.of'),
+    cleared: t('reto.prog.cleared'),
+    day: t('reto.cal.day'), none: t('reto.cal.none'),
+    calSummary: t('reto.cal.summary'), calLegend: t('reto.cal.legend')
+  }
 };
 const json = (x: unknown) => JSON.stringify(x).replace(/</g, '\\u003c');
 const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String(RONDAS));
+const dows = t('reto.cal.dows').split(',');
+const dowsFull = t('reto.cal.dows.full').split(',');
+const filtros = [
+  { id: 'todo', label: t('reto.filter.all') },
+  { id: 'index', label: t('reto.filter.index') },
+  { id: 'stock', label: t('reto.filter.stock') },
+  { id: 'fx', label: t('reto.filter.fx') },
+  { id: 'crypto', label: t('reto.filter.crypto') }
+];
 ---
 <article class="reto">
   <div class="container reto-wrap"
@@ -61,7 +129,8 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
     data-locale={locale}
     data-rondas={RONDAS}
     data-ventana={VENTANA}
-    data-ocultas={OCULTAS}>
+    data-ocultas={OCULTAS}
+    data-por-ronda={PUNTOS_POR_RONDA}>
 
     <header class="reto-head">
       <p class="eyebrow">{t('reto.eyebrow')} · <span data-reto-fecha class="num"></span></p>
@@ -70,6 +139,29 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
     </header>
 
     <p class="reto-desafio" data-reto-desafio hidden></p>
+
+    <!-- Modo: el de hoy (uno al día, cuenta para la racha) o libre (los que quieras) -->
+    <div class="reto-modos" role="group" aria-label={t('reto.mode.aria')}>
+      <button class="reto-modo" type="button" data-reto-modo="diario" aria-pressed="true">{t('reto.mode.daily')}</button>
+      <button class="reto-modo" type="button" data-reto-modo="libre" aria-pressed="false">{t('reto.mode.free')}</button>
+    </div>
+
+    <p class="reto-aviso" data-reto-ya hidden></p>
+
+    <div class="reto-libre" data-reto-libre hidden>
+      <p class="t-small muted">{t('reto.free.note')}</p>
+      <p class="t-caption faint" id="reto-filtro-h">{t('reto.filter.label')}</p>
+      <div class="reto-chips" role="group" aria-labelledby="reto-filtro-h">
+        {filtros.map((f) => (
+          <button class="reto-chip" type="button" data-reto-filtro={f.id} aria-pressed={f.id === 'todo' ? 'true' : 'false'}>{f.label}</button>
+        ))}
+      </div>
+      <button class="btn btn-ghost btn-sm" type="button" data-reto-otro-libre>{t('reto.free.new')}</button>
+      <details class="reto-nota">
+        <summary class="t-caption">{t('reto.filter.why.h')}</summary>
+        <p class="t-small muted">{t('reto.filter.note')}</p>
+      </details>
+    </div>
 
     <div class="card reto-card">
       <p class="visually-hidden" role="status" aria-live="polite" data-reto-live></p>
@@ -138,7 +230,15 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
           </p>
           <p class="reto-cifra num" data-reto-cifra></p>
           <p class="t-small muted" data-reto-detalle></p>
+          <!-- El "por qué", solo con lo que dicen los precios -->
+          <p class="t-small" data-reto-porque></p>
+          <p class="t-small muted" data-reto-sincausa>{t('reto.why.cause')}</p>
           <p class="t-small reto-tip" data-reto-tip></p>
+          <div class="reto-enlaces">
+            <p class="t-caption faint">{t('reto.learn.more')}</p>
+            <a class="reto-enlace" data-reto-leccion href="#"></a>
+            <a class="reto-enlace" data-reto-termino href="#"></a>
+          </div>
           <button class="btn btn-primary" type="button" data-reto-siguiente>{t('reto.next')}</button>
         </div>
       </div>
@@ -174,9 +274,10 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
           <button class="btn btn-primary" type="button" data-reto-copiar data-copiar-label>{t('reto.copy')}</button>
           <button class="btn btn-ghost" type="button" data-reto-otra>{t('reto.again')}</button>
         </div>
+        <p class="t-caption faint">{t('reto.share.note')}</p>
         <label class="visually-hidden" for="reto-texto">{t('reto.copy')}</label>
-        <textarea class="reto-compartir" id="reto-texto" data-reto-texto rows="4" readonly hidden></textarea>
-        <p class="t-caption faint">{t('reto.tomorrow')}</p>
+        <textarea class="reto-compartir" id="reto-texto" data-reto-texto rows="5" readonly hidden></textarea>
+        <p class="t-caption faint" data-reto-manana>{t('reto.tomorrow')}</p>
 
         <div class="reto-acciones">
           <a class="btn btn-ghost btn-sm" href={route('lesson.errores', locale)}>{t('reto.lesson')} →</a>
@@ -188,6 +289,54 @@ const ronda1 = t('reto.round_tpl').replace('{n}', '1').replace('{total}', String
     <p class="reto-fuente">
       <SourceChip locale={locale} source="Yahoo Finance" note={t('reto.src.note')} id="reto-chip" />
     </p>
+
+    <!-- Racha y calendario: todo esto lo pinta el script desde localStorage -->
+    <section class="card reto-racha-card" aria-labelledby="reto-racha-h" data-reto-panel>
+      <h2 id="reto-racha-h" class="t-h3">{t('reto.prog.h')}</h2>
+      <p class="t-small muted" data-reto-vacio hidden>{t('reto.prog.empty')}</p>
+
+      <dl class="reto-stats" data-reto-stats hidden>
+        <div><dt>{t('reto.prog.streak')}</dt><dd class="num" data-reto-st-racha>0</dd></div>
+        <div><dt>{t('reto.prog.best')}</dt><dd class="num" data-reto-st-mejor>0</dd></div>
+        <div><dt>{t('reto.prog.days')}</dt><dd class="num" data-reto-st-dias>0</dd></div>
+        <div><dt>{t('reto.prog.hits')}</dt><dd class="num" data-reto-st-clavadas>0</dd></div>
+      </dl>
+
+      <figure class="reto-cal" data-reto-cal hidden>
+        <figcaption class="t-caption faint" data-reto-cal-mes></figcaption>
+        <div class="reto-cal-dows" aria-hidden="true">
+          {dows.map((d, n) => <span title={dowsFull[n]}>{d}</span>)}
+        </div>
+        <!-- La rejilla es un dibujo. Lo que lee un lector de pantalla es la
+             frase de debajo ("este mes llevas N días de los M que han pasado"),
+             que dice lo mismo sin recitar 31 casillas. -->
+        <div class="reto-cal-rejilla" data-reto-cal-rejilla aria-hidden="true"></div>
+      </figure>
+      <p class="t-caption faint" data-reto-cal-leyenda hidden>{t('reto.cal.legend')}</p>
+
+      <p class="t-caption faint">{t('reto.prog.local')}</p>
+      <div class="reto-borrar">
+        <button class="btn btn-ghost btn-sm" type="button" data-reto-borrar>{t('reto.prog.clear')}</button>
+        <div class="reto-confirmar" data-reto-confirmar hidden>
+          <p class="t-small">{t('reto.prog.clear.ask')}</p>
+          <div class="reto-acciones">
+            <button class="btn btn-ghost btn-sm" type="button" data-reto-borrar-si>{t('reto.prog.clear.yes')}</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-reto-borrar-no>{t('reto.prog.clear.no')}</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <details class="card reto-como">
+      <summary class="t-h3">{t('reto.how.h')}</summary>
+      <ol class="t-small">
+        <li data-reto-how-1>{t('reto.how.1').replace('{d}', '…')}</li>
+        <li>{t('reto.how.2')}</li>
+        <li>{t('reto.how.3').replace('{n}', String(POOL_DIARIO.length))}</li>
+        <li>{t('reto.how.4')}</li>
+      </ol>
+      <p class="t-caption faint"><code>{t('reto.how.code')}</code></p>
+    </details>
 
     <section class="card reto-learn" aria-labelledby="reto-learn-h">
       <h2 id="reto-learn-h" class="t-h3">{t('reto.learn')}</h2>

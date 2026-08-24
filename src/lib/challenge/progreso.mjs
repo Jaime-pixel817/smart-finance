@@ -44,6 +44,12 @@ export const LLAVE_V1 = 'sf:reto:v1';
  */
 export const MAX_DIAS = 400;
 
+/**
+ * @typedef {{ p: number, e: number, m: number }} DiaJugado
+ *   p = puntos, e = rondas exactas, m = máximo posible de ese día.
+ * @typedef {{ v: number, ultimoDia: string|null, racha: number, mejorRacha: number, dias: Record<string, DiaJugado> }} Progreso
+ */
+
 const esNum = (x) => typeof x === 'number' && Number.isFinite(x);
 const esFecha = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 
@@ -56,9 +62,12 @@ export function diaAnterior(fecha) {
   return d.toISOString().slice(0, 10);
 }
 
-/** Un progreso recién estrenado. */
+/**
+ * Un progreso recién estrenado.
+ * @returns {Progreso}
+ */
 export function progresoVacio() {
-  return { v: 2, ultimoDia: null, racha: 0, mejorRacha: 0, dias: {} };
+  return { v: 2, ultimoDia: null, racha: 0, mejorRacha: 0, dias: /** @type {Record<string, DiaJugado>} */ ({}) };
 }
 
 /**
@@ -69,8 +78,9 @@ export function progresoVacio() {
  * pudo dejar otra forma. Así que se valida campo por campo y lo que no cuadre se
  * tira en silencio — un progreso a medias vale más que una página en blanco.
  *
- * @param {string|object|null} bruto lo que salga de localStorage
+ * @param {string|Progreso|object|null} bruto lo que salga de localStorage
  * @param {string|object|null} [brutoV1] lo que hubiera en la clave vieja
+ * @returns {Progreso}
  */
 export function leerProgreso(bruto, brutoV1 = null) {
   const obj = parsear(bruto);
@@ -123,7 +133,11 @@ function podar(p) {
   return p;
 }
 
-/** ¿Ya se jugó el reto diario de ese día en este dispositivo? */
+/**
+ * ¿Ya se jugó el reto diario de ese día en este dispositivo?
+ * @param {Progreso} prog
+ * @param {string} fecha
+ */
 export function yaJugado(prog, fecha) {
   return Boolean(prog && prog.dias && Object.prototype.hasOwnProperty.call(prog.dias, fecha));
 }
@@ -133,8 +147,9 @@ export function yaJugado(prog, fecha) {
  * toca el que recibe). Si ese día ya estaba apuntado, no cambia nada: cuenta el
  * primer intento, ver arriba.
  *
- * @param {object} prog
+ * @param {Progreso|string|null} prog
  * @param {{ fecha: string, puntos: number, max: number, exactas?: number }} partida
+ * @returns {Progreso}
  */
 export function registrarDia(prog, partida) {
   const p = leerProgreso(prog);
@@ -162,6 +177,8 @@ export function registrarDia(prog, partida) {
  * La racha que se puede ENSEÑAR hoy. `prog.racha` es la que había el último día
  * jugado; si ese día no fue hoy ni ayer, la racha ya está rota y enseñarla sería
  * mentir. Con `ultimoDia === ayer` sigue viva: todavía se está a tiempo.
+ * @param {Progreso|string|null} prog
+ * @param {string} hoy
  */
 export function rachaVigente(prog, hoy) {
   const p = leerProgreso(prog);
@@ -175,6 +192,7 @@ export function rachaVigente(prog, hoy) {
  * Los totales del marcador: días jugados, puntos, máximo posible, rondas
  * clavadas y mejor racha. El acierto se cuenta como ronda EXACTA (la banda
  * correcta), que es lo que la gente entiende por "le atiné".
+ * @param {Progreso|string|null} prog
  */
 export function totales(prog) {
   const p = leerProgreso(prog);
@@ -199,7 +217,7 @@ export function totales(prog) {
 /**
  * El calendario de un mes: filas de siete celdas empezando en lunes.
  *
- * @param {object} prog
+ * @param {Progreso|string|null} prog
  * @param {number} ano
  * @param {number} mes  1–12
  * @param {string} hoy  YYYY-MM-DD, para marcar el día y no colorear el futuro
