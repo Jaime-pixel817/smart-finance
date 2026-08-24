@@ -43,7 +43,10 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'tool', name: t['tools.inflation'], keys: t['tools.inflation.desc'] + (lang === 'es' ? ' poder adquisitivo precios calculadora' : ' purchasing power prices calculator'), href: route('tool.inflacion', lang), lang });
     items.push({ t: 'tool', name: t['tools.cetes'], keys: t['tools.cetes.desc'] + (lang === 'es' ? ' cetes cuenta banco rendimiento real ahorro' : ' cetes bank account real return savings'), href: route('tool.cetes', lang), lang });
     items.push({ t: 'page', name: t['tools.h1'], keys: lang === 'es' ? 'herramientas calculadoras' : 'tools calculators', href: route('tools', lang), lang });
-    items.push({ t: 'tool', name: t['reto.h1'], keys: t['reto.card.desc'] + (lang === 'es' ? ' reto diario juego quiz gráfica ciega adivinar mercado racha' : ' daily challenge game quiz blind chart guess market streak'), href: route('challenge', lang), lang });
+    // El nombre es el mismo que en el home, en /tools y en el nav; el titular
+    // del juego ("¿Y luego qué pasó?") va en las claves, para que también lo
+    // encuentre quien busque por él.
+    items.push({ t: 'tool', name: t['tools.reto'], keys: t['reto.card.desc'] + ' ' + t['reto.h1'] + (lang === 'es' ? ' reto diario juego quiz gráfica ciega adivinar mercado racha' : ' daily challenge game quiz blind chart guess market streak'), href: route('challenge', lang), lang });
     items.push({ t: 'page', name: t['nav.today'], keys: lang === 'es' ? 'inicio pulso historia home' : 'home pulse story', href: route('home', lang), lang });
     items.push({ t: 'page', name: t['mkt.title'], keys: lang === 'es' ? 'gráficas divisas cripto vix charts' : 'charts fx crypto vix', href: route('market', lang), lang });
     items.push({ t: 'tool', name: t['cmp.title'], keys: lang === 'es' ? 'comparar activos dos tres gráfica base 100 normalizar rendimiento' : 'compare assets two three chart base 100 normalise performance', href: route('market.compare', lang), lang });
@@ -54,7 +57,10 @@ export const GET: APIRoute = async () => {
     items.push({ t: 'page', name: t['footer.community'], keys: lang === 'es' ? 'comunidad estudiantil grupo bolsa mexicana de valores talleres voluntariado' : 'student community group mexican stock exchange workshops volunteering', href: route('community', lang), lang });
     items.push({ t: 'page', name: t['nav.methodology'], keys: lang === 'es' ? 'metodología fuentes datos IA correcciones' : 'methodology sources data AI corrections', href: route('methodology', lang), lang });
     items.push({ t: 'page', name: t['nav.newsletter'], keys: lang === 'es' ? 'suscribirme correo boletín números anteriores archivo semanal' : 'subscribe email weekly past issues archive', href: route('newsletter', lang), lang });
-    items.push({ t: 'page', name: t['research.title'], keys: lang === 'es' ? 'research reportes acciones DCF valuación fuentes' : 'research reports equity DCF valuation sources', href: route('research', lang), lang });
+    // La sección se llama Smart Finance Projects; la ruta sigue siendo
+    // /research, así que "research" se queda entre las palabras que la
+    // encuentran (es lo que alguien que ya la conocía va a teclear).
+    items.push({ t: 'page', name: t['projects.title'], keys: lang === 'es' ? 'proyectos projects research reportes acciones DCF valuación fuentes reto actinver bolsa mexicana simulador' : 'projects research reports equity DCF valuation sources actinver challenge mexican exchange simulator', href: route('research', lang), lang });
     items.push({
       t: 'page', name: t['nav.portfolio'],
       keys: lang === 'es' ? 'portafolio posiciones tesis cartera personal acciones qué tengo' : 'portfolio positions thesis holdings what I own',

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Methodology from '../../components/about/Methodology.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 const title = 'Metodología: de dónde salen los datos, qué hace la IA, cómo se corrigen los errores — Smart Finance';
 const description = 'Las fuentes, la cadencia de actualización y el retraso de cada número de Smart Finance, la cadena de respaldo y caché, qué genera la IA y cómo se etiqueta, el registro de correcciones, los conflictos de interés y cómo reportar un error.';
 const jsonLd = {
@@ -11,11 +12,12 @@ const jsonLd = {
   description,
   url: SITE + '/es/metodologia',
   inLanguage: 'es-MX',
-  dateModified: '2026-08-21',
+  dateModified: '2026-08-23',
   isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
   publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
 };
 ---
-<Base locale="es" routeId="methodology" active="today" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="es" routeId="methodology" active="today" title={title} description={description}
+  ogImage={ogPropia('methodology', 'es')} ogImageAlt="Smart Finance — De dónde sale cada número" jsonLd={jsonLd}>
   <Methodology locale="es" />
 </Base>

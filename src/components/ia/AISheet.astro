@@ -1,0 +1,67 @@
+---
+// La hoja donde sale la respuesta de Smart Finance AI. Una por página, vacía
+// hasta que alguien toca un botón "Explícame esto".
+//
+// role=dialog + aria-modal, cierra con ✕, con el fondo y con Esc, atrapa el
+// foco mientras está abierta y lo devuelve al botón al cerrar (mismo trato que
+// GlossarySheet). El cuerpo va en un aria-live="polite": la respuesta tarda
+// segundos en llegar y quien usa lector de pantalla tiene que enterarse de que
+// llegó sin ir a buscarla.
+//
+// La ETIQUETA de IA no es letra chica ni está detrás de un "leer más": está
+// escrita en la propia hoja, encima del pliegue, con la fecha del dato y el
+// enlace a /methodology. Es la regla del sitio.
+import '../../styles/ia.css';
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const strings = {
+  loading: t('ia.loading'), loadingLong: t('ia.loading.long'), error: t('ia.error'),
+  retry: t('ia.retry'), used: t('ia.used'), sources: t('ia.sources'), asof: t('ia.asof'),
+  lesson: t('ia.lesson'), questionsTitle: t('ia.questions.title'), title: t('ia.title'),
+  disclosure: t('ia.disclosure'), disclosureFixed: t('ia.disclosure.fixed')
+};
+---
+<div class="ia-sheet" id="ia-sheet" role="dialog" aria-modal="true" aria-labelledby="ia-sheet-title"
+  data-locale={locale} data-strings={JSON.stringify(strings)}
+  data-metodologia={route('methodology', locale)} hidden>
+  <div class="ia-sheet-backdrop" data-ia-close></div>
+  <div class="ia-sheet-panel" tabindex="-1">
+    <button type="button" class="ia-sheet-close" data-ia-close aria-label={t('ia.close')}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+
+    <p class="eyebrow ia-eyebrow">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M12 3.5l1.7 4.3 4.3 1.7-4.3 1.7L12 15.5l-1.7-4.3L6 9.5l4.3-1.7z"></path>
+      </svg>
+      <span>{t('ia.title')}</span>
+    </p>
+    <h2 id="ia-sheet-title" class="ia-sheet-title"></h2>
+
+    <!-- Todo lo que cambia vive aquí dentro, y lo anuncia solo. -->
+    <div class="ia-cuerpo" aria-live="polite" aria-busy="false"></div>
+
+    <!-- La caja de preguntar. Es opcional y lo dice: no es un chat. -->
+    <form class="ia-ask" hidden>
+      <label class="t-caption faint" for="ia-ask-input">{t('ia.ask')}</label>
+      <div class="ia-ask-row">
+        <input id="ia-ask-input" type="text" maxlength="200" autocomplete="off"
+          placeholder={t('ia.ask.placeholder')} />
+        <button type="submit" class="btn btn-ghost btn-sm">{t('ia.ask.send')}</button>
+      </div>
+    </form>
+
+    <p class="ia-disclosure">
+      <span><strong class="ia-disclosure-txt">{t('ia.disclosure')}</strong></span>
+      <span class="ia-asof"></span>
+      <span><a href={route('methodology', locale)}>{t('ia.how')} →</a></span>
+    </p>
+  </div>
+</div>
+<script src="../../scripts/ia.ts"></script>

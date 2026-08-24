@@ -1,0 +1,217 @@
+---
+// El bloque del RETO ACTINVER dentro de /research (Smart Finance Projects).
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LA FASE NO ESTÁ ESCRITA EN NINGÚN SITIO: SE CALCULA
+// ═══════════════════════════════════════════════════════════════════════════
+// Aquí se sirve VIVA una sola fase: la que elige `fase()` de
+// src/lib/reto/actinver.mjs con la fecha de hoy en Ciudad de México. Las SEIS
+// van además dentro de un <template> inerte, y de ahí saca
+// src/scripts/reto-fase.ts la que toque si el reloj de quien lee dice otra.
+//
+// Por qué las dos veces: el sitio es estático, así que sin el script la página
+// se quedaría diciendo lo que fuera verdad el día del build — y este bloque se
+// escribió el 23 de agosto de 2026, cuando faltaban 36 días para la semana de
+// práctica. Sin el script, en octubre seguiría diciendo "faltan 36 días".
+// Y sin el pintado del servidor, quien llegue sin JavaScript no vería fase
+// ninguna. Con los dos, la página nunca dice algo falso.
+//
+// El calendario y el millón virtual salen de retoactinver.com con su fecha de
+// consulta (está en el módulo). Ninguna fecha se escribe a mano en este
+// archivo ni en src/i18n/research.ts.
+//
+// MARCA DE UN TERCERO: el logo va pequeño, al lado del nombre del concurso y
+// con la línea de "no estamos afiliados" en el mismo bloque. Es blanco con el
+// punto dorado —así lo publica Actinver, para fondo oscuro— y por eso va sobre
+// una placa oscura FIJA en los dos temas: recolorear una marca ajena para que
+// encaje en el tema claro sería deformarla.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useR } from '../../i18n/research';
+import { foto } from '../../lib/photos';
+import { day } from '../../lib/research/format.mjs';
+import { RETO_2026, FASES, fase, estadoHitos, fechaLocal, conDatos } from '../../lib/reto/actinver.mjs';
+import FaseReto from './FaseReto.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const r = useR(locale);
+const cal = RETO_2026;
+
+// Lo que sabe el SERVIDOR: el día del build. El navegador lo recalcula.
+const hoy = fechaLocal();
+const actual = fase(hoy, cal);
+const hitos = estadoHitos(hoy, cal);
+
+const D = (iso: string) => day(iso, locale);
+// Los textos dejan `{y}` (la edición) y `{mes}` (el mes de la premiación) en
+// blanco: los rellena el calendario, no la traducción.
+const T = (txt: string) => conDatos(txt, locale);
+const rango = (t: { desde: string; hasta: string }) => D(t.desde) + ' – ' + D(t.hasta);
+
+// El hito que le toca a cada fase: es a lo que apunta la cuenta atrás.
+const HITO_DE: Record<string, keyof typeof r.retoCuenta | null> = {
+  antes: 'inscripciones', inscripciones: 'practica', practica: 'reto',
+  vispera: 'reto', reto: 'cierre', resultados: null
+};
+
+// Renglones del calendario. `premiacion` no tiene rango porque Actinver solo
+// publica el mes y el lugar; no se le inventa un día.
+const filas = [
+  { id: 'inscripciones', cuando: rango(cal.inscripciones) },
+  { id: 'practica', cuando: rango(cal.practica) },
+  { id: 'reto', cuando: rango(cal.reto) },
+  { id: 'premiacion', cuando: T(r.retoPremiacion) }
+] as { id: keyof typeof r.retoCal; cuando: string }[];
+
+// Textos que el script necesita para reescribir la cuenta atrás sin volver a
+// traducir nada: van en un data-, no repetidos dentro del JavaScript.
+const textosScript = JSON.stringify({ dia: r.retoDay, dias: r.retoDays });
+---
+<section id="reto-actinver" class="proj" aria-labelledby="reto-h">
+  <div class="reto-intro">
+    <div class="reto-head">
+      <span class="marca">
+        <!-- Sin loading="lazy" a propósito: son 2 KB y es la atribución de una
+             marca ajena, que va al lado de la línea de "no estamos afiliados".
+             En diferido la placa se queda vacía hasta que alguien llega
+             scrolleando, y eso es justo lo que no puede pasar con un crédito. -->
+        <img src={foto('reto-actinver.webp')} alt={r.retoLogoAlt} width="182" height="108" decoding="async" />
+      </span>
+      <div class="reto-head-txt">
+        <p class="eyebrow">{T(r.retoEdition)}</p>
+        <h2 id="reto-h" class="t-h2">{r.retoH}</h2>
+      </div>
+    </div>
+    <p class="proj-lede">{r.retoLede}</p>
+  </div>
+
+  <!-- Cómo va hoy.
+       VIVA va UNA sola fase: la que era verdad al construir la página. Las
+       seis van dentro de un <template> (el porqué de las seis y no cinco,
+       abajo), que el navegador no renderiza y nadie indexa, y de ahí saca
+       src/scripts/reto-fase.ts la que toca si el día ya cambió. Pintarlas
+       todas y esconder cinco con `hidden` era más simple, pero dejaba en el
+       HTML servido cinco frases falsas sobre hoy —"el reto está en marcha"
+       en agosto— para cualquiera que leyera el código fuente o lo raspara. -->
+  <div class="card reto-estado" data-reto data-reto-textos={textosScript}>
+    <h3 class="t-h3">{r.retoNow}</h3>
+    <div data-reto-actual>
+      <FaseReto f={actual.id} r={r} locale={locale} hito={HITO_DE[actual.id]} faltan={actual.faltan} inscripciones={actual.inscripciones} />
+    </div>
+    <!-- LAS SEIS, incluida la que está viva arriba. Tener solo las otras cinco
+         parecía más limpio y estaba mal: el bloque vivo se REEMPLAZA al
+         clonar, así que la fase del build desaparecía del documento y no había
+         de dónde recuperarla. Con las seis, `pinta()` es idempotente y da
+         igual en qué orden se llame. Lo que se duplica es la frase que SÍ es
+         verdad hoy, que no le hace daño a nadie. -->
+    <template data-reto-fases>
+      {FASES.map((f: string) => (
+        <FaseReto f={f} r={r} locale={locale} hito={HITO_DE[f]} faltan={null} inscripciones={true} />
+      ))}
+    </template>
+  </div>
+
+  <!-- Qué es -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoWhatH}</h3>
+    <p>{r.retoWhat}</p>
+  </div>
+
+  <!-- El calendario -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{T(r.retoCalH)}</h3>
+    <p class="t-small muted">{r.retoCalP}</p>
+    <ol class="cal">
+      {filas.map((fila) => (
+        <li data-hito={fila.id} data-estado={hitos[fila.id]}>
+          <span class="cal-dot" aria-hidden="true"></span>
+          <span class="cal-que">{r.retoCal[fila.id]}</span>
+          <span class="cal-cuando num">{fila.cuando}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <!-- A dónde ir -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoLinksH}</h3>
+    <div class="reto-links">
+      <a class="card card-link" href={cal.sitio} target="_blank" rel="noopener nofollow">
+        <span class="t-h3">{r.retoSite} <span aria-hidden="true">↗</span></span>
+        <span class="t-small muted">{r.retoSiteNote}</span>
+      </a>
+      <a class="card card-link" href={route('actinver', locale)}>
+        <span class="t-h3">{r.retoMine} <span aria-hidden="true">→</span></span>
+        <span class="t-small muted">{r.retoMineNote}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Fuente -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoSourceH}</h3>
+    <p class="t-small muted">
+      {r.retoSourceP.replace('{d}', D(cal.fuente.consultada))}
+    </p>
+  </div>
+
+  <!-- No afiliación -->
+  <div class="reto-sub">
+    <h3 class="t-h3">{r.retoDiscH}</h3>
+    <p class="t-small muted">{r.retoDisc}</p>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/reto-fase';
+</script>
+
+<style>
+  /* OJO: los estilos de Astro tienen ÁMBITO POR COMPONENTE. `.proj` y
+     `.proj-lede` están definidos también en Hub.astro, pero esas reglas no
+     alcanzan a este archivo —Astro les pone el hash del componente en el que
+     se escriben—, así que el bloque salía sin separación entre apartados
+     aunque en el otro fichero pusiera `gap: var(--section-gap)`. Aquí van otra
+     vez, a propósito: es el mismo motivo por el que news.css y challenge.css
+     son globales. */
+  .proj { display: flex; flex-direction: column; gap: var(--section-gap); scroll-margin-top: calc(var(--topbar-h) + 8px); }
+
+  .reto-intro { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .reto-head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding-top: var(--sp-3); border-top: 2px solid var(--ink); }
+  .reto-head-txt { display: flex; flex-direction: column; gap: 2px; }
+  /* Placa oscura FIJA en los dos temas: el logo de Actinver es blanco con el
+     punto dorado y está hecho para fondo oscuro. Recolorearlo sería deformar
+     una marca ajena, y sobre el tema claro a pelo no se vería. */
+  .marca { display: inline-flex; align-items: center; justify-content: center; background: #111820; border: 1px solid #232c38; border-radius: var(--r-btn); padding: 8px 12px; flex: none; }
+  .marca img { display: block; width: auto; height: 34px; }
+
+  .proj-lede { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink-2); max-width: var(--measure); }
+  .reto-sub { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .reto-sub > p { max-width: var(--measure); }
+
+  .reto-estado { display: flex; flex-direction: column; gap: var(--sp-2); }
+  /* AQUÍ NO VAN `.fase` NI `.cuenta`: ese marcado es de FaseReto.astro y sus
+     estilos viven allí. Estuvieron repetidos aquí y no pintaban NADA —el
+     ámbito de Astro les ponía el hash de este componente y en el HTML
+     construido los 14 `.fase`, los 7 `.fase-chip` y los 12 `.cuenta` llevan
+     el de FaseReto—, 861 bytes de CSS que no tocaban un solo nodo. Que
+     `.proj` y `.proj-lede` sí haya que repetirlos (arriba) no vuelve verdad
+     lo contrario: se repite lo que este archivo pinta, nada más. */
+
+  .cal { display: flex; flex-direction: column; gap: 0; margin-top: var(--sp-2); }
+  .cal li { display: grid; grid-template-columns: 14px 1fr; gap: var(--sp-2) var(--sp-3); align-items: baseline; padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+  .cal-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); align-self: center; justify-self: center; }
+  .cal-que { color: var(--ink-2); }
+  .cal-cuando { grid-column: 2; color: var(--ink-3); font-size: var(--fs-small); }
+  .cal li[data-estado="ahora"] .cal-dot { background: var(--brand-text); box-shadow: 0 0 0 4px var(--brand-wash); }
+  .cal li[data-estado="ahora"] .cal-que { color: var(--ink); font-weight: 600; }
+  .cal li[data-estado="pasado"] .cal-que, .cal li[data-estado="pasado"] .cal-cuando { color: var(--ink-3); }
+  @media (min-width: 560px) {
+    .cal li { grid-template-columns: 14px 1fr auto; }
+    .cal-cuando { grid-column: 3; text-align: right; }
+  }
+
+  .reto-links { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .reto-links { grid-template-columns: 1fr 1fr; } }
+  .reto-links a { display: flex; flex-direction: column; gap: 4px; }
+</style>

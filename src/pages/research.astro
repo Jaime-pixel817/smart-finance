@@ -1,23 +1,35 @@
 ---
-// /research — hub de Smart Finance Research (inglés).
+// /research — hub de SMART FINANCE PROJECTS (inglés): equity research arriba
+// y el Reto Actinver debajo.
+//
+// LA RUTA NO CAMBIA. La sección se llamaba "Smart Finance Research" y ahora se
+// llama "Smart Finance Projects", pero el URL sigue siendo /research: ya está
+// indexado y en el sitemap, y renombrarlo por un cambio de rótulo tiraría eso
+// a la basura. /projects redirige aquí (vercel.json).
 import Base from '../layouts/Base.astro';
 import Hub from '../components/research/Hub.astro';
 import { SITE } from '../i18n/routes';
+import { ogPropia } from '../lib/og';
 import { useR } from '../i18n/research';
 const r = useR('en');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'Smart Finance Research',
+  name: 'Smart Finance Projects',
   description: r.hubDesc,
   url: SITE + '/research',
   inLanguage: 'en',
-  dateModified: '2026-08-22',
+  dateModified: '2026-08-23',
   isPartOf: { '@type': 'WebSite', name: 'Smart Finance', url: SITE + '/' },
+  hasPart: [
+    { '@type': 'CreativeWork', name: 'Equity research', url: SITE + '/research#equity-research' },
+    { '@type': 'CreativeWork', name: 'Actinver Challenge', url: SITE + '/research#reto-actinver' }
+  ],
   author: { '@type': 'Person', name: 'Jaime Sandoval Ricaño', url: SITE + '/about' },
   publisher: { '@type': 'Organization', name: 'Smart Finance', '@id': SITE + '/#organization' }
 };
 ---
-<Base locale="en" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}>
+<Base locale="en" routeId="research" active="research" title={r.hubTitle} description={r.hubDesc} jsonLd={jsonLd}
+  ogImage={ogPropia('research', 'en')} ogImageAlt="Smart Finance Projects — equity research and the Actinver Challenge">
   <Hub locale="en" />
 </Base>

@@ -78,16 +78,12 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
 
   <div class="home-body">
   <div class="container grid">
-    <!-- ── Frase de bienvenida, solo la primera visita ──────────────
-         Es lo primero de .home-body y lo que asoma por debajo del hero: la
-         barra de bolsas y la línea Hoy (fecha · NYSE · BMV) están arriba, en
-         el hero, que es donde se miran. -->
-    <section class="today col-12" aria-label={t('today.label')}>
-      <p id="today-intro" class="today-intro t-small muted">
-        <span>{t('today.intro')}</span>
-        <button id="today-intro-x" type="button" aria-label={t('today.dismiss')}>×</button>
-      </p>
-    </section>
+    <!-- Aquí vivía una frase de bienvenida ("Mercados y dinero, explicados
+         para jóvenes") que repetía palabra por palabra el titular del hero,
+         tres dedos más arriba. Un banner que dice lo que ya está dicho solo
+         empuja hacia abajo lo que sí se viene a ver. Lo que enseña el sitio
+         ahora son los avisos contextuales (src/lib/avisos/avisos.mjs): una
+         frase, en la página donde sirve y en el momento en que sirve. -->
 
     <!-- ── Pulso ─────────────────────────────────────────────────── -->
     <section id="market" class="pulse col-12" aria-labelledby="pulse-h">
@@ -195,6 +191,14 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
         <a class="more" href={L('tools')}>{t('tools.all')} →</a>
       </div>
       <div class="tools-grid">
+        <!-- El reto va primero: es lo único de esta sección que se juega, y
+             es el mismo orden que /tools. Su icono es la gráfica con la parte
+             tapada por delante — no una calculadora. -->
+        <a class="card card-link tool" href={L('challenge')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16l4-6 4 4 3-6"/><path d="M15 8h6v6"/><path d="M18 15v6M15 18h6"/></svg>
+          <span class="t-h3">{t('tools.reto')}</span>
+          <span class="t-caption muted">{t('tools.reto.desc')}</span>
+        </a>
         <a class="card card-link tool" href={L('tool.interes')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 19c4-1 6-3 8-7s4-7 10-8"/><path d="M3 19h18"/></svg>
           <span class="t-h3">{t('tools.compound')}</span>
@@ -216,8 +220,8 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     <!-- ── Research destacado ────────────────────────────────────── -->
     <section id="research" class="research col-6" aria-labelledby="research-h">
       <div class="section-head">
-        <h2 id="research-h" class="t-h3">{t('research.title')}</h2>
-        <a class="more" href={L('research')}>{t('research.all')} →</a>
+        <h2 id="research-h" class="t-h3">{t('projects.title')}</h2>
+        <a class="more" href={L('research')}>{t('projects.all')} →</a>
       </div>
       <a class="card card-link research-card" href={L('research.lululemon')}>
         <p class="eyebrow">{t('research.card.kicker')} <span aria-hidden="true">·</span> <span class="research-status">{t('research.building')}</span></p>
@@ -374,14 +378,6 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
     .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; }
     .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
   }
-
-  /* Frase de bienvenida */
-  .today { display: flex; flex-direction: column; gap: var(--sp-2); }
-  :global(html.intro-seen) .today { display: none; }
-  .today-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); }
-  :global(html.intro-seen) .today-intro { display: none; }
-  .today-intro button { width: 36px; height: 36px; border-radius: var(--r-btn); color: var(--ink-3); font-size: 1.25rem; line-height: 1; }
-  .today-intro button:hover { background: var(--bg-2); color: var(--ink); }
 
   /* Pulso */
   .pulse-rail li { width: 128px; }

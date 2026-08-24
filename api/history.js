@@ -193,25 +193,50 @@ async function pedirAYahoo(pair, symbolCfg, range, rangeCfg) {
   };
 }
 
+/**
+ * La serie de un par y un rango, pasando por la MISMA caché compartida que el
+ * endpoint. Se sacó del handler para que otro módulo del servidor pida la MISMA
+ * serie con la MISMA clave, sin dar la vuelta por HTTP ni pagarle a Yahoo una
+ * segunda vez. Hoy la usan dos:
+ *
+ *   - `_lib/ia.js`, que arma el bloque DATOS del explicador y tiene que leer
+ *     exactamente los puntos que ve la gráfica de la página.
+ *   - `_lib/og-reto.js`, que dibuja la og:image del reto del día y tiene que
+ *     ver exactamente los cierres que ve quien lo juega.
+ *
+ * Si se copiara la llamada a Yahoo serían dos claves de caché, dos créditos y,
+ * algún día, dos series distintas en la tarjeta y en el juego.
+ *
+ * Devuelve el sobre de la caché —`{ valor, stale, ... }`— o lanza si no hay
+ * nada que servir.
+ */
+async function serie(pair, range) {
+  const symbolCfg = SYMBOLS[pair];
+  const rangeCfg = RANGE_MAP[range];
+  if (!symbolCfg || !rangeCfg) {
+    const err = new Error('par o rango desconocido: ' + pair + ' ' + range);
+    err.code = 'HISTORY_PAR_DESCONOCIDO';
+    throw err;
+  }
+  return cache.conCache({
+    clave: 'history:v1:' + pair + ':' + range,
+    ttl: CACHE_TTL_MS / 1000,
+    proveedor: { nombre: 'yahoo', creditos: 1 },
+    calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
+  });
+}
+
 module.exports = async function handler(req, res) {
   const pair = String(req.query.pair || '').toUpperCase();
   const range = String(req.query.range || '').toUpperCase();
 
-  const symbolCfg = SYMBOLS[pair];
-  const rangeCfg = RANGE_MAP[range];
-
-  if (!symbolCfg || !rangeCfg) {
+  if (!SYMBOLS[pair] || !RANGE_MAP[range]) {
     res.status(400).json({ error: 'invalid pair or range' });
     return;
   }
 
   try {
-    const r = await cache.conCache({
-      clave: 'history:v1:' + pair + ':' + range,
-      ttl: CACHE_TTL_MS / 1000,
-      proveedor: { nombre: 'yahoo', creditos: 1 },
-      calcular: () => pedirAYahoo(pair, symbolCfg, range, rangeCfg)
-    });
+    const r = await serie(pair, range);
     res.setHeader('Cache-Control', CACHE_CONTROL);
     // `stale` es un campo AÑADIDO: la gráfica sigue leyendo `points` igual, y
     // con esto puede decir "último dato conocido" en vez de quedarse vacía.
@@ -224,3 +249,7 @@ module.exports = async function handler(req, res) {
 
 // El User-Agent se comparte con api/world.js (mismo proveedor, misma cabecera).
 module.exports.USER_AGENT = USER_AGENT;
+// La serie cacheada, para _lib/ia.js y _lib/og-reto.js (ver el comentario de
+// `serie`), y la lista de rangos que este endpoint sabe servir.
+module.exports.serie = serie;
+module.exports.RANGOS = Object.keys(RANGE_MAP);

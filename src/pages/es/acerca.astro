@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import About from '../../components/about/About.astro';
 import { SITE } from '../../i18n/routes';
+import { ogPropia } from '../../lib/og';
 import { foto } from '../../lib/photos';
 const title = 'Acerca de Jaime Sandoval Ricaño, quien hace Smart Finance — Smart Finance';
 const description = 'Estudiante y creador de contenido desde México que explica mercados y dinero para jóvenes en TikTok, LinkedIn y smartfinance.lat: misión, de quién ha aprendido, cómo trabaja y cómo contactarlo.';
@@ -20,6 +21,7 @@ const jsonLd = {
   }
 };
 ---
-<Base locale="es" routeId="about" active="today" title={title} description={description} jsonLd={jsonLd}>
+<Base locale="es" routeId="about" active="today" title={title} description={description}
+  ogImage={ogPropia('about', 'es')} ogImageAlt="Smart Finance — Quién hace esto y por qué es público" jsonLd={jsonLd}>
   <About locale="es" />
 </Base>

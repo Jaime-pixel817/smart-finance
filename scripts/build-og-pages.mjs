@@ -518,6 +518,17 @@ const TARJETAS_FIJAS = [
       pie: 'Visitas a la BMV · Pláticas · Voluntariados' }
   },
   {
+    // El hub de la sección. Se llama 'research' como su ruta (/research), que
+    // no cambió al renombrarla a Smart Finance Projects.
+    nombre: 'research',
+    en: { etiqueta: 'Projects', titular: 'Equity research and a stock-market contest',
+      bajada: 'Two projects built in the open: reports with every figure from a filing, and a contest played with a million virtual pesos.',
+      pie: 'Sources cited · Assumptions written out · Not advice' },
+    es: { etiqueta: 'Proyectos', titular: 'Equity research y un concurso de bolsa',
+      bajada: 'Dos proyectos hechos a la vista: reportes con cada cifra sacada de un filing, y un concurso que se juega con un millón de pesos virtuales.',
+      pie: 'Fuentes citadas · Supuestos escritos · No es asesoría' }
+  },
+  {
     nombre: 'actinver',
     en: { etiqueta: 'Actinver Challenge', titular: 'A contest portfolio, position by position',
       bajada: 'A student stock-market contest played with fictional money, with the thesis behind every position.',
@@ -543,6 +554,42 @@ const TARJETAS_FIJAS = [
     es: { etiqueta: 'Mercado', titular: 'Índices, acciones, divisas y cripto',
       bajada: 'Cada cosa con su gráfica táctil, sus números clave y qué es en palabras normales.',
       pie: 'Cada 15 minutos · No es un feed para operar' }
+  },
+  {
+    nombre: 'about',
+    en: { etiqueta: 'About', titular: 'Who makes this, and why it is public',
+      bajada: 'Jaime Sandoval Ricaño, 18, Mexico City. Every number with a source, every mistake logged.',
+      pie: 'Code and data on GitHub' },
+    es: { etiqueta: 'Acerca de', titular: 'Quién hace esto y por qué es público',
+      bajada: 'Jaime Sandoval Ricaño, 18 años, Ciudad de México. Cada número con fuente, cada error registrado.',
+      pie: 'Código y datos en GitHub' }
+  },
+  {
+    nombre: 'methodology',
+    en: { etiqueta: 'Methodology', titular: 'Where every number comes from',
+      bajada: 'The source, the refresh cadence and the delay of each figure, what the AI does and what it never does.',
+      pie: 'Corrections logged with the date' },
+    es: { etiqueta: 'Metodología', titular: 'De dónde sale cada número',
+      bajada: 'La fuente, la cadencia y el retraso de cada cifra, qué hace la IA y qué no hace nunca.',
+      pie: 'Las correcciones se registran con su fecha' }
+  },
+  {
+    nombre: 'newsletter',
+    en: { etiqueta: 'Newsletter', titular: 'One email every Sunday morning',
+      bajada: 'What the market did that week, one story reviewed by a person and the lesson of the week.',
+      pie: 'Free · One click to unsubscribe' },
+    es: { etiqueta: 'Boletín', titular: 'Un correo cada domingo por la mañana',
+      bajada: 'Lo que hizo el mercado esa semana, una noticia revisada por una persona y la lección de la semana.',
+      pie: 'Gratis · Un clic para darte de baja' }
+  },
+  {
+    nombre: 'glossary',
+    en: { etiqueta: 'Glossary', titular: 'Finance words in plain language',
+      bajada: 'Every term with what it means, an example in pesos and the lesson where it is used.',
+      pie: 'Tap any term while you read a lesson' },
+    es: { etiqueta: 'Glosario', titular: 'Las palabras de finanzas, en normal',
+      bajada: 'Cada término con qué significa, un ejemplo en pesos y la lección donde se usa.',
+      pie: 'Toca cualquier término mientras lees una lección' }
   }
 ];
 

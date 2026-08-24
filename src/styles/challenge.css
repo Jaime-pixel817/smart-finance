@@ -98,7 +98,13 @@
 .reto-op .reto-flecha { font-family: var(--font-mono); color: var(--ink-3); flex: none; }
 .reto-op[data-banda="-2"] .reto-flecha, .reto-op[data-banda="-1"] .reto-flecha { color: var(--down); }
 .reto-op[data-banda="1"] .reto-flecha, .reto-op[data-banda="2"] .reto-flecha { color: var(--up); }
-.reto-op[aria-disabled="true"] { opacity: .45; cursor: default; }
+/* Las opciones que no se eligieron se apagan, pero SIGUEN LEYÉNDOSE: a .45 su
+   texto quedaba en 4.19:1 sobre el fondo de la tarjeta (medido en el
+   navegador), debajo del 4.5:1 que pide la AA, y lo que dicen es justo lo que
+   hay que poder comparar al revelar la ronda. A .65 el texto queda en 7.35:1 y
+   la flecha —decorativa, aria-hidden y repetida por el texto— en 3.12:1, y se
+   sigue viendo perfectamente cuál no era. */
+.reto-op[aria-disabled="true"] { opacity: .65; cursor: default; }
 .reto-op.es-correcta[aria-disabled="true"] { opacity: 1; border-color: var(--up); background: color-mix(in srgb, var(--up) 14%, transparent); }
 .reto-op.es-elegida[aria-disabled="true"] { opacity: 1; }
 .reto-op.es-elegida.es-fallo[aria-disabled="true"] { border-color: var(--down); background: color-mix(in srgb, var(--down) 12%, transparent); }
@@ -157,3 +163,80 @@
   .reto-zoom, .reto-clip, .reto-ylabels span, .reto-q, .reto-tapa { transition: none !important; }
   .reto-spinner { animation: none; }
 }
+
+/* ---- Modos: el de hoy o el libre ---- */
+.reto-modos { display: inline-flex; gap: 2px; padding: 3px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-pill); align-self: flex-start; max-width: 100%; }
+.reto-modo {
+  border: 0; background: transparent; color: var(--ink-2); cursor: pointer;
+  min-height: 40px; padding: 0 var(--sp-3); border-radius: var(--r-pill);
+  font-size: var(--fs-small); font-weight: 500; line-height: 1.2; white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.reto-modo[aria-pressed="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+.reto-modo:hover[aria-pressed="false"] { color: var(--ink); }
+
+.reto-aviso {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-card);
+  padding: var(--sp-2) var(--sp-3); font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink-2);
+}
+.reto-aviso-link { border: 0; background: none; padding: 0; cursor: pointer; color: var(--brand-text); font: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+.reto-libre { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
+.reto-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.reto-chip {
+  min-height: 36px; padding: 0 var(--sp-3); border-radius: var(--r-pill);
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink-2);
+  font-size: var(--fs-caption); line-height: 1.2; cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+}
+.reto-chip[aria-pressed="true"] { background: var(--brand-fill); border-color: transparent; color: var(--on-brand, #fff); }
+.reto-chip:hover[aria-pressed="false"] { border-color: var(--ink-3); color: var(--ink); }
+.reto-nota summary { cursor: pointer; color: var(--ink-2); }
+.reto-nota p { margin-top: var(--sp-2); max-width: var(--measure); }
+
+/* ---- Enlaces de "para entender esta ronda" ---- */
+.reto-enlaces { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; margin-top: var(--sp-2); }
+.reto-enlace { color: var(--brand-text); font-size: var(--fs-small); line-height: var(--lh-small); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---- Racha, totales y calendario ---- */
+.reto-racha-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+.reto-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); margin: 0; }
+@media (min-width: 560px) { .reto-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.reto-stats div { display: flex; flex-direction: column; gap: 2px; }
+.reto-stats dt { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
+.reto-stats dd {
+  margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero;
+  font-size: var(--fs-h3); line-height: 1.1; color: var(--ink);
+}
+.reto-stats dd small { font-size: .62em; color: var(--ink-3); margin-left: .2em; }
+
+.reto-cal { margin: 0; display: flex; flex-direction: column; gap: 6px; max-width: 320px; }
+/* capitalize pondria mayuscula en cada palabra: "Agosto De 2026". */
+.reto-cal figcaption::first-letter { text-transform: uppercase; }
+.reto-cal-dows, .reto-cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.reto-cal-dows span { text-align: center; font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-3); }
+.reto-cal-dia {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 5px; background: var(--bg-2); border: 1px solid transparent;
+  font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-3);
+}
+.reto-cal-dia.es-hueco { background: transparent; }
+.reto-cal-dia[data-futuro="si"] { opacity: .35; }
+/* Cuatro tonos de la marca, no un semáforo: aquí el color dice "viniste y te
+   fue así", y el rojo por sacar poco castigaría justo lo que el reto enseña
+   (que casi nadie le atina). */
+.reto-cal-dia[data-n="1"] { background: color-mix(in srgb, var(--brand-fill) 30%, var(--bg-2)); color: var(--ink); }
+.reto-cal-dia[data-n="2"] { background: color-mix(in srgb, var(--brand-fill) 50%, var(--bg-2)); color: var(--ink); }
+.reto-cal-dia[data-n="3"] { background: color-mix(in srgb, var(--brand-fill) 72%, var(--bg-2)); color: var(--on-brand, #fff); }
+.reto-cal-dia[data-n="4"] { background: var(--brand-fill); color: var(--on-brand, #fff); }
+.reto-cal-dia[data-hoy="si"] { border-color: var(--ink); font-weight: 600; }
+
+.reto-borrar { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
+.reto-confirmar { display: flex; flex-direction: column; gap: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--sp-3); background: var(--bg-2); }
+
+/* ---- Cómo se elige el reto de hoy ---- */
+.reto-como summary { cursor: pointer; }
+.reto-como ol { list-style: decimal; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); margin-top: var(--sp-3); }
+.reto-como li::marker { color: var(--brand-text); font-family: var(--font-mono); }
+.reto-como code { font-family: var(--font-mono); font-size: .95em; }
+.reto-como p { margin-top: var(--sp-3); }

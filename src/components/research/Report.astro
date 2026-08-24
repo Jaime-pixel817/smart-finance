@@ -90,12 +90,15 @@ const fmtV = (v: any) => {
   return String(v);
 };
 ---
-<article class="rep">
+<article class="rep" data-report={report.slug}>
   <div class="container rep-wrap">
 
     <!-- Cabecera de credibilidad -->
     <header class="rep-head">
-      <p class="rep-back"><a href={L('research')}>← {r.back}</a></p>
+      <!-- Al bloque de equity research, no al principio de la página: la
+           sección ahora tiene dos proyectos y volver de un reporte es volver a
+           la lista de reportes, no al índice de la sección. -->
+      <p class="rep-back"><a href={L('research') + '#equity-research'}>← {r.back}</a></p>
       <p class="eyebrow">{r.reportKicker} <span aria-hidden="true">·</span> {m.exchange}: {m.ticker}</p>
       <h1 class="t-display">{m.name}</h1>
       <!-- El precio de mercado va en su propia fila y con hueco reservado: lo
@@ -312,6 +315,41 @@ const fmtV = (v: any) => {
 </article>
 
 <script>
+  import { medir, medirUnaVez } from '../../lib/analytics';
+
+  // Cuántos reportes se abren y hasta dónde se leen. Un reporte de research es
+  // lo más largo del sitio: saber que se abre no dice nada, y saber que la
+  // mitad de la gente llega al bloque 6 sí.
+  //
+  // Se mide con la posición del scroll y no con IntersectionObserver sobre unas
+  // marcas: el índice de arriba SALTA a un bloque, y un salto que se pasa una
+  // marca sin llegar a cruzarla no dispara ningún evento (la razón de
+  // intersección va de 0 a 0). Con la profundidad máxima alcanzada, un salto al
+  // bloque 8 cuenta lo que tiene que contar. El cálculo va dentro de un
+  // requestAnimationFrame —una vez por cuadro como mucho, aunque el dedo dispare
+  // sesenta eventos por segundo— y el oyente se quita solo al llegar al final.
+  const rep = document.querySelector<HTMLElement>('[data-report]');
+  if (rep) {
+    const reporte = rep.dataset.report || '';
+    medirUnaVez('research_abierto', { reporte });
+    const tramos = [25, 50, 75, 100];
+    let pendiente = false;
+    const mirar = () => {
+      pendiente = false;
+      const alto = rep.offsetHeight;
+      if (!alto) return;
+      const arriba = rep.getBoundingClientRect().top + window.scrollY;
+      const leido = (window.scrollY + window.innerHeight - arriba) / alto;
+      while (tramos.length && leido >= tramos[0] / 100) {
+        medirUnaVez('research_leido', { reporte, hasta: tramos.shift() as number });
+      }
+      if (!tramos.length) window.removeEventListener('scroll', alScroll);
+    };
+    const alScroll = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(mirar); } };
+    window.addEventListener('scroll', alScroll, { passive: true });
+    mirar();
+  }
+
   document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
   // La tabla de siete años arranca mostrando el año MÁS RECIENTE: en el
   // teléfono es la columna que importa y el histórico queda a la izquierda.
@@ -338,6 +376,14 @@ const fmtV = (v: any) => {
   .rep-price-k { align-self: center; }
   .rep-price-v { font-size: var(--fs-num-l); color: var(--ink); min-width: 7ch; }
   .rep-price-src { align-self: center; min-width: 22ch; }
+  /* En el teléfono los cuatro trozos caben en tres renglones, pero CUÁLES caben
+     juntos depende del texto: con "—" y "loading…" salían tres renglones y con
+     "$121.07" y "Aug 21" salían dos, así que al volver /api/history el bloque
+     encogía 20 px y se llevaba el resto de la página con él (0.19 de CLS
+     medidos). Fijando el chip y la nota a renglón propio, el alto es 82 px
+     siempre, diga lo que diga el dato. De 768 px para arriba todo cabe en UN
+     renglón en cualquier estado (46 px, medido), así que ahí no hace falta. */
+  @media (max-width: 767px) { .rep-price-src, .rep-note { flex-basis: 100%; } }
   .rep-note { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--ink-3); }
 
   .rep-draft { display: flex; flex-direction: column; gap: var(--sp-2); border-left: 3px solid var(--warn); }

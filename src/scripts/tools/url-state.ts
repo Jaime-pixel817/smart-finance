@@ -10,6 +10,8 @@
 // lección. Se usa replaceState, así que el botón "atrás" del navegador sigue
 // saliendo de la página en lugar de deshacer arrastres del slider.
 
+import { medirUnaVez } from '../../lib/analytics';
+
 /** Ajusta un valor al min/max/step del input y lo devuelve como cadena. */
 function encajar(input: HTMLInputElement, valor: number): string {
   const min = Number(input.min || 0);
@@ -87,14 +89,21 @@ export function montarCopiar(raiz: ParentNode = document): void {
 /**
  * Conecta un widget: aplica la URL de entrada, repinta con `pintar` en cada
  * cambio y guarda el estado si la raíz trae data-url-state.
+ *
+ * `herramienta` es el slug con el que la calculadora aparece en la analítica
+ * ('interes-compuesto', 'inflacion', 'cetes-vs-cuenta', 'riesgo'). Se mide al
+ * PRIMER movimiento de un control, no al cargar: lo que interesa saber es con
+ * cuáles juega la gente, no cuántas veces se pinta una página. Solo el nombre
+ * de la calculadora viaja; los números que alguien teclea, nunca.
  */
-export function conectar(raiz: HTMLElement, pintar: () => void): void {
+export function conectar(raiz: HTMLElement, pintar: () => void, herramienta?: string): void {
   const guarda = raiz.dataset.urlState !== undefined;
   if (guarda) aplicarUrl(raiz);
   for (const input of campos(raiz)) {
     input.addEventListener('input', () => {
       pintar();
       if (guarda) guardarUrl(raiz);
+      if (herramienta) medirUnaVez('herramienta_usada', { herramienta });
     });
   }
   montarCopiar(document);

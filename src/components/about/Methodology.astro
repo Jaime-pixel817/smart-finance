@@ -20,7 +20,7 @@ const copy = {
     eyebrow: 'Methodology',
     title: 'How Smart Finance is made',
     lede: 'Where every number comes from, how fresh it is, what the AI does and does not do, and how mistakes get fixed. This page changes whenever the site does.',
-    updated: 'Last updated 21 Aug 2026',
+    updated: 'Last updated 23 Aug 2026',
     dataH: 'Data: what we use and from whom',
     dataIntro: 'Every surface shows a source chip with the provider, the delay and the time of the last refresh. These are the real cadences, taken from the code that serves the data (the /api folder of the public repository).',
     cols: ['Surface', 'Source', 'Refresh', 'Delay / notes'],
@@ -30,8 +30,10 @@ const copy = {
       { surface: 'Currencies (USD/MXN, EUR/MXN, CHF/MXN, EUR/USD, GBP/USD, USD/JPY) and the VIX', source: 'Yahoo Finance', cadence: 'Every 15 minutes', delay: 'Delayed at least 15 minutes' },
       { surface: 'Price charts 1D to 5Y and sparklines', source: 'Yahoo Finance', cadence: 'Charts cached 60 seconds; sparklines 15 minutes', delay: '1D is ONE session in 5-minute bars, cut by the exchange’s own day, so on a weekend you see the last trading day whole. The chart says which session it is showing' },
       { surface: 'Portfolio positions (/portfolio) and the Actinver Challenge (/actinver)', source: 'Yahoo Finance through the site\u2019s own chart endpoint; the positions and their thesis are a file in the public repository, edited by hand', cadence: 'The page is served with the value of the previous close, written into the repository by a scheduled job every trading night; the browser then refreshes it with the latest price', delay: 'Mexican exchange prices are delayed about 20 minutes; US ones at least 15. The Actinver Challenge is a contest played with fictional money' },
+      { surface: 'Which phase the Actinver Challenge is in (Smart Finance Projects, /research)', source: 'The 2026 calendar Actinver publishes on retoactinver.com, with the date it was consulted written on the page', cadence: 'It is not written into the page: it is worked out from today’s date in Mexico City, on the server at build time and again in your browser when you open it', delay: 'None — no data is fetched. The rule lives in one module with its own tests, so a page that has not been redeployed in months still names the right phase instead of the one that was true the day it was built' },
       { surface: 'Reference rates (Banxico target rate, Fed funds range)', source: 'Banco de México and Federal Reserve announcements, entered by hand', cadence: 'After each decision; verification date shown (currently ' + RATES.verificado + ')', delay: 'Hidden automatically if the verification is older than ' + RATES.maxDias + ' days' },
       { surface: 'News, explained (/news) and today’s story on the home', source: 'Bloomberg Markets RSS feed; the explanation is drafted with Claude and reviewed by me', cadence: 'Drafts once a day at 5:30 CDMX (11:30 UTC), up to three; published when I approve them', delay: 'Nothing appears on the site until a person approves it. Every story links to the original and shows its time' },
+      { surface: '“Explain this to me” (news, asset cards, charts, glossary, lessons)', source: 'claude-haiku-4-5, answering only from the data this site already has for that page', cadence: 'Generated when you press the button; the same answer is reused for 24 hours', delay: 'Not reviewed by a person: it says so on the answer, with the date of the data it used. Daily spending cap; when it is reached the button says so instead of answering' },
       { surface: 'Market open / closed labels', source: 'Computed from NYSE (9:30–16:00 ET) and BMV (8:30–15:00 CDMX) regular hours', cadence: 'On every page load', delay: 'Monday to Friday, holidays not included: a guide, not a promise' },
       { surface: 'Weekly newsletter', source: 'The same data as the site plus the story I approved that week; sent with Resend', cadence: 'Sundays at 8:00 CDMX (14:00 UTC)', delay: 'Double opt-in; unsubscribe link in every email. Every issue is also published as a page at /newsletter, with the prices it carried that Sunday — those are frozen, not updated. It was daily until August 2026 — the free Resend plan allows 100 emails a day, shared with the sign-up confirmations, so a daily send left almost no room for new subscribers' }
     ] as Row[],
@@ -46,7 +48,9 @@ const copy = {
     ],
     aiH: 'What the AI does, and what it does not',
     aiDoes: 'Claude (claude-haiku-4-5) writes the FIRST DRAFT of each news explainer from a real Bloomberg headline and its summary: what happened, why it matters, which assets it touches and which lesson helps. Those drafts are labeled “AI summary · reviewed by Jaime” and are never published on their own. I also use Claude as an assistant to draft and edit code and text; the repository is public.',
-    aiDoesNot: 'No figure on this site comes from an AI without a source. The lessons are written by me and list their sources with the date they were checked. Research reports, when they come, will be written by me with Claude as an assistant for data handling and drafting, and every number will link to a filing or a dataset. The AI never recommends anything, and neither do I.',
+    explainH: 'The “Explain this to me” button',
+    explainBody: 'Every news story, asset card, chart, glossary term and lesson has a discreet button that explains what you are looking at in plain words, and can write three study questions about it. It runs on claude-haiku-4-5 and it is generated on the spot, so it is labeled as AI and nobody has read it before you. Four things keep it honest, and all four are in the public repository (api/_lib/ia.js): the server builds the block of data it is allowed to know, from what the site already has — the approved story, the price series, the asset register, the lesson text — and the answer may use nothing else; the arithmetic (the change over the period, the high, the low) is done by the server, not by the model; every number in the answer is checked against that block before you see it, and if one is not there the answer is thrown away, asked for again once, and if it fails a second time you get an honest message instead of a figure; and asking it what to buy, what to sell or how much something will go up gets a fixed answer that points at the lesson on mistakes when investing. It also has a daily spending cap, because I pay for it.',
+    aiDoesNot: 'No figure on this site comes from an AI without a source. The lessons are written by me and list their sources with the date they were checked. The equity research reports I write in Smart Finance Projects are mine, with Claude as an assistant for handling data and building the pages, and every number links to a filing or a dataset; the thesis, the assumptions and the conclusions are not written until I write them, and the page says so while they are missing. The AI never recommends anything, and neither do I.',
     revH: 'How a news story gets published',
     revIntro: 'This is the part that matters: an AI writes the draft, a person decides. The whole chain is in the public repository (api/news.js and api/_lib/).',
     revSteps: [
@@ -56,9 +60,29 @@ const copy = {
       { n: '4', texto: 'Only what I approve is served to the site, so it appears within a minute. If I rewrote the text, the label changes from “AI summary · reviewed by Jaime” to “Written by Jaime”.' },
       { n: '5', texto: 'Approved stories are then copied into the repository, so each one gets its own permanent page at the next deploy. The URL is the same before and after.' }
     ] as Paso[],
+    anaH: 'Analytics: what gets counted, and what does not',
+    anaIntro: 'Smart Finance sets no cookies and has no accounts, so there is nothing here that follows you around. What it does count is which parts of the site people actually use — with Vercel Web Analytics and Speed Insights, both served from this domain, neither of which stores an identifier for you. If your browser sends Global Privacy Control or Do Not Track, the scripts are not even downloaded.',
+    anaDoesH: 'What is counted',
+    anaDoes: [
+      'Page views: which URL, which language, roughly where the visit came from (country and referrer), and the device type. No identifier, no cookie, no profile across visits.',
+      'Core Web Vitals of real visits (how fast a page paints, whether it jumps while loading). That is what Speed Insights is for.',
+      'Eleven named events, and only these eleven: the daily challenge started; the daily challenge finished, with the score and how many rounds were exact; a lesson finished; a quiz question answered, with whether it was right; a calculator used; an asset followed or unfollowed; a comparison drawn; a glossary term tapped; a newsletter sign-up accepted; a research report opened; and how far down that report was read (25, 50, 75 or 100 %).'
+    ],
+    anaNotH: 'What is not counted',
+    anaNot: [
+      'No email address, ever. The newsletter sign-up sends one event that says a sign-up happened and from which page; the address goes to the subscription endpoint and nowhere else.',
+      'None of the numbers you type into a calculator. The event carries the name of the calculator and nothing else.',
+      'Not your watchlist. It lives in your browser and never leaves it; what is counted is that some asset was followed, one event at a time.',
+      'No free text of any kind. Every value sent is checked against a short list-of-labels format first, so anything longer or more specific is dropped before it is sent.',
+      'No cookies, no fingerprinting, no cross-site tracking, no advertising, and nothing sold or shared with anyone.'
+    ],
+    anaWhy: 'Why so few events: the site now has lessons, tools, a daily challenge, portfolios, research and a newsletter, and until now nobody knew which of those anyone used. Eleven questions can be answered every month and acted on. Thirty would just be a dashboard nobody reads.',
     corrH: 'Corrections',
     corrIntro: 'If something is wrong, it gets fixed and logged here, with the date.',
     changelog: [
+      ['2026-08-23', 'The research section is now Smart Finance Projects: equity research at the top and the Actinver Challenge below it. The addresses did not change (/research and /research/<company> are the same pages they were), only the name. On the contest block, which phase it is in is worked out from today’s date rather than written down, so the page cannot end up claiming the practice week has started when it has not.'],
+      ['2026-08-23', 'The “Explain this to me” button published across news, asset cards, charts, the glossary and the lessons. It answers only from the data this site already has, the server does the arithmetic, every figure in the answer is checked against that data before it is shown, and it refuses to say what to buy or sell.'],
+      ['2026-08-23', 'Analytics turned on, and written down: no cookies, no accounts, no identifier — page views, Core Web Vitals of real visits and eleven named events, listed one by one in the section above. If your browser sends Global Privacy Control or Do Not Track, nothing loads at all.'],
       ['2026-08-23', 'Charts: 1D is now one whole session, cut by the exchange’s own day, so it is never empty when the market is closed; a line above the chart says which session you are looking at; you can drag your finger across it at any time to read the hour, the price and how much it had moved; and the period’s high and low are marked.'],
       ['2026-08-23', 'The newsletter now carries a “what moved this week” table (biggest weekly gainers and losers from the site’s own register), a source chip on every figure, the reading time of the lesson and a slot for a line written by me. Every issue is published as a page at /newsletter.'],
       ['2026-08-23', 'Portfolio pages published: /portfolio (my own positions) and /actinver (the student contest, played with fictional money). Every position carries the thesis I wrote when I opened it; the value of each portfolio is snapshotted into the repository every trading night, and that file is what the chart draws.'],
@@ -84,7 +108,7 @@ const copy = {
     eyebrow: 'Metodología',
     title: 'Cómo se hace Smart Finance',
     lede: 'De dónde sale cada número, qué tan fresco está, qué hace y qué no hace la IA, y cómo se corrigen los errores. Esta página cambia cada vez que cambia el sitio.',
-    updated: 'Última actualización: 21 ago 2026',
+    updated: 'Última actualización: 23 ago 2026',
     dataH: 'Datos: qué usamos y de quién',
     dataIntro: 'Cada superficie muestra un chip de fuente con el proveedor, el retraso y la hora de la última actualización. Estas son las cadencias reales, tomadas del código que sirve los datos (la carpeta /api del repositorio público).',
     cols: ['Superficie', 'Fuente', 'Actualización', 'Retraso / notas'],
@@ -94,8 +118,10 @@ const copy = {
       { surface: 'Divisas (USD/MXN, EUR/MXN, CHF/MXN, EUR/USD, GBP/USD, USD/JPY) y el VIX', source: 'Yahoo Finance', cadence: 'Cada 15 minutos', delay: 'Al menos 15 minutos de retraso' },
       { surface: 'Gráficas de 1D a 5A y sparklines', source: 'Yahoo Finance', cadence: 'Gráficas con caché de 60 segundos; sparklines de 15 minutos', delay: '1D es UNA sesión en barras de 5 minutos, cortada por el día de la propia bolsa, así que en fin de semana ves entero el último día hábil. La gráfica dice qué sesión está enseñando' },
       { surface: 'Posiciones del portafolio (/es/portafolio) y del Reto Actinver (/es/actinver)', source: 'Yahoo Finance a través del propio endpoint de gráficas del sitio; las posiciones y su tesis son un archivo del repositorio público, editado a mano', cadence: 'La página se sirve con el valor del cierre anterior, que una tarea programada escribe en el repositorio cada noche hábil; el navegador lo refresca después con el último precio', delay: 'Los precios de la bolsa mexicana van con unos 20 minutos de retraso y los de EE. UU. con al menos 15. El Reto Actinver es un concurso que se juega con dinero ficticio' },
+      { surface: 'En qué fase va el Reto Actinver (Smart Finance Projects, /es/research)', source: 'El calendario 2026 que Actinver publica en retoactinver.com, con la fecha en que se consultó escrita en la página', cadence: 'No está escrita en la página: se calcula con la fecha de hoy en Ciudad de México, en el servidor al construir el sitio y otra vez en tu navegador al abrirla', delay: 'Ninguno: no se pide ningún dato. La regla vive en un solo módulo con sus pruebas, así que una página que lleve meses sin desplegarse sigue nombrando la fase correcta y no la que era verdad el día en que se construyó' },
       { surface: 'Tasas de referencia (tasa objetivo de Banxico, rango de la Fed)', source: 'Anuncios del Banco de México y de la Reserva Federal, capturados a mano', cadence: 'Tras cada decisión; se muestra la fecha de verificación (hoy ' + RATES.verificado + ')', delay: 'Se ocultan solas si la verificación tiene más de ' + RATES.maxDias + ' días' },
       { surface: 'Noticias explicadas (/es/noticias) y la historia de hoy en el inicio', source: 'RSS de Bloomberg Markets; la explicación la redacta Claude y la reviso yo', cadence: 'Borradores una vez al día a las 5:30 CDMX (11:30 UTC), hasta tres; se publican cuando los apruebo', delay: 'Nada aparece en el sitio hasta que una persona lo aprueba. Cada noticia enlaza al original y muestra su hora' },
+      { surface: '“Explícame esto” (noticias, fichas de activo, gráficas, glosario, lecciones)', source: 'claude-haiku-4-5, respondiendo solo con los datos que este sitio ya tiene de esa página', cadence: 'Se genera al apretar el botón; la misma respuesta se reaprovecha 24 horas', delay: 'Sin revisar por una persona: lo dice en la propia respuesta, con la fecha del dato que usó. Tiene tope de gasto diario; al llegar al tope el botón lo dice en vez de responder' },
       { surface: 'Etiquetas de mercado abierto / cerrado', source: 'Calculadas con el horario regular de NYSE (9:30–16:00 ET) y BMV (8:30–15:00 CDMX)', cadence: 'En cada carga de página', delay: 'Lunes a viernes, sin feriados: una orientación, no una promesa' },
       { surface: 'Boletín semanal', source: 'Los mismos datos del sitio más la noticia que aprobé esa semana; se envía con Resend', cadence: 'Domingos a las 8:00 CDMX (14:00 UTC)', delay: 'Doble confirmación; enlace para darse de baja en cada correo. Cada número queda además publicado como página en /es/boletin, con los precios que llevaba ese domingo: ahí se congelan, no se actualizan. Fue diario hasta agosto de 2026: el plan gratuito de Resend da 100 correos al día, los mismos que usan las confirmaciones de alta, así que un envío diario casi no dejaba sitio para quien se quisiera suscribir' }
     ] as Row[],
@@ -110,7 +136,9 @@ const copy = {
     ],
     aiH: 'Qué hace la IA y qué no',
     aiDoes: 'Claude (claude-haiku-4-5) escribe el PRIMER BORRADOR de cada noticia explicada a partir de un titular real de Bloomberg y su resumen: qué pasó, por qué importa, qué activos toca y qué lección ayuda a entenderla. Esos borradores van etiquetados como “Resumen IA · revisado por Jaime” y nunca se publican solos. También uso Claude como asistente para redactar y editar código y texto; el repositorio es público.',
-    aiDoesNot: 'Ninguna cifra de este sitio sale de una IA sin fuente. Las lecciones las escribo yo y listan sus fuentes con la fecha en que las revisé. Los reportes de research, cuando lleguen, los escribiré yo con Claude como asistente para manejar datos y redactar, y cada número enlazará a un reporte oficial o a un conjunto de datos. La IA nunca recomienda nada, y yo tampoco.',
+    explainH: 'El botón “Explícame esto”',
+    explainBody: 'Cada noticia, ficha de activo, gráfica, término del glosario y lección tiene un botón discreto que explica en palabras llanas lo que estás viendo, y que además puede escribir tres preguntas de estudio sobre ello. Corre con claude-haiku-4-5 y se genera al momento, así que va etiquetado como IA y nadie lo ha leído antes que tú. Cuatro cosas lo mantienen honesto, y las cuatro están en el repositorio público (api/_lib/ia.js): el servidor arma el bloque de datos que tiene permitido saber, con lo que el sitio ya tiene —la noticia aprobada, la serie de precios, el registro de activos, el texto de la lección— y la respuesta no puede usar nada más; las cuentas (el cambio del periodo, el máximo, el mínimo) las hace el servidor y no el modelo; cada número de la respuesta se comprueba contra ese bloque antes de que lo veas, y si hay uno que no está la respuesta se tira, se pide otra vez y, si vuelve a fallar, te sale un mensaje honesto en vez de una cifra; y pedirle qué comprar, qué vender o cuánto va a subir algo tiene una respuesta fija que te manda a la lección de errores al invertir. También tiene un tope de gasto diario, porque lo pago yo.',
+    aiDoesNot: 'Ninguna cifra de este sitio sale de una IA sin fuente. Las lecciones las escribo yo y listan sus fuentes con la fecha en que las revisé. Los reportes de equity research que escribo en Smart Finance Projects son míos, con Claude como asistente para manejar datos y construir las páginas, y cada número enlaza a un reporte oficial o a un conjunto de datos; la tesis, los supuestos y las conclusiones no se escriben hasta que las escribo yo, y mientras faltan la página lo dice. La IA nunca recomienda nada, y yo tampoco.',
     revH: 'Cómo se publica una noticia',
     revIntro: 'Esta es la parte que importa: la IA escribe el borrador, una persona decide. Toda la cadena está en el repositorio público (api/news.js y api/_lib/).',
     revSteps: [
@@ -120,9 +148,29 @@ const copy = {
       { n: '4', texto: 'Solo lo que apruebo se sirve al sitio, y aparece en menos de un minuto. Si reescribí el texto, la etiqueta cambia de “Resumen IA · revisado por Jaime” a “Escrito por Jaime”.' },
       { n: '5', texto: 'Después, las aprobadas se copian al repositorio, para que cada una tenga su página permanente en el siguiente despliegue. La dirección es la misma antes y después.' }
     ] as Paso[],
+    anaH: 'Analítica: qué se cuenta y qué no',
+    anaIntro: 'Smart Finance no pone cookies y no tiene cuentas, así que aquí no hay nada que te siga. Lo que sí se cuenta es qué partes del sitio se usan de verdad, con Vercel Web Analytics y Speed Insights, los dos servidos desde este mismo dominio y ninguno de los dos guarda un identificador tuyo. Si tu navegador manda Global Privacy Control o Do Not Track, los scripts ni se descargan.',
+    anaDoesH: 'Qué se cuenta',
+    anaDoes: [
+      'Visitas por página: qué URL, en qué idioma, más o menos de dónde llegó la visita (país y desde qué sitio) y qué tipo de aparato. Sin identificador, sin cookie y sin unir una visita con la siguiente.',
+      'Los Core Web Vitals de visitas reales (cuánto tarda una página en pintarse, si se mueve mientras carga). Para eso es Speed Insights.',
+      'Once eventos con nombre, y solo esos once: reto del día empezado; reto del día terminado, con los puntos y cuántas rondas fueron exactas; lección terminada; pregunta de quiz contestada, con si se acertó; calculadora usada; activo seguido o dejado de seguir; comparación dibujada; término del glosario tocado; alta al boletín aceptada; reporte de research abierto; y hasta dónde se leyó ese reporte (25, 50, 75 o 100 %).'
+    ],
+    anaNotH: 'Qué no se cuenta',
+    anaNot: [
+      'Ningún correo, nunca. El alta al boletín manda un evento que dice que hubo un alta y desde qué página; la dirección va al endpoint de suscripción y a ningún otro sitio.',
+      'Ninguno de los números que tecleas en una calculadora. El evento lleva el nombre de la calculadora y nada más.',
+      'Tu watchlist tampoco. Vive en tu navegador y no sale de ahí; lo que se cuenta es que se siguió algún activo, un evento a la vez.',
+      'Nada de texto libre. Cada valor que se manda pasa antes por un filtro que solo deja etiquetas cortas, así que cualquier cosa más larga o más específica se tira antes de salir.',
+      'Sin cookies, sin huella del navegador, sin seguimiento entre sitios, sin publicidad, y nada que se venda o se comparta con nadie.'
+    ],
+    anaWhy: 'Por qué tan pocos eventos: el sitio ya tiene lecciones, herramientas, un reto diario, carteras, research y boletín, y hasta ahora nadie sabía cuál de esas cosas usaba alguien. Once preguntas se pueden contestar cada mes y hacer algo con ellas. Treinta serían un tablero que nadie mira.',
     corrH: 'Correcciones',
     corrIntro: 'Si algo está mal, se corrige y se registra aquí, con fecha.',
     changelog: [
+      ['2026-08-23', 'La sección de research pasa a llamarse Smart Finance Projects: el equity research arriba y el Reto Actinver debajo. Las direcciones NO cambiaron (/es/research y /es/research/<empresa> son las mismas páginas de siempre), solo el nombre. En el bloque del reto, la fase se calcula con la fecha de hoy en vez de estar escrita, para que la página no pueda acabar diciendo que ya empezó la semana de práctica cuando no ha empezado.'],
+      ['2026-08-23', 'Publicado el botón “Explícame esto” en las noticias, las fichas de activo, las gráficas, el glosario y las lecciones. Responde solo con los datos que este sitio ya tiene, las cuentas las hace el servidor, cada cifra de la respuesta se comprueba contra esos datos antes de enseñarla, y se niega a decir qué comprar o qué vender.'],
+      ['2026-08-23', 'Analítica encendida, y escrita: sin cookies, sin cuentas y sin identificador — visitas por página, Core Web Vitals de visitas reales y once eventos con nombre, listados uno por uno en la sección de arriba. Si tu navegador manda Global Privacy Control o Do Not Track, no se carga nada.'],
       ['2026-08-23', 'Gráficas: el 1D es ahora una sesión entera, cortada por el día de la propia bolsa, así que nunca sale vacío con el mercado cerrado; una línea encima dice qué sesión estás viendo; se puede recorrer con el dedo en cualquier momento para leer la hora, el precio y cuánto había subido o bajado; y quedan marcados el máximo y el mínimo del periodo.'],
       ['2026-08-23', 'El boletín trae ahora una tabla de “qué se movió esta semana” (los que más subieron y bajaron del registro del sitio), chip de fuente en cada cifra, el tiempo de lectura de la lección y un hueco para una línea escrita por mí. Cada número se publica además como página en /es/boletin.'],
       ['2026-08-23', 'Se publican las páginas de cartera: /es/portafolio (mis propias posiciones) y /es/actinver (el concurso estudiantil, con dinero ficticio). Cada posición lleva la tesis que escribí al abrirla; el valor de cada cartera se fotografía en el repositorio cada noche hábil, y ese archivo es lo que dibuja la gráfica.'],
@@ -157,6 +205,7 @@ const copy = {
         <a class="chip" href="#fallback">{copy.fallbackH}</a>
         <a class="chip" href="#ai">{copy.aiH}</a>
         <a class="chip" href="#review">{copy.revH}</a>
+        <a class="chip" href="#analytics">{copy.anaH}</a>
         <a class="chip" href="#corrections">{copy.corrH}</a>
         <a class="chip" href="#coi">{copy.coiH}</a>
         <a class="chip" href="#advice">{copy.adviceH}</a>
@@ -195,6 +244,10 @@ const copy = {
         <div class="card"><p class="eyebrow">{locale === 'es' ? 'Sí' : 'Does'}</p><p>{copy.aiDoes}</p></div>
         <div class="card"><p class="eyebrow">{locale === 'es' ? 'No' : 'Does not'}</p><p>{copy.aiDoesNot}</p></div>
       </div>
+      <div class="card meth-explain">
+        <p class="eyebrow">{copy.explainH}</p>
+        <p>{copy.explainBody}</p>
+      </div>
     </section>
 
     <section id="review" class="meth-sec" aria-labelledby="rev-h">
@@ -205,6 +258,22 @@ const copy = {
           <li><span class="num t-caption" aria-hidden="true">{p.n}</span><span class="t-small">{p.texto}</span></li>
         ))}
       </ol>
+    </section>
+
+    <section id="analytics" class="meth-sec" aria-labelledby="ana-h">
+      <h2 id="ana-h" class="t-h2">{copy.anaH}</h2>
+      <p class="muted">{copy.anaIntro}</p>
+      <div class="meth-two">
+        <div class="card">
+          <p class="eyebrow">{copy.anaDoesH}</p>
+          <ul class="meth-list">{copy.anaDoes.map((x) => <li>{x}</li>)}</ul>
+        </div>
+        <div class="card">
+          <p class="eyebrow">{copy.anaNotH}</p>
+          <ul class="meth-list">{copy.anaNot.map((x) => <li>{x}</li>)}</ul>
+        </div>
+      </div>
+      <p class="t-small muted">{copy.anaWhy}</p>
     </section>
 
     <section id="corrections" class="meth-sec" aria-labelledby="corr-h">
@@ -272,6 +341,7 @@ const copy = {
   .meth-two { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); }
   @media (min-width: 768px) { .meth-two { grid-template-columns: 1fr 1fr; } }
   .meth-two .card { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .meth-explain { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-3); }
   /* Los pasos de "cómo se publica una noticia": mismo esqueleto que el
      changelog, con el número en la columna estrecha. */
   .meth-steps { display: flex; flex-direction: column; gap: var(--sp-2); }

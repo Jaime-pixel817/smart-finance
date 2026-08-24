@@ -60,7 +60,7 @@ function montar(raiz: HTMLElement) {
     if (verdict) verdict.textContent = (r.tasaRealPct >= 0 ? raiz.dataset.win : raiz.dataset.lose) || '';
   }
 
-  conectar(raiz, pintar);
+  conectar(raiz, pintar, 'inflacion');
 }
 
 document.querySelectorAll<HTMLElement>('[data-widget="inflation"]').forEach(montar);

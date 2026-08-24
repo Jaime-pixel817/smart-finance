@@ -42,8 +42,13 @@
 #       se MUDARON a public/assets/fotos/ con huella y se siguen sirviendo.
 #   /public/assets/breakdowns/ = los seis breakdown-<id>.jpg a resolución media
 #       (777 954 B). Este es el ahorro nuevo de verdad de este bloque.
+#   /public/assets/marcas/     = el logo del Reto Actinver tal como lo publica
+#       Actinver (2 152 B). Sale a public/assets/fotos/ con huella, igual que
+#       las fotos; el original se queda para poder regenerarlo sin volver a
+#       bajarlo de su sitio.
 /public/assets/community
 /public/assets/breakdowns
+/public/assets/marcas
 
 # Los borradores de difusión que genera `npm run derive` (content/derivados/).
 # Nada del build los lee y no se sirven: son material de trabajo (posts,

@@ -43,6 +43,24 @@ export function day(iso, loc = 'en') {
   return s.replace(/\./g, '');
 }
 
+/**
+ * Mes ISO a texto, con inicial mayúscula: "2026-12" → "December 2026" /
+ * "Diciembre de 2026".
+ *
+ * Existe para lo que solo tiene mes publicado y no día —la premiación del
+ * Reto Actinver—, para que ese texto salga del calendario del módulo y no
+ * escrito a mano en la traducción, que es como se queda desfasado. La inicial
+ * va en mayúscula porque en español `Intl` devuelve "diciembre de 2026" y el
+ * texto empieza el renglón de la tabla.
+ */
+export function month(iso, loc = 'en') {
+  if (!/^\d{4}-\d{2}$/.test(String(iso))) return '—';
+  const d = new Date(iso + '-15T12:00:00Z');
+  if (Number.isNaN(d.getTime())) return String(iso);
+  const s = new Intl.DateTimeFormat(TAG[loc] || TAG.en, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(d);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 /** Etiqueta de año fiscal con su cierre: FY2025 (cierre 1 feb 2026). */
 export function fyLabel(fy) {
   return String(fy || '').replace(/^FY/, 'FY ');

@@ -75,7 +75,7 @@ function montar(raiz: HTMLElement) {
     }
   }
 
-  conectar(raiz, pintar);
+  conectar(raiz, pintar, 'cetes-vs-cuenta');
 }
 
 document.querySelectorAll<HTMLElement>('[data-widget="cetes"]').forEach(montar);

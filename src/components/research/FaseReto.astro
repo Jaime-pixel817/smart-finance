@@ -1,0 +1,70 @@
+---
+// UN bloque de estado del Reto Actinver: el chip de la fase, la frase de qué
+// está pasando, la cuenta atrás hacia el hito que viene y, cuando toca, el
+// aviso de que las inscripciones siguen abiertas.
+//
+// Existe como componente propio porque el mismo marcado se pinta SIETE veces
+// en RetoActinver.astro: una viva (la fase de hoy) y las seis dentro de un
+// <template>, de donde src/scripts/reto-fase.ts saca la que toque si el día
+// cambió. Van las seis y no las otras cinco a propósito: al clonar se
+// REEMPLAZA el bloque vivo, así que si la de hoy no estuviera también dentro
+// no habría de dónde recuperarla. El <template> es la parte importante: su
+// contenido no se renderiza ni lo indexa nadie, así que el HTML que se sirve
+// NO lleva cinco frases falsas sobre hoy esperando escondidas. Solo lleva la
+// que era verdad al construirlo.
+import type { Locale } from '../../i18n/routes';
+import type { ResearchCopy } from '../../i18n/research';
+import { conDatos } from '../../lib/reto/actinver.mjs';
+
+type Hito = keyof ResearchCopy['retoCuenta'];
+interface Props {
+  /** id de fase: 'antes' | 'inscripciones' | 'practica' | 'vispera' | 'reto' | 'resultados' */
+  f: string;
+  r: ResearchCopy;
+  locale: Locale;
+  /** Hito al que apunta la cuenta atrás, o null en la última fase. */
+  hito: Hito | null;
+  /** Días que faltan, o null si no hay hito con día publicado. */
+  faltan: number | null;
+  /** ¿Siguen abiertas las inscripciones? Solo se usa en 'practica' y 'vispera'. */
+  inscripciones: boolean;
+}
+const { f, r, locale, hito, faltan, inscripciones } = Astro.props as Props;
+
+// La plantilla de la cuenta atrás, partida por su {n}.
+const [antes, despues] = hito ? r.retoCuenta[hito].split('{n}') : ['', ''];
+const n = faltan ?? 0;
+// Espacio DURO entre el número y la unidad: "36 días" no se parte al final
+// de una línea, que es justo donde cae en el teléfono.
+const cantidad = n + '\u00a0' + (n === 1 ? r.retoDay : r.retoDays);
+const esHoy = faltan === 0;
+---
+<div class="fase" data-fase={f}>
+  <p class:list={['chip', 'fase-chip', 'f-' + f]}>{r.retoFase[f as keyof typeof r.retoFase]}</p>
+  <p class="t-small">{conDatos(r.retoEstado[f as keyof typeof r.retoEstado], locale)}</p>
+  {hito && (
+    <p class="cuenta" data-cuenta hidden={esHoy}>
+      <span>{antes}</span><b class="num" data-dias>{cantidad}</b><span>{despues ?? ''}</span>
+    </p>
+  )}
+  {hito && (
+    <p class="cuenta" data-cuenta-hoy hidden={!esHoy}>{r.retoCuentaHoy[hito]}</p>
+  )}
+  {(f === 'practica' || f === 'vispera') && (
+    <p class="t-caption muted" data-abiertas hidden={!inscripciones}>{r.retoStillOpen}</p>
+  )}
+</div>
+
+<style>
+  /* Los estilos van AQUÍ y no en RetoActinver.astro porque Astro les pone el
+     hash del componente en el que se escriben: desde el otro archivo no
+     alcanzarían a este marcado. Y como el hash viaja en el atributo de cada
+     nodo, un bloque clonado desde el <template> sigue saliendo con formato. */
+  .fase { display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
+  .fase-chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+  .fase-chip.f-inscripciones, .fase-chip.f-practica, .fase-chip.f-vispera { color: var(--warn); }
+  .fase-chip.f-reto { color: var(--up-text); }
+  .cuenta { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--ink); }
+  .cuenta[hidden] { display: none; }
+  .cuenta b { font-weight: 600; white-space: nowrap; }
+</style>

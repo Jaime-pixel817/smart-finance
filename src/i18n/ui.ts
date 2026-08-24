@@ -8,12 +8,17 @@ const en = {
   'site.tagline': 'Markets and money, explained for young people',
   'site.desc': 'Markets and money, explained for young people. Today\'s pulse, one story explained, short lessons and tools. Bilingual EN/ES, by Jaime Sandoval Ricaño.',
   'skip': 'Skip to content',
+  // Primera miga del BreadcrumbList (src/lib/jsonld.ts). No es "Today": en un
+  // rastro de migas lo que se lee es de dónde cuelga la página.
+  'seo.home': 'Home',
   'nav.today': 'Today',
   'nav.markets': 'Markets',
   'nav.news': 'News',
   'nav.learn': 'Learn',
   'nav.tools': 'Tools',
-  'nav.research': 'Research',
+  // El id de ruta sigue siendo 'research' (la URL no cambia, ver
+  // src/i18n/routes.ts); lo que cambió es el rótulo.
+  'nav.projects': 'Projects',
   'nav.portfolio': 'Portfolio',
   'nav.actinver': 'Actinver Challenge',
   'nav.search': 'Search',
@@ -35,12 +40,9 @@ const en = {
   'search.group.pages': 'Pages',
   'search.group.news': 'News',
 
-  'today.label': 'Today',
   'today.open': 'open',
   'today.closed': 'closed',
   'today.fx': 'FX',
-  'today.intro': 'Markets and money, explained for young people.',
-  'today.dismiss': 'Dismiss',
 
   'pulse.title': 'Pulse',
   'pulse.all': 'All markets',
@@ -55,7 +57,12 @@ const en = {
   'src.min': 'min',
   'src.refreshed': 'every',
   'src.loading': 'loading…',
-  'src.unavailable': 'unavailable, retrying',
+  // Dos palabras y no una frase: el chip vive en una sola línea y "unavailable,
+  // retrying" la partía en dos, empujando media página hacia abajo en la ficha
+  // de un activo (0.18 de CLS medidos con el endpoint caído, que es justo
+  // cuando este texto sale). Lo de que se reintenta lo dice, con todas sus
+  // letras, el aviso que se pinta sobre la gráfica (chart.errorEmpty).
+  'src.unavailable': 'no data',
   'src.ago': 'updated',
   'src.manual': 'verified by hand',
 
@@ -134,6 +141,13 @@ const en = {
 
 
   'tools.title': 'Tools',
+  // La tarjeta del reto en el home y en /tools. NO se llama calculadora en
+  // ningún idioma: es un juego y así se dice, o la gente espera un slider.
+  // Y se llama IGUAL en los dos sitios (y en el nav, y en el eyebrow de su
+  // página): "¿Y luego qué pasó?" es el titular del juego, no su nombre — con
+  // los dos nombres a un clic de distancia parecían dos cosas distintas.
+  'tools.reto': 'Daily challenge',
+  'tools.reto.desc': 'A game: guess what five real charts did next.',
   'tools.compound': 'Compound interest',
   'tools.compound.desc': 'See how monthly savings grow over 20 years.',
   'tools.inflation': 'How much does inflation eat?',
@@ -167,12 +181,12 @@ const en = {
   'aria.worldList': 'Stock exchanges on the globe',
   'aria.worldClose': 'Close',
 
-  'research.title': 'Smart Finance Research',
+  'projects.title': 'Smart Finance Projects',
   'research.building': 'In progress',
   'research.card.kicker': 'First report · Lululemon (LULU)',
   'research.card.title': 'An equity research report built in public',
   'research.card.desc': 'Thesis, 5 years of numbers, a DCF you can move and the risks. By a student, with every source cited.',
-  'research.all': 'All research',
+  'projects.all': 'All projects',
   'research.cta': 'Open the report',
   'research.verified.label': 'Verified so far',
   'research.verified': 'Seven fiscal years pulled from SEC filings and checked against the 10-K. Thesis, assumptions and conclusions are still being written.',
@@ -389,10 +403,16 @@ const en = {
   'community.h1': 'The Smart Finance student community',
   'community.desc': 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
   'tools.h1': 'Tools',
-  'tools.sub': 'A daily challenge with real charts, and small calculators with your own numbers. Move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
+  'tools.sub': 'A game with real charts, new every day, and three calculators you run with your own numbers: move a slider, read the number, keep the link. Nothing is stored and nothing is sent anywhere.',
   'tools.cetes': 'CETES vs account vs inflation',
   'tools.cetes.desc': 'Where the same money keeps what it buys.',
   'tools.all': 'All tools',
+  // /tools va en dos grupos porque son dos cosas distintas: el reto se juega y
+  // las otras tres se usan con tus números. Meterlos en una sola lista hacía
+  // que el reto pareciera una calculadora más.
+  'tools.group.game': 'A game',
+  'tools.group.calc': 'Calculators with your numbers',
+  'tools.new': 'New',
   'tool.learn': 'What you learn here',
   'tool.lesson': 'Read the full lesson',
   'tool.copy': 'Copy link',
@@ -468,6 +488,109 @@ const en = {
   'reto.disclaimer': 'Educational challenge built on real historical data. Something having happened does not mean it happens again: this predicts nothing, it is not a recommendation to buy or sell, and it is not financial advice. Nothing is wagered and nothing is won here.',
   'reto.card.desc': 'Five real charts, the last 8 weeks hidden. A new one every day.',
   'reto.card.q': 'Can you tell what happened next?',
+
+  // Smart Finance AI — el botón "Explícame esto" (src/scripts/ia.ts).
+  'ia.explain': 'Explain this to me',
+  'ia.questions': 'Study questions',
+  'ia.chart': 'Read this chart',
+  'ia.aria': 'Explain this with Smart Finance AI',
+  'ia.title': 'Smart Finance AI',
+  'ia.close': 'Close',
+  'ia.loading': 'Reading the data on this page…',
+  'ia.loading.long': 'Still going. This is generated on the spot, so it takes a few seconds.',
+  'ia.error': 'It did not work. Try again in a moment — the rest of the page works as usual.',
+  'ia.retry': 'Try again',
+  'ia.used': 'Data it used',
+  'ia.sources': 'Sources',
+  'ia.asof': 'Data as of',
+  'ia.lesson': 'Read the lesson',
+  'ia.disclosure': 'Generated with AI from the data on this page · not reviewed by a person',
+  'ia.disclosure.fixed': 'Fixed answer written by a person · the AI did not write this one',
+  'ia.how': 'How this is made',
+  'ia.ask': 'Something you did not get? (optional)',
+  'ia.ask.placeholder': 'e.g. why does the number go up when the peso weakens?',
+  'ia.ask.send': 'Ask',
+  'ia.questions.title': 'Three questions to check you got it',
+
+  // ---- Modes ----
+  'reto.mode.aria': 'Challenge mode',
+  'reto.mode.daily': 'Today’s challenge',
+  'reto.mode.free': 'Free play',
+  'reto.free.note': 'Free rounds do not use up today’s challenge and do not count towards your streak. Same rules, different charts.',
+  'reto.free.new': 'Deal me another one',
+  'reto.free.share': 'Smart Finance · free challenge',
+  'reto.filter.label': 'What do you want to play with?',
+  'reto.filter.all': 'Everything',
+  'reto.filter.index': 'Indexes',
+  'reto.filter.stock': 'Stocks',
+  'reto.filter.fx': 'Currencies',
+  'reto.filter.crypto': 'Crypto',
+  'reto.filter.why.h': 'Why there is no difficulty filter',
+  'reto.filter.note': 'There is no easy/hard filter, and there will not be one. Each round’s threshold is that asset’s own median 8-week move, so exactly half of its history lands on each side: a quiet currency and a wild coin are equally hard to call. This filter is about what you feel like looking at, not about difficulty.',
+  'reto.other.day': 'You are playing the challenge of {d}, the one from the link.',
+  'reto.other.today': 'Play today’s instead',
+  'reto.done.today': 'You already played today’s challenge: {p} out of {max}.',
+  'reto.done.replay': 'See it again (your score for today stays as it is)',
+
+  // ---- Streak and progress ----
+  'reto.prog.h': 'Your streak',
+  'reto.prog.streak': 'Current streak',
+  'reto.prog.best': 'Best streak',
+  'reto.prog.days': 'Days played',
+  'reto.prog.hits': 'Rounds nailed',
+  'reto.prog.of': 'of {n}',
+  'reto.prog.empty': 'Nothing here yet. Play today’s challenge and this fills in on its own.',
+  'reto.prog.local': 'This lives in this browser only: no account, and nothing about it is sent anywhere. Switching phone or clearing your browsing data starts it from zero, and that is the honest price of not asking you to sign up.',
+  'reto.prog.clear': 'Delete my progress',
+  'reto.prog.clear.ask': 'Delete your streak, your calendar and your totals? This cannot be undone.',
+  'reto.prog.clear.yes': 'Yes, delete it',
+  'reto.prog.clear.no': 'Keep it',
+  'reto.prog.cleared': 'Progress deleted. Nothing about the challenge is left in this browser.',
+  'reto.cal.legend': 'One square per day. Filled in means you played; the stronger the colour, the more points you got.',
+  'reto.cal.dows': 'M,T,W,T,F,S,S',
+  'reto.cal.dows.full': 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+  'reto.cal.summary': 'This month you have played {n} of the {m} days that have gone by.',
+  'reto.cal.day': '{d}: {p} out of {max}',
+  'reto.cal.none': '{d}: not played',
+
+  // ---- What the reveal teaches ----
+  'reto.why.size': 'Out of every 100 eight-week stretches this asset has had in these five years, {p} moved this much or more.',
+  'reto.why.t.up.sig': 'The part you could see was going up, and it kept going up.',
+  'reto.why.t.up.giro': 'The part you could see was going up, and it turned around.',
+  'reto.why.t.down.sig': 'The part you could see was going down, and it kept going down.',
+  'reto.why.t.down.giro': 'The part you could see was going down, and it turned around.',
+  'reto.why.t.flat': 'The part you could see ended eight weeks later almost exactly where it started.',
+  'reto.why.cause': 'Why it moved is not in the price: this comes out of the closes, not out of the news of those weeks.',
+  'reto.learn.more': 'To understand this one better',
+  'reto.learn.lesson': 'Lesson: {t}',
+  'reto.learn.term': 'Glossary: {t}',
+
+  // ---- How the daily seed works ----
+  'reto.how.h': 'How today’s challenge is picked',
+  'reto.how.1': 'The only ingredient is today’s date in Mexico City: “{d}”. Not the time, not your language, not your device.',
+  'reto.how.2': 'That date seeds a small reproducible random generator (xmur3 + mulberry32, 30 lines, no libraries).',
+  'reto.how.3': 'With it we shuffle the {n} assets and take five, and then draw five cut points along their five years of weekly closes.',
+  'reto.how.4': 'So the same day gives the same challenge to everyone, anywhere, and yesterday’s can be rebuilt from the date alone. No server and no account are involved.',
+  'reto.how.code': 'The rules are one file with tests: src/lib/challenge/reto.mjs.',
+
+  // ---- Sharing ----
+  'reto.share.note': 'What gets copied is the grid, your score, the date and your streak — and the link, so whoever opens it plays the same challenge. Nothing else about you leaves this browser.',
+
+  // ---- Avisos contextuales (src/lib/avisos/avisos.mjs) ----
+  // UNA frase por aviso, en el momento en que sirve, con una salida clara. El
+  // texto no explica el sitio entero: dice la única cosa que hace falta aquí.
+  'aviso.ok': 'Got it',
+  'aviso.cerrar': 'Dismiss this tip',
+  'aviso.glosario': 'Tap any underlined word to see what it means.',
+  'aviso.reto': 'Lesson done. Today’s challenge takes two minutes.',
+  'aviso.reto.cta': 'Play the challenge',
+  'aviso.grafica': 'Drag your finger across the chart to read the price at any point.',
+  'aviso.grafica.raton': 'Move the mouse over the chart to read the price at any point.',
+  'aviso.comparar': 'You have looked at two assets — see them on the same chart.',
+  'aviso.comparar.cta': 'Compare them',
+  'aviso.sigues': 'What you follow shows up at the top of Markets.',
+  'aviso.sigues.cta': 'See my list',
+  'aviso.noticias': 'The symbol on each story opens its chart.',
 };
 
 const es: typeof en = {
@@ -475,12 +598,13 @@ const es: typeof en = {
   'site.tagline': 'Mercados y dinero, explicados para jóvenes',
   'site.desc': 'Mercados y dinero, explicados para jóvenes. El pulso de hoy, una noticia explicada, lecciones cortas y herramientas. Bilingüe ES/EN, por Jaime Sandoval Ricaño.',
   'skip': 'Saltar al contenido',
+  'seo.home': 'Inicio',
   'nav.today': 'Hoy',
   'nav.markets': 'Mercados',
   'nav.news': 'Noticias',
   'nav.learn': 'Aprende',
   'nav.tools': 'Herramientas',
-  'nav.research': 'Research',
+  'nav.projects': 'Proyectos',
   'nav.portfolio': 'Portafolio',
   'nav.actinver': 'Reto Actinver',
   'nav.search': 'Buscar',
@@ -502,12 +626,9 @@ const es: typeof en = {
   'search.group.pages': 'Páginas',
   'search.group.news': 'Noticias',
 
-  'today.label': 'Hoy',
   'today.open': 'abierto',
   'today.closed': 'cerrado',
   'today.fx': 'Divisas',
-  'today.intro': 'Mercados y dinero, explicados para jóvenes.',
-  'today.dismiss': 'Cerrar',
 
   'pulse.title': 'Pulso',
   'pulse.all': 'Todos los mercados',
@@ -522,7 +643,7 @@ const es: typeof en = {
   'src.min': 'min',
   'src.refreshed': 'cada',
   'src.loading': 'cargando…',
-  'src.unavailable': 'no disponible, se reintenta',
+  'src.unavailable': 'sin datos',
   'src.ago': 'actualizado',
   'src.manual': 'verificado a mano',
 
@@ -601,6 +722,8 @@ const es: typeof en = {
 
 
   'tools.title': 'Herramientas',
+  'tools.reto': 'Reto del día',
+  'tools.reto.desc': 'Un juego: adivina qué hicieron después cinco gráficas reales.',
   'tools.compound': 'Interés compuesto',
   'tools.compound.desc': 'Mira cómo crece un ahorro mensual en 20 años.',
   'tools.inflation': '¿Cuánto me come la inflación?',
@@ -630,12 +753,12 @@ const es: typeof en = {
   'aria.worldList': 'Bolsas de valores en el globo',
   'aria.worldClose': 'Cerrar',
 
-  'research.title': 'Smart Finance Research',
+  'projects.title': 'Smart Finance Projects',
   'research.building': 'En construcción',
   'research.card.kicker': 'Primer reporte · Lululemon (LULU)',
   'research.card.title': 'Un reporte de equity research construido en público',
   'research.card.desc': 'Tesis, 5 años de números, un DCF que puedes mover y los riesgos. Hecho por un estudiante, con cada fuente citada.',
-  'research.all': 'Todo el research',
+  'projects.all': 'Todos los proyectos',
   'research.cta': 'Abrir el reporte',
   'research.verified.label': 'Verificado hasta hoy',
   'research.verified': 'Siete años fiscales bajados de los reportes a la SEC y comparados contra el 10-K. La tesis, los supuestos y las conclusiones se están escribiendo.',
@@ -851,10 +974,13 @@ const es: typeof en = {
   'community.h1': 'La comunidad estudiantil Smart Finance',
   'community.desc': 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
   'tools.h1': 'Herramientas',
-  'tools.sub': 'Un reto diario con gráficas reales y calculadoras chicas con tus propios números. Mueve un slider, lee el número, guarda el enlace. No se guarda nada ni se manda nada a ningún lado.',
+  'tools.sub': 'Un juego con gráficas reales, nuevo cada día, y tres calculadoras que corres con tus propios números: mueve un slider, lee el número, guarda el enlace. No se guarda nada ni se manda nada a ningún lado.',
   'tools.cetes': 'CETES vs cuenta vs inflación',
   'tools.cetes.desc': 'Dónde el mismo dinero conserva lo que compra.',
   'tools.all': 'Todas las herramientas',
+  'tools.group.game': 'Un juego',
+  'tools.group.calc': 'Calculadoras con tus números',
+  'tools.new': 'Nuevo',
   'tool.learn': 'Qué aprendes aquí',
   'tool.lesson': 'Leer la lección completa',
   'tool.copy': 'Copiar enlace',
@@ -930,6 +1056,109 @@ const es: typeof en = {
   'reto.disclaimer': 'Reto educativo con datos históricos reales. Que algo haya pasado no significa que vuelva a pasar: esto no predice nada, no es una recomendación de compra ni de venta y no es asesoría financiera. Aquí no se apuesta ni se gana dinero.',
   'reto.card.desc': 'Cinco gráficas reales con las últimas 8 semanas tapadas. Una nueva cada día.',
   'reto.card.q': '¿Le atinas a lo que pasó después?',
+
+  // Smart Finance AI — el botón "Explícame esto" (src/scripts/ia.ts).
+  'ia.explain': 'Explícame esto',
+  'ia.questions': 'Preguntas de estudio',
+  'ia.chart': 'Léeme esta gráfica',
+  'ia.aria': 'Explicar esto con Smart Finance AI',
+  'ia.title': 'Smart Finance AI',
+  'ia.close': 'Cerrar',
+  'ia.loading': 'Leyendo los datos de esta página…',
+  'ia.loading.long': 'Sigue trabajando. Esto se genera al momento, así que tarda unos segundos.',
+  'ia.error': 'No salió. Inténtalo en un momento — el resto de la página funciona igual.',
+  'ia.retry': 'Intentar otra vez',
+  'ia.used': 'Datos que usó',
+  'ia.sources': 'Fuentes',
+  'ia.asof': 'Datos al',
+  'ia.lesson': 'Leer la lección',
+  'ia.disclosure': 'Generado con IA a partir de los datos de esta página · sin revisar por una persona',
+  'ia.disclosure.fixed': 'Respuesta fija del sitio, escrita por una persona · esta no la escribió la IA',
+  'ia.how': 'Cómo se hace esto',
+  'ia.ask': '¿Algo que no entendiste? (opcional)',
+  'ia.ask.placeholder': 'p. ej. ¿por qué sube el número cuando el peso se debilita?',
+  'ia.ask.send': 'Preguntar',
+  'ia.questions.title': 'Tres preguntas para comprobar que lo entendiste',
+
+  // ---- Modos ----
+  'reto.mode.aria': 'Modo del reto',
+  'reto.mode.daily': 'Reto de hoy',
+  'reto.mode.free': 'Reto libre',
+  'reto.free.note': 'El reto libre no gasta el de hoy ni cuenta para la racha. Mismas reglas, otras gráficas.',
+  'reto.free.new': 'Repárteme otro',
+  'reto.free.share': 'Smart Finance · reto libre',
+  'reto.filter.label': '¿Con qué quieres jugar?',
+  'reto.filter.all': 'Todo',
+  'reto.filter.index': 'Índices',
+  'reto.filter.stock': 'Acciones',
+  'reto.filter.fx': 'Divisas',
+  'reto.filter.crypto': 'Cripto',
+  'reto.filter.why.h': 'Por qué no hay filtro de dificultad',
+  'reto.filter.note': 'No hay filtro de fácil/difícil, y no lo va a haber. El umbral de cada ronda es la mediana del movimiento de 8 semanas del propio activo, así que exactamente la mitad de su historia cae de cada lado: una divisa tranquila y una cripto salvaje son igual de difíciles de adivinar. Este filtro es para elegir qué te da curiosidad, no para elegir dificultad.',
+  'reto.other.day': 'Estás jugando el reto del {d}, el del enlace.',
+  'reto.other.today': 'Jugar el de hoy',
+  'reto.done.today': 'Hoy ya jugaste el reto: {p} de {max}.',
+  'reto.done.replay': 'Verlo otra vez (tu marcador de hoy no cambia)',
+
+  // ---- Racha y progreso ----
+  'reto.prog.h': 'Tu racha',
+  'reto.prog.streak': 'Racha actual',
+  'reto.prog.best': 'Mejor racha',
+  'reto.prog.days': 'Días jugados',
+  'reto.prog.hits': 'Rondas clavadas',
+  'reto.prog.of': 'de {n}',
+  'reto.prog.empty': 'Aquí todavía no hay nada. Juega el reto de hoy y esto se llena solo.',
+  'reto.prog.local': 'Esto vive solo en este navegador: sin cuenta y sin que nada de esto salga a ningún lado. Si cambias de teléfono o borras los datos de navegación, empieza de cero, y ese es el precio honesto de no pedirte que te registres.',
+  'reto.prog.clear': 'Borrar mi progreso',
+  'reto.prog.clear.ask': '¿Borro tu racha, tu calendario y tus totales? Esto no se puede deshacer.',
+  'reto.prog.clear.yes': 'Sí, borrarlo',
+  'reto.prog.clear.no': 'Mejor no',
+  'reto.prog.cleared': 'Progreso borrado. En este navegador ya no queda nada del reto.',
+  'reto.cal.legend': 'Un cuadrito por día. Relleno quiere decir que jugaste; mientras más fuerte el color, más puntos sacaste.',
+  'reto.cal.dows': 'L,M,M,J,V,S,D',
+  'reto.cal.dows.full': 'lunes,martes,miércoles,jueves,viernes,sábado,domingo',
+  // Sin «{n} días»: con n = 1 saldría «llevas 1 días». Contando sobre el
+  // sustantivo del final («{n} de los {m} días») concuerda con cualquier cifra.
+  'reto.cal.summary': 'Este mes llevas {n} de los {m} días que han pasado.',
+  'reto.cal.day': '{d}: {p} de {max}',
+  'reto.cal.none': '{d}: sin jugar',
+
+  // ---- Lo que enseña el revelado ----
+  'reto.why.size': 'De cada 100 periodos de 8 semanas que ha tenido este activo en estos cinco años, {p} se movieron tanto o más que este.',
+  'reto.why.t.up.sig': 'La parte que veías venía subiendo, y siguió subiendo.',
+  'reto.why.t.up.giro': 'La parte que veías venía subiendo, y se dio la vuelta.',
+  'reto.why.t.down.sig': 'La parte que veías venía bajando, y siguió bajando.',
+  'reto.why.t.down.giro': 'La parte que veías venía bajando, y se dio la vuelta.',
+  'reto.why.t.flat': 'La parte que veías acababa ocho semanas después casi donde había empezado.',
+  'reto.why.cause': 'Por qué se movió no está en el precio: esto sale de los cierres, no de las noticias de esas semanas.',
+  'reto.learn.more': 'Para entender esta ronda',
+  'reto.learn.lesson': 'Lección: {t}',
+  'reto.learn.term': 'Glosario: {t}',
+
+  // ---- Cómo se elige el reto del día ----
+  'reto.how.h': 'Cómo se elige el reto de hoy',
+  'reto.how.1': 'El único ingrediente es la fecha de hoy en Ciudad de México: «{d}». Ni la hora, ni tu idioma, ni tu dispositivo.',
+  'reto.how.2': 'Esa fecha siembra un generador de azar reproducible y chiquito (xmur3 + mulberry32, 30 líneas, sin librerías).',
+  'reto.how.3': 'Con él se barajan los {n} activos y se toman cinco, y luego se sortean cinco puntos de corte a lo largo de sus cinco años de cierres semanales.',
+  'reto.how.4': 'Así el mismo día le toca el mismo reto a todo el mundo, esté donde esté, y el de ayer se puede reconstruir con solo la fecha. Aquí no hay servidor ni cuenta de por medio.',
+  'reto.how.code': 'Las reglas son un solo archivo con pruebas: src/lib/challenge/reto.mjs.',
+
+  // ---- Compartir ----
+  'reto.share.note': 'Lo que se copia es la cuadrícula, tu puntuación, la fecha y tu racha — y el enlace, para que quien lo abra juegue el mismo reto. Nada más tuyo sale de este navegador.',
+
+  // ---- Avisos contextuales (src/lib/avisos/avisos.mjs) ----
+  'aviso.ok': 'Entendido',
+  'aviso.cerrar': 'Cerrar este aviso',
+  'aviso.glosario': 'Las palabras subrayadas se explican al tocarlas.',
+  'aviso.reto': 'Lección leída. El reto de hoy son dos minutos.',
+  'aviso.reto.cta': 'Jugar el reto',
+  'aviso.grafica': 'Arrastra el dedo sobre la gráfica para leer el precio de cada momento.',
+  'aviso.grafica.raton': 'Pasa el ratón sobre la gráfica para leer el precio de cada momento.',
+  'aviso.comparar': 'Ya viste dos activos: puedes verlos en la misma gráfica.',
+  'aviso.comparar.cta': 'Compararlos',
+  'aviso.sigues': 'Lo que sigues aparece arriba, en Mercados.',
+  'aviso.sigues.cta': 'Ver mi lista',
+  'aviso.noticias': 'El símbolo de cada noticia lleva a su gráfica.',
 };
 
 export type UIKey = keyof typeof en;

@@ -7,6 +7,7 @@ import { nyseOpen, bmvOpen } from './hours';
 import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar } from './watchlist';
 import { paintAssetRow } from './rows';
 import { loadQuotes, quoteFromQuotes, type Quote, type Quotes, type SymbolRT } from './market-data';
+import { medir } from '../lib/analytics';
 
 const root = document.getElementById('home') as HTMLElement | null;
 if (root) boot(root);
@@ -52,13 +53,6 @@ function boot(root: HTMLElement) {
     el.classList.remove('skel');
   }
   paintToday();
-
-  // Frase de bienvenida, solo la primera visita.
-  const intro = $('#today-intro');
-  if (intro) {
-    // Si ya la vio, el script inline del <head> puso html.intro-seen antes de pintar (sin CLS).
-    $('#today-intro-x')?.addEventListener('click', () => { intro.hidden = true; try { localStorage.setItem('sf-intro-seen', '1'); } catch {} });
-  }
 
   // ---- chips de fuente ----
   function setChip(id: string, when: Date | null, state: 'fresh' | 'stale' | 'error' | 'loading', minutes?: number) {
@@ -342,7 +336,12 @@ function boot(root: HTMLElement) {
       const label = btn.textContent; btn.disabled = true; btn.textContent = T.nlSending; show('', '');
       try {
         const res = await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: v, consent: true, website: trap.value, lang: loc }) });
-        if (res.ok) { show(T.nlOk, 'ok'); form.reset(); }
+        if (res.ok) {
+          show(T.nlOk, 'ok'); form.reset();
+          // Solo que hubo un alta y desde qué página. El correo NO viaja aquí:
+          // se lo queda el endpoint y ya.
+          medir('boletin_alta', { desde: form.dataset.origen || 'home' });
+        }
         else { const d = await res.json().catch(() => ({})); const map: Record<string, string> = { invalid_email: T.nlBadEmail, consent_required: T.nlNoConsent, rate_limited: T.nlLimit }; show(map[d.error] || T.nlError, 'error'); }
       } catch { show(T.nlError, 'error'); }
       finally { btn.disabled = false; btn.textContent = label; }
