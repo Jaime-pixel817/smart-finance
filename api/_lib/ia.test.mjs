@@ -7,7 +7,7 @@
 // inyectan de mentira. Una prueba que gasta dinero no se corre.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { construir } from '../../scripts/build-ia-contexto.mjs';
 
@@ -911,6 +911,19 @@ test('el historial y la selección se recortan antes de pagarlos', () => {
     historial: ['basura', { p: '', r: 'sin pregunta' }, { p: 'bien', r: 'bien' }, null]
   });
   assert.deepEqual(malformado.historial, [{ p: 'bien', r: 'bien' }], 'lo malformado se tira');
+});
+
+test('ninguna pregunta sugerida por el sitio dispara el rechazo de consejo', () => {
+  // Los chips de "prueba a preguntar" viajan como una pregunta normal y pasan
+  // por esConsejo. Un chip que el propio sitio ofrece y luego rechaza sería
+  // un botón roto de fábrica.
+  const ui = readFileSync(new URL('../../src/i18n/ui.ts', import.meta.url), 'utf8');
+  const sugerencias = [...ui.matchAll(/'ia\.sug\.[a-z]+\.\d': '([^']+)'/g)].map((m) => m[1]);
+  assert.ok(sugerencias.length >= 36,
+    'faltan sugerencias en ui.ts (EN y ES, seis contextos por tres): hay ' + sugerencias.length);
+  for (const s of sugerencias) {
+    assert.equal(ia.esConsejo(s), false, 'una pregunta sugerida por el propio sitio se rechazaría: ' + s);
+  }
 });
 
 // ---------------------------------------------------------------------------

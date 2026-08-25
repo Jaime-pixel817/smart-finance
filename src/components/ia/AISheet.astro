@@ -14,7 +14,7 @@
 import '../../styles/ia.css';
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
-import { useT } from '../../i18n/ui';
+import { useT, type UIKey } from '../../i18n/ui';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -22,11 +22,22 @@ const strings = {
   loading: t('ia.loading'), loadingLong: t('ia.loading.long'), error: t('ia.error'),
   retry: t('ia.retry'), used: t('ia.used'), sources: t('ia.sources'), asof: t('ia.asof'),
   lesson: t('ia.lesson'), questionsTitle: t('ia.questions.title'), title: t('ia.title'),
-  disclosure: t('ia.disclosure'), disclosureFixed: t('ia.disclosure.fixed')
+  disclosure: t('ia.disclosure'), disclosureFixed: t('ia.disclosure.fixed'),
+  limit: t('ia.limit'), explain: t('ia.explain')
+};
+// Tres preguntas sugeridas por CONTEXTO: en la ficha se pregunta por el
+// movimiento, en la lección por el ejemplo, en la noticia por el efecto. Las
+// escribe el sitio (src/i18n/ui.ts) y viajan como texto de una pregunta
+// normal; hay una prueba que verifica que ninguna dispara el rechazo de
+// consejo.
+const sug = (tipo: string) => [1, 2, 3].map((n) => t(`ia.sug.${tipo}.${n}` as UIKey));
+const sugeridas: Record<string, string[]> = {
+  activo: sug('activo'), grafica: sug('activo'), leccion: sug('leccion'),
+  noticia: sug('noticia'), termino: sug('termino'), reporte: sug('reporte'), reto: sug('reto')
 };
 ---
 <div class="ia-sheet" id="ia-sheet" role="dialog" aria-modal="true" aria-labelledby="ia-sheet-title"
-  data-locale={locale} data-strings={JSON.stringify(strings)}
+  data-locale={locale} data-strings={JSON.stringify(strings)} data-sugeridas={JSON.stringify(sugeridas)}
   data-metodologia={route('methodology', locale)} hidden>
   <div class="ia-sheet-backdrop" data-ia-close></div>
   <div class="ia-sheet-panel" tabindex="-1">
@@ -46,6 +57,12 @@ const strings = {
 
     <!-- Todo lo que cambia vive aquí dentro, y lo anuncia solo. -->
     <div class="ia-cuerpo" aria-live="polite" aria-busy="false"></div>
+
+    <!-- Tres preguntas sugeridas por contexto; los chips los pinta el guion. -->
+    <div class="ia-sugeridas" hidden>
+      <p class="t-caption faint">{t('ia.sug.title')}</p>
+      <div class="ia-sug-chips"></div>
+    </div>
 
     <!-- La caja de preguntar. Es opcional y lo dice: no es un chat. -->
     <form class="ia-ask" hidden>

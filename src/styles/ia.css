@@ -91,6 +91,41 @@
 .ia-lista a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
 .ia-lista a:hover { color: var(--ink); }
 
+/* ---- La conversación ----------------------------------------------------- */
+/* La pregunta de la persona es un turno propio, alineado a la derecha, para
+ * que la repregunta y su respuesta se lean como lo que son: una charla corta.
+ * No es un chat y el tope lo dice (.ia-tope). */
+.ia-turno-p {
+  align-self: flex-end;
+  max-width: 85%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-btn);
+  padding: 6px 12px;
+  color: var(--ink);
+  font-size: var(--fs-small);
+}
+.ia-tope { color: var(--ink-3); font-size: var(--fs-caption); line-height: var(--lh-caption); }
+
+/* ---- Preguntas sugeridas -------------------------------------------------- */
+.ia-sugeridas { display: flex; flex-direction: column; gap: 6px; }
+.ia-sugeridas[hidden] { display: none; }
+.ia-sug-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ia-sug {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+  text-align: left;
+}
+.ia-sug:hover { background: var(--bg-2); color: var(--ink); }
+
 /* ---- La pregunta libre --------------------------------------------------- */
 /* OJO: sin esta línea, `form.hidden = true` NO esconde nada — un `display`
  * propio le gana al `[hidden] { display: none }` del navegador. Pasaba: tras
