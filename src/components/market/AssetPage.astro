@@ -14,7 +14,6 @@ import AssetRow from './AssetRow.astro';
 import PricePanel from './PricePanel.astro';
 import SourceChip from '../SourceChip.astro';
 import ExplainButton from '../ia/ExplainButton.astro';
-import AISheet from '../ia/AISheet.astro';
 
 interface Props { locale: Locale; s: SymbolEntry }
 const { locale, s } = Astro.props;
@@ -134,7 +133,6 @@ const stats: [string, string][] = [
   </div>
 </article>
 
-<AISheet locale={locale} />
 
 <script src="../../scripts/asset.ts"></script>
 

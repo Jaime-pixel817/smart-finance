@@ -31,6 +31,7 @@ const jsonLd = {
 const ogImage = SITE + '/og-reto.png';
 ---
 <Base locale="en" routeId="challenge" active="tools" title={title} description={description}
+  ia={{ tipo: 'reto', id: 'diario', sobre: t['ia.ctx.reto'] }}
   ogImage={ogImage} ogImageAlt="Smart Finance — What happened next? The daily market challenge" jsonLd={jsonLd}>
   <Challenge locale="en" />
 </Base>

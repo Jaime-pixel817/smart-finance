@@ -91,6 +91,65 @@
 .ia-lista a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
 .ia-lista a:hover { color: var(--ink); }
 
+/* ---- El botón flotante --------------------------------------------------- */
+/* Anclado encima de la barra de abajo, sin taparla; si hay un aviso puesto,
+ * se sube lo mismo que el aviso mide (la clase con-aviso la pone avisos.ts en
+ * el :root, la misma que le da sitio al body). Se aparta al bajar con un
+ * translate, y con prefers-reduced-motion el cambio es sin transición. */
+.ia-fab {
+  position: fixed;
+  right: var(--sp-4);
+  bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--sp-3));
+  z-index: 44; /* debajo del aviso (45) y de las hojas (60+), encima del resto */
+  min-height: 40px;
+  padding: 8px 14px;
+  background: color-mix(in srgb, var(--bg-3) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-1);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  transition: transform .22s ease, opacity .22s ease;
+}
+.ia-fab:hover { background: var(--bg-2); }
+.ia-fab-fuera { transform: translateY(calc(100% + var(--bottomnav-h) + var(--sp-4))); opacity: 0; pointer-events: none; }
+:root.con-aviso .ia-fab { bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 104px); }
+@media (min-width: 768px) {
+  .ia-fab { right: var(--sp-5); bottom: var(--sp-5); }
+  .ia-fab-fuera { transform: translateY(calc(100% + var(--sp-5) + var(--sp-2))); }
+  :root.con-aviso .ia-fab { bottom: 104px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ia-fab { transition: none; }
+}
+@media print {
+  .ia-fab, .ia-sheet, .ia-burbuja { display: none !important; }
+}
+
+/* ---- La burbuja de selección --------------------------------------------- */
+/* "Explícame esto" sobre una frase seleccionada. Solo existe en contenido de
+ * lectura ([data-ia-seleccion]) y la pinta el guion donde termina la
+ * selección; en el teléfono va por debajo de donde el sistema pone su menú. */
+.ia-burbuja {
+  position: absolute;
+  z-index: 46;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sheet);
+  color: var(--ink);
+  font-size: var(--fs-caption);
+}
+.ia-burbuja svg { color: var(--brand-text); flex: none; }
+.ia-burbuja:hover { background: var(--bg-2); }
+
 /* ---- La conversación ----------------------------------------------------- */
 /* La pregunta de la persona es un turno propio, alineado a la derecha, para
  * que la repregunta y su respuesta se lean como lo que son: una charla corta.

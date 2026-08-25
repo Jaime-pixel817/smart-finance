@@ -27,7 +27,6 @@ import { ASSETS, assetRouteId } from '../../data/symbols';
 import { getLessons } from '../../data/lessons';
 import glossary from '../../data/glossary.json';
 import GlossarySheet from '../learn/GlossarySheet.astro';
-import AISheet from '../ia/AISheet.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -80,7 +79,8 @@ const strings = {
     <span class="skel" style="width: 82%; height: 17px"></span>
   </div>
 
-  <div id="nw-read-out" hidden></div>
+  <!-- data-ia-id lo rellena news-read.ts cuando sabe qué noticia pintó. -->
+  <div id="nw-read-out" data-ia-seleccion data-ia-tipo="noticia" hidden></div>
 
   <div id="nw-read-404" class="nw-story nw-note" hidden>
     <h2>{t('news.notFound')}</h2>
@@ -92,5 +92,4 @@ const strings = {
 </div>
 
 <GlossarySheet locale={locale} />
-<AISheet locale={locale} />
 <script src="../../scripts/news-read.ts"></script>

@@ -422,7 +422,9 @@ if (sheet) {
     peticion++;                                   // lo que llegue después se ignora
     sheet!.hidden = true;
     document.body.style.overflow = '';
-    if (abridor) abridor.focus();
+    // La burbuja de selección ya no existe cuando la hoja se cierra: el foco
+    // solo se devuelve a un abridor que siga en la página.
+    if (abridor && document.contains(abridor)) abridor.focus();
     abridor = null;
     contexto = null;
   }
@@ -441,6 +443,99 @@ if (sheet) {
       pedir(pregunta);
     }
   });
+
+  // -- selección de texto: "Explícame esto" sobre una frase -----------------
+  //
+  // Solo en contenido de LECTURA: los contenedores marcados con
+  // [data-ia-seleccion] (el cuerpo de una lección, una noticia, un reporte).
+  // La frase viaja por POST como una pregunta más, con las mismas guardas del
+  // servidor: sus cifras NO respaldan nada — si alguien fabrica una selección
+  // con números falsos, la guardia de cifras los tira igual.
+  //
+  // En el teléfono el menú del sistema (copiar/buscar) sale ENCIMA de la
+  // selección, así que la burbuja va DEBAJO y tras una pausa: no se pelean.
+
+  const MIN_SELECCION = 12;
+  const MAX_SELECCION = 260;
+  let burbuja: HTMLButtonElement | null = null;
+  let selTimer = 0;
+  const punteroGrueso = window.matchMedia('(pointer: coarse)');
+
+  function quitarBurbuja() {
+    if (burbuja) { burbuja.remove(); burbuja = null; }
+  }
+
+  function contenedorDeSeleccion(sel: Selection): HTMLElement | null {
+    const donde = (n: Node | null) => {
+      const el = n instanceof Element ? n : n?.parentElement;
+      return el ? el.closest<HTMLElement>('[data-ia-seleccion]') : null;
+    };
+    const a = donde(sel.anchorNode);
+    const b = donde(sel.focusNode);
+    return a && a === b ? a : null;   // entera dentro del MISMO contenedor
+  }
+
+  function mostrarBurbuja() {
+    quitarBurbuja();
+    if (!sheet!.hidden) return;
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+    const frase = sel.toString().replace(/\s+/g, ' ').trim();
+    if (frase.length < MIN_SELECCION || frase.length > MAX_SELECCION) return;
+    const cont = contenedorDeSeleccion(sel);
+    if (!cont || !cont.dataset.iaId) return;
+
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    if (!rect.width && !rect.height) return;
+
+    const b = crear('button', 'ia-burbuja') as HTMLButtonElement;
+    b.type = 'button';
+    b.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+      '<path d="M12 3.5l1.7 4.3 4.3 1.7-4.3 1.7L12 15.5l-1.7-4.3L6 9.5l4.3-1.7z"></path></svg>';
+    b.append(crear('span', undefined, txt.seleccion));
+    // El contexto viaja en el propio botón, como en cualquier abridor: solo
+    // identificadores más la frase seleccionada.
+    b.dataset.iaTipo = cont.dataset.iaTipo || '';
+    b.dataset.iaId = cont.dataset.iaId || '';
+    b.dataset.iaSobre = cont.dataset.iaSobre || '';
+    b.dataset.iaSeleccion = frase;
+    b.addEventListener('click', () => {
+      const abrelo = b;
+      quitarBurbuja();
+      window.getSelection()?.removeAllRanges();
+      abrir(abrelo);
+    });
+
+    document.body.append(b);
+    const ancho = b.offsetWidth || 160;
+    const x = Math.min(
+      Math.max(window.scrollX + rect.left + rect.width / 2 - ancho / 2, window.scrollX + 8),
+      window.scrollX + document.documentElement.clientWidth - ancho - 8
+    );
+    // Con el dedo, debajo (el menú del sistema va arriba); con ratón, encima.
+    const y = punteroGrueso.matches
+      ? window.scrollY + rect.bottom + 10
+      : window.scrollY + rect.top - 46;
+    b.style.left = x + 'px';
+    b.style.top = y + 'px';
+    burbuja = b;
+  }
+
+  document.addEventListener('pointerup', (e) => {
+    if ((e.target as HTMLElement).closest('.ia-burbuja')) return;
+    window.setTimeout(mostrarBurbuja, 60);
+  });
+  document.addEventListener('selectionchange', () => {
+    window.clearTimeout(selTimer);
+    selTimer = window.setTimeout(() => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) quitarBurbuja();
+      else if (punteroGrueso.matches) mostrarBurbuja();
+    }, 350);
+  });
+  window.addEventListener('scroll', quitarBurbuja, { passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (sheet!.hidden) return;

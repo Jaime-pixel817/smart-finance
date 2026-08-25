@@ -20,6 +20,7 @@ const description = `Equity research report on ${m.name} (${m.exchange}: ${m.tic
   locale="en" routeId={report.routeId} active="research" ogType="article"
   title={title} description={description}
   ogImage={ogPropia('research-' + report.slug, 'en')} ogImageAlt={`${m.name} (${m.ticker}) — Smart Finance equity research`}
-  jsonLd={reportJsonLd('en', report, SITE + route(report.routeId, 'en'), description)}>
+  jsonLd={reportJsonLd('en', report, SITE + route(report.routeId, 'en'), description)}
+  ia={{ tipo: 'reporte', id: report.slug, sobre: `${m.name} (${m.ticker})` }}>
   <Report locale="en" report={report} />
 </Base>

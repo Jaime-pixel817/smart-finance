@@ -532,6 +532,10 @@ const en = {
   'ia.sug.reto.2': 'What counts as a streak?',
   'ia.sug.reto.3': 'Why is the asset name hidden?',
   'ia.seleccion': 'Explain this to me',
+  'ia.ctx.market': 'The market today',
+  'ia.ctx.news': 'The latest story',
+  'ia.ctx.reto': 'The daily challenge',
+  'ia.ctx.tools': 'Compound interest',
 
   // ---- Modes ----
   'reto.mode.aria': 'Challenge mode',
@@ -1121,6 +1125,10 @@ const es: typeof en = {
   'ia.sug.reto.2': '¿Qué cuenta como racha?',
   'ia.sug.reto.3': '¿Por qué se esconde el nombre del activo?',
   'ia.seleccion': 'Explícame esto',
+  'ia.ctx.market': 'El mercado hoy',
+  'ia.ctx.news': 'La noticia más reciente',
+  'ia.ctx.reto': 'El reto del día',
+  'ia.ctx.tools': 'Interés compuesto',
 
   // ---- Modos ----
   'reto.mode.aria': 'Modo del reto',
