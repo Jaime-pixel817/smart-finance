@@ -687,6 +687,37 @@ test('el bloque DATOS de un término es el glosario, con su ejemplo en pesos', a
   assert.equal(bloque.titulo, 'Tipo de cambio');
 });
 
+test('el bloque DATOS de un reporte de research trae las cifras calculadas por el sitio', async () => {
+  const bloque = await ia.armarDatos({ tipo: 'reporte', id: 'lululemon', lang: 'es' }, {});
+  assert.match(bloque.datos, /BORRADOR/);
+  assert.match(bloque.datos, /lululemon athletica/);
+  assert.match(bloque.datos, /ingresos .* MUSD/);
+  assert.ok(bloque.fuentes.length >= 1 && bloque.fuentes.every((f) => /sec\.gov/.test(f.url)),
+    'las fuentes del reporte son los archivos de la SEC');
+  assert.equal(bloque.asOf, '2026-08-21', 'el asOf es el dataAsOf del meta.yaml');
+  await assert.rejects(() => ia.armarDatos({ tipo: 'reporte', id: 'no-existe', lang: 'es' }, {}), /reporte desconocido/);
+});
+
+test('el bloque DATOS del reto sale de las reglas de verdad, no de una copia', async () => {
+  const bloque = await ia.armarDatos({ tipo: 'reto', id: 'diario', lang: 'es' }, {});
+  assert.match(bloque.datos, /5 rondas/);
+  assert.match(bloque.datos, /localStorage/);
+  assert.match(bloque.datos, /no predice precios/);
+  assert.equal(bloque.fuentes[0].url, '/es/reto');
+});
+
+test('la noticia "ultima" es la más reciente aprobada: el índice de /news no sabe cuál es', async () => {
+  const noticias = [
+    { id: 'b', slug: 'segunda', estado: 'aprobada', fuente: { nombre: 'B', titular: 'y', url: 'https://x.test/y', publicado: '2026-08-24T10:00:00.000Z' }, es: { titulo: 'La más nueva', que: 'q', porque: 'p', impacto: 'i' } },
+    { id: 'a', slug: 'primera', estado: 'aprobada', fuente: { nombre: 'A', titular: 'x', url: 'https://x.test/x', publicado: '2026-08-20T10:00:00.000Z' }, es: { titulo: 'La vieja', que: 'q', porque: 'p', impacto: 'i' } }
+  ];
+  const bloque = await ia.armarDatos(
+    { tipo: 'noticia', id: 'ultima', lang: 'es' },
+    { noticias: { listar: async () => noticias } }
+  );
+  assert.equal(bloque.titulo, 'La más nueva');
+});
+
 test('modo preguntas: tres preguntas o no sale', async () => {
   const cliente = clienteFalso([{
     respuesta: 'Tres preguntas para repasar esto:',

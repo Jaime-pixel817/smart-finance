@@ -130,7 +130,7 @@ const MAX_R_HISTORIAL = 600;
 // con tope igual: no es la puerta para pegar un documento.
 const MAX_SELECCION = 260;
 
-const TIPOS = ['noticia', 'activo', 'grafica', 'termino', 'leccion'];
+const TIPOS = ['noticia', 'activo', 'grafica', 'termino', 'leccion', 'reporte', 'reto'];
 const MODOS = ['explicar', 'preguntas'];
 const RANGOS = ['1D', '1W', '1M', '3M', '1Y', '5Y'];
 
@@ -947,7 +947,12 @@ async function datosDeNoticia(pedido, deps) {
   // Solo APROBADAS. Un borrador es texto de IA que nadie ha leído todavía, y la
   // promesa del sitio es que eso no se publica — tampoco por esta puerta.
   const lista = await deps.noticias.listar({ estado: 'aprobada', limite: 60 });
-  const n = lista.find((x) => x.slug === pedido.id || x.id === pedido.id);
+  // 'ultima' es el alias del índice de /news: el botón flotante de esa página
+  // no sabe en el build qué noticia estará arriba, así que lo resuelve el
+  // servidor con la más reciente aprobada.
+  const n = pedido.id === 'ultima'
+    ? lista[0]
+    : lista.find((x) => x.slug === pedido.id || x.id === pedido.id);
   if (!n) throw sinDatos('noticia no encontrada o no aprobada: ' + pedido.id);
 
   const t = n[pedido.lang] || n.es || n.en;
@@ -1005,11 +1010,39 @@ function datosDeLeccion(pedido) {
   };
 }
 
+function datosDeReporte(pedido) {
+  const r = (contexto.reportes || []).find((x) => x.slug === pedido.id);
+  if (!r) throw sinDatos('reporte desconocido: ' + pedido.id);
+  return {
+    titulo: r.nombre + ' (' + r.ticker + ')',
+    datos: r.datos,
+    asOf: r.dataAsOf || new Date().toISOString().slice(0, 10),
+    fuentes: r.fuentes,
+    leccion: contexto.rutas['lesson.accion'] ? contexto.rutas['lesson.accion'][pedido.lang] : null
+  };
+}
+
+function datosDeReto(pedido) {
+  if (!contexto.reto) throw sinDatos('el manifiesto no trae el reto');
+  return {
+    titulo: pedido.lang === 'es' ? 'El reto del día' : 'The daily challenge',
+    datos: contexto.reto.datos,
+    asOf: new Date().toISOString().slice(0, 10),
+    fuentes: [{
+      titulo: pedido.lang === 'es' ? 'Las reglas del reto, publicadas en la propia página' : 'The challenge rules, published on the page itself',
+      url: contexto.reto.href ? contexto.reto.href[pedido.lang] : null
+    }],
+    leccion: contexto.rutas['lesson.bolsa'] ? contexto.rutas['lesson.bolsa'][pedido.lang] : null
+  };
+}
+
 async function armarDatos(pedido, deps) {
   let bloque;
   if (pedido.tipo === 'activo' || pedido.tipo === 'grafica') bloque = await datosDeActivo(pedido, deps);
   else if (pedido.tipo === 'noticia') bloque = await datosDeNoticia(pedido, deps);
   else if (pedido.tipo === 'termino') bloque = datosDeTermino(pedido);
+  else if (pedido.tipo === 'reporte') bloque = datosDeReporte(pedido);
+  else if (pedido.tipo === 'reto') bloque = datosDeReto(pedido);
   else bloque = datosDeLeccion(pedido);
 
   // La pregunta menciona un término del glosario ("¿qué es un ETF?" en la
@@ -1086,6 +1119,19 @@ const INSTRUCCION = {
     explicar: 'Explain the core idea of this lesson more simply than the lesson does, and give one ' +
       'example in Mexican pesos taken from the lesson text.',
     preguntas: 'Write three study questions about this lesson.'
+  },
+  reporte: {
+    explicar: 'Explain what this research report shows so far: what the company is, and how its ' +
+      'revenue, margins and free cash flow have moved across the fiscal years in the data. The ' +
+      'report is a DRAFT and the data says so: no thesis, no target, no conclusion — do not offer ' +
+      'one, and never say whether the company is cheap or expensive.',
+    preguntas: 'Write three study questions about what this report\'s figures show.'
+  },
+  reto: {
+    explicar: 'Explain how the daily challenge works using only the rules in the data: what the ' +
+      'player sees, how the daily pick and the streak work, and what the game teaches. Make clear ' +
+      'it is a reading exercise, not a way to predict prices.',
+    preguntas: 'Write three study questions about how this challenge works.'
   }
 };
 
