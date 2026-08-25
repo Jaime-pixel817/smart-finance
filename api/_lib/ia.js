@@ -3,8 +3,41 @@
 // QUÉ HACE
 //   Explica, en lenguaje de estudiante, lo que la persona está viendo: una
 //   noticia aprobada, la ficha de un activo, el movimiento de una gráfica, un
-//   término del glosario o una lección. También escribe tres preguntas de
-//   estudio sobre esa misma pieza.
+//   término del glosario, una lección, un reporte de research o el reto del
+//   día. También escribe tres preguntas de estudio sobre esa misma pieza.
+//
+// LA PREGUNTA MANDA
+//   Si la persona escribió una pregunta, el encargo al modelo deja de ser
+//   "explica esto" y pasa a ser "responde ESTO con los datos de abajo". Antes
+//   no era así: el TASK era siempre el genérico y la pregunta viajaba como
+//   posdata, así que "¿por qué subió hoy?" recibía el mismo resumen del mes
+//   que el botón a secas (docs/2026-08-25-ia-responde/). Ahora
+//   `clasificarPregunta` lee la intención (qué es · por qué se movió ·
+//   cuánto/cuándo se movió · comparar · término) y el alcance temporal (hoy,
+//   la semana, el año...), y el bloque DATOS se arma para ESA pregunta: hoy →
+//   la serie del día con el cierre anterior y las noticias aprobadas del
+//   símbolo; el año → la serie de 1Y; un término → su entrada del glosario;
+//   comparar → la serie del otro activo también. El resumen mensual ya no es
+//   la respuesta de todo.
+//
+// SABE DECIR "NO LO SÉ"
+//   Si piden una causa ("¿por qué subió?") y el sitio no tiene ninguna noticia
+//   APROBADA que la respalde, la respuesta tiene que decir en la primera frase
+//   que con estos datos no se puede saber el porqué, y ofrecer lo que sí
+//   consta. Está prohibido rellenar con una causa plausible, y no lo garantiza
+//   el prompt sino un cierre en `validar`: con `bloque.sinCausa`, una
+//   respuesta que atribuye causa o especula (`atribuyeCausa`) o que no admite
+//   que no se sabe (`admiteNoSaber`) se rechaza, se reintenta UNA vez y, si
+//   reincide, sale FRASE_SIN_CAUSA — escrita por una persona.
+//
+// CONVERSACIÓN CORTA, NUNCA EN EL SERVIDOR
+//   El navegador puede mandar hasta MAX_TURNOS intercambios anteriores
+//   (pregunta + respuesta) para poder repreguntar sin empezar de cero. Ese
+//   historial vive SOLO en localStorage del visitante: aquí no se guarda, y al
+//   modelo entra como contexto de lectura, NUNCA como parte del bloque DATOS —
+//   viene del navegador, así que sus cifras no respaldan nada (la regla de que
+//   el navegador manda identificadores y nunca cifras sigue intacta: una
+//   cifra del historial que no esté en DATOS se rechaza igual).
 //
 // LA REGLA QUE SOSTIENE TODO: NO INVENTA NADA
 //   El servidor arma un bloque DATOS con lo que el sitio YA tiene (la noticia
@@ -83,6 +116,19 @@ const TTL_CACHE = 24 * 60 * 60;   // la respuesta vale 24 h para el mismo bloque
 // chat: 200 caracteres bastan para preguntar y evitan que alguien pegue un
 // documento entero y nos lo cobre Anthropic.
 const MAX_PREGUNTA = 200;
+
+// La conversación tiene tope y es corto: hasta MAX_TURNOS intercambios
+// anteriores viajan con la repregunta (el historial vive en localStorage del
+// visitante, nunca aquí). Cada respuesta guardada se recorta a
+// MAX_R_HISTORIAL caracteres antes de entrar al prompt: el contexto de una
+// repregunta son dos frases, no el ensayo entero.
+const MAX_TURNOS = 3;
+const MAX_R_HISTORIAL = 600;
+
+// La frase que alguien seleccionó en la página para pedir "explícame esto".
+// Más larga que MAX_PREGUNTA porque una frase de una lección puede serlo, pero
+// con tope igual: no es la puerta para pegar un documento.
+const MAX_SELECCION = 260;
 
 const TIPOS = ['noticia', 'activo', 'grafica', 'termino', 'leccion'];
 const MODOS = ['explicar', 'preguntas'];
@@ -324,6 +370,210 @@ const FRASE_SIN_DATOS = {
   en: 'I do not have the data for this page to explain it. I do not know, with the data I have.'
 };
 
+// Sale cuando piden una causa, el sitio no tiene ninguna noticia aprobada que
+// la respalde, y el modelo insistió dos veces en inventar una. La escribió una
+// persona, y por eso la etiqueta de la hoja cambia a "Respuesta fija del sitio".
+const FRASE_SIN_CAUSA = {
+  es: 'Con los datos de esta página no se puede saber el porqué de ese movimiento: el sitio no ' +
+    'tiene ninguna noticia revisada que lo explique, y adivinar una causa sería inventarla. Lo ' +
+    'que sí consta —cuánto y cuándo se movió— está en la gráfica de esta página.',
+  en: 'With the data on this page there is no way to know the reason for that move: the site has ' +
+    'no reviewed news item explaining it, and guessing a cause would be making one up. What is ' +
+    'on record — how much it moved and when — is in the chart on this page.'
+};
+
+// ---------------------------------------------------------------------------
+// 1.5 La intención de la pregunta.
+//
+// No es comprensión del lenguaje: son las FORMAS con las que se pregunta cada
+// cosa, igual que el clasificador de consejo. Lo que decide es QUÉ DATOS se
+// arman y QUÉ ENCARGO se le da al modelo — equivocarse de intención cuesta una
+// respuesta menos afinada, nunca una cifra inventada (eso lo cierra la guardia
+// de cifras, que no depende de esto).
+//
+//   causa      "¿por qué subió hoy?"        → serie + noticias aprobadas del símbolo
+//   movimiento "¿cuánto subió este año?"    → la serie del alcance que diga la pregunta
+//   comparar   "¿mejor que el oro?"         → la serie del otro activo también
+//   termino    "¿qué es un ETF?"            → su entrada del glosario
+//   que_es     todo lo demás                → la ficha y la serie de siempre
+//
+// El ALCANCE temporal ("hoy", "esta semana", "el año") se mapea al rango de la
+// serie: preguntar por hoy y recibir el resumen del mes era la mitad del bug.
+
+const RE_ALCANCE = [
+  { re: /\b(hoy|today|intradia|intrad[íi]a)\b/i, rango: '1D' },
+  { re: /\b(ayer|yesterday|esta\s+semana|this\s+week|la\s+semana|week)\b/i, rango: '1W' },
+  { re: /\b(este\s+mes|el\s+mes|del\s+mes|month)\b/i, rango: '1M' },
+  { re: /\b(trimestre|quarter|3\s+meses)\b/i, rango: '3M' },
+  { re: new RegExp('\\b(?:5|cinco|five)\\s+(?:a[ñn]os|years)' + FIN, 'i'), rango: '5Y' },
+  { re: new RegExp('\\b(?:este\\s+a[ñn]o|el\\s+a[ñn]o|del\\s+a[ñn]o|anual|this\\s+year|year|12\\s+meses)' + FIN, 'i'), rango: '1Y' }
+];
+
+// Movimiento en pasado ("subió", "cayó", "se disparó") o consumado ("ha
+// subido"): es lo que separa "¿por qué subió hoy?" (pide la causa de un hecho)
+// de "¿por qué sube cuando el peso se debilita?" (pide el mecanismo, y eso lo
+// contesta la ficha).
+const RE_MOVIMIENTO_HECHO = new RegExp(
+  '\\b(?:subi[óo]|baj[óo]|cay[óo]|(?:se\\s+)?(?:movi[óo]|dispar[óo]|desplom[óo]|derrumb[óo]|hundi[óo]|recuper[óo]|fortaleci[óo]|debilit[óo])|' +
+  'ha\\s+(?:subido|bajado|ca[íi]do)|perdi[óo]|gan[óo]|' +
+  'went\\s+(?:up|down)|rose|fell|dropped|jumped|spiked|crashed|climbed|moved|rallied|tanked)' + FIN, 'i');
+
+const RE_CUANTO_CUANDO = new RegExp(
+  '\\b(?:cu[áa]nto|cu[áa]ndo|how\\s+much|when|desde\\s+cu[áa]ndo)' + FIN, 'i');
+
+const RE_COMO_VA = new RegExp(
+  '\\b(?:c[óo]mo\\s+(?:va|vamos|viene|cerr[óo]|le\\s+ha\\s+ido|le\\s+fue|se\\s+ha\\s+movido)|' +
+  'qu[ée]\\s+(?:hizo|ha\\s+hecho|tal)|how\\s+is\\s+it\\s+doing|how\\s+did\\s+it\\s+do|how\\s+has\\s+it|' +
+  'what\\s+(?:did\\s+it\\s+do|has\\s+it\\s+done))' + FIN, 'i');
+
+const RE_EXTREMOS = new RegExp(
+  '\\b(?:m[áa]ximo|m[íi]nimo|r[ée]cord|pico|high|low|highest|lowest|peak)' + FIN, 'i');
+
+const RE_COMPARAR = new RegExp(
+  '\\b(?:compar[' + LETRA + ']*|versus|vs\\.?|frente\\s+a|contra|' +
+  'mejor\\s+que|peor\\s+que|m[áa]s\\s+que|menos\\s+que|' +
+  'compared?|better\\s+than|worse\\s+than|more\\s+than)' + FIN, 'i');
+
+const RE_QUE_ES = new RegExp(
+  '\\b(?:qu[ée]\\s+(?:es|son|significa|quiere\\s+decir)|what\\s+(?:is|are|does)|' +
+  'qu[ée]\\s+diferencia|explica|no\\s+entend[íi])' + FIN, 'i');
+
+/** El término del glosario que menciona la pregunta, si menciona alguno. */
+function terminoEnPregunta(texto) {
+  const t = ' ' + String(texto || '').toLowerCase() + ' ';
+  if (!RE_QUE_ES.test(texto)) return null;
+  let mejor = null;
+  for (const g of glosario) {
+    for (const lang of ['es', 'en']) {
+      const term = (g[lang] && g[lang].term ? g[lang].term : '').toLowerCase();
+      if (term.length < 3) continue;
+      if (t.includes(' ' + term + ' ') || t.includes(' ' + term + '?') || t.includes(' ' + term + 's ')) {
+        // El término más largo gana: "tipo de cambio" antes que "cambio".
+        if (!mejor || term.length > mejor.term.length) mejor = { id: g.id, term };
+      }
+    }
+  }
+  return mejor ? mejor.id : null;
+}
+
+/** El OTRO activo que menciona la pregunta (para comparar), si menciona uno. */
+function otroActivoEnPregunta(texto, idActual) {
+  const t = ' ' + String(texto || '').toLowerCase() + ' ';
+  let mejor = null;
+  for (const a of contexto.activos) {
+    if (a.id === idActual) continue;
+    const nombres = [a.sym.toLowerCase(), a.id, a.nombre.es.toLowerCase(), a.nombre.en.toLowerCase()];
+    for (const n of nombres) {
+      if (n.length < 3) continue;
+      if (t.includes(' ' + n + ' ') || t.includes(' ' + n + '?') || t.includes(' ' + n + ',')) {
+        if (!mejor || n.length > mejor.n.length) mejor = { id: a.id, n };
+      }
+    }
+  }
+  return mejor ? mejor.id : null;
+}
+
+/**
+ * Lee la intención y el alcance de una pregunta escrita a mano.
+ * Devuelve { intencion, alcance, terminoId, otroId } — todo puede ser null.
+ */
+function clasificarPregunta(pregunta, idActual) {
+  const p = String(pregunta || '').trim();
+  if (!p) return { intencion: null, alcance: null, terminoId: null, otroId: null };
+
+  let alcance = null;
+  for (const { re, rango } of RE_ALCANCE) {
+    if (re.test(p)) { alcance = rango; break; }
+  }
+
+  const terminoId = terminoEnPregunta(p);
+  // El otro activo se busca SIEMPRE que la pregunta mencione uno ("¿y el
+  // bitcoin?" también es preguntar por el bitcoin), pero solo cuenta como
+  // comparación si la pregunta compara.
+  const otroId = otroActivoEnPregunta(p, idActual);
+
+  let intencion = 'que_es';
+  if (otroId && RE_COMPARAR.test(p)) {
+    intencion = 'comparar';
+  } else if (RE_PORQUE.test(p) && (RE_MOVIMIENTO_HECHO.test(p) || alcance)) {
+    intencion = 'causa';
+  } else if ((RE_CUANTO_CUANDO.test(p) && RE_MOVIMIENTO_HECHO.test(p)) ||
+    RE_COMO_VA.test(p) || RE_EXTREMOS.test(p) ||
+    (RE_MOVIMIENTO_HECHO.test(p) && alcance)) {
+    intencion = 'movimiento';
+  } else if (terminoId) {
+    intencion = 'termino';
+  }
+
+  return { intencion, alcance, terminoId, otroId };
+}
+
+// ---------------------------------------------------------------------------
+// 1.6 La guardia de la causa inventada.
+//
+// Cuando la pregunta pide un PORQUÉ y el sitio no tiene ninguna noticia
+// aprobada del activo, el bloque DATOS se marca `sinCausa` y la respuesta
+// tiene que cumplir dos cosas, comprobadas aquí y no en el prompt:
+//
+//   1. ADMITIR que no se sabe (admiteNoSaber): "con estos datos no se puede
+//      saber por qué" tiene que estar escrito, no sobreentendido.
+//   2. NO ATRIBUIR ninguna causa (atribuyeCausa): ni "porque la Fed", ni
+//      "probablemente por los resultados", ni "tras el anuncio". Un modelo de
+//      lenguaje SIEMPRE tiene a mano una causa plausible de memoria, y una
+//      causa plausible sin fuente es exactamente la mentira que este sitio
+//      promete no contar.
+//
+// La única excepción del vocabulario causal es la frase que niega el saber:
+// "no lo sé porque no hay ninguna noticia que lo explique" usa "porque" para
+// explicar la ignorancia, no el precio. Igual que en `negada`, el alcance es
+// la MISMA oración.
+
+const RE_CAUSA_VOCAB = new RegExp(
+  '\\b(?:porque|debido\\s+a|a\\s+causa\\s+de|se\\s+deb(?:e|i[óo])\\s+a|gracias\\s+a|' +
+  'por\\s+culpa\\s+de|impulsad[oa]s?\\s+por|explicad[oa]s?\\s+por|provocad[oa]s?\\s+por|' +
+  'como\\s+(?:resultado|consecuencia)\\s+de|reaccion(?:[óo]|a|ando)\\s+a|' +
+  'tras\\s+(?:el|la|los|las|un|una)|luego\\s+de\\s+que|despu[ée]s\\s+de\\s+que|' +
+  'probablemente|posiblemente|quiz[áa]s?|tal\\s+vez|puede\\s+que|seguramente|' +
+  'suele\\s+(?:subir|bajar|moverse)|' +
+  'because|due\\s+to|driven\\s+by|thanks\\s+to|caused\\s+by|on\\s+the\\s+back\\s+of|' +
+  'in\\s+response\\s+to|after\\s+(?:the|a|an)|following\\s+(?:the|a|an)|' +
+  'likely|probably|possibly|perhaps|maybe|usually\\s+(?:rises|falls|moves))' + FIN, 'gi');
+
+const RE_ADMITE = new RegExp(
+  '\\b(?:no\\s+(?:se\\s+puede|puedo|podemos)\\s+saber|no\\s+se\\s+sabe|no\\s+lo\\s+s[ée]|' +
+  'no\\s+(?:hay|existe)\\s+(?:ninguna\\s+|una\\s+)?(?:noticia|informaci[óo]n|dato|fuente)|' +
+  'no\\s+(?:dicen?|explican?|muestran?|indican?)\\s+(?:el\\s+)?por\\s?qu[ée]|' +
+  'no\\s+(?:me\\s+)?(?:dicen?|alcanzan?)\\s+para\\s+saber|' +
+  'cannot\\s+(?:know|tell|say)|can\'?t\\s+(?:know|tell|say)|no\\s+way\\s+to\\s+know|' +
+  'do(?:es)?\\s+not\\s+(?:say|explain|show|tell)|don\'?t\\s+know|' +
+  'there\\s+is\\s+no\\s+(?:approved|reviewed)?\\s*(?:news|information|source|data))' + FIN, 'i');
+
+/** true si el texto ADMITE en algún sitio que la causa no se sabe. */
+function admiteNoSaber(texto) {
+  return RE_ADMITE.test(String(texto || ''));
+}
+
+/**
+ * true si el texto atribuye o insinúa una causa que los DATOS no respaldan.
+ * Se salva solo el vocabulario causal cuya oración niega el saber.
+ */
+function atribuyeCausa(texto) {
+  const t = String(texto || '');
+  for (const m of t.matchAll(RE_CAUSA_VOCAB)) {
+    // La oración de la coincidencia: del corte anterior al corte siguiente.
+    const antes = t.slice(0, m.index);
+    const corte = antes.search(RE_CORTE);
+    const inicio = corte === -1 ? 0 : corte + 1;
+    const resto = t.slice(m.index);
+    const fin = resto.search(/[.:;!?—\n]/);
+    const oracion = t.slice(inicio, fin === -1 ? t.length : m.index + fin);
+    if (!RE_ADMITE.test(oracion) && !RE_NEG_SABER.test(oracion) && !RE_NEG_ABSOLUTA.test(oracion)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // ---------------------------------------------------------------------------
 // 2. La guardia de cifras.
 //
@@ -545,19 +795,81 @@ const activoPorId = (id) => contexto.activos.find((a) => a.id === id);
 const leccionPorSlug = (slug) => contexto.lecciones.find((l) => l.slug === slug);
 const terminoPorId = (id) => glosario.find((g) => g.id === id);
 
-async function datosDeActivo(pedido, deps) {
-  const a = activoPorId(pedido.id);
-  if (!a) throw sinDatos('activo desconocido: ' + pedido.id);
-
-  const ficha = [
+function fichaDeActivo(a, lang) {
+  return [
     'Ficha del activo (registro del sitio, src/data/symbols.ts):',
-    '  nombre: ' + a.nombre[pedido.lang],
+    '  nombre: ' + a.nombre[lang],
     '  símbolo: ' + a.sym,
     '  tipo: ' + a.tipo,
     '  moneda: ' + a.moneda,
     '  proveedor del precio: ' + a.fuente + ' (retraso de ' + a.retrasoMin + ' minutos)',
-    '  qué es: ' + a.que[pedido.lang]
+    '  qué es: ' + a.que[lang]
   ].join('\n');
+}
+
+/**
+ * La serie de UN activo como texto del bloque DATOS. En el rango 1D añade el
+ * movimiento de HOY contra el cierre del día hábil anterior — la cuenta la
+ * hace ESTE archivo, como todas: preguntar "¿por qué subió hoy?" y recibir el
+ * resumen del mes era la mitad del bug que esto arregla.
+ */
+async function serieDeActivo(a, rango, deps) {
+  const r = await deps.historia.serie(a.history, rango);
+  const resumen = resumirSerie(r.valor, a.decimales);
+  let texto = resumen.texto;
+
+  if (rango === '1D' && typeof r.valor.prevClose === 'number' && isFinite(r.valor.prevClose)) {
+    const cambioHoy = resumen.ultimo - r.valor.prevClose;
+    const pctHoy = (cambioHoy / r.valor.prevClose) * 100;
+    texto += '\n' + [
+      'Movimiento de HOY (la sesión más reciente):',
+      '  cierre del día hábil anterior: ' + num(r.valor.prevClose, a.decimales),
+      '  último precio: ' + num(resumen.ultimo, a.decimales),
+      '  cambio de hoy: ' + num(cambioHoy, a.decimales) + ' (' + num(pctHoy, 2) + ' %)'
+    ].join('\n');
+  }
+  if (r.stale) texto += '\n  aviso: es el último dato conocido, el proveedor no respondió.';
+  return { texto, asOf: resumen.asOf };
+}
+
+/**
+ * Las noticias APROBADAS que mencionan este activo, para las preguntas de
+ * causa. Solo aprobadas: un borrador es texto de IA que nadie ha leído, y esa
+ * puerta ya está cerrada en datosDeNoticia — aquí también.
+ */
+async function noticiasDelActivo(id, lang, deps) {
+  try {
+    const lista = await deps.noticias.listar({ estado: 'aprobada', limite: 60 });
+    return lista
+      .filter((n) => Array.isArray(n.simbolos) && n.simbolos.includes(id))
+      .slice(0, 2)
+      .map((n) => {
+        const t = n[lang] || n.es || n.en;
+        return {
+          texto: [
+            '  · [' + String(n.fuente.publicado).slice(0, 10) + '] ' + t.titulo,
+            '    qué pasó: ' + t.que,
+            '    por qué importa: ' + t.porque,
+            '    impacto en mercados: ' + t.impacto
+          ].join('\n'),
+          fuente: { titulo: n.fuente.nombre + ' — ' + n.fuente.titular, url: n.fuente.url }
+        };
+      });
+  } catch (err) {
+    // Sin Redis no hay noticias que citar; la explicación sale igual, solo que
+    // sin causa — que es exactamente lo que sinCausa obliga a decir.
+    console.warn('ia: sin noticias del activo:', err && err.message);
+    return [];
+  }
+}
+
+async function datosDeActivo(pedido, deps) {
+  const a = activoPorId(pedido.id);
+  if (!a) throw sinDatos('activo desconocido: ' + pedido.id);
+
+  // El rango que pide LA PREGUNTA gana al de la página: "¿cómo va el año?"
+  // con la gráfica en 1M se contesta con la serie del año.
+  const rango = pedido.alcance || pedido.rango;
 
   const fuentes = [{ titulo: a.fuente, url: null }];
   let asOf = new Date().toISOString().slice(0, 10);
@@ -565,10 +877,9 @@ async function datosDeActivo(pedido, deps) {
 
   if (a.history) {
     try {
-      const r = await deps.historia.serie(a.history, pedido.rango);
-      const resumen = resumirSerie(r.valor, a.decimales);
-      serieTexto = resumen.texto + (r.stale ? '\n  aviso: es el último dato conocido, el proveedor no respondió.' : '');
-      asOf = resumen.asOf;
+      const s = await serieDeActivo(a, rango, deps);
+      serieTexto = s.texto;
+      asOf = s.asOf;
       // La gráfica siempre es de Yahoo, pero el precio de la ficha puede ser de
       // otro proveedor (Twelve Data en las acciones). Sin este filtro, una
       // divisa listaba "Yahoo Finance · Yahoo Finance".
@@ -578,11 +889,56 @@ async function datosDeActivo(pedido, deps) {
     }
   }
 
+  const partes = [fichaDeActivo(a, pedido.lang), serieTexto];
+  let sinCausa = false;
+
+  // Pregunta de CAUSA: las únicas causas que existen son las noticias
+  // aprobadas del símbolo. Si no hay ninguna, el bloque lo dice con todas sus
+  // letras y se marca sinCausa — la guardia de 1.6 hace el resto.
+  if (pedido.intencion === 'causa') {
+    const noticiasActivo = await noticiasDelActivo(pedido.id, pedido.lang, deps);
+    if (noticiasActivo.length) {
+      partes.push(
+        'Noticias del sitio que mencionan este activo (escritas a partir de un titular real y ' +
+        'REVISADAS por una persona; son las ÚNICAS causas que se pueden citar):\n' +
+        noticiasActivo.map((n) => n.texto).join('\n')
+      );
+      for (const n of noticiasActivo) fuentes.push(n.fuente);
+    } else {
+      sinCausa = true;
+      partes.push(
+        'Noticias aprobadas de este activo: NINGUNA. El sitio no tiene ninguna noticia revisada ' +
+        'que explique por qué se movió. La causa del movimiento NO SE SABE con estos datos.'
+      );
+    }
+  }
+
+  // La pregunta compara (o menciona) otro activo del sitio: su ficha y su
+  // serie del MISMO rango entran también, con las cuentas ya hechas.
+  if (pedido.otroId) {
+    const b = activoPorId(pedido.otroId);
+    if (b) {
+      let otraSerie = 'No hay serie de precios disponible ahora mismo para este activo.';
+      if (b.history) {
+        try {
+          otraSerie = (await serieDeActivo(b, rango, deps)).texto;
+        } catch (err) {
+          console.warn('ia: sin serie para ' + b.history + ':', err && err.message);
+        }
+      }
+      partes.push(
+        'EL OTRO ACTIVO que menciona la pregunta — ' + b.nombre[pedido.lang] + ' (' + b.sym + '):\n' +
+        fichaDeActivo(b, pedido.lang) + '\n' + otraSerie
+      );
+    }
+  }
+
   return {
     titulo: a.nombre[pedido.lang] + ' (' + a.sym + ')',
-    datos: ficha + '\n\n' + serieTexto,
+    datos: partes.join('\n\n'),
     asOf,
     fuentes,
+    sinCausa,
     leccion: contexto.rutas[a.leccion] ? contexto.rutas[a.leccion][pedido.lang] : null
   };
 }
@@ -650,10 +1006,28 @@ function datosDeLeccion(pedido) {
 }
 
 async function armarDatos(pedido, deps) {
-  if (pedido.tipo === 'activo' || pedido.tipo === 'grafica') return datosDeActivo(pedido, deps);
-  if (pedido.tipo === 'noticia') return datosDeNoticia(pedido, deps);
-  if (pedido.tipo === 'termino') return datosDeTermino(pedido);
-  return datosDeLeccion(pedido);
+  let bloque;
+  if (pedido.tipo === 'activo' || pedido.tipo === 'grafica') bloque = await datosDeActivo(pedido, deps);
+  else if (pedido.tipo === 'noticia') bloque = await datosDeNoticia(pedido, deps);
+  else if (pedido.tipo === 'termino') bloque = datosDeTermino(pedido);
+  else bloque = datosDeLeccion(pedido);
+
+  // La pregunta menciona un término del glosario ("¿qué es un ETF?" en la
+  // ficha del SPY): su entrada entra al bloque, venga el pedido del tipo que
+  // venga. Salvo que el bloque YA SEA esa entrada, claro.
+  if (pedido.terminoId && !(pedido.tipo === 'termino' && pedido.id === pedido.terminoId)) {
+    const g = terminoPorId(pedido.terminoId);
+    if (g) {
+      const t = g[pedido.lang];
+      bloque.datos += '\n\n' + [
+        'Término del glosario del sitio que menciona la pregunta:',
+        '  término: ' + t.term,
+        '  definición: ' + t.def,
+        '  en pesos: ' + t.pesos
+      ].join('\n');
+    }
+  }
+  return bloque;
 }
 
 // ---------------------------------------------------------------------------
@@ -744,12 +1118,70 @@ function recortarJSON(texto) {
   return JSON.parse(texto.slice(a, b + 1));
 }
 
+/**
+ * El encargo cuando hay una pregunta escrita: responderla, y responderla
+ * PRIMERO. Antes el TASK era siempre el genérico ("explica este activo") y la
+ * pregunta viajaba de posdata — por eso "¿por qué subió hoy?" recibía el
+ * resumen del mes. La instrucción fina depende de la intención clasificada.
+ */
+function encargoDePregunta(pedido, bloque) {
+  const lineas = [
+    'TASK: The reader typed a question in their own words: "' + pedido.pregunta + '"',
+    'ANSWER THAT QUESTION, and answer it in the FIRST sentence. Do not open with a generic ' +
+    'description of what this asset or page is — the reader is already looking at it. Add ' +
+    'background only if the question needs it.'
+  ];
+  if (pedido.intencion === 'causa' && bloque.sinCausa) {
+    lineas.push(
+      'The question asks WHY it moved, and the DATA block contains NO verified cause: there is ' +
+      'no approved news item about this asset. Your first sentence must say plainly that with ' +
+      'the data on this page the reason cannot be known. Then offer what the data DOES show — ' +
+      'the movement itself, with its figures. Do NOT suggest, guess or hint at any cause, ' +
+      'however plausible: no "because", no "likely", no "after the…", no market narrative from ' +
+      'memory. Causal language is allowed only to explain that the cause is unknown.'
+    );
+  } else if (pedido.intencion === 'causa') {
+    lineas.push(
+      'The question asks WHY it moved. The ONLY causes you may mention are the approved news ' +
+      'items included in the DATA block, each reviewed by a person. If they do not explain this ' +
+      'specific move, say so plainly instead of guessing.'
+    );
+  } else if (pedido.intencion === 'movimiento') {
+    lineas.push(
+      'The question asks about the movement itself. The arithmetic is already done in the DATA ' +
+      'block (change of the period, high, low, biggest one-step moves) — narrate those figures ' +
+      'and never compute new ones.'
+    );
+  } else if (pedido.intencion === 'comparar') {
+    lineas.push(
+      'The question involves two assets, and both are in the DATA block with their own series, ' +
+      'computed by the server. Compare only with those figures; if the data does not settle the ' +
+      'comparison, say what is missing.'
+    );
+  }
+  return lineas;
+}
+
 function mensajeUsuario(pedido, bloque, correccion) {
   const idioma = pedido.lang === 'es' ? 'Mexican Spanish' : 'English';
-  const partes = [
-    'Answer in ' + idioma + '. The reader is looking at: ' + bloque.titulo,
-    '',
-    'TASK: ' + INSTRUCCION[pedido.tipo][pedido.modo],
+  const partes = ['Answer in ' + idioma + '. The reader is looking at: ' + bloque.titulo, ''];
+
+  // El encargo. La pregunta escrita MANDA sobre el genérico; la selección de
+  // una frase es su propio encargo; sin ninguna de las dos, el de siempre.
+  if (pedido.modo === 'explicar' && pedido.pregunta) {
+    partes.push(...encargoDePregunta(pedido, bloque));
+  } else if (pedido.modo === 'explicar' && pedido.seleccion) {
+    partes.push(
+      'TASK: The reader selected this exact phrase on the page: "' + pedido.seleccion + '"',
+      'Explain THAT PHRASE more simply than the page does, in the first sentence, and give an ' +
+      'example in Mexican pesos if the DATA block provides one. Do not summarize the whole page. ' +
+      'If the phrase asks for advice, explain the concept behind it without recommending anything.'
+    );
+  } else {
+    partes.push('TASK: ' + INSTRUCCION[pedido.tipo][pedido.modo]);
+  }
+
+  partes.push(
     pedido.modo === 'preguntas'
       ? 'Put the three questions in "preguntas" and leave "respuesta" as one short line introducing them. ' +
         'The questions must be answerable from the DATA block alone.'
@@ -757,7 +1189,23 @@ function mensajeUsuario(pedido, bloque, correccion) {
     '',
     'Also fill: "datosUsados" = the two to four lines of the DATA block you actually leaned on, ' +
     'copied short; "fuentes" = the sources listed at the end of the DATA block, copied exactly; ' +
-    '"asOf" = the as-of date given below, copied exactly.',
+    '"asOf" = the as-of date given below, copied exactly.'
+  );
+
+  // La conversación anterior, si la hay. Entra como CONTEXTO de lectura y
+  // nada más: viene del navegador, así que sus cifras no respaldan nada.
+  if (pedido.historial && pedido.historial.length) {
+    partes.push('', 'Earlier exchanges in this same conversation, oldest first (context only):');
+    for (const h of pedido.historial) {
+      partes.push('  the reader asked: "' + h.p + '"', '  you answered: "' + h.r + '"');
+    }
+    partes.push(
+      'The new question may refer back to them ("and this year?", "why is that?"). Figures from ' +
+      'earlier answers may be repeated ONLY if they also appear in the DATA block below.'
+    );
+  }
+
+  partes.push(
     '',
     '=== DATA (everything you know) ===',
     bloque.datos,
@@ -765,23 +1213,22 @@ function mensajeUsuario(pedido, bloque, correccion) {
     'Sources of this data: ' + bloque.fuentes.map((f) => f.titulo).join(' · '),
     'as-of: ' + bloque.asOf,
     '=== END OF DATA ==='
-  ];
+  );
 
-  if (pedido.pregunta) {
-    partes.push(
-      '',
-      'The reader also asked, in their own words: "' + pedido.pregunta + '"',
-      'Answer it only if the DATA block answers it. If it does not, say so and explain what the ' +
-      'data does show instead.'
-    );
-  }
-
-  if (correccion) {
+  if (correccion && correccion.cifras) {
     partes.push(
       '',
       'YOUR PREVIOUS ANSWER WAS REJECTED. It contained figures that are not in the DATA block: ' +
-      correccion.join(', ') + '. Those numbers do not exist. Write the answer again using only ' +
-      'figures that appear in the DATA block, or no figures at all.'
+      correccion.cifras.join(', ') + '. Those numbers do not exist. Write the answer again using ' +
+      'only figures that appear in the DATA block, or no figures at all.'
+    );
+  } else if (correccion && correccion.causa) {
+    partes.push(
+      '',
+      'YOUR PREVIOUS ANSWER WAS REJECTED. It stated or hinted at a cause for the move, but the ' +
+      'DATA block contains no verified cause. Write it again: say plainly that the reason cannot ' +
+      'be known with this data, offer what the data does show, and use no causal or speculative ' +
+      'language at all.'
     );
   }
 
@@ -845,6 +1292,15 @@ function validar(cruda, bloque, pedido) {
   // El clasificador otra vez, ahora sobre lo que escribió el modelo: el prompt
   // se lo prohíbe, pero prohibir no es impedir.
   if (daConsejo(todoElTexto)) return { ok: false, motivo: 'consejo', cifras: [] };
+
+  // Pidieron una causa y no hay ninguna noticia aprobada que la respalde: la
+  // respuesta tiene que ADMITIR que no se sabe y no puede atribuir ni insinuar
+  // ninguna. Un modelo siempre tiene a mano una causa plausible de memoria, y
+  // una causa plausible sin fuente es la mentira que este sitio promete no
+  // contar. Ver 1.6.
+  if (bloque.sinCausa && (atribuyeCausa(todoElTexto) || !admiteNoSaber(cruda.respuesta))) {
+    return { ok: false, motivo: 'causa_inventada', cifras: [] };
+  }
 
   const cifras = numerosFuera(todoElTexto, bloque.datos);
   if (cifras.length) return { ok: false, motivo: 'cifras_inventadas', cifras };
@@ -920,11 +1376,25 @@ function leerPedido(query) {
   const rango = RANGOS.includes(String(q.rango || '').toUpperCase())
     ? String(q.rango).toUpperCase() : '1M';
   const pregunta = String(q.pregunta || '').replace(/\s+/g, ' ').trim().slice(0, MAX_PREGUNTA);
+  const seleccion = String(q.seleccion || '').replace(/\s+/g, ' ').trim().slice(0, MAX_SELECCION);
+
+  // La conversación anterior, tal y como la guardó el navegador. Se recorta
+  // campo por campo ANTES de pagarla: es una cadena que cualquiera puede
+  // fabricar, así que se trata como lo que es — texto ajeno con tope.
+  const historial = [];
+  if (Array.isArray(q.historial)) {
+    for (const h of q.historial.slice(-MAX_TURNOS)) {
+      if (!h || typeof h !== 'object') continue;
+      const p = String(h.p || '').replace(/\s+/g, ' ').trim().slice(0, MAX_PREGUNTA);
+      const r = String(h.r || '').replace(/\s+/g, ' ').trim().slice(0, MAX_R_HISTORIAL);
+      if (p && r) historial.push({ p, r });
+    }
+  }
 
   if (!TIPOS.includes(tipo)) return { error: 'tipo_desconocido', valores: TIPOS };
   if (!MODOS.includes(modo)) return { error: 'modo_desconocido', valores: MODOS };
   if (!id) return { error: 'falta_id' };
-  return { tipo, modo, lang, id, rango, pregunta };
+  return { tipo, modo, lang, id, rango, pregunta, seleccion, historial };
 }
 
 /**
@@ -943,6 +1413,10 @@ async function explicar(query, req, deps) {
 
   const pedido = leerPedido(query);
   if (pedido.error) return { codigo: 400, cuerpo: pedido };
+
+  // La intención y el alcance de la pregunta deciden qué DATOS se arman y qué
+  // encargo se escribe. Sin pregunta, todo queda en null y nada cambia.
+  Object.assign(pedido, clasificarPregunta(pedido.pregunta, pedido.id));
 
   const enlaceRiesgo = contexto.rutas['lesson.errores'][pedido.lang];
   const metodologia = contexto.rutas.methodology[pedido.lang];
@@ -985,7 +1459,8 @@ async function explicar(query, req, deps) {
   //    paga una sola vez. Si los datos cambian (un precio nuevo), el hash
   //    cambia y se vuelve a generar; es el precio de no mentir sobre la fecha.
   const claveCache = 'ia:v1:' + pedido.tipo + ':' + pedido.modo + ':' + pedido.lang + ':' +
-    huella(pedido.id + '|' + pedido.pregunta + '|' + bloque.datos);
+    huella([pedido.id, pedido.pregunta, pedido.seleccion,
+      JSON.stringify(pedido.historial), bloque.datos].join('|'));
   const guardado = await d.cache.leer(claveCache);
   if (guardado && guardado.valor) {
     return { codigo: 200, cuerpo: Object.assign({}, guardado.valor, { cacheado: true }) };
@@ -1002,13 +1477,13 @@ async function explicar(query, req, deps) {
   let cliente = null;
   let ultimo = null;
 
-  for (const correccion of [null, 'reintento']) {
+  for (let intento = 0; intento < 2; intento++) {
     const cobro = await cobrar(claveIp, d);
     if (!cobro.permitido) {
       console.warn('ia: no se genera —', cobro.motivo);
       // Si lo que no se puede pagar es el REINTENTO, no hay 429: ya hay una
       // respuesta rechazada y lo que toca es el mensaje honesto de abajo.
-      if (correccion) break;
+      if (intento) break;
       return {
         codigo: 429,
         cuerpo: Object.assign({}, base, {
@@ -1020,9 +1495,13 @@ async function explicar(query, req, deps) {
     }
 
     if (!cliente) cliente = d.crearCliente();
+    // El reintento le dice al modelo QUÉ falló: la cifra que sobra, o la causa
+    // que no existe. Cada fallo con su corrección.
+    const correccion = intento === 0 ? null
+      : ultimo.motivo === 'causa_inventada' ? { causa: true } : { cifras: ultimo.cifras };
     let cruda;
     try {
-      cruda = await pedirAlModelo(cliente, pedido, bloque, correccion ? ultimo.cifras : null);
+      cruda = await pedirAlModelo(cliente, pedido, bloque, correccion);
     } catch (err) {
       console.error('ia: la llamada falló:', err && err.message ? err.message : err);
       break;
@@ -1033,7 +1512,7 @@ async function explicar(query, req, deps) {
         titulo: bloque.titulo,
         leccion: bloque.leccion,
         cacheado: false,
-        reintentado: correccion !== null
+        reintentado: intento > 0
       });
       await d.cache.escribir(claveCache, cuerpo, TTL_CACHE, 'anthropic');
       return { codigo: 200, cuerpo };
@@ -1041,9 +1520,9 @@ async function explicar(query, req, deps) {
     console.warn('ia: respuesta rechazada (' + v.motivo + ')' + (v.cifras.length ? ': ' + v.cifras.join(', ') : ''));
     ultimo = v;
     // Un consejo o una respuesta vacía no se reintentan: el reintento solo sabe
-    // corregir cifras, y volver a pedir lo mismo es pagar dos veces por el
-    // mismo fallo.
-    if (v.motivo !== 'cifras_inventadas') break;
+    // corregir una cifra que sobra o una causa que no existe, y volver a pedir
+    // lo mismo es pagar dos veces por el mismo fallo.
+    if (v.motivo !== 'cifras_inventadas' && v.motivo !== 'causa_inventada') break;
   }
 
   // Cada rechazo con su frase. Si el modelo se puso a recomendar no falló
@@ -1051,14 +1530,18 @@ async function explicar(query, req, deps) {
   // la respuesta contra los datos de esta página" sería contarle algo que no
   // pasó. Lo que pasó es que el modelo dio un consejo, así que sale la frase
   // que lo dice —la misma del rechazo de entrada— con su enlace a la lección
-  // de errores al invertir.
+  // de errores al invertir. Y si lo que hizo fue inventar una causa, sale la
+  // frase que dice que la causa no se puede saber con estos datos.
   const porConsejo = ultimo && ultimo.motivo === 'consejo';
+  const porCausa = ultimo && ultimo.motivo === 'causa_inventada';
 
   return {
     codigo: 200,
     cuerpo: Object.assign({}, base, {
       rechazada: ultimo ? ultimo.motivo : 'sin_respuesta',
-      respuesta: porConsejo ? FRASE_CONSEJO[pedido.lang] : FRASE_SIN_VERIFICAR[pedido.lang],
+      respuesta: porConsejo ? FRASE_CONSEJO[pedido.lang]
+        : porCausa ? FRASE_SIN_CAUSA[pedido.lang]
+        : FRASE_SIN_VERIFICAR[pedido.lang],
       preguntas: [], datosUsados: [], fuentes: bloque.fuentes, asOf: bloque.asOf,
       titulo: bloque.titulo,
       leccion: porConsejo ? enlaceRiesgo : bloque.leccion,
@@ -1072,7 +1555,9 @@ module.exports = {
   // Para las pruebas y para quien venga a cambiar los topes.
   esConsejo, daConsejo, PATRONES_CONSEJO, PATRONES_VALUACION, PATRONES_CONSEJO_DADO,
   numerosDe, numerosFuera, permitidosDe, separarFechas, normalizar,
+  clasificarPregunta, atribuyeCausa, admiteNoSaber,
   armarDatos, resumirSerie, validar, leerPedido, ipDe, cobrar,
-  MODELO, MAX_DIA, MAX_IP, MAX_PREGUNTA, TIPOS, MODOS, RANGOS,
-  FRASE_CONSEJO, FRASE_SIN_VERIFICAR, FRASE_TOPE, FRASE_SIN_CONTADOR, FRASE_SIN_DATOS
+  MODELO, MAX_DIA, MAX_IP, MAX_PREGUNTA, MAX_TURNOS, MAX_SELECCION, MAX_R_HISTORIAL, TIPOS, MODOS, RANGOS,
+  FRASE_CONSEJO, FRASE_SIN_VERIFICAR, FRASE_TOPE, FRASE_SIN_CONTADOR, FRASE_SIN_DATOS,
+  FRASE_SIN_CAUSA
 };

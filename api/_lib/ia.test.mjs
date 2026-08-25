@@ -209,7 +209,8 @@ test('la negación solo salva lo que niega el saber o el decir, y en su misma or
 });
 
 test('las frases fijas del sitio no disparan el clasificador de salida', () => {
-  const fijas = [ia.FRASE_CONSEJO, ia.FRASE_SIN_VERIFICAR, ia.FRASE_TOPE, ia.FRASE_SIN_CONTADOR, ia.FRASE_SIN_DATOS];
+  const fijas = [ia.FRASE_CONSEJO, ia.FRASE_SIN_VERIFICAR, ia.FRASE_TOPE, ia.FRASE_SIN_CONTADOR,
+    ia.FRASE_SIN_DATOS, ia.FRASE_SIN_CAUSA];
   for (const f of fijas) {
     for (const lang of ['es', 'en']) {
       assert.ok(f[lang].length > 40, 'frase demasiado corta en ' + lang);
@@ -217,6 +218,72 @@ test('las frases fijas del sitio no disparan el clasificador de salida', () => {
     }
   }
   assert.match(ia.FRASE_CONSEJO.es, /errores al invertir/);
+  assert.match(ia.FRASE_SIN_CAUSA.es, /no se puede saber/);
+});
+
+// ---------------------------------------------------------------------------
+// 1.5 La intención de la pregunta: decide qué DATOS se arman y qué encargo se
+// escribe. Equivocarse aquí cuesta una respuesta menos afinada, nunca una
+// cifra inventada — eso lo cierra la guardia, que no depende de esto.
+
+test('la intención y el alcance de la pregunta se leen bien', () => {
+  const casos = [
+    ['por que subio hoy?', 'spy', 'causa', '1D'],
+    ['¿por qué subió hoy?', 'spy', 'causa', '1D'],
+    ['why did it fall this week?', 'spy', 'causa', '1W'],
+    ['¿cuánto ha subido este año?', 'spy', 'movimiento', '1Y'],
+    ['¿cómo va la semana?', 'spy', 'movimiento', '1W'],
+    ['what did it do today?', 'spy', 'movimiento', '1D'],
+    ['¿cuándo fue el máximo del año?', 'spy', 'movimiento', '1Y'],
+    ['¿qué es un ETF?', 'spy', 'termino', null],
+    ['no entendí la parte de las tasas', 'usdmxn', 'que_es', null]
+  ];
+  for (const [p, id, intencion, alcance] of casos) {
+    const c = ia.clasificarPregunta(p, id);
+    assert.equal(c.intencion, intencion, p + ' → ' + c.intencion);
+    assert.equal(c.alcance, alcance, p + ' → alcance ' + c.alcance);
+  }
+});
+
+test('preguntar el mecanismo no es preguntar la causa de un movimiento', () => {
+  // "¿por qué sube cuando el peso se debilita?" pide el mecanismo (lo contesta
+  // la ficha); "¿por qué subió hoy?" pide la causa de un hecho (necesita una
+  // noticia aprobada o un "no lo sé"). La diferencia es el tiempo del verbo.
+  assert.equal(ia.clasificarPregunta('¿por qué sube el número cuando el peso se debilita?', 'usdmxn').intencion, 'que_es');
+  assert.equal(ia.clasificarPregunta('¿por qué subió hoy?', 'usdmxn').intencion, 'causa');
+});
+
+test('la pregunta que menciona otro activo lo trae, compare o no', () => {
+  const comparada = ia.clasificarPregunta('¿le fue mejor que al bitcoin?', 'spy');
+  assert.equal(comparada.intencion, 'comparar');
+  assert.equal(comparada.otroId, 'btc');
+  const mencion = ia.clasificarPregunta('¿y el bitcoin?', 'spy');
+  assert.equal(mencion.otroId, 'btc', 'la mención sin comparación también trae el activo');
+  assert.notEqual(mencion.intencion, 'comparar');
+});
+
+test('atribuir o insinuar una causa se caza; negar el saber se salva', () => {
+  const inventadas = [
+    'Subió porque la Fed recortó las tasas.',
+    'Probablemente subió por los resultados de las tecnológicas.',
+    'La subida se debe a la temporada de reportes.',
+    'It rose after the Fed meeting.',
+    'The move was likely driven by earnings.',
+    'Tal vez influyó el dato de empleo.'
+  ];
+  for (const t of inventadas) assert.equal(ia.atribuyeCausa(t), true, 'no cazó: ' + t);
+
+  const honestas = [
+    'No se puede saber por qué subió con estos datos.',
+    'No lo sé porque no hay ninguna noticia aprobada que lo explique.',
+    'Hoy subió 3.30 %, de 18.4032 a 19.0100. Con estos datos no se sabe el porqué.',
+    'The data does not say why it moved.'
+  ];
+  for (const t of honestas) assert.equal(ia.atribuyeCausa(t), false, 'falso positivo: ' + t);
+
+  assert.equal(ia.admiteNoSaber('Con los datos de esta página no se puede saber por qué subió.'), true);
+  assert.equal(ia.admiteNoSaber('There is no way to know from this data.'), true);
+  assert.equal(ia.admiteNoSaber('Subió 3.30 % en el mes.'), false);
 });
 
 // ---------------------------------------------------------------------------
@@ -632,6 +699,218 @@ test('modo preguntas: tres preguntas o no sale', async () => {
   const corto = clienteFalso([{ respuesta: 'Solo una:', preguntas: ['¿Y?'], datosUsados: [], fuentes: [], asOf: 'x' }]);
   const malo = await ia.explicar(Object.assign({}, QUERY_ACTIVO, { modo: 'preguntas', id: 'eurusd' }), REQ, deps({ crearCliente: () => corto }));
   assert.equal(malo.cuerpo.rechazada, 'faltan_preguntas');
+});
+
+// ---------------------------------------------------------------------------
+// 5.5 La pregunta manda: el bug de agosto de 2026 no puede volver.
+//
+// El bug: GET sin pregunta y POST con "¿por qué subió hoy?" devolvían casi lo
+// mismo (el resumen del mes), porque el TASK era siempre el genérico y el
+// bloque DATOS no dependía de la pregunta. Evidencia en
+// docs/2026-08-25-ia-responde/. Estas pruebas clavan el arreglo.
+
+/** Historia de mentira que APUNTA qué rango se le pidió. */
+function historiaGrabadora(prevClose) {
+  const pedidos = [];
+  return {
+    pedidos,
+    serie: async (pair, range) => {
+      pedidos.push({ pair, range });
+      return {
+        valor: {
+          range, tzOffset: 0,
+          prevClose,
+          points: [
+            [Date.parse('2026-07-23T00:00:00Z') / 1000, 18.4032],
+            [Date.parse('2026-08-21T00:00:00Z') / 1000, 19.01]
+          ]
+        },
+        stale: false
+      };
+    }
+  };
+}
+
+test('"¿por qué subió hoy?" pide la serie de HOY, no la del mes, y el encargo es la pregunta', async () => {
+  const historia = historiaGrabadora(18.4032);
+  const cliente = clienteFalso([{
+    respuesta: 'Con los datos de esta página no se puede saber por qué subió hoy: el sitio no tiene ' +
+      'ninguna noticia revisada de este activo. Lo que sí consta: hoy subió 0.6068 (3.30 %), de ' +
+      '18.4032 a 19.0100.',
+    preguntas: [], datosUsados: ['cambio de hoy: 0.6068 (3.30 %)'], fuentes: ['Yahoo Finance'], asOf: 'x'
+  }]);
+  const r = await ia.explicar(
+    Object.assign({ pregunta: '¿por qué subió hoy?' }, QUERY_ACTIVO), REQ,
+    deps({ historia, crearCliente: () => cliente })
+  );
+
+  assert.equal(r.codigo, 200);
+  assert.equal(r.cuerpo.rechazada, undefined, JSON.stringify(r.cuerpo));
+  assert.equal(r.cuerpo.generadoPor, 'ia');
+  // La serie que se armó es la del DÍA — preguntar por hoy y recibir el mes
+  // era la mitad del bug.
+  assert.deepEqual(historia.pedidos.map((p) => p.range), ['1D']);
+  const prompt = cliente.llamadas[0].messages[0].content;
+  // El encargo ES la pregunta, no el genérico con la pregunta de posdata.
+  assert.match(prompt, /ANSWER THAT QUESTION/);
+  assert.doesNotMatch(prompt, /Explain what this asset is/);
+  // Y el bloque DATOS trae el movimiento de HOY calculado por el servidor.
+  assert.match(prompt, /cambio de hoy: 0\.6068 \(3\.30 %\)/);
+  assert.match(prompt, /Noticias aprobadas de este activo: NINGUNA/);
+});
+
+test('si el modelo INVENTA una causa, no sale: se corrige una vez y luego frase honesta', async () => {
+  // Sin noticia aprobada, las dos respuestas simuladas atribuyen causa. La
+  // primera se rechaza y se reintenta diciéndole qué falló; la segunda
+  // reincide y lo que ve la persona es la frase fija — nunca la causa.
+  const cliente = clienteFalso([
+    { respuesta: 'Subió porque la Fed recortó las tasas.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' },
+    { respuesta: 'La subida probablemente se debe a los resultados de las tecnológicas.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' }
+  ]);
+  const r = await ia.explicar(
+    Object.assign({ pregunta: '¿por qué subió hoy?' }, QUERY_ACTIVO), REQ,
+    deps({ historia: historiaGrabadora(18.4032), crearCliente: () => cliente })
+  );
+
+  assert.equal(cliente.llamadas.length, 2, 'se reintenta exactamente una vez');
+  assert.match(cliente.llamadas[1].messages[0].content, /stated or hinted at a cause/);
+  assert.equal(r.cuerpo.rechazada, 'causa_inventada');
+  assert.equal(r.cuerpo.respuesta, ia.FRASE_SIN_CAUSA.es);
+  assert.equal(r.cuerpo.generadoPor, 'regla');
+  assert.doesNotMatch(r.cuerpo.respuesta, /Fed|tecnológicas/, 'la causa inventada no puede salir a pantalla');
+});
+
+test('la respuesta sin admisión de "no lo sé" también se rechaza cuando no hay causa', async () => {
+  // No atribuye causa, pero tampoco dice que no se sabe: narra el movimiento
+  // como si eso contestara el porqué. La regla es decirlo con todas sus letras.
+  const cliente = clienteFalso([
+    { respuesta: 'Hoy subió 0.6068 (3.30 %), de 18.4032 a 19.0100.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' },
+    { respuesta: 'Con estos datos no se puede saber por qué subió. Lo que sí consta: hoy subió 0.6068 (3.30 %).', preguntas: [], datosUsados: [], fuentes: ['Yahoo Finance'], asOf: 'x' }
+  ]);
+  const r = await ia.explicar(
+    Object.assign({ pregunta: '¿por qué subió hoy?' }, QUERY_ACTIVO), REQ,
+    deps({ historia: historiaGrabadora(18.4032), crearCliente: () => cliente })
+  );
+  assert.equal(cliente.llamadas.length, 2);
+  assert.equal(r.codigo, 200);
+  assert.equal(r.cuerpo.rechazada, undefined);
+  assert.equal(r.cuerpo.reintentado, true);
+  assert.match(r.cuerpo.respuesta, /no se puede saber/);
+});
+
+test('con una noticia APROBADA del activo, esa es la causa que se cita', async () => {
+  const noticia = {
+    id: '2026-08-20-peso', slug: 'peso-inflacion', estado: 'aprobada', simbolos: ['usdmxn'],
+    fuente: { nombre: 'Bloomberg', titular: 'Peso slides on inflation data', url: 'https://x.test/peso', publicado: '2026-08-20T12:00:00.000Z' },
+    es: { titulo: 'El peso se debilita tras el dato de inflación', que: 'El INEGI publicó un dato de inflación mayor al esperado.', porque: 'Un peso más débil encarece lo importado.', impacto: 'El dólar subió frente al peso.' },
+    en: { titulo: 'x', que: 'x', porque: 'x', impacto: 'x' }
+  };
+  const cliente = clienteFalso([{
+    respuesta: 'Según la noticia revisada del sitio, el peso se debilitó tras un dato de inflación ' +
+      'mayor al esperado, y por eso el dólar subió. En la serie, el cambio fue de 0.6068 (3.30 %).',
+    preguntas: [], datosUsados: ['x'],
+    fuentes: ['Yahoo Finance', 'Bloomberg — Peso slides on inflation data'], asOf: 'x'
+  }]);
+  const d = deps({
+    historia: historiaGrabadora(18.4032),
+    crearCliente: () => cliente,
+    noticias: { listar: async () => [noticia] }
+  });
+  const r = await ia.explicar(Object.assign({ pregunta: '¿por qué subió hoy?' }, QUERY_ACTIVO), REQ, d);
+
+  assert.equal(r.codigo, 200);
+  assert.equal(r.cuerpo.rechazada, undefined, JSON.stringify(r.cuerpo));
+  const prompt = cliente.llamadas[0].messages[0].content;
+  assert.match(prompt, /REVISADAS por una persona/);
+  assert.match(prompt, /dato de inflación/);
+  assert.ok(r.cuerpo.fuentes.some((f) => f.url === 'https://x.test/peso'), 'la noticia entra a las fuentes');
+});
+
+test('el historial entra como contexto pero sus cifras NO respaldan nada', async () => {
+  // El historial viene del navegador: si sus cifras respaldaran, cualquiera
+  // podría fabricar un historial con datos falsos y hacérselos repetir a la
+  // IA con la etiqueta del sitio encima.
+  const historial = [{ p: '¿qué es esto?', r: 'El dólar cerró en 25.0000 pesos.' }];
+  const cliente = clienteFalso([
+    { respuesta: 'Como te dije, cerró en 25.0000 pesos.', preguntas: [], datosUsados: [], fuentes: [], asOf: 'x' },
+    { respuesta: 'Este año pasó de 18.4032 a 19.0100.', preguntas: [], datosUsados: ['x'], fuentes: ['Yahoo Finance'], asOf: 'x' }
+  ]);
+  const historia = historiaGrabadora(undefined);
+  const r = await ia.explicar(
+    Object.assign({ pregunta: '¿y este año?', historial }, QUERY_ACTIVO), REQ,
+    deps({ historia, crearCliente: () => cliente })
+  );
+
+  assert.match(cliente.llamadas[0].messages[0].content, /Earlier exchanges in this same conversation/);
+  assert.match(cliente.llamadas[0].messages[0].content, /¿qué es esto\?/);
+  // "¿y este año?" pidió la serie del año, no la del rango de la página.
+  assert.deepEqual(historia.pedidos.map((p) => p.range), ['1Y']);
+  // La cifra del historial que no está en DATOS se rechazó y se corrigió.
+  assert.match(cliente.llamadas[1].messages[0].content, /25\.0000/);
+  assert.equal(r.codigo, 200);
+  assert.equal(r.cuerpo.reintentado, true);
+  assert.doesNotMatch(r.cuerpo.respuesta, /25\.0000/);
+});
+
+test('una frase seleccionada en la página es su propio encargo', async () => {
+  const cliente = clienteFalso([{
+    respuesta: 'Es la bola de nieve del dinero: lo que ganas se queda dentro y también empieza a ganar.',
+    preguntas: [], datosUsados: ['x'], fuentes: [], asOf: 'x'
+  }]);
+  const r = await ia.explicar(
+    { tipo: 'leccion', id: 'interes-compuesto', lang: 'es', seleccion: 'el interés compuesto reinvierte lo que ya ganaste' },
+    REQ, deps({ crearCliente: () => cliente })
+  );
+  assert.equal(r.codigo, 200);
+  const prompt = cliente.llamadas[0].messages[0].content;
+  assert.match(prompt, /selected this exact phrase/);
+  assert.match(prompt, /el interés compuesto reinvierte/);
+  assert.match(prompt, /example in Mexican pesos/);
+});
+
+test('el término del glosario que menciona la pregunta viaja en el bloque DATOS', async () => {
+  const pedido = Object.assign(
+    { tipo: 'activo', id: 'spy', lang: 'es', rango: '1M', modo: 'explicar' },
+    ia.clasificarPregunta('¿qué es un ETF?', 'spy')
+  );
+  const bloque = await ia.armarDatos(pedido, deps());
+  assert.match(bloque.datos, /Término del glosario del sitio que menciona la pregunta/);
+  assert.match(bloque.datos, /ETF/);
+});
+
+test('comparar trae la ficha y la serie del otro activo, con las cuentas hechas', async () => {
+  const historia = historiaGrabadora(undefined);
+  const pedido = Object.assign(
+    { tipo: 'activo', id: 'spy', lang: 'es', rango: '1M', modo: 'explicar' },
+    ia.clasificarPregunta('¿le fue mejor que al bitcoin?', 'spy')
+  );
+  const bloque = await ia.armarDatos(pedido, deps({ historia }));
+  assert.match(bloque.datos, /EL OTRO ACTIVO que menciona la pregunta — Bitcoin/);
+  assert.equal(historia.pedidos.length, 2, 'una serie por activo');
+  assert.equal(historia.pedidos[0].range, historia.pedidos[1].range, 'el MISMO rango para los dos');
+});
+
+test('el historial y la selección se recortan antes de pagarlos', () => {
+  const p = ia.leerPedido({
+    tipo: 'activo', id: 'spy',
+    seleccion: 's'.repeat(1000),
+    historial: [
+      { p: 'cero', r: 'esta se cae: solo entran los últimos turnos' },
+      { p: 'una', r: 'r'.repeat(2000) },
+      { p: 'dos', r: 'otra' },
+      { p: 'tres', r: 'la última' }
+    ]
+  });
+  assert.equal(p.seleccion.length, ia.MAX_SELECCION);
+  assert.equal(p.historial.length, ia.MAX_TURNOS, 'a lo sumo MAX_TURNOS turnos, los últimos');
+  assert.equal(p.historial[0].p, 'una', 'se queda lo más reciente');
+  assert.equal(p.historial[0].r.length, ia.MAX_R_HISTORIAL, 'las respuestas largas se recortan');
+
+  const malformado = ia.leerPedido({
+    tipo: 'activo', id: 'spy',
+    historial: ['basura', { p: '', r: 'sin pregunta' }, { p: 'bien', r: 'bien' }, null]
+  });
+  assert.deepEqual(malformado.historial, [{ p: 'bien', r: 'bien' }], 'lo malformado se tira');
 });
 
 // ---------------------------------------------------------------------------
