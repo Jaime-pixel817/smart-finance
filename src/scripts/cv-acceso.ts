@@ -47,13 +47,33 @@ det?.addEventListener('keydown', (e) => {
   det.querySelector<HTMLElement>('summary')?.focus();
 });
 
+/** La región viva del campo vacío. Nace en el HTML y nace VACÍA. */
+const aviso = form?.querySelector<HTMLElement>('[data-cv-aviso]');
+
+// El aviso se borra en cuanto se teclea: si no, se queda contradiciendo a un
+// campo que ya tiene texto, y la próxima vez que hiciera falta el mismo texto
+// ya estaría puesto — o sea, la región viva no anunciaría nada.
+form?.querySelector<HTMLInputElement>('input[name="codigo"]')
+  ?.addEventListener('input', () => { if (aviso && aviso.textContent) aviso.textContent = ''; });
+
 form?.addEventListener('submit', (e) => {
   e.preventDefault();
   const campo = form.querySelector<HTMLInputElement>('input[name="codigo"]');
   const valor = (campo?.value || '').trim();
-  // Campo vacío: se devuelve el foco y ya. Esto no es validar el código —no
-  // hay código que validar—, es no navegar a /cv/ a secas.
-  if (!valor) { campo?.focus(); return; }
+  // Campo vacío: se devuelve el foco Y SE DICE POR QUÉ. Devolver el foco a
+  // secas dejaba el envío mudo: quien no ve la pantalla pulsaba "Abrir", no
+  // pasaba nada y no había forma de saber qué había fallado.
+  //
+  // El texto sale del `data-` que escribió Astro con useT(), no de aquí: este
+  // módulo no lleva ni una palabra traducible. Y NO dice "código inválido",
+  // porque aquí no se valida nada y decirlo sería mentir sobre cómo funciona
+  // esto; lo único que ha pasado es que no hay nada que poner en la dirección.
+  if (!valor) {
+    if (aviso) aviso.textContent = aviso.dataset.cvAviso || '';
+    campo?.focus();
+    return;
+  }
+  if (aviso) aviso.textContent = '';
   // encodeURIComponent y no el valor a pelo: si alguien pega algo con una
   // barra o un espacio, la dirección sigue siendo UN segmento de ruta y el
   // servidor contesta lo que tenga que contestar (un 404) en vez de acabar en

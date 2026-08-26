@@ -122,13 +122,25 @@ const copy = {
             <form class="cv-acc-form" data-cv-form>
               <label class="t-caption faint cv-acc-lab" for="cvCodigo">{t('cv.label')}</label>
               <div class="cv-acc-row">
+                <!-- `aria-describedby` a la nota de abajo: es la que explica
+                     que aquí no se comprueba nada y que un código equivocado
+                     da un 404 normal. Quien llega al campo con un lector de
+                     pantalla lo oye AL LLEGAR, en vez de tener que salirse
+                     del formulario a buscar el párrafo que lo cuenta. -->
                 <input class="cv-acc-input" id="cvCodigo" name="codigo" type="text"
+                  aria-describedby="cvCodigoNota"
                   autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
                   inputmode="text" enterkeyhint="go">
                 <button class="btn btn-primary btn-sm" type="submit">{t('cv.go')} →</button>
               </div>
+              <!-- Región viva del campo vacío. Nace VACÍA y en el HTML: un
+                   lector de pantalla solo anuncia lo que aparece dentro de una
+                   región que ya existía. No es `role="alert"` a propósito —
+                   mandar el campo vacío no es un error del que avisar a gritos,
+                   y `status` no interrumpe lo que se esté leyendo. -->
+              <p class="t-caption cv-acc-aviso" role="status" data-cv-aviso={t('cv.empty')}></p>
             </form>
-            <p class="t-caption faint">{t('cv.note')}</p>
+            <p class="t-caption faint" id="cvCodigoNota">{t('cv.note')}</p>
             <noscript><p class="t-caption faint">{t('cv.noscript')}</p></noscript>
           </div>
         </details>
@@ -235,6 +247,12 @@ const copy = {
     border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1);
   }
   .cv-acc-form { display: flex; flex-direction: column; gap: 4px; }
+  /* El aviso del campo vacio usa --warn, que es el color con el que este
+     sitio dice "ojo con esto". Vacio es un <p> sin altura, asi que no reserva
+     hueco ni mueve nada al aparecer; y NO se esconde con `:empty {display:
+     none}` a proposito: una region viva que estuvo en `display: none` puede
+     no anunciar lo que se le mete despues. */
+  .cv-acc-aviso { color: var(--warn); }
   .cv-acc-lab { display: block; }
   .cv-acc-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
   .cv-acc-input {

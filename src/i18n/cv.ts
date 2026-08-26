@@ -248,12 +248,14 @@ const es: typeof en = {
     h: 'Equity research',
     lede: 'Reportes tipo analista con cada cifra rastreada hasta el documento del que sale. El publicado está abajo, con el estado en el que de verdad está.',
     link: 'Abrir el reporte',
-    // "Todo Smart Finance Projects" no es español: falta el nexo. El nombre
-    // de la sección NO se traduce (el h1 de /es/research es literalmente
-    // "Smart Finance Projects", ver src/i18n/research.ts), así que lo que se
-    // arregla es la gramática de alrededor, no el nombre propio — cambiarlo
-    // por "Proyectos" nombraría algo que la página de destino no se llama.
-    hubLink: 'Todo lo de Smart Finance Projects',
+    // "Todo Smart Finance Projects" no era español: a "todo" le falta el
+    // sustantivo con el que concordar. El nombre de la sección NO se traduce
+    // —el h1 de /es/research es literalmente "Smart Finance Projects", ver
+    // src/i18n/research.ts—, así que el nexo que faltaba se pone delante:
+    // "la sección" es el sustantivo, y el nombre propio se queda entero.
+    // Ponerle "Proyectos" (el rótulo de `nav.projects`) nombraría algo que la
+    // página de destino no se llama a sí misma.
+    hubLink: 'Toda la sección Smart Finance Projects',
     ticker: 'Ticker',
     dataAsOf: 'Datos al',
     version: 'Versión',

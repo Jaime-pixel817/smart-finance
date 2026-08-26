@@ -631,6 +631,10 @@ const en = {
   'cv.go': 'Open',
   'cv.note': 'Nothing is checked in this browser: the code is the address. A wrong one gives the same 404 as any address that does not exist.',
   'cv.noscript': 'This field needs JavaScript to take you there. Without it, type smartfinance.lat/cv/ followed by your code in the address bar.',
+  // Lo que se dice cuando se manda el campo vacio. NO es "codigo invalido":
+  // aqui no se valida nada y decirlo seria mentir sobre como funciona esto.
+  // Lo unico que ha pasado es que no hay nada que escribir en la direccion.
+  'cv.empty': 'Type your code first.',
 };
 
 const es: typeof en = {
@@ -1232,6 +1236,7 @@ const es: typeof en = {
   'cv.go': 'Abrir',
   'cv.note': 'En este navegador no se comprueba nada: el código es la dirección. Uno equivocado da el mismo 404 que cualquier dirección que no existe.',
   'cv.noscript': 'Este campo necesita JavaScript para llevarte. Sin él, escribe smartfinance.lat/cv/ y tu código en la barra de direcciones.',
+  'cv.empty': 'Escribe tu código primero.',
 };
 
 export type UIKey = keyof typeof en;
