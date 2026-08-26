@@ -11,6 +11,7 @@
 import { tarjeta, texto, esc, type NoticiaAPI, type Contexto } from './news-shared';
 import { aplicarMercados, type ActivoUI } from './news-markets';
 import type { Loc } from './format';
+import './tabs'; // marca deslizante de los chips/pestañas de esta página
 
 const raiz = document.getElementById('news-page');
 if (raiz) arrancar(raiz);

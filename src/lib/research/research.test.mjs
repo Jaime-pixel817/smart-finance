@@ -196,8 +196,12 @@ test('las gráficas devuelven SVG accesible y con todos los años', () => {
   for (const l of labels) assert.ok(bar.includes('>' + l + '<'));
 
   const line = lineChart({ labels, series: [{ name: 'm', values: [10, 20, 30], color: 'var(--s1)' }], ariaLabel: 'márgenes' });
-  assert.ok(line.includes('<path class="fc-line"'));
+  assert.ok(line.includes('<path class="fc-line trazo-linea" pathLength="1"'));
   assert.equal((line.match(/<circle/g) || []).length, 3);
+  // El trazado se apoya en `pathLength="1"` para no medir la línea con
+  // JavaScript, y en `--i` para que las barras entren de izquierda a derecha.
+  assert.ok(bar.includes('--i:0') && bar.includes('--i:2'));
+  assert.ok(bar.includes('data-fc') && line.includes('data-fc'));
 
   const grouped = groupedBarChart({
     labels,

@@ -14,6 +14,7 @@ const { lesson, all } = Astro.props as { lesson: Lesson; all: Lesson[] };
 const d = lesson.entry.data;
 ---
 <Base locale="es" routeId={lesson.routeId} active="learn" title={d.title + ' — Smart Finance'} description={d.description} ogType="article"
-  ogImage={ogPropia('lesson-' + lesson.slug, 'es')} ogImageAlt={d.title + ' — lección de Smart Finance'} jsonLd={lessonJsonLd('es', lesson)}>
+  ogImage={ogPropia('lesson-' + lesson.slug, 'es')} ogImageAlt={d.title + ' — lección de Smart Finance'} jsonLd={lessonJsonLd('es', lesson)}
+  ia={{ tipo: 'leccion', id: lesson.slug, sobre: d.title }}>
   <LessonArticle locale="es" lesson={lesson} all={all} />
 </Base>

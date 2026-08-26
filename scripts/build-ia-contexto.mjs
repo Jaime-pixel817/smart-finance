@@ -27,6 +27,8 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { parseYaml } from '../src/lib/research/yaml.mjs';
+import { VENTANA, OCULTAS, RONDAS, ESPERADO_AL_AZAR } from '../src/lib/challenge/reto.mjs';
 
 const RAIZ = new URL('../', import.meta.url);
 const SALIDA = new URL('src/generated/ia-contexto.json', RAIZ);
@@ -139,7 +141,8 @@ function rutasDe() {
   const rutas = {};
   for (const m of fuente.matchAll(re)) {
     const [, id, en, es] = m;
-    if (id.startsWith('lesson.') || id === 'methodology' || id === 'lessons.glossary') {
+    if (id.startsWith('lesson.') || id.startsWith('research.') ||
+      id === 'methodology' || id === 'lessons.glossary' || id === 'challenge') {
       rutas[id] = { en, es };
     }
   }
@@ -147,6 +150,115 @@ function rutasDe() {
     if (!rutas[obligatoria]) throw new Error('build-ia-contexto: falta la ruta ' + obligatoria + ' en routes.ts');
   }
   return rutas;
+}
+
+// ---- Reportes de research ---------------------------------------------------
+//
+// El explicador también vive en /research/<empresa>, y su grounding son los
+// MISMOS ficheros que pintan la página: meta.yaml y data/financials.json de
+// content/research/<slug>/. Las cuentas (millones, márgenes, crecimiento) se
+// hacen AQUÍ, con el mismo redondeo que src/lib/research/reports.ts, porque la
+// guardia de cifras exige que cada número de la respuesta ya exista en el
+// bloque. El registro de qué reportes tienen página se lee de reports.ts a
+// nivel de texto, igual que las rutas: ese archivo usa import.meta.glob y no
+// se puede evaluar suelto.
+
+const MM = (x) => (typeof x === 'number' && Number.isFinite(x) ? Math.round((x / 1e6) * 10) / 10 : null);
+const pct = (a, b) => (a !== null && b !== null && b !== 0 ? Math.round((a / b) * 1000) / 10 : null);
+const cifra = (v) => (v === null ? 's/d' : String(v));
+
+function reportesPaginados() {
+  const fuente = readFileSync(fileURLToPath(new URL('src/lib/research/reports.ts', RAIZ)), 'utf8');
+  const re = /\{\s*slug:\s*'([^']+)',\s*dir:\s*'([^']+)',\s*routeId:\s*'([^']*)',\s*page:\s*(true|false),\s*ticker:\s*'([^']+)',\s*name:\s*'([^']+)'/g;
+  const lista = [];
+  for (const m of fuente.matchAll(re)) {
+    const [, slug, dir, routeId, page] = m;
+    if (page === 'true') lista.push({ slug, dir, routeId });
+  }
+  if (!lista.length) throw new Error('build-ia-contexto: no encontré el registro REPORTS en reports.ts');
+  return lista;
+}
+
+function leerReporte({ slug, dir, routeId }, rutas) {
+  const base = 'content/research/' + dir + '/';
+  const meta = parseYaml(readFileSync(fileURLToPath(new URL(base + 'meta.yaml', RAIZ)), 'utf8'));
+  const financials = JSON.parse(readFileSync(fileURLToPath(new URL(base + 'data/financials.json', RAIZ)), 'utf8'));
+  const sources = parseYaml(readFileSync(fileURLToPath(new URL(base + 'sources.yaml', RAIZ)), 'utf8'));
+
+  const filas = (financials.annual || []).map((r, i, todo) => {
+    const revenue = MM(r.revenue);
+    const anterior = i > 0 ? MM(todo[i - 1].revenue) : null;
+    const crecimiento = anterior !== null && revenue !== null && anterior !== 0
+      ? Math.round(((revenue / anterior) - 1) * 1000) / 10 : null;
+    return '  ' + r.fy + ' (cerrado ' + r.periodEnd + '): ingresos ' + cifra(revenue) +
+      ' MUSD' + (crecimiento === null ? '' : ' (' + (crecimiento > 0 ? '+' : '') + crecimiento + ' % vs. año anterior)') +
+      ', margen bruto ' + cifra(pct(MM(r.grossProfit), revenue)) + ' %' +
+      ', utilidad operativa ' + cifra(MM(r.operatingIncome)) + ' MUSD' +
+      ', utilidad neta ' + cifra(MM(r.netIncome)) + ' MUSD' +
+      ', flujo libre ' + cifra(MM(r.fcf)) + ' MUSD';
+  });
+
+  const datos = [
+    'Reporte de equity research del sitio (BORRADOR: la tesis, los supuestos del DCF y la',
+    'conclusión los está escribiendo Jaime; lo que hay son los datos de los reportes anuales).',
+    '  empresa: ' + meta.name + ' (' + meta.exchange + ': ' + meta.ticker + ')',
+    '  moneda de las cifras: ' + meta.currency + ' (MUSD = millones de dólares)',
+    '  cierre del año fiscal: ' + meta.fiscalYearEnd,
+    '  datos al: ' + meta.dataAsOf,
+    '  estado del reporte: borrador — sin tesis, sin precio objetivo, sin conclusión',
+    'Años fiscales (de los 10-K presentados a la SEC; cuentas hechas por el sitio):',
+    ...filas
+  ].join('\n');
+
+  const fuentes = (Array.isArray(sources.sources) ? sources.sources : [])
+    .filter((s) => s && s.url && s.title)
+    .slice(0, 4)
+    .map((s) => ({ titulo: s.title, url: s.url }));
+
+  return {
+    slug,
+    ticker: meta.ticker,
+    nombre: meta.name,
+    routeId,
+    href: rutas[routeId] || null,
+    dataAsOf: meta.dataAsOf || null,
+    datos,
+    fuentes
+  };
+}
+
+// ---- El reto del día --------------------------------------------------------
+//
+// La descripción sale de las REGLAS de verdad (las constantes exportadas de
+// src/lib/challenge/reto.mjs), no de una copia a mano que caduque: si las
+// reglas cambian, esto se regenera y la prueba de sincronía obliga a
+// commitearlo.
+
+function retoParaIA(rutas) {
+  const datos = [
+    'El reto del día de Smart Finance ("¿Y luego qué pasó?"): un juego para aprender a leer',
+    'gráficas, no una calculadora ni un pronóstico.',
+    '  qué ve quien juega: ' + RONDAS + ' rondas con una gráfica REAL de precios, sin el nombre del',
+    '  activo y sin el eje de precios: se ven ' + (VENTANA - OCULTAS) + ' semanas y las últimas ' + OCULTAS + ' están tapadas.',
+    '  qué se contesta: qué pasó en esas semanas tapadas, entre cuatro opciones (bajó fuerte,',
+    '  bajó, subió, subió fuerte). El umbral entre "subió" y "subió fuerte" es el movimiento',
+    '  típico del PROPIO activo, por eso el bitcoin y el dólar se juegan con las mismas opciones.',
+    '  por qué no se ve el nombre: para que se lea la gráfica, no la fama del activo.',
+    '  el reto diario: uno al día, el mismo para todo el mundo; se sortea con la fecha de Ciudad',
+    '  de México, así que cambia a medianoche de México. Solo el PRIMER intento del día cuenta.',
+    '  la racha: días seguidos jugando el reto diario. Se guarda solo en el navegador de quien',
+    '  juega (localStorage): cambiar de navegador la empieza de cero, y el sitio no guarda nada.',
+    '  la puntuación: al azar se esperan ' + ESPERADO_AL_AZAR + ' puntos por partida; sacar más que eso de',
+    '  forma consistente es señal de que estás leyendo algo de la gráfica.',
+    '  modo libre: partidas extra que no tocan la racha, con más activos.',
+    '  qué NO es: no predice precios, no da consejos, y acertar aquí no significa saber qué hará',
+    '  el mercado mañana — esa es justo la lección del juego.'
+  ].join('\n');
+
+  return {
+    href: rutas.challenge || null,
+    datos
+  };
 }
 
 // ---- El manifiesto ---------------------------------------------------------
@@ -193,7 +305,9 @@ export function construir() {
     };
   });
 
-  return { activos, lecciones, rutas };
+  const reportes = reportesPaginados().map((r) => leerReporte(r, rutas));
+
+  return { activos, lecciones, reportes, reto: retoParaIA(rutas), rutas };
 }
 
 const esteArchivo = fileURLToPath(import.meta.url);
@@ -206,7 +320,8 @@ if (process.argv[1] === esteArchivo) {
     writeFileSync(fileURLToPath(SALIDA), json);
     console.log(
       '[ia] src/generated/ia-contexto.json: ' + manifiesto.activos.length + ' activos, ' +
-      manifiesto.lecciones.length + ' lecciones, ' + Math.round(json.length / 1024) + ' KB'
+      manifiesto.lecciones.length + ' lecciones, ' + manifiesto.reportes.length + ' reportes y el reto, ' +
+      Math.round(json.length / 1024) + ' KB'
     );
   }
 }

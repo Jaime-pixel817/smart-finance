@@ -1135,6 +1135,45 @@
       }
     }
   ],
+  "reportes": [
+    {
+      "slug": "lululemon",
+      "ticker": "LULU",
+      "nombre": "lululemon athletica inc.",
+      "routeId": "research.lululemon",
+      "href": {
+        "en": "/research/lululemon",
+        "es": "/es/research/lululemon"
+      },
+      "dataAsOf": "2026-08-21",
+      "datos": "Reporte de equity research del sitio (BORRADOR: la tesis, los supuestos del DCF y la\nconclusión los está escribiendo Jaime; lo que hay son los datos de los reportes anuales).\n  empresa: lululemon athletica inc. (NASDAQ: LULU)\n  moneda de las cifras: USD (MUSD = millones de dólares)\n  cierre del año fiscal: ~Feb-01 (domingo más cercano al 31 de enero; la empresa llama 'fiscal 2025' al año cerrado el 2026-02-01)\n  datos al: 2026-08-21\n  estado del reporte: borrador — sin tesis, sin precio objetivo, sin conclusión\nAños fiscales (de los 10-K presentados a la SEC; cuentas hechas por el sitio):\n  FY2019 (cerrado 2020-02-02): ingresos 3979.3 MUSD, margen bruto 55.9 %, utilidad operativa 889.1 MUSD, utilidad neta 645.6 MUSD, flujo libre 386.3 MUSD\n  FY2020 (cerrado 2021-01-31): ingresos 4401.9 MUSD (+10.6 % vs. año anterior), margen bruto 56 %, utilidad operativa 820 MUSD, utilidad neta 588.9 MUSD, flujo libre 574.1 MUSD\n  FY2021 (cerrado 2022-01-30): ingresos 6256.6 MUSD (+42.1 % vs. año anterior), margen bruto 57.7 %, utilidad operativa 1333.4 MUSD, utilidad neta 975.3 MUSD, flujo libre 994.6 MUSD\n  FY2022 (cerrado 2023-01-29): ingresos 8110.5 MUSD (+29.6 % vs. año anterior), margen bruto 55.4 %, utilidad operativa 1328.4 MUSD, utilidad neta 854.8 MUSD, flujo libre 327.8 MUSD\n  FY2023 (cerrado 2024-01-28): ingresos 9619.3 MUSD (+18.6 % vs. año anterior), margen bruto 58.3 %, utilidad operativa 2132.7 MUSD, utilidad neta 1550.2 MUSD, flujo libre 1644.3 MUSD\n  FY2024 (cerrado 2025-02-02): ingresos 10588.1 MUSD (+10.1 % vs. año anterior), margen bruto 59.2 %, utilidad operativa 2505.7 MUSD, utilidad neta 1814.6 MUSD, flujo libre 1583.5 MUSD\n  FY2025 (cerrado 2026-02-01): ingresos 11102.6 MUSD (+4.9 % vs. año anterior), margen bruto 56.6 %, utilidad operativa 2210.6 MUSD, utilidad neta 1579.2 MUSD, flujo libre 921.7 MUSD",
+      "fuentes": [
+        {
+          "titulo": "Form 10-K, año fiscal cerrado el 2026-02-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/1397187/000139718726000020/lulu-20260201.htm"
+        },
+        {
+          "titulo": "Form 10-K, año fiscal cerrado el 2025-02-02",
+          "url": "https://www.sec.gov/Archives/edgar/data/1397187/000139718725000013/lulu-20250202.htm"
+        },
+        {
+          "titulo": "Form 10-Q, trimestre cerrado el 2026-05-03 (1T fiscal 2026)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1397187/000139718726000078/lulu-20260503.htm"
+        },
+        {
+          "titulo": "Form 10-Q, trimestre cerrado el 2025-11-02",
+          "url": "https://www.sec.gov/Archives/edgar/data/1397187/000139718725000055/lulu-20251102.htm"
+        }
+      ]
+    }
+  ],
+  "reto": {
+    "href": {
+      "en": "/challenge",
+      "es": "/es/reto"
+    },
+    "datos": "El reto del día de Smart Finance (\"¿Y luego qué pasó?\"): un juego para aprender a leer\ngráficas, no una calculadora ni un pronóstico.\n  qué ve quien juega: 5 rondas con una gráfica REAL de precios, sin el nombre del\n  activo y sin el eje de precios: se ven 32 semanas y las últimas 8 están tapadas.\n  qué se contesta: qué pasó en esas semanas tapadas, entre cuatro opciones (bajó fuerte,\n  bajó, subió, subió fuerte). El umbral entre \"subió\" y \"subió fuerte\" es el movimiento\n  típico del PROPIO activo, por eso el bitcoin y el dólar se juegan con las mismas opciones.\n  por qué no se ve el nombre: para que se lea la gráfica, no la fama del activo.\n  el reto diario: uno al día, el mismo para todo el mundo; se sortea con la fecha de Ciudad\n  de México, así que cambia a medianoche de México. Solo el PRIMER intento del día cuenta.\n  la racha: días seguidos jugando el reto diario. Se guarda solo en el navegador de quien\n  juega (localStorage): cambiar de navegador la empieza de cero, y el sitio no guarda nada.\n  la puntuación: al azar se esperan 3.75 puntos por partida; sacar más que eso de\n  forma consistente es señal de que estás leyendo algo de la gráfica.\n  modo libre: partidas extra que no tocan la racha, con más activos.\n  qué NO es: no predice precios, no da consejos, y acertar aquí no significa saber qué hará\n  el mercado mañana — esa es justo la lección del juego."
+  },
   "rutas": {
     "lesson.peso": {
       "en": "/lessons/peso-tipo-de-cambio",
@@ -1179,6 +1218,14 @@
     "lessons.glossary": {
       "en": "/lessons/glossary",
       "es": "/es/lecciones/glosario"
+    },
+    "challenge": {
+      "en": "/challenge",
+      "es": "/es/reto"
+    },
+    "research.lululemon": {
+      "en": "/research/lululemon",
+      "es": "/es/research/lululemon"
     },
     "methodology": {
       "en": "/methodology",

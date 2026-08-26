@@ -54,6 +54,12 @@ function arrancar(raiz: HTMLElement) {
       salida.appendChild(art);
       mostrar(salida);
 
+      // Ya se sabe QUÉ noticia se pintó: la selección de texto ("Explícame
+      // esto", src/scripts/ia.ts) necesita el id para pedirle al servidor los
+      // datos de ESTA noticia y no de otra.
+      salida.dataset.iaId = n.slug;
+      salida.dataset.iaSobre = texto(n, loc).titulo;
+
       // La pestaña y el enlace canónico pasan a ser los de esta noticia: la
       // URL ya es la definitiva, solo faltaba que el <head> lo dijera.
       const titulo = texto(n, loc).titulo;

@@ -30,8 +30,15 @@ const t = useT(locale);
 <style>
   .search-overlay { position: fixed; inset: 0; z-index: 60; }
   .search-overlay[hidden] { display: none; }
-  .search-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
-  .search-panel { position: relative; margin: 0 auto; max-width: 640px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 0 0 var(--r-sheet) var(--r-sheet); box-shadow: var(--shadow-sheet); padding: var(--sp-3) var(--sp-4) var(--sp-4); max-height: 80vh; display: flex; flex-direction: column; }
+  .search-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); animation: search-fade var(--dur-2) var(--ease-out); }
+  /* Baja desde arriba porque es de arriba de donde viene: el botón de buscar
+     vive en la barra superior. La curva del rebote leve es la de las hojas
+     (3 % de más y vuelve); aquí el recorrido son 12 px, o sea metro y medio de
+     rebote en la pantalla de un teléfono. */
+  .search-panel { position: relative; margin: 0 auto; max-width: 640px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 0 0 var(--r-sheet) var(--r-sheet); box-shadow: var(--shadow-sheet); padding: var(--sp-3) var(--sp-4) var(--sp-4); max-height: 80vh; display: flex; flex-direction: column; animation: search-in var(--dur-4) var(--ease-bounce); }
+  @keyframes search-fade { from { opacity: 0; } }
+  @keyframes search-in { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .search-panel, .search-backdrop { animation: none; } }
   @media (min-width: 768px) { .search-panel { margin-top: 10vh; border-radius: var(--r-sheet); } }
   .search-row { display: flex; align-items: center; gap: var(--sp-3); color: var(--ink-2); }
   #search-input { flex: 1; height: 48px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); padding: 0 var(--sp-3); color: var(--ink); font-size: 1rem; -webkit-appearance: none; }

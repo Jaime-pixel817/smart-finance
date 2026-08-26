@@ -3,9 +3,11 @@
 // último valor conocido en localStorage para pintar al instante, y chips de
 // frescura honestos (nunca "en vivo").
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, sparkPath, type Loc } from './format';
+import { trazar } from './trazo';
 import { nyseOpen, bmvOpen } from './hours';
 import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar } from './watchlist';
 import { paintAssetRow } from './rows';
+import { setNum } from './num';
 import { loadQuotes, quoteFromQuotes, type Quote, type Quotes, type SymbolRT } from './market-data';
 import { medir } from '../lib/analytics';
 
@@ -74,19 +76,19 @@ function boot(root: HTMLElement) {
     if (!tile) return;
     const p = $('.tile-price', tile), c = $('.tile-chg', tile), s = $<SVGSVGElement>('svg.spark', tile);
     if (p) {
-      p.textContent = opts.text ?? (price != null ? fmtNum(price, loc, decimals) : '—');
+      setNum(p, opts.text ?? (price != null ? fmtNum(price, loc, decimals) : '—'));
       p.classList.remove('skel');
     }
     if (c) {
       c.classList.remove('skel', 'up', 'down', 'flat');
       if (pct != null) {
         c.classList.add(dirClass(pct));
-        c.innerHTML = `<span aria-hidden="true">${arrow(pct)}</span> ${fmtPct(pct, loc)}`;
+        setNum(c, arrow(pct) + fmtPct(pct, loc), `<span aria-hidden="true">${arrow(pct)}</span> ${fmtPct(pct, loc)}`);
         c.setAttribute('aria-label', (pct >= 0 ? '+' : '−') + fmtPct(pct, loc));
       } else if (opts.closed) {
         c.classList.add('flat');
-        c.textContent = T.closed;
-      } else { c.textContent = ''; }
+        setNum(c, T.closed);
+      } else { setNum(c, ''); }
     }
     if (s) {
       const { line, area } = series ? sparkPath(series, 56, 24) : { line: '', area: '' };
@@ -96,6 +98,7 @@ function boot(root: HTMLElement) {
       s.classList.remove('skel');
       s.classList.remove('up', 'down', 'flat');
       if (pct != null) s.classList.add(dirClass(pct));
+      if (line) trazar(s);
     }
     tile.dataset.state = 'ready';
   }
@@ -231,10 +234,11 @@ function boot(root: HTMLElement) {
       const dec = i.price < 100 ? 2 : i.price < 10000 ? 2 : 0;
       const sy = $('.m60-sym', row)!; sy.textContent = i.sym; sy.classList.remove('skel');
       const nm = $('.m60-name', row)!; nm.textContent = i.name || ''; nm.classList.remove('skel');
-      const pr = $('.m60-price', row)!; pr.textContent = fmtNum(i.price, loc, dec); pr.classList.remove('skel');
-      const ch = $('.m60-chg', row)!; ch.className = 'm60-chg num ' + dirClass(i.changePct); ch.innerHTML = `<span aria-hidden="true">${arrow(i.changePct)}</span> ${fmtPct(i.changePct, loc)}`;
+      const pr = $('.m60-price', row)!; setNum(pr, fmtNum(i.price, loc, dec)); pr.classList.remove('skel');
+      const ch = $('.m60-chg', row)!; ch.className = 'm60-chg num ' + dirClass(i.changePct);
+      setNum(ch, arrow(i.changePct) + fmtPct(i.changePct, loc), `<span aria-hidden="true">${arrow(i.changePct)}</span> ${fmtPct(i.changePct, loc)}`);
       const s = $<SVGSVGElement>('svg.spark', row);
-      if (s) { const { line } = sparkPath(i.series || [], 64, 24); s.querySelector('.line')?.setAttribute('d', line); s.classList.remove('skel'); s.setAttribute('class', 'spark ' + dirClass(i.changePct)); }
+      if (s) { const { line } = sparkPath(i.series || [], 64, 24); s.querySelector('.line')?.setAttribute('d', line); s.classList.remove('skel'); s.setAttribute('class', 'spark trazo-destape ' + dirClass(i.changePct)); if (line) trazar(s); }
       row.classList.remove('is-loading');
       (row as HTMLElement).dataset.state = 'ready';
     });
@@ -364,12 +368,17 @@ function boot(root: HTMLElement) {
     let loaded = false;
     const load = () => {
       if (loaded) return; loaded = true;
-      // Si un script no llega (CDN bloqueado, red que se cae), no habrá globo:
+      // SPIKE spike/three-propio: three.js ya no viene de cdnjs, sino de
+      // public/assets/three-sf.js — un paquete propio con SOLO las 21 clases
+      // que usa risk-sphere.js (lo genera scripts/build-three.mjs desde el
+      // paquete npm `three`). Sigue siendo un script clásico que define
+      // window.THREE, así que risk-sphere.js no cambia ni una línea.
+      // Si un script no llega (red que se cae), no habrá globo:
       // "globe:fail" enciende el SVG de respaldo del hero sin esperar al reloj
       // de los 10 s. Ver src/scripts/hero.ts.
       const falla = () => document.dispatchEvent(new CustomEvent('globe:fail'));
       const s1 = document.createElement('script');
-      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+      s1.src = '/assets/three-sf.js';
       s1.async = true;
       s1.onerror = falla;
       s1.onload = () => { const s2 = document.createElement('script'); s2.type = 'module'; s2.src = '/assets/risk-sphere.js'; s2.onerror = falla; document.body.appendChild(s2); };

@@ -24,7 +24,7 @@ const t = useT(locale);
         <span class="pp-when t-caption faint skel">Thu 21 Aug · 1D</span>
       </p>
     </div>
-    <div class="pp-ranges" role="tablist" aria-label={t('range.aria')}>
+    <div class="pp-ranges" role="tablist" data-slide aria-label={t('range.aria')}>
       {ranges.map((r) => (
         <button type="button" role="tab" data-range={r} aria-selected={r === range ? 'true' : 'false'} tabindex={r === range ? 0 : -1}>{t(('range.' + r) as UIKey)}</button>
       ))}
@@ -54,10 +54,12 @@ const t = useT(locale);
   .pp-sub { display: flex; gap: var(--sp-2); align-items: baseline; flex-wrap: wrap; margin-top: 4px; min-height: 1.25rem; }
   .pp-chg { min-width: 9ch; white-space: nowrap; }
   .pp-when { min-width: 8ch; white-space: nowrap; }
-  .pp-ranges { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); }
-  .pp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: background .15s, color .15s; }
+  /* El lavado de la pestaña elegida ya no lo pinta la pestaña: lo pinta la
+     marca deslizante del grupo (--tab-r le da su radio). Ver motion.css. */
+  .pp-ranges { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); --tab-r: 8px; }
+  .pp-ranges [role="tab"] { min-width: 44px; height: 36px; padding: 0 10px; border-radius: 8px; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; color: var(--ink-2); transition: color var(--dur-2) var(--ease-std); }
   .pp-ranges [role="tab"]:hover { color: var(--ink); }
-  .pp-ranges [role="tab"][aria-selected="true"] { background: var(--brand-wash); color: var(--ink); }
+  .pp-ranges [role="tab"][aria-selected="true"] { color: var(--ink); }
   /* Qué sesión se está viendo. Ocupa su renglón desde el primer pintado para
      que la gráfica no salte cuando llega el dato. */
   .pp-session { color: var(--ink-2); min-height: 1rem; }
@@ -72,6 +74,11 @@ const t = useT(locale);
      siga al dedo desde el primer píxel (Lightweight Charts, en táctil, pide
      una pulsación larga antes de mover nada). `pan-y` deja que el gesto
      vertical siga desplazando la página. */
+  /* El lienzo y sus etiquetas viven aquí dentro; es lo que el trazado
+     destapa de izquierda a derecha (src/styles/trazo.css). La capa del
+     arrastre se queda fuera a propósito: un clip-path recorta también los
+     eventos de puntero. */
+  .pp-canvas :global(.pp-draw) { position: absolute; inset: 0; }
   /* Etiquetas del máximo y del mínimo del periodo: van en HTML y no en el
      marcador de la librería, que recorta su texto contra el borde del panel. */
   .pp-canvas :global(.pp-tags) { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -88,3 +95,8 @@ const t = useT(locale);
   .pp-tv:hover { color: var(--ink); }
   @media (prefers-reduced-motion: reduce) { .pp[data-loading="1"] .pp-canvas { transition: none; } }
 </style>
+<script>
+  // Solo mide y coloca la marca deslizante de las pestañas de rango; el panel
+  // lo sigue moviendo chart-panel.ts, que ni se entera de que esto existe.
+  import '../../scripts/tabs';
+</script>

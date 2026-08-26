@@ -39,7 +39,10 @@
   flex-direction: column;
   gap: var(--sp-3);
   outline: none;
-  animation: ia-sheet-in .24s var(--ease-sheet);
+  /* La curva del rebote leve está reservada a las hojas: pasa un 3 % y
+     vuelve. Con 24 px de recorrido eso son 3 px, que es justo lo que hace
+     que una hoja se sienta un objeto y no una capa que se enciende. */
+  animation: ia-sheet-in var(--dur-4) var(--ease-bounce);
 }
 @keyframes ia-sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 /* Quien pide menos movimiento no ve la hoja deslizarse. */
@@ -90,6 +93,146 @@
 .ia-lista li::before { content: "· "; color: var(--ink-3); }
 .ia-lista a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
 .ia-lista a:hover { color: var(--ink); }
+
+/* ---- El botón flotante --------------------------------------------------- */
+/* Anclado encima de la barra de abajo, sin taparla; si hay un aviso puesto,
+ * se sube lo mismo que el aviso mide (la clase con-aviso la pone avisos.ts en
+ * el :root, la misma que le da sitio al body). Se aparta al bajar con un
+ * translate, y con prefers-reduced-motion el cambio es sin transición. */
+.ia-fab {
+  position: fixed;
+  right: var(--sp-4);
+  bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--sp-3));
+  z-index: 44; /* debajo del aviso (45) y de las hojas (60+), encima del resto */
+  min-height: 36px;
+  padding: 6px 12px;
+  gap: 5px;
+  background: color-mix(in srgb, var(--bg-3) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-1);
+  color: var(--ink);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+  /* EL BOTÓN SE MUEVE SIEMPRE CON `transform`, NUNCA CAMBIANDO `bottom`, y son
+   * las DOS cosas que lo mueven: subirse cuando aparece un aviso (--fab-sube) y
+   * apartarse al bajar la página (--fab-fuera). Se componen en un solo
+   * transform porque solo hay uno por elemento.
+   *
+   * Esto no es pulcritud: subirse cambiando `bottom` costaba CLS de verdad. El
+   * aviso llega ~150 ms después de cargar, el botón daba un salto de 92 px, y
+   * como es un cambio de LAYOUT el navegador lo cuenta como desplazamiento. En
+   * /market/spy caía en el mismo fotograma que el reacomodo de 7 px del panel
+   * de precio y los dos juntos daban 0.039 de CLS contra un presupuesto de
+   * 0.02 (main mide 0.003 ahí). Con transform el salto lo resuelve el
+   * compositor: no remide nada, no cuenta como CLS, y encima se desliza con
+   * --dur-3 en vez de teletransportarse. Es la regla 1 de motion.css, y este
+   * es el caso en que se ve lo que cuesta saltársela. */
+  --fab-sube: 0px;
+  --fab-fuera: 0px;
+  transform: translateY(calc(var(--fab-sube) + var(--fab-fuera)));
+  transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-3) var(--ease-out);
+}
+/* El final de la página tiene que poder pasar POR DEBAJO del botón: si no, el
+ * disclaimer del footer —que es obligatorio en cada página con contenido
+ * financiero— se queda tapado para siempre en el teléfono, y ese es justo el
+ * texto que no se puede esconder. Mismo recurso que usa el aviso contextual
+ * (:root.con-aviso), aquí con la altura del propio botón. */
+:root.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 60px); }
+@media (min-width: 768px) { :root.con-ia-fab body { padding-bottom: 60px; } }
+/* CON UN AVISO PUESTO **Y** BOTÓN FLOTANTE HAY QUE RESERVAR POR LOS DOS, y esto
+ * no salió de leer el CSS: salió de una captura. Las dos reglas —esta y la de
+ * Avisos.astro— son `:root.<clase> body`, o sea la MISMA especificidad, así que
+ * en las páginas con las dos clases ganaba la última que el build dejara
+ * escrita: la de aquí, con sus 60 px. Pero el botón, para no taparle el aviso,
+ * acaba a 104 px del borde (más abajo) y con solo 60 reservados aterrizaba en el
+ * disclaimer del footer — medido a 390×844 en /market/spy y /lessons/etfs: el
+ * botón en 648-684 y el disclaimer en 660-740. Justo lo que la regla de arriba
+ * viene a impedir, y encima solo en las páginas que además llevan aviso, que
+ * son las que menos sitio tienen.
+ *
+ * 152 px = los 104 a los que sube el botón + sus 36 de alto + 12 de aire, para
+ * que la última línea del disclaimer no quede pegada al botón. Especificidad
+ * (0,3,1) a propósito: gana a las dos sin depender del orden del build. */
+:root.con-aviso.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 152px); }
+@media (min-width: 768px) { :root.con-aviso.con-ia-fab body { padding-bottom: 152px; } }
+.ia-fab:hover { background: var(--bg-2); }
+.ia-fab-fuera { --fab-fuera: calc(100% + var(--bottomnav-h) + var(--sp-4)); opacity: 0; pointer-events: none; }
+/* 92 px = los 104 a los que tiene que quedar con un aviso puesto, menos los 12
+ * (--sp-3) que ya lo separan de la barra de abajo. El sitio de reposo (`bottom`)
+ * no se toca nunca: solo se traslada desde él. */
+:root.con-aviso .ia-fab { --fab-sube: -92px; }
+@media (min-width: 768px) {
+  .ia-fab { right: var(--sp-5); bottom: var(--sp-5); }
+  .ia-fab-fuera { --fab-fuera: calc(100% + var(--sp-5) + var(--sp-2)); }
+  /* 84 = 104 − 20 (--sp-5), que es lo que lo separa del borde en escritorio. */
+  :root.con-aviso .ia-fab { --fab-sube: -84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ia-fab { transition: none; }
+}
+@media print {
+  .ia-fab, .ia-sheet, .ia-burbuja { display: none !important; }
+}
+
+/* ---- La burbuja de selección --------------------------------------------- */
+/* "Explícame esto" sobre una frase seleccionada. Solo existe en contenido de
+ * lectura ([data-ia-seleccion]) y la pinta el guion donde termina la
+ * selección; en el teléfono va por debajo de donde el sistema pone su menú. */
+.ia-burbuja {
+  position: absolute;
+  z-index: 46;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sheet);
+  color: var(--ink);
+  font-size: var(--fs-caption);
+}
+.ia-burbuja svg { color: var(--brand-text); flex: none; }
+.ia-burbuja:hover { background: var(--bg-2); }
+
+/* ---- La conversación ----------------------------------------------------- */
+/* La pregunta de la persona es un turno propio, alineado a la derecha, para
+ * que la repregunta y su respuesta se lean como lo que son: una charla corta.
+ * No es un chat y el tope lo dice (.ia-tope). */
+.ia-turno-p {
+  align-self: flex-end;
+  max-width: 85%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-btn);
+  padding: 6px 12px;
+  color: var(--ink);
+  font-size: var(--fs-small);
+}
+.ia-tope { color: var(--ink-3); font-size: var(--fs-caption); line-height: var(--lh-caption); }
+
+/* ---- Preguntas sugeridas -------------------------------------------------- */
+.ia-sugeridas { display: flex; flex-direction: column; gap: 6px; }
+.ia-sugeridas[hidden] { display: none; }
+.ia-sug-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ia-sug {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+  text-align: left;
+}
+.ia-sug:hover { background: var(--bg-2); color: var(--ink); }
 
 /* ---- La pregunta libre --------------------------------------------------- */
 /* OJO: sin esta línea, `form.hidden = true` NO esconde nada — un `display`

@@ -24,8 +24,20 @@
 //
 // Tema: los colores se leen de los tokens CSS (--up, --down, --line, --ink-3)
 // al montar y se vuelven a leer al evento sf:theme del ThemeToggle.
+//
+// TRAZADO: la gráfica se dibuja de izquierda a derecha al aparecer. Aquí NO
+// hay <path> que alargar con un guion —Lightweight Charts pinta en un
+// <canvas>—, así que el lienzo se DESTAPA: va dentro de .pp-draw y el CSS le
+// corre un `clip-path` (src/styles/trazo.css). La otra vía era ir metiendo
+// puntos por fotograma con setData(); se midió y se descartó, y el porqué
+// está en el PR: además de costar hilo principal, obliga a rellenar la cola
+// con puntos vacíos y a congelar la escala del eje, o la línea baila mientras
+// se dibuja. El destape no toca ni un dato. El área SÍ es del lienzo, así que
+// entra después con su propio desvanecido (animarRelleno), que es lo único
+// que cuesta fotogramas: catorce applyOptions de un color.
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, fmtDay, type Loc } from './format';
 import { marketState } from './hours';
+import { trazar, cortar, menosMovimiento, ENTRADA, TOQUE } from './trazo';
 import type { Range, Point } from './market-data';
 
 // Solo lo que se usa de la librería, vía src/scripts/lwc.ts (re-exportación
@@ -96,6 +108,10 @@ export interface PricePanel {
 
 const TAG: Record<Loc, string> = { en: 'en-US', es: 'es-MX' };
 const DIA = 86400;
+/** Opacidad final del área bajo la línea. Durante el trazado va a 0. */
+const AREA = 0.12;
+/** Lo que tarda el área en entrar, una vez dibujada la línea. */
+const RELLENO = 240;
 // Lightweight Charts pinta los tiempos en UTC: se desplaza cada timestamp al
 // huso del visitante para que las etiquetas del eje sean su hora local, y se
 // guarda el original para el readout.
@@ -142,6 +158,15 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   let dir: 'up' | 'down' | 'flat' = 'flat';
   let timer: ReturnType<typeof setInterval> | null = null;
   let destroyed = false;
+  // Trazado: 'entrada' la primera vez que se dibuja, 'toque' cuando el
+  // dibujo es la respuesta a algo que hizo el usuario (cambiar de rango o de
+  // activo). Los refrescos automáticos de cada 5 min no lo ponen: nadie pidió
+  // ver la gráfica dibujarse otra vez.
+  let trazoPendiente: 'entrada' | 'toque' | null = 'entrada';
+  let dibujadaYa = false;
+  let areaAlfa = AREA;
+  let areaRaf = 0;
+  let areaTimer: ReturnType<typeof setTimeout> | null = null;
   // Huso de la bolsa (segundos). Con él se sabe de qué DÍA DE MERCADO es cada
   // punto, que no tiene por qué ser el día del visitante: la sesión de divisas
   // del viernes empieza el jueves por la tarde en México.
@@ -159,6 +184,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   let baseLine: IPriceLine | null = null;
   let loadingLib: Promise<void> | null = null;
   let hit: HTMLDivElement | null = null;
+  let plot: HTMLDivElement | null = null;
   let tags: HTMLDivElement | null = null;
   let tagFrame = 0;
   let shiftedToOrig = new Map<number, Point>();
@@ -227,7 +253,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
     const L = lwc!;
     const prev = data?.prevClose ?? null;
     return {
-      lineColor: c, lineWidth: 2 as const, topColor: withAlpha(c, 0.12), bottomColor: withAlpha(c, 0),
+      lineColor: c, lineWidth: 2 as const, topColor: withAlpha(c, areaAlfa), bottomColor: withAlpha(c, 0),
       lineType: L.LineType.Simple, priceLineVisible: false, lastValueVisible: false,
       crosshairMarkerVisible: true, crosshairMarkerRadius: 4, crosshairMarkerBorderColor: c, crosshairMarkerBackgroundColor: c,
       priceFormat: { type: 'price' as const, precision: src?.axisDecimals ?? 2, minMove: Math.pow(10, -(src?.axisDecimals ?? 2)) },
@@ -246,13 +272,21 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   function buildChart() {
     if (!lwc || chart || destroyed) return;
     host.innerHTML = '';
-    chart = lwc.createChart(host, chartOptions() as Parameters<LWC['createChart']>[1]);
+    // El lienzo y las etiquetas del máximo y el mínimo viven dentro de
+    // .pp-draw, que es lo que el trazado destapa. La capa del arrastre se
+    // queda FUERA: un `clip-path` también recorta los eventos de puntero, y
+    // dejar medio panel sordo al dedo mientras se traza sería justo lo
+    // contrario de "si arrastra, manda el arrastre".
+    plot = document.createElement('div');
+    plot.className = 'pp-draw trazo-destape';
+    host.appendChild(plot);
+    chart = lwc.createChart(plot, chartOptions() as Parameters<LWC['createChart']>[1]);
     series = chart.addSeries(lwc.AreaSeries, seriesOptions());
     markers = lwc.createSeriesMarkers(series, []) as MarkersApi;
     tags = document.createElement('div');
     tags.className = 'pp-tags';
     tags.setAttribute('aria-hidden', 'true');
-    host.appendChild(tags);
+    plot.appendChild(tags);
     hit = document.createElement('div');
     hit.className = 'pp-hit';
     hit.setAttribute('aria-hidden', 'true');
@@ -366,6 +400,55 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
     paintMarkers();
     chart.timeScale().fitContent();
     queueTags();
+    quizaTrazar();
+    dibujadaYa = true;
+  }
+
+  // ---- Trazado ------------------------------------------------------------
+  /** El área entra DESPUÉS de la línea: 240 ms de desvanecido, y ya. */
+  function animarRelleno(tras: number) {
+    const paso = () => {
+      const k = Math.min(1, (performance.now() - t0) / RELLENO);
+      areaAlfa = AREA * k;
+      series?.applyOptions({ topColor: withAlpha(colorFor(dir), areaAlfa) });
+      areaRaf = k < 1 ? requestAnimationFrame(paso) : 0;
+    };
+    let t0 = 0;
+    areaTimer = setTimeout(() => {
+      areaTimer = null;
+      t0 = performance.now();
+      areaRaf = requestAnimationFrame(paso);
+    }, tras);
+  }
+  /** Corta el trazado y deja la gráfica entera. Manda quien tenga prisa. */
+  function cortarTrazo() {
+    trazoPendiente = null;
+    if (areaTimer) { clearTimeout(areaTimer); areaTimer = null; }
+    if (areaRaf) { cancelAnimationFrame(areaRaf); areaRaf = 0; }
+    if (areaAlfa !== AREA) {
+      areaAlfa = AREA;
+      series?.applyOptions({ topColor: withAlpha(colorFor(dir), AREA) });
+    }
+    cortar(root);
+  }
+  function quizaTrazar() {
+    if (!trazoPendiente) return;
+    const modo = trazoPendiente;
+    trazoPendiente = null;
+    if (menosMovimiento() || !series) return;
+    const ms = modo === 'entrada' ? ENTRADA : TOQUE;
+    // El área se apaga cuando el trazado ARRANCA, no al pedirlo: en ese
+    // instante el lienzo está tapado del todo, así que no se ve el apagón, y
+    // una gráfica que se queda esperando a verse (o que nunca llega a
+    // trazarse) no se queda sin relleno.
+    trazar(root, {
+      rapido: modo === 'toque',
+      alArrancar: () => {
+        areaAlfa = 0;
+        series?.applyOptions({ topColor: withAlpha(colorFor(dir), 0) });
+        animarRelleno(ms);
+      }
+    });
   }
 
   function applyTheme() {
@@ -421,6 +504,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
   }
   function scrubTo(clientX: number) {
     if (!stats || !series || !chart) return;
+    cortarTrazo();
     const p = pointAt(clientX);
     if (!p) return;
     chart.setCrosshairPosition(p.row.value, p.row.time, series);
@@ -618,6 +702,10 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
     if (!tabs.some((t) => t.dataset.range === r)) return;
     range = r;
     paintTabs();
+    // Se vuelve a trazar, pero más corto: esto es la respuesta a un toque, no
+    // una entrada. Y solo si ya había una gráfica dibujada — la primera vez
+    // manda la entrada.
+    if (dibujadaYa) trazoPendiente = 'toque';
     // Se suelta el crosshair pero NO se repinta el lector: los números que hay
     // en pantalla son todavía del rango anterior y quedarían con la etiqueta
     // del nuevo hasta que llegue la respuesta.
@@ -629,6 +717,7 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
 
   function setSource(s: PanelSource) {
     src = s;
+    if (dibujadaYa) trazoPendiente = 'toque';
     data = null; stats = null; rows = [];
     setState('');
     if (sessionEl) sessionEl.textContent = '';
@@ -658,8 +747,12 @@ export function mountPricePanel(root: HTMLElement, opts: PanelOpts): PricePanel 
       if (timer) clearInterval(timer);
       document.removeEventListener('sf:theme', applyTheme);
       if (tagFrame) cancelAnimationFrame(tagFrame);
+      if (areaTimer) clearTimeout(areaTimer);
+      if (areaRaf) cancelAnimationFrame(areaRaf);
+      cortar(root);
       hit?.remove(); hit = null;
       tags?.remove(); tags = null;
+      plot?.remove(); plot = null;
       chart?.remove(); chart = null; series = null; markers = null;
     }
   };

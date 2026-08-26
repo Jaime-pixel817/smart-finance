@@ -44,7 +44,7 @@ const strings = {
   </header>
 
   <div class="container">
-    <div class="nw-filters rail" role="group" aria-label={t('news.filter.aria')}>
+    <div class="nw-filters rail" role="group" data-slide aria-label={t('news.filter.aria')}>
       <button class="chip" type="button" data-filter="all" aria-pressed="true">{t('news.filter.all')}</button>
       {TEMAS.map((x) => (
         <button class="chip" type="button" data-filter={x} aria-pressed="false">{t(('news.tema.' + x) as UIKey)}</button>

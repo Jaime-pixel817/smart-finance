@@ -14,6 +14,8 @@ import BottomNav from '../components/BottomNav.astro';
 import SearchOverlay from '../components/SearchOverlay.astro';
 import Footer from '../components/Footer.astro';
 import Avisos from '../components/Avisos.astro';
+import AISheet from '../components/ia/AISheet.astro';
+import AIFab from '../components/ia/AIFab.astro';
 
 interface Props {
   locale: Locale;
@@ -33,8 +35,16 @@ interface Props {
    * arriba (ver src/components/home/Hero.astro).
    */
   heroOverlay?: boolean;
+  /**
+   * El CONTEXTO de Smart Finance AI de esta página: qué explica el botón
+   * flotante (el activo, la lección, el reporte, la noticia, el término, el
+   * reto). Si la página no lo declara, no hay botón flotante — la hoja sí,
+   * porque los botones "Explícame esto" del contenido y la selección de texto
+   * la usan igual. El navegador manda IDENTIFICADORES, nunca cifras.
+   */
+  ia?: { tipo: string; id: string; sobre: string; rango?: string };
 }
-const { locale, routeId, title, description, active = 'today', jsonLd, ogType = 'website', heroOverlay = false } = Astro.props;
+const { locale, routeId, title, description, active = 'today', jsonLd, ogType = 'website', heroOverlay = false, ia } = Astro.props;
 const t = useT(locale);
 const alts = alternates(routeId);
 const canonical = SITE + route(routeId, locale);
@@ -143,5 +153,62 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
        barra de abajo, nunca sobre ella. En las páginas sin ningún aviso
        posible no pinta nada (src/lib/avisos/avisos.mjs). -->
   <Avisos locale={locale} routeId={routeId} />
+  <!-- Smart Finance AI: la hoja va en TODAS las páginas (los botones del
+       contenido y la selección de texto la comparten); el botón flotante solo
+       donde la página declaró su contexto con la prop `ia`. -->
+  {ia && <AIFab locale={locale} tipo={ia.tipo} id={ia.id} sobre={ia.sobre} rango={ia.rango} />}
+  <AISheet locale={locale} />
+  <!-- ENTRADA POR SCROLL. Va aquí, en línea y al final del <body>, por dos
+       razones que no son estilo: (1) corre DURANTE el análisis del HTML, o sea
+       antes de que nadie pueda hacer scroll — un módulo diferido escondería
+       bloques que el visitante ya estaba mirando; (2) siendo el guion el que
+       esconde, si el JavaScript falla no queda media página con opacidad 0.
+       Solo toca lo que está POR DEBAJO del pliegue: el primer pantallazo —el
+       que mide el LCP— se pinta exactamente igual que sin esto. Reglas y
+       porqués en src/styles/motion.css. -->
+  <script is:inline>
+    (function () {
+      try {
+        var raiz = document.getElementById('main');
+        if (!raiz || !('IntersectionObserver' in window)) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var alto = window.innerHeight, esperan = [], todas = raiz.querySelectorAll('section');
+        for (var i = 0; i < todas.length; i++) {
+          var s = todas[i];
+          // Solo bloques HOJA: una sección que contiene secciones anima por
+          // dentro, no entera (si no, media página sube de golpe).
+          if (s.hasAttribute('data-no-reveal') || s.querySelector('section')) continue;
+          if (s.getBoundingClientRect().top < alto) continue;
+          s.classList.add('sf-out');
+          esperan.push(s);
+        }
+        if (!esperan.length) return;
+        var io = new IntersectionObserver(function (entradas) {
+          var v = entradas.filter(function (e) { return e.isIntersecting; });
+          // Los que entran a la vez se escalonan de arriba abajo y de izquierda
+          // a derecha; el que entra solo no espera nada.
+          v.sort(function (a, b) {
+            var d = a.boundingClientRect.top - b.boundingClientRect.top;
+            return Math.abs(d) > 4 ? d : a.boundingClientRect.left - b.boundingClientRect.left;
+          });
+          v.forEach(function (e, k) {
+            var el = e.target;
+            el.style.setProperty('--sf-i', Math.min(k, 4));
+            el.classList.remove('sf-out');
+            el.classList.add('sf-in');
+            io.unobserve(el);
+            // Al terminar se limpia: un `transform` vivo en una sección
+            // convertiría a esa sección en el bloque de referencia de
+            // cualquier `position: fixed` que llegue a colgar de ella.
+            el.addEventListener('transitionend', function () {
+              this.classList.remove('sf-in');
+              this.style.removeProperty('--sf-i');
+            }, { once: true });
+          });
+        }, { rootMargin: '0px 0px -8% 0px' });
+        esperan.forEach(function (el) { io.observe(el); });
+      } catch (e) { /* sin entrada por scroll, la página se lee igual */ }
+    })();
+  </script>
 </body>
 </html>

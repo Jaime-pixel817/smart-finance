@@ -33,9 +33,16 @@
 //   .hero-source  el chip de fuente (retraso · Yahoo · hora), empujado con
 //                 margin-top: auto hasta el borde de abajo del hero. Pegado a
 //                 los ocho chips se leía como una novena ciudad; aquí abajo se
-//                 lee como el pie del hero.
+//                 lee como el pie del hero. Se aparta —opacidad + visibility,
+//                 sin tocar su caja— mientras hay una tarjeta de país abierta,
+//                 que ya trae su misma línea de fuente y le cae encima.
 //   .home-body    (en Home.astro) todo lo demás, opaco y también en z-index 3:
 //                 al hacer scroll sube y tapa el globo.
+//
+//   Y FUERA DEL <section>, hermano suyo: la tarjeta del país (WorldSheet.astro,
+//   fija, z-index 50). Fuera porque .hero-world es un contexto de apilamiento y
+//   ahí dentro su z-index no valía contra la página: se la pintaban encima el
+//   chip de fuente y .home-body. Ver el comentario del montaje, más abajo.
 //
 // LA PRIMERA PANTALLA, MEDIDA
 //
@@ -71,6 +78,7 @@ import type { Locale } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import fallbackSvg from '../../generated/globe-fallback.svg?raw';
 import WorldMarkets from './WorldMarkets.astro';
+import WorldSheet from './WorldSheet.astro';
 import SourceChip from '../SourceChip.astro';
 
 const { locale } = Astro.props as { locale: Locale };
@@ -119,7 +127,8 @@ const t = useT(locale);
        abajo, con el hueco de por medio, se lee como lo que es: el pie de
        página del hero, la letra pequeña de todo lo que hay encima. Lo empuja
        hasta el borde de abajo el margin-top: auto (el hero es una columna
-       flex), así que cae justo donde arranca el contenido de la página. -->
+       flex), así que cae justo donde arranca el contenido de la página. Con
+       una tarjeta de país abierta se aparta: ver .is-world-open más abajo. -->
   <div class="hero-source">
     <div class="container">
       <SourceChip locale={locale} id="chip-world" source="Yahoo Finance" delay={15} />
@@ -133,6 +142,18 @@ const t = useT(locale);
   <div class="hero-mark hero-mark-top" aria-hidden="true"></div>
   <div class="hero-mark hero-mark-end" aria-hidden="true"></div>
 </section>
+
+{/* LA TARJETA DEL PAÍS VA AQUÍ, FUERA DEL <section>, y no es manía de orden:
+    es lo único que la deja pintarse por encima de la página. Dentro de
+    .hero-world (z-index 3, o sea contexto de apilamiento propio) su z-index 50
+    solo valía puertas adentro, y el chip de fuente del hero y el cuerpo opaco
+    de la página —los dos también en z-index 3 y los dos después en el DOM— se
+    le pintaban encima. Colgando del contexto raíz, ese 50 pasa a significar lo
+    que dice: encima del bottom nav (40), debajo de la búsqueda (60). La
+    cabecera de WorldSheet.astro lo cuenta entero. Es fija: no ocupa sitio en la
+    columna del hero, así que moverla de aquí no cambia una sola medida.
+    Comentario en JSX y no en HTML: esto explica el código, no se sirve. */}
+<WorldSheet locale={locale} />
 
 <style>
   .hero {
@@ -409,6 +430,29 @@ const t = useT(locale);
   .hero-source {
     position: relative; z-index: 3;
     margin-top: auto; padding-top: var(--sp-5); padding-bottom: var(--sp-4);
+    /* visibility con retraso, no display: primero se apaga la opacidad y
+       cuando ha terminado se apaga el elemento. Al volver, los dos a la vez.
+       Con prefers-reduced-motion base.css deja las duraciones en .01 ms y esto
+       pasa a ser instantáneo, que es exactamente lo que se quiere. La duración
+       sale de motion.css (--dur-2, el micro-cambio en su sitio): es un cambio
+       de opacidad sin recorrido, y así se apaga sola con «menos movimiento». */
+    transition: opacity var(--dur-2) var(--ease-std), visibility 0s;
+  }
+  /* CON LA TARJETA DE UN PAÍS ABIERTA, EL CHIP DEL HERO SE APARTA. La tarjeta
+     trae su propia línea "Retraso 15 min · Yahoo Finance · 08:57" y cae justo
+     sobre esta: repetida dos veces es ruido, y superpuesta no se leía ninguna
+     de las dos.
+
+     visibility + opacity, NUNCA display: none. El chip vive al final de una
+     columna flex que además empuja con margin-top: auto; quitarlo del flujo
+     encoge .hero-source 61 px, el hero se acorta y .home-body sube media
+     pantalla — o sea CLS justo al tocar una ciudad, medido. Así la caja se
+     queda donde está y solo deja de verse: 0 de CLS al abrir y al cerrar.
+     Y como visibility: hidden también lo saca del árbol de accesibilidad, un
+     lector de pantalla tampoco oye el dato dos veces. */
+  :global(:root.is-world-open) .hero-source {
+    opacity: 0; visibility: hidden;
+    transition: opacity var(--dur-2) var(--ease-std), visibility 0s linear var(--dur-2);
   }
   /* El aviso de "animación en pausa" solo aparece cuando de verdad lo está. */
   .hero-motion { display: none; margin-top: var(--sp-3); }

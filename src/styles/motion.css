@@ -1,0 +1,279 @@
+/* ============================================================================
+   Smart Finance 2.0 — TOKENS DE MOVIMIENTO
+   ---------------------------------------------------------------------------
+   Todo el movimiento del sitio sale de aquí. Si un componente escribe `.2s` o
+   una cubic-bezier a mano, el sistema deja de ser un sistema: cambiar el ritmo
+   del sitio pasa a ser un buscar-y-reemplazar por cuarenta ficheros, y dos
+   pantallas acaban moviéndose a velocidades distintas sin que nadie lo decida.
+
+   CUATRO DURACIONES Y NINGUNA MÁS. Cada una tiene un trabajo:
+     --dur-1  120 ms  el tacto: hundir un botón, encender un estado. Por debajo
+                      de ~100 ms el ojo no lo lee como movimiento sino como
+                      parpadeo; por encima de ~150 ms se siente lento bajo el
+                      dedo, porque el dedo ya se levantó.
+     --dur-2  180 ms  micro-cambios en su sitio: color de fondo, subrayado que
+                      se desliza, giro de una flecha.
+     --dur-3  240 ms  algo que ENTRA o SALE recorriendo distancia: un bloque
+                      subiendo 12 px, un número cambiando.
+     --dur-4  400 ms  superficies grandes: hojas inferiores. Es el único sitio
+                      donde media vuelta de segundo se justifica, porque lo que
+                      se mueve es media pantalla.
+
+   TRES CURVAS Y UNA CUARTA CON PERMISO:
+     --ease-out    lo que LLEGA: rápido al principio, se posa. Sale de la nada
+                   a toda velocidad y frena, que es como aterriza una cosa.
+     --ease-in     lo que SE VA: arranca despacio y se acelera al salir. Nunca
+                   para entrar (una cosa que entra despacio parece rota).
+     --ease-std    lo que va de A a B sin nacer ni morir (subrayados, colores).
+     --ease-bounce el rebote MUY leve (pasa 3 % y vuelve), SOLO para hojas
+                   inferiores. Un rebote grande en una lista de precios se lee
+                   como que el dato tiembla.
+
+   ESCALONADO: --stagger, 40 ms entre hermanos. Con 80 ms una fila de cuatro
+   tarjetas tarda 240 ms de más en terminar y se nota la espera; con 20 ms no
+   se distingue del movimiento simultáneo.
+
+   Y LA REGLA QUE LO SUJETA TODO: solo se animan `transform`, `opacity` y
+   `filter`. Son las tres que el compositor resuelve sin volver a calcular el
+   diseño; animar `height`, `width`, `top` o `margin` obliga al navegador a
+   remedir la página en cada frame y además mueve lo que hay alrededor, que es
+   CLS. Hay DOS excepciones vivas y las dos están escritas donde ocurren: el
+   `width` de la barra de progreso de lecciones (LessonsIndex, dentro de su
+   propia barra) y el `width` de la marca deslizante de pestañas (más abajo,
+   pseudo-elemento fuera del flujo). Ninguna de las dos puede mover nada de su
+   alrededor; una tercera habría que discutirla.
+   ========================================================================== */
+
+:root {
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 240ms;
+  --dur-4: 400ms;
+
+  --ease-out: cubic-bezier(.16, .84, .44, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --ease-std: cubic-bezier(.4, 0, .2, 1);
+  --ease-bounce: cubic-bezier(.2, .9, .3, 1.12);
+
+  --stagger: 40ms;
+  /* Cuánto sube un bloque al aparecer. 12 px: se ve que viene de abajo y no
+     hace falta reservar espacio, porque es transform y no ocupa nada. */
+  --rise: 12px;
+  /* Cuánto se hunde lo que se presiona y cuánto se levanta al pasar el ratón. */
+  --press: .98;
+  /* Las filas a lo ancho se hunden MENOS. Un 0.98 en un control de 100 px mueve
+     su borde 1 px; en una fila de 390 px lo mueve 4 px por lado, y entonces la
+     fila parece despegarse de la lista en vez de hundirse dentro de ella. */
+  --press-wide: .995;
+  --lift: 2px;
+  /* Cuánto sube un número al cambiar. En em, o sea proporcional a su tamaño:
+     el precio grande de una ficha y el de una fila se mueven lo mismo *para su
+     cuerpo de letra*, que es como se percibe igual. Lo lee src/scripts/num.ts. */
+  --num-rise: .3em;
+}
+
+/* Con el sistema en «menos movimiento» las duraciones se van a cero DESDE EL
+   TOKEN. base.css ya pone un `*` con transition/animation a .01ms, pero ese
+   selector universal no alcanza a los pseudo-elementos de la transición de
+   página ni a nada que se declare fuera del árbol; apagándolo aquí, cualquier
+   cosa que use los tokens (que es todo) queda quieta por construcción. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: .01ms; --dur-2: .01ms; --dur-3: .01ms; --dur-4: .01ms;
+    --stagger: 0ms; --rise: 0px; --num-rise: 0px; --press: 1; --press-wide: 1; --lift: 0px;
+  }
+}
+
+/* ============================================================================
+   1) TRANSICIÓN ENTRE PÁGINAS
+   ---------------------------------------------------------------------------
+   Es una transición de vista ENTRE DOCUMENTOS (`@view-transition`), no el
+   enrutador de Astro. La diferencia importa y está medida:
+
+   · `<ClientRouter />` mete ~18 KB de JavaScript en TODAS las páginas. El
+     presupuesto de CI son 187 392 bytes de script y el home ya va en 185 039:
+     quedan 2.3 KB. No cabe, y el home es justo la página cuyo movimiento más
+     se nota.
+   · Con el enrutador, los `<script>` de Astro son módulos y un módulo se
+     evalúa UNA vez por URL: volviendo a una página ya visitada, nada se
+     reinicia. Serían 29 componentes con guion propio (avisos, watchlist,
+     progreso de lecciones, reto, gráficas) reescritos a `astro:page-load`, más
+     el globo, que arranca en `DOMContentLoaded` — un evento que con el
+     enrutador ya no vuelve a dispararse.
+
+   Entre documentos no hay nada de eso: la página nueva carga como siempre, los
+   guiones corren como siempre, y el navegador cruza el fotograma viejo con el
+   nuevo. Cuesta cero bytes de JavaScript. Chrome 126+ y Safari 18.2+ lo hacen;
+   Firefox todavía no, y ahí se navega como hoy, sin transición y sin error.
+
+   La cabecera y la barra de abajo llevan nombre propio: salen del fotograma de
+   la raíz y se quedan QUIETAS mientras el contenido se cruza, en vez de
+   fundirse consigo mismas (que es lo que se ve como parpadeo). */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: sf-page-out var(--dur-2) var(--ease-in) both; }
+::view-transition-new(root) { animation: sf-page-in var(--dur-3) var(--ease-out) both; }
+@keyframes sf-page-out { to { opacity: 0; } }
+@keyframes sf-page-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* Quietas: mismo nombre en las dos páginas y mismo aspecto, así que el
+   navegador las cruza consigo mismas sin que se vea nada. */
+.topbar { view-transition-name: sf-topbar; }
+.bottom-nav { view-transition-name: sf-bottomnav; }
+
+/* Y lo que sí tiene que MOVERSE al cambiar de página es la marca del destino
+   activo. Con nombre propio sale del fotograma de su barra y el navegador la
+   lleva de su sitio viejo al nuevo: en escritorio la barrita verde se desliza
+   de «Mercados» a «Aprende», y en el teléfono la pastilla de la barra de abajo
+   viaja de una pestaña a otra. Es el mismo gesto que la marca deslizante de los
+   chips, pero entre documentos. */
+.desk-nav > a[aria-current="page"]::after { view-transition-name: sf-navink; }
+.bottom-nav a[aria-current="page"]::before { view-transition-name: sf-navpill; }
+
+/* «Menos movimiento»: la transición sigue existiendo (el navegador la pide
+   igual) pero sin una sola animación, así que termina en el primer fotograma y
+   el cambio de página es instantáneo, como antes de todo esto. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+
+/* ============================================================================
+   2) ENTRADA POR SCROLL
+   ---------------------------------------------------------------------------
+   Un bloque sube --rise y aparece, escalonado --stagger entre hermanos, UNA
+   SOLA VEZ. Nunca al volver a subir: un sitio donde todo vuelve a aparecer
+   cada vez que pasas por encima marea y, peor, hace dudar de si el dato es
+   nuevo.
+
+   El estado escondido lo pone el guion, no esta hoja: si el JavaScript no
+   llega, no hay nada con opacidad 0 que se quede invisible para siempre. Y
+   solo se esconde lo que está POR DEBAJO del pliegue, así que el primer
+   pantallazo —el que mide el LCP— se pinta exactamente igual que antes.
+
+   Quién entra: cada `<section>` HOJA de `<main>` (una sección que contiene
+   secciones anima por dentro, no entera). A nivel de bloque y nunca por cada
+   fila de una lista: veinte filas apareciendo de una en una no es un sitio
+   vivo, es una lista que tarda en cargar.
+
+   El guion está en src/layouts/Base.astro, en línea al final del <body>. */
+.sf-out {
+  opacity: 0;
+  transform: translateY(var(--rise));
+}
+.sf-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out);
+  transition-delay: calc(var(--sf-i, 0) * var(--stagger));
+}
+
+/* ============================================================================
+   3) NÚMEROS QUE CAMBIAN
+   ---------------------------------------------------------------------------
+   Un precio que salta de 6 512.30 a 6 514.90 sin más no se lee como que ha
+   cambiado: se lee como que siempre puso eso. Al cambiar, el número entra
+   subiendo un tercio de su altura y apareciendo.
+
+   AL CARGAR NO. La primera pintada (esqueleto → dato) no anima: es cuando la
+   página se está montando y todo se movería a la vez. Lo decide num.ts.
+
+   NO LLEVA `overflow: hidden`, y no es por pereza: la línea base de una caja
+   en línea con overflow distinto de `visible` deja de ser la de su texto y
+   pasa a ser su borde de abajo. `.pp-chg` y `.pp-when` viven en un flex
+   alineado por línea base, así que recortar el número lo habría desplazado
+   verticalmente respecto al de al lado — CLS a cambio de un recorte.
+   `display: inline-block` sí va: en los que ya son celda de grid o de flex el
+   navegador lo convierte en `block` y no cambia nada, y en los sueltos hace
+   que el `transform` exista (en un elemento en línea, `transform` no se
+   aplica). Se pone en la PRIMERA pintada, junto con quitar el esqueleto —que
+   ya era inline-block—, así que tampoco ahí se mueve nada.
+
+   `tabular-nums` viene ya de `.num` en base.css, y por eso el ancho no cambia
+   mientras el número entra: si cambiara, la fila de al lado se movería y eso
+   sería CLS con lazo. */
+[data-num] { display: inline-block; }
+
+/* ============================================================================
+   4) TÁCTIL, FOCO Y HOVER
+   ---------------------------------------------------------------------------
+   Lo que se presiona se hunde a --press en --dur-1: es el acuse de recibo del
+   dedo, y llega antes de que la página nueva empiece a cargar. Nunca bloquea
+   el toque, porque es transform y el toque ya se registró.
+
+   El hover con elevación es SOLO para ratón (`hover: hover` + `pointer: fine`):
+   en un teléfono `:hover` se queda pegado después de tocar y la tarjeta se
+   quedaría levantada hasta que toques otra cosa.
+
+   Y EL HUNDIDO VA DESPUÉS DE LA ELEVACIÓN, a propósito. Con un ratón, al hacer
+   clic las dos cosas son ciertas a la vez (`:hover` y `:active`), tienen la
+   misma especificidad y gana la última escrita. Estando primero el hundido, en
+   escritorio el clic no hundía nada: se quedaba la tarjeta levantada 2 px, y en
+   el navegador se medía `matrix(1,0,0,1,0,-2)` con el botón apretado. */
+.btn,
+.card-link,
+.chip-btn,
+.bottom-nav a,
+.bottom-nav button,
+.topbar .lang-btn,
+.topbar .search-btn,
+[data-press] {
+  transition: transform var(--dur-1) var(--ease-out),
+              background-color var(--dur-2) var(--ease-std),
+              border-color var(--dur-2) var(--ease-std),
+              color var(--dur-2) var(--ease-std);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-link:hover,
+  [data-lift]:hover { transform: translateY(calc(-1 * var(--lift))); }
+}
+
+.btn:active,
+.card-link:active,
+.chip-btn:active,
+.bottom-nav a:active,
+.bottom-nav button:active,
+.topbar .lang-btn:active,
+.topbar .search-btn:active,
+[data-press]:active { transform: scale(var(--press)); }
+
+/* ---- Pestañas y chips: la marca se desliza -------------------------------
+   La marca no es de la pestaña activa, es del GRUPO: una sola, que viaja de una
+   pestaña a otra. Antes cada pestaña pintaba su propio fondo, así que la marca
+   desaparecía de un sitio y aparecía en otro; si viaja, el ojo la sigue.
+
+   Conserva la forma que ya tenía el sitio —el lavado de marca, no un subrayado
+   nuevo—: esto es un PR de movimiento, no de repintar la interfaz. Va POR
+   ENCIMA (12 % de alfa) en vez de por debajo porque los chips tienen fondo
+   opaco y la marca se escondería detrás de ellos al pasar; encima, el lavado
+   barre las pestañas por las que va pasando, que es lo que hace legible el
+   viaje. Donde el sitio sí usa un subrayado —el destino activo de la barra
+   superior en escritorio— ese subrayado se desliza de verdad, entre páginas,
+   con su propio view-transition-name.
+
+   Mide src/scripts/tabs.ts (--tab-x/-y/-w/-h). Sin guion no se pinta nada:
+   --tab-w nace en 0.
+
+   EL `width` DE AQUÍ ES LA ÚNICA EXCEPCIÓN A «solo transform/opacity/filter»
+   de este fichero, y está acotada: es un pseudo-elemento FUERA DEL FLUJO y con
+   pointer-events: none, o sea que al cambiar de ancho no puede remedir ni mover
+   absolutamente nada más. Hacerlo con scaleX habría deformado el radio de la
+   píldora en una elipse. */
+[data-slide] { position: relative; }
+[data-slide]::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: var(--tab-y, 0);
+  width: var(--tab-w, 0);
+  height: var(--tab-h, 100%);
+  border-radius: var(--tab-r, var(--r-pill));
+  background: var(--brand-wash);
+  transform: translateX(var(--tab-x, 0));
+  transition: transform var(--dur-2) var(--ease-std), width var(--dur-2) var(--ease-std);
+  pointer-events: none;
+}
+/* El primer posicionamiento se pone, no se desliza: una marca entrando volando
+   desde la izquierda al cargar es justo la animación de bienvenida que sobra. */
+[data-slide][data-slide-init]::after { transition: none; }

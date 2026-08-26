@@ -9,6 +9,7 @@
 // Una sola petición por endpoint y por página, compartida por todas las
 // tarjetas: si en /news hay diez noticias que mencionan el SPY, se pide una vez.
 import { fmtPct, arrow, dirClass, sparkPath, type Loc } from './format';
+import { trazar } from './trazo';
 
 /** Lo que el HTML pasa en data-activos: un extracto de src/data/symbols.ts. */
 export interface ActivoUI {
@@ -87,6 +88,7 @@ export function aplicarMercados(raiz: ParentNode, loc: Loc, activos: ActivoUI[])
       if (area) area.setAttribute('d', a);
       svg.classList.remove('skel');
       svg.classList.add(dirClass(c.changePct));
+      trazar(svg);
     }
   }).catch(() => {
     for (const chip of chips) chip.dataset.estado = 'sin-dato';

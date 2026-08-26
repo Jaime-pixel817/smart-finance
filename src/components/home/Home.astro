@@ -67,8 +67,8 @@ const first = lessons.find((l) => l.path.id === 'desde-cero' && l.pathIndex === 
 const nextList = lessons.map((l) => ({ slug: l.slug, href: l.href, title: l.entry.data.title, desc: l.entry.data.description, min: l.entry.data.readingMinutes, path: l.path.name[locale], i: l.pathIndex, n: l.pathTotal }));
 // Mercados en 60 s: de la clave del endpoint (SPY, BTC…) a la ficha del activo.
 const assetHrefs = Object.fromEntries(ASSETS.filter((a) => a.feed === 'markets').map((a) => [a.feedKey, L(assetRouteId(a.id))]));
-const SPARK = `<svg class="spark skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill" d=""/><path class="line" d=""/></svg>`;
-const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
+const SPARK = `<svg class="spark trazo-destape skel" viewBox="0 0 56 24" preserveAspectRatio="none" aria-hidden="true"><path class="fill trazo-luego" d=""/><path class="line" d=""/></svg>`;
+const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" preserveAspectRatio="none" aria-hidden="true"><path class="line" d=""/></svg>`;
 ---
 <div id="home" class="home" data-locale={locale} data-strings={JSON.stringify(strings)} data-asset-hrefs={JSON.stringify(assetHrefs)}
   data-news-base={locale === 'es' ? '/es/noticias/' : '/news/'}
@@ -382,16 +382,56 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   /* Pulso */
   .pulse-rail li { width: 128px; }
   .pulse-rail li[hidden] { display: none; }
-  .tile { display: flex; flex-direction: column; width: 128px; height: 96px; padding: 10px 12px; background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); position: relative; transition: border-color .15s; }
+  /* EL PORCENTAJE Y LA MINIGRÁFICA NO COMPARTEN BANDA, Y POR ESO LA TARJETA
+     MIDE 114 Y NO 96.
+     Estuvieron compartiéndola: `.tile-chg` iba en flujo desde x=13 y la
+     minigráfica, ABSOLUTA, ocupaba de x=61 a x=117 en la misma franja vertical
+     (texto y 63→79, gráfica y 61→85). Al estar fuera del flujo, la gráfica es
+     invisible para el diseño, así que nadie le reservaba su carril: el número
+     seguía creciendo hacia la derecha y se le metía encima. Medido a 375 y a
+     414 px, en los dos idiomas: con el dato normal de un martes (`▲ 0.32 %`,
+     57.6 px) ya se solapaban 9.6 px —el `%` caía DENTRO de la línea—, y con el
+     peor caso real (`▼ 123.45 %`, 72 px: una cripto puede hacerlo) eran 24 px,
+     con `.45 %` ilegible sobre el trazo. No dependía del teléfono sino del
+     ANCHO DEL TEXTO: la tipografía es fija en `rem` y la tarjeta mide igual a
+     375 que a 414.
+     En 96 px de alto NO CABEN las dos cosas en esa línea: al número le
+     quedaban 48 px y el peor caso pide 72. Estrechar la gráfica para que
+     cupieran la dejaba en 26 px, que ya no es una gráfica; encoger la letra o
+     recortar con `overflow` es esconder el dato, que es justo lo que este
+     sitio no hace. Así que la gráfica se baja a SU PROPIA FRANJA, a lo ancho:
+     el número se queda con los 102 px enteros (30 px de aire en el peor caso)
+     y la gráfica pasa de 56 a 102 px, casi el doble de resolución horizontal
+     para los ~30 puntos de la serie. La tarjeta crece 18 px.
+     Es CSS y nada más: `.spark` ya es `width/height: 100%` con
+     `vector-effect: non-scaling-stroke` (base.css) y el SVG va con
+     `preserveAspectRatio="none"`, así que la caja nueva estira la misma ruta
+     sin tocar el viewBox, `sparkPath()` ni un byte del guion del home. Eso
+     último no es presumir: el home ya va POR ENCIMA del presupuesto de CI
+     (189 3xx bytes de script contra el tope de 187 392, ~1 930 de más, y así
+     estaba antes de tocar esto), así que un arreglo de diseño que costara
+     JavaScript no se podía pagar. */
+  .tile { display: flex; flex-direction: column; width: 128px; height: 114px; padding: 10px 12px; background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); position: relative; transition: border-color var(--dur-2) var(--ease-std), transform var(--dur-1) var(--ease-out); }
   .tile:hover { border-color: var(--ink-3); }
-  .tile:active { transform: scale(.98); }
+  /* El hundido va DESPUÉS de la elevación: con ratón, al hacer clic valen las
+     dos reglas y gana la última escrita (ver motion.css). */
+  @media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(calc(-1 * var(--lift))); } }
+  .tile:active { transform: scale(var(--press)); }
   .tile-sym { color: var(--ink-2); }
   .tile-name { position: absolute; left: 12px; top: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 104px; }
   .tile-price { margin-top: 16px; font-size: 1.125rem; line-height: 1.25rem; letter-spacing: -.01em; white-space: nowrap; }
   [data-tile="FED"] .tile-price { font-size: 1rem; }
-  .tile-chg { margin-top: 2px; line-height: 1rem; }
-  .tile-spark { position: absolute; right: 10px; bottom: 10px; width: 56px; height: 24px; }
-  .tile-spark-rate { position: absolute; right: 12px; bottom: 10px; width: auto; height: auto; }
+  /* `nowrap` es el cierre del caso feo: el mismo hueco recibe también el texto
+     de mercado cerrado (`T.closed`, la rama `opts.closed` de `paintTile`), y
+     sin esto un texto más largo que el hueco caería a dos renglones y taparía
+     la gráfica entera en vez de solaparla un poco. Con la franja propia nada
+     realista se acerca —`cerrado` mide 50.4 px y `closed` 43.2 en 102 px de
+     carril—, pero el número no puede volver a partirse por una cadena nueva. */
+  .tile-chg { margin-top: 2px; line-height: 1rem; white-space: nowrap; }
+  .tile-spark { position: absolute; left: 12px; right: 12px; bottom: 10px; height: 20px; }
+  /* La nota de las tasas (BANXICO/FED) es TEXTO, no dibujo: se queda pegada a
+     la derecha en la misma franja, sin estirarse de lado a lado. */
+  .tile-spark-rate { position: absolute; left: auto; right: 12px; bottom: 10px; width: auto; height: auto; }
   .tile .skel { min-width: 2ch; }
   .chips-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin-top: var(--sp-3); }
   @media (min-width: 768px) { .pulse-rail { gap: var(--sp-3); } }
