@@ -82,6 +82,34 @@ const copy = {
           <a class="btn btn-ghost btn-sm" href={LINKEDIN} target="_blank" rel="noopener">LinkedIn ↗</a>
           <a class="btn btn-ghost btn-sm" href={TIKTOK} target="_blank" rel="noopener">TikTok ↗</a>
         </p>
+
+        <!-- ── El CV ──────────────────────────────────────────────────────
+             UN <details>, no un <a> y no un panel movido por JavaScript.
+             · Como <a href="/cv/…"> la dirección estaría en el HTML de esta
+               página, que es pública e indexada: dejaría de ser secreta el
+               día del despliegue.
+             · Como <details> se abre y se cierra con teclado y lo anuncia un
+               lector de pantalla sin que este repositorio escriba una línea
+               de aria: el navegador ya sabe hacerlo, y lo hace bien.
+             El único JavaScript es el `submit` (src/scripts/cv-acceso.ts), y
+             no compara nada: escribe la dirección con lo que se tecleó. -->
+        <details class="cv-acc">
+          <summary class="cv-acc-sum">{t('cv.button')}</summary>
+          <div class="cv-acc-body">
+            <p class="t-small">{t('cv.lede')}</p>
+            <form class="cv-acc-form" data-cv-form>
+              <label class="t-caption faint cv-acc-lab" for="cvCodigo">{t('cv.label')}</label>
+              <div class="cv-acc-row">
+                <input class="cv-acc-input" id="cvCodigo" name="codigo" type="text"
+                  autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+                  inputmode="text" enterkeyhint="go">
+                <button class="btn btn-primary btn-sm" type="submit">{t('cv.go')} →</button>
+              </div>
+            </form>
+            <p class="t-caption faint">{t('cv.note')}</p>
+            <noscript><p class="t-caption faint">{t('cv.noscript')}</p></noscript>
+          </div>
+        </details>
       </div>
     </header>
 
@@ -128,6 +156,11 @@ const copy = {
     </section>
   </div>
 </article>
+
+<!-- Va aquí y no en Base.astro: este guion solo existe en /about y /es/acerca,
+     que son las dos páginas donde está el campo. -->
+<script>import '../../scripts/cv-acceso';</script>
+
 <style>
   .about { padding-top: var(--sp-4); }
   .about-wrap { max-width: calc(var(--measure) + 2 * var(--gutter)); display: flex; flex-direction: column; gap: var(--sp-8); }
@@ -137,6 +170,41 @@ const copy = {
   .about-intro { display: flex; flex-direction: column; gap: var(--sp-3); }
   .about-lede { font-size: var(--fs-read); line-height: var(--lh-read); }
   .about-links { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+
+  /* ---- El CV ----
+     El <summary> se ve como un botón fantasma más, junto a LinkedIn y TikTok.
+     El chevrón se cambia por CONTENIDO y no por una rotación: es la misma
+     forma que ya usa .ai-disclosure en news.css, no se mueve nada y por tanto
+     no hay nada que apagar con prefers-reduced-motion. El anillo de foco es
+     el de base.css (outline, nunca box-shadow: una sombra posterior lo
+     borraría en silencio). */
+  .cv-acc { margin-top: var(--sp-1); }
+  .cv-acc-sum {
+    display: inline-flex; align-items: center; gap: var(--sp-2);
+    min-height: 36px; padding: 0 var(--sp-3);
+    border: 1px solid var(--line); border-radius: var(--r-btn);
+    background: var(--bg-2); color: var(--ink);
+    font-size: var(--fs-caption); font-weight: 500;
+    cursor: pointer; list-style: none; width: max-content;
+  }
+  .cv-acc-sum::-webkit-details-marker { display: none; }
+  .cv-acc-sum::after { content: '⌄'; color: var(--ink-3); }
+  .cv-acc[open] .cv-acc-sum::after { content: '⌃'; }
+  .cv-acc-sum:hover { background: var(--bg-3); }
+  .cv-acc-body {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    max-width: var(--measure); margin-top: var(--sp-3);
+    padding: var(--card-pad);
+    border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1);
+  }
+  .cv-acc-form { display: flex; flex-direction: column; gap: 4px; }
+  .cv-acc-lab { display: block; }
+  .cv-acc-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .cv-acc-input {
+    flex: 1 1 180px; min-width: 0; height: 40px; padding: 0 var(--sp-3);
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn);
+    color: var(--ink); -webkit-appearance: none;
+  }
   .about-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
   .about-sec p { max-width: var(--measure); }
   .about-sec :global(strong) { font-weight: 600; }

@@ -616,6 +616,21 @@ const en = {
   'aviso.sigues': 'What you follow shows up at the top of Markets.',
   'aviso.sigues.cta': 'See my list',
   'aviso.noticias': 'The symbol on each story opens its chart.',
+
+  // ---- El CV, desde /about (src/components/about/About.astro) ----
+  // Los párrafos largos del CV viven en src/i18n/cv.ts; aquí solo están los
+  // rótulos del botón y su campo, que son interfaz.
+  //
+  // NINGUNA DE ESTAS CADENAS SE COMPARA CON NADA. El campo escribe la
+  // dirección y ya: /cv/<lo que se tecleó>. Si aquí llegara a aparecer un
+  // código, estaría publicado en un repositorio público y en el HTML de una
+  // página indexada.
+  'cv.button': 'CV',
+  'cv.lede': 'It lives at its own address, not linked from anywhere. If I gave you a code, type it here.',
+  'cv.label': 'Code',
+  'cv.go': 'Open',
+  'cv.note': 'Nothing is checked in this browser: the code is the address. A wrong one gives the same 404 as any address that does not exist.',
+  'cv.noscript': 'This field needs JavaScript to take you there. Without it, type smartfinance.lat/cv/ followed by your code in the address bar.',
 };
 
 const es: typeof en = {
@@ -1209,6 +1224,14 @@ const es: typeof en = {
   'aviso.sigues': 'Lo que sigues aparece arriba, en Mercados.',
   'aviso.sigues.cta': 'Ver mi lista',
   'aviso.noticias': 'El símbolo de cada noticia lleva a su gráfica.',
+
+  // ---- El CV, desde /about ----
+  'cv.button': 'CV',
+  'cv.lede': 'Vive en una dirección propia, sin enlace desde ningún sitio. Si te di un código, escríbelo aquí.',
+  'cv.label': 'Código',
+  'cv.go': 'Abrir',
+  'cv.note': 'En este navegador no se comprueba nada: el código es la dirección. Uno equivocado da el mismo 404 que cualquier dirección que no existe.',
+  'cv.noscript': 'Este campo necesita JavaScript para llevarte. Sin él, escribe smartfinance.lat/cv/ y tu código en la barra de direcciones.',
 };
 
 export type UIKey = keyof typeof en;
