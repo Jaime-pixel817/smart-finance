@@ -116,11 +116,23 @@
   color: var(--ink);
   font-size: var(--fs-caption);
   line-height: 1.2;
-  /* Tokens de movimiento (motion.css): apartarse y volver es algo que sale y
-   * entra RECORRIENDO distancia, o sea --dur-3, con la curva de lo que llega.
-   * Nació con `.22s ease` porque esta rama salió antes de que existiera el
-   * sistema; al juntar la ola se cose, y de paso el botón se queda quieto solo
-   * con «menos movimiento», desde el token. */
+  /* EL BOTÓN SE MUEVE SIEMPRE CON `transform`, NUNCA CAMBIANDO `bottom`, y son
+   * las DOS cosas que lo mueven: subirse cuando aparece un aviso (--fab-sube) y
+   * apartarse al bajar la página (--fab-fuera). Se componen en un solo
+   * transform porque solo hay uno por elemento.
+   *
+   * Esto no es pulcritud: subirse cambiando `bottom` costaba CLS de verdad. El
+   * aviso llega ~150 ms después de cargar, el botón daba un salto de 92 px, y
+   * como es un cambio de LAYOUT el navegador lo cuenta como desplazamiento. En
+   * /market/spy caía en el mismo fotograma que el reacomodo de 7 px del panel
+   * de precio y los dos juntos daban 0.039 de CLS contra un presupuesto de
+   * 0.02 (main mide 0.003 ahí). Con transform el salto lo resuelve el
+   * compositor: no remide nada, no cuenta como CLS, y encima se desliza con
+   * --dur-3 en vez de teletransportarse. Es la regla 1 de motion.css, y este
+   * es el caso en que se ve lo que cuesta saltársela. */
+  --fab-sube: 0px;
+  --fab-fuera: 0px;
+  transform: translateY(calc(var(--fab-sube) + var(--fab-fuera)));
   transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-3) var(--ease-out);
 }
 /* El final de la página tiene que poder pasar POR DEBAJO del botón: si no, el
@@ -135,7 +147,7 @@
  * Avisos.astro— son `:root.<clase> body`, o sea la MISMA especificidad, así que
  * en las páginas con las dos clases ganaba la última que el build dejara
  * escrita: la de aquí, con sus 60 px. Pero el botón, para no taparle el aviso,
- * se sube a 104 px (más abajo) y con solo 60 reservados aterrizaba encima del
+ * acaba a 104 px del borde (más abajo) y con solo 60 reservados aterrizaba en el
  * disclaimer del footer — medido a 390×844 en /market/spy y /lessons/etfs: el
  * botón en 648-684 y el disclaimer en 660-740. Justo lo que la regla de arriba
  * viene a impedir, y encima solo en las páginas que además llevan aviso, que
@@ -147,12 +159,16 @@
 :root.con-aviso.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 152px); }
 @media (min-width: 768px) { :root.con-aviso.con-ia-fab body { padding-bottom: 152px; } }
 .ia-fab:hover { background: var(--bg-2); }
-.ia-fab-fuera { transform: translateY(calc(100% + var(--bottomnav-h) + var(--sp-4))); opacity: 0; pointer-events: none; }
-:root.con-aviso .ia-fab { bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 104px); }
+.ia-fab-fuera { --fab-fuera: calc(100% + var(--bottomnav-h) + var(--sp-4)); opacity: 0; pointer-events: none; }
+/* 92 px = los 104 a los que tiene que quedar con un aviso puesto, menos los 12
+ * (--sp-3) que ya lo separan de la barra de abajo. El sitio de reposo (`bottom`)
+ * no se toca nunca: solo se traslada desde él. */
+:root.con-aviso .ia-fab { --fab-sube: -92px; }
 @media (min-width: 768px) {
   .ia-fab { right: var(--sp-5); bottom: var(--sp-5); }
-  .ia-fab-fuera { transform: translateY(calc(100% + var(--sp-5) + var(--sp-2))); }
-  :root.con-aviso .ia-fab { bottom: 104px; }
+  .ia-fab-fuera { --fab-fuera: calc(100% + var(--sp-5) + var(--sp-2)); }
+  /* 84 = 104 − 20 (--sp-5), que es lo que lo separa del borde en escritorio. */
+  :root.con-aviso .ia-fab { --fab-sube: -84px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ia-fab { transition: none; }
