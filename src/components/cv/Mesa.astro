@@ -175,10 +175,22 @@ const estado = (rep.meta.status || 'draft') as string;
                  eran dos celdas independientes y no había forma de que uno
                  cayera debajo del otro cuando ni así caben (ver el bloque de
                  las válvulas, abajo). -->
+            <!-- LOS RÓTULOS VAN ANTES DEL VALOR Y COMO HERMANOS SUYOS, no
+                 dentro. El módulo escribe estos dos nodos con `textContent`
+                 (src/scripts/cv-cinta.ts), así que un rótulo metido DENTRO del
+                 <span> del precio se borraría en la primera pintada. Sin
+                 rótulos, el nombre accesible de la fila eran dos números
+                 seguidos —"SPY S&P 500 603.71 ▲ 0.13 %"— sin decir cuál es el
+                 precio y cuál el cambio. -->
             <span class="cinta-nums">
+              <span class="visually-hidden">{c.tape.price}</span>
               <span class="cinta-price num" data-precio>{c.tape.pending}</span>
+              <span class="visually-hidden">{c.tape.change}</span>
               <span class="cinta-chg num t-caption" data-cambio></span>
             </span>
+            <!-- Qué pasa al tocar la fila. Es un enlace y no lo parecía por el
+                 nombre: terminaba en un porcentaje. -->
+            <span class="visually-hidden">{c.tape.open}</span>
           </a>
         </li>
       ))}
@@ -266,7 +278,10 @@ const estado = (rep.meta.status || 'draft') as string;
     <p class="t-small muted">{c.research.lede}</p>
 
     <a class="card card-link rep" href={L(rep.routeId)}>
-      <p class="eyebrow">{rep.meta.exchange}: {rep.meta.ticker}</p>
+      <!-- "NASDAQ: LULU" a secas abre el nombre de esta tarjeta con algo que
+           solo se entiende si ya sabes lo que es. El rótulo lo dice y no
+           ocupa un píxel. -->
+      <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
       <p class="t-h3 rep-name">{rep.meta.name}</p>
       <dl class="rep-meta t-caption">
         <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
