@@ -38,3 +38,51 @@ específicamente"), después de dos párrafos que nadie pidió.
   dice claramente que no se puede saber — como PRIMERA frase, no como pie.
 - 2–3 repreguntas encadenadas (historial solo en el navegador), preguntas
   sugeridas por contexto, y todas las guardas existentes intactas.
+
+---
+
+## Comprobación con datos REALES (2026-08-25, tarde)
+
+### Antes — producción, que hoy sigue con el código viejo
+
+`POST /api/news {"accion":"explicar","tipo":"activo","id":"spy","lang":"es","pregunta":"¿por qué subió hoy?"}`
+→ `antes-produccion-2026-08-25.json`:
+
+> «SPY es un ETF, un fondo que agrupa las 500 empresas más grandes de Estados
+> Unidos en un solo precio. […] **En el mes que termina el 25 de agosto**, SPY
+> subió de 739.09 a 765.91, una ganancia de 26.82…»
+
+Preguntas por hoy y te contesta el mes. Es el bug.
+
+### Después — el motor de esta rama, con la MISMA llamada a Yahoo que hace el sitio
+
+`node docs/2026-08-25-ia-responde/datos-real.mjs` → `despues-bloque-datos-real.txt`.
+No hace falta el modelo: lo que se enseña es el bloque DATOS, que es justo lo
+que no cambiaba.
+
+| pregunta | intención | serie que se arma |
+|---|---|---|
+| (ninguna, el botón a secas) | — | 1M, 22 puntos — el resumen del mes de siempre |
+| «¿por qué subió hoy?» | `causa` | **1D, 79 puntos** + *Movimiento de HOY* (cierre anterior 763.48 → 765.91, **cambio de hoy 2.43, 0.32 %**) + «Noticias aprobadas de este activo: **NINGUNA** […] La causa del movimiento NO SE SABE con estos datos» |
+| «¿cómo va este año?» | `movimiento` | **1Y, 251 puntos** (645.16 → 765.91, +18.72 %) |
+
+El movimiento de hoy (+2.43) y el del mes (+26.82) son cifras distintas: antes
+la única disponible era la del mes, así que la respuesta a «¿por qué subió hoy?»
+no podía ni citar el dato correcto.
+
+### Lo que falta comprobar contra un despliegue
+
+La llamada real al MODELO con el código nuevo no se pudo hacer desde aquí: este
+entorno no tiene `ANTHROPIC_API_KEY` y el preview de Vercel de la rama está
+detrás de la protección de despliegue (302). En cuanto esto se mergee y
+despliegue, la comprobación es una línea:
+
+```sh
+curl -s -X POST https://smartfinance.lat/api/news \
+  -H 'Content-Type: application/json' \
+  -d '{"accion":"explicar","tipo":"activo","id":"spy","lang":"es","pregunta":"¿por qué subió hoy?"}' \
+  | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).respuesta))"
+```
+
+Tiene que abrir diciendo que con estos datos no se puede saber el porqué (o
+citando una noticia aprobada del símbolo), no con «SPY es un ETF».
