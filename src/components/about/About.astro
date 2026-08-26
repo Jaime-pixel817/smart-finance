@@ -94,7 +94,29 @@ const copy = {
              El único JavaScript es el `submit` (src/scripts/cv-acceso.ts), y
              no compara nada: escribe la dirección con lo que se tecleó. -->
         <details class="cv-acc">
-          <summary class="cv-acc-sum">{t('cv.button')}</summary>
+          <!-- EL <summary> NO SE MAQUETA: SE MAQUETA UN <span> DENTRO.
+               Dos motivos, y el segundo es el que importa.
+               1. El chevrón tiene que quedar FUERA del nombre accesible. Con
+                  `content` en un `::after` del propio summary, el nombre salía
+                  como "CV ⌃" — el dibujito, leído en voz alta. Un
+                  pseudo-elemento no admite `aria-hidden`, así que el chevrón
+                  pasa a ser un elemento de verdad que sí puede llevarlo.
+               2. Safari y los disclosure widgets. `display: inline-flex` SOBRE
+                  EL PROPIO `<summary>` es justo la propiedad con la que WebKit
+                  ha dado guerra: le quita el triángulo nativo y, en versiones
+                  que todavía andan por ahí, deja de abrirse al tocarlo. Este
+                  Mac no puede probar Safari ni VoiceOver, así que en vez de
+                  apostar se le quita el motivo: el summary se queda con un
+                  `display` de los de siempre (`list-item`, el suyo) y TODA la
+                  pinta de botón —flex, borde, alto, padding— vive en el span
+                  de dentro, que es un span y no le importa a nadie. El público
+                  de esta página son admisiones abriendo un CV en un iPhone. -->
+          <summary class="cv-acc-sum">
+            <span class="cv-acc-sum-in">
+              {t('cv.button')}
+              <span class="cv-acc-chev" aria-hidden="true"></span>
+            </span>
+          </summary>
           <div class="cv-acc-body">
             <p class="t-small">{t('cv.lede')}</p>
             <form class="cv-acc-form" data-cv-form>
@@ -179,18 +201,33 @@ const copy = {
      el de base.css (outline, nunca box-shadow: una sombra posterior lo
      borraría en silencio). */
   .cv-acc { margin-top: var(--sp-1); }
+  /* El summary se queda con su `display` nativo (`list-item`) y solo pierde el
+     triángulo: `list-style: none` para los navegadores de hoy y el reset de
+     `::-webkit-details-marker` para los Safari viejos, que no miran el
+     primero. `width: max-content` para que el anillo de foco de base.css
+     —outline, nunca box-shadow— trace el botón y no toda la columna. */
   .cv-acc-sum {
+    display: list-item; list-style: none; width: max-content;
+    cursor: pointer; color: var(--ink);
+  }
+  .cv-acc-sum::-webkit-details-marker { display: none; }
+  /* Toda la pinta de botón, aquí dentro. Ni una regla de layout sobre el
+     summary: ver el comentario del marcado. */
+  .cv-acc-sum-in {
     display: inline-flex; align-items: center; gap: var(--sp-2);
     min-height: 36px; padding: 0 var(--sp-3);
     border: 1px solid var(--line); border-radius: var(--r-btn);
     background: var(--bg-2); color: var(--ink);
     font-size: var(--fs-caption); font-weight: 500;
-    cursor: pointer; list-style: none; width: max-content;
   }
-  .cv-acc-sum::-webkit-details-marker { display: none; }
-  .cv-acc-sum::after { content: '⌄'; color: var(--ink-3); }
-  .cv-acc[open] .cv-acc-sum::after { content: '⌃'; }
-  .cv-acc-sum:hover { background: var(--bg-3); }
+  /* El chevrón sigue cambiando por CONTENIDO y no por una rotación (misma
+     forma que .ai-disclosure en news.css: no se mueve nada, así que no hay
+     nada que apagar con prefers-reduced-motion). Lo que cambia es que ahora
+     cuelga de un elemento con `aria-hidden`, así que el contenido generado
+     tampoco llega al nombre accesible. */
+  .cv-acc-chev::after { content: '⌄'; color: var(--ink-3); }
+  .cv-acc[open] .cv-acc-chev::after { content: '⌃'; }
+  .cv-acc-sum:hover .cv-acc-sum-in { background: var(--bg-3); }
   .cv-acc-body {
     display: flex; flex-direction: column; gap: var(--sp-2);
     max-width: var(--measure); margin-top: var(--sp-3);

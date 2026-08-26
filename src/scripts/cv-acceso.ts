@@ -1,5 +1,5 @@
-// El campo "CV" de /about. Son ocho líneas y las ocho importan por lo que NO
-// hacen.
+// El campo "CV" de /about. Son cuatro líneas de lógica y lo que importa de
+// ellas es lo que NO hacen.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // AQUÍ NO HAY NINGUNA RESPUESTA CORRECTA, Y POR ESO NO SE PUEDE LEER
@@ -20,8 +20,32 @@
 //
 // SIN JAVASCRIPT. La caja se abre igual (es un <details>, no lo mueve nadie)
 // y dentro hay un <noscript> que dice la dirección a mano. Lo que se pierde
-// es el atajo, no el acceso.
+// es el atajo y el cierre con Escape, no el acceso.
 const form = document.querySelector<HTMLFormElement>('[data-cv-form]');
+
+// ESCAPE CIERRA EL CAMPO. `<details>` nativo no lo hace —abre y cierra con
+// Enter y con Espacio, y ahí se acaba— pero en este sitio lo que se abre se
+// cierra con Escape: lo hacen los avisos (src/scripts/avisos.ts) y lo dicen
+// las reglas. Un campo que se abre con teclado y no se cierra con teclado es
+// una trampa pequeña, y esta cae justo encima del enlace al CV.
+//
+// El foco vuelve al <summary>, que es de donde salió: es lo mismo que ya hacen
+// Enter y Espacio, así que la tecla nueva no estrena comportamiento.
+//
+// Y se para la propagación en vez de dejarla subir a `document`: si además hay
+// un aviso puesto, su listener de Escape también dispararía y UNA tecla
+// cerraría DOS cosas. La tecla es del widget que tiene el foco dentro. Se
+// respeta la misma excepción que avisos.ts: con una hoja modal abierta,
+// Escape es suyo primero.
+const det = document.querySelector<HTMLDetailsElement>('details.cv-acc');
+
+det?.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || !det.open) return;
+  if (document.querySelector('[role="dialog"]:not([hidden])')) return;
+  e.stopPropagation();
+  det.open = false;
+  det.querySelector<HTMLElement>('summary')?.focus();
+});
 
 form?.addEventListener('submit', (e) => {
   e.preventDefault();
