@@ -433,8 +433,10 @@ const t = useT(locale);
     /* visibility con retraso, no display: primero se apaga la opacidad y
        cuando ha terminado se apaga el elemento. Al volver, los dos a la vez.
        Con prefers-reduced-motion base.css deja las duraciones en .01 ms y esto
-       pasa a ser instantáneo, que es exactamente lo que se quiere. */
-    transition: opacity .18s ease, visibility 0s;
+       pasa a ser instantáneo, que es exactamente lo que se quiere. La duración
+       sale de motion.css (--dur-2, el micro-cambio en su sitio): es un cambio
+       de opacidad sin recorrido, y así se apaga sola con «menos movimiento». */
+    transition: opacity var(--dur-2) var(--ease-std), visibility 0s;
   }
   /* CON LA TARJETA DE UN PAÍS ABIERTA, EL CHIP DEL HERO SE APARTA. La tarjeta
      trae su propia línea "Retraso 15 min · Yahoo Finance · 08:57" y cae justo
@@ -450,7 +452,7 @@ const t = useT(locale);
      lector de pantalla tampoco oye el dato dos veces. */
   :global(:root.is-world-open) .hero-source {
     opacity: 0; visibility: hidden;
-    transition: opacity .18s ease, visibility 0s linear .18s;
+    transition: opacity var(--dur-2) var(--ease-std), visibility 0s linear var(--dur-2);
   }
   /* El aviso de "animación en pausa" solo aparece cuando de verdad lo está. */
   .hero-motion { display: none; margin-top: var(--sp-3); }

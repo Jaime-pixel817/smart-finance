@@ -175,7 +175,10 @@ function boot(root: HTMLElement) {
     // movimientos duran lo mismo y se cruzan sin que quede un hueco en blanco.
     marcarAbierta(false);
     chips.forEach((b) => { b.classList.remove('is-selected'); b.setAttribute('aria-expanded', 'false'); });
-    setTimeout(() => { if (!openId) sheet.hidden = true; }, 220);
+    // 400 = --dur-4, lo que tarda la hoja en salir (WorldSheet.astro). Si ahí
+    // cambia el token, aquí cambia el número: escondiéndola antes, la tarjeta
+    // desaparece de golpe a media salida.
+    setTimeout(() => { if (!openId) sheet.hidden = true; }, 400);
     document.dispatchEvent(new CustomEvent('world:select', { detail: { id: null } }));
     if (opener) { opener.focus({ preventScroll: true }); opener = null; }
   }

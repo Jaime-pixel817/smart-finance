@@ -78,7 +78,13 @@ const t = useT(locale);
     border-radius: var(--r-sheet) var(--r-sheet) 0 0;
     padding: var(--sp-2) var(--sp-4) var(--sp-4);
     box-shadow: 0 -12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet);
-    transform: translateY(104%); transition: transform .22s var(--ease-sheet);
+    /* Tokens de movimiento, no una duración a mano: esta es una hoja inferior
+       como la del glosario y la de la IA, y las tres se mueven igual
+       (--dur-4 + el rebote leve, que está reservado justo a esto). Nació con
+       `.22s var(--ease-sheet)` porque su rama salió antes de que existiera
+       motion.css; al juntar la ola se cose. El 400 de world-markets.ts (el
+       reloj que la esconde al terminar de salir) es este mismo número. */
+    transform: translateY(104%); transition: transform var(--dur-4) var(--ease-bounce);
   }
   .world-sheet.is-open .world-sheet-card { transform: none; }
   .world-sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto var(--sp-1); }
