@@ -368,12 +368,17 @@ function boot(root: HTMLElement) {
     let loaded = false;
     const load = () => {
       if (loaded) return; loaded = true;
-      // Si un script no llega (CDN bloqueado, red que se cae), no habrá globo:
+      // SPIKE spike/three-propio: three.js ya no viene de cdnjs, sino de
+      // public/assets/three-sf.js — un paquete propio con SOLO las 21 clases
+      // que usa risk-sphere.js (lo genera scripts/build-three.mjs desde el
+      // paquete npm `three`). Sigue siendo un script clásico que define
+      // window.THREE, así que risk-sphere.js no cambia ni una línea.
+      // Si un script no llega (red que se cae), no habrá globo:
       // "globe:fail" enciende el SVG de respaldo del hero sin esperar al reloj
       // de los 10 s. Ver src/scripts/hero.ts.
       const falla = () => document.dispatchEvent(new CustomEvent('globe:fail'));
       const s1 = document.createElement('script');
-      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+      s1.src = '/assets/three-sf.js';
       s1.async = true;
       s1.onerror = falla;
       s1.onload = () => { const s2 = document.createElement('script'); s2.type = 'module'; s2.src = '/assets/risk-sphere.js'; s2.onerror = falla; document.body.appendChild(s2); };

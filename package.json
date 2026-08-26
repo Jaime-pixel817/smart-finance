@@ -35,7 +35,8 @@
     "derive": "node scripts/derive.mjs",
     "check-seo": "node scripts/check-seo.mjs dist",
     "check-lh": "npx -y @lhci/cli@0.15.1 autorun --config=lighthouserc.json",
-    "test": "node --test"
+    "test": "node --test",
+    "build:three": "node scripts/build-three.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
@@ -51,6 +52,10 @@
     "sharp": "^0.35.3",
     "wawoff2": "^2.0.1",
     "@astrojs/check": "^0.9.10",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "three": "0.185.1",
+    "rollup": "^4.52.5",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4"
   }
 }
