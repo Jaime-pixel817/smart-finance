@@ -238,7 +238,7 @@ export function slugCv(valor) {
       'CV_SLUG tiene que medir entre ' + MINIMO + ' y ' + MAXIMO + ' caracteres y la tuya no. ' +
       'El mínimo NO es un capricho: /cv/<codigo> no tiene contraseña ni servidor que cuente intentos, así que lo único que impide adivinarla es el tamaño del espacio de nombres. ' +
       'Con ' + MINIMO + ' caracteres de [a-z0-9] son 1.34e31 direcciones: alguien probando 10 000 por segundo durante diez años tendría una probabilidad de 2.4e-19 de acertar. ' +
-      'Con 5 caracteres, esa misma probabilidad es 1 (la habría encontrado en menos de un día). La cuenta entera está en la cabecera de este archivo.' +
+      'Con 5 caracteres el espacio entero son 60 466 176 direcciones: ese mismo atacante las prueba TODAS en 1 hora y 41 minutos. La cuenta entera está en la cabecera de este archivo.' +
       QUE_HACER
     );
   }
