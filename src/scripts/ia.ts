@@ -551,4 +551,23 @@ if (sheet) {
     if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
     else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
   });
+
+  // -- lo que estaba pendiente al cargar ------------------------------------
+  //
+  // Este módulo llega POR DEMANDA: el arranque de AISheet.astro lo importa al
+  // primer gesto y deja escrito en window.__iaPend qué lo provocó (el botón
+  // que se tocó, o la cadena 'sel' si lo que había era una selección). Ese
+  // gesto ya ocurrió antes de que existieran los oyentes de aquí, así que se
+  // atiende ahora o se pierde — y perderlo se vería como un botón que no hace
+  // nada la primera vez que lo tocas.
+  const ventana = window as unknown as { __iaPend?: unknown };
+  const pendiente = ventana.__iaPend;
+  ventana.__iaPend = null;
+  if (pendiente === 'sel') mostrarBurbuja();
+  else if (pendiente instanceof HTMLElement) abrir(pendiente);
 }
+
+// Este archivo no exporta nada: se importa por su efecto. El `export {}` está
+// para que TypeScript lo trate como MÓDULO — sin él, el `import()` del arranque
+// de AISheet.astro falla en `astro check` con "is not a module" (ts 2306).
+export {};

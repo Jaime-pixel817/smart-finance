@@ -81,4 +81,59 @@ const sugeridas: Record<string, string[]> = {
     </p>
   </div>
 </div>
-<script src="../../scripts/ia.ts"></script>
+<!--
+  El guion de la IA se carga SOLO cuando alguien la usa.
+
+  Esta hoja vive ahora en Base.astro, o sea en las 100 páginas del sitio. Con un
+  `<script src>` normal, su código entraba en el paquete de TODAS —incluido el
+  home, que se lo comía sin que nadie tocara nada— y el presupuesto de
+  Lighthouse del home se pasó por 1,912 bytes (189,304 contra 187,392). Es el
+  mismo error que ya se cometió con los avisos contextuales, anotado en
+  CLAUDE.md: lo que va en el layout se paga en todas partes.
+
+  Así que aquí solo queda este arranque diminuto, que espera al primer gesto de
+  verdad —tocar un botón de IA, o soltar una selección de texto dentro de un
+  bloque de lectura— y entonces hace un `import()` dinámico. Vite lo parte en su
+  propio trozo, que no se descarga hasta ese momento: quien no usa la IA no
+  paga ni un byte de ella. Lo que estaba pendiente al cargar (el botón que se
+  tocó, o que había una selección) se le deja escrito en `window.__iaPend`, y el
+  módulo lo atiende nada más arrancar.
+-->
+<script>
+  let cargando = false;
+  function cargar(pendiente: unknown) {
+    if (cargando) return;
+    cargando = true;
+    (window as unknown as { __iaPend?: unknown }).__iaPend = pendiente;
+    import('../../scripts/ia.ts');
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.ia-btn[data-ia]');
+    if (btn) { e.preventDefault(); cargar(btn); }
+  });
+
+  /** ¿Hay una selección de lectura lo bastante larga como para ofrecerla? */
+  function haySeleccion() {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return false;
+    if (sel.toString().replace(/\s+/g, ' ').trim().length < 12) return false;
+    const n = sel.anchorNode;
+    const el = n instanceof Element ? n : n?.parentElement;
+    return !!(el && el.closest('[data-ia-seleccion]'));
+  }
+  function mirarSeleccion() {
+    if (!cargando && haySeleccion()) cargar('sel');
+  }
+
+  // Con el dedo o el ratón, al soltar. Y por `selectionchange` además, que es
+  // lo ÚNICO que se entera de una selección hecha con el teclado
+  // (Shift+flechas): sin esto, quien no usa ratón no llegaba nunca a la
+  // burbuja, y el módulo que la pinta no se habría cargado jamás.
+  document.addEventListener('pointerup', () => window.setTimeout(mirarSeleccion, 60));
+  let reloj = 0;
+  document.addEventListener('selectionchange', () => {
+    window.clearTimeout(reloj);
+    reloj = window.setTimeout(mirarSeleccion, 350);
+  });
+</script>
