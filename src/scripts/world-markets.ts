@@ -1,5 +1,8 @@
-// Globo de mercados, la parte en HTML: la leyenda de ocho chips y la tarjeta
-// al toque (src/components/home/WorldMarkets.astro).
+// Globo de mercados, la parte en HTML: la leyenda de ocho chips
+// (src/components/home/WorldMarkets.astro) y la tarjeta que se abre al toque
+// (src/components/home/WorldSheet.astro, montada fuera del hero por el
+// contexto de apilamiento — lo cuenta su cabecera). Este guion es el mismo
+// para las dos y las busca por id, así que dónde cuelgan del DOM le da igual.
 //
 // QUÉ HACE. Pide /api/world UNA vez (y cada 15 min, que es lo que cachea el
 // endpoint), calcula si cada bolsa está abierta con exchange-hours.ts y:
@@ -144,12 +147,21 @@ function boot(root: HTMLElement) {
 
   // ---- tarjeta ----
   const closeBtn = q<HTMLButtonElement>('.world-sheet-close')!;
+  // Con la tarjeta abierta, el chip de fuente del hero (#chip-world) se aparta:
+  // la tarjeta ya trae su propia línea "Retraso 15 min · Yahoo Finance · HH:MM"
+  // y cae justo encima de la del hero. Lo hace el CSS de Hero.astro con esta
+  // clase, con opacidad y visibility para no mover ni un píxel de la columna
+  // del hero (display: none encogería el hero y subiría media página).
+  function marcarAbierta(abierta: boolean) {
+    document.documentElement.classList.toggle('is-world-open', abierta);
+  }
   function open(id: string, via: HTMLElement | null) {
     if (!byId.has(id)) return;
     paintSheet(id);
     openId = id; openedAt = Date.now(); opener = via;
     chips.forEach((b) => { const sel = b.dataset.id === id; b.classList.toggle('is-selected', sel); b.setAttribute('aria-expanded', String(sel)); });
     sheet.hidden = false;
+    marcarAbierta(true);
     // Un frame después, para que la transición de entrada se vea.
     requestAnimationFrame(() => sheet.classList.add('is-open'));
     document.dispatchEvent(new CustomEvent('world:select', { detail: { id } }));
@@ -159,6 +171,9 @@ function boot(root: HTMLElement) {
     if (!openId) return;
     openId = null;
     sheet.classList.remove('is-open');
+    // El chip del hero vuelve YA, no cuando termine de irse la tarjeta: los dos
+    // movimientos duran lo mismo y se cruzan sin que quede un hueco en blanco.
+    marcarAbierta(false);
     chips.forEach((b) => { b.classList.remove('is-selected'); b.setAttribute('aria-expanded', 'false'); });
     setTimeout(() => { if (!openId) sheet.hidden = true; }, 220);
     document.dispatchEvent(new CustomEvent('world:select', { detail: { id: null } }));

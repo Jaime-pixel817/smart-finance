@@ -1,0 +1,107 @@
+---
+// LA TARJETA DEL PAÍS — la que se abre al tocar una ciudad de la barra o un
+// marcador del globo. Bottom sheet sobre el bottom nav en el teléfono, tarjeta
+// abajo a la derecha en escritorio. La pinta y la abre src/scripts/
+// world-markets.ts, el mismo guion que la barra de ocho chips
+// (WorldMarkets.astro); aquí solo está el marcado y el aspecto.
+//
+// POR QUÉ ES UN COMPONENTE APARTE Y NO VIVE CON LA BARRA. Porque tiene que
+// PINTARSE POR ENCIMA DE TODA LA PÁGINA, y un z-index alto no basta para eso:
+// solo vale dentro del contexto de apilamiento en que nace. La barra va dentro
+// de .hero-world, que es `position: relative; z-index: 3` — o sea, un contexto
+// de apilamiento propio. Con la tarjeta ahí dentro, su `z-index: 50` no
+// competía con la página: competía con sus hermanas de .hero-world, y el
+// conjunto entero seguía valiendo 3. Como .hero-source (el chip de fuente del
+// hero, z-index 3) y .home-body (z-index 3, con fondo OPACO) vienen después en
+// el DOM y empatan a 3, los dos ganaban por orden y se pintaban ENCIMA de la
+// tarjeta: en un iPhone se leían "Delayed 15 min · Yahoo Finance · 08:57 AM" y
+// la línea de fuente de la propia tarjeta píxel sobre píxel, y el enlace
+// "¿Qué es este índice?" desaparecía tragado por el fondo de .home-body.
+//
+// Por eso Hero.astro lo monta FUERA de <section class="hero">, como hermano
+// suyo: así el z-index: 50 se mide contra el bottom nav (40) y la búsqueda
+// (60), que es lo que este componente siempre quiso decir. **No lo metas
+// dentro del hero ni de .hero-world**: cualquier ancestro con z-index (o con
+// transform, filter o will-change, que también abren contexto) vuelve a
+// encerrarlo y el bug regresa igual de invisible. Hay prueba: world-sheet.test.mjs.
+//
+// Y el fondo es OPACO a propósito (--bg-3, sin color-mix ni alfa): la tarjeta
+// tapa contenido de verdad, y con cualquier transparencia se transparentaría
+// justo el texto del que se está separando.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import SourceChip from '../SourceChip.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+---
+<div class="world-sheet" id="world-sheet" hidden role="dialog" aria-labelledby="world-sheet-title">
+  <div class="world-sheet-card">
+    <div class="world-sheet-grab" aria-hidden="true"></div>
+    <button class="world-sheet-close" type="button" aria-label={t('aria.worldClose')}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <p class="world-sheet-title t-small" id="world-sheet-title"><span class="ws-city" data-city></span> <span aria-hidden="true">·</span> <span data-index></span></p>
+    <!-- El país encendido en el globo, dicho también con palabras: el color
+         solo no vale, y quien no ve el lienzo tiene que enterarse igual. -->
+    <p class="world-sheet-country t-caption" data-country-line><span data-country></span></p>
+    <p class="world-sheet-price"><span class="num ws-price" data-price>—</span> <span class="num ws-chg muted" data-chg>—</span></p>
+    <p class="world-sheet-hours t-caption" data-hours>—</p>
+    {/* La línea de fuente y hora de la tarjeta. Mientras está abierta, la del
+        hero (#chip-world) se aparta: dicen exactamente lo mismo y una encima de
+        otra no se leía ninguna. Lo hace Hero.astro con la clase .is-world-open
+        que world-markets.ts pone en <html>. */}
+    <SourceChip locale={locale} id="chip-world-sheet" source="Yahoo Finance" delay={15} />
+    <a class="world-sheet-link t-small" data-link href={route('market', locale)}>{t('world.what')}</a>
+  </div>
+</div>
+
+<style>
+  /* Bottom sheet fijo sobre el bottom nav en móvil; tarjeta abajo a la derecha
+     en escritorio. Entra deslizándose; con menos movimiento aparece y ya
+     (base.css anula las transiciones).
+
+     z-index 50: encima del bottom nav (40) y de los avisos (45), debajo de la
+     búsqueda (60) y del glosario (70). Este número SOLO significa eso porque el
+     componente cuelga del contexto de apilamiento raíz — ver la cabecera. */
+  .world-sheet {
+    position: fixed; left: 0; right: 0; bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px));
+    z-index: 50; display: flex; justify-content: center; pointer-events: none;
+  }
+  .world-sheet[hidden] { display: none; }
+  .world-sheet-card {
+    pointer-events: auto; position: relative; width: 100%; max-width: 520px;
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    /* OPACO. Ver la cabecera: nada de color-mix ni de rgba() aquí. */
+    background: var(--bg-3); border: 1px solid var(--line); border-bottom: 0;
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+    padding: var(--sp-2) var(--sp-4) var(--sp-4);
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet);
+    transform: translateY(104%); transition: transform .22s var(--ease-sheet);
+  }
+  .world-sheet.is-open .world-sheet-card { transform: none; }
+  .world-sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto var(--sp-1); }
+  .world-sheet-close { position: absolute; top: var(--sp-2); right: var(--sp-2); width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: var(--r-btn); color: var(--ink-2); }
+  .world-sheet-close:hover { background: var(--bg-2); color: var(--ink); }
+  .world-sheet-title { margin-right: 48px; color: var(--ink-2); }
+  .ws-city { color: var(--ink); font-weight: 600; }
+  /* El punto toma el color de la dirección del día, el mismo con el que se
+     enciende el país en el globo. */
+  .world-sheet-country { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); margin-top: -4px; }
+  .world-sheet-country::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--neutral); flex: none; }
+  .world-sheet-country.up::before { background: var(--up); }
+  .world-sheet-country.down::before { background: var(--down); }
+  .world-sheet-price { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; }
+  .ws-price { font-size: 1.5rem; line-height: 1.75rem; letter-spacing: -.01em; }
+  .world-sheet-hours { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); }
+  .world-sheet-hours::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; }
+  .world-sheet-hours.is-open::before { background: var(--up); }
+  .world-sheet-link { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .world-sheet-link:hover { color: var(--brand-text); }
+  @media (min-width: 768px) {
+    .world-sheet { left: auto; right: var(--sp-6); bottom: var(--sp-6); }
+    .world-sheet-card { width: 360px; border-bottom: 1px solid var(--line); border-radius: var(--r-card); box-shadow: 0 12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet); }
+    .world-sheet-grab { display: none; }
+  }
+</style>

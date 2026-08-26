@@ -1,30 +1,34 @@
 ---
 // Globo de mercados, la parte en HTML: la barra de ocho chips (ciudad ·
-// ▲▼Δ % · punto abierto/cerrado) y la tarjeta que se abre al tocar un chip o
-// un marcador del globo. Los chips van en el HTML desde el primer pintado
-// (cero CLS y lista legible sin JS); src/scripts/world-markets.ts los rellena
-// con /api/world y habla con el globo por eventos (world:data, world:select,
-// globe:marker). La tarjeta es un bottom sheet sobre el bottom nav en móvil y
-// una tarjeta abajo a la derecha en escritorio; cierra con ✕, Esc, toque
-// fuera o deslizando hacia abajo.
+// ▲▼Δ % · punto abierto/cerrado). Los chips van en el HTML desde el primer
+// pintado (cero CLS y lista legible sin JS); src/scripts/world-markets.ts los
+// rellena con /api/world y habla con el globo por eventos (world:data,
+// world:select, globe:marker).
 //
 // DÓNDE VA: dentro del hero, justo debajo del globo (Hero.astro). No lleva
 // título de sección — el "toca una ciudad" de la propia barra dice lo que hay
 // que saber — ni márgenes propios: el hueco y el ancho los pone el hero, que
 // la mete en su .container.
 //
-// EL CHIP DE FUENTE DE LA BARRA (#chip-world) NO ESTÁ AQUÍ: vive en Hero.astro,
-// al final del hero. Pegado debajo de los ocho chips se leía como una novena
-// ciudad; abajo del todo se lee como el pie del hero. Sigue siendo este script
-// (world-markets.ts) el que lo pone al día por id, así que moverlo de sitio en
-// el DOM no cambia nada de la lógica. El de la tarjeta (#chip-world-sheet) sí
-// se queda aquí, dentro de la tarjeta.
+// DOS COSAS QUE ESTE COMPONENTE MUEVE Y NO CONTIENE. Las dos las sigue
+// llevando este mismo guion (world-markets.ts), que las busca por id: cambiar
+// dónde cuelgan del DOM no toca ni una línea de lógica.
+//
+//   #chip-world   el chip de fuente de la barra (retraso · Yahoo · hora), en
+//                 Hero.astro al final del hero. Pegado debajo de los ocho
+//                 chips se leía como una novena ciudad; abajo del todo se lee
+//                 como el pie del hero.
+//   #world-sheet  la tarjeta que se abre al tocar una ciudad, en
+//                 WorldSheet.astro y montada FUERA del hero. Aquí dentro
+//                 quedaba encerrada en el contexto de apilamiento de
+//                 .hero-world (z-index 3) y se pintaba debajo del chip de
+//                 fuente y del cuerpo de la página. La cabecera de
+//                 WorldSheet.astro lo cuenta entero.
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
 import { EXCHANGES } from '../../data/world';
 import { bySymbolId, assetRouteId } from '../../data/symbols';
-import SourceChip from '../SourceChip.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -51,23 +55,6 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
       </li>
     ))}
   </ul>
-</div>
-
-<div class="world-sheet" id="world-sheet" hidden role="dialog" aria-labelledby="world-sheet-title">
-  <div class="world-sheet-card">
-    <div class="world-sheet-grab" aria-hidden="true"></div>
-    <button class="world-sheet-close" type="button" aria-label={t('aria.worldClose')}>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
-    <p class="world-sheet-title t-small" id="world-sheet-title"><span class="ws-city" data-city></span> <span aria-hidden="true">·</span> <span data-index></span></p>
-    <!-- El país encendido en el globo, dicho también con palabras: el color
-         solo no vale, y quien no ve el lienzo tiene que enterarse igual. -->
-    <p class="world-sheet-country t-caption" data-country-line><span data-country></span></p>
-    <p class="world-sheet-price"><span class="num ws-price" data-price>—</span> <span class="num ws-chg muted" data-chg>—</span></p>
-    <p class="world-sheet-hours t-caption" data-hours>—</p>
-    <SourceChip locale={locale} id="chip-world-sheet" source="Yahoo Finance" delay={15} />
-    <a class="world-sheet-link t-small" data-link href={route('market', locale)}>{t('world.what')}</a>
-  </div>
 </div>
 
 <style>
@@ -104,49 +91,6 @@ const hrefOf = (asset?: string) => (asset && bySymbolId(asset) ? route(assetRout
   .wm-chg { min-width: 8ch; text-align: right; }
   @media (min-width: 768px) {
     .world-chips { flex-wrap: wrap; overflow: visible; mask-image: none; -webkit-mask-image: none; }
-  }
-
-  /* La tarjeta: bottom sheet fijo sobre el bottom nav en móvil; tarjeta abajo
-     a la derecha en escritorio. Entra deslizándose; con menos movimiento
-     aparece y ya (base.css anula las transiciones). z-index 50: encima del
-     bottom nav (40), debajo de la búsqueda (60). */
-  .world-sheet {
-    position: fixed; left: 0; right: 0; bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px));
-    z-index: 50; display: flex; justify-content: center; pointer-events: none;
-  }
-  .world-sheet[hidden] { display: none; }
-  .world-sheet-card {
-    pointer-events: auto; position: relative; width: 100%; max-width: 520px;
-    display: flex; flex-direction: column; gap: var(--sp-2);
-    background: var(--bg-3); border: 1px solid var(--line); border-bottom: 0;
-    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-    padding: var(--sp-2) var(--sp-4) var(--sp-4);
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet);
-    transform: translateY(104%); transition: transform .22s var(--ease-sheet);
-  }
-  .world-sheet.is-open .world-sheet-card { transform: none; }
-  .world-sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto var(--sp-1); }
-  .world-sheet-close { position: absolute; top: var(--sp-2); right: var(--sp-2); width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: var(--r-btn); color: var(--ink-2); }
-  .world-sheet-close:hover { background: var(--bg-2); color: var(--ink); }
-  .world-sheet-title { margin-right: 48px; color: var(--ink-2); }
-  .ws-city { color: var(--ink); font-weight: 600; }
-  /* El punto toma el color de la dirección del día, el mismo con el que se
-     enciende el país en el globo. */
-  .world-sheet-country { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); margin-top: -4px; }
-  .world-sheet-country::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--neutral); flex: none; }
-  .world-sheet-country.up::before { background: var(--up); }
-  .world-sheet-country.down::before { background: var(--down); }
-  .world-sheet-price { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; }
-  .ws-price { font-size: 1.5rem; line-height: 1.75rem; letter-spacing: -.01em; }
-  .world-sheet-hours { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); }
-  .world-sheet-hours::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; }
-  .world-sheet-hours.is-open::before { background: var(--up); }
-  .world-sheet-link { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
-  .world-sheet-link:hover { color: var(--brand-text); }
-  @media (min-width: 768px) {
-    .world-sheet { left: auto; right: var(--sp-6); bottom: var(--sp-6); }
-    .world-sheet-card { width: 360px; border-bottom: 1px solid var(--line); border-radius: var(--r-card); box-shadow: 0 12px 40px rgba(0, 0, 0, .35), var(--shadow-sheet); }
-    .world-sheet-grab { display: none; }
   }
 </style>
 <script src="../../scripts/world-markets.ts"></script>
