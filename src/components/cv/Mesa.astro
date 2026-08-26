@@ -144,7 +144,15 @@ const estado = (rep.meta.status || 'draft') as string;
     data-cinta data-loc={locale} data-strings={cintaStrings}>
     <div class="sec-head">
       <h2 id={`cv-tape-${p}`} class="t-h2">{c.tape.h}</h2>
-      <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" />
+      <!-- `inicio="unavailable"`: el chip NACE diciendo "sin datos", y lo pasa
+           a "cargando…" el módulo cuando pide. Con el "cargando…" de omisión,
+           un navegador sin JavaScript se quedaba con un chip cargando para
+           siempre — el mismo esqueleto latiendo que los precios de abajo
+           evitan naciendo como rayas, y una promesa rota: dos párrafos más
+           abajo esta página dice que si el endpoint no contesta el chip lo
+           dice. Ahora los tres estados son verdad en el instante en que se
+           leen. -->
+      <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
     </div>
     <p class="t-small muted">{c.tape.lede}</p>
     <ul class="cinta">

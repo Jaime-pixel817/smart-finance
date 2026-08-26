@@ -5,12 +5,23 @@
 // rellena data-ts y la hora con el updatedAt real del endpoint.
 import type { Locale } from '../i18n/routes';
 import { useT } from '../i18n/ui';
-interface Props { locale: Locale; source: string; delay?: number; id?: string; note?: string; class?: string }
-const { locale, source, delay, id, note, class: cls } = Astro.props;
+// `inicio` = con qué estado NACE el chip en el HTML servido, antes de que
+// ningún guion corra. Por omisión 'loading', que es lo correcto en una página
+// cuyo módulo va a pedir el dato en cuanto cargue.
+//
+// 'unavailable' es para las páginas donde el HTML tiene que ser verdad
+// TAMBIÉN si el guion no llega nunca — hoy solo /cv/<codigo>, que se reparte
+// a gente que puede tener el JavaScript apagado. Un chip que dice "cargando…"
+// para siempre es el mismo esqueleto latiendo que esa página evita en los
+// precios: se sirve "sin datos", que es cierto mientras nadie haya pedido
+// nada, y el módulo lo pasa a "cargando…" en el instante en que pide.
+interface Props { locale: Locale; source: string; delay?: number; id?: string; note?: string; class?: string; inicio?: 'loading' | 'unavailable' }
+const { locale, source, delay, id, note, class: cls, inicio = 'loading' } = Astro.props;
 const t = useT(locale);
 const delayText = delay ? `${t('src.delayed')} ${delay} ${t('src.min')}` : '';
+const sinDato = inicio === 'unavailable';
 ---
-<span class:list={['src-chip', cls]} id={id} data-fresh="loading" data-source={source} data-delay={delay}>
+<span class:list={['src-chip', cls]} id={id} data-fresh={sinDato ? 'error' : 'loading'} data-source={source} data-delay={delay}>
   <span class="dot" aria-hidden="true"></span>
   {delayText && <span class="sc-delay">{delayText}</span>}
   {delayText && <span aria-hidden="true">·</span>}
@@ -18,5 +29,5 @@ const delayText = delay ? `${t('src.delayed')} ${delay} ${t('src.min')}` : '';
   {note && <span aria-hidden="true">·</span>}
   {note && <span class="sc-note">{note}</span>}
   <span aria-hidden="true" class="sc-sep">·</span>
-  <span class="sc-time">{t('src.loading')}</span>
+  <span class="sc-time">{sinDato ? t('src.unavailable') : t('src.loading')}</span>
 </span>
