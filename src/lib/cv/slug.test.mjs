@@ -1,17 +1,25 @@
-// Pruebas de la dirección del CV. Lo que se protege aquí es una promesa que
-// fallaba EN VERDE, que es la peor clase de fallo: sin `CV_SLUG`, un build de
-// Vercel publicaba /cv/vista-previa —byte a byte la misma página que la
-// privada— en una dirección escrita en texto plano en este repositorio
-// público, con el build en éxito y sin un solo aviso.
+// Pruebas de la dirección del CV. Lo que se protege aquí son dos promesas, y
+// las dos fallaban EN VERDE, que es la peor clase de fallo:
+//
+//   1. Sin `CV_SLUG`, un build de Vercel NO puede publicar el CV. Antes
+//      publicaba /cv/vista-previa —byte a byte la misma página que la privada—
+//      en una dirección escrita en texto plano en este repositorio público, con
+//      el build en éxito y sin un solo aviso.
+//   2. El código tiene que ser inadivinable. Antes 'abc', 'jaime', 'mi-cv' y
+//      'hola' construían en silencio.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { slugCv, esVistaPrevia, decidirCv, rutasCv, enVercel, RESPALDO } from './slug.mjs';
+import {
+  slugCv, esVistaPrevia, decidirCv, rutasCv, enVercel,
+  RESPALDO, MINIMO, MAXIMO, DISTINTOS_MINIMO
+} from './slug.mjs';
 
-const BUENO = 'mesa-de-operaciones-9';
+// Un slug de los que saca `npm run cv:codigo`: 20 caracteres sorteados.
+const BUENO = 'k7q2mx9v4blz8ndr3wct';
 const rutas = (env) => rutasCv(env, { avisar: false });
 
 // ───────────────────────────────────────────────────────────────────────────
-// Los tres escenarios del build
+// SERIO 1 — los tres escenarios del build
 // ───────────────────────────────────────────────────────────────────────────
 
 test('con CV_SLUG se emite UNA ruta, la de verdad, en cualquier máquina', () => {
@@ -28,8 +36,8 @@ test('con CV_SLUG se emite UNA ruta, la de verdad, en cualquier máquina', () =>
 
 test('sin CV_SLUG y FUERA de Vercel: vista previa pública (es la que mide Lighthouse)', () => {
   for (const entorno of [
-    {},                                    // npm run build a secas
-    { CV_SLUG: '' },                       // CV_SLUG= npm run build
+    {},                                  // npm run build a secas
+    { CV_SLUG: '' },                     // CV_SLUG= npm run build
     { CV_SLUG: '   ' },
     { CV_SLUG: undefined },
     { CI: 'true', GITHUB_ACTIONS: 'true' } // el CI de GitHub
@@ -83,47 +91,153 @@ test('slugCv NO devuelve nunca el nombre público, ni con la entrada vacía', ()
 });
 
 // ───────────────────────────────────────────────────────────────────────────
-// Forma del valor
+// SERIO 2 — el código tiene que ser inadivinable
 // ───────────────────────────────────────────────────────────────────────────
 
-test('un slug normal se respeta TAL CUAL, quitándole el espacio de alrededor', () => {
-  assert.equal(slugCv('abc123'), 'abc123');
-  assert.equal(slugCv('  mesa-de-operaciones-9  '), 'mesa-de-operaciones-9');
-  assert.equal(slugCv('mesa-de-operaciones-9\n'), 'mesa-de-operaciones-9');
-  assert.equal(slugCv('a-b-c'), 'a-b-c');
-  assert.ok(!esVistaPrevia(slugCv('abc123')));
+test('los cuatro slugs que construían en silencio ahora tumban el build', () => {
+  // Comprobados por el revisor: CV_SLUG=abc, =jaime, =mi-cv y =hola salían en
+  // verde. 'jaime' se adivina al primer intento.
+  for (const malo of ['abc', 'jaime', 'mi-cv', 'hola']) {
+    assert.throws(() => slugCv(malo), /CV_SLUG/, 'debería rechazar: ' + malo);
+  }
 });
+
+test('el mínimo de longitud son ' + MINIMO + ' caracteres, y el máximo ' + MAXIMO, () => {
+  assert.equal(MINIMO, 20);
+  assert.equal(MAXIMO, 64);
+  // Uno de 19 sorteados no pasa; el mismo con un carácter más, sí.
+  assert.throws(() => slugCv('k7q2mx9v4blz8ndr3wc'), /entre 20 y 64/);
+  assert.equal(slugCv('k7q2mx9v4blz8ndr3wct'), 'k7q2mx9v4blz8ndr3wct');
+  // El máximo: 64 pasa, 65 no.
+  const largo = 'k7q2mx9v4blz8ndr3wct';
+  const de64 = (largo + '-').repeat(4).slice(0, 64).replace(/-$/, 'z');
+  assert.equal(de64.length, 64);
+  assert.equal(slugCv(de64), de64);
+  assert.throws(() => slugCv(de64 + 'a'), /entre 20 y 64/);
+});
+
+test('el mensaje del mínimo explica POR QUÉ, no solo que es corto', () => {
+  // Una regla sin su motivo se salta; una con la cuenta delante, no.
+  try {
+    slugCv('mi-cv-privado-2026');
+    assert.fail('debería haber lanzado');
+  } catch (e) {
+    assert.match(e.message, /adivinar|espacio de nombres/);
+    assert.match(e.message, /cv:codigo/, 'tiene que decir cómo sacar uno bueno');
+  }
+});
+
+test('el largo no se rellena repitiendo: hacen falta ' + DISTINTOS_MINIMO + ' caracteres distintos', () => {
+  assert.equal(DISTINTOS_MINIMO, 8);
+  for (const malo of [
+    'x'.repeat(20),          // 1 distinto, y antes pasaba: la prueba vieja lo daba por bueno
+    'x'.repeat(64),
+    'ababababababababababab',
+    'aaaa-bbbb-cccc-dddd-eeee'
+  ]) {
+    assert.throws(() => slugCv(malo), /distintos/, 'debería rechazar: ' + malo);
+  }
+  // Un slug sorteado tiene 15.5 distintos de media; ocho no estorba a nadie.
+  assert.equal(new Set(BUENO).size >= DISTINTOS_MINIMO, true);
+});
+
+test('lo evidentemente adivinable no se salva por medir 20', () => {
+  // Esto es lo que escribe quien tiene que inventarse veinte caracteres.
+  for (const malo of [
+    'jaime-sandoval-ricano',
+    'jaime-sandoval-curriculum-2026',
+    'curriculum-vitae-de-jaime',
+    'smartfinance-curriculum-jaime',
+    'mi-curriculum-para-toronto',
+    'el-portafolio-de-jaime-2026',
+    'esto-es-secreto-de-verdad-ya',
+    'la-mesa-de-jaime-sandoval',
+    'codigo-privado-para-uoft-2027',
+    'universidad-de-toronto-solicitud'
+  ]) {
+    assert.throws(() => slugCv(malo), /CV_SLUG/, 'debería rechazar: ' + malo);
+  }
+});
+
+test('la lista de palabras no rechaza slugs sorteados de verdad', () => {
+  // Si la regla tuviera falsos positivos a menudo, se acabaría quitando. Se
+  // comprueba con slugs generados como los del comando, no con inventados.
+  const alfabeto = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let semilla = 20260826;
+  const azar = () => (semilla = (semilla * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let i = 0; i < 2000; i++) {
+    let s = '';
+    for (let j = 0; j < MINIMO; j++) s += alfabeto[Math.floor(azar() * 36)];
+    assert.equal(slugCv(s), s, 'un slug sorteado no puede rechazarse: ' + s);
+  }
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Forma, nombres reservados y lo que no puede acabar en un registro
+// ───────────────────────────────────────────────────────────────────────────
 
 test('las mayúsculas se RECHAZAN, no se convierten', () => {
   // Esto llegó a pasar: con toLowerCase() el build emitía dist/cv/abc-123-xyz
   // sin decir nada, y el campo de /about mandaba a /cv/ABC-123-XYZ, que en un
   // CDN que distingue mayúsculas es un 404. Un código repartido que no abre
   // nada es peor que un build rojo, porque no avisa.
-  for (const malo of ['ABC-123-XYZ', 'Mesa-De-Operaciones-9', 'mesaX', 'MESA']) {
-    assert.throws(() => slugCv(malo), /CV_SLUG/, 'debería rechazar: ' + malo);
+  for (const malo of ['K7Q2MX9V4BLZ8NDR3WCT', 'k7q2Mx9v4blz8ndr3wct', 'MESA']) {
+    assert.throws(() => slugCv(malo), /MAY[ÚU]SCULAS/, 'debería rechazar: ' + malo);
   }
   // Y la salida NUNCA cambia de caja: lo que entra bien, sale igual.
-  assert.equal(slugCv('mesa-de-operaciones-9'), 'mesa-de-operaciones-9');
+  assert.equal(slugCv(BUENO), BUENO);
 });
 
 test('lo que no puede ser un segmento de URL tumba el build', () => {
   for (const malo of [
-    'con/barra', 'con espacio', 'acentuado-ñ', 'con.punto', 'con_guion_bajo',
-    '-empieza-con-guion', 'termina-con-guion-', 'ab', 'x'.repeat(65), '..', '%2e%2e'
+    'k7q2mx9v4blz/8ndr3wct', 'k7q2mx9v4 blz8ndr3wct', 'k7q2mx9v4blz8ndr3wcñ',
+    'k7q2mx9v4blz.8ndr3wct', 'k7q2mx9v4blz_8ndr3wct', '-7q2mx9v4blz8ndr3wct',
+    'k7q2mx9v4blz8ndr3wc-', '..', '%2e%2e', 'k7q2mx9v4blz8ndr3wct/../secreto'
   ]) {
     assert.throws(() => slugCv(malo), /CV_SLUG/, 'debería rechazar: ' + malo);
   }
 });
 
-test('el mensaje de error no repite el valor', () => {
-  // Un error de build se queda escrito en los registros de Vercel: el slug no
-  // puede acabar ahí ni siquiera cuando está mal escrito.
-  const secreto = 'este/es/el/secreto';
+test('CV_SLUG=vista-previa se rechaza: es el nombre PÚBLICO', () => {
+  // Ponerlo a mano construye exactamente la página que mide Lighthouse y que
+  // puede abrir cualquiera, creyendo haber configurado una privada.
   try {
-    slugCv(secreto);
+    slugCv(RESPALDO);
     assert.fail('debería haber lanzado');
   } catch (e) {
-    assert.ok(!e.message.includes('secreto'), 'el mensaje no puede llevar el valor');
-    assert.ok(!e.message.includes(secreto));
+    assert.match(e.message, /reservado/);
+    assert.match(e.message, /p[úu]blica/i);
   }
+  // Pero el respaldo SÍ se emite cuando lo decide decidirCv() fuera de Vercel.
+  assert.deepEqual(rutas({}), [{ params: { codigo: RESPALDO } }]);
+});
+
+test('ningún mensaje de error repite el valor', () => {
+  // Un error de build se queda escrito en los registros de Vercel: el slug no
+  // puede acabar ahí ni siquiera cuando está mal escrito. Se prueba con un
+  // valor de cada rama del `throw`.
+  const malos = [
+    'este/es/el/secreto',        // forma
+    'K7Q2MX9V4BLZ8NDR3WCT',      // mayúsculas
+    'corto',                     // longitud
+    'q'.repeat(20),              // repetición
+    'jaime-sandoval-ricano',     // palabra adivinable
+    ''                           // vacío
+  ];
+  for (const malo of malos) {
+    try {
+      slugCv(malo);
+      assert.fail('debería haber lanzado con: ' + malo);
+    } catch (e) {
+      assert.ok(!e.message.includes(malo) || malo === '',
+        'el mensaje no puede llevar el valor: ' + malo);
+    }
+  }
+});
+
+test('el nombre reservado SÍ sale en su mensaje, y da igual', () => {
+  // Es la única excepción a la regla de arriba, y no es un descuido:
+  // 'vista-previa' es una constante escrita en este repositorio público. Ningún
+  // valor que llegue a esa rama puede ser un secreto: solo llega ese.
+  assert.throws(() => slugCv(RESPALDO), /VISTA PREVIA/);
 });

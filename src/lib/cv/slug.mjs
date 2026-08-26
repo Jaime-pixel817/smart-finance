@@ -8,9 +8,12 @@
 // cualquier otra URL que no existe. Eso es lo que hace que no se pueda probar
 // códigos contra el sitio ni leer la respuesta buena en el código fuente.
 //
-// Lo que SÍ se comprueba, y no es lo mismo, es el valor que Jaime escribe en
+// Lo que SÍ se valida, y no es lo mismo, es el valor que Jaime escribe en
 // `CV_SLUG` ANTES de construir. Ahí no hay ningún visitante: hay una persona
-// configurando un despliegue, y una persona se equivoca.
+// configurando un despliegue, y una persona se equivoca. Las dos cosas que
+// comprueba este módulo —que el build de producción tenga dirección, y que la
+// dirección sea inadivinable— son justo las dos que, si fallan, fallan EN
+// VERDE: el build sale con éxito y el CV queda publicado donde no debía.
 //
 // El slug ENTRA POR `CV_SLUG` Y NO SE COMMITEA. Vive en las variables de
 // entorno de Vercel y en el .env.local de Jaime; este repositorio es público.
@@ -31,14 +34,134 @@
 export const RESPALDO = 'vista-previa';
 
 /**
- * Forma admitida de un slug: minúsculas, dígitos y guiones, de 3 a 64
- * caracteres, sin empezar ni terminar en guion. No es una validación DEL
- * CÓDIGO (no hay código correcto que comparar): es la comprobación de que lo
- * que se escribió en la variable de entorno puede ser un segmento de URL. Un
- * valor con `/`, con espacios o con acentos escribiría el archivo en otro
- * sitio o en una ruta que el navegador codifica de otra forma.
+ * Longitud mínima de un slug, y de dónde sale el 20.
+ * ══════════════════════════════════════════════════════════════════════════
+ * Todo el apartado descansa en UNA cosa: que la dirección no se pueda
+ * adivinar. No hay contraseña, no hay sesión y no hay servidor que cuente
+ * intentos — hay un CDN que sirve un archivo estático si el nombre acierta y
+ * un 404 si no. Un 404 no le cuesta nada a quien prueba. Así que la única
+ * defensa es el tamaño del espacio de nombres, y eso es una cuenta:
+ *
+ *   Alfabeto: 36 caracteres (a-z0-9). La forma admite además el guion, pero
+ *   `npm run cv:codigo` no lo genera y contar 36 en vez de 37 solo hace la
+ *   cuenta MÁS conservadora.
+ *
+ *   Atacante: 10 000 peticiones por segundo, sostenidas, para siempre, sin
+ *   límite de peticiones, sin WAF y sin que le cueste dinero. Es más de lo que
+ *   Vercel deja hacer, y está puesto a propósito por encima de lo real.
+ *   → 3.16 × 10^11 intentos al año; 3.16 × 10^12 en diez años.
+ *
+ *   Objetivo: que tras DIEZ AÑOS de eso la probabilidad de haber acertado sea
+ *   menor que 1 entre mil millones (10⁻⁹). Como cada intento es una dirección
+ *   distinta, esa probabilidad es intentos / 36^N.
+ *   → 36^N ≥ 3.16 × 10^12 / 10⁻⁹ = 3.16 × 10^21 → N ≥ 13.81, o sea 14.
+ *
+ * O sea: catorce caracteres ya pasan un listón deliberadamente paranoico. El
+ * mínimo es 20, seis por encima, por tres razones:
+ *
+ *   1. **Esta regla mide LARGO, no azar.** 36^N es el tamaño del espacio solo
+ *      si cada carácter se sorteó. Una persona eligiendo a mano saca mucho
+ *      menos de 5.17 bits por carácter, y este número es el suelo para todos
+ *      los valores, no solo para los que salen del generador. Los seis
+ *      caracteres de más son el colchón que sostiene la cuenta cuando el slug
+ *      no es perfectamente aleatorio.
+ *   2. **No cuesta nada.** El código se pega en un formulario o en un correo;
+ *      nadie lo teclea de memoria. Veinte caracteres ocupan lo mismo que
+ *      catorce: un renglón.
+ *   3. **Deja el asunto cerrado.** 20 × log₂36 = 103.4 bits, contra los 72.4
+ *      de 14. Está dentro de lo que se le pide normalmente a una URL que ES la
+ *      credencial, así que no hay que volver a discutir el número.
+ *
+ * Con N = 20 el espacio son 1.34 × 10^31 direcciones. El atacante de arriba
+ * cubre 3.16 × 10^12 en diez años: probabilidad 2.4 × 10⁻¹⁹. Para llegar
+ * siquiera a una probabilidad de 1 entre un millón necesitaría 4.2 × 10^13
+ * años, unas tres mil veces la edad del universo. Aun con mil millones de
+ * peticiones por segundo (un millón de máquinas a mil cada una), diez años dan
+ * 2.4 × 10⁻¹⁴.
+ *
+ * El máximo (64) no es seguridad, es higiene: es un nombre de archivo y un
+ * segmento de URL, y a partir de ahí deja de poder pegarse en un renglón.
  */
-const FORMA = /^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$/;
+export const MINIMO = 20;
+export const MAXIMO = 64;
+
+/**
+ * Caracteres DISTINTOS mínimos, para que el largo no se rellene repitiendo.
+ *
+ * `MINIMO` solo cuenta caracteres, así que 'xxxxxxxxxxxxxxxxxxxx' mide 20 y
+ * pasaría — con un espacio de búsqueda real de 36, no de 36^20. Ocho distintos
+ * lo tapa sin estorbar a nadie: la distribución exacta del número de valores
+ * distintos en 20 extracciones de 36 (calculada con los números de Stirling de
+ * segunda especie) da P(distintos ≤ 7) = 3.6 × 10⁻⁸, o sea que rechazaría un
+ * slug generado de verdad una vez cada 28 millones. La media son 15.5.
+ */
+export const DISTINTOS_MINIMO = 8;
+
+/**
+ * Forma admitida: minúsculas, dígitos y guiones, sin empezar ni terminar en
+ * guion. Esto NO es la comprobación de fuerza (esa es el largo y las de abajo):
+ * es la de que el valor puede ser un segmento de URL. Un valor con `/`, con
+ * espacios o con acentos escribiría el archivo en otro sitio o en una ruta que
+ * el navegador codifica de otra forma. El largo se comprueba aparte para poder
+ * decir cuál de las dos cosas está mal.
+ */
+const FORMA = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+
+/**
+ * Nombres que NO pueden ser el código, cada uno por su motivo, y cada uno con
+ * su mensaje. Se comprueban ANTES que el largo para que el error diga la razón
+ * de verdad y no "es corto".
+ *
+ * - `vista-previa`: es el RESPALDO público, escrito en este repositorio.
+ *   Ponerlo en CV_SLUG construye exactamente la página que Lighthouse mide y
+ *   que cualquiera puede abrir, creyendo haber configurado una privada. Es el
+ *   fallo en verde de este archivo, escrito a mano.
+ */
+const RESERVADOS = new Map([
+  [RESPALDO, 'es el nombre de la VISTA PREVIA pública: está escrito en este repositorio, en lighthouserc.json y en package.json, y lo puede abrir cualquiera']
+]);
+
+/**
+ * Palabras que hacen adivinable un slug aunque mida 20. Sin esto, la regla del
+ * largo se esquiva sola: quien tenga que inventar veinte caracteres escribe
+ * `jaime-sandoval-curriculum-2026`, que mide 30 y se adivina al segundo
+ * intento. Una regla que estorba se acaba esquivando; por eso hay
+ * `npm run cv:codigo`, que saca uno bueno en un segundo.
+ *
+ * Dos listas, y la diferencia importa:
+ *
+ * - `PALABRAS` se busca como SUBCADENA, y por eso todas miden 5 o más. Un slug
+ *   aleatorio de 20 caracteres contiene una palabra concreta de 5 con
+ *   probabilidad 16/36⁵ ≈ 2.6 × 10⁻⁷; con toda la lista, del orden de 10⁻⁶.
+ * - `PIEZAS` se compara ENTERA contra cada trozo separado por guiones. Ahí
+ *   caben las cortas: buscar 'cv' como subcadena rechazaría un 1.4 % de los
+ *   slugs generados, y como pieza no puede rechazar ninguno (un slug generado
+ *   no lleva guiones y mide 20, así que nunca es igual a 'cv').
+ */
+const PALABRAS = [
+  'jaime', 'sandoval', 'ricano', 'smartfinance', 'smart-finance', 'finance',
+  'finanzas', 'curriculum', 'resume', 'hojadevida', 'hoja-de-vida', 'vitae',
+  'toronto', 'admision', 'admission', 'universidad', 'university', 'secreto',
+  'secret', 'privado', 'private', 'password', 'contrasena', 'prueba',
+  'preview', 'vista', 'previa', 'ejemplo', 'example', 'portafolio',
+  'portfolio', 'la-mesa', 'lamesa'
+];
+
+const PIEZAS = new Set([
+  'cv', 'abc', 'abcd', 'hola', 'hello', 'mesa', 'test', 'demo', 'dev', 'prod',
+  'mi', 'mio', 'yo', 'me', 'my', 'admin', 'home', 'index', 'jaime', 'uoft',
+  'ut', 'sf', '2025', '2026', '2027', '2028'
+]);
+
+/** Cuántos caracteres distintos tiene una cadena. */
+function distintos(s) {
+  return new Set(s).size;
+}
+
+/** El final de todos los mensajes: qué hacer, sin repetir nunca el valor. */
+const QUE_HACER =
+  ' El valor no se imprime aquí a propósito: un error de build acaba escrito en los registros de Vercel. ' +
+  'Saca uno bueno con `npm run cv:codigo` y ponlo en CV_SLUG (Vercel → Settings → Environment Variables, y .env.local en tu máquina).';
 
 /**
  * Valida el valor de `CV_SLUG` y devuelve la dirección que se va a repartir.
@@ -83,15 +206,48 @@ export function slugCv(valor) {
   if (!s) {
     throw new Error(
       'CV_SLUG está vacía y esta función no decide el respaldo: quien decide qué se emite sin variable es decidirCv() (src/lib/cv/slug.mjs), ' +
-      'que además mira si el build corre en Vercel.'
+      'que además mira si el build corre en Vercel.' + QUE_HACER
+    );
+  }
+
+  const reservado = RESERVADOS.get(s);
+  if (reservado) {
+    throw new Error(
+      'CV_SLUG usa un nombre reservado que no puede ser el código del CV: ' + reservado + '.' + QUE_HACER
     );
   }
 
   if (!FORMA.test(s)) {
     throw new Error(
-      'CV_SLUG no tiene forma de segmento de URL (3-64 caracteres: minúsculas, dígitos y guiones, sin empezar ni terminar en guion). ' +
-      'OJO CON LAS MAYÚSCULAS: no se convierten, se rechazan — el archivo se llamaría distinto de lo que teclee quien reciba el código, y el CDN distingue. ' +
-      'El valor no se imprime aquí a propósito: un error de build acaba escrito en los registros de Vercel. Corrígelo en las variables de entorno.'
+      'CV_SLUG no tiene forma de segmento de URL (solo minúsculas, dígitos y guiones, sin empezar ni terminar en guion). ' +
+      'OJO CON LAS MAYÚSCULAS: no se convierten, se rechazan — el archivo se llamaría distinto de lo que teclee quien reciba el código, y el CDN distingue.' +
+      QUE_HACER
+    );
+  }
+
+  if (s.length < MINIMO || s.length > MAXIMO) {
+    throw new Error(
+      'CV_SLUG tiene que medir entre ' + MINIMO + ' y ' + MAXIMO + ' caracteres y la tuya no. ' +
+      'El mínimo NO es un capricho: /cv/<codigo> no tiene contraseña ni servidor que cuente intentos, así que lo único que impide adivinarla es el tamaño del espacio de nombres. ' +
+      'Con ' + MINIMO + ' caracteres de [a-z0-9] son 1.34e31 direcciones: alguien probando 10 000 por segundo durante diez años tendría una probabilidad de 2.4e-19 de acertar. ' +
+      'Con 5 caracteres, esa misma probabilidad es 1 (la habría encontrado en menos de un día). La cuenta entera está en la cabecera de este archivo.' +
+      QUE_HACER
+    );
+  }
+
+  if (distintos(s) < DISTINTOS_MINIMO) {
+    throw new Error(
+      'CV_SLUG mide lo suficiente pero repite muy pocos caracteres distintos (hacen falta ' + DISTINTOS_MINIMO + '). ' +
+      'Rellenar el largo repitiendo deja el espacio de búsqueda real en nada, que es justo lo que el mínimo de ' + MINIMO + ' viene a impedir.' +
+      QUE_HACER
+    );
+  }
+
+  const palabra = PALABRAS.find((p) => s.includes(p)) || s.split('-').find((p) => PIEZAS.has(p));
+  if (palabra) {
+    throw new Error(
+      'CV_SLUG contiene una palabra adivinable, y con eso el largo no sirve de nada: quien busque el CV de Jaime prueba primero su nombre, el del sitio y la palabra "cv". ' +
+      'Un código no se inventa, se sortea.' + QUE_HACER
     );
   }
 

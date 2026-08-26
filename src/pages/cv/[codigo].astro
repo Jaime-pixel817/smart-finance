@@ -13,7 +13,9 @@
 // nada: no hay nada guardado que leer.
 //
 // Lo que sí se comprueba, y es otra cosa, es el VALOR de CV_SLUG antes de
-// construir. Eso no es validar al visitante, es no publicar el CV por descuido.
+// construir: que exista cuando construye Vercel y que no se pueda adivinar
+// (src/lib/cv/slug.mjs, con la cuenta escrita). Eso no es validar al visitante,
+// es no publicar el CV por descuido.
 //
 // Lo que esto NO hace, dicho de frente: no impide reenviar el enlace, no se
 // puede revocar sin cambiar la dirección, y `noindex` no es privacidad — es
