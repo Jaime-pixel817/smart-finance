@@ -7,6 +7,31 @@
 // public/assets/three-sf.js como script clásico que define window.THREE
 // (risk-sphere.js lo lee como global; así este cambio NO toca el globo).
 //
+// ─── EL PRESUPUESTO, MEDIDO EN ESTE MAC CON lighthouserc.json ──────────────
+// Mismo Mac, mismas 3 corridas, mediana, dist/ servido por lhci. La única
+// diferencia entre las dos columnas es de dónde sale three.js:
+//
+//                                CDN r128     propio 0.150.1
+//   three (transferido)           121 565         103 571
+//   risk-sphere.js                 36 730          36 730
+//   HOME script total             189 328         171 307   (−18 021)
+//   tope de lighthouserc.json     187 392         187 392
+//   margen                         −1 936         +16 085
+//   CLS                             0.000           0.000
+//   LCP                              2 724           2 731
+//   a11y                              1.00            1.00
+//   TBT                              82 ms           38 ms
+//
+// El 189 328 de aquí reproduce el 189 308 del runner de CI (20 B de ruido),
+// así que el −18 021 es trasladable. En PRODUCCIÓN el ahorro es mayor: Vercel
+// sirve brotli de verdad, 84 654 contra 120 830, o sea −36 176 B (−30 %).
+// Y se cae una conexión a un tercero (cdnjs): un origen menos que resolver,
+// negociar TLS y en el que confiar. La caché compartida entre sitios que
+// justificaba un CDN público lleva años muerta (particionado por origen).
+//
+// LO QUE NO ARREGLA: el globo sigue siendo el 82 % del JavaScript del home
+// (140 301 de 171 307). Esto lo hace más barato, no barato.
+//
 // Uso: node scripts/build-three.mjs   (o npm run build:three)
 //
 // ─── LO QUE PESA, MEDIDO (no citado) ───────────────────────────────────────
