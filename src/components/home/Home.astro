@@ -406,8 +406,11 @@ const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" prese
      Es CSS y nada más: `.spark` ya es `width/height: 100%` con
      `vector-effect: non-scaling-stroke` (base.css) y el SVG va con
      `preserveAspectRatio="none"`, así que la caja nueva estira la misma ruta
-     sin tocar el viewBox, `sparkPath()` ni un byte del guion del home — que
-     está a 1 916 bytes del tope de CI. */
+     sin tocar el viewBox, `sparkPath()` ni un byte del guion del home. Eso
+     último no es presumir: el home ya va POR ENCIMA del presupuesto de CI
+     (189 3xx bytes de script contra el tope de 187 392, ~1 930 de más, y así
+     estaba antes de tocar esto), así que un arreglo de diseño que costara
+     JavaScript no se podía pagar. */
   .tile { display: flex; flex-direction: column; width: 128px; height: 114px; padding: 10px 12px; background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); position: relative; transition: border-color var(--dur-2) var(--ease-std), transform var(--dur-1) var(--ease-out); }
   .tile:hover { border-color: var(--ink-3); }
   /* El hundido va DESPUÉS de la elevación: con ratón, al hacer clic valen las
