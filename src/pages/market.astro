@@ -3,6 +3,8 @@ import Base from '../layouts/Base.astro';
 import MarketList from '../components/market/MarketList.astro';
 import { SITE } from '../i18n/routes';
 import { ogPropia } from '../lib/og';
+import { useT } from '../i18n/ui';
+const t = useT('en');
 const title = 'Markets today: indexes, stocks, currencies and crypto — Smart Finance';
 const description = 'Index ETFs, four stocks, the VIX, six currency pairs and four cryptocurrencies, each with its own touch chart and card. Prices refresh every 15 minutes, never “live”.';
 const jsonLd = {
@@ -16,6 +18,7 @@ const jsonLd = {
 };
 ---
 <Base locale="en" routeId="market" active="markets" title={title} description={description}
+  ia={{ tipo: 'activo', id: 'spy', rango: '1D', sobre: t('ia.ctx.market') }}
   ogImage={ogPropia('market', 'en')} ogImageAlt="Smart Finance — Markets: indexes, stocks, currencies and crypto" jsonLd={jsonLd}>
   <MarketList locale="en" />
 </Base>

@@ -25,6 +25,7 @@ const jsonLd = {
 };
 ---
 <Base locale="es" routeId={routeId} active="markets" title={title} description={description}
-  ogImage={ogPropia('market-' + s.id, 'es')} ogImageAlt={`${s.name.es} (${s.sym}) — Mercados de Smart Finance`} jsonLd={jsonLd}>
+  ogImage={ogPropia('market-' + s.id, 'es')} ogImageAlt={`${s.name.es} (${s.sym}) — Mercados de Smart Finance`} jsonLd={jsonLd}
+  ia={{ tipo: 'activo', id: s.id, rango: '1M', sobre: s.name.es }}>
   <AssetPage locale="es" s={s} />
 </Base>

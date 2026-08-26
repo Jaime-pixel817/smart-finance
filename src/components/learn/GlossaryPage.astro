@@ -8,7 +8,6 @@ import { getLessons } from '../../data/lessons';
 import glossary from '../../data/glossary.json';
 import GlossarySheet from './GlossarySheet.astro';
 import ExplainButton from '../ia/ExplainButton.astro';
-import AISheet from '../ia/AISheet.astro';
 
 const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
@@ -49,7 +48,6 @@ const groups = letters.map((L) => ({ L, items: sorted.filter((g) => norm(g[local
   </div>
 </div>
 <GlossarySheet locale={locale} />
-<AISheet locale={locale} />
 <style>
   .gloss { padding-top: var(--sp-3); }
   .gloss-head { display: flex; flex-direction: column; gap: var(--sp-2); }

@@ -94,6 +94,114 @@
 .ia-lista a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
 .ia-lista a:hover { color: var(--ink); }
 
+/* ---- El botón flotante --------------------------------------------------- */
+/* Anclado encima de la barra de abajo, sin taparla; si hay un aviso puesto,
+ * se sube lo mismo que el aviso mide (la clase con-aviso la pone avisos.ts en
+ * el :root, la misma que le da sitio al body). Se aparta al bajar con un
+ * translate, y con prefers-reduced-motion el cambio es sin transición. */
+.ia-fab {
+  position: fixed;
+  right: var(--sp-4);
+  bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--sp-3));
+  z-index: 44; /* debajo del aviso (45) y de las hojas (60+), encima del resto */
+  min-height: 36px;
+  padding: 6px 12px;
+  gap: 5px;
+  background: color-mix(in srgb, var(--bg-3) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-1);
+  color: var(--ink);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+  /* Tokens de movimiento (motion.css): apartarse y volver es algo que sale y
+   * entra RECORRIENDO distancia, o sea --dur-3, con la curva de lo que llega.
+   * Nació con `.22s ease` porque esta rama salió antes de que existiera el
+   * sistema; al juntar la ola se cose, y de paso el botón se queda quieto solo
+   * con «menos movimiento», desde el token. */
+  transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-3) var(--ease-out);
+}
+/* El final de la página tiene que poder pasar POR DEBAJO del botón: si no, el
+ * disclaimer del footer —que es obligatorio en cada página con contenido
+ * financiero— se queda tapado para siempre en el teléfono, y ese es justo el
+ * texto que no se puede esconder. Mismo recurso que usa el aviso contextual
+ * (:root.con-aviso), aquí con la altura del propio botón. */
+:root.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 60px); }
+@media (min-width: 768px) { :root.con-ia-fab body { padding-bottom: 60px; } }
+.ia-fab:hover { background: var(--bg-2); }
+.ia-fab-fuera { transform: translateY(calc(100% + var(--bottomnav-h) + var(--sp-4))); opacity: 0; pointer-events: none; }
+:root.con-aviso .ia-fab { bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 104px); }
+@media (min-width: 768px) {
+  .ia-fab { right: var(--sp-5); bottom: var(--sp-5); }
+  .ia-fab-fuera { transform: translateY(calc(100% + var(--sp-5) + var(--sp-2))); }
+  :root.con-aviso .ia-fab { bottom: 104px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ia-fab { transition: none; }
+}
+@media print {
+  .ia-fab, .ia-sheet, .ia-burbuja { display: none !important; }
+}
+
+/* ---- La burbuja de selección --------------------------------------------- */
+/* "Explícame esto" sobre una frase seleccionada. Solo existe en contenido de
+ * lectura ([data-ia-seleccion]) y la pinta el guion donde termina la
+ * selección; en el teléfono va por debajo de donde el sistema pone su menú. */
+.ia-burbuja {
+  position: absolute;
+  z-index: 46;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sheet);
+  color: var(--ink);
+  font-size: var(--fs-caption);
+}
+.ia-burbuja svg { color: var(--brand-text); flex: none; }
+.ia-burbuja:hover { background: var(--bg-2); }
+
+/* ---- La conversación ----------------------------------------------------- */
+/* La pregunta de la persona es un turno propio, alineado a la derecha, para
+ * que la repregunta y su respuesta se lean como lo que son: una charla corta.
+ * No es un chat y el tope lo dice (.ia-tope). */
+.ia-turno-p {
+  align-self: flex-end;
+  max-width: 85%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-btn);
+  padding: 6px 12px;
+  color: var(--ink);
+  font-size: var(--fs-small);
+}
+.ia-tope { color: var(--ink-3); font-size: var(--fs-caption); line-height: var(--lh-caption); }
+
+/* ---- Preguntas sugeridas -------------------------------------------------- */
+.ia-sugeridas { display: flex; flex-direction: column; gap: 6px; }
+.ia-sugeridas[hidden] { display: none; }
+.ia-sug-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ia-sug {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+  text-align: left;
+}
+.ia-sug:hover { background: var(--bg-2); color: var(--ink); }
+
 /* ---- La pregunta libre --------------------------------------------------- */
 /* OJO: sin esta línea, `form.hidden = true` NO esconde nada — un `display`
  * propio le gana al `[hidden] { display: none }` del navegador. Pasaba: tras

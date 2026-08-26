@@ -30,6 +30,7 @@ const jsonLd = {
 ---
 <Base locale="es" routeId={newsRouteId(item.slug)} active="news" ogType="article"
   ogImage={ogPropia('news-' + item.slug, 'es')} ogImageAlt={texto.titulo + ' — Smart Finance, noticias explicadas'}
-  title={texto.titulo + ' — Smart Finance'} description={description} jsonLd={jsonLd}>
+  title={texto.titulo + ' — Smart Finance'} description={description} jsonLd={jsonLd}
+  ia={{ tipo: 'noticia', id: item.slug, sobre: texto.titulo }}>
   <NewsStory locale="es" item={item} />
 </Base>

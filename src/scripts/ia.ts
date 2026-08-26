@@ -6,12 +6,18 @@
 // Lo que este archivo SÍ garantiza:
 //   · lo que se manda son identificadores, nunca cifras. Si el navegador
 //     mandara los números, cualquiera podría hacer que la IA explicara datos
-//     falsos con la etiqueta del sitio encima.
+//     falsos con la etiqueta del sitio encima. (El historial de la
+//     conversación viaja como contexto de LECTURA y el servidor no lo usa
+//     para respaldar ninguna cifra — la regla sigue en pie.)
 //   · la etiqueta de IA y la fecha del dato se pintan SIEMPRE, también cuando
 //     la respuesta es un rechazo o un error.
 //   · el estado de carga dice la verdad: hay tres puntos y, si pasa de seis
 //     segundos, una frase que explica por qué tarda. Nada de barras de
 //     progreso inventadas.
+//   · la conversación tiene tope y lo dice: MAX_PREGUNTAS repreguntas por
+//     contexto, y al llegar la caja se cierra con una frase, no en silencio.
+//     El historial vive SOLO en localStorage (sf-ia-charla-v1), nunca en un
+//     servidor, y caduca en una hora.
 //
 // Ningún texto vive aquí: viajan en data-strings desde AISheet.astro, que los
 // saca de src/i18n/ui.ts.
@@ -38,6 +44,15 @@ interface Contexto {
   sobre: string;
 }
 
+interface Turno {
+  p: string;
+  r: string;
+}
+
+const MAX_PREGUNTAS = 3;
+const CLAVE_CHARLA = 'sf-ia-charla-v1';
+const CHARLA_TTL_MS = 60 * 60 * 1000;
+
 const sheet = document.getElementById('ia-sheet');
 
 if (sheet) {
@@ -49,12 +64,52 @@ if (sheet) {
   const form = sheet.querySelector<HTMLFormElement>('.ia-ask')!;
   const input = sheet.querySelector<HTMLInputElement>('#ia-ask-input')!;
   const cerrar = sheet.querySelector<HTMLButtonElement>('.ia-sheet-close')!;
+  const sugeridas = sheet.querySelector<HTMLElement>('.ia-sugeridas')!;
+  const sugChips = sheet.querySelector<HTMLElement>('.ia-sug-chips')!;
   const txt = JSON.parse(sheet.dataset.strings || '{}') as Record<string, string>;
+  const sugPorTipo = JSON.parse(sheet.dataset.sugeridas || '{}') as Record<string, string[]>;
   const lang = sheet.dataset.locale === 'en' ? 'en' : 'es';
 
   let abridor: HTMLElement | null = null;
   let contexto: Contexto | null = null;
   let peticion = 0;
+  // La conversación de ESTE contexto: la primera explicación y las repreguntas.
+  let charla: Turno[] = [];
+  let preguntasHechas = 0;
+
+  // -- la charla en localStorage --------------------------------------------
+
+  const claveCtx = () => (contexto ? contexto.tipo + ':' + contexto.id + ':' + lang : '');
+
+  function guardarCharla() {
+    // Solo si la persona preguntó algo: la explicación automática ya la
+    // regala la caché del servidor y no hace falta recordarla aquí.
+    if (!preguntasHechas) return;
+    try {
+      localStorage.setItem(CLAVE_CHARLA, JSON.stringify({
+        ctx: claveCtx(), items: charla.slice(-MAX_PREGUNTAS - 1), n: preguntasHechas, ts: Date.now()
+      }));
+    } catch { /* sin localStorage no hay charla que guardar, y no pasa nada */ }
+  }
+
+  /** true si había una charla fresca de ESTE contexto y se restauró. */
+  function cargarCharla(): boolean {
+    try {
+      const bruto = localStorage.getItem(CLAVE_CHARLA);
+      if (!bruto) return false;
+      const d = JSON.parse(bruto) as { ctx?: string; items?: Turno[]; n?: number; ts?: number };
+      if (!d || d.ctx !== claveCtx()) return false;
+      if (typeof d.ts !== 'number' || Date.now() - d.ts > CHARLA_TTL_MS) return false;
+      if (!Array.isArray(d.items)) return false;
+      const items = d.items.filter((h) => h && typeof h.p === 'string' && typeof h.r === 'string' && h.p && h.r);
+      if (!items.length) return false;
+      charla = items;
+      preguntasHechas = typeof d.n === 'number' && d.n >= 0 ? d.n : items.length;
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   // -- pintar ---------------------------------------------------------------
 
@@ -69,14 +124,19 @@ if (sheet) {
     cuerpo.textContent = '';
   }
 
-  function pintarCargando() {
-    limpiar();
+  function quitarCargando() {
+    cuerpo.querySelectorAll('.ia-cargando').forEach((el) => el.remove());
+  }
+
+  function pintarCargando(anexar?: boolean) {
+    if (!anexar) limpiar();
     cuerpo.setAttribute('aria-busy', 'true');
     const fila = crear('p', 'ia-cargando');
     const puntos = crear('span', 'ia-dots');
     puntos.append(crear('i'), crear('i'), crear('i'));
     fila.append(puntos, crear('span', undefined, txt.loading));
     cuerpo.append(fila);
+    fila.scrollIntoView({ block: 'nearest' });
 
     // Si tarda, se dice por qué en vez de dejar los puntos girando en el vacío.
     const id = peticion;
@@ -92,6 +152,11 @@ if (sheet) {
     for (const parrafo of texto.split(/\n{2,}/)) {
       if (parrafo.trim()) destino.append(crear('p', undefined, parrafo.trim()));
     }
+  }
+
+  /** La pregunta de la persona, como turno propio encima de su respuesta. */
+  function pintarPregunta(p: string) {
+    cuerpo.append(crear('p', 'ia-turno-p', p));
   }
 
   function pintarLista(etiqueta: string, items: string[], enlaces?: (string | null)[]) {
@@ -116,8 +181,21 @@ if (sheet) {
     cuerpo.append(bloque);
   }
 
-  function pintarRespuesta(r: Respuesta) {
-    limpiar();
+  /** Enseña u oculta la caja de preguntar y los chips, con el tope a la vista. */
+  function actualizarFormulario(r?: Respuesta) {
+    const tope = preguntasHechas >= MAX_PREGUNTAS;
+    const cerrada = contexto?.modo === 'preguntas' ||
+      (!!r?.rechazada && r.rechazada !== 'consejo');
+    form.hidden = cerrada || tope;
+    sugeridas.hidden = form.hidden || !sugChips.childElementCount;
+    if (tope && !cuerpo.querySelector('.ia-tope')) {
+      cuerpo.append(crear('p', 'ia-tope', txt.limit));
+    }
+  }
+
+  function pintarRespuesta(r: Respuesta, anexar?: boolean) {
+    if (anexar) quitarCargando();
+    else limpiar();
     cuerpo.setAttribute('aria-busy', 'false');
 
     const preguntas = r.preguntas || [];
@@ -141,7 +219,9 @@ if (sheet) {
     const fuentes = r.fuentes || [];
     pintarLista(txt.sources, fuentes.map((f) => f.titulo), fuentes.map((f) => f.url));
 
-    if (r.leccion) {
+    // El enlace a la lección solo la primera vez: repetir el botón en cada
+    // repregunta es ruido.
+    if (r.leccion && !anexar) {
       const acciones = crear('div', 'ia-acciones-sheet');
       const a = crear('a', 'btn btn-ghost btn-sm', txt.lesson + ' →');
       a.href = r.leccion;
@@ -158,32 +238,68 @@ if (sheet) {
     // con IA" sería mentir a la inversa.
     disclosure.textContent = r.generadoPor === 'ia' ? txt.disclosure : txt.disclosureFixed;
     // La caja de preguntar desaparece cuando no hay nada que preguntar (no hay
-    // presupuesto, no hay datos). Tras rechazar un consejo SE QUEDA: la
-    // siguiente pregunta puede ser buena.
-    form.hidden = contexto?.modo === 'preguntas' ||
-      (!!r.rechazada && r.rechazada !== 'consejo');
+    // presupuesto, no hay datos, se llegó al tope). Tras rechazar un consejo
+    // SE QUEDA: la siguiente pregunta puede ser buena.
+    actualizarFormulario(r);
+    if (anexar) {
+      const ultimo = cuerpo.lastElementChild;
+      if (ultimo) ultimo.scrollIntoView({ block: 'nearest' });
+    }
   }
 
-  function pintarError() {
+  /** La charla guardada, pintada tal cual: turno de la persona, respuesta. */
+  function pintarCharla() {
     limpiar();
+    cuerpo.setAttribute('aria-busy', 'false');
+    for (const h of charla) {
+      pintarPregunta(h.p);
+      const div = crear('div', 'ia-respuesta');
+      pintarTexto(div, h.r);
+      cuerpo.append(div);
+    }
+    asOf.textContent = '';
+    disclosure.textContent = txt.disclosure;
+    actualizarFormulario();
+  }
+
+  function pintarError(reintentar: () => void, anexar?: boolean) {
+    if (anexar) quitarCargando();
+    else limpiar();
     cuerpo.setAttribute('aria-busy', 'false');
     cuerpo.append(crear('p', 'ia-error', txt.error));
     disclosure.textContent = txt.disclosureFixed;
     const acciones = crear('div', 'ia-acciones-sheet');
     const btn = crear('button', 'btn btn-ghost btn-sm', txt.retry);
     btn.type = 'button';
-    btn.addEventListener('click', () => pedir());
+    btn.addEventListener('click', reintentar);
     acciones.append(btn);
     cuerpo.append(acciones);
-    asOf.textContent = '';
+    if (!anexar) asOf.textContent = '';
+  }
+
+  /** Los tres chips de "prueba a preguntar" del contexto abierto. */
+  function pintarSugeridas() {
+    sugChips.textContent = '';
+    const lista = (contexto && sugPorTipo[contexto.tipo]) || [];
+    for (const s of lista) {
+      if (!s) continue;
+      const b = crear('button', 'ia-sug', s);
+      b.type = 'button';
+      b.addEventListener('click', () => pedir(s));
+      sugChips.append(b);
+    }
+    sugeridas.hidden = !sugChips.childElementCount || form.hidden;
   }
 
   // -- pedir ----------------------------------------------------------------
 
   async function pedir(pregunta?: string) {
     if (!contexto) return;
+    if (pregunta && preguntasHechas >= MAX_PREGUNTAS) return;
     const id = ++peticion;
-    pintarCargando();
+    const anexar = !!pregunta;
+    if (pregunta) pintarPregunta(pregunta);
+    pintarCargando(anexar);
 
     const q = new URLSearchParams({
       accion: 'explicar',
@@ -205,12 +321,17 @@ if (sheet) {
     // página, y así el CDN puede cachear la respuesta y no se paga dos veces.
     // Una PREGUNTA escrita a mano va por POST, en el cuerpo: lo que alguien
     // escribe con sus palabras no tiene por qué quedarse en los registros de
-    // acceso, y una URL se guarda entera.
+    // acceso, y una URL se guarda entera. El historial —las repreguntas de
+    // esta misma charla— viaja con ella, y solo con ella.
     const peticionHTTP = pregunta
       ? fetch('/api/news', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify(Object.fromEntries([...q.entries(), ['pregunta', pregunta]]))
+          body: JSON.stringify(Object.assign(
+            Object.fromEntries(q.entries()),
+            { pregunta },
+            charla.length ? { historial: charla.slice(-MAX_PREGUNTAS) } : null
+          ))
         })
       : fetch('/api/news?' + q.toString(), { headers: { Accept: 'application/json' } });
 
@@ -220,12 +341,18 @@ if (sheet) {
       if (id !== peticion) return;               // llegó tarde: manda la última
       // 400/404/429 traen respuesta honesta en el cuerpo; solo un 5xx sin texto
       // es un error de verdad.
-      if (!datos || (!datos.respuesta && !datos.error)) { pintarError(); return; }
-      if (!datos.respuesta) { pintarError(); return; }
-      pintarRespuesta(datos);
+      if (!datos || !datos.respuesta) { pintarError(() => pedir(pregunta), anexar); return; }
+      if (pregunta) preguntasHechas++;
+      pintarRespuesta(datos, anexar);
+      // La charla recuerda lo que se dijo — la primera explicación también,
+      // para que "¿y eso por qué?" tenga a qué referirse.
+      if (datos.generadoPor === 'ia' && datos.respuesta && contexto.modo !== 'preguntas') {
+        charla.push({ p: pregunta || txt.explain, r: datos.respuesta.slice(0, 600) });
+        guardarCharla();
+      }
     } catch (e) {
       if (id !== peticion) return;
-      pintarError();
+      pintarError(() => pedir(pregunta), anexar);
     }
   }
 
@@ -243,19 +370,61 @@ if (sheet) {
     titulo.textContent = contexto.sobre;
     asOf.textContent = '';
     input.value = '';
+    charla = [];
+    preguntasHechas = 0;
     form.hidden = contexto.modo === 'preguntas';
+    pintarSugeridas();
     sheet!.hidden = false;
     document.body.style.overflow = 'hidden';
     panel.scrollTop = 0;
     cerrar.focus();
-    pedir();
+    // Una charla fresca del MISMO contexto se retoma donde iba, en vez de
+    // empezar de cero; si no la hay, la explicación de siempre.
+    const seleccion = btn.dataset.iaSeleccion || '';
+    if (seleccion) {
+      pedirSeleccion(seleccion);
+    } else if (contexto.modo === 'explicar' && cargarCharla()) {
+      pintarCharla();
+    } else {
+      pedir();
+    }
+  }
+
+  /** "Explícame esto" sobre una frase seleccionada: viaja por POST, como la
+   *  pregunta, y con la misma etiqueta y las mismas guardas del servidor. */
+  async function pedirSeleccion(seleccion: string) {
+    if (!contexto) return;
+    const id = ++peticion;
+    pintarCargando();
+    try {
+      const res = await fetch('/api/news', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          accion: 'explicar', tipo: contexto.tipo, id: contexto.id,
+          modo: 'explicar', lang, seleccion
+        })
+      });
+      const datos = (await res.json()) as Respuesta;
+      if (id !== peticion) return;
+      if (!datos || !datos.respuesta) { pintarError(() => pedirSeleccion(seleccion)); return; }
+      pintarRespuesta(datos);
+      if (datos.generadoPor === 'ia' && contexto.modo !== 'preguntas') {
+        charla.push({ p: txt.explain + ': "' + seleccion.slice(0, 120) + '"', r: datos.respuesta.slice(0, 600) });
+      }
+    } catch {
+      if (id !== peticion) return;
+      pintarError(() => pedirSeleccion(seleccion));
+    }
   }
 
   function cerrarHoja() {
     peticion++;                                   // lo que llegue después se ignora
     sheet!.hidden = true;
     document.body.style.overflow = '';
-    if (abridor) abridor.focus();
+    // La burbuja de selección ya no existe cuando la hoja se cierra: el foco
+    // solo se devuelve a un abridor que siga en la página.
+    if (abridor && document.contains(abridor)) abridor.focus();
     abridor = null;
     contexto = null;
   }
@@ -269,8 +438,104 @@ if (sheet) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const pregunta = input.value.trim();
-    if (pregunta) pedir(pregunta);
+    if (pregunta) {
+      input.value = '';
+      pedir(pregunta);
+    }
   });
+
+  // -- selección de texto: "Explícame esto" sobre una frase -----------------
+  //
+  // Solo en contenido de LECTURA: los contenedores marcados con
+  // [data-ia-seleccion] (el cuerpo de una lección, una noticia, un reporte).
+  // La frase viaja por POST como una pregunta más, con las mismas guardas del
+  // servidor: sus cifras NO respaldan nada — si alguien fabrica una selección
+  // con números falsos, la guardia de cifras los tira igual.
+  //
+  // En el teléfono el menú del sistema (copiar/buscar) sale ENCIMA de la
+  // selección, así que la burbuja va DEBAJO y tras una pausa: no se pelean.
+
+  const MIN_SELECCION = 12;
+  const MAX_SELECCION = 260;
+  let burbuja: HTMLButtonElement | null = null;
+  let selTimer = 0;
+  const punteroGrueso = window.matchMedia('(pointer: coarse)');
+
+  function quitarBurbuja() {
+    if (burbuja) { burbuja.remove(); burbuja = null; }
+  }
+
+  function contenedorDeSeleccion(sel: Selection): HTMLElement | null {
+    const donde = (n: Node | null) => {
+      const el = n instanceof Element ? n : n?.parentElement;
+      return el ? el.closest<HTMLElement>('[data-ia-seleccion]') : null;
+    };
+    const a = donde(sel.anchorNode);
+    const b = donde(sel.focusNode);
+    return a && a === b ? a : null;   // entera dentro del MISMO contenedor
+  }
+
+  function mostrarBurbuja() {
+    quitarBurbuja();
+    if (!sheet!.hidden) return;
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+    const frase = sel.toString().replace(/\s+/g, ' ').trim();
+    if (frase.length < MIN_SELECCION || frase.length > MAX_SELECCION) return;
+    const cont = contenedorDeSeleccion(sel);
+    if (!cont || !cont.dataset.iaId) return;
+
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    if (!rect.width && !rect.height) return;
+
+    const b = crear('button', 'ia-burbuja') as HTMLButtonElement;
+    b.type = 'button';
+    b.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+      '<path d="M12 3.5l1.7 4.3 4.3 1.7-4.3 1.7L12 15.5l-1.7-4.3L6 9.5l4.3-1.7z"></path></svg>';
+    b.append(crear('span', undefined, txt.seleccion));
+    // El contexto viaja en el propio botón, como en cualquier abridor: solo
+    // identificadores más la frase seleccionada.
+    b.dataset.iaTipo = cont.dataset.iaTipo || '';
+    b.dataset.iaId = cont.dataset.iaId || '';
+    b.dataset.iaSobre = cont.dataset.iaSobre || '';
+    b.dataset.iaSeleccion = frase;
+    b.addEventListener('click', () => {
+      const abrelo = b;
+      quitarBurbuja();
+      window.getSelection()?.removeAllRanges();
+      abrir(abrelo);
+    });
+
+    document.body.append(b);
+    const ancho = b.offsetWidth || 160;
+    const x = Math.min(
+      Math.max(window.scrollX + rect.left + rect.width / 2 - ancho / 2, window.scrollX + 8),
+      window.scrollX + document.documentElement.clientWidth - ancho - 8
+    );
+    // Con el dedo, debajo (el menú del sistema va arriba); con ratón, encima.
+    const y = punteroGrueso.matches
+      ? window.scrollY + rect.bottom + 10
+      : window.scrollY + rect.top - 46;
+    b.style.left = x + 'px';
+    b.style.top = y + 'px';
+    burbuja = b;
+  }
+
+  document.addEventListener('pointerup', (e) => {
+    if ((e.target as HTMLElement).closest('.ia-burbuja')) return;
+    window.setTimeout(mostrarBurbuja, 60);
+  });
+  document.addEventListener('selectionchange', () => {
+    window.clearTimeout(selTimer);
+    selTimer = window.setTimeout(() => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) quitarBurbuja();
+      else if (punteroGrueso.matches) mostrarBurbuja();
+    }, 350);
+  });
+  window.addEventListener('scroll', quitarBurbuja, { passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (sheet!.hidden) return;
@@ -286,4 +551,23 @@ if (sheet) {
     if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
     else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
   });
+
+  // -- lo que estaba pendiente al cargar ------------------------------------
+  //
+  // Este módulo llega POR DEMANDA: el arranque de AISheet.astro lo importa al
+  // primer gesto y deja escrito en window.__iaPend qué lo provocó (el botón
+  // que se tocó, o la cadena 'sel' si lo que había era una selección). Ese
+  // gesto ya ocurrió antes de que existieran los oyentes de aquí, así que se
+  // atiende ahora o se pierde — y perderlo se vería como un botón que no hace
+  // nada la primera vez que lo tocas.
+  const ventana = window as unknown as { __iaPend?: unknown };
+  const pendiente = ventana.__iaPend;
+  ventana.__iaPend = null;
+  if (pendiente === 'sel') mostrarBurbuja();
+  else if (pendiente instanceof HTMLElement) abrir(pendiente);
 }
+
+// Este archivo no exporta nada: se importa por su efecto. El `export {}` está
+// para que TypeScript lo trate como MÓDULO — sin él, el `import()` del arranque
+// de AISheet.astro falla en `astro check` con "is not a module" (ts 2306).
+export {};

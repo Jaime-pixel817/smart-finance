@@ -1,0 +1,96 @@
+
+======================================================================
+PREGUNTA: (ninguna — el botón a secas)
+intención: null · alcance: null · rango pedido: 1M
+----------------------------------------------------------------------
+Ficha del activo (registro del sitio, src/data/symbols.ts):
+  nombre: S&P 500
+  símbolo: SPY
+  tipo: index
+  moneda: USD
+  proveedor del precio: Twelve Data (retraso de 15 minutos)
+  qué es: Un ETF que sigue al S&P 500: las 500 empresas más grandes de EE. UU. en un solo precio. Cuando dicen “el mercado subió”, casi siempre hablan de esto.
+
+Serie de precios (1M, 22 puntos, cierre de cada barra):
+  primer punto  2026-07-27: 739.09
+  último punto  2026-08-25: 765.91
+  cambio del periodo: 26.82 (3.63 %)
+  máximo del periodo 2026-08-13: 777.88
+  mínimo del periodo 2026-07-29: 729.46
+  mayor subida de un tramo 2026-08-03 → 2026-08-04: 13.66
+  mayor bajada de un tramo 2026-07-28 → 2026-07-29: -11.40
+Paradas de la serie:
+  2026-07-27: 739.09
+  2026-07-30: 741.69
+  2026-08-04: 771.33
+  2026-08-07: 773.26
+  2026-08-12: 772.49
+  2026-08-17: 772.67
+  2026-08-20: 762.60
+  2026-08-25: 765.91
+
+======================================================================
+PREGUNTA: ¿por qué subió hoy?
+intención: causa · alcance: 1D · rango pedido: 1D
+----------------------------------------------------------------------
+Ficha del activo (registro del sitio, src/data/symbols.ts):
+  nombre: S&P 500
+  símbolo: SPY
+  tipo: index
+  moneda: USD
+  proveedor del precio: Twelve Data (retraso de 15 minutos)
+  qué es: Un ETF que sigue al S&P 500: las 500 empresas más grandes de EE. UU. en un solo precio. Cuando dicen “el mercado subió”, casi siempre hablan de esto.
+
+Serie de precios (1D, 79 puntos, cierre de cada barra):
+  primer punto  2026-08-25 09:30: 766.73
+  último punto  2026-08-25 16:00: 765.91
+  cambio del periodo: -0.82 (-0.11 %)
+  máximo del periodo 2026-08-25 09:30: 766.73
+  mínimo del periodo 2026-08-25 10:45: 764.22
+  mayor subida de un tramo 2026-08-25 10:30 → 2026-08-25 10:35: 0.69
+  mayor bajada de un tramo 2026-08-25 10:35 → 2026-08-25 10:40: -0.67
+Paradas de la serie:
+  2026-08-25 09:30: 766.73
+  2026-08-25 10:25: 764.70
+  2026-08-25 11:20: 764.77
+  2026-08-25 12:15: 765.50
+  2026-08-25 13:15: 765.40
+  2026-08-25 14:10: 764.80
+  2026-08-25 15:05: 765.37
+  2026-08-25 16:00: 765.91
+Movimiento de HOY (la sesión más reciente):
+  cierre del día hábil anterior: 763.48
+  último precio: 765.91
+  cambio de hoy: 2.43 (0.32 %)
+
+Noticias aprobadas de este activo: NINGUNA. El sitio no tiene ninguna noticia revisada que explique por qué se movió. La causa del movimiento NO SE SABE con estos datos.
+
+======================================================================
+PREGUNTA: ¿cómo va este año?
+intención: movimiento · alcance: 1Y · rango pedido: 1Y
+----------------------------------------------------------------------
+Ficha del activo (registro del sitio, src/data/symbols.ts):
+  nombre: S&P 500
+  símbolo: SPY
+  tipo: index
+  moneda: USD
+  proveedor del precio: Twelve Data (retraso de 15 minutos)
+  qué es: Un ETF que sigue al S&P 500: las 500 empresas más grandes de EE. UU. en un solo precio. Cuando dicen “el mercado subió”, casi siempre hablan de esto.
+
+Serie de precios (1Y, 251 puntos, cierre de cada barra):
+  primer punto  2025-08-26: 645.16
+  último punto  2026-08-25: 765.91
+  cambio del periodo: 120.75 (18.72 %)
+  máximo del periodo 2026-08-13: 777.88
+  mínimo del periodo 2026-03-30: 631.97
+  mayor subida de un tramo 2026-03-30 → 2026-03-31: 18.37
+  mayor bajada de un tramo 2026-06-04 → 2026-06-05: -19.54
+Paradas de la serie:
+  2025-08-26: 645.16
+  2025-10-16: 660.64
+  2025-12-05: 685.69
+  2026-01-29: 694.04
+  2026-03-23: 655.38
+  2026-05-13: 742.31
+  2026-07-06: 751.28
+  2026-08-25: 765.91

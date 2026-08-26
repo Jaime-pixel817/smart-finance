@@ -15,7 +15,6 @@ import InflationTool from '../tools/InflationTool.astro';
 import RiskReturn from '../tools/RiskReturn.astro';
 import GlossarySheet from './GlossarySheet.astro';
 import ExplainButton from '../ia/ExplainButton.astro';
-import AISheet from '../ia/AISheet.astro';
 import { foto } from '../../lib/photos';
 import LessonCard from './LessonCard.astro';
 import Quiz from './Quiz.astro';
@@ -62,7 +61,8 @@ const levelKey = ('learn.level.' + d.level) as UIKey;
       </div>
     </header>
 
-    <div class="lesson-body">
+    <!-- Seleccionar una frase aquí ofrece "Explícame esto" (src/scripts/ia.ts). -->
+    <div class="lesson-body" data-ia-seleccion data-ia-tipo="leccion" data-ia-id={lesson.slug} data-ia-sobre={d.title}>
       <Content components={{ Term, Callout, CompoundCalculator, InflationTool, RiskReturn }} />
     </div>
 
@@ -126,7 +126,6 @@ const levelKey = ('learn.level.' + d.level) as UIKey;
   </div>
 </article>
 <GlossarySheet locale={locale} />
-<AISheet locale={locale} />
 <script src="../../scripts/lesson-page.ts"></script>
 
 <style>

@@ -1,0 +1,69 @@
+---
+// El botón flotante de Smart Finance AI. Sale SOLO en las páginas que declaran
+// su contexto en Base.astro (`ia={{ tipo, id, sobre }}`): el botón siempre
+// explica LO QUE ESTA PÁGINA ES —el activo, la lección, el reporte, la
+// noticia, el término, el reto—, nunca un chat genérico.
+//
+// Es un abridor más de la hoja (mismos data-* que ExplainButton, mismo
+// delegado de clics en src/scripts/ia.ts), así que no trae lógica propia de
+// pedir nada. Lo único suyo es el comportamiento de estar sin estorbar:
+//   · anclado ENCIMA de la barra de abajo, nunca sobre ella, y con la caja de
+//     avisos delante si la hay (:root.con-aviso lo sube, igual que al body).
+//   · se aparta al bajar y vuelve al subir: mientras lees, desaparece.
+//   · discreto: una pastilla del tamaño de un botón fantasma, no un imán.
+import type { Locale } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  /** noticia | activo | grafica | termino | leccion | reporte | reto */
+  tipo: string;
+  id: string;
+  /** de qué habla, para la etiqueta y el título de la hoja */
+  sobre: string;
+  rango?: string;
+}
+const { locale, tipo, id, sobre, rango } = Astro.props;
+const t = useT(locale);
+---
+<button
+  type="button"
+  class="ia-btn ia-fab"
+  data-ia
+  data-ia-tipo={tipo}
+  data-ia-id={id}
+  data-ia-rango={rango}
+  data-ia-sobre={sobre}
+  aria-haspopup="dialog"
+  aria-label={t('ia.explain') + ': ' + sobre}
+>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 3.5l1.7 4.3 4.3 1.7-4.3 1.7L12 15.5l-1.7-4.3L6 9.5l4.3-1.7z"></path>
+    <path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path>
+  </svg>
+  <span>{t('ia.explain')}</span>
+</button>
+
+<script>
+  // Apartarse al bajar, volver al subir. Umbral de 12 px para que un dedo
+  // tembloroso no lo haga parpadear, y siempre visible cerca del principio.
+  const fab = document.querySelector<HTMLElement>('.ia-fab');
+  if (fab) {
+    // Le dice al CSS que en ESTA página hay botón flotante, para que el final
+    // del documento crezca y el disclaimer del footer no quede tapado.
+    document.documentElement.classList.add('con-ia-fab');
+    let anterior = window.scrollY;
+    let acumulado = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const delta = y - anterior;
+      anterior = y;
+      // Cambio de dirección: el acumulado empieza de cero.
+      if ((delta > 0) !== (acumulado > 0)) acumulado = 0;
+      acumulado += delta;
+      if (y < 80 || acumulado < -12) fab.classList.remove('ia-fab-fuera');
+      else if (acumulado > 12) fab.classList.add('ia-fab-fuera');
+    }, { passive: true });
+  }
+</script>
