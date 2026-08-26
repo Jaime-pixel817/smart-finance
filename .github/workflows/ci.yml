@@ -76,9 +76,12 @@ jobs:
         run: npm run check-seo
 
       # Presupuestos de rendimiento y accesibilidad que fallan de verdad, sobre
-      # seis rutas: rendimiento ≥ 88 y accesibilidad ≥ 95 en móvil, CLS ≤ 0.02 y
-      # JS ≤ 180 KB de transferencia. Los umbrales y el porqué de cada uno están
-      # en lighthouserc.json. Si un PR los rompe, lo que se arregla es el PR.
+      # siete rutas: rendimiento ≥ 88 y accesibilidad ≥ 95 en móvil, CLS ≤ 0.02
+      # y JS ≤ 183 KB de transferencia. Los umbrales y el porqué de cada uno
+      # están en lighthouserc.json. Si un PR los rompe, lo que se arregla es el
+      # PR. La séptima es /cv/vista-previa.html, que solo existe porque este
+      # workflow NO define CV_SLUG: ver el bloque del CV en lighthouserc.json
+      # antes de añadir esa variable aquí.
       - name: Presupuestos de Lighthouse (npm run check-lh)
         run: npm run check-lh
 
