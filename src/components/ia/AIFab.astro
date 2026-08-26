@@ -50,6 +50,9 @@ const t = useT(locale);
   // tembloroso no lo haga parpadear, y siempre visible cerca del principio.
   const fab = document.querySelector<HTMLElement>('.ia-fab');
   if (fab) {
+    // Le dice al CSS que en ESTA página hay botón flotante, para que el final
+    // del documento crezca y el disclaimer del footer no quede tapado.
+    document.documentElement.classList.add('con-ia-fab');
     let anterior = window.scrollY;
     let acumulado = 0;
     window.addEventListener('scroll', () => {

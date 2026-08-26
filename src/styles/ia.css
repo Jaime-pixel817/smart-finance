@@ -101,8 +101,9 @@
   right: var(--sp-4);
   bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--sp-3));
   z-index: 44; /* debajo del aviso (45) y de las hojas (60+), encima del resto */
-  min-height: 40px;
-  padding: 8px 14px;
+  min-height: 36px;
+  padding: 6px 12px;
+  gap: 5px;
   background: color-mix(in srgb, var(--bg-3) 92%, transparent);
   backdrop-filter: saturate(1.4) blur(10px);
   -webkit-backdrop-filter: saturate(1.4) blur(10px);
@@ -110,9 +111,17 @@
   border-radius: 999px;
   box-shadow: var(--shadow-1);
   color: var(--ink);
-  font-size: var(--fs-small);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
   transition: transform .22s ease, opacity .22s ease;
 }
+/* El final de la página tiene que poder pasar POR DEBAJO del botón: si no, el
+ * disclaimer del footer —que es obligatorio en cada página con contenido
+ * financiero— se queda tapado para siempre en el teléfono, y ese es justo el
+ * texto que no se puede esconder. Mismo recurso que usa el aviso contextual
+ * (:root.con-aviso), aquí con la altura del propio botón. */
+:root.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 60px); }
+@media (min-width: 768px) { :root.con-ia-fab body { padding-bottom: 60px; } }
 .ia-fab:hover { background: var(--bg-2); }
 .ia-fab-fuera { transform: translateY(calc(100% + var(--bottomnav-h) + var(--sp-4))); opacity: 0; pointer-events: none; }
 :root.con-aviso .ia-fab { bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 104px); }
