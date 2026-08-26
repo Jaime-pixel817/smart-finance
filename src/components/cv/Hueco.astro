@@ -23,9 +23,29 @@ const h = c.huecos[id];
 {texto ? (
   <p class:list={['cv-suyo', cls]}>{texto}</p>
 ) : (
-  <div class:list={['hueco', cls]} role="note" aria-label={h.que}>
-    <p class="hueco-tag">{c.hueco.tag}</p>
-    <p class="hueco-que">{h.que}</p>
+  <!-- EL NOMBRE DE LA REGIÓN LLEVA LA MARCA, NO SOLO EL TÍTULO.
+       Estaba como `aria-label={h.que}` con el MISMO texto pintado dentro, y
+       eso rompía las dos mitades de la promesa de este componente:
+       · el título se anunciaba dos veces (el nombre de la región y luego su
+         contenido), y
+       · la marca "FALTA ESCRIBIRLO" se quedaba FUERA del nombre, así que
+         quien recorra la página por regiones —que es como se recorre un
+         documento largo con un lector de pantalla— oía "A qué estoy
+         aplicando" y se iba creyendo que el hueco tenía contenido.
+       Un hueco que se disimula es exactamente lo que este archivo dice arriba
+       que no puede pasar. Ahora el nombre es "Falta escribirlo: <título>", que
+       es lo que se lee en la pantalla, y el título de dentro deja de repetirse
+       en el nombre porque el nombre ya no se calcula del contenido. -->
+  <div class:list={['hueco', cls]} role="note" aria-label={`${c.hueco.tag}: ${h.que}`}>
+    <!-- La marca y el título van `aria-hidden` porque los DOS están ya en el
+         nombre de la región de aquí arriba, palabra por palabra. Sin esto se
+         anunciarían dos veces cada uno: una al entrar en la región y otra al
+         leer su contenido. No se pierde nada — el nombre de una región se
+         anuncia al entrar en ella — y lo que queda dentro es lo único que el
+         nombre no dice: la pista. Ninguno de los dos es enfocable, así que
+         aria-hidden aquí no esconde nada del teclado. -->
+    <p class="hueco-tag" aria-hidden="true">{c.hueco.tag}</p>
+    <p class="hueco-que" aria-hidden="true">{h.que}</p>
     <p class="hueco-pista t-small">{h.pista}</p>
   </div>
 )}
