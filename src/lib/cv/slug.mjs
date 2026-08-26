@@ -37,19 +37,39 @@ const FORMA = /^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$/;
  * Resuelve la dirección del CV a partir del valor de `CV_SLUG`.
  *
  * - Vacío, ausente o solo espacios → `RESPALDO` ('vista-previa').
- * - Con la forma correcta → ese slug, en minúsculas.
+ * - Con la forma correcta → ese slug, TAL CUAL.
  * - Con cualquier otra forma → se TUMBA EL BUILD, a propósito. Un slug mal
  *   escrito no puede degradarse a 'vista-previa' en silencio: Jaime creería
  *   que repartió una dirección privada y estaría repartiendo la pública.
  *   El mensaje NO repite el valor: un error de build acaba en los registros
  *   de Vercel y en la consola, y ahí es donde no debe quedarse escrito.
+ *
+ * LO ÚNICO QUE SE NORMALIZA ES EL ESPACIO DE ALREDEDOR, Y LAS MAYÚSCULAS SE
+ * RECHAZAN EN VEZ DE ARREGLARSE.
+ * -----------------------------------------------------------------------
+ * Esto hacía `.trim().toLowerCase()`, y ese `toLowerCase()` era un agujero
+ * exactamente del tipo que el `throw` de aquí abajo está puesto para tapar.
+ * Con `CV_SLUG='ABC-123-XYZ'` el build no se quejaba: emitía
+ * `dist/cv/abc-123-xyz.html`. Pero el campo de /about no toca lo que se
+ * teclea —no puede: no valida nada, solo hace `location.href = '/cv/' + …`—
+ * y el CDN distingue mayúsculas, así que el código que Jaime creía haber
+ * configurado abría un 404. Repartir una dirección que no existe es peor que
+ * un build rojo, y es invisible hasta que alguien lo intenta.
+ *
+ * Arreglarlo por el otro lado (bajar a minúsculas en el navegador) sería
+ * meter en el cliente una regla sobre cómo se escribe el código, que es justo
+ * lo que este apartado no tiene. Así que la regla vive donde ya vivía: si
+ * CV_SLUG no es EXACTAMENTE la dirección que se va a repartir, no se
+ * construye. El `trim()` se queda porque un salto de línea pegado al pegar en
+ * el panel de Vercel no cambia qué dirección quiso escribir nadie.
  */
 export function slugCv(valor) {
-  const s = typeof valor === 'string' ? valor.trim().toLowerCase() : '';
+  const s = typeof valor === 'string' ? valor.trim() : '';
   if (!s) return RESPALDO;
   if (!FORMA.test(s)) {
     throw new Error(
       'CV_SLUG no tiene forma de segmento de URL (3-64 caracteres: minúsculas, dígitos y guiones, sin empezar ni terminar en guion). ' +
+      'OJO CON LAS MAYÚSCULAS: no se convierten, se rechazan — el archivo se llamaría distinto de lo que teclee quien reciba el código, y el CDN distingue. ' +
       'El valor no se imprime aquí a propósito. Corrígelo en las variables de entorno, o quítalo para construir /cv/' + RESPALDO + '.'
     );
   }

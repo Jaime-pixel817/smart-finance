@@ -15,12 +15,25 @@ test('sin variable, vista previa', () => {
   assert.ok(esVistaPrevia(slugCv('')));
 });
 
-test('un slug normal se respeta, sin espacios y en minúsculas', () => {
+test('un slug normal se respeta TAL CUAL, quitándole el espacio de alrededor', () => {
   assert.equal(slugCv('abc123'), 'abc123');
-  assert.equal(slugCv('  Mesa-De-Operaciones-9  '), 'mesa-de-operaciones-9');
+  assert.equal(slugCv('  mesa-de-operaciones-9  '), 'mesa-de-operaciones-9');
+  assert.equal(slugCv('mesa-de-operaciones-9\n'), 'mesa-de-operaciones-9');
   assert.equal(slugCv('a-b-c'), 'a-b-c');
   assert.equal(slugCv('x'.repeat(64)), 'x'.repeat(64));
   assert.ok(!esVistaPrevia(slugCv('abc123')));
+});
+
+test('las mayúsculas se RECHAZAN, no se convierten', () => {
+  // Esto llegó a pasar: con toLowerCase() el build emitía dist/cv/abc-123-xyz
+  // sin decir nada, y el campo de /about mandaba a /cv/ABC-123-XYZ, que en un
+  // CDN que distingue mayúsculas es un 404. Un código repartido que no abre
+  // nada es peor que un build rojo, porque no avisa.
+  for (const malo of ['ABC-123-XYZ', 'Mesa-De-Operaciones-9', 'mesaX', 'MESA']) {
+    assert.throws(() => slugCv(malo), /CV_SLUG/, 'debería rechazar: ' + malo);
+  }
+  // Y la salida NUNCA cambia de caja: lo que entra bien, sale igual.
+  assert.equal(slugCv('mesa-de-operaciones-9'), 'mesa-de-operaciones-9');
 });
 
 test('lo que no puede ser un segmento de URL tumba el build', () => {
