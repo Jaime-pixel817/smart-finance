@@ -10,6 +10,7 @@
 // cambia ese número.
 import { simular } from '../../lib/finance/risk.mjs';
 import { medirUnaVez } from '../../lib/analytics';
+import { trazar, cortar } from '../trazo';
 
 function montar(raiz: HTMLElement) {
   const locale = raiz.dataset.locale === 'es' ? 'es' : 'en';
@@ -114,13 +115,20 @@ function montar(raiz: HTMLElement) {
 
   // Se mide al primer arrastre, no al cargar: interesa con qué juega la gente.
   const usada = () => medirUnaVez('herramienta_usada', { herramienta: 'riesgo' });
-  slAcciones.addEventListener('input', () => { pintar(); usada(); });
-  slAnios.addEventListener('input', () => { pintar(); usada(); });
+  // Mover un slider corta el trazado: quien está jugando con el abanico quiere
+  // ver el resultado ya, no esperar a que la mediana termine de dibujarse.
+  const svg = q<SVGSVGElement>('[data-rr-svg]');
+  slAcciones.addEventListener('input', () => { cortar(svg); pintar(); usada(); });
+  slAnios.addEventListener('input', () => { cortar(svg); pintar(); usada(); });
   otraVez?.addEventListener('click', () => {
+    cortar(svg);
     semilla = (Math.floor(Math.random() * 0xFFFFFFFF) >>> 0) || 1;
     pintar();
   });
   pintar();
+  // La banda entra detrás de la mediana: primero se lee el camino de en medio
+  // y luego el abanico de lo que puede pasar alrededor.
+  trazar(svg);
 }
 
 document.querySelectorAll<HTMLElement>('[data-widget="risk"]').forEach(montar);

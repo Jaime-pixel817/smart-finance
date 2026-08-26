@@ -48,9 +48,9 @@ const t = useT(locale);
     </div>
   </div>
   <div class="lw-chart">
-    <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={t('calc.chartAria')} data-lw-svg>
+    <svg class="trazo-destape" viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label={t('calc.chartAria')} data-lw-svg>
       <g class="lw-grid" data-lw-grid></g>
-      <path class="lw-area" data-lw-area d=""></path>
+      <path class="lw-area trazo-luego" data-lw-area d=""></path>
       <path class="lw-line lw-contrib" data-lw-contrib d=""></path>
       <path class="lw-line lw-compound" data-lw-compound d=""></path>
     </svg>
@@ -69,7 +69,8 @@ const t = useT(locale);
   /* La tarjeta, los controles, el lienzo y los ejes son compartidos y viven en
      src/styles/lesson-widget.css. Aquí solo van las dos curvas de esta
      calculadora y la variante de página de herramienta. */
-  .lw-area { fill: var(--brand-fill); opacity: .12; }
+  /* fill-opacity y no opacity: ver el comentario de .spark .fill en base.css. */
+  .lw-area { fill: var(--brand-fill); fill-opacity: .12; }
   .lw-line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
   .lw-contrib { stroke: var(--ink-3); stroke-dasharray: 5 4; stroke-width: 1.5; }
   .lw-compound { stroke: var(--brand-text); }

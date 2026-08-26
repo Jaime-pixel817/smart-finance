@@ -74,6 +74,11 @@ const t = useT(locale);
      siga al dedo desde el primer píxel (Lightweight Charts, en táctil, pide
      una pulsación larga antes de mover nada). `pan-y` deja que el gesto
      vertical siga desplazando la página. */
+  /* El lienzo y sus etiquetas viven aquí dentro; es lo que el trazado
+     destapa de izquierda a derecha (src/styles/trazo.css). La capa del
+     arrastre se queda fuera a propósito: un clip-path recorta también los
+     eventos de puntero. */
+  .pp-canvas :global(.pp-draw) { position: absolute; inset: 0; }
   /* Etiquetas del máximo y del mínimo del periodo: van en HTML y no en el
      marcador de la librería, que recorta su texto contra el borde del panel. */
   .pp-canvas :global(.pp-tags) { position: absolute; inset: 0; z-index: 1; pointer-events: none; }

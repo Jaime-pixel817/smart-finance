@@ -3,6 +3,7 @@
 // que una fila se vea igual en la lista y en "Relacionados".
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, sparkPath, type Loc } from './format';
 import { setNum } from './num';
+import { trazar } from './trazo';
 import type { Quote, SymbolRT } from './market-data';
 
 export function paintAssetRow(row: HTMLElement | null, s: SymbolRT, q: Quote | null, loc: Loc) {
@@ -35,7 +36,10 @@ export function paintAssetRow(row: HTMLElement | null, s: SymbolRT, q: Quote | n
   if (svg) {
     const { line } = sparkPath(q.series || [], 64, 24);
     svg.querySelector('.line')?.setAttribute('d', line);
-    svg.setAttribute('class', 'spark ' + dir);
+    svg.setAttribute('class', 'spark trazo-destape ' + dir);
+    // El trazado empieza cuando la fila se ve, no cuando llega el dato: en
+    // /market hay treinta filas y la mayoría nacen fuera de la pantalla.
+    if (line) trazar(svg);
   }
   row.dataset.state = 'ready';
 }

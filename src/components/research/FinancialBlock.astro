@@ -178,6 +178,14 @@ const repoDir = 'https://github.com/Jaime-pixel817/smart-finance/tree/main/conte
   </div>
 </div>
 
+<script>
+  // Las gráficas se dibujan al aparecer. El estado lo pone SIEMPRE este
+  // módulo, nunca el HTML del build: si no llega, las gráficas se ven
+  // dibujadas y quietas, que es la degradación correcta.
+  import { trazar } from '../../scripts/trazo';
+  document.querySelectorAll('.fin-chart [data-fc]').forEach((svg) => trazar(svg));
+</script>
+
 <style>
   .fin { display: flex; flex-direction: column; gap: var(--sp-5); }
   .fin > p { max-width: var(--measure); }
@@ -193,8 +201,11 @@ const repoDir = 'https://github.com/Jaime-pixel817/smart-finance/tree/main/conte
   .fin-chart :global(.fc-zero) { stroke: var(--ink-3); stroke-opacity: .5; }
   .fin-chart :global(.fc-ytick), .fin-chart :global(.fc-xtick) { fill: var(--ink-3); font-family: var(--font-mono); font-size: 10px; }
   .fin-chart :global(.fc-val) { fill: var(--ink-2); font-family: var(--font-mono); font-size: 10px; }
-  .fin-chart :global(.fc-bar) { opacity: .8; }
-  .fin-chart :global(.fc-bar.is-on) { opacity: 1; }
+  /* fill-opacity y no opacity: ver el comentario de .spark .fill en
+     base.css. Aquí ganaba la regla con ámbito de Astro (una clase más de
+     especificidad) y las barras entraban sin escalonar. */
+  .fin-chart :global(.fc-bar) { fill-opacity: .8; }
+  .fin-chart :global(.fc-bar.is-on) { fill-opacity: 1; }
   .fin-chart :global(.fc-line) { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 
   .fin-th { margin-top: var(--sp-2); }

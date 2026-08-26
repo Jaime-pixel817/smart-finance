@@ -1,0 +1,101 @@
+/* ---------------------------------------------------------------------------
+   EL TRAZADO DE LAS GRÁFICAS
+
+   Una gráfica que aparece de golpe se reconoce; trazada de izquierda a
+   derecha se RECORRE, en el mismo orden en que pasó el tiempo. Eso es todo lo
+   que hace este archivo.
+
+   Quién manda el estado: src/scripts/trazo.ts, con `data-trazo` en la raíz de
+   cada gráfica (espera → va → fin). Aquí solo está el movimiento.
+
+   ── DOS TÉCNICAS, Y POR QUÉ NO UNA ──────────────────────────────────────────
+
+   `.trazo-linea` — el guion que se abre (`stroke-dasharray` + `pathLength="1"`,
+   sin medir nada con JavaScript). Es lo barato y lo bonito: la punta sigue la
+   curva. Vale para las gráficas del research (viewBox 400×250 con
+   `preserveAspectRatio="xMidYMid meet"` y trazo normal).
+
+   `.trazo-destape` — el lienzo se descubre de izquierda a derecha con
+   `clip-path`. Es para las gráficas donde el guion NO funciona, y no es una
+   preferencia: está medido.
+
+     · Las sparklines y las gráficas de las herramientas se estiran
+       (`preserveAspectRatio="none"`) y por eso su trazo lleva
+       `vector-effect: non-scaling-stroke`, para que 1.5 px sigan siendo
+       1.5 px y la línea no salga como una salchicha. Con ese vector-effect el
+       navegador calcula el guion en el espacio del TRAZO, no en el del
+       viewBox, así que `pathLength="1"` deja de valer un largo completo: la
+       línea sale a trozos, y en el estado escondido se ve media gráfica.
+       Comprobado a propósito con la misma serie en cuatro montajes: sin
+       `non-scaling-stroke` el guion tapa y destapa perfecto (con la línea
+       deformada, que es justo lo que el vector-effect vino a arreglar); CON
+       él se parte, y se parte igual aunque la escala sea uniforme.
+     · Lightweight Charts dibuja en un <canvas>: no hay `<path>` que alargar.
+
+   ── TRES REGLAS QUE ESTÁN EN EL CSS, NO EN EL GUION ─────────────────────────
+
+   1. NINGUNA gráfica nace escondida en el HTML. El estado `espera` lo pone
+      SIEMPRE el guion, nunca el servidor: si el módulo no llega, la gráfica
+      se queda dibujada y quieta, que es exactamente lo que tiene que pasar.
+      Una gráfica invisible por un chunk que no cargó sería peor que una sin
+      movimiento — el mismo motivo por el que el SVG del globo nace apagado y
+      solo se enciende cuando se sabe que NO va a haber globo.
+   2. Nada se esconde con `prefers-reduced-motion`. El sitio ya apaga las
+      transiciones ahí (base.css), y apagar la transición de algo que empieza
+      invisible lo dejaría invisible para siempre. Por eso el estado escondido
+      vive dentro de `(prefers-reduced-motion: no-preference)` y no solo en un
+      `if` del guion: si alguien enciende la preferencia con la página abierta
+      y una gráfica está esperando, se dibuja sola.
+   3. El relleno del área NO tiene valor final escrito aquí. `espera` lo pone
+      en 0 y `va` solo añade la transición: al quitarse el estado, cada
+      gráfica vuelve a SU opacidad (.10 en las sparklines, .8 en las barras
+      del research) desvaneciéndose. Un `opacity: 1` aquí pisaría esas
+      opacidades.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Aparecer. El guion lo reescribe a 300 ms cuando el trazado es la
+     respuesta a un toque (cambiar de rango): eso no es una entrada. */
+  --trazo-dur: 600ms;
+  /* El relleno entra DESPUÉS de la línea, con un desvanecido corto. Su
+     retraso ES la duración de la línea, así que los dos números se mueven
+     juntos y no hay que cuadrarlos a mano. */
+  --trazo-luego-dur: 240ms;
+  /* Salida suave: rápido al principio, frenando al final, como una mano que
+     termina el trazo. */
+  --trazo-curva: cubic-bezier(0, 0, .45, 1);
+  /* Barra a barra, en las gráficas de barras del research. */
+  --trazo-paso: 70ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-trazo="espera"] .trazo-linea { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  /* Lo que entra detrás de la línea: el área, los puntos, la cifra pegada al
+     último valor. */
+  [data-trazo="espera"] .trazo-luego { opacity: 0; }
+  /* Las barras no se pueden alargar con un guion: entran una tras otra, de
+     izquierda a derecha, que es la misma lectura. */
+  [data-trazo="espera"] .trazo-barra { opacity: 0; }
+  /* Los 4 px de más por los tres lados que no se mueven: el trazo sobresale
+     del viewBox (`overflow: visible` y cabos redondos) y un recorte pegado al
+     borde le comería las puntas. */
+  [data-trazo="espera"].trazo-destape,
+  [data-trazo="espera"] .trazo-destape { clip-path: inset(-4px 100% -4px -4px); }
+}
+
+[data-trazo="va"] .trazo-linea {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--trazo-dur) var(--trazo-curva);
+}
+[data-trazo="va"] .trazo-luego {
+  transition: opacity var(--trazo-luego-dur) linear var(--trazo-dur);
+}
+[data-trazo="va"] .trazo-barra {
+  transition: opacity var(--trazo-luego-dur) var(--trazo-curva) calc(var(--i, 0) * var(--trazo-paso));
+}
+[data-trazo="va"].trazo-destape,
+[data-trazo="va"] .trazo-destape {
+  clip-path: inset(-4px -4px -4px -4px);
+  transition: clip-path var(--trazo-dur) var(--trazo-curva);
+}

@@ -8,6 +8,7 @@
 // pinta y comparte el enlace.
 import { valorFuturo, totalAportado, seriesAnuales } from '../lib/finance/compound.mjs';
 import { conectar } from './tools/url-state';
+import { trazar, cortar } from './trazo';
 
 function montar(raiz: HTMLElement) {
   const locale = raiz.dataset.locale === 'es' ? 'es' : 'en';
@@ -79,7 +80,11 @@ function montar(raiz: HTMLElement) {
   }
   // Escuchar sliders, aplicar/guardar los parámetros de la URL y montar el
   // botón "Copiar enlace" (todo eso vive en tools/url-state.ts).
-  conectar(raiz, pintar, 'interes-compuesto');
+  // La curva se traza UNA vez, al aparecer: mover un slider no la vuelve a
+  // dibujar (sería una respuesta con 600 ms de retraso), y si alguien mueve
+  // uno mientras se está trazando, el trazado se corta y manda el slider.
+  conectar(raiz, () => { cortar(svg); pintar(); }, 'interes-compuesto');
+  trazar(svg);
 }
 
 document.querySelectorAll<HTMLElement>('[data-widget="compound"]').forEach(montar);
