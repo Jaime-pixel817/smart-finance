@@ -1,0 +1,54 @@
+---
+// UN hueco del CV: el sitio donde va una frase que todavía no está escrita.
+//
+// La regla de este componente es la del apartado entero: si `c.suyo[id]` está
+// vacío se pinta el hueco, con el rótulo de qué falta y una pista de qué va
+// dentro; en cuanto esa cadena tiene texto, sale el texto y el hueco
+// desaparece. Nadie tiene que acordarse de quitar nada.
+//
+// SE VE QUE FALTA. Un hueco que se disimula es peor que no tenerlo: alguien
+// mandaría el enlace creyendo que la página está terminada. Por eso el borde
+// es discontinuo, el rótulo va en mono y en mayúsculas, y el texto de dentro
+// habla de lo que falta, nunca del tema. No hay ni una frase de relleno
+// ("Lorem ipsum", "Estudiante apasionado…") que pudiera colarse a producción
+// leyéndose como si fuera suya.
+import type { CvCopy, CvHueco } from '../../i18n/cv';
+
+interface Props { c: CvCopy; id: CvHueco; class?: string }
+const { c, id, class: cls } = Astro.props;
+
+const texto = (c.suyo[id] || '').trim();
+const h = c.huecos[id];
+---
+{texto ? (
+  <p class:list={['cv-suyo', cls]}>{texto}</p>
+) : (
+  <div class:list={['hueco', cls]} role="note" aria-label={h.que}>
+    <p class="hueco-tag">{c.hueco.tag}</p>
+    <p class="hueco-que">{h.que}</p>
+    <p class="hueco-pista t-small">{h.pista}</p>
+  </div>
+)}
+
+<style>
+  .cv-suyo { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink); max-width: var(--measure); }
+
+  .hueco {
+    display: flex; flex-direction: column; gap: 4px;
+    max-width: var(--measure);
+    padding: var(--card-pad);
+    border: 1px dashed var(--ink-3);
+    border-radius: var(--r-card);
+    background: var(--bg-1);
+  }
+  .hueco-tag {
+    font-family: var(--font-mono); font-size: var(--fs-eyebrow);
+    letter-spacing: .08em; text-transform: uppercase;
+    /* --warn es el color con el que este sitio dice "ojo con esto" (el aviso
+       de las carteras, el estado "borrador" del research). Un hueco es
+       exactamente eso, así que usa el mismo y no uno nuevo. */
+    color: var(--warn);
+  }
+  .hueco-que { color: var(--ink); font-weight: 600; }
+  .hueco-pista { color: var(--ink-2); }
+</style>
