@@ -23,6 +23,13 @@
 // trazo), las tres fuentes del primer pintado y el tema antes del primer
 // fotograma. La página se ve del sitio porque usa sus mismos tokens.
 //
+// PERO base.css NO se pide con `import` aquí, y eso también es a propósito: se
+// pide desde CSS, por src/styles/cv.css. Con dos entradas de JavaScript
+// importando la misma hoja, Rollup la saca a un trozo compartido y las 101
+// páginas que usan Base pasan a enlazar DOS hojas donde antes tenían una. El
+// porqué medido está en el encabezado de src/styles/cv.css; la misma trampa
+// que base.css ya documenta en su @import de trazo.css.
+//
 // ═══════════════════════════════════════════════════════════════════════════
 // UN SOLO DOCUMENTO, DOS IDIOMAS, CERO JAVASCRIPT PARA CAMBIAR
 // ═══════════════════════════════════════════════════════════════════════════
@@ -55,7 +62,7 @@
 // · Y NO se toca robots.txt: un `Disallow: /cv` impediría que Google leyera
 //   el `noindex`, que es justo al revés de lo que se quiere (la trampa que el
 //   propio robots.txt del sitio ya documenta desde lo del boletín).
-import '../styles/base.css';
+import '../styles/cv.css';
 import { useCv } from '../i18n/cv';
 import Mesa from '../components/cv/Mesa.astro';
 

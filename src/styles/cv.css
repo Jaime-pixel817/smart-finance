@@ -1,0 +1,21 @@
+/* La hoja del CV. Es UNA línea y existe por una razón medida.
+
+   /cv/<codigo> no pasa por Base.astro (ver src/layouts/Cv.astro), pero sí
+   quiere lo mismo que Base: tokens, movimiento y trazo. La forma obvia de
+   pedirlo —`import '../styles/base.css'` en el frontmatter de Cv.astro— es la
+   que NO se puede usar: con base.css importada desde DOS entradas de JavaScript
+   (Base.astro y Cv.astro), Rollup deja de meterla dentro de Base.*.css y la
+   saca a un trozo compartido. Resultado medido sobre el build: Base.*.css baja
+   de 35 907 a 21 711 bytes y aparece una base.*.css de 14 197 — los mismos
+   bytes, pero en DOS peticiones que bloquean el pintado en vez de una, y no
+   solo aquí: en LAS 101 PÁGINAS que usan Base. El sitio entero pasaba de 432
+   etiquetas <link rel=stylesheet> a 534, el home de tres hojas a cuatro, y
+   /market/spy —la ruta con menos margen de LCP del repo— de cuatro a cinco.
+
+   Es exactamente la trampa que base.css ya documenta arriba del @import de
+   trazo.css, y se arregla igual: pidiéndolo desde CSS y no desde JavaScript.
+   Vite aplana este @import dentro de esta misma hoja, así que base.css deja de
+   tener dos importadores de JavaScript, Base.*.css vuelve a ser una sola hoja
+   para todo el sitio, y el CV se lleva su copia dentro de su propio trozo — una
+   sola petición para él también. */
+@import './base.css';
