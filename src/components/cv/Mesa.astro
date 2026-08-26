@@ -1,0 +1,498 @@
+---
+// "LA MESA": el CV de Jaime como un panel de operaciones. Se renderiza UNA VEZ
+// POR IDIOMA dentro de la misma página (ver Cv.astro y el porqué abajo).
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// QUÉ ES ESTO Y QUÉ NO ES
+// ═══════════════════════════════════════════════════════════════════════════
+// Es el ANDAMIO. La maquetación, los instrumentos y los huecos. Ninguna frase
+// sobre Jaime la escribió esta rama: lo suyo son las siete cadenas vacías de
+// `suyo` en src/i18n/cv.ts, y cada una sale como un hueco marcado hasta que él
+// la escriba. Si algún día aparece aquí un logro, una cifra suya o una
+// universidad, alguien se saltó la regla.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// DE DÓNDE SALE CADA NÚMERO
+// ═══════════════════════════════════════════════════════════════════════════
+// · La cinta: /api/history (Yahoo Finance, caché de 60 s), pedida al abrir la
+//   página por src/scripts/cv-cinta.ts. Sin JavaScript o sin /api, cada precio
+//   se queda en una raya y el chip dice "sin datos" — la estructura se ve
+//   entera. Ni un precio está escrito a mano en este archivo.
+// · La cartera: src/data/portfolio.json y su foto nocturna
+//   src/data/portfolio-history.json, con las cuentas de
+//   src/lib/portfolio/cartera.mjs — el MISMO módulo que usa /portfolio y la
+//   tarea nocturna. Hoy no hay posiciones, así que sale el estado vacío
+//   honesto en vez de un cuadro relleno de ceros.
+// · El Reto Actinver: el calendario de src/lib/reto/actinver.mjs, copiado de
+//   retoactinver.com con su fecha de consulta.
+// · El equity research: content/research/lululemon, leído con
+//   src/lib/research/reports.ts.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// TRES DECISIONES QUE NO SON DE ESTILO
+// ═══════════════════════════════════════════════════════════════════════════
+// 1. AQUÍ NO SE DICE QUÉ FASE DEL RETO CORRE HOY. El bloque de /research sí lo
+//    hace, y puede: sirve una fase y recalcula en el navegador con
+//    src/scripts/reto-fase.ts. Ese script hace `querySelector('[data-reto]')`,
+//    o sea UN bloque — y esta página lleva dos (inglés y español), así que el
+//    segundo se quedaría con la fase del día del build y diría "faltan 36
+//    días" en octubre. Es exactamente el agujero que CLAUDE.md prohíbe. Lo que
+//    se publica aquí son FECHAS, que no caducan, y un enlace a /research, que
+//    es donde la fase se calcula bien. Cuando el CV tenga un solo idioma por
+//    documento, o el script pase a querySelectorAll, este bloque puede volver.
+// 2. LOS INSTRUMENTOS NO USAN Lightweight Charts. Por lo mismo: dos paneles de
+//    precio en el mismo documento serían dos instancias, y una de ellas nace
+//    dentro de un contenedor con `display: none` y tamaño cero. La cinta dibuja
+//    con `sparkPath()` de src/scripts/format.ts y el trazado de
+//    src/scripts/trazo.ts —el mismo dibujo que las filas de /market— y la
+//    curva de la cartera con `grafica()` de cartera.mjs, la misma que
+//    /portfolio. Cero bytes de librería y cero WebGL: por eso esta ruta sí
+//    puede llevar mínimo de rendimiento en el CI.
+// 3. LOS ids SON ÚNICOS POR IDIOMA (`p` es 'en' o 'es'). Dos panes en el mismo
+//    documento con el mismo `id` es HTML inválido y rompe cada
+//    `aria-labelledby`: el lector de pantalla se llevaría al encabezado del
+//    otro idioma.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { useCv } from '../../i18n/cv';
+import SourceChip from '../SourceChip.astro';
+import Hueco from './Hueco.astro';
+import { SYMBOLS } from '../../data/symbols';
+import { CARTERAS } from '../../lib/portfolio/data';
+import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
+import { dinero, pctFirmado, claseDir, dia, frase } from '../../lib/portfolio/formato.mjs';
+import { RETO_2026 } from '../../lib/reto/actinver.mjs';
+import { loadReport } from '../../lib/research/reports';
+import { day, month } from '../../lib/research/format.mjs';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const c = useCv(locale);
+const L = (id: string) => route(id, locale);
+/** Prefijo de los ids de este pane: sin él, los dos idiomas los repetirían. */
+const p = locale;
+
+const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
+const TIKTOK = 'https://www.tiktok.com/@smart.financee';
+const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
+
+// ---------------------------------------------------------------- la cinta
+// Tres clases de activo distintas, no tres versiones del mismo: el índice, el
+// peso y la cripto. Todas con `history`, que es lo que /api/history sabe pedir.
+const CINTA_IDS = ['spy', 'usdmxn', 'btc'];
+const cinta = CINTA_IDS.map((id) => SYMBOLS.find((s) => s.id === id)).filter(Boolean) as typeof SYMBOLS;
+// El chip dice el proveedor del dato que se ENSEÑA, no el del registro: estas
+// tres series salen todas de /api/history, que lee Yahoo Finance.
+const FUENTE = 'Yahoo Finance';
+const RETRASO = 15;
+const cintaStrings = JSON.stringify({ loading: t('src.loading'), unavailable: t('src.unavailable') });
+
+// ------------------------------------------------------------- la cartera
+const { cartera, historial } = CARTERAS.portfolio;
+const foto = ultimoPunto(historial);
+const r = resumen(cartera, foto ? foto.precios : {});
+const g = grafica(historial.puntos, { w: 600, h: 120, pad: 6, base: cartera.capitalInicial });
+const hayCartera = cartera.posiciones.length > 0;
+const D = (n: number | null | undefined) => dinero(n, locale, cartera.moneda);
+const P = (n: number | null | undefined) => pctFirmado(n, locale);
+
+// -------------------------------------------------------------- el reto
+const cal = RETO_2026;
+const rango = (x: { desde: string; hasta: string }) => day(x.desde, locale) + ' – ' + day(x.hasta, locale);
+const filasCal = [
+  { id: 'inscripciones' as const, cuando: rango(cal.inscripciones) },
+  { id: 'practica' as const, cuando: rango(cal.practica) },
+  { id: 'reto' as const, cuando: rango(cal.reto) },
+  // La premiación no tiene día publicado: solo mes. No se le inventa uno, y
+  // el mes lo escribe `month()` desde el calendario, no la traducción.
+  { id: 'premiacion' as const, cuando: month(cal.premiacion.mes, locale) }
+];
+
+// ----------------------------------------------------------- el research
+const rep = loadReport('lululemon');
+const estado = (rep.meta.status || 'draft') as string;
+---
+<div class="mesa">
+
+  <!-- ── Idioma ──────────────────────────────────────────────────────────
+       Los dos idiomas están en el MISMO documento y el cambio lo hace
+       `:target` (ver src/layouts/Cv.astro): cero JavaScript. El selector va
+       dentro de cada panel, y no una vez arriba, para que cada uno pueda
+       marcar el suyo con `aria-current` sin preguntarle nada al navegador. -->
+  <nav class="cv-lang" aria-label={c.lang.aria}>
+    <a href="#en" class:list={['cv-lang-a', locale === 'en' && 'on']}
+      aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
+    <a href="#es" class:list={['cv-lang-a', locale === 'es' && 'on']}
+      aria-current={locale === 'es' ? 'page' : undefined} lang="es">{c.lang.es}</a>
+  </nav>
+
+  <!-- ── Cabecera ────────────────────────────────────────────────────── -->
+  <header class="mesa-head">
+    <p class="eyebrow">{c.head.eyebrow}</p>
+    <h1 class="t-display" id={`cv-h1-${p}`}>{c.head.name}</h1>
+    <Hueco c={c} id="aplicaA" />
+    <Hueco c={c} id="linea" />
+    <Hueco c={c} id="quienSoy" />
+    <p class="t-small muted mesa-note">{c.head.note}</p>
+    <p class="t-caption faint mesa-note">{c.hueco.note}</p>
+    <p class="t-small"><a class="more-link" href={L('home')}>{c.head.backLabel} · {c.head.site} →</a></p>
+  </header>
+
+  <!-- ── La cinta ────────────────────────────────────────────────────── -->
+  <section class="mesa-sec" aria-labelledby={`cv-tape-${p}`}
+    data-cinta data-loc={locale} data-strings={cintaStrings}>
+    <div class="sec-head">
+      <h2 id={`cv-tape-${p}`} class="t-h2">{c.tape.h}</h2>
+      <!-- `inicio="unavailable"`: el chip NACE diciendo "sin datos", y lo pasa
+           a "cargando…" el módulo cuando pide. Con el "cargando…" de omisión,
+           un navegador sin JavaScript se quedaba con un chip cargando para
+           siempre — el mismo esqueleto latiendo que los precios de abajo
+           evitan naciendo como rayas, y una promesa rota: dos párrafos más
+           abajo esta página dice que si el endpoint no contesta el chip lo
+           dice. Ahora los tres estados son verdad en el instante en que se
+           leen. -->
+      <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
+    </div>
+    <p class="t-small muted">{c.tape.lede}</p>
+    <ul class="cinta">
+      {cinta.map((s) => (
+        <li class="cinta-fila" data-cinta-fila={s.id} data-pair={s.history} data-dec={String(s.decimals)}>
+          <a class="cinta-link" href={L('asset.' + s.id)}>
+            <span class="cinta-id">
+              <span class="cinta-sym num">{s.sym}</span>
+              <span class="cinta-name t-caption faint">{s.name[locale]}</span>
+            </span>
+            <!-- Nace con la ruta VACÍA, no con un esqueleto que parpadea: sin
+                 JavaScript un esqueleto se quedaría latiendo para siempre, que
+                 es justo el hueco roto que esta página no puede tener. -->
+            <span class="cinta-spark" aria-hidden="true">
+              <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
+            </span>
+            <!-- Precio y cambio van DENTRO de una caja, no sueltos en la
+                 rejilla: con la letra grande la fila se parte en dos renglones
+                 y los dos números tienen que viajar juntos al de abajo. Sueltos
+                 eran dos celdas independientes y no había forma de que uno
+                 cayera debajo del otro cuando ni así caben (ver el bloque de
+                 las válvulas, abajo). -->
+            <!-- LOS RÓTULOS VAN ANTES DEL VALOR Y COMO HERMANOS SUYOS, no
+                 dentro. El módulo escribe estos dos nodos con `textContent`
+                 (src/scripts/cv-cinta.ts), así que un rótulo metido DENTRO del
+                 <span> del precio se borraría en la primera pintada. Sin
+                 rótulos, el nombre accesible de la fila eran dos números
+                 seguidos —"SPY S&P 500 603.71 ▲ 0.13 %"— sin decir cuál es el
+                 precio y cuál el cambio. -->
+            <span class="cinta-nums">
+              <span class="visually-hidden">{c.tape.price}</span>
+              <span class="cinta-price num" data-precio>{c.tape.pending}</span>
+              <span class="visually-hidden">{c.tape.change}</span>
+              <span class="cinta-chg num t-caption" data-cambio></span>
+            </span>
+            <!-- Qué pasa al tocar la fila. Es un enlace y no lo parecía por el
+                 nombre: terminaba en un porcentaje. -->
+            <span class="visually-hidden">{c.tape.open}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="t-caption faint">{c.tape.note}</p>
+    <p class="t-caption faint">{c.tape.fail}</p>
+  </section>
+
+  <!-- ── La cartera ──────────────────────────────────────────────────── -->
+  <section class="mesa-sec" aria-labelledby={`cv-book-${p}`}>
+    <h2 id={`cv-book-${p}`} class="t-h2">{c.book.h}</h2>
+    <p class="t-small muted">{c.book.lede}</p>
+
+    {hayCartera ? (
+      <>
+        <ul class="tiles">
+          <li class="card tile">
+            <p class="eyebrow">{c.book.value}</p>
+            <p class="tile-big num">{D(r.valorTotal)}</p>
+          </li>
+          <li class="card tile">
+            <p class="eyebrow">{c.book.change}</p>
+            <p class:list={['tile-big', 'num', claseDir(r.variacion ? r.variacion.pct : null)]}>
+              {r.variacion ? P(r.variacion.pct) : '—'}
+            </p>
+          </li>
+          <li class="card tile">
+            <p class="eyebrow">{c.book.positions}</p>
+            <p class="tile-big num">{cartera.posiciones.length}</p>
+          </li>
+          <li class="card tile">
+            <p class="eyebrow">{c.book.trades}</p>
+            <p class="tile-big num">{r.operaciones}</p>
+          </li>
+        </ul>
+        {g && (
+          <figure class="curva">
+            <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
+              aria-label={`${c.book.chartAria}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
+              {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
+              <path class="curva-area" d={g.area} />
+              <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
+            </svg>
+          </figure>
+        )}
+        {foto && <p class="t-caption faint">{frase(c.book.snapshot, { date: dia(foto.fecha, locale) })}</p>}
+      </>
+    ) : (
+      <div class="card vacio">
+        <p class="t-small">{c.book.empty}</p>
+        <p class="t-caption faint num">{c.book.emptyWhere}</p>
+      </div>
+    )}
+
+    <Hueco c={c} id="carteraNota" />
+    <p class="t-small"><a class="more-link" href={L('portfolio')}>{c.book.link} →</a></p>
+  </section>
+
+  <!-- ── El Reto Actinver ────────────────────────────────────────────── -->
+  <section class="mesa-sec" aria-labelledby={`cv-reto-${p}`}>
+    <h2 id={`cv-reto-${p}`} class="t-h2">{c.reto.h}</h2>
+    <p class="t-small muted">{c.reto.lede}</p>
+
+    <h3 class="t-h3">{c.reto.calH}</h3>
+    <ol class="cal">
+      {filasCal.map((f) => (
+        <li>
+          <span class="cal-que">{c.reto.cal[f.id]}</span>
+          <span class="cal-cuando num">{f.cuando}</span>
+        </li>
+      ))}
+    </ol>
+
+    <Hueco c={c} id="retoNota" />
+    <p class="t-small links-row">
+      <a class="more-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
+      <a class="more-link" href={L('actinver')}>{c.reto.linkMine} →</a>
+    </p>
+    <p class="t-caption faint">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
+  </section>
+
+  <!-- ── Equity research ─────────────────────────────────────────────── -->
+  <section class="mesa-sec" aria-labelledby={`cv-res-${p}`}>
+    <h2 id={`cv-res-${p}`} class="t-h2">{c.research.h}</h2>
+    <p class="t-small muted">{c.research.lede}</p>
+
+    <a class="card card-link rep" href={L(rep.routeId)}>
+      <!-- "NASDAQ: LULU" a secas abre el nombre de esta tarjeta con algo que
+           solo se entiende si ya sabes lo que es. El rótulo lo dice y no
+           ocupa un píxel. -->
+      <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
+      <p class="t-h3 rep-name">{rep.meta.name}</p>
+      <dl class="rep-meta t-caption">
+        <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
+        <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
+        <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
+        <div><dt>{c.research.status}</dt><dd class={'rep-status st-' + estado}>{c.research.statusLabel[estado] ?? estado}</dd></div>
+      </dl>
+      <span class="t-small rep-cta">{c.research.link} →</span>
+    </a>
+
+    <Hueco c={c} id="researchNota" />
+    <p class="t-small"><a class="more-link" href={L('research')}>{c.research.hubLink} →</a></p>
+  </section>
+
+  <!-- ── Cierre ──────────────────────────────────────────────────────── -->
+  <section class="mesa-sec" aria-labelledby={`cv-close-${p}`}>
+    <h2 id={`cv-close-${p}`} class="t-h2">{c.close.h}</h2>
+    <Hueco c={c} id="cierre" />
+
+    <h3 class="t-h3">{c.close.contactH}</h3>
+    <p class="t-small links-row">
+      <a class="more-link" href={LINKEDIN} target="_blank" rel="noopener">{c.close.linkedin} ↗</a>
+      <a class="more-link" href={TIKTOK} target="_blank" rel="noopener">{c.close.tiktok} ↗</a>
+      <a class="more-link" href={GITHUB} target="_blank" rel="noopener">{c.close.repo} ↗</a>
+      <a class="more-link" href={L('about')}>{c.close.about} →</a>
+      <a class="more-link" href={L('methodology')}>{c.close.methodology} →</a>
+    </p>
+  </section>
+
+  <!-- ── Disclaimer educativo ────────────────────────────────────────── -->
+  <section class="mesa-sec" aria-labelledby={`cv-disc-${p}`}>
+    <h2 id={`cv-disc-${p}`} class="t-h3">{c.disc.h}</h2>
+    <p class="t-small muted disc">{c.disc.p}</p>
+  </section>
+</div>
+
+<style>
+  .mesa { display: flex; flex-direction: column; gap: var(--section-gap); }
+
+  /* ---- Selector de idioma ---- */
+  .cv-lang { display: flex; gap: var(--sp-2); }
+  .cv-lang-a {
+    display: inline-flex; align-items: center; min-height: 36px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line); border-radius: var(--r-btn);
+    color: var(--ink-2); font-size: var(--fs-caption);
+  }
+  .cv-lang-a:hover { color: var(--ink); background: var(--bg-2); }
+  .cv-lang-a.on { color: var(--ink); background: var(--bg-2); border-color: var(--ink-3); }
+  /* En papel no se cambia de idioma. */
+  @media print { .cv-lang { display: none; } }
+  .mesa-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  /* El nombre es lo único de la página en `--fs-display` (2rem), así que es lo
+     primero que deja de caber cuando alguien sube la letra: al 225 % son 72 px
+     y "Sandoval" pide 320 en los 288 que hay a 320 px de ancho. Sin esto,
+     desbordaba 10.5 px y arrastraba la página entera de lado. Se parte la
+     palabra —igual que `.tile-big`, tres reglas más abajo— en vez de recortar
+     el tamaño con `vw`, que es lo que NO se puede hacer: capar la letra con
+     una unidad del viewport es exactamente lo que rompe WCAG 1.4.4. Solo
+     entra en juego cuando la palabra de verdad no cabe: al 100 % no se nota. */
+  .mesa-head h1 { overflow-wrap: anywhere; }
+  .mesa-note { max-width: var(--measure); }
+  .mesa-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .mesa-sec > p { max-width: var(--measure); }
+  .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+
+  /* ---- La cinta ---- */
+  .cinta { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-1); }
+  .cinta-fila { border-bottom: 1px solid var(--line); }
+  .cinta-fila:last-child { border-bottom: 0; }
+  .cinta-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px auto;
+    grid-template-areas: 'id spark nums';
+    align-items: center; gap: var(--sp-3); min-height: 56px;
+    padding: 0 var(--sp-3); color: var(--ink);
+    transition: background var(--dur-2) var(--ease-std);
+  }
+  .cinta-fila:hover { background: var(--bg-2); border-radius: var(--r-input); }
+  .cinta-id { grid-area: id; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  /* `min-width: 0` + `overflow-wrap: anywhere` EN EL SÍMBOLO, no solo en su
+     caja. `.cinta-id` ya podía encogerse, pero su hijo no: el mínimo de un
+     elemento es su min-content, "USD/MXN" no tiene dónde partirse (la barra no
+     es una oportunidad de corte) y el resultado era un símbolo pintado FUERA
+     de su celda — 117.6 px fuera a 390 px con el texto al 200 %, encima del
+     dibujo y del número. Con `anywhere` el min-content pasa a ser un carácter,
+     así que la celda puede encogerse y el símbolo ENVUELVE en vez de salirse.
+     Esto vale sin una sola media query: es el suelo que sigue en pie aunque
+     ninguna válvula de abajo llegue a dispararse. */
+  .cinta-sym { font-size: var(--fs-small); min-width: 0; overflow-wrap: anywhere; }
+  .cinta-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cinta-spark { grid-area: spark; width: 64px; height: 24px; display: block; }
+  .cinta-nums {
+    grid-area: nums;
+    display: flex; align-items: baseline; justify-content: flex-end;
+    flex-wrap: wrap; column-gap: var(--sp-3);
+  }
+  .cinta-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; white-space: nowrap; }
+  .cinta-chg { text-align: right; min-width: 8ch; white-space: nowrap; }
+
+  /* ── LAS VÁLVULAS VAN EN `em` Y NO EN `px`, Y ESA ES TODA LA CORRECCIÓN ──
+     La promesa de aquí arriba —"lo primero que cede es el dibujo, nunca el
+     número"— era mentira en cuanto alguien subía el tamaño de letra, que es lo
+     que pide WCAG 1.4.4 y lo que trae de fábrica media persona que lee un CV
+     en un teléfono.
+
+     El motivo: la fila mezclaba anchos que CRECEN con la letra (`min-width`
+     en `ch` del precio y del cambio) con anchos que NO (`64px` de dibujo,
+     `--sp-*`, que en tokens.css son píxeles, y el propio contenedor). Al subir
+     la letra, las dos columnas de `ch` se hinchaban, el `1fr` del nombre pagaba
+     la diferencia y se iba a cero, y el símbolo —que no podía encogerse— se
+     pintaba encima de todo. Y la ÚNICA válvula, `@media (max-width: 379px)`,
+     miraba el ancho del VIEWPORT: no se entera de que lo que creció es el
+     texto, así que a 390 px no disparaba nunca.
+
+     `em` en una media query se resuelve contra el tamaño de letra POR OMISIÓN
+     del navegador, que es exactamente la perilla que mueve quien agranda el
+     texto. Así que estas dos consultas miran el ancho medido EN LETRAS, no en
+     píxeles: a 100 % dan el mismo corte que antes (23.7em × 16 px = 379.2 px,
+     el mismo 379 de siempre, comprobado a 320/360/375/390/414) y al 175 % ese
+     mismo 23.7em ya son 663 px, así que disparan en cualquier teléfono.
+
+     Se eligió `em` y no `@container`: una consulta de contenedor mide el
+     contenedor, y el panel del idioma que no se ve está en `display: none`
+     —ancho cero—, así que un contenedor ahí dentro casaría con todos los
+     `max-width` a la vez. Y `em` funciona en cualquier navegador con media
+     queries, o sea todos, sin depender de Safari 16.
+
+     Orden, que es la promesa: primero se va el DIBUJO (23.7em) y solo después,
+     si aún no caben, se PARTE la fila (17em). En 414 px eso es el dibujo desde
+     el 109 % y el reparto en dos renglones desde el 152 %. El número no se
+     recorta, no se encoge y no se tapa en ningún punto. */
+
+  /* Válvula 1 — cede el dibujo. Es el `379px` de siempre, dicho en letras. */
+  @media (max-width: 23.7em) {
+    .cinta-link { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'id nums'; gap: var(--sp-2); }
+    .cinta-nums { column-gap: var(--sp-2); }
+    .cinta-spark { display: none; }
+  }
+
+  /* Válvula 2 — ya no caben nombre y número en el mismo renglón: la fila se
+     PARTE. El nombre se queda con el ancho entero (a 320 px son 262, y lo más
+     largo que hay, "US dollar in pesos", pide 227 al 225 %) y los números
+     bajan a su propio renglón. Ahí pierden el suelo en `ch` —que era para
+     alinear columnas que ya no existen— y ganan `flex-wrap`, así que en el
+     caso extremo el cambio cae debajo del precio en vez de desbordar. */
+  @media (max-width: 17em) {
+    .cinta-link {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'id' 'nums';
+      row-gap: var(--sp-1); padding-block: var(--sp-3);
+    }
+    .cinta-nums { justify-content: flex-start; column-gap: var(--sp-4); }
+    .cinta-price, .cinta-chg { text-align: left; min-width: 0; }
+  }
+
+  /* ---- La cartera ---- */
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  @media (min-width: 768px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tile-big { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums slashed-zero; font-size: var(--fs-num-l); line-height: 1.2; overflow-wrap: anywhere; }
+  .curva { margin: 0; }
+  .curva-svg { width: 100%; height: 120px; display: block; }
+  .curva-area { fill: var(--brand-fill); opacity: .10; stroke: none; }
+  .curva-line { fill: none; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+  .curva-line.up { color: var(--up-text); }
+  .curva-line.down { color: var(--down-text); }
+  .curva-line.flat { color: var(--neutral); }
+  .curva-base { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+  .vacio { display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+  /* La ruta del archivo va en mono y no tiene un solo espacio donde partirse,
+     así que con la letra grande se salía de la página: +44 px de scroll
+     horizontal a 320 px al 200 %, que es el ancho y el tamaño que pide
+     WCAG 1.4.10. `.tile-big` ya llevaba `anywhere`; esta se quedó sin él. */
+  .vacio .num { overflow-wrap: anywhere; }
+
+  /* ---- El calendario del reto ---- */
+  .cal { display: flex; flex-direction: column; }
+  .cal li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+  .cal-que { color: var(--ink-2); }
+  .cal-cuando { color: var(--ink-3); font-size: var(--fs-small); }
+
+  /* ---- El reporte ---- */
+  .rep { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .rep-name { font-family: var(--font-serif); }
+  .rep-meta { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-4); margin: 0; }
+  .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
+  .rep-meta dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
+  .rep-meta dd { margin: 0; color: var(--ink); }
+  /* EL SELECTOR LLEVA `.rep-meta dd` DELANTE, Y NO ES ADORNO: SIN ESO ESTE
+     COLOR NO SE APLICA.
+     Es la trampa de los estilos con ámbito de Astro que CLAUDE.md documenta en
+     dos sitios (el anillo de foco que tapaban `.card` y `.tile`, y el `.proj`
+     de Hub.astro que no llegaba a RetoActinver.astro). Astro le pega un
+     `[data-astro-cid-…]` a CADA compuesto del selector, así que lo que de
+     verdad compite es:
+
+       .rep-meta[cid] dd[cid]              → (0,3,1)   color: var(--ink)
+       .rep-status[cid].st-draft           → (0,3,0)   color: var(--warn)
+
+     Gana el de arriba por un elemento, y "Borrador" se pintaba en tinta
+     normal: el estado del reporte —lo único de esa tarjeta que dice que el
+     research NO está terminado— se leía como un dato más. Con `.rep-meta dd`
+     delante son (0,5,1) contra (0,3,1) y gana el color, sin depender del orden
+     en que estén escritas las reglas. Igual para `st-published`. */
+  .rep-meta dd.rep-status.st-draft { color: var(--warn); }
+  .rep-meta dd.rep-status.st-published { color: var(--up-text); }
+  .rep-cta { color: var(--brand-text); }
+
+  .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
+  .more-link { color: var(--brand-text); min-height: 36px; display: inline-flex; align-items: center; }
+  .more-link:hover { text-decoration: underline; }
+  .disc { max-width: var(--measure); }
+</style>

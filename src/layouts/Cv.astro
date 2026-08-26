@@ -1,0 +1,191 @@
+---
+// Layout de /cv/<codigo>. NO es Base.astro, y eso es una decisión, no un atajo.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// POR QUÉ NO USA Base.astro
+// ═══════════════════════════════════════════════════════════════════════════
+// Base.astro pide un `routeId` y con él llama a `route()` y `alternates()` de
+// src/i18n/routes.ts. O sea: para pasar por Base, la dirección del CV tendría
+// que estar registrada en routes.ts — el archivo desde el que se generan el
+// sitemap Y el índice del buscador, los dos escritos en cada build de Vercel,
+// que es el único build donde CV_SLUG existe. Serían dos ocasiones de filtrar
+// el código en producción, y las dos en archivos públicos. Sin entrada en
+// routes.ts no hay ninguna: la página está fuera del sitemap y fuera del
+// buscador POR CONSTRUCCIÓN, no porque alguien se acordara de excluirla.
+//
+// Lo demás sale gratis y a favor: sin barra superior, sin barra de abajo, sin
+// overlay de búsqueda, sin avisos y sin la hoja de la IA, esto se lee como un
+// documento y no como "otra página del sitio" — que es exactamente el riesgo
+// que tenía este concepto — y baja de ~40 KB de JavaScript a los ~6 de la
+// cinta. Es lo que le deja pasar el mínimo de rendimiento del CI.
+//
+// Lo que SÍ se hereda es todo lo que importa: base.css (tokens, movimiento y
+// trazo), las tres fuentes del primer pintado y el tema antes del primer
+// fotograma. La página se ve del sitio porque usa sus mismos tokens.
+//
+// PERO base.css NO se pide con `import` aquí, y eso también es a propósito: se
+// pide desde CSS, por src/styles/cv.css. Con dos entradas de JavaScript
+// importando la misma hoja, Rollup la saca a un trozo compartido y las 101
+// páginas que usan Base pasan a enlazar DOS hojas donde antes tenían una. El
+// porqué medido está en el encabezado de src/styles/cv.css; la misma trampa
+// que base.css ya documenta en su @import de trazo.css.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// UN SOLO DOCUMENTO, DOS IDIOMAS, Y EL CAMBIO LO SIGUE HACIENDO EL CSS
+// ═══════════════════════════════════════════════════════════════════════════
+// Un código = un archivo. Emitir /cv/<codigo> y /es/cv/<codigo> serían dos
+// direcciones que repartir y dos que se filtran, así que los dos idiomas
+// viven en el mismo documento y el cambio lo hace `:target`, en CSS:
+//
+//   · Las dos anclas (#en, #es) van ANTES de los dos paneles y son hermanas
+//     suyas, así que basta el combinador `~`. Sin :has(), que es más nuevo.
+//   · Por omisión se ve inglés. Con la URL terminada en #es se ve español.
+//   · Sin JavaScript se cambia de idioma IGUAL: el que enseña y esconde los
+//     paneles es el CSS, y eso no ha cambiado.
+//   · Si el CSS no llegara, se ven LOS DOS paneles, uno detrás de otro. El
+//     peor caso es un CV bilingüe largo, nunca una página en blanco.
+//
+// El `lang` de cada panel es el suyo (el documento es `en`): un lector de
+// pantalla no puede leer el panel español con voz inglesa. Y el panel oculto
+// va con `display: none`, así que no se anuncia ni se tabula.
+//
+// LO QUE SÍ NECESITÓ JAVASCRIPT, Y POR QUÉ SON ONCE LÍNEAS EN LÍNEA.
+// El CSS sabe enseñar y esconder, pero hay tres cosas que NO puede hacer, y
+// las tres se notaban:
+//
+//   · `<html lang>` se quedaba en `en` para siempre. Un atributo no se cambia
+//     desde una hoja de estilos: no hay selector que escriba. Con el panel
+//     español a la vista, el documento seguía declarándose inglés.
+//   · El foco se PERDÍA. Al pulsar "Español" desaparece el panel donde estaba
+//     el enlace, y `document.activeElement` se iba a `<body>`: el siguiente
+//     Tab empieza desde arriba del todo y el cursor de lectura se pierde.
+//   · No se anunciaba nada. El cambio era mudo.
+//
+// Va como `<script is:inline>` y no como módulo: cero peticiones y corre
+// durante el análisis del HTML, igual que el guion del tema de aquí arriba.
+// Y va TODO detrás de `hashchange`, así que si no llega el JavaScript lo que
+// se pierde es el anuncio, no el cambio de idioma.
+//
+// El foco va al PANEL y no al enlace de idioma: el enlace dejaría el cursor
+// metido en la barra de idiomas, y lo que acaba de pasar es que el documento
+// entero es otro, así que la lectura tiene que poder empezar por arriba. El
+// panel no tiene nombre accesible propio, y por eso además hay un
+// `role="status"` que dice en qué idioma quedó — escrito en el HTML VACÍO
+// desde el principio, que es la regla del sitio para las regiones vivas (un
+// lector de pantalla solo anuncia lo que aparece DENTRO de una región que ya
+// existía).
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LO QUE ESTA PÁGINA NO LLEVA, A PROPÓSITO
+// ═══════════════════════════════════════════════════════════════════════════
+// · Analítica. Vercel Insights escribe la URL visitada en los informes; la
+//   dirección del CV no tiene por qué acabar ahí (ni siquiera en los suyos).
+// · canonical, og:image y hreflang. `scripts/check-seo.mjs` solo se los exige
+//   a las páginas indexables, y a una con noindex no le pintan nada. Menos
+//   metadatos es menos sitios por donde viaja la dirección.
+// · `referrer: no-referrer`, esta sí puesta: sin ella, abrir el LinkedIn o el
+//   GitHub del cierre le regalaría la dirección secreta a un tercero en la
+//   cabecera `Referer`.
+// · Y NO se toca robots.txt: un `Disallow: /cv` impediría que Google leyera
+//   el `noindex`, que es justo al revés de lo que se quiere (la trampa que el
+//   propio robots.txt del sitio ya documenta desde lo del boletín).
+import '../styles/cv.css';
+import { useCv } from '../i18n/cv';
+import Mesa from '../components/cv/Mesa.astro';
+
+const c = useCv('en');
+/** Solo para los dos rótulos del anuncio de idioma: cada uno en SU idioma. */
+const cEs = useCv('es');
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E";
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{c.docTitle}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#09090B" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F7F7F4" media="(prefers-color-scheme: light)">
+  <link rel="icon" href={FAVICON}>
+  <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Tema ANTES del primer pintado, igual que en Base.astro: oscuro por
+       omisión y la elección guardada gana. Sin JS manda prefers-color-scheme. -->
+  <script is:inline>
+    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+  </script>
+</head>
+<body class="cv-body">
+  <main id="main">
+    <!-- Las anclas del cambio de idioma. Van aquí, hermanas de los dos
+         paneles y delante de ellos, porque de eso depende el `~` del CSS. -->
+    <div id="en" class="cv-ancla"></div>
+    <div id="es" class="cv-ancla"></div>
+
+    <!-- La región viva del cambio de idioma. Nace VACÍA y en el HTML: un
+         lector de pantalla solo anuncia lo que aparece dentro de una región
+         que ya existía, así que crearla en el momento no serviría de nada.
+         Los dos rótulos viajan en `data-`, cada uno escrito en su idioma, para
+         que el guion no lleve ni una palabra traducible dentro. -->
+    <p id="cv-idioma" class="visually-hidden" role="status"
+      data-en={c.lang.en} data-es={cEs.lang.es}></p>
+
+    <!-- `tabindex="-1"`: al cambiar de idioma el foco se va al panel que
+         aparece. No es tabulable (índice negativo), solo enfocable por guion. -->
+    <div class="cv-pane cv-en container" lang="en" tabindex="-1"><Mesa locale="en" /></div>
+    <div class="cv-pane cv-es container" lang="es" tabindex="-1"><Mesa locale="es" /></div>
+  </main>
+
+  <!-- Lo que el `:target` no puede hacer: el `lang` del documento, el foco y
+       el anuncio. Ver el bloque del encabezado. En línea y no como módulo:
+       cero peticiones, y corre durante el análisis del HTML — el `lang` queda
+       bien desde el primer fotograma, también si se llega con #es ya puesto.
+       Si esto no llega, el idioma se sigue cambiando: eso lo hace el CSS. -->
+  <script is:inline>
+    (function () {
+      var p = document.getElementById('cv-idioma');
+      function aplicar(anunciar) {
+        var es = location.hash === '#es';
+        document.documentElement.lang = es ? 'es' : 'en';
+        if (!anunciar) return;
+        // En el siguiente fotograma: al llegar aquí el navegador puede no
+        // haber aplicado todavía el `:target`, y `focus()` sobre algo que aún
+        // computa `display: none` se pierde en silencio.
+        requestAnimationFrame(function () {
+          var pane = document.querySelector(es ? '.cv-es' : '.cv-en');
+          if (pane) pane.focus();
+          if (p) p.textContent = es ? p.dataset.es : p.dataset.en;
+        });
+      }
+      aplicar(false);
+      addEventListener('hashchange', function () { aplicar(true); });
+    })();
+  </script>
+
+  <!-- La cinta: un solo módulo para los dos paneles (los pares se piden UNA
+       vez). Va en el layout y no en Mesa.astro, que se renderiza dos veces. -->
+  <script>import '../scripts/cv-cinta';</script>
+</body>
+</html>
+
+<style>
+  .cv-body { padding-block: var(--sp-6) var(--sp-8); }
+  /* Las anclas no ocupan sitio y no se tabulan: solo existen para :target. */
+  .cv-ancla { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* Por omisión, inglés. Con #es en la dirección, español. Nada más.
+     Si estas tres reglas no llegaran, se verían los dos paneles seguidos. */
+  .cv-es { display: none; }
+  #es:target ~ .cv-en { display: none; }
+  #es:target ~ .cv-es { display: block; }
+
+  .cv-pane { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+
+  /* Impreso: un CV se imprime. El panel escondido sigue escondido, así que
+     sale un solo idioma. Lo que se va del papel (el selector de idioma) lo
+     esconde Mesa.astro, que es de quien es ese marcado. */
+  @media print { .cv-body { padding: 0; } }
+</style>

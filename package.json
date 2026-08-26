@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "astro dev",
     "prebuild": "test -f scripts/build-og-pages.mjs && node scripts/build-og-pages.mjs || echo '[og:pages] me salto la generacion: falta scripts/ (lo excluye .vercelignore) o el generador aviso. Se usan las imagenes commiteadas de public/og/.'",
-    "build": "astro build",
+    "build": "astro build; e=$?; rm -rf dist/.prerender; exit $e",
     "preview": "astro preview",
     "check": "astro check",
     "build:es": "node scripts/build-es.js",
@@ -33,7 +33,9 @@
     "boletin:ensayo": "node scripts/boletin-ensayo.js",
     "newsletter:sync": "node scripts/newsletter-sync.js",
     "derive": "node scripts/derive.mjs",
+    "cv:codigo": "node scripts/cv-codigo.mjs",
     "check-seo": "node scripts/check-seo.mjs dist",
+    "precheck-lh": "test -f dist/cv/vista-previa.html || { echo '[check-lh] Falta dist/cv/vista-previa.html, que es la URL del CV que mide lighthouserc.json. Ese archivo SOLO se emite cuando CV_SLUG no esta definida, y .env.local cuenta: si la pusiste ahi, cada build local emite tu slug de verdad y esta comprobacion mediria un 404 (un cero que no significa nada). Lighthouse mide la vista previa a proposito: con el slug bueno, la direccion privada acabaria escrita en los informes de .lighthouseci/. Construye sin la variable y vuelve: CV_SLUG= npm run build && npm run check-lh' >&2; exit 1; }",
     "check-lh": "npx -y @lhci/cli@0.15.1 autorun --config=lighthouserc.json",
     "test": "node --test",
     "build:three": "node scripts/build-three.mjs"

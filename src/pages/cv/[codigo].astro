@@ -1,0 +1,81 @@
+---
+// /cv/<codigo> — el CV de Jaime, "La mesa".
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// EL CÓDIGO ES LA DIRECCIÓN. AL PEDIRLA NO SE VALIDA NADA, EN NINGÚN SITIO.
+// ═══════════════════════════════════════════════════════════════════════════
+// Esta ruta emite UNA sola página, con el slug que traiga `CV_SLUG`. No hay
+// lista de códigos, no hay respuesta correcta guardada en el navegador y no
+// hay endpoint que pregunte: el campo de /about solo hace
+// `location.href = '/cv/' + lo que se escribió`. Si el código es el bueno, el
+// archivo existe y el CDN lo sirve; si no, es el 404 de verdad del servidor,
+// igual que /cv/patata. Por eso "ver el código fuente" no da absolutamente
+// nada: no hay nada guardado que leer.
+//
+// Lo que sí se comprueba, y es otra cosa, es el VALOR de CV_SLUG antes de
+// construir: que exista cuando construye Vercel y que no se pueda adivinar
+// (src/lib/cv/slug.mjs, con la cuenta escrita). Eso no es validar al visitante,
+// es no publicar el CV por descuido.
+//
+// Lo que esto NO hace, dicho de frente: no impide reenviar el enlace, no se
+// puede revocar sin cambiar la dirección, y `noindex` no es privacidad — es
+// "no salgas en el buscador". Si algún día hace falta de verdad cerrar el
+// acceso, eso es un servidor, y el sitio no tiene hueco para otra función.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// CV_SLUG NO SE COMMITEA, Y SIN ELLA EN VERCEL NO SE EMITE NINGÚN CV
+// ═══════════════════════════════════════════════════════════════════════════
+// El repositorio es público: un código commiteado no está escondido en un
+// bundle, está en GitHub en texto plano y buscable. Así que el slug vive solo
+// en las variables de entorno de Vercel (y en el .env.local de Jaime).
+//
+// Sin la variable en una máquina que NO es Vercel —el CI, `npm run build` de
+// cualquiera que clone el repo, cualquier captura que acabe en un PR— sale
+// /cv/vista-previa: el MISMO HTML, el mismo CSS y el mismo JavaScript, con un
+// nombre que no es secreto. Esa es la URL que mide Lighthouse
+// (lighthouserc.json) y la que revisa scripts/check-seo.mjs.
+//
+// Sin la variable EN VERCEL no sale nada: cero rutas, cero páginas de CV, y
+// tres líneas en el registro del build diciendo por qué. Es el fallo seguro y
+// el porqué está entero en decidirCv() (src/lib/cv/slug.mjs): publicar la
+// vista previa en producción sería publicar el CV en una dirección escrita en
+// un repositorio público, con el build en verde.
+//
+// `import.meta.env` y no `process.env`, por dos razones. La primera es que
+// `process` no existe para TypeScript en este repo —no declara `@types/node`
+// a propósito (ver CLAUDE.md), así que `npx astro check` se cae con
+// ts(2580) en cuanto lo ve—. La segunda es que Vite solo mete en el bundle
+// del navegador las variables con prefijo público, y CV_SLUG no lo tiene: en
+// el cliente ni siquiera está definida.
+//
+// LAS TRES VARIABLES SE LEEN AQUÍ, UNA POR UNA, Y NO SE PASA `import.meta.env`
+// ENTERO: Vite sustituye `import.meta.env.LO_QUE_SEA` por su valor en el
+// momento del build mirando qué propiedades se escriben, así que nombrarlas es
+// lo que garantiza que lleguen. Comprobado en un build de verdad: VERCEL y
+// VERCEL_ENV llegan igual que CV_SLUG.
+//
+// DÓNDE SÍ QUEDA EL SLUG EN CLARO, Y ES LOCAL: en un build CORRECTO el slug
+// solo aparece en el NOMBRE del archivo emitido, en el contenido de cero
+// archivos de dist/. Pero Vite lo inlinea en `dist/.prerender/chunks/
+// _codigo__*.mjs`, que Astro borra al final — y si el build se cae DESPUÉS de
+// escribirlo, se queda ahí con el slug dentro (reproducido). Por eso
+// `npm run build` (package.json) borra `dist/.prerender` pase lo que pase,
+// incluso cuando el build falla. Aun así: dist/ está en .gitignore y no se
+// sirve, así que esto nunca fue una fuga publicada, sino un archivo con el
+// slug en la máquina de quien construyó.
+//
+// El único módulo que sabe algo del slug (src/lib/cv/slug.mjs) recibe los
+// valores como parámetro y no lee el entorno, así que no arrastra nada consigo
+// si algún día lo importa un guion del navegador.
+import Cv from '../../layouts/Cv.astro';
+import { rutasCv } from '../../lib/cv/slug.mjs';
+
+export function getStaticPaths() {
+  return rutasCv({
+    CV_SLUG: import.meta.env.CV_SLUG,
+    VERCEL: import.meta.env.VERCEL,
+    VERCEL_ENV: import.meta.env.VERCEL_ENV
+  });
+}
+---
+<Cv />
