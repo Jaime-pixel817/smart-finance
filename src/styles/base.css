@@ -82,12 +82,30 @@ input, select, textarea { font: inherit; color: inherit; }
 .flat { color: var(--neutral); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* Una palabra más ancha que su caja NO puede arrastrar la página de lado.
+   Con el texto del navegador al 225 %, `--fs-display` son 72 px y
+   «companies» sola mide 355 px en los 288 que hay a 320 px de ancho: la
+   CAJA del <h1> cabía y lo que se salía era el TEXTO PINTADO, que es lo
+   que no ve una medición por cajas y sí ve `Range.getClientRects`. Es el
+   mismo remedio que ya lleva el nombre del CV en `Mesa.astro`, subido
+   aquí porque el problema no era del CV: era de cualquier título largo.
+   `break-word` y no `anywhere` a propósito: `anywhere` además encoge el
+   min-content de la caja, y eso sí cambia cómo se reparten rejillas y
+   filas flex a tamaño normal. `break-word` solo entra cuando la palabra
+   ya no cabe, así que al 100 % no parte nada. */
+body { overflow-wrap: break-word; }
+
 /* ---- Layout ---- */
 .container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
 .section { padding-block: var(--sp-6); }
 @media (min-width: 768px) { .section { padding-block: var(--sp-8); } }
 .section-head { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
-.section-head .more { font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
+/* Sin `nowrap`: «All projects →» no cabía en la mitad que le deja el título
+   al 225 % y empujaba 63 px. `.section-head` ya reparte con `gap`, así que
+   dejarlo partir en dos renglones es todo lo que hacía falta; el título y el
+   enlace siguen en la misma fila mientras quepan. */
+.section-head { flex-wrap: wrap; }
+.section-head .more { font-size: var(--fs-small); color: var(--ink-2); min-height: 44px; display: inline-flex; align-items: center; }
 .section-head .more:hover { color: var(--ink); }
 
 /* ---- Tarjeta ---- */
@@ -101,17 +119,46 @@ input, select, textarea { font: inherit; color: inherit; }
 .card-link:hover { border-color: var(--ink-3); }
 
 /* ---- Botones ---- */
+/* Aquí vivía `white-space: nowrap`, y era la causa más repartida del scroll
+   horizontal con el tamaño de texto del navegador al 200 %: un botón que no
+   puede partir exige su ancho entero, y ese ancho crece con la letra. En
+   `/about` a 320 px «Read the full methodology» se salía 133 px, y como `.btn`
+   lo comparten las 101 páginas, el fallo nunca fue de una página.
+
+   Se midió ANTES de quitarlo, que es lo que convierte esto en un dato y no en
+   una corazonada: de los 414 botones que pinta el sitio (30 rutas × 7 anchos,
+   de 320 a 1280 px), NINGUNO parte su etiqueta con el texto al 100 %. `nowrap`
+   no estaba sujetando nada a tamaño normal; solo impedía ceder cuando ya no
+   cabía. Y `normal` no obliga a partir: lo PERMITE cuando no cabe. De paso el
+   botón ya puede encogerse dentro de una fila flex en vez de arrastrar la
+   página de lado.
+
+   Lo que acompaña al partir, y por qué no se nota en un botón de una línea:
+   `line-height` deja de ser 1 (dos renglones a 1 se tocan) y entra padding
+   vertical. Los dos los tapa `min-height: 44px` mientras haya una sola línea
+   —14 px de letra × 1.25 más 16 px de padding son 34 px, por debajo de 44—,
+   así que el botón normal mide exactamente lo que medía.
+
+   Aquí NO va `overflow-wrap: anywhere`, y esto sí se probó y salió mal:
+   `anywhere` baja también el min-content del botón, así que dentro de una
+   fila flex apretada el botón se dejaba encoger y partía la palabra por la
+   mitad —«Newsletter» salía «Newslet / ter» al 100 % en 18 sitios—. El
+   botón se queda con el `break-word` que hereda de `body`, que parte una
+   palabra solo cuando de verdad no cabe en el renglón y no toca el ancho
+   mínimo. Es justo la diferencia entre las dos que explica `Cartera.astro`,
+   donde hace falta la contraria. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
-  min-height: 44px; padding: 0 var(--sp-5); border-radius: var(--r-btn);
-  font-weight: 500; font-size: var(--fs-small); line-height: 1; white-space: nowrap;
+  min-height: 44px; padding: var(--sp-2) var(--sp-5); border-radius: var(--r-btn);
+  font-weight: 500; font-size: var(--fs-small); line-height: 1.25;
+  white-space: normal; text-wrap: balance; max-width: 100%;
   border: 1px solid transparent;
 }
 .btn-primary { background: var(--brand-fill); color: var(--on-brand); }
 .btn-primary:hover { filter: brightness(1.05); }
 .btn-ghost { background: var(--bg-2); color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover { background: var(--bg-3); }
-.btn-sm { min-height: 36px; padding: 0 var(--sp-3); font-size: var(--fs-caption); }
+.btn-sm { min-height: 36px; padding: var(--sp-1) var(--sp-3); font-size: var(--fs-caption); }
 
 /* ---- Chips ---- */
 .chip {
