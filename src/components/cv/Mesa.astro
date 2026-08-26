@@ -169,8 +169,16 @@ const estado = (rep.meta.status || 'draft') as string;
             <span class="cinta-spark" aria-hidden="true">
               <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
             </span>
-            <span class="cinta-price num" data-precio>{c.tape.pending}</span>
-            <span class="cinta-chg num t-caption" data-cambio></span>
+            <!-- Precio y cambio van DENTRO de una caja, no sueltos en la
+                 rejilla: con la letra grande la fila se parte en dos renglones
+                 y los dos números tienen que viajar juntos al de abajo. Sueltos
+                 eran dos celdas independientes y no había forma de que uno
+                 cayera debajo del otro cuando ni así caben (ver el bloque de
+                 las válvulas, abajo). -->
+            <span class="cinta-nums">
+              <span class="cinta-price num" data-precio>{c.tape.pending}</span>
+              <span class="cinta-chg num t-caption" data-cambio></span>
+            </span>
           </a>
         </li>
       ))}
@@ -321,23 +329,89 @@ const estado = (rep.meta.status || 'draft') as string;
   .cinta-fila { border-bottom: 1px solid var(--line); }
   .cinta-fila:last-child { border-bottom: 0; }
   .cinta-link {
-    display: grid; grid-template-columns: minmax(0, 1fr) 64px auto auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px auto;
+    grid-template-areas: 'id spark nums';
     align-items: center; gap: var(--sp-3); min-height: 56px;
     padding: 0 var(--sp-3); color: var(--ink);
     transition: background var(--dur-2) var(--ease-std);
   }
   .cinta-fila:hover { background: var(--bg-2); border-radius: var(--r-input); }
-  .cinta-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .cinta-sym { font-size: var(--fs-small); }
-  .cinta-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cinta-spark { width: 64px; height: 24px; display: block; }
+  .cinta-id { grid-area: id; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  /* `min-width: 0` + `overflow-wrap: anywhere` EN EL SÍMBOLO, no solo en su
+     caja. `.cinta-id` ya podía encogerse, pero su hijo no: el mínimo de un
+     elemento es su min-content, "USD/MXN" no tiene dónde partirse (la barra no
+     es una oportunidad de corte) y el resultado era un símbolo pintado FUERA
+     de su celda — 117.6 px fuera a 390 px con el texto al 200 %, encima del
+     dibujo y del número. Con `anywhere` el min-content pasa a ser un carácter,
+     así que la celda puede encogerse y el símbolo ENVUELVE en vez de salirse.
+     Esto vale sin una sola media query: es el suelo que sigue en pie aunque
+     ninguna válvula de abajo llegue a dispararse. */
+  .cinta-sym { font-size: var(--fs-small); min-width: 0; overflow-wrap: anywhere; }
+  .cinta-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cinta-spark { grid-area: spark; width: 64px; height: 24px; display: block; }
+  .cinta-nums {
+    grid-area: nums;
+    display: flex; align-items: baseline; justify-content: flex-end;
+    flex-wrap: wrap; column-gap: var(--sp-3);
+  }
   .cinta-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; white-space: nowrap; }
   .cinta-chg { text-align: right; min-width: 8ch; white-space: nowrap; }
-  /* Igual que en /market: al estrecharse, lo primero que cede es el dibujo,
-     nunca el número. */
-  @media (max-width: 379px) {
-    .cinta-link { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sp-2); }
+
+  /* ── LAS VÁLVULAS VAN EN `em` Y NO EN `px`, Y ESA ES TODA LA CORRECCIÓN ──
+     La promesa de aquí arriba —"lo primero que cede es el dibujo, nunca el
+     número"— era mentira en cuanto alguien subía el tamaño de letra, que es lo
+     que pide WCAG 1.4.4 y lo que trae de fábrica media persona que lee un CV
+     en un teléfono.
+
+     El motivo: la fila mezclaba anchos que CRECEN con la letra (`min-width`
+     en `ch` del precio y del cambio) con anchos que NO (`64px` de dibujo,
+     `--sp-*`, que en tokens.css son píxeles, y el propio contenedor). Al subir
+     la letra, las dos columnas de `ch` se hinchaban, el `1fr` del nombre pagaba
+     la diferencia y se iba a cero, y el símbolo —que no podía encogerse— se
+     pintaba encima de todo. Y la ÚNICA válvula, `@media (max-width: 379px)`,
+     miraba el ancho del VIEWPORT: no se entera de que lo que creció es el
+     texto, así que a 390 px no disparaba nunca.
+
+     `em` en una media query se resuelve contra el tamaño de letra POR OMISIÓN
+     del navegador, que es exactamente la perilla que mueve quien agranda el
+     texto. Así que estas dos consultas miran el ancho medido EN LETRAS, no en
+     píxeles: a 100 % dan el mismo corte que antes (23.7em × 16 px = 379.2 px,
+     el mismo 379 de siempre, comprobado a 320/360/375/390/414) y al 175 % ese
+     mismo 23.7em ya son 663 px, así que disparan en cualquier teléfono.
+
+     Se eligió `em` y no `@container`: una consulta de contenedor mide el
+     contenedor, y el panel del idioma que no se ve está en `display: none`
+     —ancho cero—, así que un contenedor ahí dentro casaría con todos los
+     `max-width` a la vez. Y `em` funciona en cualquier navegador con media
+     queries, o sea todos, sin depender de Safari 16.
+
+     Orden, que es la promesa: primero se va el DIBUJO (23.7em) y solo después,
+     si aún no caben, se PARTE la fila (17em). En 414 px eso es el dibujo desde
+     el 109 % y el reparto en dos renglones desde el 152 %. El número no se
+     recorta, no se encoge y no se tapa en ningún punto. */
+
+  /* Válvula 1 — cede el dibujo. Es el `379px` de siempre, dicho en letras. */
+  @media (max-width: 23.7em) {
+    .cinta-link { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'id nums'; gap: var(--sp-2); }
+    .cinta-nums { column-gap: var(--sp-2); }
     .cinta-spark { display: none; }
+  }
+
+  /* Válvula 2 — ya no caben nombre y número en el mismo renglón: la fila se
+     PARTE. El nombre se queda con el ancho entero (a 320 px son 262, y lo más
+     largo que hay, "US dollar in pesos", pide 227 al 225 %) y los números
+     bajan a su propio renglón. Ahí pierden el suelo en `ch` —que era para
+     alinear columnas que ya no existen— y ganan `flex-wrap`, así que en el
+     caso extremo el cambio cae debajo del precio en vez de desbordar. */
+  @media (max-width: 17em) {
+    .cinta-link {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'id' 'nums';
+      row-gap: var(--sp-1); padding-block: var(--sp-3);
+    }
+    .cinta-nums { justify-content: flex-start; column-gap: var(--sp-4); }
+    .cinta-price, .cinta-chg { text-align: left; min-width: 0; }
   }
 
   /* ---- La cartera ---- */
