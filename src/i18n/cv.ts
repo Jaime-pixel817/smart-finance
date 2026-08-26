@@ -90,7 +90,11 @@ const en = {
     linkMine: 'My contest portfolio',
     cal: {
       inscripciones: 'Registration',
-      practica: 'Practice round',
+      // "Practice round" era el único sitio del repo que le llamaba "round":
+      // src/i18n/research.ts dice "Practice week" en las seis fases, y el
+      // calendario publicado son cinco días (28 sep – 2 oct). Un comité que
+      // abra las dos páginas no puede leer dos nombres del mismo tramo.
+      practica: 'Practice week',
       reto: 'The contest itself',
       premiacion: 'Prize-giving'
     },
@@ -185,7 +189,11 @@ const es: typeof en = {
 
   hueco: {
     tag: 'Falta escribirlo',
-    note: 'Esto lo escribe Jaime, con sus palabras. Nada de esta página se genera por él.'
+    // "se genera por él" decía lo CONTRARIO del inglés: se lee como "generado
+    // POR él", que es justo lo que esta frase promete que no pasa. Y es la
+    // única frase que explica qué son los huecos, en la primera pantalla del
+    // panel español. "en su lugar" = "for him", sin ninguna lectura de agente.
+    note: 'Esto lo escribe Jaime, con sus palabras. Nada de esta página se genera en su lugar.'
   },
 
   head: {
@@ -240,7 +248,12 @@ const es: typeof en = {
     h: 'Equity research',
     lede: 'Reportes tipo analista con cada cifra rastreada hasta el documento del que sale. El publicado está abajo, con el estado en el que de verdad está.',
     link: 'Abrir el reporte',
-    hubLink: 'Todo Smart Finance Projects',
+    // "Todo Smart Finance Projects" no es español: falta el nexo. El nombre
+    // de la sección NO se traduce (el h1 de /es/research es literalmente
+    // "Smart Finance Projects", ver src/i18n/research.ts), así que lo que se
+    // arregla es la gramática de alrededor, no el nombre propio — cambiarlo
+    // por "Proyectos" nombraría algo que la página de destino no se llama.
+    hubLink: 'Todo lo de Smart Finance Projects',
     ticker: 'Ticker',
     dataAsOf: 'Datos al',
     version: 'Versión',
