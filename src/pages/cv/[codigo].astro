@@ -46,15 +46,23 @@
 // a propósito (ver CLAUDE.md), así que `npx astro check` se cae con
 // ts(2580) en cuanto lo ve—. La segunda es que Vite solo mete en el bundle
 // del navegador las variables con prefijo público, y CV_SLUG no lo tiene: en
-// el cliente ni siquiera está definida. Comprobado sobre el build de verdad:
-// con `CV_SLUG=… npm run build`, el slug aparece EN EL NOMBRE del archivo
-// emitido y en el contenido de CERO archivos de dist/.
+// el cliente ni siquiera está definida.
 //
 // LAS TRES VARIABLES SE LEEN AQUÍ, UNA POR UNA, Y NO SE PASA `import.meta.env`
 // ENTERO: Vite sustituye `import.meta.env.LO_QUE_SEA` por su valor en el
 // momento del build mirando qué propiedades se escriben, así que nombrarlas es
 // lo que garantiza que lleguen. Comprobado en un build de verdad: VERCEL y
 // VERCEL_ENV llegan igual que CV_SLUG.
+//
+// DÓNDE SÍ QUEDA EL SLUG EN CLARO, Y ES LOCAL: en un build CORRECTO el slug
+// solo aparece en el NOMBRE del archivo emitido, en el contenido de cero
+// archivos de dist/. Pero Vite lo inlinea en `dist/.prerender/chunks/
+// _codigo__*.mjs`, que Astro borra al final — y si el build se cae DESPUÉS de
+// escribirlo, se queda ahí con el slug dentro (reproducido). Por eso
+// `npm run build` (package.json) borra `dist/.prerender` pase lo que pase,
+// incluso cuando el build falla. Aun así: dist/ está en .gitignore y no se
+// sirve, así que esto nunca fue una fuga publicada, sino un archivo con el
+// slug en la máquina de quien construyó.
 //
 // El único módulo que sabe algo del slug (src/lib/cv/slug.mjs) recibe los
 // valores como parámetro y no lee el entorno, así que no arrastra nada consigo

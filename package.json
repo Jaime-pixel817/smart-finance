@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "astro dev",
     "prebuild": "test -f scripts/build-og-pages.mjs && node scripts/build-og-pages.mjs || echo '[og:pages] me salto la generacion: falta scripts/ (lo excluye .vercelignore) o el generador aviso. Se usan las imagenes commiteadas de public/og/.'",
-    "build": "astro build",
+    "build": "astro build; e=$?; rm -rf dist/.prerender; exit $e",
     "preview": "astro preview",
     "check": "astro check",
     "build:es": "node scripts/build-es.js",
