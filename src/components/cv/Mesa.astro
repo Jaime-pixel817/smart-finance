@@ -319,6 +319,15 @@ const estado = (rep.meta.status || 'draft') as string;
   /* En papel no se cambia de idioma. */
   @media print { .cv-lang { display: none; } }
   .mesa-head { display: flex; flex-direction: column; gap: var(--sp-3); }
+  /* El nombre es lo único de la página en `--fs-display` (2rem), así que es lo
+     primero que deja de caber cuando alguien sube la letra: al 225 % son 72 px
+     y "Sandoval" pide 320 en los 288 que hay a 320 px de ancho. Sin esto,
+     desbordaba 10.5 px y arrastraba la página entera de lado. Se parte la
+     palabra —igual que `.tile-big`, tres reglas más abajo— en vez de recortar
+     el tamaño con `vw`, que es lo que NO se puede hacer: capar la letra con
+     una unidad del viewport es exactamente lo que rompe WCAG 1.4.4. Solo
+     entra en juego cuando la palabra de verdad no cabe: al 100 % no se nota. */
+  .mesa-head h1 { overflow-wrap: anywhere; }
   .mesa-note { max-width: var(--measure); }
   .mesa-sec { display: flex; flex-direction: column; gap: var(--sp-3); }
   .mesa-sec > p { max-width: var(--measure); }
@@ -428,6 +437,11 @@ const estado = (rep.meta.status || 'draft') as string;
   .curva-line.flat { color: var(--neutral); }
   .curva-base { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
   .vacio { display: flex; flex-direction: column; gap: var(--sp-2); max-width: var(--measure); }
+  /* La ruta del archivo va en mono y no tiene un solo espacio donde partirse,
+     así que con la letra grande se salía de la página: +44 px de scroll
+     horizontal a 320 px al 200 %, que es el ancho y el tamaño que pide
+     WCAG 1.4.10. `.tile-big` ya llevaba `anywhere`; esta se quedó sin él. */
+  .vacio .num { overflow-wrap: anywhere; }
 
   /* ---- El calendario del reto ---- */
   .cal { display: flex; flex-direction: column; }
