@@ -6,6 +6,7 @@
 import { fmtNum, fmtPct, arrow, dirClass, type Loc } from './format';
 import { loadMarkets, loadQuotes, loadHistory, quoteFromMarkets, quoteFromQuotes, quoteFromHistory, changeOver, minMax, readLS, writeLS, type Quote, type SymbolRT, type Range } from './market-data';
 import { paintAssetRow, setChip } from './rows';
+import { setNum } from './num';
 import { mountPricePanel, panelStrings, type PanelStats } from './chart-panel';
 import { montarBotones, alCambiar, leer as leerWatchlist } from './watchlist';
 
@@ -31,7 +32,7 @@ function boot(root: HTMLElement) {
 
   function paintHeader(q: Quote, fromCache: boolean) {
     headerPainted = true;
-    if (priceEl) { priceEl.textContent = fmtNum(q.price, loc, s.decimals); priceEl.classList.remove('skel'); }
+    if (priceEl) { setNum(priceEl, fmtNum(q.price, loc, s.decimals)); priceEl.classList.remove('skel'); }
     if (chgEl) {
       const pct = q.changePct;
       chgEl.classList.remove('skel', 'up', 'down', 'flat');
@@ -39,9 +40,10 @@ function boot(root: HTMLElement) {
         chgEl.classList.add(dirClass(s.invert ? -pct : pct));
         const abs = q.change != null ? fmtNum(Math.abs(q.change), loc, s.decimals) + ' ' : '';
         const period = s.kind === 'crypto' ? '24 h' : T.today;
-        chgEl.innerHTML = `<span aria-hidden="true">${arrow(pct)}</span> ${abs}(${fmtPct(pct, loc)}) <span class="faint">· ${period}</span>`;
+        setNum(chgEl, arrow(pct) + abs + fmtPct(pct, loc),
+          `<span aria-hidden="true">${arrow(pct)}</span> ${abs}(${fmtPct(pct, loc)}) <span class="faint">· ${period}</span>`);
         chgEl.setAttribute('aria-label', (pct >= 0 ? '+' : '−') + fmtPct(pct, loc) + ' ' + period);
-      } else { chgEl.textContent = ''; }
+      } else { setNum(chgEl, ''); }
     }
     setChip(chip, q.updatedAt ? new Date(q.updatedAt) : null, fromCache ? 'stale' : 'fresh', loc, chipT, q.refreshMinutes, q.source);
   }

@@ -8,6 +8,7 @@ import { loadMarkets, loadQuotes, loadHistory, quoteFromMarkets, quoteFromQuotes
 import { paintAssetRow, setChip } from './rows';
 import { mountPricePanel, panelStrings, type PricePanel } from './chart-panel';
 import { leer as leerWatchlist, montarBotones, alCambiar, urlComparar, TOPE } from './watchlist';
+import './tabs'; // marca deslizante de los chips/pestañas de esta página
 
 type Sym = SymbolRT & { href: string; name: string };
 const root = document.getElementById('market-page');

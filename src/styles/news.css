@@ -14,9 +14,10 @@
 
 /* ---- Filtros: una fila que se desliza en el teléfono ---- */
 .nw-filters { margin-top: var(--sp-4); gap: var(--sp-2); scroll-snap-type: none; }
-.nw-filters .chip { min-height: 36px; padding: 0 14px; color: var(--ink-2); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+.nw-filters .chip { min-height: 36px; padding: 0 14px; color: var(--ink-2); cursor: pointer; transition: color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std); }
 .nw-filters .chip:hover { color: var(--ink); border-color: var(--ink-3); }
-.nw-filters .chip[aria-pressed="true"] { background: var(--brand-wash); color: var(--ink); border-color: transparent; }
+/* El lavado lo pinta la marca deslizante del grupo (motion.css). */
+.nw-filters .chip[aria-pressed="true"] { color: var(--ink); border-color: transparent; }
 
 /* ---- Lista de tarjetas ---- */
 .nw-list { list-style: none; display: grid; gap: var(--sp-3); margin-top: var(--sp-4); }

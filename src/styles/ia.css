@@ -39,7 +39,10 @@
   flex-direction: column;
   gap: var(--sp-3);
   outline: none;
-  animation: ia-sheet-in .24s var(--ease-sheet);
+  /* La curva del rebote leve está reservada a las hojas: pasa un 3 % y
+     vuelve. Con 24 px de recorrido eso son 3 px, que es justo lo que hace
+     que una hoja se sienta un objeto y no una capa que se enciende. */
+  animation: ia-sheet-in var(--dur-4) var(--ease-bounce);
 }
 @keyframes ia-sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 /* Quien pide menos movimiento no ve la hoja deslizarse. */

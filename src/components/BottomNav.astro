@@ -27,8 +27,16 @@ const items = [
 </nav>
 <style>
   .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); height: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: color-mix(in srgb, var(--bg-0) 94%, transparent); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); border-top: 1px solid var(--line); }
-  .bottom-nav a, .bottom-nav button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--ink-3); font-size: 11px; line-height: 1; font-weight: 500; border-radius: var(--r-btn); margin: 4px; }
-  .bottom-nav a[aria-current="page"] { color: var(--ink); background: var(--brand-wash); }
+  .bottom-nav a, .bottom-nav button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--ink-3); font-size: 11px; line-height: 1; font-weight: 500; border-radius: var(--r-btn); margin: 4px; }
+  /* La pastilla del destino activo es un pseudo-elemento y no el fondo del
+     enlace, y eso NO es un capricho: con nombre de transición de vista propio
+     (motion.css) lo que viaja al cambiar de página es la pastilla sola. Cuando
+     el nombre lo llevaba el <a> entero, lo que cruzaba la barra era el enlace
+     con su icono y su palabra, y durante la transición se leían dos rótulos
+     encima del tercero. Si un navegador no captura pseudo-elementos, la barra
+     se funde entera como cualquier otra cosa: no se pierde nada. */
+  .bottom-nav a[aria-current="page"] { color: var(--ink); }
+  .bottom-nav a[aria-current="page"]::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: var(--r-btn); background: var(--brand-wash); }
   .bottom-nav a[aria-current="page"] svg { color: var(--brand-text); }
   @media (min-width: 768px) { .bottom-nav { display: none; } }
 </style>

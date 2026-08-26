@@ -2,6 +2,7 @@
 // sparkline) y el chip de fuente/frescura. Los usa market.ts y asset.ts para
 // que una fila se vea igual en la lista y en "Relacionados".
 import { fmtNum, fmtPct, arrow, dirClass, fmtTime, sparkPath, type Loc } from './format';
+import { setNum } from './num';
 import type { Quote, SymbolRT } from './market-data';
 
 export function paintAssetRow(row: HTMLElement | null, s: SymbolRT, q: Quote | null, loc: Loc) {
@@ -17,16 +18,19 @@ export function paintAssetRow(row: HTMLElement | null, s: SymbolRT, q: Quote | n
     row.dataset.state = 'error';
     return;
   }
-  if (p) { p.textContent = fmtNum(q.price, loc, s.decimals); p.classList.remove('skel'); }
+  if (p) { setNum(p, fmtNum(q.price, loc, s.decimals)); p.classList.remove('skel'); }
   const pct = q.changePct;
   const dir = pct != null ? dirClass(s.invert ? -pct : pct) : 'flat';
   if (c) {
     c.classList.remove('skel', 'up', 'down', 'flat');
     if (pct != null) {
       c.classList.add(dir);
-      c.innerHTML = `<span aria-hidden="true">${arrow(pct)}</span> ${fmtPct(pct, loc)}`;
+      // La clave lleva la flecha delante: fmtPct devuelve el valor ABSOLUTO
+      // ("0.42 %"), así que sin ella un +0.42 % y un −0.42 % serían el mismo
+      // texto y el cambio de signo pasaría sin que se moviera nada.
+      setNum(c, arrow(pct) + fmtPct(pct, loc), `<span aria-hidden="true">${arrow(pct)}</span> ${fmtPct(pct, loc)}`);
       c.setAttribute('aria-label', (pct >= 0 ? '+' : '−') + fmtPct(pct, loc));
-    } else { c.textContent = '—'; c.removeAttribute('aria-label'); }
+    } else { setNum(c, '—'); c.removeAttribute('aria-label'); }
   }
   if (svg) {
     const { line } = sparkPath(q.series || [], 64, 24);

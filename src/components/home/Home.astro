@@ -382,9 +382,12 @@ const SPARK64 = `<svg class="spark skel" viewBox="0 0 64 24" preserveAspectRatio
   /* Pulso */
   .pulse-rail li { width: 128px; }
   .pulse-rail li[hidden] { display: none; }
-  .tile { display: flex; flex-direction: column; width: 128px; height: 96px; padding: 10px 12px; background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); position: relative; transition: border-color .15s; }
+  .tile { display: flex; flex-direction: column; width: 128px; height: 96px; padding: 10px 12px; background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-btn); box-shadow: var(--shadow-1); position: relative; transition: border-color var(--dur-2) var(--ease-std), transform var(--dur-1) var(--ease-out); }
   .tile:hover { border-color: var(--ink-3); }
-  .tile:active { transform: scale(.98); }
+  /* El hundido va DESPUÉS de la elevación: con ratón, al hacer clic valen las
+     dos reglas y gana la última escrita (ver motion.css). */
+  @media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(calc(-1 * var(--lift))); } }
+  .tile:active { transform: scale(var(--press)); }
   .tile-sym { color: var(--ink-2); }
   .tile-name { position: absolute; left: 12px; top: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 104px; }
   .tile-price { margin-top: 16px; font-size: 1.125rem; line-height: 1.25rem; letter-spacing: -.01em; white-space: nowrap; }

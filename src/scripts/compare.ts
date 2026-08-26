@@ -18,6 +18,7 @@ import { fmtNum, fmtDay, fmtTime, type Loc } from './format';
 import { loadHistory, RANGES, type Range, type Point, type SymbolRT } from './market-data';
 import { comparar } from '../lib/market/comparar.mjs';
 import { medir } from '../lib/analytics';
+import './tabs'; // marca deslizante de los chips/pestañas de esta página
 
 type LWC = typeof import('./lwc');
 type IChartApi = import('lightweight-charts').IChartApi;
