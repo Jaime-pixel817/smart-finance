@@ -161,10 +161,16 @@ body { overflow-wrap: break-word; }
 .btn-sm { min-height: 36px; padding: var(--sp-1) var(--sp-3); font-size: var(--fs-caption); }
 
 /* ---- Chips ---- */
+/* Sin `nowrap`, por lo mismo que `.btn`: «Inscripciones abiertas» es un chip
+   y al 225 % pedía 94 px más de los que hay a 320 px. Un chip corto sigue sin
+   partirse —`normal` solo permite, no obliga— y el de una línea no se mueve:
+   12 px de letra × 1.25 más 6 de padding son 21 px, por debajo de los 28 de
+   `min-height`. Los chips del hero son un carrusel que se desplaza a lo
+   ancho (`overflow-x: auto` con `flex: none`), así que no les afecta. */
 .chip {
-  display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 10px;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 3px 10px;
   border-radius: var(--r-pill); background: var(--bg-2); border: 1px solid var(--line);
-  font-size: var(--fs-caption); line-height: 1; color: var(--ink-2); white-space: nowrap;
+  font-size: var(--fs-caption); line-height: 1.25; color: var(--ink-2);
 }
 .chip .num { font-size: var(--fs-caption); }
 

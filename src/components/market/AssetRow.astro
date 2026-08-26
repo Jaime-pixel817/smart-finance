@@ -79,7 +79,9 @@ const nombreSolo = s.name[locale];
   .ar-rate-note { height: auto; white-space: nowrap; text-align: right; justify-self: end; }
   .ar-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; white-space: nowrap; }
   .ar-chg { text-align: right; min-width: 8ch; white-space: nowrap; }
-  .ar-verified { min-width: 0; }
+  /* La nota de «verificado el ...» es prosa, no una cifra: puede partir. Con
+     el `nowrap` que heredaba de `.ar-chg` se salía 200 px al 225 %. */
+  .ar-verified { min-width: 0; white-space: normal; }
 
   /* Seguir: 44×44 de zona táctil, marcador vacío cuando no lo sigues y
      relleno cuando sí. NO se pone verde al seguir: el verde de este sitio
@@ -94,7 +96,17 @@ const nombreSolo = s.name[locale];
 
   @media (max-width: 479px) { .ar-link { gap: var(--sp-2); padding-left: var(--sp-1); } .ar-follow { width: 40px; } }
   @media (min-width: 768px) { .ar-price { min-width: 9ch; } .ar-chg { min-width: 9ch; } }
-  /* Al estrecharse mucho (≤ 380 px), la sparkline de las filas cede antes que
-     el precio: primero se va el dibujo, nunca el número ni el botón. */
-  @media (max-width: 379px) { .ar-link { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sp-2); } .ar-spark:not(.ar-rate-note) { display: none; } }
+  /* Al estrecharse mucho, la sparkline de las filas cede antes que el precio:
+     primero se va el dibujo, nunca el número ni el botón.
+     El umbral se dice en `em` y no en `px` —23.7em son los 379px de siempre,
+     clavados al 100 %— porque en `px` medía el VIEWPORT y el problema es el
+     TEXTO: a 390 y 414 px el dibujo se quedaba puesto y la fila se salía
+     hasta 200 px al 225 %, mientras que a 375 px o menos no pasaba nada.
+     Es el mismo número, y por el mismo motivo, que la válvula 1 de
+     `Mesa.astro`. */
+  @media (max-width: 23.7em) { .ar-link { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sp-2); } .ar-spark:not(.ar-rate-note) { display: none; } }
+  /* Válvula 2, la de `Mesa.astro`: si ni quitando el dibujo caben, el precio
+     y el cambio sueltan su suelo en `ch`, que se mide en caracteres y por eso
+     crece con la letra. */
+  @media (max-width: 17em) { .ar-price, .ar-chg { min-width: 0; } }
 </style>
