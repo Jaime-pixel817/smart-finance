@@ -456,8 +456,24 @@ const estado = (rep.meta.status || 'draft') as string;
   .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
   .rep-meta dt { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--fs-eyebrow); letter-spacing: .06em; text-transform: uppercase; }
   .rep-meta dd { margin: 0; color: var(--ink); }
-  .rep-status.st-draft { color: var(--warn); }
-  .rep-status.st-published { color: var(--up-text); }
+  /* EL SELECTOR LLEVA `.rep-meta dd` DELANTE, Y NO ES ADORNO: SIN ESO ESTE
+     COLOR NO SE APLICA.
+     Es la trampa de los estilos con ámbito de Astro que CLAUDE.md documenta en
+     dos sitios (el anillo de foco que tapaban `.card` y `.tile`, y el `.proj`
+     de Hub.astro que no llegaba a RetoActinver.astro). Astro le pega un
+     `[data-astro-cid-…]` a CADA compuesto del selector, así que lo que de
+     verdad compite es:
+
+       .rep-meta[cid] dd[cid]              → (0,3,1)   color: var(--ink)
+       .rep-status[cid].st-draft           → (0,3,0)   color: var(--warn)
+
+     Gana el de arriba por un elemento, y "Borrador" se pintaba en tinta
+     normal: el estado del reporte —lo único de esa tarjeta que dice que el
+     research NO está terminado— se leía como un dato más. Con `.rep-meta dd`
+     delante son (0,5,1) contra (0,3,1) y gana el color, sin depender del orden
+     en que estén escritas las reglas. Igual para `st-published`. */
+  .rep-meta dd.rep-status.st-draft { color: var(--warn); }
+  .rep-meta dd.rep-status.st-published { color: var(--up-text); }
   .rep-cta { color: var(--brand-text); }
 
   .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
