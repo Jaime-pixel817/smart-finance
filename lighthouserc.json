@@ -77,7 +77,8 @@
         "http://localhost/market/spy.html",
         "http://localhost/lessons/etfs.html",
         "http://localhost/research/lululemon.html",
-        "http://localhost/challenge.html"
+        "http://localhost/challenge.html",
+        "http://localhost/cv/vista-previa.html"
       ],
       "settings": {
         "onlyCategories": [

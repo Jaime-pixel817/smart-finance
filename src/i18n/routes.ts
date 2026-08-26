@@ -106,6 +106,26 @@ export const ROUTES: RouteEntry[] = [
   { id: 'portfolio', en: '/portfolio', es: '/es/portafolio', lastmod: '2026-08-23', changefreq: 'weekly', priority: '0.8' },
   { id: 'about', en: '/about', es: '/es/acerca', lastmod: '2026-08-21', changefreq: 'monthly', priority: '0.5' },
   { id: 'methodology', en: '/methodology', es: '/es/metodologia', lastmod: '2026-08-23', changefreq: 'monthly', priority: '0.5' }
+  // ─────────────────────────────────────────────────────────────────────────
+  // /cv/<codigo> NO ESTÁ AQUÍ, Y ES A PROPÓSITO.
+  // ─────────────────────────────────────────────────────────────────────────
+  // El CV (src/pages/cv/[codigo].astro) vive en una dirección que sale de la
+  // variable CV_SLUG, que nunca se commitea porque este repositorio es
+  // público. Este archivo es la fuente del sitemap (src/pages/sitemap.xml.ts)
+  // y del índice del buscador (src/pages/search-index.json.ts), y los dos se
+  // escriben en cada build de Vercel — que es EL ÚNICO build donde CV_SLUG
+  // existe. Registrar el CV aquí, aunque fuera con `sitemap: false`, sería
+  // meter la dirección secreta en dos archivos públicos de producción y
+  // confiar en que nadie se olvide de excluirla.
+  //
+  // Sin entrada, la página está fuera de los dos POR CONSTRUCCIÓN. El precio
+  // es que no puede usar Base.astro (que pide un routeId para el canonical y
+  // los hreflang), y por eso tiene su propio layout: src/layouts/Cv.astro.
+  // Como lleva `noindex`, scripts/check-seo.mjs no le exige ni canonical ni
+  // hreflang ni og:image — solo title y <html lang>, que sí tiene.
+  //
+  // Si algún día el CV deja de ser privado y pasa a ser una página pública,
+  // ENTONCES se registra aquí como cualquier otra y se le quita el noindex.
 ];
 
 export function route(id: string, locale: Locale): string {

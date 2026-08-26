@@ -76,5 +76,26 @@ export const GET: APIRoute = async () => {
       items.push({ t: 'page', name: meta.name, sym: meta.ticker, keys: rep.ticker + ' ' + (lang === 'es' ? 'reporte equity research DCF valuación' : 'equity research report DCF valuation'), href: route(rep.routeId, lang), lang });
     }
   }
+  // ───────────────────────────────────────────────────────────────────────
+  // EL CV NUNCA ENTRA EN ESTE ARCHIVO.
+  // ───────────────────────────────────────────────────────────────────────
+  // /cv/<codigo> queda fuera por construcción: esta lista se escribe a mano,
+  // entrada por entrada, y el CV no está registrado en src/i18n/routes.ts (el
+  // porqué, al final de ese archivo). Pero este JSON se sirve público y se
+  // genera en el build de Vercel, que es el único donde CV_SLUG existe: si
+  // algún día alguien registra el CV como ruta y copia una línea de arriba,
+  // la dirección secreta acabaría publicada sin que nadie lo notara.
+  //
+  // Así que en vez de confiar en que se note, se cae el build. Este `some`
+  // recorre ~200 entradas una vez y no puede dispararse hoy; el día que se
+  // dispare, habrá evitado exactamente el accidente para el que está puesto.
+  const cv = items.find((i) => i.href === '/cv' || i.href.startsWith('/cv/') || i.href.startsWith('/es/cv/'));
+  if (cv) {
+    throw new Error(
+      'search-index: una entrada apunta al CV (' + cv.t + '). El buscador es público y este archivo se ' +
+      'genera con CV_SLUG puesto: la dirección del CV no puede salir aquí. Quita la entrada.'
+    );
+  }
+
   return new Response(JSON.stringify(items), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 };
