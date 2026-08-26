@@ -130,6 +130,22 @@
  * (:root.con-aviso), aquí con la altura del propio botón. */
 :root.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 60px); }
 @media (min-width: 768px) { :root.con-ia-fab body { padding-bottom: 60px; } }
+/* CON UN AVISO PUESTO **Y** BOTÓN FLOTANTE HAY QUE RESERVAR POR LOS DOS, y esto
+ * no salió de leer el CSS: salió de una captura. Las dos reglas —esta y la de
+ * Avisos.astro— son `:root.<clase> body`, o sea la MISMA especificidad, así que
+ * en las páginas con las dos clases ganaba la última que el build dejara
+ * escrita: la de aquí, con sus 60 px. Pero el botón, para no taparle el aviso,
+ * se sube a 104 px (más abajo) y con solo 60 reservados aterrizaba encima del
+ * disclaimer del footer — medido a 390×844 en /market/spy y /lessons/etfs: el
+ * botón en 648-684 y el disclaimer en 660-740. Justo lo que la regla de arriba
+ * viene a impedir, y encima solo en las páginas que además llevan aviso, que
+ * son las que menos sitio tienen.
+ *
+ * 152 px = los 104 a los que sube el botón + sus 36 de alto + 12 de aire, para
+ * que la última línea del disclaimer no quede pegada al botón. Especificidad
+ * (0,3,1) a propósito: gana a las dos sin depender del orden del build. */
+:root.con-aviso.con-ia-fab body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 152px); }
+@media (min-width: 768px) { :root.con-aviso.con-ia-fab body { padding-bottom: 152px; } }
 .ia-fab:hover { background: var(--bg-2); }
 .ia-fab-fuera { transform: translateY(calc(100% + var(--bottomnav-h) + var(--sp-4))); opacity: 0; pointer-events: none; }
 :root.con-aviso .ia-fab { bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px) + 104px); }
