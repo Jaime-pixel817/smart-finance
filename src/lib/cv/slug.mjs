@@ -116,9 +116,17 @@ const FORMA = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
  *   Ponerlo en CV_SLUG construye exactamente la página que Lighthouse mide y
  *   que cualquiera puede abrir, creyendo haber configurado una privada. Es el
  *   fallo en verde de este archivo, escrito a mano.
+ * - `index`: el enrutador de Astro con `build.format: 'file'` mapea
+ *   `dist/cv/index.html` a la ruta `/cv/`, así que el parámetro `codigo` se
+ *   queda sin valor y el build muere con `TypeError: Missing parameter:
+ *   codigo`. Se cae, sí, pero por accidente del enrutador y con un mensaje que
+ *   no menciona CV_SLUG ni dice qué hacer. Aquí se rechaza a la cara. (El largo
+ *   mínimo ya lo rechazaría; esta entrada existe por el MENSAJE, y va antes que
+ *   el largo por lo mismo.)
  */
 const RESERVADOS = new Map([
-  [RESPALDO, 'es el nombre de la VISTA PREVIA pública: está escrito en este repositorio, en lighthouserc.json y en package.json, y lo puede abrir cualquiera']
+  [RESPALDO, 'es el nombre de la VISTA PREVIA pública: está escrito en este repositorio, en lighthouserc.json y en package.json, y lo puede abrir cualquiera'],
+  ['index', 'colisiona con el enrutador (dist/cv/index.html es la ruta /cv/, sin parámetro) y el build muere con un "TypeError: Missing parameter: codigo" que no menciona esta variable']
 ]);
 
 /**

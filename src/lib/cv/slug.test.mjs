@@ -198,6 +198,22 @@ test('lo que no puede ser un segmento de URL tumba el build', () => {
   }
 });
 
+test('CV_SLUG=index se rechaza a la cara, no por accidente del enrutador', () => {
+  // Antes tumbaba el build con "TypeError: Missing parameter: codigo", que no
+  // menciona CV_SLUG y que solo avisa porque dist/cv/index.html resulta ser la
+  // ruta /cv/. El largo mínimo ya lo rechazaría; lo que se prueba aquí es que
+  // el MENSAJE es el bueno, o sea que el reservado se mira antes que el largo.
+  try {
+    slugCv('index');
+    assert.fail('debería haber lanzado');
+  } catch (e) {
+    assert.match(e.message, /CV_SLUG/);
+    assert.match(e.message, /reservado/);
+    assert.match(e.message, /enrutador/);
+    assert.doesNotMatch(e.message, /entre 20 y 64/, 'el mensaje del largo taparía el de verdad');
+  }
+});
+
 test('CV_SLUG=vista-previa se rechaza: es el nombre PÚBLICO', () => {
   // Ponerlo a mano construye exactamente la página que mide Lighthouse y que
   // puede abrir cualquiera, creyendo haber configurado una privada.
@@ -235,9 +251,12 @@ test('ningún mensaje de error repite el valor', () => {
   }
 });
 
-test('el nombre reservado SÍ sale en su mensaje, y da igual', () => {
+test('los dos nombres reservados SÍ salen en su mensaje, y da igual', () => {
   // Es la única excepción a la regla de arriba, y no es un descuido:
-  // 'vista-previa' es una constante escrita en este repositorio público. Ningún
-  // valor que llegue a esa rama puede ser un secreto: solo llega ese.
+  // 'vista-previa' e 'index' son dos constantes escritas en este repositorio
+  // público, y el mensaje no sirve de nada si no puede decir cuál de las dos
+  // es. Ningún valor que llegue a esa rama puede ser un secreto: solo llegan
+  // esos dos.
   assert.throws(() => slugCv(RESPALDO), /VISTA PREVIA/);
+  assert.throws(() => slugCv('index'), /dist\/cv\/index\.html/);
 });
