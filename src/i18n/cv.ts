@@ -1,36 +1,42 @@
-// Textos EN/ES de "La mesa", el CV de /cv/<codigo>. Van aquí y no en ui.ts
-// por el mismo motivo que src/i18n/cartera.ts y src/i18n/research.ts: son
-// párrafos, no rótulos de interfaz. Los rótulos del botón de /about sí están
-// en ui.ts (claves `cv.*`).
+// Textos EN/ES del CV narrativo de /cv/<codigo> — "la historia". Van aquí y no
+// en ui.ts por el mismo motivo que src/i18n/cartera.ts y src/i18n/research.ts:
+// son párrafos, no rótulos de interfaz. Los rótulos del botón de /about sí
+// están en ui.ts (claves `cv.*`).
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LÍMITE DE AUTORÍA — LO MÁS IMPORTANTE DE ESTE ARCHIVO
 // ═══════════════════════════════════════════════════════════════════════════
-// En este archivo NO hay una sola frase sobre Jaime que no estuviera ya
-// publicada en el sitio. Ni un logro, ni una cifra suya, ni una nota, ni una
-// universidad, ni una fecha de su vida. Lo único que se describe es la PÁGINA:
-// qué va en cada hueco, de dónde sale cada número y qué significa.
+// Aquí hay TRES clases de texto, y cada una está marcada donde aparece:
 //
-// Lo suyo vive en el bloque `suyo`, y hoy está VACÍO a propósito. Cada cadena
-// vacía se pinta como un hueco marcado (src/components/cv/Hueco.astro) con el
-// rótulo de lo que falta; en cuanto Jaime escribe la frase, el hueco
-// desaparece solo y sale su texto. No hay que tocar ningún componente.
+// 1. LAS PALABRAS DE JAIME (`voz.*`). Frases que él dijo, con su ortografía y
+//    puntuación pulidas SIN cambiar el sentido. Cada una lleva el comentario
+//    «texto de Jaime, pendiente de su revisión final». Las versiones inglesas
+//    de esas frases son TRADUCCIONES fieles, también pendientes de su
+//    revisión: un comité canadiense lee inglés, y dejar su voz solo en español
+//    dejaría el panel inglés sin la mitad de la página. La única excepción es
+//    LA FRASE final (`frase.texto`): va VERBATIM, en español, en los dos
+//    paneles — es su voz y no se toca; el panel inglés lleva debajo una
+//    traducción pequeña, marcada como traducción.
+//
+// 2. HECHOS VERIFICADOS, cada uno con su fuente en el repo o en el propio
+//    build (las cifras de la prueba se CUENTAN de los archivos reales en
+//    Historia.astro, no se escriben aquí). Nombres de instituciones y
+//    certificaciones: tal cual los publica su LinkedIn.
+//
+// 3. LO QUE SOLO ÉL PUEDE ESCRIBIR → sigue siendo un hueco (`huecos`/`suyo`),
+//    como en la versión anterior de esta página. Cada cadena vacía de `suyo`
+//    se pinta como hueco marcado (src/components/cv/Hueco.astro); en cuanto
+//    Jaime escribe la frase, el hueco desaparece solo.
 //
 // `const es: typeof en` obliga a que las dos tablas tengan LAS MISMAS CLAVES:
-// si se añade un hueco en inglés y se olvida el español, TypeScript lo dice en
-// el build. Lo que TypeScript no puede comprobar es que las dos estén
-// escritas: un hueco lleno en español y vacío en inglés sale como hueco en la
-// versión inglesa, que es justo lo que tiene que pasar (un CV a medio traducir
-// no se disimula).
+// si se añade una clave en inglés y se olvida el español, TypeScript lo dice
+// en el build.
 import type { Locale } from './routes';
 
 const en = {
-  // Lo que ve la pestaña del navegador. Sin el código dentro, obviamente.
   docTitle: 'Jaime Sandoval Ricaño — Smart Finance',
 
   // ---- Selector de idioma de la propia página ----
-  // La página es UNA sola (un código = un archivo), así que los dos idiomas
-  // viven en el mismo documento y se cambian sin JavaScript.
   lang: { en: 'English', es: 'Español', aria: 'Language of this page' },
 
   // ---- Marca de hueco ----
@@ -38,23 +44,76 @@ const en = {
     tag: 'To write',
     note: 'Jaime writes this, in his own words. Nothing on this page is generated for him.'
   },
+  // Marca de foto pendiente (FotoHueco.astro).
+  fotoHueco: { tag: 'Photo to come' },
+  // Qué foto falta en cada sitio. Instrucciones del hueco, no contenido.
+  fotosPend: {
+    origen: 'From when it started. Even blurry ones count.',
+    research: 'Jaime working: a screen, a notebook, something real.',
+    actinver: 'The visit, the school, the team, the talks.',
+    animales: 'The animal volunteering.',
+    playas: 'The beach clean-ups.'
+  },
+  // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
+  clip: {
+    tag: 'Clip to come',
+    pista: 'The clip will be served from this domain, never embedded. Until then, the poster and the link to the original.',
+    ver: 'Watch on TikTok'
+  },
 
-  // ---- Cabecera ----
+  // ---- Índice y meta de la portada ----
+  indice: {
+    resumen: '11 chapters · about 6 minutes',
+    ver: 'See the index',
+    aria: 'Chapters of this page'
+  },
+
+  // ---- Títulos de capítulo (el 1 es el nombre; el 11 es la frase) ----
+  caps: {
+    c1: 'A hungry kid',
+    c2: 'What is already standing',
+    c3: 'Where the hunger comes from',
+    c4: 'What I want to do',
+    c5: 'Reto Actinver',
+    c6: 'Teaching is half the work',
+    c7: 'Everyone brings something',
+    c8: 'Serving',
+    c9: 'Experience',
+    c10: 'Certifications',
+    c11: 'The sentence'
+  },
+
+  // ---- Capítulo 1: portada ----
   head: {
     eyebrow: 'Curriculum vitae',
     name: 'Jaime Sandoval Ricaño',
     site: 'smartfinance.lat',
-    // Lo único que la cabecera afirma por su cuenta, y es verdad comprobable:
-    // esta página corre sobre el mismo código que el sitio público.
-    note: 'This page runs on the same code as the public site: the same endpoints, the same source chips, the same delays. Nothing on it is a screenshot.',
-    backLabel: 'Open the site'
+    // Su meta, dicha por él (texto de Jaime, pendiente de su revisión final):
+    // programas de negocios en Canadá, entrada septiembre de 2027.
+    meta: 'Business programs in Canada · September 2027 entry',
+    fotoAlt: 'Jaime Sandoval Ricaño'
   },
 
-  // ---- La cinta ----
+  // ---- Capítulo 2: la prueba ----
+  prueba: {
+    // Lo único que este capítulo afirma por su cuenta, y es comprobable:
+    // la página corre sobre el mismo código que el sitio público.
+    lede: 'smartfinance.lat is a bilingual financial-education site, and this page runs on its same code: the same endpoints, the same source chips, the same delays. The prices below are asked for when you open this page. Nothing here is a screenshot.',
+    // Las cifras de al lado se CUENTAN en el build desde los archivos reales
+    // del repo (Historia.astro); estos son solo sus rótulos.
+    stats: {
+      lecciones: 'lessons, each written in English and Spanish',
+      fuentes: 'primary sources cited across those lessons',
+      glosario: 'glossary terms, bilingual',
+      // El 403 de los borradores: la promesa ética del sitio, verificable.
+      promesa: 'And one promise you can test: no AI-written text is published without a person approving it. Asking the public endpoint for unreviewed drafts answers 403, on purpose.'
+    },
+    abrir: 'Open the site'
+  },
+
+  // ---- La cinta (dentro del capítulo 2; mismo mecanismo que siempre) ----
   tape: {
-    h: 'The tape',
     lede: 'Three of the assets the site follows, asked for when this page opens.',
-    // Nunca "en vivo": cadencia real, como en todo el sitio.
     note: 'Prices come from the site’s own endpoint, which reads Yahoo Finance and caches it. They are delayed, and the chip says by how much. They update when you open or reload this page, not continuously.',
     fail: 'If the endpoint does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
     price: 'Price',
@@ -63,50 +122,10 @@ const en = {
     open: 'Open the asset page'
   },
 
-  // ---- La cartera ----
-  book: {
-    h: 'My portfolio',
-    lede: 'The positions I publish with my own money, each with the reason I opened it. The full page has the thesis and the risk of every one.',
-    link: 'Open the full portfolio',
-    value: 'Portfolio value',
-    change: 'Change since the start',
-    positions: 'Positions',
-    trades: 'Trades',
-    chartAria: 'Portfolio value, one point per trading day',
-    snapshot: 'Figures at the close of {date}, from the snapshot written into the repository after each trading day.',
-    empty: 'No positions published yet. This block fills itself from the same file the public portfolio page reads — there is nothing to type in here.',
-    emptyWhere: 'The file: src/data/portfolio.json'
-  },
-
-  // ---- Reto Actinver ----
-  reto: {
-    h: 'Actinver Challenge',
-    lede: 'A student stock-market contest played with fictional money, run on the Mexican exchange. The dates below are the published calendar of the edition.',
-    // Fechas, no frases sobre HOY: esta página es estática y puede pasar meses
-    // sin desplegarse. Qué fase corre hoy se calcula con la fecha del navegador
-    // en /research, y ahí es donde se enlaza (ver el comentario de Mesa.astro).
-    calH: 'The calendar',
-    linkPhase: 'Where the challenge stands today',
-    linkMine: 'My contest portfolio',
-    cal: {
-      inscripciones: 'Registration',
-      // "Practice round" era el único sitio del repo que le llamaba "round":
-      // src/i18n/research.ts dice "Practice week" en las seis fases, y el
-      // calendario publicado son cinco días (28 sep – 2 oct). Un comité que
-      // abra las dos páginas no puede leer dos nombres del mismo tramo.
-      practica: 'Practice week',
-      reto: 'The contest itself',
-      premiacion: 'Prize-giving'
-    },
-    source: 'Calendar taken from retoactinver.com on {d}. Smart Finance is not affiliated with Actinver.'
-  },
-
-  // ---- Equity research ----
+  // ---- Capítulo 4: research ----
   research: {
-    h: 'Equity research',
     lede: 'Analyst-style reports with every figure traced to the filing it came from. The published one is below, with the state it is actually in.',
     link: 'Open the report',
-    hubLink: 'All of Smart Finance Projects',
     ticker: 'Ticker',
     dataAsOf: 'Data as of',
     version: 'Version',
@@ -115,15 +134,105 @@ const en = {
     statusLabel: { draft: 'Draft', review: 'In review', published: 'Published', none: 'Not started' } as Record<string, string>
   },
 
-  // ---- Cierre ----
-  close: {
-    h: 'One last thing',
-    contactH: 'Where to find me',
-    about: 'About me',
-    methodology: 'How the site works',
-    repo: 'The code, on GitHub',
+  // ---- Capítulo 5: Reto Actinver ----
+  reto: {
+    lede: 'A student stock-market contest played with fictional money, run on the Mexican exchange. The dates below are the published calendar of the edition.',
+    calH: 'The calendar',
+    linkPhase: 'Where the challenge stands today',
+    linkMine: 'My contest portfolio',
+    cal: {
+      inscripciones: 'Registration',
+      practica: 'Practice week',
+      reto: 'The contest itself',
+      premiacion: 'Prize-giving'
+    },
+    // La cartera del concurso, leída del MISMO archivo que /actinver.
+    empty: 'No contest positions published yet: the edition has not started. This block fills itself from the same file the public page reads.',
+    snapshot: 'Figures at the close of {date}, from the snapshot written into the repository after each trading day.',
+    source: 'Calendar taken from retoactinver.com on {d}. Smart Finance is not affiliated with Actinver.'
+  },
+
+  // ---- Capítulo 6: TikTok ----
+  tiktok: {
+    perfil: '@smart.financee, on TikTok',
+    // La línea que conecta los clips con las lecciones del sitio.
+    nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
+    videos: {
+      andy: 'Interview: Andy Toh, CEO of Blue Sky Education — a summer programme in Singapore',
+      japon: 'Financial data from Japan',
+      singapur: 'Financial data from Singapore'
+    }
+  },
+
+  // ---- Capítulo 7: entrevistas ----
+  entrevistas: {
+    personas: {
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education' },
+      maier: { nombre: 'Jon Maier', rol: 'Chief ETF Strategist, J.P. Morgan Asset Management' },
+      dieck: { nombre: 'Moris Dieck', rol: 'Financial analyst and content creator' },
+      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' }
+    }
+  },
+
+  // ---- Capítulo 8: servir ----
+  servir: {
+    // Hecho publicado en el sitio (/community, src/i18n/ui.ts `community.desc`).
+    comunidad: 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
+    comunidadLink: 'The community, on the site',
+    grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
+    bloques: {
+      comunidad: 'My community',
+      animales: 'The animals',
+      playas: 'Beach clean-ups'
+    }
+  },
+
+  // ---- Capítulo 9: experiencias (en seco) ----
+  exp: {
+    lede: 'What, where, when. This chapter and the next are the ones a committee scans.',
+    filas: [
+      { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering' },
+      { cuando: '2026', que: 'Interviews: Andy Toh, Jon Maier, Moris Dieck, and the Financial Trading Room podcast' },
+      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos' },
+      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 5' }
+    ]
+  },
+
+  // ---- Capítulo 10: certificaciones ----
+  certs: {
+    lede: 'The receipts. Exact name, institution, and the verification link when it exists.',
+    // Nombres tal cual los publica su LinkedIn. Fecha y enlace de verificación
+    // los trae Jaime; hasta entonces la columna dice que faltan.
+    pendiente: 'date and verification link to come',
+    filas: [
+      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg' },
+      { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
+      { que: 'Investment Banking Job Simulation', de: 'Bank of America' },
+      { que: 'B2 First Certificate', de: 'Cambridge English' },
+      { que: 'Green Technology Programme', de: '' }
+    ]
+  },
+
+  // ---- Capítulo 11: la frase ----
+  frase: {
+    // VERBATIM. Es la voz de Jaime y NO SE TOCA — ni ortografía ni puntuación.
+    // En los dos paneles va en español (lang="es" en el marcado); el panel
+    // inglés enseña debajo la traducción pequeña de aquí abajo, marcada.
+    texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
+    // Traducción de la frase, solo para el panel inglés, marcada como tal.
+    traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    traduccionTag: 'His words, in Spanish. In English:'
+  },
+
+  // ---- Contacto (bajo la frase) ----
+  contacto: {
+    h: 'Where to find me',
     linkedin: 'LinkedIn',
-    tiktok: 'TikTok'
+    tiktok: 'TikTok',
+    repo: 'The code, on GitHub',
+    site: 'smartfinance.lat'
   },
 
   // ---- Disclaimer ----
@@ -146,12 +255,8 @@ const en = {
       pista: 'One sentence — the thing you want them to remember after they close the tab.'
     },
     quienSoy: {
-      que: 'Who I am',
-      pista: 'Two or three sentences. No adjective that something further down this page cannot back up.'
-    },
-    carteraNota: {
-      que: 'How I run the portfolio',
-      pista: 'What you decide before buying, and what makes you sell. Written by you, not a description of the software.'
+      que: 'Where it started',
+      pista: 'Three to five sentences: where the hunger comes from, and what happened exactly. The shortest chapter, and the one they remember.'
     },
     retoNota: {
       que: 'What I want out of the contest',
@@ -161,9 +266,33 @@ const en = {
       que: 'What building the report taught me',
       pista: 'The part that was harder than you expected, in one short paragraph.'
     },
-    cierre: {
-      que: 'Why this page exists',
-      pista: 'Close it yourself: what you are asking for and what you would do with it.'
+    tiktokNota: {
+      que: 'Why I record',
+      pista: 'Two sentences. Why the camera, and who you picture watching.'
+    },
+    entrevistaAndy: {
+      que: 'One thing I took from Andy Toh',
+      pista: 'One line. Without it, this is a photo of a stranger.'
+    },
+    entrevistaMaier: {
+      que: 'One thing I took from Jon Maier',
+      pista: 'One line. Without it, this is a photo of a stranger.'
+    },
+    entrevistaDieck: {
+      que: 'One thing I took from Moris Dieck',
+      pista: 'One line. Without it, this is a photo of a stranger.'
+    },
+    entrevistaPodcast: {
+      que: 'One thing I took from the podcast',
+      pista: 'One line about the Financial Trading Room conversation.'
+    },
+    servirAnimales: {
+      que: 'The animals, in my words',
+      pista: 'One or two sentences. What you did, not what you felt.'
+    },
+    servirPlayas: {
+      que: 'The beach clean-ups, in my words',
+      pista: 'One or two sentences. What you did, not what you felt.'
     }
   },
 
@@ -175,10 +304,33 @@ const en = {
     aplicaA: '',
     linea: '',
     quienSoy: '',
-    carteraNota: '',
     retoNota: '',
     researchNota: '',
-    cierre: ''
+    tiktokNota: '',
+    entrevistaAndy: '',
+    entrevistaMaier: '',
+    entrevistaDieck: '',
+    entrevistaPodcast: '',
+    servirAnimales: '',
+    servirPlayas: ''
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════
+  // LA VOZ DE JAIME. Frases que él dijo, pulidas SOLO en ortografía y
+  // puntuación. Las inglesas son traducciones fieles. TODO este bloque está
+  // pendiente de su revisión final.
+  // ═════════════════════════════════════════════════════════════════════════
+  voz: {
+    // texto de Jaime (traducción), pendiente de su revisión final
+    dedicacion: '“I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
+    // texto de Jaime (traducción), pendiente de su revisión final
+    actinver: '“I want to represent my school, Prepa Tec CEM; to learn, to visit Actinver, to bring people from Actinver to give us talks, and to promote contests like this one so everyone joins in.”',
+    // texto de Jaime (traducción), pendiente de su revisión final
+    ensenar: '“I want to show myself as a student who wants to communicate finance to everyone. I am a kid who wants to share the advice and the motivation of important people, help guide others toward their vocation, and leave a little mark on everyone.”',
+    // texto de Jaime (traducción), pendiente de su revisión final
+    entrevistas: '“You can take something from everyone, because they are small experiences and different points of view.”',
+    // texto de Jaime (traducción), pendiente de su revisión final
+    servir: '“Helping my community, the animals, and cleaning up beaches.”'
   }
 };
 
@@ -189,23 +341,63 @@ const es: typeof en = {
 
   hueco: {
     tag: 'Falta escribirlo',
-    // "se genera por él" decía lo CONTRARIO del inglés: se lee como "generado
-    // POR él", que es justo lo que esta frase promete que no pasa. Y es la
-    // única frase que explica qué son los huecos, en la primera pantalla del
-    // panel español. "en su lugar" = "for him", sin ninguna lectura de agente.
     note: 'Esto lo escribe Jaime, con sus palabras. Nada de esta página se genera en su lugar.'
+  },
+  fotoHueco: { tag: 'Falta la foto' },
+  fotosPend: {
+    origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
+    research: 'Jaime trabajando: una pantalla, un cuaderno, algo real.',
+    actinver: 'La visita, la prepa, el equipo, las pláticas.',
+    animales: 'El voluntariado con animales.',
+    playas: 'Las limpiezas de playa.'
+  },
+  clip: {
+    tag: 'Falta el clip',
+    pista: 'El clip se servirá desde este dominio, nunca incrustado. Mientras tanto, el póster y el enlace al original.',
+    ver: 'Ver en TikTok'
+  },
+
+  indice: {
+    resumen: '11 capítulos · unos 6 minutos',
+    ver: 'Ver el índice',
+    aria: 'Capítulos de esta página'
+  },
+
+  caps: {
+    c1: 'Un niño con hambre',
+    c2: 'Lo que ya está de pie',
+    c3: 'De dónde viene el hambre',
+    c4: 'A lo que me quiero dedicar',
+    c5: 'Reto Actinver',
+    c6: 'Enseñar es la mitad del trabajo',
+    c7: 'Cada quien trae algo',
+    c8: 'Servir',
+    c9: 'Experiencias',
+    c10: 'Certificaciones',
+    c11: 'La frase'
   },
 
   head: {
     eyebrow: 'Currículum',
     name: 'Jaime Sandoval Ricaño',
     site: 'smartfinance.lat',
-    note: 'Esta página corre sobre el mismo código que el sitio público: los mismos endpoints, los mismos chips de fuente, los mismos retrasos. Nada de lo que hay aquí es una captura.',
-    backLabel: 'Abrir el sitio'
+    // texto de Jaime, pendiente de su revisión final
+    meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
+    fotoAlt: 'Jaime Sandoval Ricaño'
+  },
+
+  prueba: {
+    lede: 'smartfinance.lat es un sitio bilingüe de educación financiera, y esta página corre sobre su mismo código: los mismos endpoints, los mismos chips de fuente, los mismos retrasos. Los precios de abajo se piden al abrir esta página. Nada de lo que hay aquí es una captura.',
+    stats: {
+      lecciones: 'lecciones, cada una escrita en inglés y en español',
+      fuentes: 'fuentes primarias citadas en esas lecciones',
+      glosario: 'términos de glosario, bilingües',
+      promesa: 'Y una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe. Pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
+    },
+    abrir: 'Abrir el sitio'
   },
 
   tape: {
-    h: 'La cinta',
     lede: 'Tres de los activos que sigue el sitio, pedidos al abrir esta página.',
     note: 'Los precios salen del endpoint del propio sitio, que lee Yahoo Finance y lo cachea. Llegan con retraso, y el chip dice cuánto. Se actualizan al abrir o recargar esta página, no continuamente.',
     fail: 'Si el endpoint no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
@@ -215,22 +407,18 @@ const es: typeof en = {
     open: 'Abrir la ficha del activo'
   },
 
-  book: {
-    h: 'Mi cartera',
-    lede: 'Las posiciones que publico con mi propio dinero, cada una con la razón por la que la abrí. La página completa lleva la tesis y el riesgo de todas.',
-    link: 'Abrir la cartera completa',
-    value: 'Valor de la cartera',
-    change: 'Cambio desde el inicio',
-    positions: 'Posiciones',
-    trades: 'Operaciones',
-    chartAria: 'Valor de la cartera, un punto por día hábil',
-    snapshot: 'Cifras al cierre del {date}, de la foto que se escribe en el repositorio después de cada día hábil.',
-    empty: 'Todavía no hay posiciones publicadas. Este bloque se llena solo desde el mismo archivo que lee la página pública de la cartera — aquí no hay nada que teclear.',
-    emptyWhere: 'El archivo: src/data/portfolio.json'
+  research: {
+    lede: 'Reportes tipo analista con cada cifra rastreada hasta el documento del que sale. El publicado está abajo, con el estado en el que de verdad está.',
+    link: 'Abrir el reporte',
+    ticker: 'Ticker',
+    dataAsOf: 'Datos al',
+    version: 'Versión',
+    status: 'Estado',
+    years: 'Años fiscales verificados',
+    statusLabel: { draft: 'Borrador', review: 'En revisión', published: 'Publicado', none: 'Sin empezar' } as Record<string, string>
   },
 
   reto: {
-    h: 'Reto Actinver',
     lede: 'Un concurso de bolsa para estudiantes que se juega con dinero ficticio, sobre la bolsa mexicana. Las fechas de abajo son el calendario publicado de la edición.',
     calH: 'El calendario',
     linkPhase: 'Cómo va el reto hoy',
@@ -241,37 +429,77 @@ const es: typeof en = {
       reto: 'El reto',
       premiacion: 'Premiación'
     },
+    empty: 'Todavía no hay posiciones del concurso publicadas: la edición no ha empezado. Este bloque se llena solo desde el mismo archivo que lee la página pública.',
+    snapshot: 'Cifras al cierre del {date}, de la foto que se escribe en el repositorio después de cada día hábil.',
     source: 'Calendario tomado de retoactinver.com el {d}. Smart Finance no está afiliado a Actinver.'
   },
 
-  research: {
-    h: 'Equity research',
-    lede: 'Reportes tipo analista con cada cifra rastreada hasta el documento del que sale. El publicado está abajo, con el estado en el que de verdad está.',
-    link: 'Abrir el reporte',
-    // "Todo Smart Finance Projects" no era español: a "todo" le falta el
-    // sustantivo con el que concordar. El nombre de la sección NO se traduce
-    // —el h1 de /es/research es literalmente "Smart Finance Projects", ver
-    // src/i18n/research.ts—, así que el nexo que faltaba se pone delante:
-    // "la sección" es el sustantivo, y el nombre propio se queda entero.
-    // Ponerle "Proyectos" (el rótulo de `nav.projects`) nombraría algo que la
-    // página de destino no se llama a sí misma.
-    hubLink: 'Toda la sección Smart Finance Projects',
-    ticker: 'Ticker',
-    dataAsOf: 'Datos al',
-    version: 'Versión',
-    status: 'Estado',
-    years: 'Años fiscales verificados',
-    statusLabel: { draft: 'Borrador', review: 'En revisión', published: 'Publicado', none: 'Sin empezar' } as Record<string, string>
+  tiktok: {
+    perfil: '@smart.financee, en TikTok',
+    nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
+    videos: {
+      andy: 'Entrevista: Andy Toh, CEO de Blue Sky Education — un programa de verano en Singapur',
+      japon: 'Datos financieros de Japón',
+      singapur: 'Datos financieros de Singapur'
+    }
   },
 
-  close: {
-    h: 'Una última cosa',
-    contactH: 'Dónde encontrarme',
-    about: 'Sobre mí',
-    methodology: 'Cómo funciona el sitio',
-    repo: 'El código, en GitHub',
+  entrevistas: {
+    personas: {
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education' },
+      maier: { nombre: 'Jon Maier', rol: 'Chief ETF Strategist, J.P. Morgan Asset Management' },
+      dieck: { nombre: 'Moris Dieck', rol: 'Analista financiero y creador de contenido' },
+      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' }
+    }
+  },
+
+  servir: {
+    comunidad: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
+    comunidadLink: 'La comunidad, en el sitio',
+    grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
+    bloques: {
+      comunidad: 'Mi comunidad',
+      animales: 'Los animalitos',
+      playas: 'Limpieza de playas'
+    }
+  },
+
+  exp: {
+    lede: 'Qué, dónde, cuándo. Este capítulo y el siguiente son los que un comité escanea.',
+    filas: [
+      { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
+      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados' },
+      { cuando: '2026', que: 'Entrevistas: Andy Toh, Jon Maier, Moris Dieck y el podcast del Financial Trading Room' },
+      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera' },
+      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 5' }
+    ]
+  },
+
+  certs: {
+    lede: 'Los recibos. Nombre exacto, institución, y el enlace de verificación cuando exista.',
+    pendiente: 'fecha y enlace de verificación por llegar',
+    filas: [
+      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg' },
+      { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
+      { que: 'Investment Banking Job Simulation', de: 'Bank of America' },
+      { que: 'B2 First Certificate', de: 'Cambridge English' },
+      { que: 'Green Technology Programme', de: '' }
+    ]
+  },
+
+  frase: {
+    texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
+    traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    traduccionTag: 'His words, in Spanish. In English:'
+  },
+
+  contacto: {
+    h: 'Dónde encontrarme',
     linkedin: 'LinkedIn',
-    tiktok: 'TikTok'
+    tiktok: 'TikTok',
+    repo: 'El código, en GitHub',
+    site: 'smartfinance.lat'
   },
 
   disc: {
@@ -289,12 +517,8 @@ const es: typeof en = {
       pista: 'Una frase — lo que quieres que recuerden después de cerrar la pestaña.'
     },
     quienSoy: {
-      que: 'Quién soy',
-      pista: 'Dos o tres frases. Ni un adjetivo que algo más abajo de esta página no pueda respaldar.'
-    },
-    carteraNota: {
-      que: 'Cómo llevo la cartera',
-      pista: 'Qué decides antes de comprar y qué te hace vender. Escrito por ti, no una descripción del software.'
+      que: 'Dónde empezó',
+      pista: 'De tres a cinco frases: de dónde viene el hambre, y qué pasó exactamente. El capítulo más corto, y el que más se recuerda.'
     },
     retoNota: {
       que: 'Qué quiero sacar del reto',
@@ -304,9 +528,33 @@ const es: typeof en = {
       que: 'Qué aprendí haciendo el reporte',
       pista: 'La parte que costó más de lo que esperabas, en un párrafo corto.'
     },
-    cierre: {
-      que: 'Por qué existe esta página',
-      pista: 'Ciérrala tú: qué estás pidiendo y qué harías con ello.'
+    tiktokNota: {
+      que: 'Por qué grabo',
+      pista: 'Dos frases. Por qué la cámara, y a quién te imaginas viendo.'
+    },
+    entrevistaAndy: {
+      que: 'Una cosa que me llevé de Andy Toh',
+      pista: 'Una línea. Sin ella, esto es la foto de un desconocido.'
+    },
+    entrevistaMaier: {
+      que: 'Una cosa que me llevé de Jon Maier',
+      pista: 'Una línea. Sin ella, esto es la foto de un desconocido.'
+    },
+    entrevistaDieck: {
+      que: 'Una cosa que me llevé de Moris Dieck',
+      pista: 'Una línea. Sin ella, esto es la foto de un desconocido.'
+    },
+    entrevistaPodcast: {
+      que: 'Una cosa que me llevé del podcast',
+      pista: 'Una línea sobre la conversación del Financial Trading Room.'
+    },
+    servirAnimales: {
+      que: 'Los animalitos, con mis palabras',
+      pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
+    },
+    servirPlayas: {
+      que: 'Las playas, con mis palabras',
+      pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
     }
   },
 
@@ -314,10 +562,28 @@ const es: typeof en = {
     aplicaA: '',
     linea: '',
     quienSoy: '',
-    carteraNota: '',
     retoNota: '',
     researchNota: '',
-    cierre: ''
+    tiktokNota: '',
+    entrevistaAndy: '',
+    entrevistaMaier: '',
+    entrevistaDieck: '',
+    entrevistaPodcast: '',
+    servirAnimales: '',
+    servirPlayas: ''
+  },
+
+  voz: {
+    // texto de Jaime, pendiente de su revisión final
+    dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
+    // texto de Jaime, pendiente de su revisión final
+    actinver: '«Quiero representar a mi prepa, el Tec CEM; aprender, visitar Actinver, traer gente de Actinver a que nos dé pláticas, y promover este tipo de retos para invitar a todos a sumarse.»',
+    // texto de Jaime, pendiente de su revisión final
+    ensenar: '«Quiero mostrarme como un estudiante que quiere comunicar finanzas a todos. Soy un niño que quiere compartir los consejos y la motivación de gente importante, ayudar a guiar a los demás hacia su vocación, y dejar una huellita en todos.»',
+    // texto de Jaime, pendiente de su revisión final
+    entrevistas: '«Te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
+    // texto de Jaime, pendiente de su revisión final
+    servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»'
   }
 };
 

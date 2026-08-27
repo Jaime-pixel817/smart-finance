@@ -1,0 +1,729 @@
+---
+// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Once capítulos, blanco y
+// negro, scroll con imán. Se renderiza UNA VEZ POR IDIOMA dentro de la misma
+// página (ver Cv.astro). Sustituye a "La mesa", y se queda con lo mejor de
+// ella: la cinta viva, el calendario del Reto, la tarjeta del research y la
+// cartera del concurso — la prueba de que detrás hay una plataforma real.
+//
+// LA DIRECCIÓN CREATIVA vive en docs/cv-historia/direccion.md (rama
+// docs/cv-historia), con las mediciones en mediciones.md. Las decisiones
+// grandes de este archivo salen de ahí: imán `proximity` (medido contra el
+// secuestro JS: 65 % contra 12 % de recorrido con cinco golpes de rueda),
+// fotos con `animation-timeline: view()` (+149 B, cero JS, quietas con
+// `prefers-reduced-motion`), TikTok NUNCA incrustado (un embed medido:
+// 8 026 KB, 9 dominios, 2 cookies), y el orden afirmación → prueba → origen →
+// alcance → cierre.
+//
+// DESVIACIONES RESPECTO DE LA DIRECCIÓN, ESCRITAS:
+// · `--cvh-tinta-3` es #6E6E6E y no el #9A9A9A propuesto: #9A9A9A sobre
+//   blanco da 2.8:1 y las etiquetas mono son texto informativo — el mínimo
+//   es 4.5:1. #6E6E6E da 4.6:1 medido.
+// · Los titulares usan rem en los extremos del clamp (no px): capar la letra
+//   con unidades fijas frente al zoom de texto es lo que rompe WCAG 1.4.4
+//   (la lección ya escrita en la vieja Mesa.astro).
+// · Los capítulos son `min-height: 100svh`, no `height`: con el texto al
+//   200 % el contenido crece, y un alto fijo lo recortaría. `proximity`
+//   tolera secciones más altas (medido en mediciones.md §1.6).
+// · Las fotos de capítulo reutilizan las que YA están en el manifiesto
+//   (src/generated/photos.json, WebP con huella): las 24 buenas y el AVIF
+//   llegan cuando Jaime traiga los originales — regenerar ahora sería
+//   trabajo tirado y el manifiesto obliga a commitear fotos y JSON juntos.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LÍMITE DE AUTORÍA
+// ═══════════════════════════════════════════════════════════════════════════
+// Ni una frase sobre Jaime que él no haya dicho o que el repo no pueda
+// respaldar. Sus palabras están en `voz.*` de src/i18n/cv.ts (pendientes de su
+// revisión final); lo que solo él puede escribir sigue siendo un hueco
+// (Hueco.astro / FotoHueco.astro); y las cifras de la prueba se CUENTAN aquí
+// abajo de los archivos reales del repo — no hay ninguna escrita a mano.
+//
+// DE DÓNDE SALE CADA NÚMERO
+// · La cinta: /api/history vía src/scripts/cv-cinta.ts (igual que la mesa).
+//   Sin JavaScript o sin /api: rayas, y el chip dice "sin datos".
+// · Las cifras del capítulo 2: getCollection('lessons') y
+//   src/data/glossary.json, contadas EN EL BUILD.
+// · El Reto Actinver: src/lib/reto/actinver.mjs (fechas, no frases sobre hoy:
+//   misma regla que la mesa — esta página lleva dos idiomas y reto-fase.ts
+//   solo repinta un bloque).
+// · La cartera del concurso: src/data/actinver.json + su foto nocturna, con
+//   las cuentas de src/lib/portfolio/cartera.mjs. Hoy no hay posiciones: sale
+//   el estado vacío honesto.
+// · El research: content/research/lululemon vía loadReport.
+//
+// LOS ids SON ÚNICOS POR IDIOMA (`p` es 'en' o 'es'): dos panes en el mismo
+// documento con el mismo id es HTML inválido. Los enlaces del índice apuntan a
+// `#${p}-cap-N`, y la visibilidad del panel español con un ancla interna
+// puesta la sostiene el `:has()` de Cv.astro.
+import type { Locale } from '../../i18n/routes';
+import { route } from '../../i18n/routes';
+import { useT } from '../../i18n/ui';
+import { useCv } from '../../i18n/cv';
+import SourceChip from '../SourceChip.astro';
+import Hueco from './Hueco.astro';
+import FotoHueco from './FotoHueco.astro';
+import { SYMBOLS } from '../../data/symbols';
+import { CARTERAS } from '../../lib/portfolio/data';
+import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
+import { dinero, pctFirmado, claseDir, dia, frase as fmt } from '../../lib/portfolio/formato.mjs';
+import { RETO_2026 } from '../../lib/reto/actinver.mjs';
+import { loadReport } from '../../lib/research/reports';
+import { day, month } from '../../lib/research/format.mjs';
+import { foto } from '../../lib/photos';
+import { getCollection } from 'astro:content';
+import glosario from '../../data/glossary.json';
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const c = useCv(locale);
+const L = (id: string) => route(id, locale);
+/** Prefijo de los ids de este pane: sin él, los dos idiomas los repetirían. */
+const p = locale;
+
+const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
+const TIKTOK = 'https://www.tiktok.com/@smart.financee';
+const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
+
+// ------------------------------------------------ las cifras de la prueba
+// CONTADAS de los archivos reales, en el build. Si mañana hay 11 lecciones,
+// esta página dice 11 sin que nadie la toque. Se cuentan las inglesas y se
+// comprueba la paridad: si los dos idiomas no coinciden, mejor la cifra menor
+// que una mentira.
+const lecciones = await getCollection('lessons');
+const enLessons = lecciones.filter((l) => l.id.startsWith('en/'));
+const esLessons = lecciones.filter((l) => l.id.startsWith('es/'));
+const nLecciones = Math.min(enLessons.length, esLessons.length);
+const nFuentes = enLessons.reduce((s, l) => s + l.data.sources.length, 0);
+const nGlosario = (glosario as unknown as unknown[]).length;
+
+// ---------------------------------------------------------------- la cinta
+const CINTA_IDS = ['spy', 'usdmxn', 'btc'];
+const cinta = CINTA_IDS.map((id) => SYMBOLS.find((s) => s.id === id)).filter(Boolean) as typeof SYMBOLS;
+const FUENTE = 'Yahoo Finance';
+const RETRASO = 15;
+const cintaStrings = JSON.stringify({ loading: t('src.loading'), unavailable: t('src.unavailable') });
+
+// --------------------------------------------- la cartera del concurso (c5)
+const { cartera, historial } = CARTERAS.actinver;
+const fotoNoct = ultimoPunto(historial);
+const r = resumen(cartera, fotoNoct ? fotoNoct.precios : {});
+const g = grafica(historial.puntos, { w: 600, h: 120, pad: 6, base: cartera.capitalInicial });
+const hayCartera = cartera.posiciones.length > 0;
+const D = (n: number | null | undefined) => dinero(n, locale, cartera.moneda);
+const P = (n: number | null | undefined) => pctFirmado(n, locale);
+
+const cal = RETO_2026;
+const rango = (x: { desde: string; hasta: string }) => day(x.desde, locale) + ' – ' + day(x.hasta, locale);
+const filasCal = [
+  { id: 'inscripciones' as const, cuando: rango(cal.inscripciones) },
+  { id: 'practica' as const, cuando: rango(cal.practica) },
+  { id: 'reto' as const, cuando: rango(cal.reto) },
+  { id: 'premiacion' as const, cuando: month(cal.premiacion.mes, locale) }
+];
+
+// ----------------------------------------------------------- el research
+const rep = loadReport('lululemon');
+const estado = (rep.meta.status || 'draft') as string;
+
+// ------------------------------------------------------- los vídeos (c6)
+// VERIFICADOS: los tres existen en @smart.financee. NUNCA incrustados (medido:
+// un embed son 8 026 KB y 9 dominios; ver la cabecera). Mientras Jaime no
+// entregue los clips descargados, cada marco es póster + enlace al original +
+// la marca de clip pendiente. Los pósters reutilizan fotos del manifiesto.
+const videos = [
+  { id: '7662781308988411156', titulo: c.tiktok.videos.andy, poster: foto('breakdown-andy-toh.webp') },
+  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: foto('breakdown-japan.webp') },
+  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: foto('breakdown-singapore.webp') }
+];
+const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
+
+// ------------------------------------------------------ entrevistas (c7)
+const retratos = [
+  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), hueco: 'entrevistaAndy' as const },
+  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), hueco: 'entrevistaMaier' as const },
+  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), hueco: 'entrevistaDieck' as const },
+  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), hueco: 'entrevistaPodcast' as const }
+];
+
+// ------------------------------------------------------------- el índice
+const capitulos = [
+  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4, c.caps.c5, c.caps.c6,
+  c.caps.c7, c.caps.c8, c.caps.c9, c.caps.c10, c.caps.c11
+];
+const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
+---
+<div class="historia">
+
+  <!-- ── Idioma ──────────────────────────────────────────────────────────
+       Mismo mecanismo de siempre: :target en Cv.astro, cero JavaScript. -->
+  <nav class="cv-lang" aria-label={c.lang.aria}>
+    <a href="#en" class:list={['cv-lang-a', locale === 'en' && 'on']}
+      aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
+    <a href="#es" class:list={['cv-lang-a', locale === 'es' && 'on']}
+      aria-current={locale === 'es' ? 'page' : undefined} lang="es">{c.lang.es}</a>
+  </nav>
+
+  <!-- ════ 01 · Un niño con hambre — la afirmación ════════════════════════
+       Nombre, la línea (hueco), a qué aplica (su meta + hueco), UNA foto.
+       Sin movimiento: es el LCP. -->
+  <header class="cap cap-1" aria-labelledby={`${p}-h1`}>
+    <p class="cap-num" aria-hidden="true">{num(0)}</p>
+    <p class="etiqueta">{c.head.eyebrow}</p>
+    <h1 class="hist-name" id={`${p}-h1`}>{c.head.name}</h1>
+    <div class="cap-1-cuerpo">
+      <div class="cap-1-texto">
+        <Hueco c={c} id="linea" />
+        <!-- texto de Jaime (su meta), pendiente de su revisión final -->
+        <p class="meta-mono">{c.head.meta}</p>
+        <Hueco c={c} id="aplicaA" />
+      </div>
+      <!-- La única foto sin lazy de la página. -->
+      <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
+        width="320" height="320" decoding="async" />
+    </div>
+    <div class="indice-linea">
+      <p class="meta-mono">{c.indice.resumen}</p>
+      <details class="indice">
+        <summary class="meta-mono indice-ver">{c.indice.ver}</summary>
+        <ol class="indice-lista" aria-label={c.indice.aria}>
+          {capitulos.map((titulo, i) => (
+            <li>
+              <a href={`#${p}-cap-${i + 1}`}>
+                <span class="meta-mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span> {titulo}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </div>
+    <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
+  </header>
+
+  <!-- ════ 02 · Lo que ya está de pie — la prueba ═════════════════════════
+       La cinta repintándose sola (casta 1) y las cifras contadas del repo. -->
+  <section class="cap" aria-labelledby={`${p}-cap-2-h`} data-cinta data-loc={locale} data-strings={cintaStrings}>
+    <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(1)}</p>
+    <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.c2}</h2>
+    <p class="cap-lede">{c.prueba.lede}</p>
+
+    <div class="sec-head">
+      <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
+    </div>
+    <ul class="cinta">
+      {cinta.map((s) => (
+        <li class="cinta-fila" data-cinta-fila={s.id} data-pair={s.history} data-dec={String(s.decimals)}>
+          <a class="cinta-link" href={L('asset.' + s.id)}>
+            <span class="cinta-id">
+              <span class="cinta-sym num">{s.sym}</span>
+              <span class="cinta-name t-caption faint">{s.name[locale]}</span>
+            </span>
+            <span class="cinta-spark" aria-hidden="true">
+              <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
+            </span>
+            <span class="cinta-nums">
+              <span class="visually-hidden">{c.tape.price}</span>
+              <span class="cinta-price num" data-precio>{c.tape.pending}</span>
+              <span class="visually-hidden">{c.tape.change}</span>
+              <span class="cinta-chg num t-caption" data-cambio></span>
+            </span>
+            <span class="visually-hidden">{c.tape.open}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="pie">{c.tape.note} {c.tape.fail}</p>
+
+    <ul class="cifras">
+      <li><span class="cifra num">{nLecciones}</span> <span class="cifra-que">{c.prueba.stats.lecciones}</span></li>
+      <li><span class="cifra num">{nFuentes}</span> <span class="cifra-que">{c.prueba.stats.fuentes}</span></li>
+      <li><span class="cifra num">{nGlosario}</span> <span class="cifra-que">{c.prueba.stats.glosario}</span></li>
+    </ul>
+    <p class="cap-frases">{c.prueba.stats.promesa}</p>
+    <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
+  </section>
+
+  <!-- ════ 03 · De dónde viene el hambre — el origen ══════════════════════
+       Solo él puede escribirlo. Dos fotos de entonces, pendientes. -->
+  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
+    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(2)}</p>
+    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
+    <Hueco c={c} id="quienSoy" />
+    <div class="fila-fotos">
+      <FotoHueco c={c} que={c.fotosPend.origen} />
+      <FotoHueco c={c} que={c.fotosPend.origen} />
+    </div>
+  </section>
+
+  <!-- ════ 04 · A lo que me quiero dedicar — private equity research ══════ -->
+  <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
+    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(3)}</p>
+    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
+    <p class="cap-lede">{c.research.lede}</p>
+
+    <a class="card card-link rep" href={L(rep.routeId)}>
+      <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
+      <p class="t-h3 rep-name">{rep.meta.name}</p>
+      <dl class="rep-meta t-caption">
+        <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
+        <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
+        <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
+        <div><dt>{c.research.status}</dt><dd class={'rep-status st-' + estado}>{c.research.statusLabel[estado] ?? estado}</dd></div>
+      </dl>
+      <span class="t-small rep-cta">{c.research.link} →</span>
+    </a>
+
+    <Hueco c={c} id="researchNota" />
+    <div class="fila-fotos">
+      <FotoHueco c={c} que={c.fotosPend.research} />
+    </div>
+  </section>
+
+  <!-- ════ 05 · Reto Actinver ═════════════════════════════════════════════
+       Calendario por FECHAS (la fase de hoy se calcula en /research, no
+       aquí: misma regla que la mesa), cartera del concurso, y el logo con
+       las reglas del repo: pequeño, placa oscura, no afiliación. -->
+  <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
+    <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(4)}</p>
+    <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.c5}</h2>
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
+    <p class="cap-lede">{c.reto.lede}</p>
+
+    <div class="reto-marca">
+      <!-- Placa oscura FIJA: el logo lo publican blanco con el punto dorado,
+           para fondo oscuro. Recolorearlo sería deformar una marca ajena. -->
+      <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
+      <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
+    </div>
+
+    <h3 class="t-h3">{c.reto.calH}</h3>
+    <ol class="cal">
+      {filasCal.map((f) => (
+        <li>
+          <span class="cal-que">{c.reto.cal[f.id]}</span>
+          <span class="cal-cuando num">{f.cuando}</span>
+        </li>
+      ))}
+    </ol>
+
+    {hayCartera ? (
+      <>
+        {g && (
+          <figure class="curva">
+            <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
+              aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
+              {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
+              <path class="curva-area" d={g.area} />
+              <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
+            </svg>
+          </figure>
+        )}
+        {fotoNoct && <p class="pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
+      </>
+    ) : (
+      <p class="cap-frases">{c.reto.empty}</p>
+    )}
+
+    <Hueco c={c} id="retoNota" />
+    <p class="links-row">
+      <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
+      <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
+    </p>
+    <div class="fila-fotos">
+      <FotoHueco c={c} que={c.fotosPend.actinver} />
+      <FotoHueco c={c} que={c.fotosPend.actinver} />
+    </div>
+  </section>
+
+  <!-- ════ 06 · Enseñar es la mitad del trabajo — TikTok ══════════════════
+       Marcos de vídeo SERVIDOS POR NOSOTROS cuando lleguen los clips; hoy,
+       póster + enlace al original + marca de clip pendiente. Jamás un embed. -->
+  <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
+    <Hueco c={c} id="tiktokNota" />
+
+    <ul class="clips">
+      {videos.map((v) => (
+        <li class="clip">
+          <span class="recuerdo"><img src={v.poster} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
+          <p class="clip-titulo">{v.titulo}</p>
+          <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
+            <span aria-hidden="true">{c.clip.tag}</span>
+          </p>
+          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
+        </li>
+      ))}
+    </ul>
+    <p class="pie">{c.clip.pista}</p>
+    <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
+  </section>
+
+  <!-- ════ 07 · Cada quien trae algo — entrevistas ════════════════════════
+       Retratos que crecen y encogen como recuerdos (casta 2, CSS puro).
+       La línea de qué se llevó de cada quien es SUYA: cuatro huecos. -->
+  <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
+    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
+
+    <ul class="retratos">
+      {retratos.map((rt) => (
+        <li class="retrato">
+          <span class="recuerdo"><img src={rt.img} alt={`${c.entrevistas.personas[rt.key].nombre} — ${c.entrevistas.personas[rt.key].rol}`} width="480" height="360" loading="lazy" decoding="async" /></span>
+          <p class="retrato-nombre">{c.entrevistas.personas[rt.key].nombre}</p>
+          <p class="retrato-rol">{c.entrevistas.personas[rt.key].rol}</p>
+          <Hueco c={c} id={rt.hueco} />
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- ════ 08 · Servir — comunidad, animales, playas ══════════════════════ -->
+  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
+    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
+
+    <div class="servir">
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.comunidad}</h3>
+        <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.servir.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
+        <!-- Hecho publicado en /community, en primera persona de Jaime. -->
+        <p class="cap-frases">{c.servir.comunidad}</p>
+        <a class="hist-link t-small" href={L('community')}>{c.servir.comunidadLink} →</a>
+      </div>
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.animales}</h3>
+        <FotoHueco c={c} que={c.fotosPend.animales} />
+        <Hueco c={c} id="servirAnimales" />
+      </div>
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.playas}</h3>
+        <FotoHueco c={c} que={c.fotosPend.playas} />
+        <Hueco c={c} id="servirPlayas" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 09 · Experiencias — en seco, sin movimiento (casta 3) ══════════ -->
+  <section class="cap" aria-labelledby={`${p}-cap-9-h`}>
+    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(8)}</p>
+    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
+    <p class="cap-lede">{c.exp.lede}</p>
+    <ol class="lista-seca">
+      {c.exp.filas.map((f) => (
+        <li>
+          <span class="seca-cuando num">{f.cuando}</span>
+          <span class="seca-que">{f.que}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <!-- ════ 10 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
+  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
+    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(9)}</p>
+    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
+    <p class="cap-lede">{c.certs.lede}</p>
+    <ol class="lista-seca">
+      {c.certs.filas.map((f) => (
+        <li>
+          <span class="seca-cuando meta-mono">{c.certs.pendiente}</span>
+          <span class="seca-que">{f.que}{f.de ? ' — ' + f.de : ''}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <!-- ════ 11 · La frase — sus palabras exactas, VERBATIM ═════════════════
+       En español en los dos paneles: es su voz y no se toca. El panel inglés
+       lleva debajo la traducción, pequeña y marcada como traducción. -->
+  <section class="cap cap-frase" aria-labelledby={`${p}-cap-11-h`}>
+    <span id={`${p}-cap-11`} class="cap-ancla" aria-hidden="true"></span>
+    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.c11}</h2>
+    <blockquote class="frase" lang="es">
+      <p>{c.frase.texto}</p>
+    </blockquote>
+    {locale === 'en' && (
+      <p class="frase-trad pie"><span class="meta-mono">{c.frase.traduccionTag}</span> {c.frase.traduccion}</p>
+    )}
+    <div class="cierre">
+      <p class="cierre-nombre">{c.head.name}</p>
+      <p class="links-row">
+        <a class="hist-link" href={LINKEDIN} target="_blank" rel="noopener">{c.contacto.linkedin} ↗</a>
+        <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.contacto.tiktok} ↗</a>
+        <a class="hist-link" href={GITHUB} target="_blank" rel="noopener">{c.contacto.repo} ↗</a>
+        <a class="hist-link" href={L('home')}>{c.contacto.site} →</a>
+      </p>
+      <p class="pie">{c.hueco.note}</p>
+      <p class="pie"><strong>{c.disc.h}.</strong> {c.disc.p}</p>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* ═══ Tokens locales del CV narrativo ═════════════════════════════════
+     Cinco colores y cuatro tamaños PROPIOS (dirección creativa §3): esta
+     página es blanca SIEMPRE — no hereda el color del sitio; sí hereda
+     movimiento, espaciado y fuentes. Los extremos de los clamp van en rem,
+     no en px: capar un titular frente al zoom de texto rompe WCAG 1.4.4. */
+  .historia {
+    --cvh-papel: #FFFFFF;
+    --cvh-tinta: #0A0A0A;
+    --cvh-tinta-2: #5A5A5A;   /* 6.9:1 sobre blanco */
+    --cvh-tinta-3: #6E6E6E;   /* 4.6:1 — el #9A9A9A propuesto daba 2.8:1 */
+    --cvh-raya: #E6E6E6;
+    --cvh-h: clamp(2.5rem, 11vw, 7rem);
+    --cvh-h-frase: clamp(1.75rem, 7vw, 5.5rem);
+    --cvh-cuerpo: clamp(1.0625rem, 2.2vw, 1.3125rem);
+    --cvh-etiqueta: 0.6875rem;
+
+    position: relative;
+    display: flex; flex-direction: column;
+    color: var(--cvh-tinta);
+  }
+
+  /* ═══ El esqueleto de capítulo (dirección §3, "Ritmo") ═══════════════
+     min-height y no height: con el texto al 200 % el contenido crece y
+     `proximity` tolera secciones altas (medido). El imán vive en cv.css. */
+  .cap {
+    position: relative;
+    min-height: 100svh;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: var(--sp-5);
+    padding-block: var(--sp-8);
+    scroll-snap-align: start;
+  }
+  /* El ancla del índice: arriba del capítulo, sin ocupar sitio. */
+  .cap-ancla { position: absolute; top: 0; width: 0; height: 0; overflow: hidden; }
+
+  .cap-num {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; color: var(--cvh-tinta-3);
+  }
+  .etiqueta {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-3);
+  }
+  .meta-mono {
+    font-family: var(--font-mono); font-size: var(--fs-caption);
+    letter-spacing: .04em; color: var(--cvh-tinta-2);
+  }
+
+  /* Fraunces SOLO en los titulares de capítulo y la frase (regla de la
+     dirección: en ningún otro sitio, o se vuelve decoración). */
+  .cap-h, .hist-name {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: var(--cvh-h); line-height: 0.95; letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+  }
+  .cap-lede, .cap-frases {
+    font-size: var(--cvh-cuerpo); line-height: 1.6;
+    max-width: 62ch; color: var(--cvh-tinta);
+  }
+  .pie { font-size: var(--fs-caption); line-height: 1.5; color: var(--cvh-tinta-2); max-width: 62ch; }
+
+  /* La voz de Jaime: cuerpo grande, sin serif (la serif es de los titulares). */
+  .voz { margin: 0; }
+  .voz p {
+    font-size: var(--cvh-cuerpo); line-height: 1.6; max-width: 62ch;
+    color: var(--cvh-tinta);
+  }
+
+  .hist-link { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; min-height: 36px; display: inline-flex; align-items: center; }
+  .hist-link:hover { color: var(--cvh-tinta-2); }
+  .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
+
+  /* ---- Selector de idioma ---- */
+  .cv-lang { position: absolute; top: var(--sp-4); right: 0; display: flex; gap: var(--sp-2); z-index: 2; }
+  .cv-lang-a {
+    display: inline-flex; align-items: center; min-height: 36px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--cvh-raya);
+    color: var(--cvh-tinta-2); font-size: var(--fs-caption);
+  }
+  .cv-lang-a:hover { color: var(--cvh-tinta); }
+  .cv-lang-a.on { color: var(--cvh-tinta); border-color: var(--cvh-tinta-3); }
+  @media print { .cv-lang { display: none; } }
+
+  /* ---- Capítulo 1 ---- */
+  .hist-name { font-size: var(--cvh-h); }
+  .cap-1-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
+  @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
+  .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
+  .cap-1-foto { max-width: 100%; height: auto; display: block; }
+  .indice-linea { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: baseline; }
+  .indice-ver { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .indice-ver:hover { color: var(--cvh-tinta); }
+  .indice-lista { display: flex; flex-direction: column; gap: 2px; padding-top: var(--sp-3); }
+  .indice-lista a { color: var(--cvh-tinta); min-height: 32px; display: inline-flex; align-items: center; gap: var(--sp-2); }
+  .indice-lista a:hover { color: var(--cvh-tinta-2); }
+
+  /* ---- La cinta (la fila y sus válvulas vienen de la mesa; la lección de
+          los `em` está contada en el commit que las escribió: las consultas
+          miden el ancho EN LETRAS para disparar también con el texto grande) ---- */
+  .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+  .cinta { display: flex; flex-direction: column; border: 1px solid var(--cvh-raya); background: var(--cvh-papel); max-width: 720px; }
+  .cinta-fila { border-bottom: 1px solid var(--cvh-raya); }
+  .cinta-fila:last-child { border-bottom: 0; }
+  .cinta-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px auto;
+    grid-template-areas: 'id spark nums';
+    align-items: center; gap: var(--sp-3); min-height: 56px;
+    padding: 0 var(--sp-3); color: var(--cvh-tinta);
+    transition: background var(--dur-2) var(--ease-std);
+  }
+  .cinta-fila:hover { background: var(--bg-2); }
+  .cinta-id { grid-area: id; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cinta-sym { font-size: var(--fs-small); min-width: 0; overflow-wrap: anywhere; }
+  .cinta-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cinta-spark { grid-area: spark; width: 64px; height: 24px; display: block; }
+  .cinta-nums { grid-area: nums; display: flex; align-items: baseline; justify-content: flex-end; flex-wrap: wrap; column-gap: var(--sp-3); }
+  .cinta-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; white-space: nowrap; }
+  .cinta-chg { text-align: right; min-width: 8ch; white-space: nowrap; }
+  /* Válvula 1 — cede el dibujo (23.7em = el 379px de siempre, en letras). */
+  @media (max-width: 23.7em) {
+    .cinta-link { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'id nums'; gap: var(--sp-2); }
+    .cinta-nums { column-gap: var(--sp-2); }
+    .cinta-spark { display: none; }
+  }
+  /* Válvula 2 — la fila se parte y los números bajan a su renglón. */
+  @media (max-width: 17em) {
+    .cinta-link { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'id' 'nums'; row-gap: var(--sp-1); padding-block: var(--sp-3); }
+    .cinta-nums { justify-content: flex-start; column-gap: var(--sp-4); }
+    .cinta-price, .cinta-chg { text-align: left; min-width: 0; }
+  }
+
+  /* ---- Las cifras contadas ---- */
+  .cifras { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-8); }
+  .cifras li { display: flex; flex-direction: column; gap: 2px; min-width: 0; max-width: 22ch; }
+  .cifra { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: var(--fs-num-xl); line-height: 1.1; }
+  .cifra-que { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+
+  /* ---- Fotos y huecos de foto en fila ---- */
+  .fila-fotos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-3); max-width: 720px; }
+
+  /* ---- Research (la tarjeta de la mesa, en blanco y negro) ---- */
+  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 0; background: var(--cvh-papel); box-shadow: none; }
+  .rep-name { font-family: var(--font-sans); font-weight: 600; }
+  .rep-meta { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-4); margin: 0; }
+  .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
+  .rep-meta dt { color: var(--cvh-tinta-3); font-family: var(--font-mono); font-size: var(--cvh-etiqueta); letter-spacing: .06em; text-transform: uppercase; }
+  .rep-meta dd { margin: 0; color: var(--cvh-tinta); }
+  /* La especificidad de más va a propósito: la lección del estado que se
+     pintaba en tinta normal está contada en la vieja Mesa.astro (los estilos
+     con ámbito de Astro pesan por compuesto). --warn del tema claro: 4.5+. */
+  .rep-meta dd.rep-status.st-draft { color: var(--warn); }
+  .rep-meta dd.rep-status.st-published { color: var(--up-text); }
+  .rep-cta { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ---- Reto: placa, calendario, curva ---- */
+  .reto-marca { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+  .logo-placa { display: inline-flex; padding: var(--sp-2) var(--sp-3); background: #101014; flex: none; }
+  .logo-placa img { width: 121px; height: 72px; display: block; }
+  .cal { display: flex; flex-direction: column; max-width: 720px; }
+  .cal li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3) 0; border-top: 1px solid var(--cvh-raya); }
+  .cal-que { color: var(--cvh-tinta); }
+  .cal-cuando { color: var(--cvh-tinta-2); font-size: var(--fs-small); }
+  .curva { margin: 0; max-width: 720px; }
+  .curva-svg { width: 100%; height: 120px; display: block; }
+  .curva-area { fill: var(--cvh-tinta); opacity: .06; stroke: none; }
+  .curva-line { fill: none; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+  .curva-line.up { color: var(--up-text); }
+  .curva-line.down { color: var(--down-text); }
+  .curva-line.flat { color: var(--cvh-tinta-2); }
+  .curva-base { stroke: var(--cvh-tinta-3); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+
+  /* ---- Clips ---- */
+  .clips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-4); }
+  .clip { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
+  .clip-tag {
+    align-self: flex-start;
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-2);
+    border: 1px dashed var(--cvh-tinta-3); padding: 4px 8px;
+  }
+
+  /* ---- Retratos ---- */
+  .retratos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
+  .retrato { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .retrato-nombre { font-weight: 600; }
+  .retrato-rol { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+
+  /* ---- Servir ---- */
+  .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
+  .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+
+  /* ---- Listas secas (experiencias, certificaciones): sin movimiento ---- */
+  .lista-seca { display: flex; flex-direction: column; max-width: 720px; }
+  .lista-seca li { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); padding: var(--sp-3) 0; border-top: 1px solid var(--cvh-raya); }
+  .seca-cuando { flex: none; width: 11ch; color: var(--cvh-tinta-2); font-size: var(--fs-small); }
+  .seca-que { flex: 1; min-width: min(28ch, 100%); color: var(--cvh-tinta); overflow-wrap: anywhere; }
+
+  /* ---- La frase ---- */
+  .cap-frase { justify-content: center; gap: var(--sp-6); }
+  .frase { margin: 0; }
+  .frase p {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: var(--cvh-h-frase); line-height: 1.1; letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+  .frase-trad { max-width: 62ch; }
+  .cierre { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .cierre-nombre { font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--cvh-tinta-2); }
+
+  /* ═══ El movimiento ═══════════════════════════════════════════════════
+     Casta 1 (una por pantalla): la cinta (c2, la escribe cv-cinta.ts), el
+     trazado de la curva (c5, trazo.ts) y la entrada de la frase (c11).
+     Casta 2 (acompaña): .recuerdo — las fotos crecen y encogen al pasar,
+     con animation-timeline: view(): cero JS, +149 B medidos, y sin soporte
+     (Firefox estable) la foto se ve entera y quieta. Casta 3: titulares,
+     listas secas y recibos NO se mueven.  */
+  .recuerdo { display: block; overflow: hidden; }
+  .recuerdo img { display: block; width: 100%; height: auto; }
+
+  @supports (animation-timeline: view()) {
+    .recuerdo img {
+      animation: recuerdo linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre {
+      animation: frase-entra var(--dur-3) var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 40%;
+    }
+  }
+  @keyframes recuerdo {
+    from { transform: scale(.86) translateY(14px); opacity: .4; }
+    45%, 55% { transform: none; opacity: 1; }
+    to { transform: scale(.86) translateY(-14px); opacity: .4; }
+  }
+  @keyframes frase-entra {
+    from { transform: translateY(var(--rise)); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  /* Con «menos movimiento», TODO quieto y TODO visible. Los tokens ya apagan
+     las duraciones; view() no es una duración, así que se apaga aquí. */
+  @media (prefers-reduced-motion: reduce) {
+    .recuerdo img, .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre { animation: none; }
+  }
+</style>
