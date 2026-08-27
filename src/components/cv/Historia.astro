@@ -194,9 +194,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
         <p class="meta-mono">{c.head.meta}</p>
         <Hueco c={c} id="aplicaA" />
       </div>
-      <!-- La única foto sin lazy de la página. -->
+      <!-- La única foto sin lazy de la página: es el LCP medido (2.79 s en el
+           móvil de Lighthouse), así que se pide con prioridad alta. -->
       <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
-        width="320" height="320" decoding="async" />
+        width="320" height="320" decoding="async" fetchpriority="high" />
     </div>
     <div class="indice-linea">
       <p class="meta-mono">{c.indice.resumen}</p>
@@ -503,11 +504,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <p class="cap-num" aria-hidden="true">{num(9)}</p>
     <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
-    <ol class="lista-seca">
+    <!-- Filas como el calendario del reto: el recibo a la izquierda y lo que
+         falta (fecha y enlace de verificación) a la derecha, en mono. Que se
+         vea que falta es el punto: nada se disimula. -->
+    <ol class="cal">
       {c.certs.filas.map((f) => (
         <li>
-          <span class="seca-cuando meta-mono">{c.certs.pendiente}</span>
-          <span class="seca-que">{f.que}{f.de ? ' — ' + f.de : ''}</span>
+          <span class="cal-que">{f.que}{f.de ? ' — ' + f.de : ''}</span>
+          <span class="cal-cuando meta-mono">{c.certs.pendiente}</span>
         </li>
       ))}
     </ol>
