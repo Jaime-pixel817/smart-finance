@@ -67,6 +67,19 @@
 // pantalla no puede leer el panel español con voz inglesa. Y el panel oculto
 // va con `display: none`, así que no se anuncia ni se tabula.
 //
+// LÍMITE CONOCIDO, ESCRITO A PROPÓSITO: SIN JAVASCRIPT, `<html lang>` SE
+// QUEDA EN `en` AUNQUE SE VEA EL PANEL ESPAÑOL. Un atributo no se escribe
+// desde CSS, así que el ajuste vive en el guion en línea de abajo y con el
+// JavaScript apagado no ocurre. NO se fuerza, y por dos razones: la única
+// forma de arreglarlo sin JavaScript sería emitir dos documentos —o sea dos
+// direcciones del CV que repartir y dos que se filtran, que es justo lo que
+// esta página evita—, y el efecto real está contenido: el panel que se ve
+// lleva su propio `lang="es"`, que es el que manda sobre su contenido, así
+// que un lector de pantalla cambia de voz igual. Lo que queda mal es el
+// idioma DECLARADO del documento, que fuera del panel solo cubre el `<title>`
+// (idéntico en los dos idiomas: es su nombre). Si algún día molesta de
+// verdad, se arregla con documentos separados, no con más JavaScript.
+//
 // LO QUE NECESITÓ JAVASCRIPT SIGUE SIENDO UN BLOQUE EN LÍNEA: el `lang` del
 // documento, el foco y el anuncio al cambiar de idioma (un atributo no se
 // escribe desde CSS; el foco se perdía al desaparecer el panel; el cambio era
