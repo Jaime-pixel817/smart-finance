@@ -1,5 +1,6 @@
 ---
-// Layout de /cv/<codigo>. NO es Base.astro, y eso es una decisión, no un atajo.
+// Layout de /cv/<codigo> — el CV narrativo. NO es Base.astro, y eso es una
+// decisión, no un atajo.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // POR QUÉ NO USA Base.astro
@@ -15,20 +16,29 @@
 //
 // Lo demás sale gratis y a favor: sin barra superior, sin barra de abajo, sin
 // overlay de búsqueda, sin avisos y sin la hoja de la IA, esto se lee como un
-// documento y no como "otra página del sitio" — que es exactamente el riesgo
-// que tenía este concepto — y baja de ~40 KB de JavaScript a los ~6 de la
-// cinta. Es lo que le deja pasar el mínimo de rendimiento del CI.
+// documento — y baja de ~40 KB de JavaScript a los ~6 de la cinta.
 //
-// Lo que SÍ se hereda es todo lo que importa: base.css (tokens, movimiento y
-// trazo), las tres fuentes del primer pintado y el tema antes del primer
-// fotograma. La página se ve del sitio porque usa sus mismos tokens.
+// PERO base.css NO se pide con `import` aquí: se pide desde CSS, por
+// src/styles/cv.css. El porqué medido está en el encabezado de esa hoja (dos
+// entradas de JavaScript importando base.css parten la hoja de las 101
+// páginas del sitio en dos peticiones).
 //
-// PERO base.css NO se pide con `import` aquí, y eso también es a propósito: se
-// pide desde CSS, por src/styles/cv.css. Con dos entradas de JavaScript
-// importando la misma hoja, Rollup la saca a un trozo compartido y las 101
-// páginas que usan Base pasan a enlazar DOS hojas donde antes tenían una. El
-// porqué medido está en el encabezado de src/styles/cv.css; la misma trampa
-// que base.css ya documenta en su @import de trazo.css.
+// ═══════════════════════════════════════════════════════════════════════════
+// ESTA PÁGINA NACE BLANCA, SIEMPRE, Y NO LEE EL TEMA DEL VISITANTE
+// ═══════════════════════════════════════════════════════════════════════════
+// La versión anterior ponía el tema desde localStorage antes del primer
+// fotograma, como Base.astro: con eso, alguien de admisiones que nunca visitó
+// el sitio abría el CV EN NEGRO (oscuro es la omisión del sitio). El CV
+// narrativo es blanco como el papel de un libro: el blanco es del documento,
+// no una preferencia del visitante. Así que aquí NO hay script de tema.
+//
+// `data-theme="light"` va ESCRITO en el HTML, estático, y no es heredar el
+// tema del sitio: es que los pocos instrumentos que esta página reutiliza de
+// él (el chip de fuente, los huecos, los colores up/down de la curva) leen los
+// tokens de tokens.css, y sin el atributo resolverían al tema OSCURO, que es
+// el primero de ese archivo. Con el atributo fijo resuelven a la paleta clara
+// ya validada del sitio — y la página encima define los cinco valores propios
+// del CV (Historia.astro), que son los que pintan todo lo demás.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // UN SOLO DOCUMENTO, DOS IDIOMAS, Y EL CAMBIO LO SIGUE HACIENDO EL CSS
@@ -38,85 +48,92 @@
 // viven en el mismo documento y el cambio lo hace `:target`, en CSS:
 //
 //   · Las dos anclas (#en, #es) van ANTES de los dos paneles y son hermanas
-//     suyas, así que basta el combinador `~`. Sin :has(), que es más nuevo.
+//     suyas, así que basta el combinador `~`.
 //   · Por omisión se ve inglés. Con la URL terminada en #es se ve español.
-//   · Sin JavaScript se cambia de idioma IGUAL: el que enseña y esconde los
-//     paneles es el CSS, y eso no ha cambiado.
-//   · Si el CSS no llegara, se ven LOS DOS paneles, uno detrás de otro. El
-//     peor caso es un CV bilingüe largo, nunca una página en blanco.
+//   · Sin JavaScript se cambia de idioma IGUAL: lo hace el CSS.
+//   · Si el CSS no llegara, se ven LOS DOS paneles, uno detrás de otro.
+//
+// LO NUEVO DEL CV NARRATIVO: el índice de capítulos enlaza a anclas INTERNAS
+// (#en-cap-7, #es-cap-7). Un ancla interna cambia el hash, así que `#es:target`
+// deja de casar y el panel español se escondería con el lector dentro. Lo
+// sostiene `:has()`: si el ancla puesta vive dentro del panel español, ese
+// panel se queda a la vista. Los ids de capítulo llevan el idioma delante
+// justo para esto. En un navegador sin `:has()` (viejo de verdad: Firefox
+// <121), los enlaces del índice del panel inglés funcionan igual y los del
+// español no navegan — el idioma no se pierde, solo el atajo. El cambio de
+// idioma en sí NO depende de :has().
 //
 // El `lang` de cada panel es el suyo (el documento es `en`): un lector de
 // pantalla no puede leer el panel español con voz inglesa. Y el panel oculto
 // va con `display: none`, así que no se anuncia ni se tabula.
 //
-// LO QUE SÍ NECESITÓ JAVASCRIPT, Y POR QUÉ SON ONCE LÍNEAS EN LÍNEA.
-// El CSS sabe enseñar y esconder, pero hay tres cosas que NO puede hacer, y
-// las tres se notaban:
+// LÍMITE CONOCIDO, ESCRITO A PROPÓSITO: SIN JAVASCRIPT, `<html lang>` SE
+// QUEDA EN `en` AUNQUE SE VEA EL PANEL ESPAÑOL. Un atributo no se escribe
+// desde CSS, así que el ajuste vive en el guion en línea de abajo y con el
+// JavaScript apagado no ocurre. NO se fuerza, y por dos razones: la única
+// forma de arreglarlo sin JavaScript sería emitir dos documentos —o sea dos
+// direcciones del CV que repartir y dos que se filtran, que es justo lo que
+// esta página evita—, y el efecto real está contenido: el panel que se ve
+// lleva su propio `lang="es"`, que es el que manda sobre su contenido, así
+// que un lector de pantalla cambia de voz igual. Lo que queda mal es el
+// idioma DECLARADO del documento, que fuera del panel solo cubre el `<title>`
+// (idéntico en los dos idiomas: es su nombre). Si algún día molesta de
+// verdad, se arregla con documentos separados, no con más JavaScript.
 //
-//   · `<html lang>` se quedaba en `en` para siempre. Un atributo no se cambia
-//     desde una hoja de estilos: no hay selector que escriba. Con el panel
-//     español a la vista, el documento seguía declarándose inglés.
-//   · El foco se PERDÍA. Al pulsar "Español" desaparece el panel donde estaba
-//     el enlace, y `document.activeElement` se iba a `<body>`: el siguiente
-//     Tab empieza desde arriba del todo y el cursor de lectura se pierde.
-//   · No se anunciaba nada. El cambio era mudo.
+// LO QUE NECESITÓ JAVASCRIPT SIGUE SIENDO UN BLOQUE EN LÍNEA: el `lang` del
+// documento, el foco y el anuncio al cambiar de idioma (un atributo no se
+// escribe desde CSS; el foco se perdía al desaparecer el panel; el cambio era
+// mudo), MÁS el capítulo del selector. Todo detrás de `hashchange`: si no
+// llega el JavaScript, el idioma se cambia igual. Con un ancla de CAPÍTULO el
+// guion ajusta el `lang` y anuncia pero NO toca el foco: ahí el navegador ya
+// está llevando al lector al capítulo, y robarle el foco a mitad de camino es
+// perderlo.
 //
-// Va como `<script is:inline>` y no como módulo: cero peticiones y corre
-// durante el análisis del HTML, igual que el guion del tema de aquí arriba.
-// Y va TODO detrás de `hashchange`, así que si no llega el JavaScript lo que
-// se pierde es el anuncio, no el cambio de idioma.
-//
-// El foco va al PANEL y no al enlace de idioma: el enlace dejaría el cursor
-// metido en la barra de idiomas, y lo que acaba de pasar es que el documento
-// entero es otro, así que la lectura tiene que poder empezar por arriba. El
-// panel no tiene nombre accesible propio, y por eso además hay un
-// `role="status"` que dice en qué idioma quedó — escrito en el HTML VACÍO
-// desde el principio, que es la regla del sitio para las regiones vivas (un
-// lector de pantalla solo anuncia lo que aparece DENTRO de una región que ya
-// existía).
+// EL SELECTOR CONSERVA EL CAPÍTULO. Sus `href` escritos son `#en` y `#es`, que
+// funcionan sin JavaScript — pero `#es` a secas es el ancla de ARRIBA del
+// documento, así que desde `#en-cap-7` cambiar de idioma te devolvía al
+// principio del CV (medido: y = 9584 → y = 0). Los enlaces profundos y el
+// índice interno ya caían bien; era solo el selector. El guion les pega el
+// capítulo en el que estás (`#es-cap-7`), y solo donde hay `:has()`, que es
+// quien sostiene el panel con un ancla de capítulo puesta: sin `:has()` se
+// quedan como estaban, que es peor pero no pierde el idioma.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LO QUE ESTA PÁGINA NO LLEVA, A PROPÓSITO
 // ═══════════════════════════════════════════════════════════════════════════
-// · Analítica. Vercel Insights escribe la URL visitada en los informes; la
-//   dirección del CV no tiene por qué acabar ahí (ni siquiera en los suyos).
-// · canonical, og:image y hreflang. `scripts/check-seo.mjs` solo se los exige
-//   a las páginas indexables, y a una con noindex no le pintan nada. Menos
-//   metadatos es menos sitios por donde viaja la dirección.
-// · `referrer: no-referrer`, esta sí puesta: sin ella, abrir el LinkedIn o el
-//   GitHub del cierre le regalaría la dirección secreta a un tercero en la
-//   cabecera `Referer`.
+// · Analítica. La dirección del CV no tiene por qué acabar en ningún informe.
+// · canonical, og:image y hreflang: menos metadatos es menos sitios por donde
+//   viaja la dirección.
+// · `referrer: no-referrer`, esta sí puesta: sin ella, abrir el LinkedIn, el
+//   TikTok o el GitHub del cierre le regalaría la dirección secreta a un
+//   tercero en la cabecera `Referer`.
 // · Y NO se toca robots.txt: un `Disallow: /cv` impediría que Google leyera
-//   el `noindex`, que es justo al revés de lo que se quiere (la trampa que el
-//   propio robots.txt del sitio ya documenta desde lo del boletín).
+//   el `noindex`, que es justo al revés de lo que se quiere.
 import '../styles/cv.css';
 import { useCv } from '../i18n/cv';
-import Mesa from '../components/cv/Mesa.astro';
+import Historia from '../components/cv/Historia.astro';
 
 const c = useCv('en');
 /** Solo para los dos rótulos del anuncio de idioma: cada uno en SU idioma. */
 const cEs = useCv('es');
-const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%2316C47F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E";
+// El favicon del CV: blanco y negro, como la página. No el verde del sitio —
+// esta pestaña no debe parecer smartfinance.lat.
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FFFFFF' stroke='%230A0A0A' stroke-width='2'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%230A0A0A' text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E";
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{c.docTitle}</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <meta name="theme-color" content="#09090B" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#F7F7F4" media="(prefers-color-scheme: light)">
+  <!-- Blanca en los dos esquemas: el blanco es del documento. -->
+  <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href={FAVICON}>
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
-  <!-- Tema ANTES del primer pintado, igual que en Base.astro: oscuro por
-       omisión y la elección guardada gana. Sin JS manda prefers-color-scheme. -->
-  <script is:inline>
-    (function(){try{var t=localStorage.getItem('sf-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
-  </script>
 </head>
 <body class="cv-body">
   <main id="main">
@@ -127,36 +144,64 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
 
     <!-- La región viva del cambio de idioma. Nace VACÍA y en el HTML: un
          lector de pantalla solo anuncia lo que aparece dentro de una región
-         que ya existía, así que crearla en el momento no serviría de nada.
-         Los dos rótulos viajan en `data-`, cada uno escrito en su idioma, para
-         que el guion no lleve ni una palabra traducible dentro. -->
+         que ya existía. Los rótulos viajan en `data-`, cada uno en su idioma. -->
     <p id="cv-idioma" class="visually-hidden" role="status"
       data-en={c.lang.en} data-es={cEs.lang.es}></p>
 
     <!-- `tabindex="-1"`: al cambiar de idioma el foco se va al panel que
          aparece. No es tabulable (índice negativo), solo enfocable por guion. -->
-    <div class="cv-pane cv-en container" lang="en" tabindex="-1"><Mesa locale="en" /></div>
-    <div class="cv-pane cv-es container" lang="es" tabindex="-1"><Mesa locale="es" /></div>
+    <div class="cv-pane cv-en container" lang="en" tabindex="-1"><Historia locale="en" /></div>
+    <div class="cv-pane cv-es container" lang="es" tabindex="-1"><Historia locale="es" /></div>
   </main>
 
   <!-- Lo que el `:target` no puede hacer: el `lang` del documento, el foco y
-       el anuncio. Ver el bloque del encabezado. En línea y no como módulo:
-       cero peticiones, y corre durante el análisis del HTML — el `lang` queda
-       bien desde el primer fotograma, también si se llega con #es ya puesto.
-       Si esto no llega, el idioma se sigue cambiando: eso lo hace el CSS. -->
+       el anuncio. En línea y no como módulo: cero peticiones, y corre durante
+       el análisis del HTML — el `lang` queda bien desde el primer fotograma,
+       también si se llega con #es o #es-cap-7 ya puestos. Si esto no llega,
+       el idioma se sigue cambiando: eso lo hace el CSS. -->
   <script is:inline>
     (function () {
       var p = document.getElementById('cv-idioma');
+      var enlaces = document.querySelectorAll('.cv-lang-a[data-lang]');
+      // `:has()` es lo que sostiene el panel cuando el ancla puesta es de
+      // CAPÍTULO. Sin él, mandar el selector a #es-cap-7 perdería el idioma,
+      // así que ahí se deja el #es de siempre y el selector sigue llevando al
+      // principio: peor, pero no roto. Firefox <121 es el único caso vivo.
+      var hasHas = !!(window.CSS && CSS.supports && CSS.supports('selector(:has(*))'));
+      var eraEs = null;
+      function esEs(h) { return h === '#es' || h.indexOf('#es-') === 0; }
+      // EL SELECTOR CONSERVA EL CAPÍTULO. Los `href` escritos son `#en`/`#es`
+      // (funcionan sin JavaScript), pero desde `#en-cap-7` mandaban a `#es` a
+      // secas, que es el ancla de arriba del documento: cambiar de idioma a
+      // mitad del CV te devolvía al principio. Aquí se les pega el capítulo en
+      // el que estás, que es lo que ya hacen bien los enlaces del índice.
+      function sincronizar(h) {
+        var m = /^#(?:en|es)-cap-(\d+)$/.exec(h);
+        for (var i = 0; i < enlaces.length; i++) {
+          var l = enlaces[i], d = l.getAttribute('data-lang');
+          l.setAttribute('href', (m && hasHas) ? '#' + d + '-cap-' + m[1] : '#' + d);
+        }
+      }
       function aplicar(anunciar) {
-        var es = location.hash === '#es';
+        var h = location.hash;
+        var es = esEs(h);
         document.documentElement.lang = es ? 'es' : 'en';
-        if (!anunciar) return;
-        // En el siguiente fotograma: al llegar aquí el navegador puede no
-        // haber aplicado todavía el `:target`, y `focus()` sobre algo que aún
-        // computa `display: none` se pierde en silencio.
+        sincronizar(h);
+        // El anuncio va por CAMBIO DE IDIOMA, no por la forma del hash: desde
+        // que el selector manda a `#es-cap-7`, mirar solo `#es`/`#en` dejaba
+        // mudo justo el caso que este bloque existe para anunciar.
+        var cambio = eraEs !== null && eraEs !== es;
+        eraEs = es;
+        if (!anunciar || !cambio) return;
+        // El foco solo se mueve en el cambio "de verdad" (#en/#es): con un
+        // ancla de capítulo el navegador ya lleva al lector hasta ella, y
+        // robarle el foco a mitad de camino es perderlo.
+        var mueveFoco = h === '#es' || h === '#en' || h === '';
         requestAnimationFrame(function () {
-          var pane = document.querySelector(es ? '.cv-es' : '.cv-en');
-          if (pane) pane.focus();
+          if (mueveFoco) {
+            var pane = document.querySelector(es ? '.cv-es' : '.cv-en');
+            if (pane) pane.focus();
+          }
           if (p) p.textContent = es ? p.dataset.es : p.dataset.en;
         });
       }
@@ -166,26 +211,49 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   </script>
 
   <!-- La cinta: un solo módulo para los dos paneles (los pares se piden UNA
-       vez). Va en el layout y no en Mesa.astro, que se renderiza dos veces. -->
-  <script>import '../scripts/cv-cinta';</script>
+       vez). Va en el layout y no en Historia.astro, que se renderiza dos veces.
+       Y los clips: solo el que está a la vista se mueve (cv-clips.ts). -->
+  <script>
+    import '../scripts/cv-cinta';
+    import '../scripts/cv-clips';
+  </script>
 </body>
 </html>
 
+<style is:global>
+  /* ═══ El scroll de presentación: imán nativo, medido ═══════════════════
+     `proximity` y no `mandatory` ni secuestro JS (dirección §4): simétrico,
+     +126 bytes, cero JavaScript, y el lector con prisa avanza igual que sin
+     nada (65 % con cinco golpes de rueda; el secuestro: 12 %). Si al verlo
+     sabe a poco, `mandatory` es cambiar una palabra aquí. Va en el elemento
+     raíz porque el scroller de esta página es el documento. */
+  html { scroll-snap-type: y proximity; }
+  /* Los saltos del índice y del teclado, suaves — y quietos si se pide. */
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-snap-type: none; scroll-behavior: auto; }
+  }
+</style>
+
 <style>
-  .cv-body { padding-block: var(--sp-6) var(--sp-8); }
+  /* El papel: blanco del documento, no del tema. */
+  .cv-body { background: #FFFFFF; }
   /* Las anclas no ocupan sitio y no se tabulan: solo existen para :target. */
   .cv-ancla { position: absolute; width: 0; height: 0; overflow: hidden; }
 
-  /* Por omisión, inglés. Con #es en la dirección, español. Nada más.
-     Si estas tres reglas no llegaran, se verían los dos paneles seguidos. */
+  /* Por omisión, inglés. Con #es en la dirección, español. Y con un ancla de
+     CAPÍTULO puesta (#es-cap-7), el panel donde vive el ancla se queda a la
+     vista — eso es el bloque :has() de abajo. Si estas reglas no llegaran,
+     se verían los dos paneles seguidos. */
   .cv-es { display: none; }
   #es:target ~ .cv-en { display: none; }
   #es:target ~ .cv-es { display: block; }
+  main:has(.cv-es :target) .cv-en { display: none; }
+  main:has(.cv-es :target) .cv-es { display: block; }
 
-  .cv-pane { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .cv-pane { max-width: calc(var(--container) - 2 * var(--gutter)); }
 
   /* Impreso: un CV se imprime. El panel escondido sigue escondido, así que
-     sale un solo idioma. Lo que se va del papel (el selector de idioma) lo
-     esconde Mesa.astro, que es de quien es ese marcado. */
+     sale un solo idioma. El selector de idioma lo esconde Historia.astro. */
   @media print { .cv-body { padding: 0; } }
 </style>

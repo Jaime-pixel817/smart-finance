@@ -1,0 +1,49 @@
+---
+// UN hueco de FOTO del CV narrativo: el sitio donde va una foto que Jaime
+// todavía no ha traído.
+//
+// Misma regla que Hueco.astro (el hueco de texto): SE VE QUE FALTA. Un hueco
+// que se disimula es peor que no tenerlo — alguien mandaría el enlace creyendo
+// que la página está terminada. Por eso el borde es discontinuo, el rótulo va
+// en mono y lo de dentro habla de qué foto falta, nunca del tema.
+//
+// La caja RESERVA el sitio con la misma proporción que tendrá la foto de
+// verdad (aspect-ratio), así que cuando la foto llegue no se mueve nada: el
+// hueco y la foto ocupan el mismo rectángulo. Es la razón de que esto no sea
+// un Hueco de texto más.
+import type { CvCopy } from '../../i18n/cv';
+
+interface Props {
+  c: CvCopy;
+  /** Qué foto falta, de c.fotosPend.* — instrucción del hueco, no contenido. */
+  que: string;
+  /** Proporción de la caja, la de la foto que vendrá. */
+  ratio?: string;
+  class?: string;
+}
+const { c, que, ratio = '4 / 3', class: cls } = Astro.props;
+---
+<div class:list={['foto-hueco', cls]} role="note" aria-label={`${c.fotoHueco.tag}: ${que}`} style={`aspect-ratio: ${ratio}`}>
+  <p class="foto-hueco-tag" aria-hidden="true">{c.fotoHueco.tag}</p>
+  <p class="foto-hueco-que" aria-hidden="true">{que}</p>
+</div>
+
+<style>
+  .foto-hueco {
+    display: flex; flex-direction: column; justify-content: center; gap: 6px;
+    padding: var(--sp-4);
+    border: 1px dashed var(--cvh-tinta-3, var(--ink-3));
+    background: transparent;
+    min-width: 0;
+  }
+  .foto-hueco-tag {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--cvh-tinta-2, var(--ink-2));
+  }
+  .foto-hueco-que {
+    font-size: var(--fs-caption);
+    color: var(--cvh-tinta-2, var(--ink-2));
+    overflow-wrap: anywhere;
+  }
+</style>

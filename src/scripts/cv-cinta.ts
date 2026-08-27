@@ -1,4 +1,4 @@
-// La cinta de "La mesa" (/cv/<codigo>): precio, cambio del día y sparkline de
+// La cinta del CV (/cv/<codigo>): precio, cambio del día y sparkline de
 // tres activos, pedidos a /api/history al abrir la página.
 //
 // POR QUÉ EXISTE Y NO SE REUSA market.ts. Aquel pinta las filas de /market
