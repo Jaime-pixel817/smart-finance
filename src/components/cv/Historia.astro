@@ -147,19 +147,25 @@ const videos = [
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
-// ------------------------------------------------------ entrevistas (c7)
+// ------------------------------------------------------ la gente (c7)
 // Seis personas. Cuatro con foto del manifiesto; Raúl Irabién con su clip
 // (servido por nosotros, con sonido, `controls` y `preload="none"`: cero
 // bytes y cero movimiento hasta que alguien le da a reproducir — la casta 2
 // de este capítulo son las fotos, y un vídeo sonando solo competiría); el
 // profesor Lloyd sin material todavía: hueco de foto + enlace al original.
+//
+// EL ALT DE CADA FOTO ES EL QUE YA PUBLICA EL SITIO (`alt.*` de ui.ts), no uno
+// nuevo: describe lo que se ve, que es para lo que sirve un alt, y de paso es
+// la fuente de que la de J.P. Morgan es «Jaime con otros cuatro asistentes en
+// el escenario, al terminar la sesión» — una sesión a la que asistió, no una
+// entrevista suya (ver el bloque `entrevistas` de src/i18n/cv.ts).
 const retratos = [
-  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), hueco: 'entrevistaAndy' as const, video: null, tiktokId: '7662781308988411156' },
-  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
-  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
-  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
-  { key: 'lloyd' as const, img: null, hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
-  { key: 'raul' as const, img: null, hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg' }, tiktokId: '7673350797958155541' }
+  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null, tiktokId: '7662781308988411156' },
+  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
+  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
+  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
+  { key: 'lloyd' as const, img: null, alt: '', hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
+  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg' }, tiktokId: '7673350797958155541' }
 ];
 
 // ------------------------------------------------------------- el índice
@@ -428,23 +434,30 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
 
     <ul class="retratos">
-      {retratos.map((rt) => (
+      {retratos.map((rt) => {
+        const per = c.entrevistas.personas[rt.key];
+        // `rol` vacío = no había fuente para el rol y no se inventa uno.
+        // `tipo` lleno = llamarlo entrevista sería falso, y lo dice en pantalla.
+        const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+        return (
         <li class="retrato">
           {rt.img && (
-            <span class="recuerdo"><img src={rt.img} alt={`${c.entrevistas.personas[rt.key].nombre} — ${c.entrevistas.personas[rt.key].rol}`} width="480" height="360" loading="lazy" decoding="async" /></span>
+            <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
           )}
           {rt.video && (
             <video class="clip-video" src={rt.video.src} poster={rt.video.poster}
               width="360" height="640" controls playsinline preload="none"
-              aria-label={`${c.entrevistas.personas[rt.key].nombre} — ${c.entrevistas.personas[rt.key].rol}`}></video>
+              aria-label={etiqueta}></video>
           )}
           {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
-          <p class="retrato-nombre">{c.entrevistas.personas[rt.key].nombre}</p>
-          <p class="retrato-rol">{c.entrevistas.personas[rt.key].rol}</p>
+          <p class="retrato-nombre">{per.nombre}</p>
+          {per.rol && <p class="retrato-rol">{per.rol}</p>}
+          {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
           {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
           <Hueco c={c} id={rt.hueco} />
         </li>
-      ))}
+        );
+      })}
     </ul>
   </section>
 

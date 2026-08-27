@@ -175,16 +175,42 @@ const en = {
     arcoFuente: 'The dates are the upload dates of each video on @smart.financee.'
   },
 
-  // ---- Capítulo 7: entrevistas ----
+  // ---- Capítulo 7: la gente ----
+  // CADA ROL LLEVA FUENTE Y EL QUE NO LA TIENE SE QUEDA VACÍO. `tipo` dice qué
+  // fue el encuentro cuando llamarlo "entrevista" sería falso; vacío = una
+  // conversación suya, que es lo que dice el material.
+  // · Andy Toh, «CEO, Blue Sky Education» — el título de su propia entrevista
+  //   (`post.andytoh.title` en src/i18n/ui.ts) y /about (About.astro).
+  // · Jon Maier — NO es una entrevista suya. Lo único que el sitio publica es
+  //   «Takeaways from JPMorgan's Chief ETF Strategist» con la foto descrita
+  //   como «Jaime con otros cuatro asistentes en el escenario, al terminar la
+  //   sesión» (`post.jpmorgan.title` y `alt.jpmorgan`). Así que va con su
+  //   `tipo` diciendo lo que fue: una sesión a la que asistió. El CARGO sí
+  //   está respaldado — About.astro lo escribe tal cual.
+  // · Moris Dieck — el sitio SOLO dice «A conversation with Moris Dieck»
+  //   (`post.moris.title`). «Financial analyst and content creator» no salía
+  //   de ninguna fuente: fuera. `rol` vacío y `tipo` con las palabras que el
+  //   sitio ya publica.
+  // · Raúl Irabién — «Presidente de Grupos Estudiantiles» es el título de su
+  //   propio TikTok; ese vídeo NO menciona al Tec, así que el Tec no va.
+  // OJO CON LA GRAFÍA de Blue Sky Education: aquí va «Blue Sky» (dos
+  // palabras), que es como lo escribió Jaime en el TikTok de la entrevista.
+  // El resto del sitio lo escribe «BlueSky» (src/i18n/ui.ts) y «Bluesky»
+  // (About.astro): tres grafías para el nombre de una empresa ajena. Cuál es
+  // la buena lo dice Jaime, y entonces se unifican los tres sitios de una vez.
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education' },
-      maier: { nombre: 'Jon Maier', rol: 'Chief ETF Strategist, J.P. Morgan Asset Management' },
-      dieck: { nombre: 'Moris Dieck', rol: 'Financial analyst and content creator' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' },
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore' },
-      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups, Tec de Monterrey' }
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education', tipo: '' },
+      maier: {
+        nombre: 'Jon Maier',
+        rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
+        tipo: 'A session I attended, not an interview of mine — “Takeaways from JPMorgan’s Chief ETF Strategist”, as the site puts it.'
+      },
+      dieck: { nombre: 'Moris Dieck', rol: '', tipo: '“A conversation with Moris Dieck”, in the site’s own words.' },
+      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast', tipo: '' },
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '' },
+      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' }
     }
   },
 
@@ -212,7 +238,12 @@ const en = {
       { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering' },
       { cuando: 'Jun–Jul 2026', que: 'Singapore: summer programme, presentation about Mexico to National University of Singapore students, interviews' },
       { cuando: 'Aug 2026', que: 'Student Groups Fair at Tec de Monterrey, with the Smart Finance group' },
-      { cuando: '2026', que: 'Interviews: Andy Toh, Jon Maier, Moris Dieck, Prof. Lloyd, Raúl Irabién, and the Financial Trading Room podcast' },
+      // Jon Maier va en su PROPIA fila y no en la de las conversaciones: la
+      // sesión de J.P. Morgan fue algo a lo que Jaime asistió (ver el bloque
+      // `entrevistas` de arriba), y meterlo en la lista de entrevistas era
+      // convertir un asiento en el público en una entrevista suya.
+      { cuando: '2026', que: 'Conversations: Andy Toh, Moris Dieck, Prof. Lloyd, Raúl Irabién, and the Financial Trading Room podcast' },
+      { cuando: '2026', que: 'Attended the session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management' },
       { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos' },
       { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 5' }
     ]
@@ -294,7 +325,8 @@ const en = {
       pista: 'One line. Without it, this is a photo of a stranger.'
     },
     entrevistaMaier: {
-      que: 'One thing I took from Jon Maier',
+      // No dice "de Jon Maier": Jaime estuvo en la sesión, no la condujo.
+      que: 'One thing I took from that session',
       pista: 'One line. Without it, this is a photo of a stranger.'
     },
     entrevistaDieck: {
@@ -490,12 +522,16 @@ const es: typeof en = {
   entrevistas: {
     verVideo: 'Ver la conversación en TikTok',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education' },
-      maier: { nombre: 'Jon Maier', rol: 'Chief ETF Strategist, J.P. Morgan Asset Management' },
-      dieck: { nombre: 'Moris Dieck', rol: 'Analista financiero y creador de contenido' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' },
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore' },
-      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles, Tec de Monterrey' }
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education', tipo: '' },
+      maier: {
+        nombre: 'Jon Maier',
+        rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
+        tipo: 'Una sesión a la que asistí, no una entrevista mía — «Lo que dejó el Chief ETF Strategist de J.P. Morgan», como lo publica el sitio.'
+      },
+      dieck: { nombre: 'Moris Dieck', rol: '', tipo: '«Una conversación con Moris Dieck», con las palabras del propio sitio.' },
+      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast', tipo: '' },
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '' },
+      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' }
     }
   },
 
@@ -519,7 +555,8 @@ const es: typeof en = {
       { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados' },
       { cuando: 'Jun–jul 2026', que: 'Singapur: programa de verano, presentación sobre México a estudiantes de la National University of Singapore, entrevistas' },
       { cuando: 'Ago 2026', que: 'Feria de Grupos Estudiantiles del Tec de Monterrey, con el grupo Smart Finance' },
-      { cuando: '2026', que: 'Entrevistas: Andy Toh, Jon Maier, Moris Dieck, el profesor Lloyd, Raúl Irabién y el podcast del Financial Trading Room' },
+      { cuando: '2026', que: 'Conversaciones: Andy Toh, Moris Dieck, el profesor Lloyd, Raúl Irabién y el podcast del Financial Trading Room' },
+      { cuando: '2026', que: 'Asistencia a la sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 5' }
     ]
@@ -587,7 +624,7 @@ const es: typeof en = {
       pista: 'Una línea. Sin ella, esto es la foto de un desconocido.'
     },
     entrevistaMaier: {
-      que: 'Una cosa que me llevé de Jon Maier',
+      que: 'Una cosa que me llevé de esa sesión',
       pista: 'Una línea. Sin ella, esto es la foto de un desconocido.'
     },
     entrevistaDieck: {
