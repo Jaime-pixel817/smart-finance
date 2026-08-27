@@ -20,7 +20,8 @@
 //   es 4.5:1. #6E6E6E da 4.6:1 medido.
 // · Los titulares usan rem en los extremos del clamp (no px): capar la letra
 //   con unidades fijas frente al zoom de texto es lo que rompe WCAG 1.4.4
-//   (la lección ya escrita en la vieja Mesa.astro).
+//   (la lección la pagó la versión anterior de esta página, "la mesa";
+//   ese archivo ya no existe, así que la lección se queda escrita aquí).
 // · Los capítulos son `min-height: 100svh`, no `height`: con el texto al
 //   200 % el contenido crece, y un alto fijo lo recortaría. `proximity`
 //   tolera secciones más altas (medido en mediciones.md §1.6).
@@ -741,9 +742,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
   .rep-meta dt { color: var(--cvh-tinta-3); font-family: var(--font-mono); font-size: var(--cvh-etiqueta); letter-spacing: .06em; text-transform: uppercase; }
   .rep-meta dd { margin: 0; color: var(--cvh-tinta); }
-  /* La especificidad de más va a propósito: la lección del estado que se
-     pintaba en tinta normal está contada en la vieja Mesa.astro (los estilos
-     con ámbito de Astro pesan por compuesto). --warn del tema claro: 4.5+. */
+  /* La especificidad de más va a propósito: el estado del research se
+     pintaba en tinta normal porque los estilos con ámbito de Astro pesan por
+     compuesto y una regla más corta no ganaba. Lo pagó la versión anterior de
+     esta página ("la mesa"), cuyo archivo ya no existe: por eso la lección se
+     queda escrita aquí. --warn del tema claro: 4.5+. */
   .rep-meta dd.rep-status.st-draft { color: var(--warn); }
   .rep-meta dd.rep-status.st-published { color: var(--up-text); }
   .rep-cta { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
