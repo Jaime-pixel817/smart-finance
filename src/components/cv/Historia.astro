@@ -579,6 +579,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     --cvh-tinta-3: #6E6E6E;   /* 4.6:1 — el #9A9A9A propuesto daba 2.8:1 */
     --cvh-raya: #E6E6E6;
     --cvh-h: clamp(2.5rem, 11vw, 7rem);
+    /* EL NOMBRE TIENE SU PROPIO SUELO, y es más bajo que el de los titulares.
+       Un titular de capítulo se puede partir por donde sea; el nombre de una
+       persona en la portada de su propio CV, no. A 320 px con el texto al
+       200 % el suelo de 2.5rem daba 80 px y ahí "Sandoval" mide 337 px contra
+       288 de ancho disponible: no cabe, y lo que se leía era "Jaime Sandov /
+       al". Con 2rem son 64 px y "Sandoval" mide 265: cabe entero. Los dos
+       extremos siguen en rem (WCAG 1.4.4); lo único que cambia es que entre
+       320 y 363 px el nombre usa el 11vw en vez del suelo. */
+    --cvh-h-name: clamp(2rem, 11vw, 7rem);
     --cvh-h-frase: clamp(1.75rem, 7vw, 5.5rem);
     --cvh-cuerpo: clamp(1.0625rem, 2.2vw, 1.3125rem);
     --cvh-etiqueta: 0.6875rem;
@@ -639,8 +648,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   .hist-link:hover { color: var(--cvh-tinta-2); }
   .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
 
-  /* ---- Selector de idioma ---- */
-  .cv-lang { position: absolute; top: var(--sp-4); right: 0; display: flex; gap: var(--sp-2); z-index: 2; }
+  /* ---- Selector de idioma ----
+     VA FLOTANDO SOBRE EL CAPÍTULO 1, Y SU BANDA SE RESERVA EN em. Estaba con
+     `top: var(--sp-4)` — 16 px fijos que no crecen con la letra —, así que a
+     320 px con el texto al 200 % el botón "English" se montaba 48 × 12 px
+     encima de "01 / 11". Es la misma lección en px de #45 y #48. Ahora el
+     desplazamiento va en em y el capítulo 1 reserva la banda también en em
+     (`.cap-1` más abajo): al crecer la letra, crecen las dos cosas juntas. */
+  .cv-lang { position: absolute; top: .5em; right: 0; display: flex; gap: var(--sp-2); z-index: 2; }
   .cv-lang-a {
     display: inline-flex; align-items: center; min-height: 36px;
     padding: 0 var(--sp-3);
@@ -652,7 +667,13 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   @media print { .cv-lang { display: none; } }
 
   /* ---- Capítulo 1 ---- */
-  .hist-name { font-size: var(--cvh-h); }
+  /* La banda que ocupa el selector de idioma, reservada EN em para que baje
+     lo mismo que el selector crece cuando se agranda el texto. */
+  .cap-1 { padding-top: calc(var(--sp-4) + 3.2em); }
+  /* `break-word` y no `anywhere`: parte dentro de una palabra solo cuando esa
+     palabra no cabe de ninguna manera, en vez de admitirlo siempre. Con el
+     suelo propio de `--cvh-h-name`, a 320 px y al 200 % ya no hace falta. */
+  .hist-name { font-size: var(--cvh-h-name); overflow-wrap: break-word; }
   .cap-1-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
   @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
