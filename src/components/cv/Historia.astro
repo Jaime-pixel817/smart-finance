@@ -142,8 +142,38 @@ const estado = (rep.meta.status || 'draft') as string;
 // ha entregado esos MP4): póster del manifiesto + enlace + marca de clip
 // pendiente. El corte de los clips es el ARRANQUE de cada vídeo: la "parte
 // buena" la elige Jaime, y está en la lista de materiales del PR.
-// /assets/cv/ va con la caché corta de /assets/(.*): sin huella no hay
-// immutable (regla del repo).
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// POR QUÉ LOS PÓSTERES DE /assets/cv/ NO LLEVAN HUELLA. DECIDIDO, NO OLVIDADO
+// ═══════════════════════════════════════════════════════════════════════════
+// Son las únicas imágenes de esta página fuera de `scripts/build-photos.mjs`,
+// y se quedan fuera a propósito:
+// · Un póster es MITAD DE UN PAR con su clip. `build-photos.mjs` escribe en
+//   `public/assets/fotos/`, la única carpeta que `vercel.json` sirve con
+//   `immutable`, y solo sabe de imágenes: el `.webm` y el `.mp4` no pueden
+//   entrar ahí. Ponerle huella al póster y no al clip partiría el par en dos
+//   políticas de caché — al cambiar un clip, el póster nuevo llegaría al
+//   instante con su URL nueva y el vídeo viejo seguiría en la caché de quien
+//   ya lo vio. Juntos bajo la caché de un día de `/assets/(.*)`, se mueven a
+//   la vez.
+// · La regla del repo va en UN sentido: lo que se sirve con `immutable` lleva
+//   huella. En `/assets/cv/` nada es `immutable`, así que la regla se cumple.
+//   Es el mismo argumento ya escrito para los binarios de `public/assets/geo/`.
+// · Lo que cuesta equivocarse: como mucho 24 h de póster viejo, no un año.
+// QUÉ CAMBIARÍA LA DECISIÓN: que `/assets/cv/` pasara a `immutable`, o que los
+// pósteres se mudaran a `/assets/fotos/`. Entonces harían falta huellas para
+// los pósteres Y para los clips, y eso `build-photos.mjs` no lo hace hoy.
+//
+// LÍMITE CONOCIDO (no se toca sin que lo decida Jaime): `public/assets/cv/` se
+// DESPLIEGA siempre, también en el build de Vercel SIN `CV_SLUG` — el
+// escenario que a propósito no emite ninguna página de CV. Hoy no es fuga:
+// los cuatro clips son vídeos ya públicos en su TikTok, y esta carpeta no
+// contiene nada que no esté allí. Pero el fallo seguro de `decidirCv()` cubre
+// las RUTAS del CV, no esta carpeta: el día que un clip sea solo para
+// admisiones, `/assets/cv/<nombre>.mp4` seguiría siendo alcanzable aunque no
+// se publicara ni una página de CV. Ese día hay que decidir el mecanismo
+// (`.vercelignore` condicionado al build, o servir el clip desde la propia
+// ruta del CV), y esa decisión es de Jaime, no de este archivo.
 const videos = [
   { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', vertical: true },
   { id: '7657190267245563156', titulo: c.tiktok.videos.skills, poster: '/assets/cv/cv-poster-skills.jpg', clip: '/assets/cv/cv-clip-skills.webm', vertical: true },
