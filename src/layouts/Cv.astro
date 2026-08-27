@@ -160,8 +160,12 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   </script>
 
   <!-- La cinta: un solo módulo para los dos paneles (los pares se piden UNA
-       vez). Va en el layout y no en Historia.astro, que se renderiza dos veces. -->
-  <script>import '../scripts/cv-cinta';</script>
+       vez). Va en el layout y no en Historia.astro, que se renderiza dos veces.
+       Y los clips: solo el que está a la vista se mueve (cv-clips.ts). -->
+  <script>
+    import '../scripts/cv-cinta';
+    import '../scripts/cv-clips';
+  </script>
 </body>
 </html>
 

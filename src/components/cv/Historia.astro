@@ -126,23 +126,40 @@ const rep = loadReport('lululemon');
 const estado = (rep.meta.status || 'draft') as string;
 
 // ------------------------------------------------------- los vídeos (c6)
-// VERIFICADOS: los tres existen en @smart.financee. NUNCA incrustados (medido:
-// un embed son 8 026 KB y 9 dominios; ver la cabecera). Mientras Jaime no
-// entregue los clips descargados, cada marco es póster + enlace al original +
-// la marca de clip pendiente. Los pósters reutilizan fotos del manifiesto.
+// VERIFICADOS: todos existen en @smart.financee. NUNCA incrustados (medido:
+// un embed son 8 026 KB y 9 dominios; ver la cabecera). Dos clips YA SE
+// SIRVEN desde este dominio (public/assets/cv/, VP8 360×640 sin sonido,
+// ~340 KB cada uno, recodificados de los originales que entregó Jaime): solo
+// se descargan y se mueven cuando el capítulo está a la vista
+// (src/scripts/cv-clips.ts), que es la estrategia medida en la dirección
+// (608 KB contra 1 159 de reproducirlos todos). Sin JavaScript quedan como
+// <video controls> con su póster. Los otros dos siguen pendientes (Jaime no
+// ha entregado esos MP4): póster del manifiesto + enlace + marca de clip
+// pendiente. El corte de los clips es el ARRANQUE de cada vídeo: la "parte
+// buena" la elige Jaime, y está en la lista de materiales del PR.
+// /assets/cv/ va con la caché corta de /assets/(.*): sin huella no hay
+// immutable (regla del repo).
 const videos = [
-  { id: '7662781308988411156', titulo: c.tiktok.videos.andy, poster: foto('breakdown-andy-toh.webp') },
-  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: foto('breakdown-japan.webp') },
-  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: foto('breakdown-singapore.webp') }
+  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', vertical: true },
+  { id: '7657190267245563156', titulo: c.tiktok.videos.skills, poster: '/assets/cv/cv-poster-skills.jpg', clip: '/assets/cv/cv-clip-skills.webm', vertical: true },
+  { id: '7662781308988411156', titulo: c.tiktok.videos.andy, poster: foto('breakdown-andy-toh.webp'), clip: null, vertical: false },
+  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: foto('breakdown-japan.webp'), clip: null, vertical: false }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
 // ------------------------------------------------------ entrevistas (c7)
+// Seis personas. Cuatro con foto del manifiesto; Raúl Irabién con su clip
+// (servido por nosotros, con sonido, `controls` y `preload="none"`: cero
+// bytes y cero movimiento hasta que alguien le da a reproducir — la casta 2
+// de este capítulo son las fotos, y un vídeo sonando solo competiría); el
+// profesor Lloyd sin material todavía: hueco de foto + enlace al original.
 const retratos = [
-  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), hueco: 'entrevistaAndy' as const },
-  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), hueco: 'entrevistaMaier' as const },
-  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), hueco: 'entrevistaDieck' as const },
-  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), hueco: 'entrevistaPodcast' as const }
+  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), hueco: 'entrevistaAndy' as const, video: null, tiktokId: '7662781308988411156' },
+  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
+  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
+  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
+  { key: 'lloyd' as const, img: null, hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
+  { key: 'raul' as const, img: null, hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg' }, tiktokId: '7673350797958155541' }
 ];
 
 // ------------------------------------------------------------- el índice
@@ -263,6 +280,13 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
     <!-- texto de Jaime, pendiente de su revisión final -->
     <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
+    <!-- Palabras de Jaime, VERBATIM de su LinkedIn (el panel español lleva la
+         traducción, marcada en cv.ts). El recibo de la simulación está en el
+         capítulo 10. -->
+    <blockquote class="voz">
+      <p>{c.voz.pe}</p>
+      <footer class="pie">{c.voz.peFuente}</footer>
+    </blockquote>
     <p class="cap-lede">{c.research.lede}</p>
 
     <a class="card card-link rep" href={L(rep.routeId)}>
@@ -355,16 +379,40 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <ul class="clips">
       {videos.map((v) => (
         <li class="clip">
-          <span class="recuerdo"><img src={v.poster} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
+          {v.clip ? (
+            <!-- Servido por NOSOTROS. Sin sonido (la dirección lo prescribe:
+                 el sonido está en el original, a un enlace). `controls`
+                 SIEMPRE: un vídeo en bucle tiene que poderse pausar (WCAG
+                 2.2.2), y sin JavaScript es lo único que lo arranca. El
+                 bucle solo del que está a la vista lo lleva cv-clips.ts. -->
+            <video class="clip-video" src={v.clip} poster={v.poster}
+              width="360" height="640" controls muted loop playsinline
+              preload="none" data-en-vista aria-label={v.titulo}></video>
+          ) : (
+            <span class="recuerdo"><img src={v.poster} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
+          )}
           <p class="clip-titulo">{v.titulo}</p>
-          <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
-            <span aria-hidden="true">{c.clip.tag}</span>
-          </p>
+          {!v.clip && (
+            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
+              <span aria-hidden="true">{c.clip.tag}</span>
+            </p>
+          )}
           <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
         </li>
       ))}
     </ul>
     <p class="pie">{c.clip.pista}</p>
+
+    <h3 class="t-h3">{c.tiktok.arcoH}</h3>
+    <ol class="lista-seca">
+      {c.tiktok.arco.map((f) => (
+        <li>
+          <span class="seca-cuando num">{f.cuando}</span>
+          <span class="seca-que">{f.que}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="pie">{c.tiktok.arcoFuente}</p>
     <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
   </section>
 
@@ -381,9 +429,18 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <ul class="retratos">
       {retratos.map((rt) => (
         <li class="retrato">
-          <span class="recuerdo"><img src={rt.img} alt={`${c.entrevistas.personas[rt.key].nombre} — ${c.entrevistas.personas[rt.key].rol}`} width="480" height="360" loading="lazy" decoding="async" /></span>
+          {rt.img && (
+            <span class="recuerdo"><img src={rt.img} alt={`${c.entrevistas.personas[rt.key].nombre} — ${c.entrevistas.personas[rt.key].rol}`} width="480" height="360" loading="lazy" decoding="async" /></span>
+          )}
+          {rt.video && (
+            <video class="clip-video" src={rt.video.src} poster={rt.video.poster}
+              width="360" height="640" controls playsinline preload="none"
+              aria-label={`${c.entrevistas.personas[rt.key].nombre} — ${c.entrevistas.personas[rt.key].rol}`}></video>
+          )}
+          {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
           <p class="retrato-nombre">{c.entrevistas.personas[rt.key].nombre}</p>
           <p class="retrato-rol">{c.entrevistas.personas[rt.key].rol}</p>
+          {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
           <Hueco c={c} id={rt.hueco} />
         </li>
       ))}
@@ -408,7 +465,12 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
       </div>
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        <FotoHueco c={c} que={c.fotosPend.animales} />
+        <!-- El clip existe, con fecha, en su TikTok: se sirve desde aquí,
+             sin bucle y sin sonar solo (`controls` + `preload="none"`). -->
+        <video class="clip-video" src="/assets/cv/cv-clip-animales.mp4" poster="/assets/cv/cv-poster-animales.jpg"
+          width="360" height="640" controls playsinline preload="none"
+          aria-label={c.servir.animalesClip}></video>
+        <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
         <Hueco c={c} id="servirAnimales" />
       </div>
       <div class="servir-bloque">
@@ -654,6 +716,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   /* ---- Clips ---- */
   .clips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-4); }
   .clip { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
+     fondo oscuro de letterbox mientras carga el póster. */
+  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; }
   .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
   .clip-tag {
     align-self: flex-start;
@@ -709,7 +774,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre {
       animation: frase-entra var(--dur-3) var(--ease-out) both;
       animation-timeline: view();
-      animation-range: entry 10% entry 40%;
+      /* El tramo termina pronto a propósito: al llegar la sección al imán
+         (arriba de la pantalla) la entrada YA acabó, también con el texto al
+         200 % — `entry` se completa cuando la sección cubre el viewport. */
+      animation-range: entry 0% entry 30%;
     }
   }
   @keyframes recuerdo {

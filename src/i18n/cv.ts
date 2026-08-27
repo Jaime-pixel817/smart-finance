@@ -51,7 +51,7 @@ const en = {
     origen: 'From when it started. Even blurry ones count.',
     research: 'Jaime working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
-    animales: 'The animal volunteering.',
+    lloyd: 'A portrait of Prof. Lloyd — or a frame from the interview clip.',
     playas: 'The beach clean-ups.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
@@ -160,17 +160,31 @@ const en = {
     videos: {
       andy: 'Interview: Andy Toh, CEO of Blue Sky Education — a summer programme in Singapore',
       japon: 'Financial data from Japan',
-      singapur: 'Financial data from Singapore'
-    }
+      singapur: 'Financial data from Singapore — “why the world’s money lives here”',
+      skills: 'The skills for a top-8 university in the world'
+    },
+    // El arco de Singapur, con fechas. Las fechas son las de subida de cada
+    // vídeo en @smart.financee: verificables abriendo el perfil.
+    arcoH: 'The Singapore arc',
+    arco: [
+      { cuando: 'Jun–Jul 2026', que: 'Summer programme in Singapore' },
+      { cuando: 'Jun 20 · 24', que: 'Financial-data videos: Japan and Singapore' },
+      { cuando: 'Jul 2', que: 'Presentation about Mexico to National University of Singapore students' },
+      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, Blue Sky Education) and Prof. Lloyd (NUS)' }
+    ],
+    arcoFuente: 'The dates are the upload dates of each video on @smart.financee.'
   },
 
   // ---- Capítulo 7: entrevistas ----
   entrevistas: {
+    verVideo: 'Watch the conversation on TikTok',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education' },
       maier: { nombre: 'Jon Maier', rol: 'Chief ETF Strategist, J.P. Morgan Asset Management' },
       dieck: { nombre: 'Moris Dieck', rol: 'Financial analyst and content creator' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' }
+      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' },
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore' },
+      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups, Tec de Monterrey' }
     }
   },
 
@@ -180,6 +194,8 @@ const en = {
     comunidad: 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
     comunidadLink: 'The community, on the site',
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
+    // El clip del voluntariado con animales: existe, con fecha, en su TikTok.
+    animalesClip: 'The clip: animal care and responsible adoption (August 23, 2026).',
     bloques: {
       comunidad: 'My community',
       animales: 'The animals',
@@ -194,7 +210,9 @@ const en = {
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
       { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering' },
-      { cuando: '2026', que: 'Interviews: Andy Toh, Jon Maier, Moris Dieck, and the Financial Trading Room podcast' },
+      { cuando: 'Jun–Jul 2026', que: 'Singapore: summer programme, presentation about Mexico to National University of Singapore students, interviews' },
+      { cuando: 'Aug 2026', que: 'Student Groups Fair at Tec de Monterrey, with the Smart Finance group' },
+      { cuando: '2026', que: 'Interviews: Andy Toh, Jon Maier, Moris Dieck, Prof. Lloyd, Raúl Irabién, and the Financial Trading Room podcast' },
       { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos' },
       { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 5' }
     ]
@@ -209,7 +227,8 @@ const en = {
     filas: [
       { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg' },
       { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
-      { que: 'Investment Banking Job Simulation', de: 'Bank of America' },
+      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, on Forage' },
+      { que: 'Investment Banking Virtual Experience', de: 'Bank of America, on Forage' },
       { que: 'B2 First Certificate', de: 'Cambridge English' },
       { que: 'Green Technology Programme', de: '' }
     ]
@@ -286,6 +305,14 @@ const en = {
       que: 'One thing I took from the podcast',
       pista: 'One line about the Financial Trading Room conversation.'
     },
+    entrevistaLloyd: {
+      que: 'One thing I took from Prof. Lloyd',
+      pista: 'One line about the NUS conversation.'
+    },
+    entrevistaRaul: {
+      que: 'One thing I took from Raúl Irabién',
+      pista: 'One line about the student-groups conversation.'
+    },
     servirAnimales: {
       que: 'The animals, in my words',
       pista: 'One or two sentences. What you did, not what you felt.'
@@ -311,6 +338,8 @@ const en = {
     entrevistaMaier: '',
     entrevistaDieck: '',
     entrevistaPodcast: '',
+    entrevistaLloyd: '',
+    entrevistaRaul: '',
     servirAnimales: '',
     servirPlayas: ''
   },
@@ -321,6 +350,11 @@ const en = {
   // pendiente de su revisión final.
   // ═════════════════════════════════════════════════════════════════════════
   voz: {
+    // Palabras de Jaime, VERBATIM, de su publicación en LinkedIn sobre la
+    // simulación de Vista Equity Partners (2026-08, urn 7495934696430764032).
+    // En inglés en el original: aquí no hay traducción que revisar.
+    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework.”',
+    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation, August 2026.',
     // texto de Jaime (traducción), pendiente de su revisión final
     dedicacion: '“I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
     // texto de Jaime (traducción), pendiente de su revisión final
@@ -348,7 +382,7 @@ const es: typeof en = {
     origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
     research: 'Jaime trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
-    animales: 'El voluntariado con animales.',
+    lloyd: 'Un retrato del profesor Lloyd — o un cuadro del clip de la entrevista.',
     playas: 'Las limpiezas de playa.'
   },
   clip: {
@@ -440,16 +474,28 @@ const es: typeof en = {
     videos: {
       andy: 'Entrevista: Andy Toh, CEO de Blue Sky Education — un programa de verano en Singapur',
       japon: 'Datos financieros de Japón',
-      singapur: 'Datos financieros de Singapur'
-    }
+      singapur: 'Datos financieros de Singapur — «por qué aquí vive el dinero del mundo»',
+      skills: 'Los skills para una universidad top 8 mundial'
+    },
+    arcoH: 'El arco de Singapur',
+    arco: [
+      { cuando: 'Jun–jul 2026', que: 'Programa de verano en Singapur' },
+      { cuando: '20 · 24 jun', que: 'Vídeos de datos financieros: Japón y Singapur' },
+      { cuando: '2 jul', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
+      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, Blue Sky Education) y el profesor Lloyd (NUS)' }
+    ],
+    arcoFuente: 'Las fechas son las de subida de cada vídeo en @smart.financee.'
   },
 
   entrevistas: {
+    verVideo: 'Ver la conversación en TikTok',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education' },
       maier: { nombre: 'Jon Maier', rol: 'Chief ETF Strategist, J.P. Morgan Asset Management' },
       dieck: { nombre: 'Moris Dieck', rol: 'Analista financiero y creador de contenido' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' }
+      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast' },
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore' },
+      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles, Tec de Monterrey' }
     }
   },
 
@@ -457,6 +503,7 @@ const es: typeof en = {
     comunidad: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
     comunidadLink: 'La comunidad, en el sitio',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
+    animalesClip: 'El clip: cuidado animal y adopción responsable (23 de agosto de 2026).',
     bloques: {
       comunidad: 'Mi comunidad',
       animales: 'Los animalitos',
@@ -470,7 +517,9 @@ const es: typeof en = {
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados' },
-      { cuando: '2026', que: 'Entrevistas: Andy Toh, Jon Maier, Moris Dieck y el podcast del Financial Trading Room' },
+      { cuando: 'Jun–jul 2026', que: 'Singapur: programa de verano, presentación sobre México a estudiantes de la National University of Singapore, entrevistas' },
+      { cuando: 'Ago 2026', que: 'Feria de Grupos Estudiantiles del Tec de Monterrey, con el grupo Smart Finance' },
+      { cuando: '2026', que: 'Entrevistas: Andy Toh, Jon Maier, Moris Dieck, el profesor Lloyd, Raúl Irabién y el podcast del Financial Trading Room' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 5' }
     ]
@@ -482,7 +531,8 @@ const es: typeof en = {
     filas: [
       { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg' },
       { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
-      { que: 'Investment Banking Job Simulation', de: 'Bank of America' },
+      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, en Forage' },
+      { que: 'Investment Banking Virtual Experience', de: 'Bank of America, en Forage' },
       { que: 'B2 First Certificate', de: 'Cambridge English' },
       { que: 'Green Technology Programme', de: '' }
     ]
@@ -548,6 +598,14 @@ const es: typeof en = {
       que: 'Una cosa que me llevé del podcast',
       pista: 'Una línea sobre la conversación del Financial Trading Room.'
     },
+    entrevistaLloyd: {
+      que: 'Una cosa que me llevé del profesor Lloyd',
+      pista: 'Una línea sobre la conversación en la NUS.'
+    },
+    entrevistaRaul: {
+      que: 'Una cosa que me llevé de Raúl Irabién',
+      pista: 'Una línea sobre la conversación de los grupos estudiantiles.'
+    },
     servirAnimales: {
       que: 'Los animalitos, con mis palabras',
       pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
@@ -569,11 +627,17 @@ const es: typeof en = {
     entrevistaMaier: '',
     entrevistaDieck: '',
     entrevistaPodcast: '',
+    entrevistaLloyd: '',
+    entrevistaRaul: '',
     servirAnimales: '',
     servirPlayas: ''
   },
 
   voz: {
+    // Palabras de Jaime en LinkedIn, en inglés en el original. Esta versión es
+    // TRADUCCIÓN para el panel español, pendiente de su revisión final.
+    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40.»',
+    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners, agosto de 2026.',
     // texto de Jaime, pendiente de su revisión final
     dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
     // texto de Jaime, pendiente de su revisión final
