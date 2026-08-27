@@ -70,6 +70,7 @@ import { RETO_2026 } from '../../lib/reto/actinver.mjs';
 import { loadReport } from '../../lib/research/reports';
 import { day, month } from '../../lib/research/format.mjs';
 import { foto } from '../../lib/photos';
+import { contarCifras } from '../../lib/cv/cifras.mjs';
 import { getCollection } from 'astro:content';
 import glosario from '../../data/glossary.json';
 
@@ -89,12 +90,15 @@ const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
 // esta página dice 11 sin que nadie la toque. Se cuentan las inglesas y se
 // comprueba la paridad: si los dos idiomas no coinciden, mejor la cifra menor
 // que una mentira.
-const lecciones = await getCollection('lessons');
-const enLessons = lecciones.filter((l) => l.id.startsWith('en/'));
-const esLessons = lecciones.filter((l) => l.id.startsWith('es/'));
-const nLecciones = Math.min(enLessons.length, esLessons.length);
-const nFuentes = enLessons.reduce((s, l) => s + l.data.sources.length, 0);
-const nGlosario = (glosario as unknown as unknown[]).length;
+//
+// LA CUENTA VIVE EN src/lib/cv/cifras.mjs Y TIENE PRUEBAS, y eso es el punto:
+// una cuenta rota aquí dentro no rompía nada —el build seguía y la página
+// publicaba una cifra falsa en silencio—, porque `node --test` no puede
+// importar un componente de Astro. Desde el módulo, cifras.test.mjs la corre
+// contra los MDX y el JSON de verdad y CI se cae si alguien la rompe.
+// Los tres números que se pintan abajo salen de aquí y NO se escriben a mano.
+const { lecciones: nLecciones, fuentes: nFuentes, glosario: nGlosario } =
+  contarCifras(await getCollection('lessons'), glosario as unknown as unknown[]);
 
 // ---------------------------------------------------------------- la cinta
 const CINTA_IDS = ['spy', 'usdmxn', 'btc'];
