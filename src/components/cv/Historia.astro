@@ -296,18 +296,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
       <p>{c.voz.apertura}</p>
     </blockquote>
-    <div class="cap-1-cuerpo">
-      <div class="cap-1-texto">
-        <!-- texto de Jaime (su meta), pendiente de su revisión final -->
-        <p class="meta-mono">{c.head.meta}</p>
-        <Hueco c={c} id="aplicaA" />
-        <Hueco c={c} id="quienSoy" />
-      </div>
-      <!-- La única foto sin lazy de la página: es el LCP medido (2.79 s en el
-           móvil de Lighthouse), así que se pide con prioridad alta. -->
-      <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
-        width="320" height="320" decoding="async" fetchpriority="high" />
-    </div>
+    <!-- EL ÍNDICE VA AQUÍ, PEGADO A LA FRASE, Y ES UNA CONSECUENCIA
+         MEDIDA DEL ORDEN NUEVO. La frase de apertura es larga (137
+         caracteres) y en Fraunces grande ocupa de cuatro a siete
+         renglones: con el índice al final del capítulo, caía por debajo
+         del pliegue en LAS CUATRO anchuras (375, 390, 768 y 1280), y ese
+         renglón es la salida de emergencia del lector con prisa. Puesto
+         debajo de la declaración se ve en las cuatro, y de paso hace de
+         raya entre la tesis y el expediente. -->
     <div class="indice-linea">
       <p class="meta-mono">{c.indice.resumen}</p>
       <details class="indice">
@@ -322,6 +318,18 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           ))}
         </ol>
       </details>
+    </div>
+    <div class="cap-1-cuerpo">
+      <div class="cap-1-texto">
+        <!-- texto de Jaime (su meta), pendiente de su revisión final -->
+        <p class="meta-mono">{c.head.meta}</p>
+        <Hueco c={c} id="aplicaA" />
+        <Hueco c={c} id="quienSoy" />
+      </div>
+      <!-- La única foto sin lazy de la página: es el LCP medido (2.79 s en el
+           móvil de Lighthouse), así que se pide con prioridad alta. -->
+      <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
+        width="320" height="320" decoding="async" fetchpriority="high" />
     </div>
     <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
   </header>
