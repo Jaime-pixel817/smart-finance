@@ -2,11 +2,20 @@
 // uno que la persona haya parado.
 //
 // Es la estrategia medida en la dirección creativa (docs/cv-historia): cuatro
-// clips con póster y `preload="none"` no descargan vídeo hasta que se cruza su
-// capítulo; descargarlos y moverlos todos, 1 159 KB; descargar y mover SOLO el
-// visible, 608 KB. Este módulo es la diferencia entre las dos últimas: observa
-// los `<video data-en-vista>` y reproduce el que cruza el 60 % de visibilidad,
-// pausando el que salió.
+// clips con póster y `preload="none"` no descargan NI UN BYTE DE VÍDEO hasta
+// que se cruza su capítulo; descargarlos y moverlos todos, 1 159 KB;
+// descargar y mover SOLO el visible, 608 KB. Este módulo es la diferencia
+// entre las dos últimas: observa los `<video data-en-vista>` y reproduce el
+// que cruza el 60 % de visibilidad, pausando el que salió.
+//
+// LO QUE SÍ SE PAGA AL ABRIR, Y ANTES ESTABA MAL ESCRITO AQUÍ: los cuatro
+// PÓSTERES. Esta cabecera decía "pesan 57 KB"; medido de verdad sobre `dist`
+// son 108 090 B en cuatro peticiones —cv-poster-singapur.jpg 17 090,
+// cv-poster-skills.jpg 20 284, cv-poster-raul.jpg 29 817,
+// cv-poster-animales.jpg 40 899—, casi el doble. El póster de un `<video>` no
+// tiene `loading="lazy"`: se pide siempre, aunque el clip nunca se reproduzca.
+// Lo que sí es cierto es el resto: los ocho `<video>` de los dos paneles se
+// quedan en `readyState 0` hasta que su capítulo entra en pantalla.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LA PAUSA DE LA PERSONA MANDA, Y ESO ES LA MITAD DE ESTE ARCHIVO
