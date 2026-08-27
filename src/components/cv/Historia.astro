@@ -287,10 +287,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
     <!-- texto de Jaime, pendiente de su revisión final -->
     <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
-    <!-- Palabras de Jaime, VERBATIM de su LinkedIn (el panel español lleva la
-         traducción, marcada en cv.ts). El recibo de la simulación está en el
-         capítulo 10. -->
+    <!-- Palabras de Jaime, VERBATIM de su LinkedIn. El post está en inglés,
+         así que el panel español enseña una traducción Y LO DICE ARRIBA
+         (`voz.peTag`, vacío en inglés): unas comillas atribuidas a su post,
+         sin marca, se leen como sus palabras exactas. Misma regla que la
+         traducción de la frase final. El recorte va dentro de la cita con su
+         «[…]». El recibo de la simulación está en el capítulo 10. -->
     <blockquote class="voz">
+      {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
       <p>{c.voz.pe}</p>
       <footer class="pie">{c.voz.peFuente}</footer>
     </blockquote>

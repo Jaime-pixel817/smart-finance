@@ -385,8 +385,19 @@ const en = {
     // Palabras de Jaime, VERBATIM, de su publicación en LinkedIn sobre la
     // simulación de Vista Equity Partners (2026-08, urn 7495934696430764032).
     // En inglés en el original: aquí no hay traducción que revisar.
-    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework.”',
-    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation, August 2026.',
+    //
+    // LA CITA LLEGA HASTA DONDE TERMINA LA IDEA, Y EL RECORTE SE VE. Antes
+    // cortaba en «Rule of 40 framework.» con punto final, y ese punto no
+    // estaba en el post: se leía como el final de su frase cuando el post
+    // seguía. Ahora va la idea entera —del 10-K al resumen de méritos contra
+    // riesgos— y lo que falta en medio lleva su «[…]» dentro de las comillas.
+    // Lo omitido es lo que la captura de la evidencia no traía
+    // (cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md), no una elección de estilo.
+    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
+    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation, August 2026. The “[…]” marks a passage this page does not reproduce.',
+    // Marca de traducción, VISIBLE, encima de la cita. Vacía en inglés: ahí la
+    // cita es el original. Misma regla que la traducción de la frase final.
+    peTag: '',
     // texto de Jaime (traducción), pendiente de su revisión final
     dedicacion: '“I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
     // texto de Jaime (traducción), pendiente de su revisión final
@@ -672,9 +683,13 @@ const es: typeof en = {
 
   voz: {
     // Palabras de Jaime en LinkedIn, en inglés en el original. Esta versión es
-    // TRADUCCIÓN para el panel español, pendiente de su revisión final.
-    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40.»',
-    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners, agosto de 2026.',
+    // TRADUCCIÓN para el panel español, pendiente de su revisión final — y
+    // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a
+    // su post sin más se leen como sus palabras exactas y el post está en
+    // inglés. El «[…]» marca el trozo que esta página no reproduce.
+    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
+    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners, agosto de 2026. El «[…]» marca un trozo que esta página no reproduce.',
+    peTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
     dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
     // texto de Jaime, pendiente de su revisión final
