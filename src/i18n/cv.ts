@@ -251,16 +251,30 @@ const en = {
 
   // ---- Capítulo 10: certificaciones ----
   certs: {
-    lede: 'The receipts. Exact name, institution, and the verification link when it exists.',
-    // Nombres tal cual los publica su LinkedIn. Fecha y enlace de verificación
-    // los trae Jaime; hasta entonces la columna dice que faltan.
+    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer only where a source says so.',
+    // Nombres tal cual los publica su LinkedIn (el PDF que Jaime exportó).
+    // ─────────────────────────────────────────────────────────────────────
+    // EL PDF NO TRAE LA INSTITUCIÓN DE CADA CERTIFICADO, NI SU FECHA.
+    // Así que `de` solo lleva emisor donde hay una fuente que lo diga:
+    //   · Investment Foundations® — CFA Institute: su propia publicación de
+    //     LinkedIn lo dice ("CFA Institute Investment Foundations Certificate").
+    //   · Vista Equity Partners / Bank of America, en Forage: sus dos
+    //     publicaciones de LinkedIn sobre las simulaciones.
+    // Las otras tres van SIN emisor a propósito. "Cambridge English" para el
+    // B2 estaba inventado: el PDF no lo dice en ninguna parte, y un CV que
+    // adivina quién expide un certificado es un CV que se puede desmentir.
+    // "Bloomberg" para el Bloomberg Finance Fundamentals tampoco sale del
+    // PDF — que el nombre del certificado empiece por la marca no es la
+    // fuente de que la marca lo expida.
+    // Cuando falta el emisor, la columna de la derecha también lo pide.
     pendiente: 'date and verification link to come',
+    pendienteInst: 'issuer, date and verification link to come',
     filas: [
-      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg' },
+      { que: 'Bloomberg Finance Fundamentals', de: '' },
       { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
       { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, on Forage' },
       { que: 'Investment Banking Virtual Experience', de: 'Bank of America, on Forage' },
-      { que: 'B2 First Certificate', de: 'Cambridge English' },
+      { que: 'B2 First Certificate', de: '' },
       { que: 'Green Technology Programme', de: '' }
     ]
   },
@@ -298,7 +312,9 @@ const en = {
   huecos: {
     aplicaA: {
       que: 'What I am applying to',
-      pista: 'One line: the university, the programme and the intake. Nothing else fits here.'
+      // "intake" está vetado por la regla de vocabulario del proyecto. "entry"
+      // además es la palabra que ya usa la portada ("September 2027 entry").
+      pista: 'One line: the university, the programme and the entry term. Nothing else fits here.'
     },
     linea: {
       que: 'The one line',
@@ -574,14 +590,15 @@ const es: typeof en = {
   },
 
   certs: {
-    lede: 'Los recibos. Nombre exacto, institución, y el enlace de verificación cuando exista.',
+    lede: 'Los recibos. El nombre exacto, tal como lo publica su LinkedIn; el emisor solo donde una fuente lo diga.',
     pendiente: 'fecha y enlace de verificación por llegar',
+    pendienteInst: 'emisor, fecha y enlace de verificación por llegar',
     filas: [
-      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg' },
+      { que: 'Bloomberg Finance Fundamentals', de: '' },
       { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
       { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, en Forage' },
       { que: 'Investment Banking Virtual Experience', de: 'Bank of America, en Forage' },
-      { que: 'B2 First Certificate', de: 'Cambridge English' },
+      { que: 'B2 First Certificate', de: '' },
       { que: 'Green Technology Programme', de: '' }
     ]
   },

@@ -522,13 +522,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
     <!-- Filas como el calendario del reto: el recibo a la izquierda y lo que
-         falta (fecha y enlace de verificación) a la derecha, en mono. Que se
-         vea que falta es el punto: nada se disimula. -->
+         falta a la derecha, en mono. Que se vea que falta es el punto: nada
+         se disimula. Y cuando falta también el EMISOR —el PDF de LinkedIn no
+         trae institución de ningún certificado— la columna lo pide también,
+         en vez de que la página se invente uno. -->
     <ol class="cal">
       {c.certs.filas.map((f) => (
         <li>
           <span class="cal-que">{f.que}{f.de ? ' — ' + f.de : ''}</span>
-          <span class="cal-cuando meta-mono">{c.certs.pendiente}</span>
+          <span class="cal-cuando meta-mono">{f.de ? c.certs.pendiente : c.certs.pendienteInst}</span>
         </li>
       ))}
     </ol>
