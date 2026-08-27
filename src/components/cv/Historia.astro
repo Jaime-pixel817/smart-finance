@@ -178,11 +178,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
 <div class="historia">
 
   <!-- ── Idioma ──────────────────────────────────────────────────────────
-       Mismo mecanismo de siempre: :target en Cv.astro, cero JavaScript. -->
+       Mismo mecanismo de siempre: :target en Cv.astro, cero JavaScript.
+       El `href` que va ESCRITO es `#en`/`#es`, que funciona en todas partes;
+       el `data-lang` es para que el guion en línea de Cv.astro le pegue el
+       capítulo actual (`#es-cap-7`) y cambiar de idioma no te devuelva al
+       principio del documento. Sin JavaScript se cambia de idioma igual. -->
   <nav class="cv-lang" aria-label={c.lang.aria}>
-    <a href="#en" class:list={['cv-lang-a', locale === 'en' && 'on']}
+    <a href="#en" data-lang="en" class:list={['cv-lang-a', locale === 'en' && 'on']}
       aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
-    <a href="#es" class:list={['cv-lang-a', locale === 'es' && 'on']}
+    <a href="#es" data-lang="es" class:list={['cv-lang-a', locale === 'es' && 'on']}
       aria-current={locale === 'es' ? 'page' : undefined} lang="es">{c.lang.es}</a>
   </nav>
 

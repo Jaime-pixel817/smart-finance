@@ -67,13 +67,23 @@
 // pantalla no puede leer el panel español con voz inglesa. Y el panel oculto
 // va con `display: none`, así que no se anuncia ni se tabula.
 //
-// LO QUE NECESITÓ JAVASCRIPT SIGUEN SIENDO ONCE LÍNEAS EN LÍNEA: el `lang`
-// del documento, el foco y el anuncio al cambiar de idioma (un atributo no se
+// LO QUE NECESITÓ JAVASCRIPT SIGUE SIENDO UN BLOQUE EN LÍNEA: el `lang` del
+// documento, el foco y el anuncio al cambiar de idioma (un atributo no se
 // escribe desde CSS; el foco se perdía al desaparecer el panel; el cambio era
-// mudo). Todo detrás de `hashchange`: si no llega el JavaScript, el idioma se
-// cambia igual. Con un ancla de CAPÍTULO el guion solo ajusta el `lang` y NO
-// toca el foco: ahí el navegador ya está llevando al lector al capítulo, y
-// robarle el foco a mitad de camino es perderlo.
+// mudo), MÁS el capítulo del selector. Todo detrás de `hashchange`: si no
+// llega el JavaScript, el idioma se cambia igual. Con un ancla de CAPÍTULO el
+// guion ajusta el `lang` y anuncia pero NO toca el foco: ahí el navegador ya
+// está llevando al lector al capítulo, y robarle el foco a mitad de camino es
+// perderlo.
+//
+// EL SELECTOR CONSERVA EL CAPÍTULO. Sus `href` escritos son `#en` y `#es`, que
+// funcionan sin JavaScript — pero `#es` a secas es el ancla de ARRIBA del
+// documento, así que desde `#en-cap-7` cambiar de idioma te devolvía al
+// principio del CV (medido: y = 9584 → y = 0). Los enlaces profundos y el
+// índice interno ya caían bien; era solo el selector. El guion les pega el
+// capítulo en el que estás (`#es-cap-7`), y solo donde hay `:has()`, que es
+// quien sostiene el panel con un ancla de capítulo puesta: sin `:has()` se
+// quedan como estaban, que es peor pero no pierde el idioma.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LO QUE ESTA PÁGINA NO LLEVA, A PROPÓSITO
@@ -139,18 +149,46 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <script is:inline>
     (function () {
       var p = document.getElementById('cv-idioma');
+      var enlaces = document.querySelectorAll('.cv-lang-a[data-lang]');
+      // `:has()` es lo que sostiene el panel cuando el ancla puesta es de
+      // CAPÍTULO. Sin él, mandar el selector a #es-cap-7 perdería el idioma,
+      // así que ahí se deja el #es de siempre y el selector sigue llevando al
+      // principio: peor, pero no roto. Firefox <121 es el único caso vivo.
+      var hasHas = !!(window.CSS && CSS.supports && CSS.supports('selector(:has(*))'));
+      var eraEs = null;
       function esEs(h) { return h === '#es' || h.indexOf('#es-') === 0; }
+      // EL SELECTOR CONSERVA EL CAPÍTULO. Los `href` escritos son `#en`/`#es`
+      // (funcionan sin JavaScript), pero desde `#en-cap-7` mandaban a `#es` a
+      // secas, que es el ancla de arriba del documento: cambiar de idioma a
+      // mitad del CV te devolvía al principio. Aquí se les pega el capítulo en
+      // el que estás, que es lo que ya hacen bien los enlaces del índice.
+      function sincronizar(h) {
+        var m = /^#(?:en|es)-cap-(\d+)$/.exec(h);
+        for (var i = 0; i < enlaces.length; i++) {
+          var l = enlaces[i], d = l.getAttribute('data-lang');
+          l.setAttribute('href', (m && hasHas) ? '#' + d + '-cap-' + m[1] : '#' + d);
+        }
+      }
       function aplicar(anunciar) {
         var h = location.hash;
         var es = esEs(h);
         document.documentElement.lang = es ? 'es' : 'en';
-        // Solo el cambio de idioma "de verdad" (#en/#es) mueve el foco y
-        // anuncia: en un salto de capítulo el navegador ya lleva al lector al
-        // ancla, y robarle el foco a mitad de camino es perderlo.
-        if (!anunciar || (h !== '#es' && h !== '#en' && h !== '')) return;
+        sincronizar(h);
+        // El anuncio va por CAMBIO DE IDIOMA, no por la forma del hash: desde
+        // que el selector manda a `#es-cap-7`, mirar solo `#es`/`#en` dejaba
+        // mudo justo el caso que este bloque existe para anunciar.
+        var cambio = eraEs !== null && eraEs !== es;
+        eraEs = es;
+        if (!anunciar || !cambio) return;
+        // El foco solo se mueve en el cambio "de verdad" (#en/#es): con un
+        // ancla de capítulo el navegador ya lleva al lector hasta ella, y
+        // robarle el foco a mitad de camino es perderlo.
+        var mueveFoco = h === '#es' || h === '#en' || h === '';
         requestAnimationFrame(function () {
-          var pane = document.querySelector(es ? '.cv-es' : '.cv-en');
-          if (pane) pane.focus();
+          if (mueveFoco) {
+            var pane = document.querySelector(es ? '.cv-es' : '.cv-en');
+            if (pane) pane.focus();
+          }
           if (p) p.textContent = es ? p.dataset.es : p.dataset.en;
         });
       }
