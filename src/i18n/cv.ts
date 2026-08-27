@@ -17,6 +17,9 @@
 //    LA FRASE final (`frase.texto`): va VERBATIM, en español, en los dos
 //    paneles — es su voz y no se toca; el panel inglés lleva debajo una
 //    traducción pequeña, marcada como traducción.
+//    LA FRASE DE APERTURA (`voz.apertura`) sí es de las pulidas: él la mandó
+//    diciendo «algo así», así que se le arregló la ortografía y la puntuación
+//    y nada más. Abre la página y es la tesis de todo lo demás.
 //
 // 2. HECHOS VERIFICADOS, cada uno con su fuente en el repo o en el propio
 //    build (las cifras de la prueba se CUENTAN de los archivos reales en
@@ -63,24 +66,31 @@ const en = {
 
   // ---- Índice y meta de la portada ----
   indice: {
-    resumen: '11 chapters · about 6 minutes',
+    resumen: '9 chapters · about 6 minutes',
     ver: 'See the index',
     aria: 'Chapters of this page'
   },
 
-  // ---- Títulos de capítulo (el 1 es el nombre; el 11 es la frase) ----
+  // ---- Títulos de capítulo ────────────────────────────────────────────────
+  // EL ORDEN LO PIDIÓ JAIME (mensaje del 2026-08-27) y es el de esta lista:
+  // su frase de apertura primero, después experiencias y voluntariados,
+  // después los proyectos ARRANCANDO por el grupo estudiantil, después el
+  // canal de difusión, después el Reto Actinver y el private equity A LA PAR,
+  // después las certificaciones, y al final la frase. Ver la cabecera de
+  // Historia.astro para qué se movió de dónde.
+  //
+  // El 1 lleva su nombre como titular (el título de aquí solo sale en el
+  // índice) y el 9 es la frase final.
   caps: {
-    c1: 'A hungry kid',
-    c2: 'What is already standing',
-    c3: 'Where the hunger comes from',
-    c4: 'What I want to do',
-    c5: 'Reto Actinver',
+    c1: 'I opened my eyes',
+    c2: 'Experience',
+    c3: 'Serving',
+    c4: 'Everyone brings something',
+    c5: 'My projects',
     c6: 'Teaching is half the work',
-    c7: 'Everyone brings something',
-    c8: 'Serving',
-    c9: 'Experience',
-    c10: 'Certifications',
-    c11: 'The sentence'
+    c7: 'Reto Actinver and private equity',
+    c8: 'Certifications',
+    c9: 'The sentence'
   },
 
   // ---- Capítulo 1: portada ----
@@ -94,7 +104,21 @@ const en = {
     fotoAlt: 'Jaime Sandoval Ricaño'
   },
 
-  // ---- Capítulo 2: la prueba ----
+  // ---- Capítulo 5: los proyectos ────────────────────────────────────────
+  // ARRANCA POR EL GRUPO ESTUDIANTIL porque Jaime lo pidió así. El texto del
+  // grupo es el hecho que ya publica /community (`community.desc` de ui.ts),
+  // en primera persona: venía del capítulo "Servir", donde el grupo se leía
+  // como un voluntariado más. Es un proyecto suyo — lo fundó y lo preside —,
+  // así que encabeza los proyectos y en Servir se quedan los voluntariados.
+  proyectos: {
+    grupoH: 'The student group',
+    grupo: 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
+    grupoLink: 'The community, on the site',
+    grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
+    sitioH: 'smartfinance.lat'
+  },
+
+  // ---- Capítulo 5: la prueba (el bloque del sitio) ----
   prueba: {
     // Lo único que este capítulo afirma por su cuenta, y es comprobable:
     // la página corre sobre el mismo código que el sitio público.
@@ -122,7 +146,18 @@ const en = {
     open: 'Open the asset page'
   },
 
-  // ---- Capítulo 4: research ----
+  // ---- Capítulo 7: el reto y el private equity, A LA PAR ────────────────
+  // Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la par
+  // del de private equity». No es un capítulo detrás de otro: son dos
+  // columnas en escritorio y dos bloques apilados en el teléfono, con el
+  // orden que él nombró (Actinver primero). Los rótulos de cada mitad; los
+  // textos de dentro siguen siendo los de `reto` y `research`.
+  dos: {
+    actinverH: 'Reto Actinver',
+    peH: 'Private equity research'
+  },
+
+  // ---- Capítulo 7, mitad derecha: research ----
   research: {
     lede: 'Analyst-style reports with every figure traced to the filing it came from. The published one is below, with the state it is actually in.',
     link: 'Open the report',
@@ -214,22 +249,19 @@ const en = {
     }
   },
 
-  // ---- Capítulo 8: servir ----
+  // ---- Capítulo 3: servir (los voluntariados) ----
+  // El grupo estudiantil se fue al capítulo de proyectos: aquí se quedan los
+  // voluntariados, que es lo que Jaime pidió junto a las experiencias.
   servir: {
-    // Hecho publicado en el sitio (/community, src/i18n/ui.ts `community.desc`).
-    comunidad: 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
-    comunidadLink: 'The community, on the site',
-    grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
     // El clip del voluntariado con animales: existe, con fecha, en su TikTok.
     animalesClip: 'The clip: animal care and responsible adoption (August 23, 2026).',
     bloques: {
-      comunidad: 'My community',
       animales: 'The animals',
       playas: 'Beach clean-ups'
     }
   },
 
-  // ---- Capítulo 9: experiencias (en seco) ----
+  // ---- Capítulo 2: experiencias (en seco) ----
   exp: {
     lede: 'What, where, when. This chapter and the next are the ones a committee scans.',
     filas: [
@@ -316,13 +348,13 @@ const en = {
       // además es la palabra que ya usa la portada ("September 2027 entry").
       pista: 'One line: the university, the programme and the entry term. Nothing else fits here.'
     },
-    linea: {
-      que: 'The one line',
-      pista: 'One sentence — the thing you want them to remember after they close the tab.'
-    },
+    // `linea` ya no existe: era el hueco de "la frase que resume quién eres",
+    // y esa frase ya la escribió Jaime — es `voz.apertura`, que abre la
+    // página. Un hueco pidiendo lo que está tres centímetros más arriba es
+    // ruido, así que se retiró en vez de dejarlo puesto.
     quienSoy: {
       que: 'Where it started',
-      pista: 'Three to five sentences: where the hunger comes from, and what happened exactly. The shortest chapter, and the one they remember.'
+      pista: 'Three to five sentences: where that sentence comes from, and what happened exactly. The shortest thing on the page, and the one they remember.'
     },
     retoNota: {
       que: 'What I want out of the contest',
@@ -377,7 +409,6 @@ const en = {
   // ═════════════════════════════════════════════════════════════════════════
   suyo: {
     aplicaA: '',
-    linea: '',
     quienSoy: '',
     retoNota: '',
     researchNota: '',
@@ -398,6 +429,21 @@ const en = {
   // pendiente de su revisión final.
   // ═════════════════════════════════════════════════════════════════════════
   voz: {
+    // ─── LA FRASE DE APERTURA ───────────────────────────────────────────
+    // Es lo PRIMERO de la página, con el peso de una declaración: la pidió
+    // así Jaime (mensaje del 2026-08-27, anotado en la ADENDA de
+    // cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md). Sus palabras, tal cual las
+    // escribió: «abri los ojos y vi todas la oportunidades posibles y hago lo
+    // que puedo por aprovecharlas, mi objetivo es que todos tambien los
+    // puedan abrir y ayudarlos». Él dijo «algo así», o sea que la ortografía
+    // y la puntuación se pulen SIN tocar el sentido ni el vocabulario — la
+    // misma regla que el resto de este bloque. Nada de florituras: las
+    // palabras son las suyas y el orden también.
+    // Esta versión inglesa es TRADUCCIÓN, y lo dice en pantalla
+    // (`aperturaTag`, vacío en español porque ahí está el original).
+    // texto de Jaime (traducción), pendiente de su revisión final
+    apertura: '“I opened my eyes and saw every possible opportunity, and I do what I can to make the most of them. My goal is that everyone can open theirs too, and to help them.”',
+    aperturaTag: 'His words, in Spanish. This is a translation; the original is in the Spanish panel.',
     // Palabras de Jaime, VERBATIM, de su publicación en LinkedIn sobre la
     // simulación de Vista Equity Partners (2026-08, urn 7495934696430764032).
     // En inglés en el original: aquí no hay traducción que revisar.
@@ -451,23 +497,21 @@ const es: typeof en = {
   },
 
   indice: {
-    resumen: '11 capítulos · unos 6 minutos',
+    resumen: '9 capítulos · unos 6 minutos',
     ver: 'Ver el índice',
     aria: 'Capítulos de esta página'
   },
 
   caps: {
-    c1: 'Un niño con hambre',
-    c2: 'Lo que ya está de pie',
-    c3: 'De dónde viene el hambre',
-    c4: 'A lo que me quiero dedicar',
-    c5: 'Reto Actinver',
+    c1: 'Abrí los ojos',
+    c2: 'Experiencias',
+    c3: 'Servir',
+    c4: 'Cada quien trae algo',
+    c5: 'Mis proyectos',
     c6: 'Enseñar es la mitad del trabajo',
-    c7: 'Cada quien trae algo',
-    c8: 'Servir',
-    c9: 'Experiencias',
-    c10: 'Certificaciones',
-    c11: 'La frase'
+    c7: 'Reto Actinver y private equity',
+    c8: 'Certificaciones',
+    c9: 'La frase'
   },
 
   head: {
@@ -477,6 +521,14 @@ const es: typeof en = {
     // texto de Jaime, pendiente de su revisión final
     meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
     fotoAlt: 'Jaime Sandoval Ricaño'
+  },
+
+  proyectos: {
+    grupoH: 'El grupo estudiantil',
+    grupo: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
+    grupoLink: 'La comunidad, en el sitio',
+    grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
+    sitioH: 'smartfinance.lat'
   },
 
   prueba: {
@@ -498,6 +550,11 @@ const es: typeof en = {
     change: 'Cambio de hoy',
     pending: '—',
     open: 'Abrir la ficha del activo'
+  },
+
+  dos: {
+    actinverH: 'Reto Actinver',
+    peH: 'Private equity research'
   },
 
   research: {
@@ -563,12 +620,8 @@ const es: typeof en = {
   },
 
   servir: {
-    comunidad: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
-    comunidadLink: 'La comunidad, en el sitio',
-    grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
     animalesClip: 'El clip: cuidado animal y adopción responsable (23 de agosto de 2026).',
     bloques: {
-      comunidad: 'Mi comunidad',
       animales: 'Los animalitos',
       playas: 'Limpieza de playas'
     }
@@ -627,13 +680,9 @@ const es: typeof en = {
       que: 'A qué estoy aplicando',
       pista: 'Una línea: la universidad, el programa y la generación. Aquí no cabe nada más.'
     },
-    linea: {
-      que: 'La línea',
-      pista: 'Una frase — lo que quieres que recuerden después de cerrar la pestaña.'
-    },
     quienSoy: {
       que: 'Dónde empezó',
-      pista: 'De tres a cinco frases: de dónde viene el hambre, y qué pasó exactamente. El capítulo más corto, y el que más se recuerda.'
+      pista: 'De tres a cinco frases: de dónde te viene esa frase, y qué pasó exactamente. Lo más corto de la página, y lo que más se recuerda.'
     },
     retoNota: {
       que: 'Qué quiero sacar del reto',
@@ -683,7 +732,6 @@ const es: typeof en = {
 
   suyo: {
     aplicaA: '',
-    linea: '',
     quienSoy: '',
     retoNota: '',
     researchNota: '',
@@ -699,6 +747,18 @@ const es: typeof en = {
   },
 
   voz: {
+    // ─── LA FRASE DE APERTURA ───────────────────────────────────────────
+    // ORIGINAL de Jaime (mensaje del 2026-08-27), con su ortografía:
+    //   «abri los ojos y vi todas la oportunidades posibles y hago lo que
+    //    puedo por aprovecharlas, mi objetivo es que todos tambien los puedan
+    //    abrir y ayudarlos»
+    // Él dijo «algo así»: aquí van la ortografía y la puntuación pulidas y NI
+    // UNA palabra suya cambiada ni añadida. Los «los» de «los puedan abrir»
+    // son los ojos, y se quedan como él los escribió.
+    // texto de Jaime, pendiente de su revisión final
+    apertura: '«Abrí los ojos y vi todas las oportunidades posibles, y hago lo que puedo por aprovecharlas. Mi objetivo es que todos también los puedan abrir, y ayudarlos.»',
+    // Vacío en español: aquí la cita es el original, no una traducción.
+    aperturaTag: '',
     // Palabras de Jaime en LinkedIn, en inglés en el original. Esta versión es
     // TRADUCCIÓN para el panel español, pendiente de su revisión final — y
     // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a

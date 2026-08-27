@@ -1,18 +1,55 @@
 ---
-// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Once capítulos, blanco y
+// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Nueve capítulos, blanco y
 // negro, scroll con imán. Se renderiza UNA VEZ POR IDIOMA dentro de la misma
 // página (ver Cv.astro). Sustituye a "La mesa", y se queda con lo mejor de
 // ella: la cinta viva, el calendario del Reto, la tarjeta del research y la
 // cartera del concurso — la prueba de que detrás hay una plataforma real.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// EL ORDEN LO DECIDIÓ JAIME (mensaje del 2026-08-27), Y ES ESTE
+// ═══════════════════════════════════════════════════════════════════════════
+// Sus palabras: «quiero que priorices primero la primera frase […] ya de ahí,
+// luego experiencias voluntariados etc, luego mis proyectos y arrancas con el
+// grupo estudiantil, luego mi canal de difusión, luego lo del portafolio de
+// actinver a la par del de private equity, luego mis certificaciones, y al
+// final la frase».
+//
+//   01 · La frase de apertura   sus palabras, arriba del todo
+//   02 · Experiencias           la lista seca
+//   03 · Servir                 los voluntariados
+//   04 · Cada quien trae algo   las conversaciones (el "etc")
+//   05 · Mis proyectos          EL GRUPO ESTUDIANTIL primero, luego el sitio
+//   06 · Enseñar…               su canal de difusión (TikTok)
+//   07 · Reto Actinver y PE     A LA PAR: dos columnas, no dos capítulos
+//   08 · Certificaciones        los recibos
+//   09 · La frase               la de siempre, verbatim
+//
+// DE ONCE CAPÍTULOS A NUEVE, Y NO SE PERDIÓ NI UNA LÍNEA:
+// · "De dónde viene el hambre" era una pantalla entera con un solo recuadro
+//   vacío. Su hueco (`quienSoy`) se pliega en el capítulo 1, pegado a la
+//   frase que pide explicar.
+// · El hueco "la línea" desapareció porque la frase de apertura ES esa línea,
+//   ya escrita por él.
+// · "Lo que ya está de pie" (el sitio) y "Reto Actinver" y "A lo que me
+//   quiero dedicar" no se borraron: el sitio es ahora el segundo bloque de
+//   los proyectos, y el reto y el private equity son las dos mitades del
+//   capítulo 7.
+// · El grupo estudiantil sale de "Servir" y encabeza los proyectos, que es
+//   donde Jaime lo puso: es lo que fundó y preside, no un voluntariado.
 //
 // LA DIRECCIÓN CREATIVA vive en docs/cv-historia/direccion.md (rama
 // docs/cv-historia), con las mediciones en mediciones.md. Las decisiones
 // grandes de este archivo salen de ahí: imán `proximity` (medido contra el
 // secuestro JS: 65 % contra 12 % de recorrido con cinco golpes de rueda),
 // fotos con `animation-timeline: view()` (+149 B, cero JS, quietas con
-// `prefers-reduced-motion`), TikTok NUNCA incrustado (un embed medido:
-// 8 026 KB, 9 dominios, 2 cookies), y el orden afirmación → prueba → origen →
-// alcance → cierre.
+// `prefers-reduced-motion`) y TikTok NUNCA incrustado (un embed medido:
+// 8 026 KB, 9 dominios, 2 cookies).
+//
+// LO QUE CAMBIÓ RESPECTO DE LA DIRECCIÓN, Y POR QUÉ: ella proponía el orden
+// afirmación → prueba → origen → alcance → cierre, con la prueba en el
+// capítulo 2 para que el lector con prisa la viera antes que nada. Jaime
+// pidió otro, y el suyo manda: es su CV y es su voz la que abre. La prueba no
+// se pierde — sigue viva, dentro de los proyectos — pero llega más tarde.
 //
 // DESVIACIONES RESPECTO DE LA DIRECCIÓN, ESCRITAS:
 // · `--cvh-tinta-3` es #6E6E6E y no el #9A9A9A propuesto: #9A9A9A sobre
@@ -204,11 +241,15 @@ const retratos = [
 ];
 
 // ------------------------------------------------------------- el índice
+// EL ORDEN ES EL QUE PIDIÓ JAIME (ver la cabecera). Esta lista es la única
+// fuente del índice Y de la numeración: el total se CUENTA de aquí en vez de
+// escribirse, que es como "01 / 11" sobrevivió a un capítulo de menos en la
+// versión anterior de este archivo hasta que alguien lo vio.
 const capitulos = [
-  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4, c.caps.c5, c.caps.c6,
-  c.caps.c7, c.caps.c8, c.caps.c9, c.caps.c10, c.caps.c11
+  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4,
+  c.caps.c5, c.caps.c6, c.caps.c7, c.caps.c8, c.caps.c9
 ];
-const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
+const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.length;
 ---
 <div class="historia">
 
@@ -225,25 +266,44 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
       aria-current={locale === 'es' ? 'page' : undefined} lang="es">{c.lang.es}</a>
   </nav>
 
-  <!-- ════ 01 · Un niño con hambre — la afirmación ════════════════════════
-       Nombre, la línea (hueco), a qué aplica (su meta + hueco), UNA foto.
+  <!-- ════ 01 · LA FRASE DE APERTURA ══════════════════════════════════════
+       Lo primero de la página, y lo pidió Jaime así. Va debajo de su nombre
+       y encima de TODO lo demás, en Fraunces y al segundo tamaño más grande
+       del CV: el peso de una declaración, no de un subtítulo.
+
+       POR QUÉ DEBAJO DEL NOMBRE Y NO ENCIMA. Una cita sin firma en lo alto
+       de un CV obliga a bajar para saber de quién es, y quien lee esto tiene
+       200 solicitudes encima. El nombre es una etiqueta, no contenido que
+       compita: la frase sigue siendo lo primero que se LEE.
+
+       El hueco de "la línea" ya no está: esta frase ES esa línea, ya escrita.
+       Y el capítulo "De dónde viene el hambre", que era una pantalla entera
+       con un solo recuadro vacío, se pliega aquí como el hueco `quienSoy`:
+       la frase y su origen se piden juntos, y una pantalla completa ocupada
+       por una caja de puntos era un agujero en el mejor momento del CV.
        Sin movimiento: es el LCP. -->
   <header class="cap cap-1" aria-labelledby={`${p}-h1`}>
     <p class="cap-num" aria-hidden="true">{num(0)}</p>
     <p class="etiqueta">{c.head.eyebrow}</p>
     <h1 class="hist-name" id={`${p}-h1`}>{c.head.name}</h1>
-    <div class="cap-1-cuerpo">
-      <div class="cap-1-texto">
-        <Hueco c={c} id="linea" />
-        <!-- texto de Jaime (su meta), pendiente de su revisión final -->
-        <p class="meta-mono">{c.head.meta}</p>
-        <Hueco c={c} id="aplicaA" />
-      </div>
-      <!-- La única foto sin lazy de la página: es el LCP medido (2.79 s en el
-           móvil de Lighthouse), así que se pide con prioridad alta. -->
-      <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
-        width="320" height="320" decoding="async" fetchpriority="high" />
-    </div>
+    <!-- Palabras de Jaime, con la ortografía y la puntuación pulidas y nada
+         más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
+         final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
+         (`aperturaTag`, vacío en español): unas comillas sin marca se leen
+         como sus palabras exactas. Misma regla que `voz.pe` y que la
+         traducción de la frase final. -->
+    <blockquote class="abre">
+      {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
+      <p>{c.voz.apertura}</p>
+    </blockquote>
+    <!-- EL ÍNDICE VA AQUÍ, PEGADO A LA FRASE, Y ES UNA CONSECUENCIA
+         MEDIDA DEL ORDEN NUEVO. La frase de apertura es larga (137
+         caracteres) y en Fraunces grande ocupa de cuatro a siete
+         renglones: con el índice al final del capítulo, caía por debajo
+         del pliegue en LAS CUATRO anchuras (375, 390, 768 y 1280), y ese
+         renglón es la salida de emergencia del lector con prisa. Puesto
+         debajo de la declaración se ve en las cuatro, y de paso hace de
+         raya entre la tesis y el expediente. -->
     <div class="indice-linea">
       <p class="meta-mono">{c.indice.resumen}</p>
       <details class="indice">
@@ -259,165 +319,190 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
         </ol>
       </details>
     </div>
+    <div class="cap-1-cuerpo">
+      <div class="cap-1-texto">
+        <!-- texto de Jaime (su meta), pendiente de su revisión final -->
+        <p class="meta-mono">{c.head.meta}</p>
+        <Hueco c={c} id="aplicaA" />
+        <Hueco c={c} id="quienSoy" />
+      </div>
+      <!-- La única foto sin lazy de la página: es el LCP medido (2.79 s en el
+           móvil de Lighthouse), así que se pide con prioridad alta. -->
+      <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
+        width="320" height="320" decoding="async" fetchpriority="high" />
+    </div>
     <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
   </header>
 
-  <!-- ════ 02 · Lo que ya está de pie — la prueba ═════════════════════════
-       La cinta repintándose sola (casta 1) y las cifras contadas del repo. -->
-  <section class="cap" aria-labelledby={`${p}-cap-2-h`} data-cinta data-loc={locale} data-strings={cintaStrings}>
+  <!-- ════ 02 · Experiencias — en seco, sin movimiento (casta 3) ══════════
+       Jaime las quiere justo después de la frase: primero lo que ha hecho,
+       después lo que ha construido. Este capítulo y las certificaciones son
+       los que un comité escanea, y por eso no se mueven. -->
+  <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
     <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.c2}</h2>
-    <p class="cap-lede">{c.prueba.lede}</p>
-
-    <div class="sec-head">
-      <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
-    </div>
-    <ul class="cinta">
-      {cinta.map((s) => (
-        <li class="cinta-fila" data-cinta-fila={s.id} data-pair={s.history} data-dec={String(s.decimals)}>
-          <a class="cinta-link" href={L('asset.' + s.id)}>
-            <span class="cinta-id">
-              <span class="cinta-sym num">{s.sym}</span>
-              <span class="cinta-name t-caption faint">{s.name[locale]}</span>
-            </span>
-            <span class="cinta-spark" aria-hidden="true">
-              <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
-            </span>
-            <span class="cinta-nums">
-              <span class="visually-hidden">{c.tape.price}</span>
-              <span class="cinta-price num" data-precio>{c.tape.pending}</span>
-              <span class="visually-hidden">{c.tape.change}</span>
-              <span class="cinta-chg num t-caption" data-cambio></span>
-            </span>
-            <span class="visually-hidden">{c.tape.open}</span>
-          </a>
+    <p class="cap-lede">{c.exp.lede}</p>
+    <ol class="lista-seca">
+      {c.exp.filas.map((f) => (
+        <li>
+          <span class="seca-cuando num">{f.cuando}</span>
+          <span class="seca-que">{f.que}</span>
         </li>
       ))}
-    </ul>
-    <p class="pie">{c.tape.note} {c.tape.fail}</p>
-
-    <ul class="cifras">
-      <li><span class="cifra num">{nLecciones}</span> <span class="cifra-que">{c.prueba.stats.lecciones}</span></li>
-      <li><span class="cifra num">{nFuentes}</span> <span class="cifra-que">{c.prueba.stats.fuentes}</span></li>
-      <li><span class="cifra num">{nGlosario}</span> <span class="cifra-que">{c.prueba.stats.glosario}</span></li>
-    </ul>
-    <p class="cap-frases">{c.prueba.stats.promesa}</p>
-    <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
+    </ol>
   </section>
 
-  <!-- ════ 03 · De dónde viene el hambre — el origen ══════════════════════
-       Solo él puede escribirlo. Dos fotos de entonces, pendientes. -->
+  <!-- ════ 03 · Servir — los voluntariados ════════════════════════════════
+       "Experiencias, voluntariados": van pegados, en ese orden.
+       EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
+       (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
+       voluntariados de su frase: los animalitos y las playas. La comunidad
+       sigue nombrada en su cita, que es verbatim y no se toca. -->
   <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
     <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(2)}</p>
     <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
-    <Hueco c={c} id="quienSoy" />
-    <div class="fila-fotos">
-      <FotoHueco c={c} que={c.fotosPend.origen} />
-      <FotoHueco c={c} que={c.fotosPend.origen} />
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
+
+    <div class="servir">
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.animales}</h3>
+        <!-- El clip existe, con fecha, en su TikTok: se sirve desde aquí,
+             sin bucle y sin sonar solo (`controls` + `preload="none"`). -->
+        <video class="clip-video" src="/assets/cv/cv-clip-animales.mp4" poster="/assets/cv/cv-poster-animales.jpg"
+          width="360" height="640" controls playsinline preload="none"
+          aria-label={c.servir.animalesClip}></video>
+        <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
+        <Hueco c={c} id="servirAnimales" />
+      </div>
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.playas}</h3>
+        <FotoHueco c={c} que={c.fotosPend.playas} />
+        <Hueco c={c} id="servirPlayas" />
+      </div>
     </div>
   </section>
 
-  <!-- ════ 04 · A lo que me quiero dedicar — private equity research ══════ -->
+  <!-- ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
+       El "etc" de "experiencias, voluntariados, etc": la gente con la que
+       habló es una experiencia más, y va con ellas, antes de los proyectos.
+       Retratos que crecen y encogen como recuerdos (casta 2, CSS puro).
+       La línea de qué se llevó de cada quien es SUYA: seis huecos. -->
   <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(3)}</p>
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
     <!-- texto de Jaime, pendiente de su revisión final -->
-    <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
-    <!-- Palabras de Jaime, VERBATIM de su LinkedIn. El post está en inglés,
-         así que el panel español enseña una traducción Y LO DICE ARRIBA
-         (`voz.peTag`, vacío en inglés): unas comillas atribuidas a su post,
-         sin marca, se leen como sus palabras exactas. Misma regla que la
-         traducción de la frase final. El recorte va dentro de la cita con su
-         «[…]». El recibo de la simulación está en el capítulo 10. -->
-    <blockquote class="voz">
-      {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
-      <p>{c.voz.pe}</p>
-      <footer class="pie">{c.voz.peFuente}</footer>
-    </blockquote>
-    <p class="cap-lede">{c.research.lede}</p>
+    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
 
-    <a class="card card-link rep" href={L(rep.routeId)}>
-      <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
-      <p class="t-h3 rep-name">{rep.meta.name}</p>
-      <dl class="rep-meta t-caption">
-        <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
-        <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
-        <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
-        <div><dt>{c.research.status}</dt><dd class={'rep-status st-' + estado}>{c.research.statusLabel[estado] ?? estado}</dd></div>
-      </dl>
-      <span class="t-small rep-cta">{c.research.link} →</span>
-    </a>
-
-    <Hueco c={c} id="researchNota" />
-    <div class="fila-fotos">
-      <FotoHueco c={c} que={c.fotosPend.research} />
-    </div>
+    <ul class="retratos">
+      {retratos.map((rt) => {
+        const per = c.entrevistas.personas[rt.key];
+        // `rol` vacío = no había fuente para el rol y no se inventa uno.
+        // `tipo` lleno = llamarlo entrevista sería falso, y lo dice en pantalla.
+        const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+        return (
+        <li class="retrato">
+          {rt.img && (
+            <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
+          )}
+          {rt.video && (
+            <video class="clip-video" src={rt.video.src} poster={rt.video.poster}
+              width="360" height="640" controls playsinline preload="none"
+              aria-label={etiqueta}></video>
+          )}
+          {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
+          <p class="retrato-nombre">{per.nombre}</p>
+          {per.rol && <p class="retrato-rol">{per.rol}</p>}
+          {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
+          {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+          <Hueco c={c} id={rt.hueco} />
+        </li>
+        );
+      })}
+    </ul>
   </section>
 
-  <!-- ════ 05 · Reto Actinver ═════════════════════════════════════════════
-       Calendario por FECHAS (la fase de hoy se calcula en /research, no
-       aquí: misma regla que la mesa), cartera del concurso, y el logo con
-       las reglas del repo: pequeño, placa oscura, no afiliación. -->
+  <!-- ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
+       "luego mis proyectos y arrancas con el grupo estudiantil": el orden de
+       dentro del capítulo lo pidió él, y el grupo abre porque es lo que
+       fundó y preside. Después, smartfinance.lat con la prueba viva.
+
+       El texto del grupo es el hecho que ya publica /community; venía del
+       capítulo "Servir", donde se leía como un voluntariado más.
+
+       MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
+       cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
+       está mirando y no pide el ojo —, así que no compiten. -->
   <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(4)}</p>
     <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.c5}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
-    <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
-    <p class="cap-lede">{c.reto.lede}</p>
 
-    <div class="reto-marca">
-      <!-- Placa oscura FIJA: el logo lo publican blanco con el punto dorado,
-           para fondo oscuro. Recolorearlo sería deformar una marca ajena. -->
-      <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
-      <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
-    </div>
+    <div class="bloques">
+      <div class="bloque">
+        <h3 class="t-h3">{c.proyectos.grupoH}</h3>
+        <div class="grupo">
+          <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
+          <div class="grupo-texto">
+            <!-- Hecho publicado en /community, en primera persona de Jaime. -->
+            <p class="cap-frases">{c.proyectos.grupo}</p>
+            <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
+          </div>
+        </div>
+      </div>
 
-    <h3 class="t-h3">{c.reto.calH}</h3>
-    <ol class="cal">
-      {filasCal.map((f) => (
-        <li>
-          <span class="cal-que">{c.reto.cal[f.id]}</span>
-          <span class="cal-cuando num">{f.cuando}</span>
-        </li>
-      ))}
-    </ol>
+      <!-- `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
+           dentro de cada raíz su chip y sus filas, así que la raíz tiene que
+           ser el trozo que las contiene. -->
+      <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
+        <h3 class="t-h3">{c.proyectos.sitioH}</h3>
+        <p class="cap-lede">{c.prueba.lede}</p>
 
-    {hayCartera ? (
-      <>
-        {g && (
-          <figure class="curva">
-            <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
-              aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
-              {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
-              <path class="curva-area" d={g.area} />
-              <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
-            </svg>
-          </figure>
-        )}
-        {fotoNoct && <p class="pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
-      </>
-    ) : (
-      <p class="cap-frases">{c.reto.empty}</p>
-    )}
+        <div class="sec-head">
+          <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
+        </div>
+        <ul class="cinta">
+          {cinta.map((s) => (
+            <li class="cinta-fila" data-cinta-fila={s.id} data-pair={s.history} data-dec={String(s.decimals)}>
+              <a class="cinta-link" href={L('asset.' + s.id)}>
+                <span class="cinta-id">
+                  <span class="cinta-sym num">{s.sym}</span>
+                  <span class="cinta-name t-caption faint">{s.name[locale]}</span>
+                </span>
+                <span class="cinta-spark" aria-hidden="true">
+                  <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
+                </span>
+                <span class="cinta-nums">
+                  <span class="visually-hidden">{c.tape.price}</span>
+                  <span class="cinta-price num" data-precio>{c.tape.pending}</span>
+                  <span class="visually-hidden">{c.tape.change}</span>
+                  <span class="cinta-chg num t-caption" data-cambio></span>
+                </span>
+                <span class="visually-hidden">{c.tape.open}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="pie">{c.tape.note} {c.tape.fail}</p>
 
-    <Hueco c={c} id="retoNota" />
-    <p class="links-row">
-      <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
-      <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
-    </p>
-    <div class="fila-fotos">
-      <FotoHueco c={c} que={c.fotosPend.actinver} />
-      <FotoHueco c={c} que={c.fotosPend.actinver} />
+        <ul class="cifras">
+          <li><span class="cifra num">{nLecciones}</span> <span class="cifra-que">{c.prueba.stats.lecciones}</span></li>
+          <li><span class="cifra num">{nFuentes}</span> <span class="cifra-que">{c.prueba.stats.fuentes}</span></li>
+          <li><span class="cifra num">{nGlosario}</span> <span class="cifra-que">{c.prueba.stats.glosario}</span></li>
+        </ul>
+        <p class="cap-frases">{c.prueba.stats.promesa}</p>
+        <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
+      </div>
     </div>
   </section>
 
-  <!-- ════ 06 · Enseñar es la mitad del trabajo — TikTok ══════════════════
-       Marcos de vídeo SERVIDOS POR NOSOTROS cuando lleguen los clips; hoy,
-       póster + enlace al original + marca de clip pendiente. Jamás un embed. -->
+  <!-- ════ 06 · Enseñar es la mitad del trabajo — su canal ════════════════
+       "luego mi canal de difusión". Marcos de vídeo SERVIDOS POR NOSOTROS
+       cuando lleguen los clips; hoy, póster + enlace al original + marca de
+       clip pendiente. Jamás un embed. -->
   <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
     <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(5)}</p>
@@ -466,99 +551,125 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
   </section>
 
-  <!-- ════ 07 · Cada quien trae algo — entrevistas ════════════════════════
-       Retratos que crecen y encogen como recuerdos (casta 2, CSS puro).
-       La línea de qué se llevó de cada quien es SUYA: cuatro huecos. -->
+  <!-- ════ 07 · Reto Actinver y private equity — A LA PAR ═════════════════
+       Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
+       par del de private equity». A la par NO es uno detrás de otro, así que
+       no son dos capítulos: es uno con dos mitades que se leen juntas —
+       dos columnas desde 56em con una raya vertical entre ellas, y apiladas
+       en el teléfono con la raya girada 90°, en el orden que él nombró
+       (Actinver primero).
+
+       Lo de dentro no cambió: el calendario sale de src/lib/reto/actinver.mjs
+       por FECHAS (la fase de hoy se calcula en /research, no aquí), la
+       cartera del concurso del mismo archivo que lee la página pública, y la
+       tarjeta del reporte de loadReport. El logo va con las reglas del repo:
+       pequeño, placa oscura, y la línea de no afiliación. -->
   <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
     <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(6)}</p>
     <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
-    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
 
-    <ul class="retratos">
-      {retratos.map((rt) => {
-        const per = c.entrevistas.personas[rt.key];
-        // `rol` vacío = no había fuente para el rol y no se inventa uno.
-        // `tipo` lleno = llamarlo entrevista sería falso, y lo dice en pantalla.
-        const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
-        return (
-        <li class="retrato">
-          {rt.img && (
-            <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
-          )}
-          {rt.video && (
-            <video class="clip-video" src={rt.video.src} poster={rt.video.poster}
-              width="360" height="640" controls playsinline preload="none"
-              aria-label={etiqueta}></video>
-          )}
-          {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
-          <p class="retrato-nombre">{per.nombre}</p>
-          {per.rol && <p class="retrato-rol">{per.rol}</p>}
-          {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
-          {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
-          <Hueco c={c} id={rt.hueco} />
-        </li>
-        );
-      })}
-    </ul>
-  </section>
+    <div class="par">
+      <!-- ── Mitad 1: el reto ── -->
+      <div class="par-col">
+        <h3 class="t-h3">{c.dos.actinverH}</h3>
+        <!-- texto de Jaime, pendiente de su revisión final -->
+        <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
+        <p class="cap-lede">{c.reto.lede}</p>
 
-  <!-- ════ 08 · Servir — comunidad, animales, playas ══════════════════════ -->
-  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
-    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(7)}</p>
-    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
-    <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
+        <div class="reto-marca">
+          <!-- Placa oscura FIJA: el logo lo publican blanco con el punto
+               dorado, para fondo oscuro. Recolorearlo sería deformar una
+               marca ajena. -->
+          <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
+          <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
+        </div>
 
-    <div class="servir">
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.comunidad}</h3>
-        <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.servir.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
-        <!-- Hecho publicado en /community, en primera persona de Jaime. -->
-        <p class="cap-frases">{c.servir.comunidad}</p>
-        <a class="hist-link t-small" href={L('community')}>{c.servir.comunidadLink} →</a>
+        <h4 class="etiqueta">{c.reto.calH}</h4>
+        <ol class="cal">
+          {filasCal.map((f) => (
+            <li>
+              <span class="cal-que">{c.reto.cal[f.id]}</span>
+              <span class="cal-cuando num">{f.cuando}</span>
+            </li>
+          ))}
+        </ol>
+
+        {hayCartera ? (
+          <>
+            {g && (
+              <figure class="curva">
+                <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
+                  aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
+                  {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
+                  <path class="curva-area" d={g.area} />
+                  <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
+                </svg>
+              </figure>
+            )}
+            {fotoNoct && <p class="pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
+          </>
+        ) : (
+          <p class="cap-frases">{c.reto.empty}</p>
+        )}
+
+        <Hueco c={c} id="retoNota" />
+        <p class="links-row">
+          <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
+          <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
+        </p>
+        <div class="fila-fotos">
+          <FotoHueco c={c} que={c.fotosPend.actinver} />
+          <FotoHueco c={c} que={c.fotosPend.actinver} />
+        </div>
       </div>
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        <!-- El clip existe, con fecha, en su TikTok: se sirve desde aquí,
-             sin bucle y sin sonar solo (`controls` + `preload="none"`). -->
-        <video class="clip-video" src="/assets/cv/cv-clip-animales.mp4" poster="/assets/cv/cv-poster-animales.jpg"
-          width="360" height="640" controls playsinline preload="none"
-          aria-label={c.servir.animalesClip}></video>
-        <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
-        <Hueco c={c} id="servirAnimales" />
-      </div>
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.playas}</h3>
-        <FotoHueco c={c} que={c.fotosPend.playas} />
-        <Hueco c={c} id="servirPlayas" />
+
+      <!-- ── Mitad 2: el private equity ── -->
+      <div class="par-col">
+        <h3 class="t-h3">{c.dos.peH}</h3>
+        <!-- texto de Jaime, pendiente de su revisión final. Su «es a lo que
+             me quiero dedicar» era el título del capítulo viejo; ahora lo
+             dice él y no un rótulo. -->
+        <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
+        <!-- Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
+             inglés, así que el panel español enseña una traducción Y LO DICE
+             ARRIBA (`voz.peTag`, vacío en inglés): unas comillas atribuidas a
+             su post, sin marca, se leen como sus palabras exactas. Misma
+             regla que la traducción de la frase final. El recorte va dentro
+             de la cita con su «[…]». El recibo de la simulación está en el
+             capítulo de las certificaciones. -->
+        <blockquote class="voz">
+          {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
+          <p>{c.voz.pe}</p>
+          <footer class="pie">{c.voz.peFuente}</footer>
+        </blockquote>
+        <p class="cap-lede">{c.research.lede}</p>
+
+        <a class="card card-link rep" href={L(rep.routeId)}>
+          <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
+          <p class="t-h3 rep-name">{rep.meta.name}</p>
+          <dl class="rep-meta t-caption">
+            <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
+            <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
+            <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
+            <div><dt>{c.research.status}</dt><dd class={'rep-status st-' + estado}>{c.research.statusLabel[estado] ?? estado}</dd></div>
+          </dl>
+          <span class="t-small rep-cta">{c.research.link} →</span>
+        </a>
+
+        <Hueco c={c} id="researchNota" />
+        <div class="fila-fotos">
+          <FotoHueco c={c} que={c.fotosPend.research} />
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ════ 09 · Experiencias — en seco, sin movimiento (casta 3) ══════════ -->
-  <section class="cap" aria-labelledby={`${p}-cap-9-h`}>
-    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(8)}</p>
-    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
-    <p class="cap-lede">{c.exp.lede}</p>
-    <ol class="lista-seca">
-      {c.exp.filas.map((f) => (
-        <li>
-          <span class="seca-cuando num">{f.cuando}</span>
-          <span class="seca-que">{f.que}</span>
-        </li>
-      ))}
-    </ol>
-  </section>
-
-  <!-- ════ 10 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
-  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
-    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(9)}</p>
-    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
+  <!-- ════ 08 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
+  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
+    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
     <!-- Filas como el calendario del reto: el recibo a la izquierda y lo que
          falta a la derecha, en mono. Que se vea que falta es el punto: nada
@@ -575,12 +686,13 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     </ol>
   </section>
 
-  <!-- ════ 11 · La frase — sus palabras exactas, VERBATIM ═════════════════
-       En español en los dos paneles: es su voz y no se toca. El panel inglés
-       lleva debajo la traducción, pequeña y marcada como traducción. -->
-  <section class="cap cap-frase" aria-labelledby={`${p}-cap-11-h`}>
-    <span id={`${p}-cap-11`} class="cap-ancla" aria-hidden="true"></span>
-    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.c11}</h2>
+  <!-- ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
+       La que ya estaba, sin tocar. En español en los dos paneles: es su voz.
+       El panel inglés lleva debajo la traducción, pequeña y marcada como
+       traducción. La página abre con una frase suya y cierra con otra. -->
+  <section class="cap cap-frase" aria-labelledby={`${p}-cap-9-h`}>
+    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
+    <h2 class="visually-hidden" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
     <blockquote class="frase" lang="es">
       <p>{c.frase.texto}</p>
     </blockquote>
@@ -600,7 +712,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
     </div>
   </section>
 </div>
-
 <style>
   /* ═══ Tokens locales del CV narrativo ═════════════════════════════════
      Cinco colores y cuatro tamaños PROPIOS (dirección creativa §3): esta
@@ -624,6 +735,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
        320 y 363 px el nombre usa el 11vw en vez del suelo. */
     --cvh-h-name: clamp(2rem, 11vw, 7rem);
     --cvh-h-frase: clamp(1.75rem, 7vw, 5.5rem);
+    /* LA FRASE DE APERTURA. Su tamaño es el argumento entero: tiene que
+       leerse como una declaración y no como un subtítulo, así que es lo
+       segundo más grande de la página — por debajo del nombre y muy por
+       encima de todo lo demás. A 1280 px son 68 px contra 112 del nombre y
+       21 del cuerpo; a 390 px, 31 contra 43 y 17. El techo (4.25rem) es más
+       bajo que el de la frase final a propósito: la de abajo tiene la
+       pantalla para ella sola y esta comparte capítulo con el nombre. */
+    --cvh-h-abre: clamp(1.75rem, 8vw, 4.25rem);
     --cvh-cuerpo: clamp(1.0625rem, 2.2vw, 1.3125rem);
     --cvh-etiqueta: 0.6875rem;
 
@@ -673,7 +792,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   .pie { font-size: var(--fs-caption); line-height: 1.5; color: var(--cvh-tinta-2); max-width: 62ch; }
 
   /* La voz de Jaime: cuerpo grande, sin serif (la serif es de los titulares). */
-  .voz { margin: 0; }
+  /* La cita y su marca de traducción son dos párrafos pegados, y sin este
+     hueco se leían como uno solo: «…el original está en el panel en inglés.»
+     seguido a renglón corrido de «Este programa me puso…». La marca dejaba de
+     leerse como marca, que es justo lo que tiene que hacer. */
+  .voz { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   .voz p {
     font-size: var(--cvh-cuerpo); line-height: 1.6; max-width: 62ch;
     color: var(--cvh-tinta);
@@ -713,6 +836,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
   .cap-1-foto { max-width: 100%; height: auto; display: block; }
+
+  /* ---- La frase de apertura ----
+     Fraunces, igual que los titulares y que la frase final: la dirección la
+     reserva a los titulares de capítulo y a las palabras de Jaime, y estas
+     son las dos frases suyas que abren y cierran el CV. En ningún otro sitio.
+     `break-word` y no `anywhere`, por lo mismo que el nombre: parte dentro de
+     una palabra solo cuando esa palabra no cabe de ninguna manera — a 320 px
+     con el texto al 200 %, «oportunidades» mide más que la columna. */
+  .abre { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .abre p:not(.meta-mono) {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: var(--cvh-h-abre); line-height: 1.1; letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+  }
   .indice-linea { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: baseline; }
   .indice-ver { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   .indice-ver:hover { color: var(--cvh-tinta); }
@@ -821,6 +958,56 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / 11';
   /* ---- Servir ---- */
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+
+  /* ---- Los proyectos (cap 5): el grupo primero, el sitio después ----
+     Dos bloques uno debajo del otro, separados por una raya. NO son dos
+     columnas: el del sitio lleva la cinta, que necesita ancho, y partirla en
+     media pantalla es lo que sus propias válvulas (más arriba) evitan. */
+  .bloques { display: flex; flex-direction: column; gap: var(--sp-8); }
+  .bloque { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
+  .bloque + .bloque { border-top: 1px solid var(--cvh-raya); padding-top: var(--sp-8); }
+  /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
+     omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
+
+     LAS DOS COLUMNAS VAN EN `fr` Y NO EN `em`, Y ESO ES UN ARREGLO, NO UN
+     GUSTO. Estaba como `minmax(0, 24em) minmax(0, 1fr)` y se desbordaba: el
+     `em` de una CONSULTA de medios se mide contra el tamaño de letra INICIAL,
+     pero el `em` de una propiedad se mide contra el del propio elemento. Con
+     el texto al 200 % la consulta seguía disparando a 704 px reales mientras
+     la columna de la foto pasaba a valer 768 px — más ancha que el contenedor
+     entero —, y el texto del grupo se iba fuera de la pantalla: 193 px de
+     desborde horizontal medidos a 768 px. Con fracciones eso no puede pasar,
+     porque una fracción se reparte lo que hay. */
+  .grupo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+  .grupo-texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-3); min-width: 0; }
+  @media (min-width: 44em) {
+    .grupo { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--sp-6); }
+  }
+
+  /* ---- El reto y el private equity, A LA PAR (cap 7) ----
+     Jaime lo pidió con esa palabra: «a la par». O sea que NO es una cosa
+     detrás de otra — son dos mitades del mismo capítulo, y la página tiene
+     que decirlo sin escribirlo. En escritorio van lado a lado con una raya
+     vertical en medio; en el teléfono se apilan en el orden que él nombró
+     (Actinver primero) y la raya se pone horizontal, que es la misma frase
+     girada 90°.
+
+     EL CORTE VA EN em Y NO EN px, como las válvulas de la cinta: así se
+     dispara también cuando alguien agranda la letra, en vez de mantener dos
+     columnas de 300 px reales. 56em son 896 px con la letra por omisión —
+     por debajo, a cada mitad no le queda sitio para el calendario ni para la
+     tarjeta del reporte, así que se apilan. A 768 px van apiladas a
+     propósito: dos columnas ahí dejan el calendario en tres renglones. */
+  .par { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
+  .par-col { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
+  .par-col + .par-col { border-top: 1px solid var(--cvh-raya); padding-top: var(--sp-6); }
+  @media (min-width: 56em) {
+    .par { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-8); align-items: start; }
+    .par-col + .par-col {
+      border-top: 0; padding-top: 0;
+      border-left: 1px solid var(--cvh-raya); padding-left: var(--sp-8);
+    }
+  }
 
   /* ---- Listas secas (experiencias, certificaciones): sin movimiento ---- */
   .lista-seca { display: flex; flex-direction: column; max-width: 720px; }
