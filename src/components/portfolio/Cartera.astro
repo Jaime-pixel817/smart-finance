@@ -328,7 +328,15 @@ function suyo(txt: { es: string; en?: string | null }): { texto: string; lang?: 
      no es una nota al pie: va arriba, con borde de color y sin poder saltarse. */
   .aviso { border: 1px solid var(--line); border-left: 3px solid var(--warn); background: var(--bg-1); border-radius: var(--r-card); padding: var(--card-pad); display: flex; flex-direction: column; gap: var(--sp-2); }
   .aviso-h { font-weight: 600; color: var(--ink); }
-  .aviso p { max-width: var(--measure); color: var(--ink-2); }
+  /* `anywhere` y no el `break-word` global de `base.css`, y la diferencia es
+     la que arregla esto: las dos parten una palabra que no cabe, pero solo
+     `anywhere` reduce además el min-content de la caja. Este aviso es hijo
+     flex de `.cart-wrap` y su ancho SALE de ese min-content, así que con
+     `break-word` la palabra se partía y la caja seguía midiendo lo que mide
+     «recommendations» a 36 px: 46 px más que la página al 225 %. Probado:
+     `align-self: stretch`, `min-width: 0` y `width: 100%` NO lo arreglan
+     —el ancho no viene de ahí—; bajar el min-content sí. */
+  .aviso p { max-width: var(--measure); color: var(--ink-2); overflow-wrap: anywhere; }
 
   .fechas { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-6); margin: 0; }
   .fechas div { display: flex; flex-direction: column; gap: 2px; }

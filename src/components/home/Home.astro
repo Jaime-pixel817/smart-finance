@@ -466,7 +466,11 @@ const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" prese
   @media (min-width: 768px) { .lesson-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .lesson-rail li { width: auto; } }
 
   /* Herramientas */
-  .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+  /* Mismo suelo de `1fr` que en el pie, mismo remedio y misma válvula de 17em
+     (ver `Footer.astro`): a 320 px con el texto al 225 %, «Compound interest»
+     no cabe en media caja y las tarjetas empujaban 159 px. */
+  .tools-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-3); }
+  @media (max-width: 17em) { .tools-grid { grid-template-columns: minmax(0, 1fr); } }
   .tool { display: flex; flex-direction: column; gap: 6px; min-height: 120px; color: var(--ink); }
   .tool svg { color: var(--brand-text); margin-bottom: 4px; }
   @media (min-width: 960px) { .tools-grid { grid-template-columns: 1fr; } .tool { flex-direction: row; align-items: center; flex-wrap: wrap; min-height: 0; } .tool svg { margin: 0 var(--sp-2) 0 0; } .tool .t-caption { flex-basis: 100%; padding-left: 32px; } }
@@ -488,7 +492,7 @@ const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" prese
 
   /* Mercados en 60 s */
   .m60-card { padding: var(--sp-2) var(--sp-3) var(--sp-3); }
-  .m60-row a { display: grid; grid-template-columns: 1fr 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; border-bottom: 1px solid var(--line); padding: 0 4px; }
+  .m60-row a { display: grid; grid-template-columns: minmax(0, 1fr) 64px auto auto; align-items: center; gap: var(--sp-3); min-height: 56px; border-bottom: 1px solid var(--line); padding: 0 4px; }
   .m60-row:last-child a { border-bottom: 0; }
   .m60-row a:hover { background: var(--bg-2); border-radius: var(--r-input); }
   .m60-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -497,6 +501,21 @@ const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" prese
   .m60-spark { width: 64px; height: 24px; }
   .m60-price { font-size: var(--fs-small); text-align: right; min-width: 7ch; }
   .m60-chg { text-align: right; min-width: 8ch; }
+  /* Esta fila es la «cinta» del CV con otro nombre —nombre, dibujo, precio y
+     cambio en un renglón—, así que se cede en el mismo orden que en
+     `Mesa.astro`: primero se va el DIBUJO y solo si aún no cabe se PARTE la
+     fila. Lo que de verdad ataba la fila no era el sparkline sino los suelos
+     en `ch` del precio y el cambio: `ch` se mide en caracteres, así que
+     crecen con la letra y a 200 % pedían 15 caracteres de mono que ya no
+     caben en un teléfono. Por eso la válvula los suelta.
+     Umbral 17em, el mismo del pie: por debajo de los 20em que mide el
+     teléfono más estrecho al 100 %, así que a tamaño normal la fila sigue
+     teniendo sus cuatro columnas y su dibujo en los 320 px de siempre. */
+  @media (max-width: 17em) {
+    .m60-row a { grid-template-columns: minmax(0, 1fr) auto auto; }
+    .m60-spark { display: none; }
+    .m60-price, .m60-chg { min-width: 0; }
+  }
   .m60-card .src-chip { margin-top: var(--sp-3); padding-left: 4px; }
 
   /* Breakdowns */
@@ -516,7 +535,12 @@ const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" prese
   .nl-sub { max-width: 56ch; }
   .nl-form { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-1); }
   .nl-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-  .nl-input { flex: 1 1 200px; height: 44px; padding: 0 var(--sp-3); background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); color: var(--ink); -webkit-appearance: none; }
+  /* `min-width: 0` porque un <input> trae de fábrica un ancho intrínseco (su
+     atributo `size`, ~20 caracteres) y en flex ese ancho es el suelo: no baja
+     de ahí aunque `flex-shrink` valga 1. Como el intrínseco se mide en
+     caracteres, crece con la letra, y al 200 % este campo era el que más
+     empujaba de todo el sitio: 174 px de página arrastrada en el home. */
+  .nl-input { flex: 1 1 200px; min-width: 0; height: 44px; padding: 0 var(--sp-3); background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-btn); color: var(--ink); -webkit-appearance: none; }
   .nl-input:focus { outline: none; box-shadow: var(--focus-ring); }
   .nl-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .nl-consent { display: flex; gap: var(--sp-2); align-items: flex-start; color: var(--ink-2); }
@@ -526,9 +550,14 @@ const SPARK64 = `<svg class="spark trazo-destape skel" viewBox="0 0 64 24" prese
 
   /* Quién */
   .who-card { display: flex; gap: var(--sp-3); align-items: flex-start; }
+  /* El bloque de texto es hijo flex, y un hijo flex no baja de su min-content
+     salvo que se le diga. Sin esto, el nombre empujaba 31 px al 225 %. */
+  .who-card > div { min-width: 0; }
   .who-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: none; }
   .who-name { font-weight: 500; color: var(--ink); margin-top: 2px; }
-  .who-links { display: flex; gap: var(--sp-3); margin-top: var(--sp-2); }
+  /* `flex-wrap`: son tres enlaces sueltos («Más sobre mí», LinkedIn, TikTok)
+     y en una sola fila que no envuelve el tercero se salía 60 px al 225 %. */
+  .who-links { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-2); }
   .who-links a { color: var(--ink-2); min-height: 32px; display: inline-flex; align-items: center; }
   .who-links a:hover { color: var(--ink); }
 </style>

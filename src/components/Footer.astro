@@ -48,9 +48,23 @@ const home = route('home', locale);
 </footer>
 <style>
   .footer { border-top: 1px solid var(--line); padding: var(--sp-6) 0 var(--sp-6); margin-top: var(--sp-6); color: var(--ink-2); }
-  .footer-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr 1fr; margin-bottom: var(--sp-5); }
+  /* `1fr` NO es «una fracción y ya»: su mínimo implícito es `auto`, o sea el
+     min-content de la columna. Con el texto del navegador al 200 %, «Metodología»
+     mide más que media caja y las dos columnas se negaban a encoger: el pie
+     empujaba la página entera 93 px de lado, y como el pie está en `Base.astro`,
+     eso pasaba en las 101 páginas. `minmax(0, 1fr)` le quita ese suelo; a tamaño
+     normal el contenido cabe, así que se pinta idéntico.
+     Quitar el suelo evita el desbordamiento, pero deja dos columnas demasiado
+     estrechas para leerlas. La válvula las junta en una: es el `17em` de
+     `Mesa.astro` —«ya no caben dos cosas en el mismo renglón: se parte»— y se
+     reusa aquí a propósito, porque es la misma decisión. En `em` la consulta
+     mide TEXTO: a 320 px son 20em al 100 % (no dispara, con 3em de margen) y
+     10em al 200 % (dispara). Por eso el umbral tiene que quedarse por debajo de
+     20em, que es el teléfono más estrecho a tamaño normal. */
+  .footer-grid { display: grid; gap: var(--sp-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin-bottom: var(--sp-5); }
   .footer-grid > div:first-child { grid-column: 1 / -1; }
   @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } .footer-grid > div:first-child { grid-column: auto; } }
+  @media (max-width: 17em) { .footer-grid { grid-template-columns: minmax(0, 1fr); } }
   .footer-brand { font-family: var(--font-serif); font-weight: 600; font-size: 1.125rem; color: var(--ink); }
   .footer-nav { display: flex; flex-direction: column; gap: 2px; }
   .footer-nav a { min-height: 36px; display: inline-flex; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
