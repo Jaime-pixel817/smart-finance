@@ -967,13 +967,21 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .bloque { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
   .bloque + .bloque { border-top: 1px solid var(--cvh-raya); padding-top: var(--sp-8); }
   /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
-     omisión, y el corte va en em para que se dispare también con el texto
-     grande: la misma lección de las válvulas de la cinta). Debajo de eso, la
-     foto encima del texto y a todo el ancho. */
+     omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
+
+     LAS DOS COLUMNAS VAN EN `fr` Y NO EN `em`, Y ESO ES UN ARREGLO, NO UN
+     GUSTO. Estaba como `minmax(0, 24em) minmax(0, 1fr)` y se desbordaba: el
+     `em` de una CONSULTA de medios se mide contra el tamaño de letra INICIAL,
+     pero el `em` de una propiedad se mide contra el del propio elemento. Con
+     el texto al 200 % la consulta seguía disparando a 704 px reales mientras
+     la columna de la foto pasaba a valer 768 px — más ancha que el contenedor
+     entero —, y el texto del grupo se iba fuera de la pantalla: 193 px de
+     desborde horizontal medidos a 768 px. Con fracciones eso no puede pasar,
+     porque una fracción se reparte lo que hay. */
   .grupo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
   .grupo-texto { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-3); min-width: 0; }
   @media (min-width: 44em) {
-    .grupo { grid-template-columns: minmax(0, 24em) minmax(0, 1fr); gap: var(--sp-6); }
+    .grupo { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--sp-6); }
   }
 
   /* ---- El reto y el private equity, A LA PAR (cap 7) ----
