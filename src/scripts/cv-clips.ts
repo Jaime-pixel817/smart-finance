@@ -18,15 +18,18 @@
 // verdad; lo segundo era una conclusión, no un hecho: el póster no tiene por
 // qué estar EN el atributo mientras nadie lo mire.
 //
-// Así que hoy no lo está. El marcado trae `data-poster` (texto: no pide nada)
-// y una variable CSS `--poster` (una custom property no carga su `url()`
-// mientras nadie la sustituya), y este módulo pasa el primero al atributo de
-// verdad cuando el clip se acerca al pliegue. Medido igual que antes, sobre
-// `dist`, con `performance.getEntriesByType('resource')` y 9 corridas: la
-// primera carga a 375 px pasa de 301 759 B a 192 907 B de mediana — 108 852 B
-// menos, el 36 %. Sin JavaScript los cuatro pósteres siguen apareciendo desde
-// el primer fotograma: los pinta la regla dentro del <noscript> de Cv.astro,
-// que es la que sustituye `--poster`.
+// Así que hoy no lo está: el marcado trae `data-poster`, que es texto y no
+// pide nada, y este módulo lo pasa al atributo de verdad cuando el clip se
+// acerca al pliegue. Medido igual que antes, sobre `dist`, con
+// `performance.getEntriesByType('resource')` y 9 corridas: la primera carga a
+// 375 px pasa de 301 759 B a 192 746 B de mediana — 109 013 B menos, el 36 %.
+//
+// Sin JavaScript no cambia nada, y eso NO lo hace este archivo: cada clip
+// lleva un gemelo con su `poster=` escrito dentro de un <noscript> (ver
+// Historia.astro), y el <noscript> del <head> de Cv.astro esconde al vivo.
+// El truco que parecía más limpio —el póster en una variable CSS y una regla
+// que la sustituye— está descartado con una prueba: un <video> con `controls`
+// y sin póster no enseña su fondo, Chromium le pinta encima un negro opaco.
 //
 // Lo que ya era cierto sigue igual: los ocho `<video>` de los dos paneles se
 // quedan en `readyState 0` hasta que su capítulo entra en pantalla.

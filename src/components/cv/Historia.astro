@@ -211,22 +211,39 @@ const estado = (rep.meta.status || 'draft') as string;
 // mediana: 109 290 B en la primera carga a 375 px, o sea el 77 % de los bytes
 // de imagen de la página y el 36 % de TODO lo que se descargaba al abrirla.
 //
-// Así que el póster viaja en DOS sitios que no piden nada:
-//   · `data-poster` — lo lee `cv-clips.ts` y lo pasa al atributo `poster` de
-//     verdad cuando el clip se acerca al pliegue (400 px antes). Un atributo
-//     `data-*` es texto: no dispara ninguna petición.
-//   · `--poster`, una variable CSS con su `url()` — una custom property NO
-//     carga nada mientras nadie la SUSTITUYA en una propiedad real. La única
-//     regla que la sustituye vive dentro del `<noscript>` de Cv.astro, así que
-//     con JavaScript la imagen no se pide y sin JavaScript se pide desde el
-//     primer fotograma, como hoy. Es la caída segura, y es CSS: sin ella, un
-//     visitante sin JS vería cuatro rectángulos negros con controles.
-// Las dos rutas pintan la MISMA imagen en la MISMA caja (`aspect-ratio: 9/16`
-// reservada en CSS, los cuatro pósteres son 360×640), así que no hay CLS por
-// ningún camino: nada cambia de tamaño, solo se rellena.
+// Así que el póster viaja en `data-poster`, que es texto y no pide nada, y lo
+// pasa al atributo de verdad `src/scripts/cv-clips.ts` cuando el clip se
+// acerca al pliegue (400 px antes).
 //
-// SI ALGÚN DÍA VUELVE UN `poster=` ESCRITO A PELO aquí, vuelven los 109 KB, y
-// no lo avisa nada más que la medición.
+// ── Y CADA CLIP LLEVA UN GEMELO DENTRO DE UN <noscript> ────────────────────
+// Sin JavaScript, `data-poster` no lo lee nadie: quedaría un <video> sin
+// póster. Y un <video> SIN póster y CON `controls` no enseña el fondo del
+// elemento — Chromium le pinta encima un rectángulo NEGRO OPACO para que sus
+// controles se lean. Comprobado en una página mínima (tres cajas, misma
+// `background-image`): con `controls` sale negra, sin `controls` sale la foto,
+// y un <div> sale la foto. O sea que el truco elegante —el póster en una
+// variable CSS `--poster` y una regla dentro de un <noscript> que la
+// sustituye— NO FUNCIONA AQUÍ, y se veía bien en el HTML y en el CSS
+// calculado: solo se cae al MIRAR la captura sin JavaScript. Los `controls`
+// no se quitan (son el mecanismo de pausa de WCAG 2.2.2), así que se cambia
+// la otra mitad.
+//
+// El gemelo es el MISMO <video>, con su `poster=` escrito, dentro de un
+// <noscript>. Con JavaScript el navegador trata ese contenido como texto
+// inerte: no existe en el DOM, no lo ve el observador, no lo ve axe y no se
+// pide ninguna imagen (medido: 0 peticiones de póster al abrir). Sin
+// JavaScript se parsea como marcado normal y lo que se ve es EXACTAMENTE lo
+// que había antes de este cambio — póster, controles y el clip reproducible a
+// mano —, mientras que al vivo lo esconde la única regla del <noscript> de
+// Cv.astro (`.clip-video[data-poster] { display: none }`).
+//
+// Los dos comparten atributos por construcción (`attrsClip()` de abajo), que
+// es lo que impide que uno se quede atrás cuando alguien toque el otro. Y los
+// dos miden lo mismo —la caja la reserva el CSS con `aspect-ratio: 9/16`—,
+// así que no hay CLS por ninguno de los dos caminos.
+//
+// SI ALGÚN DÍA VUELVE UN `poster=` ESCRITO A PELO en el vídeo vivo, vuelven
+// los 109 KB, y no lo avisa nada más que la medición.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // POR QUÉ LOS PÓSTERES DE /assets/cv/ NO LLEVAN HUELLA. DECIDIDO, NO OLVIDADO
@@ -267,12 +284,18 @@ const videos = [
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
-// Los dos sitios donde puede vivir un póster sin pedirse (ver el bloque de
-// arriba). Se escribe UNA vez y se reparte con spread en los tres `<video>`
-// que lo llevan: así no se puede poner uno y olvidar el otro — con solo
-// `data-poster` no habría caída sin JS, y con solo `--poster` el clip no
-// enseñaría nada al acercarse.
-const poster = (url: string) => ({ 'data-poster': url, style: `--poster:url("${url}")` });
+// Los atributos que COMPARTEN el clip vivo y su gemelo del <noscript> (ver el
+// bloque de arriba). Se escriben una vez y se reparten con spread en los tres
+// sitios: la única diferencia entre los gemelos tiene que ser dónde va el
+// póster —`data-poster` en el vivo, `poster` en el del <noscript>—, y con los
+// atributos escritos a mano dos veces eso dura hasta que alguien toque uno.
+// `bucle` son los clips de TikTok, que van mudos y en bucle y los mueve
+// cv-clips.ts; los otros dos llevan sonido y los arranca una persona.
+const attrsClip = (src: string, etiqueta: string, bucle = false) => ({
+  class: 'clip-video', src, width: '360', height: '640',
+  controls: true, playsinline: true, preload: 'none', 'aria-label': etiqueta,
+  ...(bucle ? { muted: true, loop: true, 'data-en-vista': '' } : {})
+});
 
 // ------------------------------------------------------ la gente (c7)
 // Seis personas. Cuatro con foto del manifiesto; Raúl Irabién con su clip
@@ -578,9 +601,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
         <!-- El clip existe, con fecha, en su TikTok: se sirve desde aquí,
              sin bucle y sin sonar solo (`controls` + `preload="none"`). -->
-        <video class="clip-video" src="/assets/cv/cv-clip-animales.mp4" {...poster('/assets/cv/cv-poster-animales.jpg')}
-          width="360" height="640" controls playsinline preload="none"
-          aria-label={c.servir.animalesClip}></video>
+        <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+          data-poster="/assets/cv/cv-poster-animales.jpg"></video>
+        <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+          poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
         <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
         <Hueco c={c} id="servirAnimales" />
       </div>
@@ -642,9 +666,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
               <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
             )}
             {rt.video && (
-              <video class="clip-video" src={rt.video.src} {...poster(rt.video.poster)}
-                width="360" height="640" controls playsinline preload="none"
-                aria-label={etiqueta}></video>
+              <video {...attrsClip(rt.video.src, etiqueta)} data-poster={rt.video.poster}></video>
+              <noscript><video {...attrsClip(rt.video.src, etiqueta)} poster={rt.video.poster}></video></noscript>
             )}
             {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
           </div>
@@ -797,9 +820,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
                  SIEMPRE: un vídeo en bucle tiene que poderse pausar (WCAG
                  2.2.2), y sin JavaScript es lo único que lo arranca. El
                  bucle solo del que está a la vista lo lleva cv-clips.ts. -->
-            <video class="clip-video" src={v.clip} {...poster(v.poster)}
-              width="360" height="640" controls muted loop playsinline
-              preload="none" data-en-vista aria-label={v.titulo}></video>
+            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
           ) : (
             <span class="recuerdo"><img src={v.poster} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
           )}
@@ -1814,19 +1836,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .clip { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
-  /* `background-color` Y NO EL ATAJO `background`, que es lo que había: el
-     atajo reinicia `background-image`, y ahí es donde el <noscript> de
-     Cv.astro pinta el póster cuando no hay JavaScript. Con el atajo, esa
-     regla ganaba la cascada y el fallback no se veía.
-     `contain` y no `cover` porque es lo que hace el atributo `poster` nativo
-     (encaja la imagen entera y letterboxea lo que sobre): hoy los cuatro
-     pósteres son 360×640 y la caja es 9:16, así que las dos dan lo mismo —
-     `contain` es el que sigue dando lo mismo si algún día uno no lo es. */
-  .clip-video {
-    display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16;
-    background-color: #101014;
-    background-size: contain; background-position: center; background-repeat: no-repeat;
-  }
+  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; }
   .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
   .clip-tag {
     align-self: flex-start;
