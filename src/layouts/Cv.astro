@@ -178,6 +178,44 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <link rel="preload" as="image" type="image/avif"
     media={PORTADA_MEDIA_ANCHO}
     imagesrcset={portadaSrcset('avif')} imagesizes={PORTADA_SIZES}>
+
+  {/* ═══ LOS PÓSTERES DE LOS CLIPS, SIN JAVASCRIPT ══════════════════════
+       ESTE COMENTARIO VA EN LLAVES Y NO EN <!-- -->: un comentario HTML se
+       EMITE, y este mide 1.4 KB. En la página cuyo bug era «109 KB que nadie
+       mira», explicar el arreglo no puede costar 555 B comprimidos en cada
+       carga (medido: el documento pasaba de 37 325 a 37 880 B gzip). En
+       llaves es un comentario de JavaScript: se queda en el repositorio.
+
+       El razonamiento largo está en la cabecera de los vídeos de
+       Historia.astro. El resumen: `poster=` escrito en el HTML se descarga
+       SIEMPRE —no lo frena `preload="none"` ni existe `loading="lazy"` para
+       vídeo—, así que el póster viaja en `data-poster` (lo pone cv-clips.ts
+       al acercarse) y en la variable `--poster`, que no carga nada mientras
+       nadie la sustituya en una propiedad de verdad.
+
+       ESTA es la única regla que la sustituye, y vive dentro de un
+       <noscript>: con JavaScript el navegador trata su contenido como TEXTO
+       —nunca llega a ser una hoja de estilo—, así que la imagen no se pide;
+       sin JavaScript se parsea como marcado normal y los cuatro pósteres se
+       pintan desde el primer fotograma, que es exactamente lo que pasaba
+       antes de este cambio. Un <video> sin `poster` no pinta nada suyo, así
+       que lo que se ve es el fondo del elemento con los `controls` nativos
+       encima: la misma caja, la misma imagen, los mismos controles.
+
+       VA EN <head> Y NO EN Historia.astro por dos razones: en <head> un
+       <style> dentro de <noscript> es justo lo que la especificación permite
+       (link, style, meta), y Historia.astro se renderiza DOS veces —inglés y
+       español—, o sea dos copias de la misma regla.
+
+       `is:inline` para que Astro la deje donde está en vez de recogerla en la
+       hoja del componente, que es lo contrario de lo que hace falta: fuera
+       del <noscript> esta regla pediría los 109 KB SIEMPRE, y el arreglo
+       entero no serviría de nada. */}
+  <noscript>
+    <style is:inline>
+      .clip-video { background-image: var(--poster); }
+    </style>
+  </noscript>
 </head>
 <body class="cv-body">
   <main id="main">
