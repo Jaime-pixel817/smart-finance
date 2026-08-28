@@ -193,7 +193,7 @@ const en = {
     // La línea que conecta los clips con las lecciones del sitio.
     nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
     videos: {
-      andy: 'Interview: Andy Toh, CEO of Blue Sky Education — a summer programme in Singapore',
+      andy: 'Interview: Andy Toh, CEO of BlueSky Education — a summer programme in Singapore',
       japon: 'Financial data from Japan',
       singapur: 'Financial data from Singapore — “why the world’s money lives here”',
       skills: 'The skills for a top-8 university in the world'
@@ -205,7 +205,7 @@ const en = {
       { cuando: 'Jun–Jul 2026', que: 'Summer programme in Singapore' },
       { cuando: 'Jun 20 · 24', que: 'Financial-data videos: Japan and Singapore' },
       { cuando: 'Jul 2', que: 'Presentation about Mexico to National University of Singapore students' },
-      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, Blue Sky Education) and Prof. Lloyd (NUS)' }
+      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
     ],
     arcoFuente: 'The dates are the upload dates of each video on @smart.financee.'
   },
@@ -214,7 +214,7 @@ const en = {
   // CADA ROL LLEVA FUENTE Y EL QUE NO LA TIENE SE QUEDA VACÍO. `tipo` dice qué
   // fue el encuentro cuando llamarlo "entrevista" sería falso; vacío = una
   // conversación suya, que es lo que dice el material.
-  // · Andy Toh, «CEO, Blue Sky Education» — el título de su propia entrevista
+  // · Andy Toh, «CEO, BlueSky Education» — el título de su propia entrevista
   //   (`post.andytoh.title` en src/i18n/ui.ts) y /about (About.astro).
   // · Jon Maier — NO es una entrevista suya. Lo único que el sitio publica es
   //   «Takeaways from JPMorgan's Chief ETF Strategist» con la foto descrita
@@ -228,15 +228,17 @@ const en = {
   //   sitio ya publica.
   // · Raúl Irabién — «Presidente de Grupos Estudiantiles» es el título de su
   //   propio TikTok; ese vídeo NO menciona al Tec, así que el Tec no va.
-  // OJO CON LA GRAFÍA de Blue Sky Education: aquí va «Blue Sky» (dos
-  // palabras), que es como lo escribió Jaime en el TikTok de la entrevista.
-  // El resto del sitio lo escribe «BlueSky» (src/i18n/ui.ts) y «Bluesky»
-  // (About.astro): tres grafías para el nombre de una empresa ajena. Cuál es
-  // la buena lo dice Jaime, y entonces se unifican los tres sitios de una vez.
+  // LA GRAFÍA ES «BlueSky Education», UNA PALABRA, Y LA DECIDIÓ JAIME
+  // (2026-08-27). El sitio la escribía de tres maneras a la vez —«Blue Sky»
+  // aquí, «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, o sea tres
+  // grafías para el nombre de una empresa ajena, en las tres páginas donde
+  // aparece. Ya están las tres unificadas. Si vuelve a aparecer una cuarta,
+  // el sitio que manda es este comentario: BlueSky, con la S mayúscula y sin
+  // espacio.
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
@@ -588,7 +590,7 @@ const es: typeof en = {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
     videos: {
-      andy: 'Entrevista: Andy Toh, CEO de Blue Sky Education — un programa de verano en Singapur',
+      andy: 'Entrevista: Andy Toh, CEO de BlueSky Education — un programa de verano en Singapur',
       japon: 'Datos financieros de Japón',
       singapur: 'Datos financieros de Singapur — «por qué aquí vive el dinero del mundo»',
       skills: 'Los skills para una universidad top 8 mundial'
@@ -598,7 +600,7 @@ const es: typeof en = {
       { cuando: 'Jun–jul 2026', que: 'Programa de verano en Singapur' },
       { cuando: '20 · 24 jun', que: 'Vídeos de datos financieros: Japón y Singapur' },
       { cuando: '2 jul', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
-      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, Blue Sky Education) y el profesor Lloyd (NUS)' }
+      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
     ],
     arcoFuente: 'Las fechas son las de subida de cada vídeo en @smart.financee.'
   },
@@ -606,7 +608,7 @@ const es: typeof en = {
   entrevistas: {
     verVideo: 'Ver la conversación en TikTok',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
