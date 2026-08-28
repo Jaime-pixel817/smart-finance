@@ -46,9 +46,15 @@
 #       Actinver (2 152 B). Sale a public/assets/fotos/ con huella, igual que
 #       las fotos; el original se queda para poder regenerarlo sin volver a
 #       bajarlo de su sitio.
+#   /public/assets/portada/    = toronto-original.jpg (1620x1728, 84 452 B), la
+#       Torre CN fotografiada por Jaime, que es la portada a sangre del CV. De
+#       aquí salen los ocho archivos con huella (cuatro anchos x AVIF/WebP) que
+#       sí se sirven. Ojo, NO es lo mismo que /public/assets/cv/, que sí se
+#       despliega: ahí viven los clips y sus pósteres, que se piden a pelo.
 /public/assets/community
 /public/assets/breakdowns
 /public/assets/marcas
+/public/assets/portada
 
 # Los borradores de difusión que genera `npm run derive` (content/derivados/).
 # Nada del build los lee y no se sirven: son material de trabajo (posts,

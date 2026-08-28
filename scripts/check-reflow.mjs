@@ -48,9 +48,25 @@ const ESCALAS = arg('escalas', '100,175,200,225').split(',').map(Number);
 
 // Lista escrita a mano, como las URL de lighthouserc.json: se miden las rutas
 // que representan cada PLANTILLA del sitio, no las 101 páginas.
+//
+// EL CV ENTRA AQUÍ, Y TARDÓ DEMASIADO EN ENTRAR. Es la única página del sitio
+// que no usa Base.astro —tiene su propia hoja, su propia rejilla y ahora una
+// portada a sangre—, o sea justo la que más se puede salir sola sin que se
+// note en ninguna otra. Y es la que se manda por correo a un comité de
+// admisiones, o sea la que peor momento tiene para romperse. Se mide la VISTA
+// PREVIA por lo mismo que la mide Lighthouse: es byte a byte la misma página
+// y la dirección de verdad no tiene por qué acabar escrita en la salida de un
+// comando (ver la regla del CV en CLAUDE.md).
+// Sus DOS idiomas viven en el mismo documento y el que se ve lo decide el
+// hash, así que se mide dos veces: `/cv/vista-previa` es el panel inglés y
+// `/cv/vista-previa#es` el español. Sin el segundo, la mitad de los textos de
+// esta página no se estaría midiendo — y el español es el idioma con las
+// palabras largas («oportunidades», «Certificaciones»), que son las que
+// arrastran la página de lado.
 const RUTAS = [
   '/', '/market', '/market/spy', '/research', '/news', '/lessons/etfs',
   '/challenge', '/about', '/portfolio', '/actinver', '/tools', '/newsletter',
+  '/cv/vista-previa', '/cv/vista-previa#es',
   '/es/', '/es/mercado', '/es/mercado/spy', '/es/research', '/es/noticias',
   '/es/lecciones/etfs', '/es/reto', '/es/acerca', '/es/portafolio', '/es/actinver',
 ];

@@ -112,6 +112,7 @@
 import '../styles/cv.css';
 import { useCv } from '../i18n/cv';
 import Historia from '../components/cv/Historia.astro';
+import { portadaSrcset, PORTADA_SIZES } from '../lib/cv/portada';
 
 const c = useCv('en');
 /** Solo para los dos rótulos del anuncio de idioma: cada uno en SU idioma. */
@@ -134,6 +135,20 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- LA PORTADA ES EL LCP DE ESTA PÁGINA, así que su descarga no espera al
+       marcado. `imagesrcset` e `imagesizes` salen del MISMO módulo que el
+       `<picture>` de Historia.astro (src/lib/cv/portada.ts): si no
+       coincidieran carácter por carácter, el navegador descargaría un
+       archivo, cambiaría de idea y descargaría el otro — el preload costaría
+       el doble de bytes en la ruta crítica en vez de ahorrarlos.
+       SOLO SE PRECARGA EL AVIF, y es a propósito. Un segundo preload con
+       `type="image/webp"` no es un respaldo: `type` solo dice «sáltate esto
+       si no lo entiendes», así que un navegador que entiende los DOS
+       formatos se bajaría los dos archivos. Quien no tenga AVIF (Safari
+       <16.4, Firefox <93) se queda sin preload y carga la portada desde el
+       `<picture>` como siempre: pierde unos milisegundos, no la foto. -->
+  <link rel="preload" as="image" type="image/avif" fetchpriority="high"
+    imagesrcset={portadaSrcset('avif')} imagesizes={PORTADA_SIZES}>
 </head>
 <body class="cv-body">
   <main id="main">
@@ -150,8 +165,19 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
 
     <!-- `tabindex="-1"`: al cambiar de idioma el foco se va al panel que
          aparece. No es tabulable (índice negativo), solo enfocable por guion. -->
-    <div class="cv-pane cv-en container" lang="en" tabindex="-1"><Historia locale="en" /></div>
-    <div class="cv-pane cv-es container" lang="es" tabindex="-1"><Historia locale="es" /></div>
+    <!-- SIN `container`, Y ESO ES LA PORTADA A SANGRE. Hasta la ola anterior
+         el panel llevaba la clase `container` (ancho máximo + gutter), así
+         que TODO el CV vivía dentro de una columna de 1 152 px y ninguna
+         foto podía tocar el borde de la pantalla. La portada nueva es una
+         foto a sangre, así que la caja se movió un nivel hacia dentro: la
+         reparte cada capítulo (`.cap` en Historia.astro, con el MISMO ancho
+         y el MISMO gutter de antes) y la portada se queda sin ella.
+         NO se hace con `100vw`: en un escritorio con barra de scroll clásica
+         `100vw` es más ancho que el área visible y eso es scroll horizontal
+         —justo lo que mide check-reflow, y que en un Mac con barras
+         superpuestas no se vería nunca. -->
+    <div class="cv-pane cv-en" lang="en" tabindex="-1"><Historia locale="en" /></div>
+    <div class="cv-pane cv-es" lang="es" tabindex="-1"><Historia locale="es" /></div>
   </main>
 
   <!-- Lo que el `:target` no puede hacer: el `lang` del documento, el foco y
@@ -251,7 +277,9 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   main:has(.cv-es :target) .cv-en { display: none; }
   main:has(.cv-es :target) .cv-es { display: block; }
 
-  .cv-pane { max-width: calc(var(--container) - 2 * var(--gutter)); }
+  /* El panel ocupa todo el ancho: la columna la pone cada capítulo
+     (`.cap` en Historia.astro), que es lo que deja bleed a la portada. */
+  .cv-pane { width: 100%; }
 
   /* Impreso: un CV se imprime. El panel escondido sigue escondido, así que
      sale un solo idioma. El selector de idioma lo esconde Historia.astro. */

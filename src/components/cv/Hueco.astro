@@ -14,14 +14,25 @@
 // leyéndose como si fuera suya.
 import type { CvCopy, CvHueco } from '../../i18n/cv';
 
-interface Props { c: CvCopy; id: CvHueco; class?: string }
-const { c, id, class: cls } = Astro.props;
+// `grande` es para el capítulo de las conversaciones, que copia el ritmo de
+// las citas de ondo.finance: nombre, cargo y una frase al tamaño de una cita.
+// La frase es lo que JAIME se llevó de cada conversación, o sea justo lo que
+// este hueco pide, así que cuando la escriba tiene que salir a ESE tamaño y no
+// al del cuerpo. El modificador va aquí dentro y no en Historia.astro porque
+// los estilos de Astro tienen ámbito por componente: una clase que Historia le
+// pase a este componente sale con el cid de ESTE, y la regla de allá no la
+// alcanza (la misma lección que `.proj` en Hub.astro y RetoActinver.astro).
+// Solo agranda el TEXTO ESCRITO. El recuadro de "falta escribirlo" se queda
+// igual de discreto: un hueco grande es un agujero grande, y lo que tiene que
+// llamar la atención es la frase cuando exista, no su ausencia.
+interface Props { c: CvCopy; id: CvHueco; class?: string; grande?: boolean }
+const { c, id, class: cls, grande = false } = Astro.props;
 
 const texto = (c.suyo[id] || '').trim();
 const h = c.huecos[id];
 ---
 {texto ? (
-  <p class:list={['cv-suyo', cls]}>{texto}</p>
+  <p class:list={['cv-suyo', grande && 'cv-suyo-grande', cls]}>{texto}</p>
 ) : (
   <!-- EL NOMBRE DE LA REGIÓN LLEVA LA MARCA, NO SOLO EL TÍTULO.
        Estaba como `aria-label={h.que}` con el MISMO texto pintado dentro, y
@@ -52,6 +63,18 @@ const h = c.huecos[id];
 
 <style>
   .cv-suyo { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink); max-width: var(--measure); }
+  /* La variante del capítulo de las conversaciones. Fraunces porque en esta
+     página la serif está reservada a los titulares y a las palabras de Jaime,
+     y esto es lo segundo. Los extremos del clamp en rem: capar la letra en px
+     frente al zoom de texto rompe WCAG 1.4.4, y esa lección ya la pagó este
+     CV una vez. SIN comillas: unas comillas debajo del nombre de otra persona
+     convierten la frase de Jaime en una cita de ella, que es exactamente lo
+     que este capítulo no puede insinuar. */
+  .cv-suyo-grande {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: clamp(1.25rem, 2.6vw, 1.75rem); line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
 
   .hueco {
     display: flex; flex-direction: column; gap: 4px;

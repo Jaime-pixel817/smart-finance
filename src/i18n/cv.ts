@@ -97,11 +97,31 @@ const en = {
   head: {
     eyebrow: 'Curriculum vitae',
     name: 'Jaime Sandoval Ricaño',
+    // EL NOMBRE PARTIDO EN DOS, para la portada a sangre. No se parte con
+    // JavaScript ni con un `<br>` dentro de la cadena: son dos claves, y las
+    // dos juntas dicen exactamente lo mismo que `name`, que sigue siendo el
+    // que leen el `<title>` y cualquier sitio donde el nombre va de una pieza.
+    // Cada mitad es un `<span>` de bloque, así que si no cabe (320 px con el
+    // texto al 200 %) parte por su cuenta como cualquier otro renglón.
+    nameL1: 'Jaime Sandoval',
+    nameL2: 'Ricaño',
     site: 'smartfinance.lat',
+    // El señuelo de bajar, entre las dos mitades del nombre.
+    senuelo: 'Scroll to read',
     // Su meta, dicha por él (texto de Jaime, pendiente de su revisión final):
     // programas de negocios en Canadá, entrada septiembre de 2027.
     meta: 'Business programs in Canada · September 2027 entry',
-    fotoAlt: 'Jaime Sandoval Ricaño'
+    fotoAlt: 'Jaime Sandoval Ricaño',
+    // ---- La foto de la portada ----
+    // HECHO VERIFICADO, no una frase sobre Jaime: la foto es suya y la publicó
+    // él. Sale de su TikTok del 20 de julio de 2026 (@smart.financee, vídeo
+    // 7664460671727258900, «Canada is not just beautiful it's one of the
+    // smartest places in the world»); aquí va el mismo encuadre sin el texto
+    // que llevaba sobreimpreso. La fecha que se escribe es la de PUBLICACIÓN,
+    // que es la que se puede comprobar abriendo el perfil — misma regla que
+    // las fechas del arco de Singapur (`tiktok.arcoFuente`).
+    portadaAlt: 'The CN Tower in Toronto seen from below, in black and white: the mast against an overcast sky, the observation deck, and two office buildings at the edges.',
+    portadaPie: 'Toronto · his photograph, published July 2026'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -126,8 +146,13 @@ const en = {
     // Las cifras de al lado se CUENTAN en el build desde los archivos reales
     // del repo (Historia.astro); estos son solo sus rótulos.
     stats: {
-      lecciones: 'lessons, each written in English and Spanish',
-      fuentes: 'primary sources cited across those lessons',
+      // Este ya NO es un rótulo de cifra grande: va en una frase, con el
+      // número delante, porque un «10» al tamaño de un titular no se sostiene.
+      lecciones: 'lessons, each written in English and Spanish — the sources above are theirs.',
+      // Los tres rótulos de las cifras grandes. Cortos a propósito: van
+      // debajo de un número enorme y compiten con él si se alargan.
+      pruebas: 'automated tests, run on every change',
+      fuentes: 'primary sources cited in the lessons',
       glosario: 'glossary terms, bilingual',
       // El 403 de los borradores: la promesa ética del sitio, verificable.
       promesa: 'And one promise you can test: no AI-written text is published without a person approving it. Asking the public endpoint for unreviewed drafts answers 403, on purpose.'
@@ -193,7 +218,7 @@ const en = {
     // La línea que conecta los clips con las lecciones del sitio.
     nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
     videos: {
-      andy: 'Interview: Andy Toh, CEO of Blue Sky Education — a summer programme in Singapore',
+      andy: 'Interview: Andy Toh, CEO of BlueSky Education — a summer programme in Singapore',
       japon: 'Financial data from Japan',
       singapur: 'Financial data from Singapore — “why the world’s money lives here”',
       skills: 'The skills for a top-8 university in the world'
@@ -205,7 +230,7 @@ const en = {
       { cuando: 'Jun–Jul 2026', que: 'Summer programme in Singapore' },
       { cuando: 'Jun 20 · 24', que: 'Financial-data videos: Japan and Singapore' },
       { cuando: 'Jul 2', que: 'Presentation about Mexico to National University of Singapore students' },
-      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, Blue Sky Education) and Prof. Lloyd (NUS)' }
+      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
     ],
     arcoFuente: 'The dates are the upload dates of each video on @smart.financee.'
   },
@@ -214,7 +239,7 @@ const en = {
   // CADA ROL LLEVA FUENTE Y EL QUE NO LA TIENE SE QUEDA VACÍO. `tipo` dice qué
   // fue el encuentro cuando llamarlo "entrevista" sería falso; vacío = una
   // conversación suya, que es lo que dice el material.
-  // · Andy Toh, «CEO, Blue Sky Education» — el título de su propia entrevista
+  // · Andy Toh, «CEO, BlueSky Education» — el título de su propia entrevista
   //   (`post.andytoh.title` en src/i18n/ui.ts) y /about (About.astro).
   // · Jon Maier — NO es una entrevista suya. Lo único que el sitio publica es
   //   «Takeaways from JPMorgan's Chief ETF Strategist» con la foto descrita
@@ -228,15 +253,28 @@ const en = {
   //   sitio ya publica.
   // · Raúl Irabién — «Presidente de Grupos Estudiantiles» es el título de su
   //   propio TikTok; ese vídeo NO menciona al Tec, así que el Tec no va.
-  // OJO CON LA GRAFÍA de Blue Sky Education: aquí va «Blue Sky» (dos
-  // palabras), que es como lo escribió Jaime en el TikTok de la entrevista.
-  // El resto del sitio lo escribe «BlueSky» (src/i18n/ui.ts) y «Bluesky»
-  // (About.astro): tres grafías para el nombre de una empresa ajena. Cuál es
-  // la buena lo dice Jaime, y entonces se unifican los tres sitios de una vez.
+  // LA GRAFÍA ES «BlueSky Education», UNA PALABRA, Y LA DECIDIÓ JAIME
+  // (2026-08-27). El sitio la escribía de tres maneras a la vez —«Blue Sky»
+  // aquí, «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, o sea tres
+  // grafías para el nombre de una empresa ajena, en las tres páginas donde
+  // aparece. Ya están las tres unificadas. Si vuelve a aparecer una cuarta,
+  // el sitio que manda es este comentario: BlueSky, con la S mayúscula y sin
+  // espacio.
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
+    // ── LO QUE IMPIDE QUE ESTE CAPÍTULO SE LEA COMO UNA LISTA DE AVALES ──
+    // El capítulo tiene ahora la forma del bloque de citas de ondo.finance
+    // —retrato, nombre, cargo y una frase grande—, y esa forma, sin esta
+    // línea, dice «estas personas me respaldan». Ninguna lo hace: él las
+    // entrevistó, y eso es lo que dice el material del repo. La frase va en la
+    // voz de la PÁGINA (como `prueba.lede` o `tape.note`), no en la de Jaime:
+    // no afirma nada sobre él, describe qué es lo que se está enseñando.
+    aviso: 'These are conversations he sought out and recorded for the site. Nobody here is endorsing him: what is set large is what he took from each conversation, in his own words.',
+    // El rótulo que va encima de cada frase grande, para que ni leyendo por
+    // encima se pueda confundir de quién es.
+    llevo: 'What I took from it',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
@@ -517,10 +555,17 @@ const es: typeof en = {
   head: {
     eyebrow: 'Currículum',
     name: 'Jaime Sandoval Ricaño',
+    nameL1: 'Jaime Sandoval',
+    nameL2: 'Ricaño',
     site: 'smartfinance.lat',
+    senuelo: 'Baja para leer',
     // texto de Jaime, pendiente de su revisión final
     meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
-    fotoAlt: 'Jaime Sandoval Ricaño'
+    fotoAlt: 'Jaime Sandoval Ricaño',
+    // Ver el bloque inglés: la foto es de Jaime y la fecha es la de
+    // publicación en su TikTok (20 de julio de 2026), que es la comprobable.
+    portadaAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
+    portadaPie: 'Toronto · foto suya, publicada en julio de 2026'
   },
 
   proyectos: {
@@ -534,8 +579,9 @@ const es: typeof en = {
   prueba: {
     lede: 'smartfinance.lat es un sitio bilingüe de educación financiera, y esta página corre sobre su mismo código: los mismos endpoints, los mismos chips de fuente, los mismos retrasos. Los precios de abajo se piden al abrir esta página. Nada de lo que hay aquí es una captura.',
     stats: {
-      lecciones: 'lecciones, cada una escrita en inglés y en español',
-      fuentes: 'fuentes primarias citadas en esas lecciones',
+      lecciones: 'lecciones, cada una escrita en inglés y en español — las fuentes de arriba son suyas.',
+      pruebas: 'pruebas automáticas, en cada cambio',
+      fuentes: 'fuentes primarias citadas en las lecciones',
       glosario: 'términos de glosario, bilingües',
       promesa: 'Y una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe. Pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
     },
@@ -588,7 +634,7 @@ const es: typeof en = {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
     videos: {
-      andy: 'Entrevista: Andy Toh, CEO de Blue Sky Education — un programa de verano en Singapur',
+      andy: 'Entrevista: Andy Toh, CEO de BlueSky Education — un programa de verano en Singapur',
       japon: 'Datos financieros de Japón',
       singapur: 'Datos financieros de Singapur — «por qué aquí vive el dinero del mundo»',
       skills: 'Los skills para una universidad top 8 mundial'
@@ -598,15 +644,19 @@ const es: typeof en = {
       { cuando: 'Jun–jul 2026', que: 'Programa de verano en Singapur' },
       { cuando: '20 · 24 jun', que: 'Vídeos de datos financieros: Japón y Singapur' },
       { cuando: '2 jul', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
-      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, Blue Sky Education) y el profesor Lloyd (NUS)' }
+      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
     ],
     arcoFuente: 'Las fechas son las de subida de cada vídeo en @smart.financee.'
   },
 
   entrevistas: {
     verVideo: 'Ver la conversación en TikTok',
+    // Ver el bloque inglés: sin esta línea, la forma de las citas de Ondo
+    // insinúa un aval que no existe.
+    aviso: 'Son conversaciones que él buscó y grabó para el sitio. Nadie de aquí lo está respaldando: lo que va en grande es lo que él se llevó de cada conversación, en sus palabras.',
+    llevo: 'Lo que me llevé',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, Blue Sky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
