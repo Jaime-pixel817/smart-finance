@@ -1177,8 +1177,47 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      es justo el estado estable que se mide abajo. No hacen falta 46 muestras
      como en el globo del home: hace falta una, la del final.
 
-     ── LO MEDIDO, EN LAS DOS TALLAS DE LETRA ─────────────────────────────
-     (se rellena con la matriz de tmp/medidas/) */
+     ── LO MEDIDO, SOBRE LA PÁGINA PINTADA ────────────────────────────────
+     Con las dos varas del repo —la CAJA del texto y el TRAZO de las letras,
+     sacadas comparando el mismo recorte pintado con y sin texto—, en las
+     cinco anchuras que pidió Jaime (375, 390, 414, 768, 1280) x 2 idiomas x
+     2 tallas de letra (100 % y 200 %) x 10 piezas = 200 mediciones:
+
+       pieza (color)               peor caja   peor trazo   mínimo WCAG
+       etiqueta mono (#E4E4E4)        5.86        9.36          4.5
+       idioma puesto (#FFFFFF)        7.46       11.37          4.5
+       idioma apagado (#E4E4E4)       6.44        9.22          4.5
+       nombre, 1ª mitad (#FFFFFF)     4.74       10.53          3
+       señuelo (#E4E4E4)              6.54        8.41          4.5
+       nombre, 2ª mitad (#FFFFFF)     4.74       10.86          3
+       frase de apertura (#FFFFFF)    9.29       14.94          3
+       resumen · índice · pie         7.31       12.36          4.5
+
+     El peor de las 200 es 4.74:1 de caja (el nombre a 390x844 con el texto al
+     200 %) y 8.41:1 de trazo (el señuelo a 1280x800). El nombre es texto
+     grande y le bastaría 3:1; pasa incluso el mínimo del texto pequeño.
+
+     LA CAJA QUE SE MIDE ES LA DE CONTENIDO, NO LA DEL BORDE. Con la del borde,
+     las dos pastillas de idioma daban 1.74:1 y lo que se estaba midiendo era
+     su propio borde blanco, que nunca puede caer debajo de una letra. El borde
+     tiene su propia comprobación, que es otra (WCAG 1.4.11, 3:1 contra lo de
+     al lado): ver el bloque de `.cv-lang-a`, donde al 35 % fallaba por 0.01.
+
+     ── Y LOS FOTOGRAMAS DE LA APERTURA, UNO A UNO ────────────────────────
+     La demostración de arriba dice que el peor fotograma es el último; esto es
+     el recibo (tmp/medidas/apertura-contraste.mjs), midiendo la caja de cada
+     pieza en t = 0, 600, 1200, 1800 y 2400 ms:
+
+       390x844 al 200 %   t0      t600    t1200   t1800   t2400
+       nombre 1          15.13   14.35    8.86    5.74    4.74
+       nombre 2          16.29   15.72   11.03    7.69    5.92
+       etiqueta          13.83   13.26    9.79    7.54    5.96
+       señuelo           14.61   14.36   12.06    9.94    9.08
+
+     Las doce series medidas (3 ventanas x 4 piezas) bajan sin excepción y
+     ninguna se mete por debajo de su último valor: el `scale` de 1.05, que es
+     lo único que podría haberlo roto porque cambia QUÉ píxel cae debajo de
+     cada letra, no lo rompe. */
   .cap-portada {
     /* Sin columna y sin gutter: es la única parte del CV que toca el borde
        de la pantalla. La columna la reparten sus tres capas. */
@@ -1528,22 +1567,29 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      tenía el capítulo 1: en una fila normal el selector no se puede montar
      encima de nada, porque la fila la mide la letra. La lección de #45 y #48
      sigue en pie para cualquier cosa que vuelva a flotar.
-     VIVE DENTRO DE LA TAPA, así que sus colores son los de la tapa: el borde
-     es blanco al 35 % (sobre el velo da 3.4:1, que es lo que WCAG 1.4.11 le
-     pide a un borde que identifica un control) y sube a 70 % en el idioma
-     puesto, que es lo que distingue los dos estados sin usar solo el color:
-     el `aria-current="page"` lo dice para quien no lo ve. */
+     VIVE DENTRO DE LA TAPA, así que sus colores son los de la tapa.
+     EL BORDE ES 45 % Y NO 35 %, Y ESO ES UN ARREGLO MEDIDO. El borde es lo
+     que identifica el control, o sea que WCAG 1.4.11 le pide 3:1 contra lo
+     que tiene al lado. Al 35 % daba 2.99:1 en 375x812 — falla POR 0.01, y no
+     lo enseña ninguna captura: se ve midiendo el píxel del borde contra el de
+     al lado en la página pintada (tmp/medidas/borde.mjs). Al 45 % da 3.98:1
+     en la peor de las cuatro anchuras.
+     El idioma PUESTO lleva el borde en blanco entero. Es la diferencia que
+     antes hacían #E6E6E6 y #6E6E6E, y hace falta que sea grande: entre 45 % y
+     70 % los dos estados se leían casi iguales. Y no es lo único que los
+     distingue — el texto también cambia (#E4E4E4 contra blanco) y
+     `aria-current="page"` lo dice para quien no lo ve. */
   .cv-lang { display: flex; gap: var(--sp-2); }
   .cv-lang-a {
     display: inline-flex; align-items: center; min-height: 36px;
     padding: 0 var(--sp-3);
-    border: 1px solid rgba(255, 255, 255, .35);
+    border: 1px solid rgba(255, 255, 255, .45);
     color: var(--cvh-tapa-tinta-2); font-size: var(--fs-caption);
   }
   .cv-lang-a:hover { color: var(--cvh-tapa-tinta); }
   .cv-lang-a.on {
     color: var(--cvh-tapa-tinta);
-    border-color: rgba(255, 255, 255, .7);
+    border-color: var(--cvh-tapa-tinta);
   }
   @media print {
     .cv-lang-a { border-color: var(--cvh-raya); color: var(--cvh-tinta-2); }
