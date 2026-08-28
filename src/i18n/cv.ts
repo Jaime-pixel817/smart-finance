@@ -262,6 +262,17 @@ const en = {
   // espacio.
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
+    // ── LO QUE IMPIDE QUE ESTE CAPÍTULO SE LEA COMO UNA LISTA DE AVALES ──
+    // El capítulo tiene ahora la forma del bloque de citas de ondo.finance
+    // —retrato, nombre, cargo y una frase grande—, y esa forma, sin esta
+    // línea, dice «estas personas me respaldan». Ninguna lo hace: él las
+    // entrevistó, y eso es lo que dice el material del repo. La frase va en la
+    // voz de la PÁGINA (como `prueba.lede` o `tape.note`), no en la de Jaime:
+    // no afirma nada sobre él, describe qué es lo que se está enseñando.
+    aviso: 'These are conversations he sought out and recorded for the site. Nobody here is endorsing him: what is set large is what he took from each conversation, in his own words.',
+    // El rótulo que va encima de cada frase grande, para que ni leyendo por
+    // encima se pueda confundir de quién es.
+    llevo: 'What I took from it',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       maier: {
@@ -640,6 +651,10 @@ const es: typeof en = {
 
   entrevistas: {
     verVideo: 'Ver la conversación en TikTok',
+    // Ver el bloque inglés: sin esta línea, la forma de las citas de Ondo
+    // insinúa un aval que no existe.
+    aviso: 'Son conversaciones que él buscó y grabó para el sitio. Nadie de aquí lo está respaldando: lo que va en grande es lo que él se llevó de cada conversación, en sus palabras.',
+    llevo: 'Lo que me llevé',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       maier: {

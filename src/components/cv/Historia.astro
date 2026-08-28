@@ -502,14 +502,39 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   <!-- ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
        El "etc" de "experiencias, voluntariados, etc": la gente con la que
        habló es una experiencia más, y va con ellas, antes de los proyectos.
-       Retratos que crecen y encogen como recuerdos (casta 2, CSS puro).
-       La línea de qué se llevó de cada quien es SUYA: seis huecos. -->
+
+       ── AQUÍ ES DONDE HAY QUE TENER CUIDADO CON ONDO ──────────────────────
+       Ondo cierra su home con cinco citas: retrato, NOMBRE, cargo y una frase
+       grande elogiando a Ondo. Larry Fink, Franklin Templeton, ABN Amro. Es el
+       bloque más eficaz de su página y es exactamente el que aquí NO se puede
+       copiar tal cual: Jaime no tiene el aval de nadie. Andy Toh, Moris Dieck,
+       el profesor Lloyd y Raúl Irabién no lo están respaldando — él los
+       entrevistó. Poner sus nombres y cargos encima de una frase grande
+       insinuaría un aval que no existe, y es justo el tipo de cosa que un
+       comité de admisiones va a comprobar.
+
+       Lo que SÍ se copia es el ritmo: una fila por conversación, retrato a la
+       izquierda, nombre y cargo pequeños, y una frase grande a la derecha. La
+       diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
+       Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
+       esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
+       porque unas comillas debajo del nombre de otra persona la convierten en
+       una cita suya. Y encima del bloque va escrito, en una frase, que nadie
+       de aquí lo está respaldando.
+
+       Los retratos siguen creciendo y encogiendo como recuerdos (casta 2, CSS
+       puro), y la frase de cada uno sigue siendo un hueco hasta que él la
+       escriba. -->
   <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(3)}</p>
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
     <!-- texto de Jaime, pendiente de su revisión final -->
     <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
+    <!-- La frase que impide que este capítulo se lea como una lista de avales.
+         Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
+         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. -->
+    <p class="pie">{c.entrevistas.aviso}</p>
 
     <ul class="retratos">
       {retratos.map((rt) => {
@@ -519,20 +544,30 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
         return (
         <li class="retrato">
-          {rt.img && (
-            <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
-          )}
-          {rt.video && (
-            <video class="clip-video" src={rt.video.src} poster={rt.video.poster}
-              width="360" height="640" controls playsinline preload="none"
-              aria-label={etiqueta}></video>
-          )}
-          {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
-          <p class="retrato-nombre">{per.nombre}</p>
-          {per.rol && <p class="retrato-rol">{per.rol}</p>}
-          {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
-          {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
-          <Hueco c={c} id={rt.hueco} />
+          <div class="retrato-foto">
+            {rt.img && (
+              <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
+            )}
+            {rt.video && (
+              <video class="clip-video" src={rt.video.src} poster={rt.video.poster}
+                width="360" height="640" controls playsinline preload="none"
+                aria-label={etiqueta}></video>
+            )}
+            {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
+          </div>
+          <div class="retrato-dicho">
+            <p class="retrato-nombre">{per.nombre}</p>
+            {per.rol && <p class="retrato-rol">{per.rol}</p>}
+            {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
+            <!-- EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
+                 no: mientras el hueco esté puesto ya lo dice su propia
+                 etiqueta, pero en cuanto Jaime escriba la frase este renglón
+                 es lo único que separa «lo que me llevé» de «lo que me
+                 dijeron». Por eso no está dentro del hueco. -->
+            <p class="etiqueta retrato-llevo">{c.entrevistas.llevo}</p>
+            <Hueco c={c} id={rt.hueco} grande />
+            {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+          </div>
         </li>
         );
       })}
@@ -1419,10 +1454,35 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   }
 
   /* ---- Retratos ---- */
-  .retratos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
-  .retrato { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  /* ---- Las conversaciones, con el ritmo de las citas de Ondo ----
+     Una FILA por conversación en vez de una rejilla de tarjetas: retrato
+     pequeño a la izquierda, y a la derecha el nombre, el cargo y lo que Jaime
+     se llevó, en grande. Es la forma del bloque de citas de Ondo con la
+     diferencia que importa: allí la frase grande es de ellos, aquí es de él.
+
+     EL CORTE VA EN em, como las válvulas de la cinta y las dos mitades del
+     capítulo 7: así se dispara también cuando alguien agranda la letra, en vez
+     de mantener una columna de 200 px reales con dos palabras por renglón.
+     40em son 640 px con la letra por omisión. */
+  .retratos { display: flex; flex-direction: column; }
+  .retrato {
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+    padding-block: var(--sp-6);
+    border-top: 1px solid var(--cvh-raya);
+  }
+  .retrato:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 40em) {
+    .retrato { grid-template-columns: minmax(0, 15em) minmax(0, 1fr); gap: var(--sp-6); align-items: start; }
+  }
+  .retrato-foto { min-width: 0; }
+  .retrato-dicho { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
   .retrato-nombre { font-weight: 600; }
   .retrato-rol { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+  /* El rótulo que dice de quién es la frase de abajo. Con aire por encima
+     para que se lea pegado a la frase y no al cargo de la persona: pegado al
+     cargo se leería como parte de su ficha. */
+  .retrato-llevo { margin-top: var(--sp-3); }
 
   /* ---- Servir ---- */
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
