@@ -108,6 +108,7 @@ import { RETO_2026 } from '../../lib/reto/actinver.mjs';
 import { loadReport } from '../../lib/research/reports';
 import { day, month } from '../../lib/research/format.mjs';
 import { foto } from '../../lib/photos';
+import { portadaSrcset, PORTADA_SIZES, PORTADA_W, PORTADA_H } from '../../lib/cv/portada';
 import { contarCifras } from '../../lib/cv/cifras.mjs';
 import { getCollection } from 'astro:content';
 import glosario from '../../data/glossary.json';
@@ -253,84 +254,183 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
 ---
 <div class="historia">
 
-  <!-- ── Idioma ──────────────────────────────────────────────────────────
-       Mismo mecanismo de siempre: :target en Cv.astro, cero JavaScript.
-       El `href` que va ESCRITO es `#en`/`#es`, que funciona en todas partes;
-       el `data-lang` es para que el guion en línea de Cv.astro le pegue el
-       capítulo actual (`#es-cap-7`) y cambiar de idioma no te devuelva al
-       principio del documento. Sin JavaScript se cambia de idioma igual. -->
-  <nav class="cv-lang" aria-label={c.lang.aria}>
-    <a href="#en" data-lang="en" class:list={['cv-lang-a', locale === 'en' && 'on']}
-      aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
-    <a href="#es" data-lang="es" class:list={['cv-lang-a', locale === 'es' && 'on']}
-      aria-current={locale === 'es' ? 'page' : undefined} lang="es">{c.lang.es}</a>
-  </nav>
+  <!-- ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
+       El capítulo 1 sigue siendo UNO —el orden que aprobó Jaime no se toca—,
+       pero ahora ocupa tres pantallas seguidas con la MISMA foto detrás:
 
-  <!-- ════ 01 · LA FRASE DE APERTURA ══════════════════════════════════════
-       Lo primero de la página, y lo pidió Jaime así. Va debajo de su nombre
-       y encima de TODO lo demás, en Fraunces y al segundo tamaño más grande
-       del CV: el peso de una declaración, no de un subtítulo.
+         1ª  la portada: el nombre partido en dos con el señuelo en medio
+         2ª  el manifiesto: su frase de apertura, y el índice pegado debajo
+         3ª  el papel: su meta, los dos huecos y su retrato
 
-       POR QUÉ DEBAJO DEL NOMBRE Y NO ENCIMA. Una cita sin firma en lo alto
-       de un CV obliga a bajar para saber de quién es, y quien lee esto tiene
-       200 solicitudes encima. El nombre es una etiqueta, no contenido que
-       compita: la frase sigue siendo lo primero que se LEE.
+       ── QUÉ SE COPIÓ DE ondo.finance Y QUÉ NO ─────────────────────────────
+       De Ondo se copia la ESTRUCTURA y el RITMO: foto de ciudad a sangre,
+       titular partido en dos renglones con «Scroll to explore ↓» EN MEDIO,
+       marca arriba a la izquierda y pastilla arriba a la derecha, y al bajar
+       un manifiesto grande sobre la misma imagen que se queda quieta detrás.
+       Lo que NO se copia es la identidad: Ondo es violeta corporativo y
+       vídeo; esto es blanco y negro y una foto fija, y el titular de Ondo es
+       su promesa comercial mientras que el de un CV es el nombre de la
+       persona. Y donde Ondo pone una sans geométrica para lo declarativo,
+       aquí manda la regla que este archivo ya tenía: Fraunces para los
+       titulares y las palabras de Jaime, mono para lo que es interfaz.
 
-       El hueco de "la línea" ya no está: esta frase ES esa línea, ya escrita.
-       Y el capítulo "De dónde viene el hambre", que era una pantalla entera
-       con un solo recuadro vacío, se pliega aquí como el hueco `quienSoy`:
-       la frase y su origen se piden juntos, y una pantalla completa ocupada
-       por una caja de puntos era un agujero en el mejor momento del CV.
-       Sin movimiento: es el LCP. -->
-  <header class="cap cap-1" aria-labelledby={`${p}-h1`}>
-    <p class="cap-num" aria-hidden="true">{num(0)}</p>
-    <p class="etiqueta">{c.head.eyebrow}</p>
-    <h1 class="hist-name" id={`${p}-h1`}>{c.head.name}</h1>
-    <!-- Palabras de Jaime, con la ortografía y la puntuación pulidas y nada
-         más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
-         final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
-         (`aperturaTag`, vacío en español): unas comillas sin marca se leen
-         como sus palabras exactas. Misma regla que `voz.pe` y que la
-         traducción de la frase final. -->
-    <blockquote class="abre">
-      {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
-      <p>{c.voz.apertura}</p>
-    </blockquote>
-    <!-- EL ÍNDICE VA AQUÍ, PEGADO A LA FRASE, Y ES UNA CONSECUENCIA
-         MEDIDA DEL ORDEN NUEVO. La frase de apertura es larga (137
-         caracteres) y en Fraunces grande ocupa de cuatro a siete
-         renglones: con el índice al final del capítulo, caía por debajo
-         del pliegue en LAS CUATRO anchuras (375, 390, 768 y 1280), y ese
-         renglón es la salida de emergencia del lector con prisa. Puesto
-         debajo de la declaración se ve en las cuatro, y de paso hace de
-         raya entre la tesis y el expediente. -->
-    <div class="indice-linea">
-      <p class="meta-mono">{c.indice.resumen}</p>
-      <details class="indice">
-        <summary class="meta-mono indice-ver">{c.indice.ver}</summary>
-        <ol class="indice-lista" aria-label={c.indice.aria}>
-          {capitulos.map((titulo, i) => (
-            <li>
-              <a href={`#${p}-cap-${i + 1}`}>
-                <span class="meta-mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span> {titulo}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </details>
+       ── LA IMAGEN ES SUYA ─────────────────────────────────────────────────
+       La Torre CN, fotografiada por Jaime y publicada en su TikTok el 20 de
+       julio de 2026 (ver `head.portadaAlt` en src/i18n/cv.ts). Ondo usa
+       Nueva York porque es donde está su mercado; aquí es Toronto porque es
+       adonde va la solicitud, y además es una foto que hizo él.
+
+       ── EL CONTRASTE ESTÁ MEDIDO, NO MIRADO ───────────────────────────────
+       La foto es clarísima arriba (cielo nublado, 220–225 de luminancia en
+       todo el ancho hasta el 20 % de la altura) y muy oscura abajo (el
+       mirador, el edificio de la izquierda y el mástil bajo la corona bajan
+       a 0). O sea: la tinta negra del CV se lee sobre este cielo a 14.4:1
+       —mejor que cualquier texto del sitio— y sobre el mástil no se lee.
+       Ondo lo resuelve al revés: texto BLANCO y un degradado NEGRO que va de
+       0 a .36 hacia abajo. Aquí el degradado es de PAPEL y va hacia arriba
+       (`.portada-papel`), que además es lo que ya hace el hero del home con
+       su `mask-image`. Los números están en el bloque de estilo de abajo. -->
+  <header class="cap cap-portada" aria-labelledby={`${p}-h1`}>
+
+    <!-- LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
+         las tres pantallas de este capítulo pasan por encima de ella en vez
+         de detrás. Se queda pegada mientras dura el capítulo y se va con él.
+         Es el LCP de la página, así que no lleva `lazy` y sí prioridad alta;
+         el preload está en la cabecera (src/layouts/Cv.astro). -->
+    <div class="portada-lienzo" aria-hidden="true">
+      <picture>
+        <source type="image/avif" srcset={portadaSrcset('avif')} sizes={PORTADA_SIZES} />
+        <img class="portada-foto" src={foto('cv-toronto-1280.webp')}
+          srcset={portadaSrcset('webp')} sizes={PORTADA_SIZES}
+          alt="" width={PORTADA_W} height={PORTADA_H}
+          decoding="async" fetchpriority="high" />
+      </picture>
+      <div class="portada-papel"></div>
     </div>
-    <div class="cap-1-cuerpo">
-      <div class="cap-1-texto">
-        <!-- texto de Jaime (su meta), pendiente de su revisión final -->
-        <p class="meta-mono">{c.head.meta}</p>
-        <Hueco c={c} id="aplicaA" />
-        <Hueco c={c} id="quienSoy" />
+
+    <!-- ── 1ª pantalla: la portada ───────────────────────────────────────
+         `role="img"` no: la foto tiene su descripción en el texto alterno de
+         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre. -->
+    <div class="portada-capa portada-uno">
+     <div class="portada-col">
+      <div class="portada-barra">
+        <!-- LA ETIQUETA Y EL NÚMERO DE CAPÍTULO VAN LOS DOS AQUÍ ARRIBA, y no
+             es maquetación: es contraste. Puestos abajo (que es donde
+             estaban) caen sobre la cuña negra del edificio de la izquierda,
+             donde el peor píxel de la foto es 0 y el gris de las etiquetas
+             (#6E6E6E) da 1.1:1 — ilegible. La banda de arriba está garantizada
+             por el velo (≥ 15.9:1 en el 22 % superior), así que ahí es donde
+             puede vivir cualquier texto pequeño. -->
+        <p class="etiqueta">{c.head.eyebrow} <span class="portada-num">{num(0)}</span></p>
+        <!-- ── Idioma ────────────────────────────────────────────────────
+             Mismo mecanismo de siempre: :target en Cv.astro, cero
+             JavaScript. El `href` que va ESCRITO es `#en`/`#es`, que
+             funciona en todas partes; el `data-lang` es para que el guion en
+             línea de Cv.astro le pegue el capítulo actual (`#es-cap-7`) y
+             cambiar de idioma no te devuelva al principio del documento.
+             Sin JavaScript se cambia de idioma igual.
+             AHORA VIVE DENTRO DE LA PORTADA, en el sitio de la pastilla de
+             Ondo. Antes flotaba en `position: absolute` sobre el capítulo 1
+             y el capítulo tenía que reservarle una banda en `em` para que no
+             se montara encima de «01 / 09» con el texto al 200 %. En una
+             fila normal ese problema no existe: la fila crece con la letra
+             porque es la letra la que la mide. -->
+        <nav class="cv-lang" aria-label={c.lang.aria}>
+          <a href="#en" data-lang="en" class:list={['cv-lang-a', locale === 'en' && 'on']}
+            aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
+          <a href="#es" data-lang="es" class:list={['cv-lang-a', locale === 'es' && 'on']}
+            aria-current={locale === 'es' ? 'page' : undefined} lang="es">{c.lang.es}</a>
+        </nav>
       </div>
-      <!-- La única foto sin lazy de la página: es el LCP medido (2.79 s en el
-           móvil de Lighthouse), así que se pide con prioridad alta. -->
-      <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
-        width="320" height="320" decoding="async" fetchpriority="high" />
+
+      <!-- EL NOMBRE PARTIDO EN DOS CON EL SEÑUELO EN MEDIO, que es la forma
+           exacta del titular de Ondo. Las dos mitades son `<span>` dentro
+           del MISMO `<h1>`: para un lector de pantalla el título sigue
+           siendo «Jaime Sandoval Ricaño», de una pieza.
+           El señuelo va `aria-hidden`: es una instrucción para el ojo, y a
+           quien navega con teclado o lector no le sirve («baja» no es una
+           acción que pueda hacer). Quien tabula llega al índice, que está
+           una pantalla más abajo y lleva a todos los capítulos. -->
+      <h1 class="hist-name portada-h1" id={`${p}-h1`}>
+        <span class="portada-n1">{c.head.nameL1}</span>
+        <span class="portada-senuelo meta-mono" aria-hidden="true">
+          {c.head.senuelo} <span class="portada-flecha">↓</span>
+        </span>
+        <span class="portada-n2">{c.head.nameL2}</span>
+      </h1>
+     </div>
     </div>
+
+    <!-- ── 2ª pantalla: el manifiesto, sobre la misma foto ────────────────
+         Es el segundo tiempo de Ondo: la imagen se queda y encima entra un
+         párrafo grande. Ahí el párrafo es el manifiesto de la empresa; aquí
+         es la frase con la que Jaime abre su CV, que es lo mismo que pidió
+         él («quiero que priorices primero la primera frase»).
+         El velo de esta pantalla es más fuerte que el de la portada porque
+         el texto ocupa el centro, que es por donde pasa el mástil. Los
+         números, abajo. -->
+    <div class="portada-capa portada-dos">
+     <div class="portada-col">
+      <!-- Palabras de Jaime, con la ortografía y la puntuación pulidas y
+           nada más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
+           final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
+           (`aperturaTag`, vacío en español): unas comillas sin marca se leen
+           como sus palabras exactas. Misma regla que `voz.pe` y que la
+           traducción de la frase final. -->
+      <blockquote class="abre">
+        {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
+        <p>{c.voz.apertura}</p>
+      </blockquote>
+      <!-- EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
+           QUE ANTES: es la salida de emergencia del lector con prisa y tiene
+           que verse sin bajar más. Lo que cambió es que ahora la frase tiene
+           su propia pantalla, así que caben las dos con aire. -->
+      <div class="indice-linea">
+        <p class="meta-mono">{c.indice.resumen}</p>
+        <details class="indice">
+          <summary class="meta-mono indice-ver">{c.indice.ver}</summary>
+          <ol class="indice-lista" aria-label={c.indice.aria}>
+            {capitulos.map((titulo, i) => (
+              <li>
+                <a href={`#${p}-cap-${i + 1}`}>
+                  <span class="meta-mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span> {titulo}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </details>
+      </div>
+      <!-- El pie de foto: de quién es y de cuándo. Va aquí y no en la
+           portada porque en la portada compite con el nombre, y porque es
+           la última pantalla en la que la foto todavía se ve. -->
+      <p class="portada-pie">{c.head.portadaPie}</p>
+     </div>
+    </div>
+
+    <!-- ── 3ª pantalla: ya sobre papel ───────────────────────────────────
+         Aquí se acaba la foto y empieza el documento. El retrato de Jaime
+         deja de ser el LCP (lo es la portada), así que baja a carga normal:
+         a esta altura ya se hizo scroll. -->
+    <div class="portada-papel-cierre">
+     <div class="portada-col">
+      <div class="cap-1-cuerpo">
+        <div class="cap-1-texto">
+          <!-- texto de Jaime (su meta), pendiente de su revisión final -->
+          <p class="meta-mono">{c.head.meta}</p>
+          <Hueco c={c} id="aplicaA" />
+          <Hueco c={c} id="quienSoy" />
+        </div>
+        <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
+          width="320" height="320" decoding="async" loading="lazy" />
+      </div>
+      <!-- La descripción de la foto de portada, VISIBLE y no solo en un
+           `alt`: la imagen es decorativa para el lector de pantalla (el
+           `alt=""` de arriba) porque describirla dos veces sería repetirla,
+           y aquí cuenta lo que se ve para quien no la ve. -->
+      <p class="pie portada-alt">{c.head.portadaAlt}</p>
+     </div>
+    </div>
+
     <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
   </header>
 
@@ -751,6 +851,39 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     color: var(--cvh-tinta);
   }
 
+  /* ═══ BLANCO Y NEGRO, TAMBIÉN LAS FOTOS Y LOS CLIPS ═══════════════════
+     Lo decidió Jaime (2026-08-27) y es lo que cierra la dirección visual:
+     esta página ya era blanca y negra en todo menos en sus imágenes, y una
+     chamarra roja en medio de un documento de tinta y papel es lo único que
+     desentonaba.
+
+     ── POR QUÉ EN EL CSS Y NO EN LOS ARCHIVOS ────────────────────────────
+     Porque NO SON FOTOS DEL CV: son las mismas que publica el sitio. El
+     retrato sale en /about y en la firma de cada lección; la del grupo, en
+     /community; las de las entrevistas, en el home. Grabarles el gris en
+     `scripts/build-photos.mjs` dejaría el sitio público en blanco y negro
+     sin que nadie lo hubiera pedido — y el sitio es de color. Con el filtro
+     aquí, el gris es de ESTA página y de ninguna otra. Los clips igual:
+     recodificarlos en gris haría falta ffmpeg y dejaría los originales de
+     `public/assets/cv/` sirviendo para una sola cosa.
+     Cuesta lo que cuesta pintar `filter` sobre imágenes que no se mueven, o
+     sea nada medible: el compositor lo resuelve una vez y no vuelve.
+
+     ── LAS DOS EXCEPCIONES, LAS DOS A PROPÓSITO ──────────────────────────
+     · `.portada-foto` — la Torre CN ya viene en gris DENTRO del archivo
+       (build-photos.mjs le quita los planos de color, que es lo que la deja
+       en 16.8 KB). Pasarle encima un filtro que no cambia nada, y encima
+       sobre una imagen que cubre la pantalla entera, sería trabajo por
+       gusto.
+     · `.logo-placa img` — es el logo del RETO ACTINVER, marca de un tercero.
+       El repo ya tiene escrita la regla: se publica tal como lo publica
+       Actinver, sin recortar y sin recolorear. Pasarlo a gris le quitaría el
+       punto dorado de la i, que es deformar una marca ajena — exactamente lo
+       que la regla prohíbe. Que la página sea en blanco y negro es una
+       decisión sobre el material propio, no un permiso sobre el ajeno. */
+  .historia img, .historia video { filter: grayscale(1); }
+  .historia .portada-foto, .historia .logo-placa img { filter: none; }
+
   /* ═══ El esqueleto de capítulo (dirección §3, "Ritmo") ═══════════════
      min-height y no height: con el texto al 200 % el contenido crece y
      `proximity` tolera secciones altas (medido). El imán vive en cv.css. */
@@ -761,6 +894,17 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     gap: var(--sp-5);
     padding-block: var(--sp-8);
     scroll-snap-align: start;
+    /* LA COLUMNA VIVE AQUÍ Y YA NO EN EL PANEL. Hasta la portada a sangre,
+       `.cv-pane` llevaba la clase `container` y ese ancho máximo cubría
+       TODA la página, portada incluida: ninguna foto podía tocar el borde.
+       Al bajarla al capítulo, cada uno se mide solo y la portada se declara
+       sin ella (`.cap-portada`, más abajo). Los dos valores son los mismos
+       que tenía el panel, así que ningún capítulo del 2 al 9 cambió de
+       ancho ni de gutter — y por eso el reflow a 200 % sigue en cero. */
+    width: 100%;
+    max-width: calc(var(--container) - 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
   }
   /* El ancla del índice: arriba del capítulo, sin ocupar sitio. */
   .cap-ancla { position: absolute; top: 0; width: 0; height: 0; overflow: hidden; }
@@ -806,14 +950,266 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .hist-link:hover { color: var(--cvh-tinta-2); }
   .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
 
+  /* ═══ LA PORTADA A SANGRE ═════════════════════════════════════════════
+     La estructura es la de ondo.finance: foto de ciudad ocupando la pantalla
+     entera, titular partido en dos con el señuelo de scroll EN MEDIO, marca
+     arriba a la izquierda y pastilla arriba a la derecha, y al bajar un
+     manifiesto sobre la misma imagen quieta detrás.
+
+     ── EL CONTRASTE, MEDIDO SOBRE LA FOTO DE VERDAD ──────────────────────
+     Se midió el archivo píxel a píxel (luminancia relativa de WCAG contra la
+     tinta del CV, #0A0A0A), por franjas horizontales y a lo ancho de la
+     zona donde puede caer texto:
+
+       franja de la foto      peor píxel   contraste con la tinta
+       y 0.00–0.20 (cielo)       220            14.4:1
+       y 0.20–0.30                53             1.6:1
+       y 0.30–0.50                 7             1.0:1
+       y 0.50–0.55 (la corona)     0             1.1:1
+       y 0.55–0.70                 0             1.1:1
+
+     O sea: sobre el cielo la tinta del CV se lee mejor que en ninguna otra
+     página del sitio, y sobre el mástil no se lee EN ABSOLUTO. La media de
+     la franja engaña —el mástil es una columna estrecha y se diluye en
+     cualquier promedio—, así que lo que manda arriba es el PEOR píxel, que
+     es el que se le puede poner debajo a un trazo de letra.
+
+     Ondo lo resuelve al revés que esto: su texto es BLANCO y su degradado es
+     NEGRO, de 0 a .12 a .36 hacia abajo. Aquí el texto es la tinta negra del
+     CV —el documento es blanco y negro y eso no cambia— así que el degradado
+     es de PAPEL y va hacia arriba. No es un recurso nuevo del sitio: es lo
+     mismo que hace el hero del home fundiendo el globo con `mask-image`.
+
+     ── DE DÓNDE SALEN LAS PARADAS DEL DEGRADADO ──────────────────────────
+     Con un velo de opacidad `a` sobre un píxel `v`, lo que se ve es
+     `v + a·(255 − v)`; el peor caso es `v = 0`, o sea `255a`. Y para que la
+     tinta #0A0A0A llegue a 4.5:1 el fondo tiene que estar en 120/255, o sea
+     `a ≥ 0.47`. De ahí las paradas de `.portada-papel`:
+
+       0 %    #FFF        papel puro          ∞ (es la página)
+       24 %   a = .95     peor píxel → 242    16.5:1
+       42 %   a = .78     peor píxel → 199    11.4:1
+       52 %   a = .55     peor píxel → 140     5.9:1
+       66 %   a = .18     peor píxel →  46     1.5:1   ← aquí NO va texto
+       78 %   a = 0       la foto, entera
+
+     Por eso el texto de la portada vive en la mitad de arriba y la foto se
+     queda con la de abajo — que además es donde está el mirador, o sea donde
+     la foto tiene algo que enseñar.
+
+     LAS PARADAS DE EN MEDIO SE SUBIERON DESPUÉS DE MEDIR LA PÁGINA PINTADA,
+     no la foto. Con .62/.36 el peor caso de toda la matriz era «Ricaño» a
+     1280×720 —la segunda mitad del nombre es la que cae más abajo, y una
+     ventana de escritorio baja la empuja al tramo flojo del velo—: 3.01:1 de
+     caja y 3.66:1 de trazo. Pasa el mínimo de texto grande (3:1) y por eso no
+     saltó ninguna alarma, pero pasarlo por 0.01 no es cumplirlo, es tener
+     suerte. Con estas paradas el mismo peor caso mide 6.95:1 de caja y
+     7.94:1 de trazo, o sea que hasta el titular cumple el 4.5:1 del texto
+     pequeño, que es el doble de lo que se le exige. Y el peor de TODA la
+     matriz (2 idiomas × 6 anchuras × 8 piezas) es ese mismo. */
+  .cap-portada {
+    /* Sin columna y sin gutter: es la única parte del CV que toca el borde
+       de la pantalla. La columna la reparten sus tres capas. */
+    max-width: none; padding-inline: 0; padding-block: 0;
+    min-height: 0; gap: 0; justify-content: flex-start;
+    /* Snapean las tres pantallas, no el capítulo que las contiene. */
+    scroll-snap-align: none;
+  }
+
+  /* LA FOTO, PEGADA ARRIBA MIENTRAS DURA EL CAPÍTULO. Es la mecánica del
+     segundo tiempo de Ondo: el manifiesto entra sobre el vídeo que no se ha
+     movido.
+
+     DÓNDE VA EL MARGEN NEGATIVO IMPORTA, Y COSTÓ DOS INTENTOS. Un elemento
+     pegajoso deja de estarlo cuando su CAJA llega al final de su bloque
+     contenedor, así que la foto tiene que medir una pantalla de verdad; si
+     mide cero (primer intento) se queda pegada hasta el último píxel del
+     capítulo y la foto, que cuelga de ella en `absolute`, se mete una
+     pantalla entera dentro del capítulo 2 — «Experience» escrito encima del
+     mirador. Pero el margen negativo que devuelve esa pantalla al flujo NO
+     puede ir en la propia foto (segundo intento): los márgenes entran en el
+     rectángulo que la sujeta, así que un `margin-bottom: -100svh` le REGALA
+     una pantalla más de pegado y vuelve a asomar por debajo del papel. Va en
+     la primera capa (`margin-top`), que hace exactamente lo mismo —subir las
+     capas sobre la foto— sin tocar el rectángulo de la foto. */
+  .portada-lienzo {
+    position: sticky; top: 0; z-index: 0;
+    flex: 0 0 auto; height: 100svh;
+  }
+  .portada-foto {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    /* ANCLADA ABAJO, y con eso vale un solo valor para todas las anchuras.
+       La foto es casi cuadrada (0.9375) y la pantalla nunca lo es: en un
+       teléfono se ve entera de alto y recortada de ancho, y en un escritorio
+       se ve entera de ancho y recortada de alto. Pegándola al borde de abajo,
+       el mirador —que es el motivo— entra SIEMPRE, y lo que se recorta es
+       cielo, que es lo que sobra. */
+    object-position: 50% 100%;
+  }
+  .portada-papel {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(
+      to bottom,
+      #FFFFFF 0%,
+      rgba(255, 255, 255, .95) 24%,
+      rgba(255, 255, 255, .78) 42%,
+      rgba(255, 255, 255, .55) 52%,
+      rgba(255, 255, 255, .18) 66%,
+      rgba(255, 255, 255, 0) 78%
+    );
+  }
+
+  /* Cada pantalla de la portada ocupa TODO el ancho y la columna va dentro,
+     en `.portada-col`. Al revés —la columna en la capa, como estaba— el velo
+     de la 2ª pantalla salía como un rectángulo de 1 152 px con la foto
+     asomando a los lados: se veían sus dos costuras verticales, y lo mismo el
+     papel de la 3ª. Un fondo que cubre la foto tiene que llegar al borde. */
+  .portada-capa {
+    position: relative; z-index: 1;
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+    scroll-snap-align: start;
+  }
+  .portada-col {
+    width: 100%; max-width: calc(var(--container) - 2 * var(--gutter));
+    margin-inline: auto; padding-inline: var(--gutter);
+    min-width: 0;
+  }
+
+  /* ---- 1ª pantalla ---- */
+  /* El margen negativo que sube LAS TRES capas sobre la foto. Ver el bloque
+     de `.portada-lienzo`: va aquí y no en la foto porque en la foto le
+     alargaría el pegado una pantalla entera. */
+  .portada-uno { justify-content: flex-start; margin-top: -100svh; }
+  .portada-uno .portada-col {
+    display: flex; flex-direction: column;
+    padding-block: var(--sp-6);
+    gap: clamp(var(--sp-5), 4svh, var(--sp-10));
+  }
+  .portada-barra {
+    display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: space-between; gap: var(--sp-3);
+  }
+  /* EL TITULAR DE LA PORTADA ES MÁS CHICO QUE EL TECHO DE `--cvh-h-name`, y
+     es una consecuencia del corte en dos. Partido, el nombre ocupa el doble
+     de alto: a 7rem son 213 px de titular más el señuelo, y con eso el
+     bloque terminaba en el 46 % de una pantalla de 800 px — o sea justo
+     donde el velo ya no garantiza contraste. A 5.5rem termina en el 40 %.
+     Los dos extremos siguen en rem: capar la letra en px frente al zoom de
+     texto es lo que rompe WCAG 1.4.4, y esa lección ya la pagó este CV. */
+  .portada-h1 {
+    font-size: clamp(2rem, 9vw, 5.5rem);
+    display: flex; flex-direction: column;
+    /* El señuelo va EN MEDIO de las dos mitades, que es la forma exacta del
+       titular de Ondo. El hueco se mide en `em` del propio titular para que
+       crezca con él. */
+    gap: .18em;
+  }
+  .portada-n1, .portada-n2 { display: block; }
+  .portada-senuelo {
+    display: flex; align-items: center; gap: var(--sp-2);
+    /* Se separa del titular con su propio aire: pegado a las dos mitades se
+       leía como un tercer renglón del nombre. */
+    padding-block: .12em;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--cvh-tinta-2);
+  }
+  .portada-flecha { font-size: 1.15em; line-height: 1; }
+  /* El «01 / 9» va pegado a la etiqueta, con una raya de separación en vez de
+     un renglón propio: dos etiquetas mono seguidas en la misma banda segura. */
+  .portada-num { color: var(--cvh-tinta-3); margin-left: var(--sp-2); }
+  .portada-num::before { content: '· '; }
+
+  /* ---- 2ª pantalla: el manifiesto sobre la foto ----
+     El velo de esta pantalla es SUYO y es más fuerte que el de la portada,
+     porque aquí el texto ocupa el centro y por el centro pasa el mástil. Con
+     .80 el peor píxel de la foto (0) sube a 204, o sea 13.1:1 con la tinta.
+     Arriba entra con degradado corto para que la pantalla no se lea como una
+     persiana bajando de golpe, y el bloque de texto empieza por debajo de
+     donde el degradado ya llegó a .80: nunca hay texto en la parte floja. */
+  .portada-dos {
+    justify-content: center;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, .80) 12%,
+      rgba(255, 255, 255, .80) 100%
+    );
+  }
+  .portada-dos .portada-col {
+    display: flex; flex-direction: column; gap: var(--sp-6);
+    padding-block: var(--sp-10);
+  }
+  /* LA FRASE VA DE BANDERA IZQUIERDA Y NO CENTRADA, que es lo único del ritmo
+     de Ondo que aquí no se copia. Su manifiesto son 18 palabras y su sitio
+     entero está centrado; esta frase son 30 palabras y el resto del documento
+     es de bandera izquierda, así que centrar solo esta la convierte en la
+     excepción de la página en vez de en su declaración — y una cita larga
+     centrada se lee peor, porque cada renglón empieza en un sitio distinto. */
+  .portada-pie {
+    margin-top: var(--sp-4);
+    font-family: var(--font-mono); font-size: var(--fs-caption);
+    letter-spacing: .08em; color: var(--cvh-tinta-2);
+  }
+
+  /* ---- 3ª pantalla: se acabó la foto ----
+     Opaca a propósito: es la que tapa la foto pegada y devuelve el documento
+     al papel. El borde de arriba corta la foto en seco y eso es lo que se
+     quiere — un horizonte, no un desvanecido: lo que hay en el borde de abajo
+     de la foto es la parte más negra (el mirador y el edificio), que es
+     justamente lo que no conviene disolver. */
+  .portada-papel-cierre {
+    position: relative; z-index: 1;
+    background: var(--cvh-papel);
+    /* Una pantalla, como cualquier otro capítulo — y además es lo que acaba
+       de tapar la foto: mientras esta pantalla esté a la vista, la foto sigue
+       pegada detrás y hace falta papel opaco que la cubra entera. */
+    min-height: 100svh;
+    display: flex; flex-direction: column; justify-content: center;
+    scroll-snap-align: start;
+  }
+  .portada-papel-cierre .portada-col {
+    display: flex; flex-direction: column; gap: var(--sp-6);
+    padding-block: var(--sp-10);
+  }
+  .portada-alt { color: var(--cvh-tinta-3); }
+
+  /* ---- La portada con «menos movimiento» ----
+     Una foto que se queda quieta mientras el texto pasa por encima es
+     paralaje, y la paralaje es justo lo que molesta a quien pide menos
+     movimiento. Con `static` la foto se va con la página como cualquier otra
+     imagen: la portada se sigue viendo entera, y la 2ª pantalla se queda con
+     su papel blanco y la frase, que es lo que hay que leer. Nada se pierde y
+     nada se mueve solo. */
+  @media (prefers-reduced-motion: reduce) {
+    .portada-lienzo { position: static; }
+  }
+
+  /* ---- La portada impresa ----
+     Un CV se imprime, y en papel no hay ni pantalla ni scroll: tres bloques
+     de `100svh` serían tres hojas casi en blanco y un `sticky` no significa
+     nada. Así que en papel la portada vuelve a ser lo que es —una foto, un
+     nombre y una frase, seguidos— y el velo se va con ella: sobre una foto
+     impresa en gris no hace falta rescatar ningún contraste, porque el texto
+     ya no está encima. */
+  @media print {
+    .portada-lienzo { position: static; height: auto; }
+    .portada-foto { position: static; height: auto; max-height: 40vh; }
+    .portada-papel { display: none; }
+    .portada-uno { margin-top: 0; }
+    .portada-capa, .portada-papel-cierre { min-height: 0; }
+    .portada-dos { background: none; }
+  }
+
   /* ---- Selector de idioma ----
-     VA FLOTANDO SOBRE EL CAPÍTULO 1, Y SU BANDA SE RESERVA EN em. Estaba con
-     `top: var(--sp-4)` — 16 px fijos que no crecen con la letra —, así que a
-     320 px con el texto al 200 % el botón "English" se montaba 48 × 12 px
-     encima de "01 / 11". Es la misma lección en px de #45 y #48. Ahora el
-     desplazamiento va en em y el capítulo 1 reserva la banda también en em
-     (`.cap-1` más abajo): al crecer la letra, crecen las dos cosas juntas. */
-  .cv-lang { position: absolute; top: .5em; right: 0; display: flex; gap: var(--sp-2); z-index: 2; }
+     YA NO FLOTA. Vive dentro de la barra de la portada, en el sitio de la
+     pastilla de Ondo, y por eso desapareció la banda reservada en `em` que
+     tenía el capítulo 1: en una fila normal el selector no se puede montar
+     encima de nada, porque la fila la mide la letra. La lección de #45 y #48
+     sigue en pie para cualquier cosa que vuelva a flotar. */
+  .cv-lang { display: flex; gap: var(--sp-2); }
   .cv-lang-a {
     display: inline-flex; align-items: center; min-height: 36px;
     padding: 0 var(--sp-3);
@@ -825,9 +1221,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   @media print { .cv-lang { display: none; } }
 
   /* ---- Capítulo 1 ---- */
-  /* La banda que ocupa el selector de idioma, reservada EN em para que baje
-     lo mismo que el selector crece cuando se agranda el texto. */
-  .cap-1 { padding-top: calc(var(--sp-4) + 3.2em); }
   /* `break-word` y no `anywhere`: parte dentro de una palabra solo cuando esa
      palabra no cabe de ninguna manera, en vez de admitirlo siempre. Con el
      suelo propio de `--cvh-h-name`, a 320 px y al 200 % ya no hace falta. */

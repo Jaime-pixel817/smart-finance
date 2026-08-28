@@ -97,11 +97,31 @@ const en = {
   head: {
     eyebrow: 'Curriculum vitae',
     name: 'Jaime Sandoval Ricaño',
+    // EL NOMBRE PARTIDO EN DOS, para la portada a sangre. No se parte con
+    // JavaScript ni con un `<br>` dentro de la cadena: son dos claves, y las
+    // dos juntas dicen exactamente lo mismo que `name`, que sigue siendo el
+    // que leen el `<title>` y cualquier sitio donde el nombre va de una pieza.
+    // Cada mitad es un `<span>` de bloque, así que si no cabe (320 px con el
+    // texto al 200 %) parte por su cuenta como cualquier otro renglón.
+    nameL1: 'Jaime Sandoval',
+    nameL2: 'Ricaño',
     site: 'smartfinance.lat',
+    // El señuelo de bajar, entre las dos mitades del nombre.
+    senuelo: 'Scroll to read',
     // Su meta, dicha por él (texto de Jaime, pendiente de su revisión final):
     // programas de negocios en Canadá, entrada septiembre de 2027.
     meta: 'Business programs in Canada · September 2027 entry',
-    fotoAlt: 'Jaime Sandoval Ricaño'
+    fotoAlt: 'Jaime Sandoval Ricaño',
+    // ---- La foto de la portada ----
+    // HECHO VERIFICADO, no una frase sobre Jaime: la foto es suya y la publicó
+    // él. Sale de su TikTok del 20 de julio de 2026 (@smart.financee, vídeo
+    // 7664460671727258900, «Canada is not just beautiful it's one of the
+    // smartest places in the world»); aquí va el mismo encuadre sin el texto
+    // que llevaba sobreimpreso. La fecha que se escribe es la de PUBLICACIÓN,
+    // que es la que se puede comprobar abriendo el perfil — misma regla que
+    // las fechas del arco de Singapur (`tiktok.arcoFuente`).
+    portadaAlt: 'The CN Tower in Toronto seen from below, in black and white: the mast against an overcast sky, the observation deck, and two office buildings at the edges.',
+    portadaPie: 'Toronto · his photograph, published July 2026'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -519,10 +539,17 @@ const es: typeof en = {
   head: {
     eyebrow: 'Currículum',
     name: 'Jaime Sandoval Ricaño',
+    nameL1: 'Jaime Sandoval',
+    nameL2: 'Ricaño',
     site: 'smartfinance.lat',
+    senuelo: 'Baja para leer',
     // texto de Jaime, pendiente de su revisión final
     meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
-    fotoAlt: 'Jaime Sandoval Ricaño'
+    fotoAlt: 'Jaime Sandoval Ricaño',
+    // Ver el bloque inglés: la foto es de Jaime y la fecha es la de
+    // publicación en su TikTok (20 de julio de 2026), que es la comprobable.
+    portadaAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
+    portadaPie: 'Toronto · foto suya, publicada en julio de 2026'
   },
 
   proyectos: {
