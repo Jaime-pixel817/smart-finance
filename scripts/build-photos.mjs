@@ -48,11 +48,18 @@
 //   jaime-160/-320.<huella>.webp   retrato para la ficha de /about
 //   grupo.<huella>.webp, grupo-800.<huella>.webp, grupo.<huella>.jpg
 //                                  la foto del grupo de /community
+//   cv-toronto-<ancho>.<huella>.avif y .webp
+//                                  LA PORTADA DEL CV, a sangre: cuatro anchos
+//                                  (640/960/1280/1620) en dos formatos, en
+//                                  gris grabado. Es la única foto del sitio
+//                                  que sale en varios tamaños, y el bloque de
+//                                  abajo explica por qué.
 //   + src/generated/photos.json    el manifiesto: nombre lógico -> ruta final
 //
 // DE DÓNDE LEE (originales, NO se despliegan: están en .vercelignore)
 //   public/assets/breakdowns/breakdown-<id>.jpg
 //   public/assets/community/grupo-original.jpg
+//   public/assets/portada/toronto-original.jpg
 //   jaime.webp (raíz del repo, fuera de public/)
 //
 // Al terminar borra de public/assets/fotos/ todo lo que no esté en el
@@ -270,6 +277,63 @@ console.log('Jaime');
     const buf = await sharp(src).webp({ quality: 90, alphaQuality: 100 }).toBuffer();
     const archivo = publicar('reto-actinver.webp', buf);
     console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   ' + g.width + 'x' + g.height + ' (tal cual)');
+  }
+}
+
+/* ── LA PORTADA DEL CV: la Torre CN, fotografiada por Jaime ────────────────
+ *
+ * ORIGEN: su propio TikTok del 20 de julio de 2026 (@smart.financee, «Canada
+ * is not just beautiful it's one of the smartest places in the world»). El
+ * original con el texto sobreimpreso está fuera del repo; lo que entra aquí es
+ * el recorte sin texto, 1620x1728, que él aprobó.
+ *
+ * ES LA ÚNICA FOTO DEL SITIO QUE SALE EN VARIOS TAMAÑOS Y EN DOS FORMATOS, y
+ * es porque es la única que se sirve A SANGRE: ocupa la pantalla entera de la
+ * portada del CV, así que un solo archivo o le sobra la mitad al teléfono o le
+ * falta resolución al escritorio. Sale en AVIF y en WebP a cuatro anchos, y el
+ * navegador elige con `srcset` (Historia.astro).
+ *
+ * ── POR QUÉ EL GRIS VA EN EL ARCHIVO Y NO EN EL CSS ───────────────────────
+ * Las demás fotos del CV se pasan a gris con `filter: grayscale(1)` en la hoja
+ * del CV, y tiene que ser así: son las MISMAS que /about, /community y las
+ * entrevistas del home, donde el sitio es de color. Grabarles el gris aquí
+ * dejaría el sitio público en blanco y negro sin que nadie lo pidiera.
+ *
+ * Esta foto no: solo la usa el CV y ya venía en blanco y negro. Así que aquí
+ * el gris se GRABA (`.greyscale()`), y no es una preferencia de estilo, es
+ * bytes: sin planos de color, el AVIF de 1620 px baja a 16.8 KB. Con el gris
+ * en CSS habría que servir los tres canales para pintarlos grises de todas
+ * formas, y encima el filtro se aplicaría en cada pintado de una imagen que
+ * cubre la pantalla entera.
+ *
+ * ── LOS CUATRO ANCHOS ─────────────────────────────────────────────────────
+ * 1620 es el ancho del original y por eso es el techo: escalar hacia arriba
+ * sería inventar píxeles. Y el que se pide NO es el del viewport, porque
+ * `object-fit: cover` sobre una caja alta y estrecha escala la foto por su
+ * ALTO: en un teléfono de 390x844 la foto se pinta con 791 px de ancho, el
+ * doble del viewport, y de esos solo se ven los 390 de en medio. Por eso el
+ * `sizes` de la portada declara `200vw` por debajo de 768 px — con `100vw` el
+ * navegador pedía la mitad de la resolución que iba a pintar. */
+{
+  const src = p('public/assets/portada/toronto-original.jpg');
+  if (!fs.existsSync(src)) {
+    console.log('portada del CV: no está public/assets/portada/toronto-original.jpg — me la salto');
+  } else {
+    const g = await sharp(src).metadata();
+    console.log('portada del CV (Torre CN, ' + g.width + 'x' + g.height + ', gris grabado)');
+    for (const ancho of [640, 960, 1280, 1620]) {
+      const base = sharp(src).greyscale().resize(ancho);
+      // AVIF primero: es la mitad que WebP en una foto de cielo liso.
+      const av = await base.clone().avif({ quality: 50, effort: 6 }).toBuffer();
+      const a1 = publicar('cv-toronto-' + ancho + '.avif', av);
+      const wp = await base.clone().webp({ quality: 74 }).toBuffer();
+      const a2 = publicar('cv-toronto-' + ancho + '.webp', wp);
+      const alto = Math.round(ancho * g.height / g.width);
+      console.log('  ' + a1.padEnd(40) + kb(av).padStart(9) + '   ' + ancho + 'x' + alto);
+      console.log('  ' + a2.padEnd(40) + kb(wp).padStart(9) + '   ' + ancho + 'x' + alto);
+    }
+    console.log('  proporción ' + (g.width / g.height).toFixed(4) +
+                ' — es la que Historia.astro escribe en width/height del <img>.');
   }
 }
 
