@@ -178,6 +178,60 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <link rel="preload" as="image" type="image/avif"
     media={PORTADA_MEDIA_ANCHO}
     imagesrcset={portadaSrcset('avif')} imagesizes={PORTADA_SIZES}>
+
+  {/* ═══ LOS PÓSTERES DE LOS CLIPS, SIN JAVASCRIPT ══════════════════════
+       ESTE COMENTARIO VA EN LLAVES Y NO EN <!-- -->: un comentario HTML se
+       EMITE, y este mide 1.4 KB. En la página cuyo bug era «109 KB que nadie
+       mira», explicar el arreglo no puede costar 555 B comprimidos en cada
+       carga (medido: el documento pasaba de 37 325 a 37 880 B gzip). En
+       llaves es un comentario de JavaScript: se queda en el repositorio.
+
+       El razonamiento largo está en la cabecera de los vídeos de
+       Historia.astro. El resumen: `poster=` escrito en el HTML se descarga
+       SIEMPRE —no lo frena `preload="none"` ni existe `loading="lazy"` para
+       vídeo—, así que el póster del clip vivo viaja en `data-poster` y lo
+       pone cv-clips.ts al acercarse. Sin JavaScript eso no lo lee nadie, así
+       que cada clip lleva además un GEMELO con su `poster=` escrito, dentro
+       de un <noscript> pegado a él, en Historia.astro.
+
+       ESTA REGLA ES LA OTRA MITAD DE ESE GEMELO: esconde al vivo cuando no
+       hay JavaScript, para que no salgan los dos. Va dentro de un <noscript>
+       porque con JavaScript el navegador trata ese contenido como TEXTO
+       —nunca llega a ser una hoja de estilo—, así que la regla no existe y el
+       clip vivo se ve como siempre.
+
+       `[data-poster]` y no `.clip-video` a secas: es lo único que distingue al
+       vivo de su gemelo, y no hace falta nada más. (Con JavaScript el
+       atributo acaba borrándose al poner el póster, pero eso solo pasa
+       cuando esta regla no existe.)
+
+       EL `!important` NO ES PEREZA, Y SIN ÉL ESTO YA FALLÓ UNA VEZ. Astro
+       inyecta la hoja del componente con un <link> que pone ÉL, y lo pone
+       DESPUÉS de este <style> — se ve en el HTML emitido. Ahí dentro,
+       `.clip-video[data-astro-cid-…]` declara `display: block` con la MISMA
+       especificidad que `.clip-video[data-poster]`, así que el empate lo
+       ganaba el que va después: el clip vivo se quedaba a la vista, salían
+       los DOS vídeos, y el de arriba —el que no tiene póster— es un
+       rectángulo negro. Se vio en la captura sin JavaScript, no en el CSS.
+       Subir la especificidad (`video.clip-video[data-poster]`) también
+       ganaría hoy, pero seguiría dependiendo de cómo esté escrita la otra
+       regla; `!important` no depende de nada. Es el mismo uso que ya hacen
+       `.nl [hidden]`, `.reto [hidden]` y `.ia-fab` en las hojas del sitio:
+       esconder algo pase lo que pase.
+
+       VA EN <head> Y NO EN Historia.astro por dos razones: en <head> un
+       <style> dentro de <noscript> es justo lo que la especificación permite
+       (link, style, meta), y Historia.astro se renderiza DOS veces —inglés y
+       español—, o sea dos copias de la misma regla.
+
+       `is:inline` para que Astro la deje donde está en vez de recogerla en la
+       hoja del componente, que es lo contrario de lo que hace falta: fuera
+       del <noscript> esta regla escondería los cuatro clips SIEMPRE. */}
+  <noscript>
+    <style is:inline>
+      .clip-video[data-poster] { display: none !important; }
+    </style>
+  </noscript>
 </head>
 <body class="cv-body">
   <main id="main">
