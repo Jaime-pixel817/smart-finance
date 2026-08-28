@@ -49,17 +49,24 @@
 //   grupo.<huella>.webp, grupo-800.<huella>.webp, grupo.<huella>.jpg
 //                                  la foto del grupo de /community
 //   cv-toronto-<ancho>.<huella>.avif y .webp
-//                                  LA PORTADA DEL CV, a sangre: cuatro anchos
-//                                  (640/960/1280/1620) en dos formatos, en
-//                                  gris grabado. Es la única foto del sitio
-//                                  que sale en varios tamaños, y el bloque de
-//                                  abajo explica por qué.
+//                                  LA PORTADA DEL CV, a sangre, para pantallas
+//                                  APAISADAS: la panorámica entera en cinco
+//                                  anchos (960…2880) y dos formatos.
+//   cv-toronto-alto-<ancho>.<huella>.avif y .webp
+//                                  la MISMA foto recortada en vertical
+//                                  (1400x2664, la Torre CN al 38 %), para
+//                                  pantallas de pie. El bloque de abajo cuenta
+//                                  por qué hacen falta dos recortes y no uno.
+//   cv-torre-<ancho>.<huella>.webp la Torre CN que fotografió Jaime: ya no es
+//                                  la portada, es una figura del cuerpo del CV.
 //   + src/generated/photos.json    el manifiesto: nombre lógico -> ruta final
 //
 // DE DÓNDE LEE (originales, NO se despliegan: están en .vercelignore)
 //   public/assets/breakdowns/breakdown-<id>.jpg
 //   public/assets/community/grupo-original.jpg
-//   public/assets/portada/toronto-original.jpg
+//   public/assets/portada/toronto-skyline-original.jpg   (portada, Unsplash;
+//       la licencia y la procedencia, en public/assets/portada/LICENCIA.md)
+//   public/assets/portada/toronto-original.jpg           (la de Jaime)
 //   jaime.webp (raíz del repo, fuera de public/)
 //
 // Al terminar borra de public/assets/fotos/ todo lo que no esté en el
@@ -280,18 +287,48 @@ console.log('Jaime');
   }
 }
 
-/* ── LA PORTADA DEL CV: la Torre CN, fotografiada por Jaime ────────────────
+/* ── LA PORTADA DEL CV: el horizonte de Toronto desde el agua ──────────────
  *
- * ORIGEN: su propio TikTok del 20 de julio de 2026 (@smart.financee, «Canada
- * is not just beautiful it's one of the smartest places in the world»). El
- * original con el texto sobreimpreso está fuera del repo; lo que entra aquí es
- * el recorte sin texto, 1620x1728, que él aprobó.
+ * ORIGEN Y LICENCIA: Jochem Raat (@jchmrt), Unsplash, 4 de diciembre de 2018,
+ * 6000x2664. Licencia Unsplash: uso gratuito, también comercial, sin pedir
+ * permiso, y la atribución NO es obligatoria — se pone igual, en el pie de la
+ * portada (`head.portadaPie`). La procedencia entera está en
+ * public/assets/portada/LICENCIA.md, verificada el 2026-08-27.
  *
- * ES LA ÚNICA FOTO DEL SITIO QUE SALE EN VARIOS TAMAÑOS Y EN DOS FORMATOS, y
- * es porque es la única que se sirve A SANGRE: ocupa la pantalla entera de la
- * portada del CV, así que un solo archivo o le sobra la mitad al teléfono o le
- * falta resolución al escritorio. Sale en AVIF y en WebP a cuatro anchos, y el
- * navegador elige con `srcset` (Historia.astro).
+ * POR QUÉ ESTA Y NO LA DE JAIME: la portada copia el encuadre de ondo.finance
+ * —la ciudad vista desde el agua a la hora azul, a lo ancho— y esa toma él no
+ * la tiene. La suya, la Torre CN desde abajo, NO se tira: se va al CUERPO del
+ * CV, al capítulo donde dice a dónde aplica, y su pie dice que la hizo él
+ * (`cv-torre-*`, más abajo). Material propio vale más que un banco de
+ * imágenes; lo que pasa es que no es el mismo plano.
+ *
+ * ═════════════════════════════════════════════════════════════════════════
+ * DOS RECORTES, NO UNO: LA FOTO ES PANORÁMICA Y EL TELÉFONO ES VERTICAL
+ * ═════════════════════════════════════════════════════════════════════════
+ * La foto mide 2.2523:1 y la pantalla de un teléfono 0.462:1. Con
+ * `object-fit: cover` sobre la panorámica entera, un 390x844 enseña el ALTO
+ * completo y solo el 20.5 % del ancho, CENTRADO — y ahí no está la Torre CN,
+ * que está en el 37.87 % (medido: es la columna más oscura de la franja de
+ * cielo y 10-24 %, donde el mástil es lo único que sube por encima del
+ * skyline). O sea que en el teléfono la portada salía decapitada.
+ *
+ * Y no se arregla solo con `object-position`, por RESOLUCIÓN: para pintar
+ * 390 px de CSS con densidad 3 haciendo ver el 20.5 % del ancho harían falta
+ * 5 700 px de foto. Eso es servirle el original a un teléfono.
+ *
+ * Así que hay DOS archivos y el `<picture>` elige por FORMA DE LA PANTALLA
+ * (`media="(max-aspect-ratio: 1/1)"`), no por ancho de dispositivo: lo que
+ * decide qué recorte hace falta es la forma del hueco.
+ *
+ *   cv-toronto-<ancho>       la panorámica entera, para pantallas apaisadas
+ *   cv-toronto-alto-<ancho>  un recorte VERTICAL de 1400x2664 (el alto
+ *                            entero, que es lo que más ancho deja ver) con el
+ *                            mástil al 38 % del recorte
+ *
+ * EL 38 % ES EL MISMO NÚMERO EN LOS DOS. `object-position: 38% 25%` en la
+ * hoja deja la torre entre el 36 y el 38 % del encuadre en TODAS las
+ * anchuras (375, 390, 414, 768 y 1280 comprobados), así que no hay una
+ * consulta de medios por cada teléfono: hay un número, y está medido.
  *
  * ── POR QUÉ EL GRIS VA EN EL ARCHIVO Y NO EN EL CSS ───────────────────────
  * Las demás fotos del CV se pasan a gris con `filter: grayscale(1)` en la hoja
@@ -299,41 +336,96 @@ console.log('Jaime');
  * entrevistas del home, donde el sitio es de color. Grabarles el gris aquí
  * dejaría el sitio público en blanco y negro sin que nadie lo pidiera.
  *
- * Esta foto no: solo la usa el CV y ya venía en blanco y negro. Así que aquí
- * el gris se GRABA (`.greyscale()`), y no es una preferencia de estilo, es
- * bytes: sin planos de color, el AVIF de 1620 px baja a 16.8 KB. Con el gris
- * en CSS habría que servir los tres canales para pintarlos grises de todas
- * formas, y encima el filtro se aplicaría en cada pintado de una imagen que
- * cubre la pantalla entera.
+ * Las dos de Toronto no: solo las usa el CV. Así que aquí el gris se GRABA
+ * (`.greyscale()`), y no es una preferencia de estilo, es bytes: sin planos de
+ * color el AVIF pesa la mitad, y encima el filtro dejaría de aplicarse en cada
+ * pintado de una imagen que cubre la pantalla entera.
  *
- * ── LOS CUATRO ANCHOS ─────────────────────────────────────────────────────
- * 1620 es el ancho del original y por eso es el techo: escalar hacia arriba
- * sería inventar píxeles. Y el que se pide NO es el del viewport, porque
- * `object-fit: cover` sobre una caja alta y estrecha escala la foto por su
- * ALTO: en un teléfono de 390x844 la foto se pinta con 791 px de ancho, el
- * doble del viewport, y de esos solo se ven los 390 de en medio. Por eso el
- * `sizes` de la portada declara `200vw` por debajo de 768 px — con `100vw` el
- * navegador pedía la mitad de la resolución que iba a pintar. */
+ * ── LOS ANCHOS ────────────────────────────────────────────────────────────
+ * El techo de cada lista es el ancho NATIVO de su recorte: escalar hacia
+ * arriba sería inventar píxeles. Y el ancho que se pide NO es el del viewport
+ * sino el que se va a PINTAR, que con `cover` es más: el `sizes` de cada
+ * fuente lo dice (src/lib/cv/portada.ts, con la cuenta escrita). */
+{
+  const src = p('public/assets/portada/toronto-skyline-original.jpg');
+  if (!fs.existsSync(src)) {
+    console.log('portada del CV: no está public/assets/portada/toronto-skyline-original.jpg — me la salto');
+  } else {
+    const g = await sharp(src).metadata();
+    console.log('portada del CV (horizonte de Toronto, ' + g.width + 'x' + g.height + ', gris grabado)');
+
+    /* El mástil de la Torre CN, medido sobre el original, y el recorte
+       vertical que sale de ponerlo al 38 % de su ancho. Los dos números están
+       escritos porque son el encuadre, no un detalle de implementación. */
+    const MASTIL = 0.3787;
+    const ALTO_W = 1400;
+    /* LAS DOS ESCALERAS DE ANCHOS ESTÁN ESCRITAS TAMBIÉN EN
+       src/lib/cv/portada.ts, que es quien arma el `srcset`, y si se tocan hay
+       que tocarlas en los dos sitios — avisa el manifiesto: `foto()` tumba el
+       build con el nombre exacto del archivo que falta. Son escaleras de ~1.25
+       para que el navegador no salte de golpe al doble de bytes, y el techo de
+       cada una es su ancho NATIVO. */
+    const ANCHOS_APAISADA = [960, 1280, 1620, 2160, 2880];
+    const ANCHOS_VERTICAL = [440, 620, 880, 1100, 1400];
+    const ALTO_LEFT = Math.round(MASTIL * g.width - 0.38 * ALTO_W);
+
+    const emitir = async (nombre, pipeline, anchos, nativo) => {
+      for (const ancho of anchos) {
+        const base = pipeline().greyscale().resize(ancho);
+        // AVIF primero: es la mitad que WebP en una foto de cielo liso.
+        const av = await base.clone().avif({ quality: 42, effort: 9 }).toBuffer();
+        const a1 = publicar(nombre + ancho + '.avif', av);
+        const wp = await base.clone().webp({ quality: 74 }).toBuffer();
+        const a2 = publicar(nombre + ancho + '.webp', wp);
+        const alto = Math.round(ancho * nativo.h / nativo.w);
+        console.log('  ' + a1.padEnd(44) + kb(av).padStart(9) + '   ' + ancho + 'x' + alto);
+        console.log('  ' + a2.padEnd(44) + kb(wp).padStart(9) + '   ' + ancho + 'x' + alto);
+      }
+    };
+
+    console.log('  apaisada (la panorámica entera, ' + (g.width / g.height).toFixed(4) + ':1)');
+    await emitir('cv-toronto-', () => sharp(src), ANCHOS_APAISADA,
+                 { w: g.width, h: g.height });
+
+    console.log('  vertical (recorte ' + ALTO_W + 'x' + g.height + ' desde x=' + ALTO_LEFT +
+                ', mástil al 38.0 %)');
+    await emitir('cv-toronto-alto-',
+                 () => sharp(src).extract({ left: ALTO_LEFT, top: 0, width: ALTO_W, height: g.height }),
+                 ANCHOS_VERTICAL, { w: ALTO_W, h: g.height });
+  }
+}
+
+/* ── LA TORRE CN DE JAIME, ahora en el CUERPO del CV ───────────────────────
+ *
+ * Era la portada hasta que la portada pasó a copiar el encuadre de Ondo (la
+ * ciudad desde el agua, a lo ancho), que es un plano que él no tiene. La foto
+ * NO se tira: es suya, la hizo él y eso vale más que cualquier banco de
+ * imágenes — así que se va al capítulo 1, junto a la línea donde dice a dónde
+ * aplica, con su pie diciendo que es suya y de cuándo.
+ *
+ * ORIGEN: su propio TikTok del 20 de julio de 2026 (@smart.financee, «Canada
+ * is not just beautiful it's one of the smartest places in the world»). El
+ * original con el texto sobreimpreso está fuera del repo; lo que entra aquí es
+ * el recorte sin texto, 1620x1728, que él aprobó.
+ *
+ * Sale en DOS anchos y solo en WebP: ya no ocupa la pantalla entera sino una
+ * figura de 520 px como mucho, así que el segundo ancho es para densidad 2 y
+ * ahí se acaba. El gris se graba por lo mismo que la portada — solo la usa el
+ * CV —, y por eso `.cap-1-figura img` está en la lista de excepciones del
+ * `filter: grayscale(1)` de la hoja: ya viene en gris. */
 {
   const src = p('public/assets/portada/toronto-original.jpg');
   if (!fs.existsSync(src)) {
-    console.log('portada del CV: no está public/assets/portada/toronto-original.jpg — me la salto');
+    console.log('Torre CN de Jaime: no está public/assets/portada/toronto-original.jpg — me la salto');
   } else {
     const g = await sharp(src).metadata();
-    console.log('portada del CV (Torre CN, ' + g.width + 'x' + g.height + ', gris grabado)');
-    for (const ancho of [640, 960, 1280, 1620]) {
-      const base = sharp(src).greyscale().resize(ancho);
-      // AVIF primero: es la mitad que WebP en una foto de cielo liso.
-      const av = await base.clone().avif({ quality: 50, effort: 6 }).toBuffer();
-      const a1 = publicar('cv-toronto-' + ancho + '.avif', av);
-      const wp = await base.clone().webp({ quality: 74 }).toBuffer();
-      const a2 = publicar('cv-toronto-' + ancho + '.webp', wp);
-      const alto = Math.round(ancho * g.height / g.width);
-      console.log('  ' + a1.padEnd(40) + kb(av).padStart(9) + '   ' + ancho + 'x' + alto);
-      console.log('  ' + a2.padEnd(40) + kb(wp).padStart(9) + '   ' + ancho + 'x' + alto);
+    console.log('Torre CN de Jaime (' + g.width + 'x' + g.height + ', gris grabado)');
+    for (const ancho of [520, 1040]) {
+      const wp = await sharp(src).greyscale().resize(ancho).webp({ quality: 76 }).toBuffer();
+      const a = publicar('cv-torre-' + ancho + '.webp', wp);
+      console.log('  ' + a.padEnd(44) + kb(wp).padStart(9) + '   ' + ancho + 'x' +
+                  Math.round(ancho * g.height / g.width));
     }
-    console.log('  proporción ' + (g.width / g.height).toFixed(4) +
-                ' — es la que Historia.astro escribe en width/height del <img>.');
   }
 }
 

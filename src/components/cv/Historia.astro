@@ -108,7 +108,12 @@ import { RETO_2026 } from '../../lib/reto/actinver.mjs';
 import { loadReport } from '../../lib/research/reports';
 import { day, month } from '../../lib/research/format.mjs';
 import { foto } from '../../lib/photos';
-import { portadaSrcset, PORTADA_SIZES, PORTADA_W, PORTADA_H } from '../../lib/cv/portada';
+import {
+  portadaSrcset, portadaSrcsetAlto,
+  PORTADA_SIZES, PORTADA_SIZES_ALTO,
+  PORTADA_W, PORTADA_H, PORTADA_ALTO_W, PORTADA_ALTO_H,
+  PORTADA_MEDIA_ALTO
+} from '../../lib/cv/portada';
 import { contarCifras, contarPruebas } from '../../lib/cv/cifras.mjs';
 import { getCollection } from 'astro:content';
 import glosario from '../../data/glossary.json';
@@ -312,14 +317,26 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
          Es el LCP de la página, así que no lleva `lazy` y sí prioridad alta;
          el preload está en la cabecera (src/layouts/Cv.astro). -->
     <div class="portada-lienzo" aria-hidden="true">
+      <!-- DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical va
+           primero porque el navegador se queda con el PRIMER `<source>` cuyo
+           `media` y `type` casen; la razón entera (la Torre CN cae fuera del
+           recorte centrado de la panorámica, y ni con `object-position` sale
+           la resolución) está en src/lib/cv/portada.ts. -->
       <picture>
-        <source type="image/avif" srcset={portadaSrcset('avif')} sizes={PORTADA_SIZES} />
+        <source media={PORTADA_MEDIA_ALTO} type="image/avif"
+          srcset={portadaSrcsetAlto('avif')} sizes={PORTADA_SIZES_ALTO}
+          width={PORTADA_ALTO_W} height={PORTADA_ALTO_H} />
+        <source media={PORTADA_MEDIA_ALTO} type="image/webp"
+          srcset={portadaSrcsetAlto('webp')} sizes={PORTADA_SIZES_ALTO}
+          width={PORTADA_ALTO_W} height={PORTADA_ALTO_H} />
+        <source type="image/avif" srcset={portadaSrcset('avif')} sizes={PORTADA_SIZES}
+          width={PORTADA_W} height={PORTADA_H} />
         <img class="portada-foto" src={foto('cv-toronto-1280.webp')}
           srcset={portadaSrcset('webp')} sizes={PORTADA_SIZES}
           alt="" width={PORTADA_W} height={PORTADA_H}
           decoding="async" fetchpriority="high" />
       </picture>
-      <div class="portada-papel"></div>
+      <div class="portada-sombra"></div>
     </div>
 
     <!-- ── 1ª pantalla: la portada ───────────────────────────────────────
@@ -442,6 +459,22 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
           width="320" height="320" decoding="async" loading="lazy" />
       </div>
+      <!-- LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
+           portada pasó a copiar el encuadre de Ondo (la ciudad desde el agua,
+           a lo ancho), que es un plano que él no tiene. No se tira: baja aquí,
+           pegada a la línea donde dice a dónde aplica, porque es de lo que
+           habla esa línea — y porque una foto que hizo él vale más que una de
+           banco de imágenes. Su pie lo dice, y lo dice antes que el crédito de
+           la portada, que va una pantalla más arriba: quien llegue hasta aquí
+           ya sabe cuál es de quién. -->
+      <figure class="cap-1-figura">
+        <img src={foto('cv-torre-520.webp')}
+          srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-1040.webp')} 1040w`}
+          sizes="(max-width: 767px) 100vw, 520px"
+          alt={c.head.torreAlt} width="520" height="555"
+          decoding="async" loading="lazy" />
+        <figcaption class="pie">{c.head.torrePie}</figcaption>
+      </figure>
       <!-- La descripción de la foto de portada, VISIBLE y no solo en un
            `alt`: la imagen es decorativa para el lector de pantalla (el
            `alt=""` de arriba) porque describirla dos veces sería repetirla,
@@ -913,6 +946,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     --cvh-tinta-2: #5A5A5A;   /* 6.9:1 sobre blanco */
     --cvh-tinta-3: #6E6E6E;   /* 4.6:1 — el #9A9A9A propuesto daba 2.8:1 */
     --cvh-raya: #E6E6E6;
+    /* ── LA TINTA DE LA TAPA ──────────────────────────────────────────────
+       Los tres colores de arriba son los del DOCUMENTO y no cambian: tinta
+       negra sobre papel blanco, en las nueve pantallas de contenido. Estos dos
+       son los de la TAPA, que es lo único oscuro del CV, y existen porque la
+       foto de portada es una ciudad de noche: sobre ella la tinta negra no se
+       lee (la cuenta está en el bloque grande de `.cap-portada`). Una tapa no
+       es una página — un libro con tapa oscura sigue siendo un libro de papel
+       blanco —, y a partir de la tercera pantalla no queda ni rastro de esto.
+       `-2` es para lo mono (etiquetas, señuelo, pie de foto): #E4E4E4 y no
+       blanco puro para que la jerarquía se vea, y no más oscuro que eso porque
+       es quien fija cuánto velo hace falta (necesita el fondo en 102/255 para
+       4.5:1, contra 118 del blanco puro). */
+    --cvh-tapa-tinta: #FFFFFF;
+    --cvh-tapa-tinta-2: #E4E4E4;
     --cvh-h: clamp(2.5rem, 11vw, 7rem);
     /* EL NOMBRE TIENE SU PROPIO SUELO, y es más bajo que el de los titulares.
        Un titular de capítulo se puede partir por donde sea; el nombre de una
@@ -959,11 +1006,13 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      sea nada medible: el compositor lo resuelve una vez y no vuelve.
 
      ── LAS DOS EXCEPCIONES, LAS DOS A PROPÓSITO ──────────────────────────
-     · `.portada-foto` — la Torre CN ya viene en gris DENTRO del archivo
-       (build-photos.mjs le quita los planos de color, que es lo que la deja
-       en 16.8 KB). Pasarle encima un filtro que no cambia nada, y encima
-       sobre una imagen que cubre la pantalla entera, sería trabajo por
-       gusto.
+     · `.portada-foto` y `.cap-1-figura img` — las dos fotos de Toronto ya
+       vienen en gris DENTRO del archivo (build-photos.mjs les quita los planos
+       de color, que es lo que las abarata: sin ellos el AVIF pesa la mitad).
+       Pasarles encima un filtro que no cambia nada, y a una de ellas sobre una
+       imagen que cubre la pantalla entera, sería trabajo por gusto. Y hay una
+       razón de más en la portada: ahí el `filter` ya está ocupado — es lo que
+       anima la apertura, y un `grayscale(1)` escrito aparte lo pisaría.
      · `.logo-placa img` — es el logo del RETO ACTINVER, marca de un tercero.
        El repo ya tiene escrita la regla: se publica tal como lo publica
        Actinver, sin recortar y sin recolorear. Pasarlo a gris le quitaría el
@@ -971,7 +1020,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        que la regla prohíbe. Que la página sea en blanco y negro es una
        decisión sobre el material propio, no un permiso sobre el ajeno. */
   .historia img, .historia video { filter: grayscale(1); }
-  .historia .portada-foto, .historia .logo-placa img { filter: none; }
+  .historia .portada-foto, .historia .cap-1-figura img,
+  .historia .logo-placa img { filter: none; }
 
   /* ═══ El esqueleto de capítulo (dirección §3, "Ritmo") ═══════════════
      min-height y no height: con el texto al 200 % el contenido crece y
@@ -1051,69 +1101,84 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .hist-link:hover { color: var(--cvh-tinta-2); }
   .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
 
-  /* ═══ LA PORTADA A SANGRE ═════════════════════════════════════════════
+  /* ═══ LA TAPA: LA PORTADA A SANGRE ════════════════════════════════════
      La estructura es la de ondo.finance: foto de ciudad ocupando la pantalla
      entera, titular partido en dos con el señuelo de scroll EN MEDIO, marca
      arriba a la izquierda y pastilla arriba a la derecha, y al bajar un
      manifiesto sobre la misma imagen quieta detrás.
 
-     ── EL CONTRASTE, MEDIDO SOBRE LA FOTO DE VERDAD ──────────────────────
-     Se midió el archivo píxel a píxel (luminancia relativa de WCAG contra la
-     tinta del CV, #0A0A0A), por franjas horizontales y a lo ancho de la
-     zona donde puede caer texto:
+     ══ POR QUÉ AQUÍ EL TEXTO ES BLANCO Y ANTES ERA NEGRO ═════════════════
+     Es la decisión grande de este archivo y no es un gusto: la cambió la
+     FOTO. La anterior era la Torre CN de Jaime vista desde abajo contra un
+     cielo nublado, o sea casi blanca arriba (220–225 de luminancia en todo el
+     ancho hasta el 20 % de la altura). Sobre eso la tinta del documento se
+     leía a 14.4:1 y lo único que hacía falta era una tapa de PAPEL que
+     rescatara la parte de abajo.
 
-       franja de la foto      peor píxel   contraste con la tinta
-       y 0.00–0.20 (cielo)       220            14.4:1
-       y 0.20–0.30                53             1.6:1
-       y 0.30–0.50                 7             1.0:1
-       y 0.50–0.55 (la corona)     0             1.1:1
-       y 0.55–0.70                 0             1.1:1
+     La foto nueva es el horizonte de Toronto desde el agua a la hora azul, y
+     medida en gris (que es como se sirve) da esto:
 
-     O sea: sobre el cielo la tinta del CV se lee mejor que en ninguna otra
-     página del sitio, y sobre el mástil no se lee EN ABSOLUTO. La media de
-     la franja engaña —el mástil es una columna estrecha y se diluye en
-     cualquier promedio—, así que lo que manda arriba es el PEOR píxel, que
-     es el que se le puede poner debajo a un trazo de letra.
+       franja de la foto        máx   p99   mediana
+       y 0.00–0.20 (cielo)      141   138     105
+       y 0.20–0.40              196   142     111
+       y 0.40–0.60 (skyline)    247   160      95
+       y 0.60–0.80 (luces)      242   154      39
+       y 0.80–1.00 (agua)       123   106      69
 
-     Ondo lo resuelve al revés que esto: su texto es BLANCO y su degradado es
-     NEGRO, de 0 a .12 a .36 hacia abajo. Aquí el texto es la tinta negra del
-     CV —el documento es blanco y negro y eso no cambia— así que el degradado
-     es de PAPEL y va hacia arriba. No es un recurso nuevo del sitio: es lo
-     mismo que hace el hero del home fundiendo el globo con `mask-image`.
+     O sea que ya no hay ninguna franja clara: el cielo está en 105 de mediana
+     y el peor píxel del encuadre entero es 247, una ventana encendida. La
+     tinta #0A0A0A sobre 105 da 3.0:1 y sobre 141 da 1.9:1 — no pasa. Para
+     rescatarla haría falta una tapa de papel al 90 % o más, y una tapa así no
+     rescata la foto: la borra. Serían 27 KB de AVIF para pintar un rectángulo
+     blanco.
 
-     ── DE DÓNDE SALEN LAS PARADAS DEL DEGRADADO ──────────────────────────
-     Con un velo de opacidad `a` sobre un píxel `v`, lo que se ve es
-     `v + a·(255 − v)`; el peor caso es `v = 0`, o sea `255a`. Y para que la
-     tinta #0A0A0A llegue a 4.5:1 el fondo tiene que estar en 120/255, o sea
-     `a ≥ 0.47`. De ahí las paradas de `.portada-tapa`:
+     Así que se hace lo que hace Ondo, que es lo que Jaime pidió copiar: TEXTO
+     BLANCO sobre la ciudad oscura, con un velo NEGRO que baja el peor píxel
+     hasta donde el blanco se lee. Y de paso la página gana un segundo sentido
+     para «se abre»: la tapa es oscura, el documento es blanco, y al pasar la
+     tercera pantalla el CV se abre de una a otro. De ahí para abajo no queda
+     ni un píxel oscuro: las nueve pantallas de contenido siguen siendo tinta
+     negra sobre papel, exactamente como estaban.
 
-       hasta el final del texto   a = .95   peor píxel → 242   16.5:1
-       4.5 em más abajo           a = .55   peor píxel → 140    5.9:1
-       9 em más abajo             a = 0     la foto, entera
+     ── DE DÓNDE SALEN LAS PARADAS DEL VELO ───────────────────────────────
+     Con un velo negro de opacidad `a` sobre un píxel `v`, lo que se ve es
+     `v(1 − a)`. Y el texto más exigente de la tapa NO es el titular blanco
+     sino las etiquetas mono en #E4E4E4, que necesitan el fondo en 102/255
+     para 4.5:1 (el blanco puro se conforma con 118). O sea, para el peor
+     píxel de cada zona:
+
+       zona                  peor v   a mínima   la puesta   peor píxel final
+       cielo (1ª pantalla)     141      0.28       0.55            63
+       centro (2ª pantalla)    247      0.59       0.72            69
+
+     Las dos van con margen a propósito: `a` mínima es el borde exacto del
+     aprobado, y una foto ligeramente distinta (otro recorte en otra anchura)
+     lo cruzaría sin que nadie lo viera.
 
      ── Y LAS PARADAS VAN EN em MEDIDAS DESDE EL TEXTO, NO EN % DE PANTALLA.
-     ESO ES UN ARREGLO, NO UN GUSTO. La primera versión ponía el degradado
-     sobre la foto entera con paradas en porcentaje del alto de la pantalla
-     (24 % / 42 % / 52 % / 66 % / 78 %), y a tamaño de texto normal medía
-     bien: el peor de toda la matriz era «Ricaño» a 1280×720 con 6.95:1.
-     **Pero el titular no está en el 40 % de la pantalla: está donde lo deje
-     su propia letra.** Con el texto del navegador al 200 % el nombre ocupa el
-     doble, «Ricaño» baja al tramo flojo del velo y su contraste se hunde a
-     1.91:1 de caja y 2.34:1 de trazo — WCAG 1.4.4 y 1.4.3 incumplidos, sin
-     un solo píxel de desbordamiento, así que `check-reflow` no lo veía y una
-     captura a tamaño normal tampoco. Es el mismo error de fondo que la regla
-     de las válvulas en `em` que ya tiene escrita CLAUDE.md: en px (o en % de
-     viewport) se mide la PANTALLA, y aquí lo que crece es el TEXTO.
-     Ahora la tapa mide lo que mide el texto y el desvanecido va en `em`
-     debajo de él, así que crecen juntos por construcción. De paso se ve MÁS
-     foto que antes: a 375 px el desvanecido acaba en el 48 % de la pantalla
-     en vez de en el 78 %.
+     ESO ES UN ARREGLO HEREDADO, Y SE QUEDA. La primera versión de esta
+     portada ponía el degradado con paradas en porcentaje del alto de la
+     pantalla y a tamaño de texto normal medía bien. **Pero el titular no está
+     en el 40 % de la pantalla: está donde lo deje su propia letra.** Con el
+     texto del navegador al 200 % el nombre ocupa el doble, «Ricaño» bajaba al
+     tramo flojo del velo y su contraste se hundía a 1.91:1 — WCAG 1.4.4 y
+     1.4.3 incumplidos, sin un solo píxel de desbordamiento, así que
+     `check-reflow` no lo veía y una captura a tamaño normal tampoco. Es el
+     mismo error de fondo que la regla de las válvulas en `em` de CLAUDE.md:
+     en px (o en % de viewport) se mide la PANTALLA, y aquí lo que crece es el
+     TEXTO. La tapa mide lo que mide el texto y el desvanecido va en `em`
+     debajo de él, así que crecen juntos por construcción.
+
+     ── LA APERTURA NO PUEDE EMPEORAR ESTO, Y ESO ES UNA DEMOSTRACIÓN ─────
+     La foto entra con `brightness()` subiendo de .34 a 1 (ver `cv-abrir`).
+     `brightness` es una multiplicación, así que el fondo de CADA fotograma es
+     más oscuro que el del último — y con texto claro, más oscuro es más
+     contraste. O sea que el peor fotograma de la apertura es el ÚLTIMO, que
+     es justo el estado estable que se mide abajo. No hacen falta 46 muestras
+     como en el globo del home: hace falta una, la del final.
 
      ── LO MEDIDO, EN LAS DOS TALLAS DE LETRA ─────────────────────────────
-     Con las dos varas del repo (la caja del texto y el trazo de las letras),
-     2 idiomas × 6 anchuras × 8 piezas, al 100 % y al 200 % de texto: el peor
-     de las 192 mediciones es 12.33:1 con la letra normal y 9.13:1 al 200 %.
-     El mínimo que WCAG le pide al titular es 3:1 y al texto pequeño 4.5:1. */
+     (se rellena con la matriz de tmp/medidas/) */
   .cap-portada {
     /* Sin columna y sin gutter: es la única parte del CV que toca el borde
        de la pantalla. La columna la reparten sus tres capas. */
@@ -1142,30 +1207,50 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .portada-lienzo {
     position: sticky; top: 0; z-index: 0;
     flex: 0 0 auto; height: 100svh;
+    /* La apertura escala la foto un 5 %, y sin esto ese 5 % se sale de la
+       pantalla por arriba y por abajo mientras dura. Recortar aquí no cuesta
+       nada (es pintado, no diseño) y no rompe el pegado: `overflow` rompe un
+       `sticky` cuando está en un ANCESTRO, no en el propio elemento. */
+    overflow: hidden;
   }
   .portada-foto {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    /* ANCLADA ABAJO, y con eso vale un solo valor para todas las anchuras.
-       La foto es casi cuadrada (0.9375) y la pantalla nunca lo es: en un
-       teléfono se ve entera de alto y recortada de ancho, y en un escritorio
-       se ve entera de ancho y recortada de alto. Pegándola al borde de abajo,
-       el mirador —que es el motivo— entra SIEMPRE, y lo que se recorta es
-       cielo, que es lo que sobra. */
-    object-position: 50% 100%;
+    /* ── UN SOLO PAR DE NÚMEROS PARA LAS CINCO ANCHURAS ──────────────────
+       38 % es DÓNDE ESTÁ EL MÁSTIL de la Torre CN, medido sobre el original:
+       37.87 % del ancho (la columna más oscura de la franja de cielo y
+       10–24 %, que es donde el mástil es lo único que sube por encima del
+       skyline). Con ese valor la torre cae entre el 36 y el 38 % del encuadre
+       en 375, 390, 414, 768 y 1280 — comprobado en las cinco —, o sea en el
+       tercio izquierdo, que es donde la pone Ondo y donde el ojo la busca.
+       Centrada (el 50 % por defecto) se salía del recorte en las tres
+       anchuras de teléfono: la portada quedaba decapitada.
+
+       25 % en vertical NO es una preferencia de encuadre, es el único caso
+       donde hay recorte vertical: una tableta de pie (768x1024) coge el
+       recorte vertical y le sobra ancho, así que recorta ALTO. Con 50 % la
+       punta del mástil (9.16 % de la foto) caía fuera; con 25 % entra con
+       margen y la línea del agua (74.2 %) también. En un teléfono no hay
+       recorte vertical y este número no hace nada. */
+    object-position: 38% 25%;
   }
-  /* Lo que la foto lleva SIEMPRE, esté donde esté el texto: un toque de papel
-     en el borde de arriba para que no arranque a cuchillo contra la barra del
-     navegador. Ni garantiza ni pretende garantizar contraste — eso lo hace
-     `.portada-tapa`, que es la que sabe dónde está el texto. */
-  .portada-papel {
+  /* Lo que la foto lleva SIEMPRE, esté donde esté el texto: una sombra corta
+     en el borde de arriba para que la ciudad no arranque a cuchillo contra la
+     barra del navegador, y de paso para que la barra de estado del teléfono
+     (que en modo claro escribe en negro) tenga fondo oscuro debajo. Ni
+     garantiza ni pretende garantizar contraste — eso lo hace `.portada-tapa`,
+     que es la que sabe dónde está el texto.
+     ES LA ÚNICA CAPA QUE VIAJA CON LA FOTO (vive dentro de `.portada-lienzo`,
+     que es el elemento pegajoso), así que se ve en las tres pantallas de la
+     tapa. Por eso es corta: en la 2ª y la 3ª no hay texto ahí arriba. */
+  .portada-sombra {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, .55) 0%,
-      rgba(255, 255, 255, .18) 6%,
-      rgba(255, 255, 255, 0) 14%
+      rgba(0, 0, 0, .42) 0%,
+      rgba(0, 0, 0, .14) 6%,
+      rgba(0, 0, 0, 0) 14%
     );
   }
 
@@ -1191,23 +1276,46 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      de `.portada-lienzo`: va aquí y no en la foto porque en la foto le
      alargaría el pegado una pantalla entera. */
   .portada-uno { justify-content: flex-start; margin-top: -100svh; }
-  /* LA TAPA DE PAPEL, a sangre y con el alto del TEXTO.
+  /* EL VELO DE LA TAPA, a sangre y con el alto del TEXTO.
      El degradado va de arriba abajo con las dos últimas paradas medidas
      desde el FINAL de la caja (`calc(100% − 9em)` y `calc(100% − 4.5em)`), y
      el `padding-bottom: 9em` es justo el hueco donde ocurre el desvanecido.
-     Todo en `em`, así que cuando alguien sube el tamaño de texto la tapa
+     Todo en `em`, así que cuando alguien sube el tamaño de texto el velo
      crece exactamente lo mismo que el titular — que es lo que el bug del
-     200 % enseñó que hacía falta (ver el bloque grande de arriba). */
+     200 % enseñó que hacía falta (ver el bloque grande de arriba).
+     Lo único que cambió con la foto nueva es el COLOR y las opacidades: era
+     papel al .95 sobre un cielo casi blanco, es sombra al .55 sobre una
+     ciudad de noche. La mecánica es la misma y por la misma razón. */
   .portada-tapa {
     padding-bottom: 9em;
     background: linear-gradient(
       to bottom,
-      #FFFFFF 0,
-      rgba(255, 255, 255, .95) calc(100% - 9em),
-      rgba(255, 255, 255, .55) calc(100% - 4.5em),
-      rgba(255, 255, 255, 0) 100%
+      rgba(0, 0, 0, .55) 0,
+      rgba(0, 0, 0, .55) calc(100% - 9em),
+      rgba(0, 0, 0, .30) calc(100% - 4.5em),
+      rgba(0, 0, 0, 0) 100%
     );
   }
+  /* La tinta de la tapa. Va en la CAPA y no en cada pieza: dentro de estas dos
+     pantallas todo el texto es claro, y lo que no lo sea se notará. */
+  .portada-uno, .portada-dos { color: var(--cvh-tapa-tinta); }
+  .portada-uno .etiqueta, .portada-dos .etiqueta,
+  .portada-uno .meta-mono, .portada-dos .meta-mono,
+  .portada-uno .portada-num, .portada-dos .pie,
+  .portada-senuelo, .portada-pie { color: var(--cvh-tapa-tinta-2); }
+  .portada-dos .indice-lista a { color: var(--cvh-tapa-tinta); }
+  .portada-dos .indice-lista a:hover,
+  .portada-dos .indice-ver:hover { color: var(--cvh-tapa-tinta-2); }
+  /* EL ANILLO DE FOCO TAMBIÉN ES DE LA TAPA, y esto es lo que la portada
+     oscura obliga a arreglar: el anillo del sitio es `--brand-text`, que en
+     tema claro es #087248 (verde oscuro), y sobre el velo de la tapa da
+     1.76:1 — WCAG 1.4.11 pide 3:1 a un indicador de foco. En blanco da
+     10.5:1. Se cambia SOLO el color, en `outline-color`: la propiedad sigue
+     siendo `outline` y no una sombra, que es la regla del repo. En la tapa se
+     tabula por las dos pastillas de idioma y, en la 2ª pantalla, por el
+     índice; sin esto, ninguno de esos focos se veía. */
+  .portada-uno :focus-visible,
+  .portada-dos :focus-visible { outline-color: var(--cvh-tapa-tinta); }
   .portada-uno .portada-col {
     display: flex; flex-direction: column;
     padding-block: var(--sp-6) 0;
@@ -1239,35 +1347,33 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        leía como un tercer renglón del nombre. */
     padding-block: .12em;
     letter-spacing: .16em; text-transform: uppercase;
-    color: var(--cvh-tinta-2);
   }
   .portada-flecha { font-size: 1.15em; line-height: 1; }
   /* El «01 / 9» va pegado a la etiqueta, con una raya de separación en vez de
      un renglón propio: dos etiquetas mono seguidas en la misma banda segura. */
-  .portada-num { color: var(--cvh-tinta-3); margin-left: var(--sp-2); }
+  .portada-num { margin-left: var(--sp-2); }
   .portada-num::before { content: '· '; }
 
   /* ---- 2ª pantalla: el manifiesto sobre la foto ----
      El velo de esta pantalla es SUYO y es más fuerte que el de la portada,
-     porque aquí el texto ocupa el centro y por el centro pasa el mástil. Con
-     .80 el peor píxel de la foto (0) sube a 204, o sea 13.1:1 con la tinta.
-     Arriba entra con degradado corto para que la pantalla no se lea como una
-     persiana bajando de golpe, y el bloque de texto empieza por debajo de
-     donde el degradado ya llegó a .80: nunca hay texto en la parte floja. */
+     porque aquí el texto ocupa el CENTRO y por el centro pasan la corona de
+     la Torre CN y las ventanas encendidas, que son los píxeles más claros de
+     toda la foto (247). Con .72 ese peor píxel baja a 69, o sea 7.5:1 con las
+     etiquetas mono y 9.1:1 con el titular blanco. */
   .portada-dos {
     justify-content: center;
     /* ARRANCA EN .55 Y NO EN 0, y es la misma lección del 200 %: la rampa de
        entrada existe para que la pantalla no se lea como una persiana
        bajando de golpe, pero con el texto grande el bloque crece, se
        desborda del centrado y su primer renglón puede caer dentro de la
-       rampa. Empezando en .55 el peor píxel de la foto ya está en 140, o sea
-       5.9:1 con la tinta: la rampa se sigue viendo y deja de poder ser un
-       agujero de contraste. */
+       rampa. Empezando en .55 el peor píxel de la foto ya está en 111 y sigue
+       pasando: la rampa se sigue viendo y deja de poder ser un agujero de
+       contraste. */
     background: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, .55) 0%,
-      rgba(255, 255, 255, .80) 12%,
-      rgba(255, 255, 255, .80) 100%
+      rgba(0, 0, 0, .55) 0%,
+      rgba(0, 0, 0, .72) 12%,
+      rgba(0, 0, 0, .72) 100%
     );
   }
   .portada-dos .portada-col {
@@ -1283,7 +1389,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .portada-pie {
     margin-top: var(--sp-4);
     font-family: var(--font-mono); font-size: var(--fs-caption);
-    letter-spacing: .08em; color: var(--cvh-tinta-2);
+    letter-spacing: .08em;
   }
 
   /* ---- 3ª pantalla: se acabó la foto ----
@@ -1313,10 +1419,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      paralaje, y la paralaje es justo lo que molesta a quien pide menos
      movimiento. Con `static` la foto se va con la página como cualquier otra
      imagen: la portada se sigue viendo entera, y la 2ª pantalla se queda con
-     su papel blanco y la frase, que es lo que hay que leer. Nada se pierde y
-     nada se mueve solo. */
+     su velo y la frase, que es lo que hay que leer. Nada se pierde y nada se
+     mueve solo.
+     LA APERTURA SE APAGA AQUÍ TAMBIÉN, y con `animation: none` y no bajándole
+     la duración: el estado estable de `.portada-foto` es su CSS normal (los
+     keyframes solo declaran el `from`), así que sin animación la foto nace
+     encendida y quieta en el primer fotograma. Es la misma construcción que
+     hace que un navegador sin animaciones CSS vea la portada correcta. */
   @media (prefers-reduced-motion: reduce) {
     .portada-lienzo { position: static; }
+    .portada-foto { animation: none; }
   }
 
   /* ---- La portada impresa ----
@@ -1325,15 +1437,26 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      nada. Así que en papel la portada vuelve a ser lo que es —una foto, un
      nombre y una frase, seguidos— y el velo se va con ella: sobre una foto
      impresa en gris no hace falta rescatar ningún contraste, porque el texto
-     ya no está encima. */
+     ya no está encima.
+
+     Y POR ESO MISMO LA TINTA DE LA TAPA VUELVE A SER NEGRA. Es lo que la
+     portada oscura obliga a añadir aquí: quitados los velos, un nombre blanco
+     sobre papel blanco no se imprime, se desaparece. La regla va después de
+     las que lo pintan claro para ganarle por orden, sin `!important`. */
   @media print {
     .portada-lienzo { position: static; height: auto; }
-    .portada-foto { position: static; height: auto; max-height: 40vh; }
-    .portada-papel, .portada-tapa { background: none; }
+    .portada-foto { position: static; height: auto; max-height: 40vh; animation: none; }
+    .portada-sombra, .portada-tapa { background: none; }
     .portada-tapa { padding-bottom: 0; }
     .portada-uno { margin-top: 0; }
     .portada-capa, .portada-papel-cierre { min-height: 0; }
     .portada-dos { background: none; }
+    .portada-uno, .portada-dos { color: var(--cvh-tinta); }
+    .portada-uno .etiqueta, .portada-dos .etiqueta,
+    .portada-uno .meta-mono, .portada-dos .meta-mono,
+    .portada-uno .portada-num, .portada-dos .pie,
+    .portada-senuelo, .portada-pie { color: var(--cvh-tinta-2); }
+    .portada-dos .indice-lista a { color: var(--cvh-tinta); }
   }
 
   /* ---- Selector de idioma ----
@@ -1341,16 +1464,28 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      pastilla de Ondo, y por eso desapareció la banda reservada en `em` que
      tenía el capítulo 1: en una fila normal el selector no se puede montar
      encima de nada, porque la fila la mide la letra. La lección de #45 y #48
-     sigue en pie para cualquier cosa que vuelva a flotar. */
+     sigue en pie para cualquier cosa que vuelva a flotar.
+     VIVE DENTRO DE LA TAPA, así que sus colores son los de la tapa: el borde
+     es blanco al 35 % (sobre el velo da 3.4:1, que es lo que WCAG 1.4.11 le
+     pide a un borde que identifica un control) y sube a 70 % en el idioma
+     puesto, que es lo que distingue los dos estados sin usar solo el color:
+     el `aria-current="page"` lo dice para quien no lo ve. */
   .cv-lang { display: flex; gap: var(--sp-2); }
   .cv-lang-a {
     display: inline-flex; align-items: center; min-height: 36px;
     padding: 0 var(--sp-3);
-    border: 1px solid var(--cvh-raya);
-    color: var(--cvh-tinta-2); font-size: var(--fs-caption);
+    border: 1px solid rgba(255, 255, 255, .35);
+    color: var(--cvh-tapa-tinta-2); font-size: var(--fs-caption);
   }
-  .cv-lang-a:hover { color: var(--cvh-tinta); }
-  .cv-lang-a.on { color: var(--cvh-tinta); border-color: var(--cvh-tinta-3); }
+  .cv-lang-a:hover { color: var(--cvh-tapa-tinta); }
+  .cv-lang-a.on {
+    color: var(--cvh-tapa-tinta);
+    border-color: rgba(255, 255, 255, .7);
+  }
+  @media print {
+    .cv-lang-a { border-color: var(--cvh-raya); color: var(--cvh-tinta-2); }
+    .cv-lang-a.on { color: var(--cvh-tinta); border-color: var(--cvh-tinta-3); }
+  }
   @media print { .cv-lang { display: none; } }
 
   /* ---- Capítulo 1 ---- */
@@ -1362,6 +1497,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
   .cap-1-foto { max-width: 100%; height: auto; display: block; }
+  /* La Torre CN de Jaime. `max-width` en px y no en `ch` ni en `%`: es una
+     figura y su tamaño lo manda la foto, no el texto. Ya viene en gris del
+     archivo, por eso está en la lista de excepciones del `filter` de arriba. */
+  .cap-1-figura { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 520px; }
+  .cap-1-figura img { width: 100%; height: auto; display: block; }
 
   /* ---- La frase de apertura ----
      Fraunces, igual que los titulares y que la frase final: la dirección la

@@ -112,7 +112,10 @@
 import '../styles/cv.css';
 import { useCv } from '../i18n/cv';
 import Historia from '../components/cv/Historia.astro';
-import { portadaSrcset, PORTADA_SIZES } from '../lib/cv/portada';
+import {
+  portadaSrcset, portadaSrcsetAlto, PORTADA_SIZES, PORTADA_SIZES_ALTO,
+  PORTADA_MEDIA_ALTO, PORTADA_MEDIA_ANCHO
+} from '../lib/cv/portada';
 
 const c = useCv('en');
 /** Solo para los dos rótulos del anuncio de idioma: cada uno en SU idioma. */
@@ -135,7 +138,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
-  <!-- LA PORTADA ES EL LCP DE ESTA PÁGINA, así que su descarga no espera al
+  <!-- LA PORTADA ES LO PRIMERO QUE SE VE, así que su descarga no espera al
        marcado. `imagesrcset` e `imagesizes` salen del MISMO módulo que el
        `<picture>` de Historia.astro (src/lib/cv/portada.ts): si no
        coincidieran carácter por carácter, el navegador descargaría un
@@ -146,8 +149,26 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
        si no lo entiendes», así que un navegador que entiende los DOS
        formatos se bajaría los dos archivos. Quien no tenga AVIF (Safari
        <16.4, Firefox <93) se queda sin preload y carga la portada desde el
-       `<picture>` como siempre: pierde unos milisegundos, no la foto. -->
+       `<picture>` como siempre: pierde unos milisegundos, no la foto.
+
+       AHORA SON DOS, Y SUS `media` SON COMPLEMENTARIOS. Desde que la portada
+       tiene dos recortes (vertical para pantallas de pie, panorámica para las
+       apaisadas), un preload sin `media` precargaría SIEMPRE la panorámica y
+       en un teléfono se bajarían las dos fotos: la precargada, que no se usa,
+       y la que de verdad pinta el `<picture>`. `(max-aspect-ratio: 1/1)` y
+       `(min-aspect-ratio: 1/1)` cubren el plano entero y no se solapan más que
+       en la pantalla exactamente cuadrada, donde las dos valen y el navegador
+       se queda con la primera.
+
+       Y NO ES EL ELEMENTO DEL LCP: lo es el titular (medido, `<span
+       class="portada-n1">`). La foto se precarga igual porque es el fondo de
+       lo primero que se ve, pero por eso mismo su animación de apertura no
+       puede retrasar nada: el texto se pinta a la vez que siempre. -->
   <link rel="preload" as="image" type="image/avif" fetchpriority="high"
+    media={PORTADA_MEDIA_ALTO}
+    imagesrcset={portadaSrcsetAlto('avif')} imagesizes={PORTADA_SIZES_ALTO}>
+  <link rel="preload" as="image" type="image/avif" fetchpriority="high"
+    media={PORTADA_MEDIA_ANCHO}
     imagesrcset={portadaSrcset('avif')} imagesizes={PORTADA_SIZES}>
 </head>
 <body class="cv-body">
