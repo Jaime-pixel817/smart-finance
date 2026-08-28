@@ -1030,7 +1030,19 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     color: var(--cvh-tinta);
   }
 
-  .hist-link { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; min-height: 36px; display: inline-flex; align-items: center; }
+  /* `anywhere` y no `break-word`, y la diferencia es la que arregla el bug.
+     A 320 px con el texto al 225 % el enlace «@smart.financee, on TikTok ↗»
+     arrastraba la página 7 px de lado (WCAG 1.4.10): siendo `inline-flex`, su
+     ancho mínimo es el de su palabra más larga, y «@smart.financee,» mide 300
+     px de los 304 que hay. `break-word` parte la palabra pero NO baja ese
+     mínimo, así que la caja seguiría midiendo lo mismo; solo `anywhere` lo
+     baja, que es lo que aquí hace falta. Es la regla que CLAUDE.md ya tiene
+     escrita para `Cartera.astro`, y el motivo de que `.btn` no lo lleve
+     —partía «Newsletter» por la mitad en 18 sitios— no aplica: esto es un
+     enlace de texto dentro de un párrafo, no un botón.
+     EL FALLO ESTABA EN `main` Y NO LO VEÍA NADIE porque el CV no entraba en
+     `scripts/check-reflow.mjs`. Ahora entra, en sus dos idiomas. */
+  .hist-link { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; min-height: 36px; display: inline-flex; align-items: center; overflow-wrap: anywhere; }
   .hist-link:hover { color: var(--cvh-tinta-2); }
   .links-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
 
