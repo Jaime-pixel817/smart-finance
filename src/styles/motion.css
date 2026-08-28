@@ -6,7 +6,7 @@
    del sitio pasa a ser un buscar-y-reemplazar por cuarenta ficheros, y dos
    pantallas acaban moviéndose a velocidades distintas sin que nadie lo decida.
 
-   CUATRO DURACIONES Y NINGUNA MÁS. Cada una tiene un trabajo:
+   CUATRO DURACIONES PARA LA INTERFAZ Y NINGUNA MÁS. Cada una tiene un trabajo:
      --dur-1  120 ms  el tacto: hundir un botón, encender un estado. Por debajo
                       de ~100 ms el ojo no lo lee como movimiento sino como
                       parpadeo; por encima de ~150 ms se siente lento bajo el
@@ -18,6 +18,27 @@
      --dur-4  400 ms  superficies grandes: hojas inferiores. Es el único sitio
                       donde media vuelta de segundo se justifica, porque lo que
                       se mueve es media pantalla.
+
+   Y UNA QUINTA QUE NO ES DE LA ESCALERA, POR ESO NO SE LLAMA --dur-5:
+     --dur-abre  2400 ms  LA APERTURA DE LA PORTADA DEL CV, y de nada más.
+
+   Las cuatro de arriba son REACCIONES: algo pasó (un dedo, un dato nuevo, una
+   hoja que se pide) y la interfaz contesta. Por eso su techo es 400 ms — pasado
+   eso, quien lo provocó está esperando. Esta no reacciona a nada: es la página
+   abriéndose sola al cargar, una vez, y NADIE LA ESPERA, porque el contenido ya
+   está pintado, legible y en su sitio definitivo desde el primer fotograma. Lo
+   único que cambia mientras corre es la exposición de una foto de fondo.
+
+   De dónde sale el 2 400: la referencia que Jaime pidió copiar (ondo.finance)
+   es un vídeo de 15.021 s que va de día a noche y se queda en el último
+   fotograma. Quince segundos aquí no valen — a los tres el lector ya bajó, y
+   una apertura que termina cuando ya nadie la mira no se ve nunca. 2 400 ms es
+   lo que se tarda en leer las dos mitades del nombre con el señuelo en medio,
+   que es exactamente lo que la portada pide que hagas mientras la ciudad se
+   enciende.
+
+   REGLA QUE SIGUE EN PIE: es de un solo uso. Si aparece una segunda apertura en
+   el sitio, o esto deja de ser un token y pasa a ser una escalera, o se borra.
 
    TRES CURVAS Y UNA CUARTA CON PERMISO:
      --ease-out    lo que LLEGA: rápido al principio, se posa. Sale de la nada
@@ -49,6 +70,7 @@
   --dur-2: 180ms;
   --dur-3: 240ms;
   --dur-4: 400ms;
+  --dur-abre: 2400ms;
 
   --ease-out: cubic-bezier(.16, .84, .44, 1);
   --ease-in: cubic-bezier(.4, 0, 1, 1);
@@ -79,7 +101,7 @@
    cosa que use los tokens (que es todo) queda quieta por construcción. */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --dur-1: .01ms; --dur-2: .01ms; --dur-3: .01ms; --dur-4: .01ms;
+    --dur-1: .01ms; --dur-2: .01ms; --dur-3: .01ms; --dur-4: .01ms; --dur-abre: .01ms;
     --stagger: 0ms; --rise: 0px; --num-rise: 0px; --press: 1; --press-wide: 1; --lift: 0px;
   }
 }

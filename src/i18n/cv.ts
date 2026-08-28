@@ -113,6 +113,19 @@ const en = {
     meta: 'Business programs in Canada · September 2027 entry',
     fotoAlt: 'Jaime Sandoval Ricaño',
     // ---- La foto de la portada ----
+    // NO ES DE JAIME, y por eso lleva crédito. Jochem Raat (@jchmrt), Licencia
+    // Unsplash: uso libre, también comercial, y la atribución NO es
+    // obligatoria — se pone igual, porque es la línea que separa usar una
+    // licencia de aprovecharse de ella y porque este sitio acredita todas sus
+    // fuentes. La procedencia completa y la fecha de verificación están en
+    // public/assets/portada/LICENCIA.md.
+    portadaAlt: 'The Toronto skyline seen from the water at dusk, in black and white: the CN Tower over the lit downtown towers, and the lake in front of them.',
+    portadaPie: 'Toronto · photograph by Jochem Raat, Unsplash',
+    // El rótulo que dice de qué foto habla la descripción visible. Ver el
+    // comentario de `.portada-alt` en Historia.astro: sin él, la descripción
+    // de la portada se leía como el pie de la foto que va justo debajo.
+    portadaAltRotulo: 'The cover',
+    // ---- La Torre CN de Jaime, ya en el cuerpo ----
     // HECHO VERIFICADO, no una frase sobre Jaime: la foto es suya y la publicó
     // él. Sale de su TikTok del 20 de julio de 2026 (@smart.financee, vídeo
     // 7664460671727258900, «Canada is not just beautiful it's one of the
@@ -120,8 +133,8 @@ const en = {
     // que llevaba sobreimpreso. La fecha que se escribe es la de PUBLICACIÓN,
     // que es la que se puede comprobar abriendo el perfil — misma regla que
     // las fechas del arco de Singapur (`tiktok.arcoFuente`).
-    portadaAlt: 'The CN Tower in Toronto seen from below, in black and white: the mast against an overcast sky, the observation deck, and two office buildings at the edges.',
-    portadaPie: 'Toronto · his photograph, published July 2026'
+    torreAlt: 'The CN Tower in Toronto seen from below, in black and white: the mast against an overcast sky, the observation deck, and two office buildings at the edges.',
+    torrePie: 'Toronto · his photograph, published July 2026'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -562,10 +575,15 @@ const es: typeof en = {
     // texto de Jaime, pendiente de su revisión final
     meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
     fotoAlt: 'Jaime Sandoval Ricaño',
-    // Ver el bloque inglés: la foto es de Jaime y la fecha es la de
-    // publicación en su TikTok (20 de julio de 2026), que es la comprobable.
-    portadaAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
-    portadaPie: 'Toronto · foto suya, publicada en julio de 2026'
+    // Ver el bloque inglés: la de la portada NO es de Jaime (Jochem Raat,
+    // Licencia Unsplash, acreditada aunque la licencia no lo exija) y la de la
+    // Torre CN sí, con la fecha de publicación en su TikTok (20 de julio de
+    // 2026), que es la comprobable.
+    portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer, en blanco y negro: la Torre CN sobre las torres iluminadas del centro, y el lago delante de ellas.',
+    portadaPie: 'Toronto · foto de Jochem Raat, Unsplash',
+    portadaAltRotulo: 'La portada',
+    torreAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
+    torrePie: 'Toronto · foto suya, publicada en julio de 2026'
   },
 
   proyectos: {
