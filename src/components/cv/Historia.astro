@@ -1234,6 +1234,69 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        margen y la línea del agua (74.2 %) también. En un teléfono no hay
        recorte vertical y este número no hace nada. */
     object-position: 38% 25%;
+    /* LA APERTURA. Corre UNA VEZ al cargar y se acaba; ver `cv-abrir`. */
+    animation: cv-abrir var(--dur-abre) var(--ease-std);
+  }
+
+  /* ═══ LA APERTURA: LA CIUDAD SE ENCIENDE, UNA VEZ ═════════════════════
+     Es lo que Jaime pidió copiar de ondo.finance, y lo que allí es un vídeo
+     aquí es una foto, así que hay que decir en qué se parecen y en qué no.
+
+     LO QUE HACE ONDO, medido en su DOM: un `<video>` de 15.021 s, `muted`,
+     `autoplay`, `loop: false`, a sangre con `object-fit: cover`. Se reproduce
+     UNA sola vez y se queda clavado en el último fotograma. El contenido es un
+     timelapse de la ciudad pasando de DÍA a NOCHE: eso es «la página que se
+     abre» — la ciudad se enciende mientras lees el titular. No está ligado al
+     scroll: arranca al cargar y ya.
+
+     POR QUÉ AQUÍ NO HAY VÍDEO. Jaime pidió una IMAGEN, y además un vídeo de
+     quince segundos no cabe en el presupuesto de este CV: `lighthouserc.json`
+     le exige rendimiento ≥ 0.88 y LCP ≤ 3200 ms, y hoy va en 2 937 ms — o sea
+     263 ms de margen. La regla del encargo es que si la foto no cabe se ajusta
+     la foto, nunca el presupuesto; un vídeo directamente no entra.
+
+     CÓMO SE HACE LO MISMO CON UNA FOTO FIJA. Con una sola imagen no se puede
+     mover el sol, pero SÍ se puede mover la luz: la foto entra subexpuesta
+     (`brightness(.34)`, la ciudad apagada) y sube hasta su propia exposición.
+     Y como `brightness` es una MULTIPLICACIÓN, no un sumando, lo que gana cada
+     píxel es proporcional a lo que ya tenía: una ventana encendida (240) gana
+     158 y el cielo (105) gana 69. O sea que lo que el ojo lee no es «la foto
+     se aclara» sino «las luces se encienden contra un cielo que casi no se
+     mueve», que es el mismo golpe del timelapse de Ondo. La escala de 1.05 a 1
+     es el poso: la tapa termina de asentarse cuando la ciudad termina de
+     encenderse.
+
+     POR QUÉ ES DE OSCURO A CLARO Y NO AL REVÉS, que sería más literal (Ondo va
+     de día a noche): porque el texto es blanco. Yendo de claro a oscuro, el
+     fotograma más claro —el peor contraste de toda la animación— sería el
+     PRIMERO, justo el que tiene que ser legible. Yendo de oscuro a claro el
+     peor es el ÚLTIMO, que es el estado estable que ya está medido. No es una
+     preferencia: es lo que convierte una matriz de mediciones en una
+     demostración de una línea.
+
+     LAS CINCO REGLAS DE motion.css, UNA POR UNA:
+     (1) solo `transform`, `opacity` y `filter` — aquí son `filter` y
+         `transform`, las dos que el compositor resuelve sin remedir nada.
+     (2) una sola animación llamando la atención por pantalla — es esta, y por
+         eso el titular NO entra: ni sube, ni aparece, ni espera. Está pintado
+         y quieto desde el primer fotograma.
+     (3) se apaga con `prefers-reduced-motion` — dos veces: el token se va a
+         .01 ms y además hay un `animation: none` más abajo.
+     (4) no bloquea ningún toque — es una foto de fondo con `aria-hidden`.
+     (5) nada en bucle: sin `infinite`, sin `alternate`, una pasada y se acabó.
+
+     Y NO PUEDE RETRASAR EL LCP. El elemento del LCP de esta página no es la
+     foto sino el titular (medido: `<span class="portada-n1">`), que no anima.
+     La foto se pinta en su primer fotograma como cualquier otra imagen —
+     `filter` y `transform` no retrasan un pintado, lo transforman —, así que
+     no hay ningún fotograma en el que falte algo que luego llegue.
+
+     EL ESTADO FINAL ES EL CSS NORMAL, y por eso los keyframes solo declaran
+     el `from`. Sin `animation-fill-mode`, sin un `to` que copiar y sin nada que
+     pueda quedarse a medias: un navegador sin animaciones CSS, o con ellas
+     apagadas, enseña exactamente la portada terminada. */
+  @keyframes cv-abrir {
+    from { filter: brightness(.34); transform: scale(1.05); }
   }
   /* Lo que la foto lleva SIEMPRE, esté donde esté el texto: una sombra corta
      en el borde de arriba para que la ciudad no arranque a cuchillo contra la
