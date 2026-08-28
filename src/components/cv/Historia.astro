@@ -1198,6 +1198,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      como en el globo del home: hace falta una, la del final.
 
      ── LO MEDIDO, SOBRE LA PÁGINA PINTADA ────────────────────────────────
+     LO MIDE `npm run check-contraste-cv` (scripts/check-contraste-cv.mjs), y
+     eso es lo que hace que la frase «si se mueve el titular o se toca un velo,
+     se vuelve a medir» se pueda cumplir: hasta ahora las mediciones vivían en
+     un guion suelto de la máquina de quien las hizo.
      Con las dos varas del repo —la CAJA del texto y el TRAZO de las letras,
      sacadas comparando el mismo recorte pintado con y sin texto—, en las
      cinco anchuras que pidió Jaime (375, 390, 414, 768, 1280) x 2 idiomas x
@@ -1225,7 +1229,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
 
      ── Y LOS FOTOGRAMAS DE LA APERTURA, UNO A UNO ────────────────────────
      La demostración de arriba dice que el peor fotograma es el último; esto es
-     el recibo (tmp/medidas/apertura-contraste.mjs), midiendo la caja de cada
+     el recibo (`npm run check-contraste-cv`), midiendo la caja de cada
      pieza en t = 0, 600, 1200, 1800 y 2400 ms:
 
        390x844 al 200 %   t0      t600    t1200   t1800   t2400
@@ -1605,7 +1609,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      que identifica el control, o sea que WCAG 1.4.11 le pide 3:1 contra lo
      que tiene al lado. Al 35 % daba 2.99:1 en 375x812 — falla POR 0.01, y no
      lo enseña ninguna captura: se ve midiendo el píxel del borde contra el de
-     al lado en la página pintada (tmp/medidas/borde.mjs). Al 45 % da 3.98:1
+     al lado en la página pintada (`npm run check-contraste-cv`). Al 45 % da 3.98:1
      en la peor de las cuatro anchuras.
      El idioma PUESTO lleva el borde en blanco entero. Es la diferencia que
      antes hacían #E6E6E6 y #6E6E6E, y hace falta que sea grande: entre 45 % y
