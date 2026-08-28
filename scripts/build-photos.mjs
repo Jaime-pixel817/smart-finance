@@ -366,7 +366,7 @@ console.log('Jaime');
        para que el navegador no salte de golpe al doble de bytes, y el techo de
        cada una es su ancho NATIVO. */
     const ANCHOS_APAISADA = [960, 1280, 1620, 2160, 2880];
-    const ANCHOS_VERTICAL = [440, 620, 880, 1100, 1400];
+    const ANCHOS_VERTICAL = [440, 620, 800, 1000, 1200, 1400];
     const ALTO_LEFT = Math.round(MASTIL * g.width - 0.38 * ALTO_W);
 
     const emitir = async (nombre, pipeline, anchos, nativo) => {
@@ -420,7 +420,11 @@ console.log('Jaime');
   } else {
     const g = await sharp(src).metadata();
     console.log('Torre CN de Jaime (' + g.width + 'x' + g.height + ', gris grabado)');
-    for (const ancho of [520, 1040]) {
+    /* TRES ANCHOS Y NO DOS: la figura mide 100vw en el teléfono y 520 px como
+       mucho en escritorio, así que el móvil de Lighthouse (412 css x densidad
+       1.75 = 721 px) pedía el de 1 040 — 16.6 KB por una foto que está dos
+       pantallas por debajo del pliegue. Con el escalón de 760 pide ese. */
+    for (const ancho of [520, 760, 1040]) {
       const wp = await sharp(src).greyscale().resize(ancho).webp({ quality: 76 }).toBuffer();
       const a = publicar('cv-torre-' + ancho + '.webp', wp);
       console.log('  ' + a.padEnd(44) + kb(wp).padStart(9) + '   ' + ancho + 'x' +

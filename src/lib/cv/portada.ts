@@ -41,24 +41,35 @@
 // teléfono y la misma solución.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// LOS `sizes` DICEN MÁS DE 100vw, Y NO SON ERRATAS
+// LOS `sizes` NO SON UN vw REDONDEADO: SON LA CUENTA EXACTA DE `cover`
 // ═══════════════════════════════════════════════════════════════════════════
 // `sizes` describe cuántos píxeles de ANCHO se van a PINTAR de esta imagen, y
 // con `object-fit: cover` eso no es el ancho de la caja: es
-// `max(anchoCaja, altoCaja x proporción)`.
+// `max(anchoCaja, altoCaja x proporción)`. O sea que depende de la FORMA de la
+// ventana, y por eso no hay ningún «N vw» que sea verdad en todas.
 //
-//   VERTICAL (1400x2664, proporción 0.5255). En un teléfono de 390x844 se
-//   pinta con 844 x 0.5255 = 444 px de ancho, o sea 113.8vw. Las tres anchuras
-//   de teléfono que pide Jaime dan lo mismo (375x812, 390x844 y 414x896 son
-//   las tres 0.462), y el móvil de Lighthouse (412x823) da 105vw. Se declara
-//   115vw: cubre las cuatro con un pelo de margen y no infla la petición.
+// La forma de decirlo exacta es partir el `sizes` justo donde `cover` cambia
+// de eje, que es cuando la ventana y la foto tienen la misma proporción:
 //
-//   APAISADA (6000x2664, proporción 2.2523). Aquí el factor depende de la
-//   forma de la ventana: 141vw en 1280x800, 127vw en 1920x1080, 100vw en una
-//   pantalla tan ancha como la foto. Se declara 170vw, que es el techo
-//   razonable de un escritorio; una ventana casi cuadrada pediría más, y ahí
-//   la foto sale un poco blanda a cambio de no servirle 2 880 px a nadie que
-//   no los vaya a pintar.
+//   VERTICAL   (max-aspect-ratio: 1400/2664) 52.55vh, 100vw
+//   APAISADA   (max-aspect-ratio: 6000/2664) 225.23vh, 100vw
+//
+// Más estrecha que la foto → `cover` escala por el ALTO y se pinta
+// `alto x proporción`; más ancha → escala por el ANCHO y se pinta `100vw`. Sin
+// redondeos y sin un caso peor que pague el resto.
+//
+// LA ALTERNATIVA ERA `max(100vw, 52.55vh)`, que dice lo mismo en una línea y
+// que Chrome entiende (comprobado: elige el mismo archivo en 412x823, 390x844
+// y 768x1024). Se descarta porque un navegador que no sepa de funciones
+// matemáticas dentro de `sizes` tira toda la entrada y cae a `100vw`, que en
+// un teléfono se queda un 14 % corto — y la portada sale blanda justo donde
+// más se ve. La consulta de medios la entiende todo el mundo, y además es el
+// mismo idioma con el que ya se elige el recorte tres líneas más arriba.
+//
+// LO QUE COSTABA REDONDEAR: con `115vw` (el techo de las anchuras de teléfono)
+// el móvil de Lighthouse (412x823, densidad 1.75) pedía 829 px y se llevaba el
+// archivo de 880; con la cuenta exacta pide 757 y se lleva el de 800. Son
+// 5 KB en la ruta crítica de la página con menos margen de LCP del repo.
 //
 // Los archivos los escribe `node scripts/build-photos.mjs` (gris grabado,
 // AVIF + WebP, huella de contenido). Las dos escaleras de anchos de aquí y las
@@ -69,8 +80,8 @@ import { foto } from '../photos';
 
 /** Los cinco anchos apaisados que escribe scripts/build-photos.mjs. */
 export const PORTADA_ANCHOS = [960, 1280, 1620, 2160, 2880] as const;
-/** Los cinco anchos del recorte vertical. */
-export const PORTADA_ANCHOS_ALTO = [440, 620, 880, 1100, 1400] as const;
+/** Los seis anchos del recorte vertical. */
+export const PORTADA_ANCHOS_ALTO = [440, 620, 800, 1000, 1200, 1400] as const;
 
 /** El original apaisado, tal cual: lo que va en width/height del <img>. */
 export const PORTADA_W = 6000;
@@ -79,9 +90,9 @@ export const PORTADA_H = 2664;
 export const PORTADA_ALTO_W = 1400;
 export const PORTADA_ALTO_H = 2664;
 
-/** Ver el bloque de arriba: ninguno de los dos es 100vw, y no es una errata. */
-export const PORTADA_SIZES = '170vw';
-export const PORTADA_SIZES_ALTO = '115vw';
+/** Ver el bloque de arriba: es la cuenta de `cover`, no un vw redondeado. */
+export const PORTADA_SIZES = '(max-aspect-ratio: 6000/2664) 225.23vh, 100vw';
+export const PORTADA_SIZES_ALTO = '(max-aspect-ratio: 1400/2664) 52.55vh, 100vw';
 
 /**
  * La consulta que decide el recorte. Vive aquí porque la escriben TRES sitios

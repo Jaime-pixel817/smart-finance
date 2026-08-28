@@ -121,6 +121,10 @@ const en = {
     // public/assets/portada/LICENCIA.md.
     portadaAlt: 'The Toronto skyline seen from the water at dusk, in black and white: the CN Tower over the lit downtown towers, and the lake in front of them.',
     portadaPie: 'Toronto · photograph by Jochem Raat, Unsplash',
+    // El rótulo que dice de qué foto habla la descripción visible. Ver el
+    // comentario de `.portada-alt` en Historia.astro: sin él, la descripción
+    // de la portada se leía como el pie de la foto que va justo debajo.
+    portadaAltRotulo: 'The cover',
     // ---- La Torre CN de Jaime, ya en el cuerpo ----
     // HECHO VERIFICADO, no una frase sobre Jaime: la foto es suya y la publicó
     // él. Sale de su TikTok del 20 de julio de 2026 (@smart.financee, vídeo
@@ -577,6 +581,7 @@ const es: typeof en = {
     // 2026), que es la comprobable.
     portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer, en blanco y negro: la Torre CN sobre las torres iluminadas del centro, y el lago delante de ellas.',
     portadaPie: 'Toronto · foto de Jochem Raat, Unsplash',
+    portadaAltRotulo: 'La portada',
     torreAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
     torrePie: 'Toronto · foto suya, publicada en julio de 2026'
   },

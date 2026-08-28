@@ -334,7 +334,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <img class="portada-foto" src={foto('cv-toronto-1280.webp')}
           srcset={portadaSrcset('webp')} sizes={PORTADA_SIZES}
           alt="" width={PORTADA_W} height={PORTADA_H}
-          decoding="async" fetchpriority="high" />
+          decoding="async" />
       </picture>
       <div class="portada-sombra"></div>
     </div>
@@ -459,6 +459,18 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
           width="320" height="320" decoding="async" loading="lazy" />
       </div>
+      <!-- La descripción de la foto de PORTADA, VISIBLE y no solo en un
+           `alt`: la imagen es decorativa para el lector de pantalla (el
+           `alt=""` de arriba) porque describirla dos veces sería repetirla,
+           y aquí cuenta lo que se ve para quien no la ve.
+           VA ANTES DE LA FOTO DE JAIME Y CON RÓTULO, y las dos cosas son el
+           mismo arreglo: puesta debajo de su figura, esta descripción se leía
+           como el pie de LA TORRE CN — decía «el horizonte visto desde el
+           agua» justo debajo de una foto de la torre desde abajo. Ahora cierra
+           la tapa antes de que empiece la foto suya, y dice de qué habla.
+           El rótulo va en un `<span>` dentro del mismo párrafo: para un lector
+           de pantalla sigue siendo una sola frase. -->
+      <p class="pie portada-alt"><span class="portada-alt-rotulo">{c.head.portadaAltRotulo}:</span> {c.head.portadaAlt}</p>
       <!-- LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
            portada pasó a copiar el encuadre de Ondo (la ciudad desde el agua,
            a lo ancho), que es un plano que él no tiene. No se tira: baja aquí,
@@ -469,17 +481,12 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
            ya sabe cuál es de quién. -->
       <figure class="cap-1-figura">
         <img src={foto('cv-torre-520.webp')}
-          srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-1040.webp')} 1040w`}
+          srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
           sizes="(max-width: 767px) 100vw, 520px"
           alt={c.head.torreAlt} width="520" height="555"
           decoding="async" loading="lazy" />
         <figcaption class="pie">{c.head.torrePie}</figcaption>
       </figure>
-      <!-- La descripción de la foto de portada, VISIBLE y no solo en un
-           `alt`: la imagen es decorativa para el lector de pantalla (el
-           `alt=""` de arriba) porque describirla dos veces sería repetirla,
-           y aquí cuenta lo que se ve para quien no la ve. -->
-      <p class="pie portada-alt">{c.head.portadaAlt}</p>
      </div>
     </div>
 
@@ -1184,17 +1191,17 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      2 tallas de letra (100 % y 200 %) x 10 piezas = 200 mediciones:
 
        pieza (color)               peor caja   peor trazo   mínimo WCAG
-       etiqueta mono (#E4E4E4)        5.86        9.36          4.5
-       idioma puesto (#FFFFFF)        7.46       11.37          4.5
-       idioma apagado (#E4E4E4)       6.44        9.22          4.5
-       nombre, 1ª mitad (#FFFFFF)     4.74       10.53          3
-       señuelo (#E4E4E4)              6.54        8.41          4.5
+       etiqueta mono (#E4E4E4)        6.54        9.36          4.5
+       idioma puesto (#FFFFFF)        8.19       11.37          4.5
+       idioma apagado (#E4E4E4)       6.54        9.22          4.5
+       nombre, 1ª mitad (#FFFFFF)     4.88       10.53          3
+       señuelo (#E4E4E4)              6.15        8.41          4.5
        nombre, 2ª mitad (#FFFFFF)     4.74       10.86          3
        frase de apertura (#FFFFFF)    9.29       14.94          3
        resumen · índice · pie         7.31       12.36          4.5
 
-     El peor de las 200 es 4.74:1 de caja (el nombre a 390x844 con el texto al
-     200 %) y 8.41:1 de trazo (el señuelo a 1280x800). El nombre es texto
+     El peor de las 200 es 4.74:1 de caja (la 2ª mitad del nombre a 1280x800)
+     y 8.41:1 de trazo (el señuelo, en la misma ventana). El nombre es texto
      grande y le bastaría 3:1; pasa incluso el mínimo del texto pequeño.
 
      LA CAJA QUE SE MIDE ES LA DE CONTENIDO, NO LA DEL BORDE. Con la del borde,
@@ -1209,9 +1216,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      pieza en t = 0, 600, 1200, 1800 y 2400 ms:
 
        390x844 al 200 %   t0      t600    t1200   t1800   t2400
-       nombre 1          15.13   14.35    8.86    5.74    4.74
-       nombre 2          16.29   15.72   11.03    7.69    5.92
-       etiqueta          13.83   13.26    9.79    7.54    5.96
+       nombre 1          15.33   14.55    9.29    6.01    4.88
+       nombre 2          16.10   15.33   10.37    7.94    6.19
+       etiqueta          13.97   13.55   10.38    7.42    6.54
        señuelo           14.61   14.36   12.06    9.94    9.08
 
      Las doce series medidas (3 ventanas x 4 piezas) bajan sin excepción y
@@ -1246,6 +1253,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .portada-lienzo {
     position: sticky; top: 0; z-index: 0;
     flex: 0 0 auto; height: 100svh;
+    /* EL COLOR QUE HAY MIENTRAS LA FOTO NO HA LLEGADO, y no es decoración: es
+       lo que impide un fotograma de texto blanco sobre nada. Sin esto, lo que
+       hay detrás del velo es el papel del documento, o sea que la tapa nace
+       siendo un rectángulo gris claro con el nombre en blanco encima — y aunque
+       medido pasa (4.74:1, que es justo el peor caso de la matriz), se lee como
+       una página rota. Con el lienzo en negro la tapa nace como lo que es, y la
+       foto entra encima sin salto: la apertura arranca al 34 % de brillo, o sea
+       casi de este mismo negro. */
+    background: #0C0C0C;
     /* La apertura escala la foto un 5 %, y sin esto ese 5 % se sale de la
        pantalla por arriba y por abajo mientras dura. Recortar aquí no cuesta
        nada (es pintado, no diseño) y no rompe el pegado: `overflow` rompe un
@@ -1515,6 +1531,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     padding-block: var(--sp-10);
   }
   .portada-alt { color: var(--cvh-tinta-3); }
+  /* El rótulo, un punto más oscuro que la descripción: es lo que hay que leer
+     primero para saber de qué foto habla el párrafo. */
+  .portada-alt-rotulo { color: var(--cvh-tinta-2); }
 
   /* ---- La portada con «menos movimiento» ----
      Una foto que se queda quieta mientras el texto pasa por encima es
@@ -1547,6 +1566,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      las que lo pintan claro para ganarle por orden, sin `!important`. */
   @media print {
     .portada-lienzo { position: static; height: auto; }
+    .portada-lienzo { background: none; }
     .portada-foto { position: static; height: auto; max-height: 40vh; animation: none; }
     .portada-sombra, .portada-tapa { background: none; }
     .portada-tapa { padding-bottom: 0; }
