@@ -286,29 +286,42 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        titular partido en dos renglones con «Scroll to explore ↓» EN MEDIO,
        marca arriba a la izquierda y pastilla arriba a la derecha, y al bajar
        un manifiesto grande sobre la misma imagen que se queda quieta detrás.
-       Lo que NO se copia es la identidad: Ondo es violeta corporativo y
-       vídeo; esto es blanco y negro y una foto fija, y el titular de Ondo es
-       su promesa comercial mientras que el de un CV es el nombre de la
-       persona. Y donde Ondo pone una sans geométrica para lo declarativo,
-       aquí manda la regla que este archivo ya tenía: Fraunces para los
-       titulares y las palabras de Jaime, mono para lo que es interfaz.
+       Lo que NO se copia es la identidad: Ondo es violeta corporativo, y el
+       titular de Ondo es su promesa comercial mientras que el de un CV es el
+       nombre de la persona. Y donde Ondo pone una sans geométrica para lo
+       declarativo, aquí manda la regla que este archivo ya tenía: Fraunces
+       para los titulares y las palabras de Jaime, mono para lo que es
+       interfaz.
 
-       ── LA IMAGEN ES SUYA ─────────────────────────────────────────────────
-       La Torre CN, fotografiada por Jaime y publicada en su TikTok el 20 de
-       julio de 2026 (ver `head.portadaAlt` en src/i18n/cv.ts). Ondo usa
-       Nueva York porque es donde está su mercado; aquí es Toronto porque es
-       adonde va la solicitud, y además es una foto que hizo él.
+       ── EL VÍDEO DE ONDO, HECHO CON UNA FOTO ──────────────────────────────
+       Lo suyo es un `<video>` de 15.021 s, `muted`, `autoplay`, `loop: false`:
+       un timelapse de la ciudad pasando de DÍA a NOCHE que corre una vez y se
+       queda en el último fotograma. Aquí es una imagen —lo pidió Jaime, y
+       quince segundos de vídeo no caben en el presupuesto de esta página— y
+       el mismo golpe se hace moviendo la LUZ en vez del sol: la foto entra
+       subexpuesta y sube a su exposición. El razonamiento entero, y por qué va
+       de oscuro a claro y no al revés, está en `cv-abrir`, abajo.
+
+       ── LA IMAGEN NO ES SUYA, Y POR ESO LLEVA CRÉDITO ─────────────────────
+       El horizonte de Toronto desde el agua a la hora azul: Jochem Raat
+       (@jchmrt), Licencia Unsplash — uso libre, también comercial, y la
+       atribución NO es obligatoria. Se pone igual, en `head.portadaPie`,
+       porque es la línea que separa usar una licencia de aprovecharse de
+       ella. La procedencia está en public/assets/portada/LICENCIA.md.
+       Es el plano de Ondo (la ciudad desde el agua, a lo ancho) y Jaime no lo
+       tiene. LA SUYA —la Torre CN que fotografió él— NO SE TIRA: está en el
+       cuerpo de este mismo capítulo, tres pantallas más abajo, con su pie
+       diciendo que es suya. Ondo usa Nueva York porque es donde está su
+       mercado; aquí es Toronto porque es adonde va la solicitud.
 
        ── EL CONTRASTE ESTÁ MEDIDO, NO MIRADO ───────────────────────────────
-       La foto es clarísima arriba (cielo nublado, 220–225 de luminancia en
-       todo el ancho hasta el 20 % de la altura) y muy oscura abajo (el
-       mirador, el edificio de la izquierda y el mástil bajo la corona bajan
-       a 0). O sea: la tinta negra del CV se lee sobre este cielo a 14.4:1
-       —mejor que cualquier texto del sitio— y sobre el mástil no se lee.
-       Ondo lo resuelve al revés: texto BLANCO y un degradado NEGRO que va de
-       0 a .36 hacia abajo. Aquí el degradado es de PAPEL y va hacia arriba
-       (`.portada-papel`), que además es lo que ya hace el hero del home con
-       su `mask-image`. Los números están en el bloque de estilo de abajo. -->
+       Esta foto es de NOCHE: en gris el cielo está en 105 de mediana y el peor
+       píxel del encuadre es 247, una ventana encendida. La tinta del documento
+       sobre 105 da 3.0:1, así que aquí se hace lo que hace Ondo —texto BLANCO
+       y velo NEGRO— y no lo que hacía la versión anterior de esta portada, que
+       tenía una foto de cielo nublado y la resolvía con una tapa de PAPEL. Los
+       números, la cuenta de la que salen y las 200 mediciones que la
+       comprueban están en el bloque de estilo de abajo. -->
   <header class="cap cap-portada" aria-labelledby={`${p}-h1`}>
 
     <!-- LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
