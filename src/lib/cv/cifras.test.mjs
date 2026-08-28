@@ -1,7 +1,7 @@
-// Las tres cifras del capítulo 2 del CV son lo único que esa página afirma
+// Las cifras del capítulo 5 del CV son lo único que esa página afirma
 // por su cuenta, y son justo lo que un comité de admisiones puede ir a
-// comprobar: "10 lecciones, 41 fuentes primarias, 61 términos". Se cuentan en
-// el build de los archivos reales, que es lo correcto — pero una cuenta rota
+// comprobar: "418 pruebas, 41 fuentes primarias, 61 términos, 10 lecciones".
+// Se cuentan en el build de los archivos reales, que es lo correcto — pero una cuenta rota
 // NO rompe nada: el build termina, la página se publica y enseña un número
 // falso. Falla en silencio, que es la peor forma de fallar en la única página
 // del sitio que nadie va a revisar dos veces.
@@ -20,9 +20,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { contarCifras } from './cifras.mjs';
+import { contarCifras, contarPruebas, pruebasSangradas } from './cifras.mjs';
 
 const SRC = new URL('../../', import.meta.url);
+const RAIZ = new URL('../../../', import.meta.url);
 const LECCIONES = new URL('content/lessons/', SRC);
 const GLOSARIO = new URL('data/glossary.json', SRC);
 const HISTORIA = new URL('components/cv/Historia.astro', SRC);
@@ -115,12 +116,12 @@ test('ninguna lección baja de dos fuentes verificadas', () => {
 test('el CV pinta las cifras del módulo y no un número escrito a mano', () => {
   const fuente = readFileSync(HISTORIA, 'utf8');
   assert.match(
-    fuente, /import \{ contarCifras \} from '\.\.\/\.\.\/lib\/cv\/cifras\.mjs'/,
+    fuente, /import \{ contarCifras, contarPruebas \} from '\.\.\/\.\.\/lib\/cv\/cifras\.mjs'/,
     'Historia.astro dejó de usar src/lib/cv/cifras.mjs: la cuenta volvió a un sitio sin pruebas'
   );
   const bloque = /<ul class="cifras">([\s\S]*?)<\/ul>/.exec(fuente);
-  assert.ok(bloque, 'no se encontró el bloque <ul class="cifras"> del capítulo 2');
-  for (const v of ['{nLecciones}', '{nFuentes}', '{nGlosario}']) {
+  assert.ok(bloque, 'no se encontró el bloque <ul class="cifras"> del capítulo 5');
+  for (const v of ['{nPruebas}', '{nFuentes}', '{nGlosario}']) {
     assert.ok(bloque[1].includes(v), `el bloque de cifras ya no pinta ${v}`);
   }
   assert.doesNotMatch(
@@ -128,4 +129,70 @@ test('el CV pinta las cifras del módulo y no un número escrito a mano', () => 
     'hay un dígito escrito a mano en el bloque de cifras del CV. Esas tres cifras se cuentan de los archivos reales; ' +
     'una escrita a mano se queda vieja en silencio y la página miente sin que falle nada.'
   );
+  // Las lecciones salieron de las cifras grandes (un «10» a 200 px no es un
+  // titular) pero SIGUEN pintándose, con el número delante de su frase. Si
+  // alguien las quita del todo, la página deja de decir cuántas hay.
+  assert.match(
+    fuente, /\{nLecciones\} \{c\.prueba\.stats\.lecciones\}/,
+    'el CV dejó de pintar el número de lecciones'
+  );
+});
+
+// ═════════════════════════════════════════════════════════════════════════
+// LAS PRUEBAS AUTOMÁTICAS: la cifra más fácil de publicar mal
+// ═════════════════════════════════════════════════════════════════════════
+// Las otras tres cifras se cuentan de archivos que solo pueden decir una cosa.
+// Esta se cuenta del CÓDIGO, y el peligro no es que la cuenta falle sino que
+// cuente algo distinto de lo que imprime `npm test`: el CV diría «415 pruebas»
+// mientras el corredor dice otra cosa, y eso en la página que presume de que
+// cada cifra se puede ir a comprobar.
+
+/** Todos los ficheros de prueba del repo, con su ruta relativa y su texto. */
+function ficherosDePrueba() {
+  const salida = [];
+  const anda = (dir, rel) => {
+    for (const e of readdirSync(new URL(dir, RAIZ), { withFileTypes: true })) {
+      if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
+      if (e.isDirectory()) anda(dir + e.name + '/', rel + e.name + '/');
+      else if (/\.test\.(mjs|js)$/.test(e.name)) {
+        salida.push({ nombre: rel + e.name, texto: readFileSync(new URL(dir + e.name, RAIZ), 'utf8') });
+      }
+    }
+  };
+  for (const raiz of ['src/', 'api/', 'scripts/']) anda(raiz, raiz);
+  return salida.sort((a, b) => a.nombre.localeCompare(b.nombre));
+}
+
+test('contarPruebas cuenta lo mismo que sale contando a mano', () => {
+  const ficheros = ficherosDePrueba();
+  assert.ok(ficheros.length >= 25, `solo encontré ${ficheros.length} ficheros de prueba; el barrido se rompió`);
+  // Conteo independiente: renglón a renglón, sin regex global.
+  const aMano = ficheros.reduce((s, f) => s + f.texto.split(/\r?\n/).filter((l) => /^(test|it)\(/.test(l)).length, 0);
+  assert.equal(contarPruebas(ficheros.map((f) => f.texto)), aMano);
+  assert.ok(aMano > 300, `salieron ${aMano} pruebas: eso no es una cuenta, es un fallo`);
+});
+
+test('ninguna prueba se declara sangrada, que es lo que hace válida la cuenta del CV', () => {
+  // `node --test` cuenta pruebas DECLARADAS. Contar los renglones que empiezan
+  // por `test(` da su mismo número solo mientras no haya pruebas anidadas ni
+  // generadas dentro de un bucle — y esas empiezan sangradas. En cuanto
+  // alguien escriba una, esta prueba se cae y dice que la cifra del CV ya no
+  // se puede publicar tal cual, en vez de dejar que la página mienta.
+  const malas = pruebasSangradas(ficherosDePrueba());
+  assert.deepEqual(
+    malas, [],
+    'estos ficheros declaran pruebas con sangría: ' + malas.join(', ') + '. ' +
+    'Una prueba anidada o dentro de un bucle hace que `npm test` cuente más pruebas de las que cuenta ' +
+    'src/lib/cv/cifras.mjs, y el CV publica esa cifra al tamaño de un titular. Antes de dejarlas, hay que ' +
+    'cambiar la cuenta (y este comentario) para que siga diciendo lo mismo que el corredor.'
+  );
+});
+
+test('el CV cuenta las pruebas de src/, api/ y scripts/, que son las tres que corre npm test', () => {
+  const fuente = readFileSync(HISTORIA, 'utf8');
+  const m = /import\.meta\.glob\('([^']+)'/.exec(fuente);
+  assert.ok(m, 'Historia.astro ya no lee los ficheros de prueba con import.meta.glob');
+  for (const carpeta of ['src', 'api', 'scripts']) {
+    assert.ok(m[1].includes(carpeta), `el glob del CV ya no mira ${carpeta}/: la cifra se quedaría corta`);
+  }
 });

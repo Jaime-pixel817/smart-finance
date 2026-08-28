@@ -109,7 +109,7 @@ import { loadReport } from '../../lib/research/reports';
 import { day, month } from '../../lib/research/format.mjs';
 import { foto } from '../../lib/photos';
 import { portadaSrcset, PORTADA_SIZES, PORTADA_W, PORTADA_H } from '../../lib/cv/portada';
-import { contarCifras } from '../../lib/cv/cifras.mjs';
+import { contarCifras, contarPruebas } from '../../lib/cv/cifras.mjs';
 import { getCollection } from 'astro:content';
 import glosario from '../../data/glossary.json';
 
@@ -138,6 +138,20 @@ const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
 // Los tres números que se pintan abajo salen de aquí y NO se escriben a mano.
 const { lecciones: nLecciones, fuentes: nFuentes, glosario: nGlosario } =
   contarCifras(await getCollection('lessons'), glosario as unknown as unknown[]);
+
+// LAS PRUEBAS AUTOMÁTICAS, CONTADAS IGUAL: leyendo los ficheros de verdad.
+// `import.meta.glob` con `?raw` y no `node:fs` porque el repo no declara
+// @types/node y `astro check` se cae en cuanto un componente ve `node:fs` —
+// es la misma razón por la que la caída segura de las og:image va por un
+// manifiesto (ver el encabezado de src/lib/og.ts).
+// Los `.test.mjs` no viven solo en src/: hay cinco en api/_lib/ y tres en
+// scripts/derive/, y las tres carpetas cuentan porque las tres corren con
+// `npm test`. Esto pasa SOLO en el build (frontmatter de Astro), así que
+// ningún byte de estos ficheros viaja al navegador.
+const PRUEBAS = import.meta.glob('/{src,api,scripts}/**/*.test.{mjs,js}', {
+  query: '?raw', import: 'default', eager: true
+}) as Record<string, string>;
+const nPruebas = contarPruebas(Object.values(PRUEBAS));
 
 // ---------------------------------------------------------------- la cinta
 const CINTA_IDS = ['spy', 'usdmxn', 'btc'];
@@ -588,11 +602,46 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </ul>
         <p class="pie">{c.tape.note} {c.tape.fail}</p>
 
+        <!-- ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
+             El otro ritmo que se copia de Ondo: tres cifras al tamaño de un
+             titular con su rótulo debajo. Lo que NO se copia es cuáles y cómo
+             se mueven, y las dos cosas están razonadas.
+
+             CUÁLES. Ondo pone «$2.19B TVL», que aguanta cualquier tamaño.
+             Aquí las candidatas eran cinco y solo tres aguantan: un «10» a
+             200 px no es un titular, es una broma tipográfica. Así que a lo
+             grande van las PRUEBAS, las FUENTES y los TÉRMINOS, y las diez
+             lecciones se quedan donde estaban, en el renglón de al lado —
+             que además es donde dicen algo, porque las 41 fuentes son
+             fuentes DE esas diez lecciones. Los commits (164 en 35 días)
+             quedan fuera a propósito: son la única cifra de la lista que el
+             build no puede contar, porque el despliegue no lleva historia de
+             git, y una cifra escrita a mano se queda vieja en silencio.
+
+             CÓMO. Ondo las rueda como un odómetro y aquí no se mueven, y no
+             es por trabajo: es que ese gesto diría lo contrario de lo que
+             dice la página. Un odómetro enseña una cifra LLEGANDO — vale para
+             un TVL que sube mientras lo miras —, y estas tres ya estaban ahí
+             antes de que nadie abriera la página: son recibos, y un recibo no
+             se anima. Además la regla de movimiento del sitio da UNA animación
+             que llame la atención por pantalla, y en esta ya se la gasta la
+             cinta, que es el único número de la pantalla que de verdad llega
+             en caliente. Lo que sí se copia es la escala. -->
         <ul class="cifras">
-          <li><span class="cifra num">{nLecciones}</span> <span class="cifra-que">{c.prueba.stats.lecciones}</span></li>
-          <li><span class="cifra num">{nFuentes}</span> <span class="cifra-que">{c.prueba.stats.fuentes}</span></li>
-          <li><span class="cifra num">{nGlosario}</span> <span class="cifra-que">{c.prueba.stats.glosario}</span></li>
+          <li>
+            <span class="cifra num">{nPruebas}</span>
+            <span class="cifra-que">{c.prueba.stats.pruebas}</span>
+          </li>
+          <li>
+            <span class="cifra num">{nFuentes}</span>
+            <span class="cifra-que">{c.prueba.stats.fuentes}</span>
+          </li>
+          <li>
+            <span class="cifra num">{nGlosario}</span>
+            <span class="cifra-que">{c.prueba.stats.glosario}</span>
+          </li>
         </ul>
+        <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
@@ -1287,10 +1336,37 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   }
 
   /* ---- Las cifras contadas ---- */
-  .cifras { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-8); }
-  .cifras li { display: flex; flex-direction: column; gap: 2px; min-width: 0; max-width: 22ch; }
-  .cifra { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; font-size: var(--fs-num-xl); line-height: 1.1; }
-  .cifra-que { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+  /* ---- Los números que cuentan (la escala de Ondo) ----
+     Antes eran tres cifras del tamaño de un número de tabla. Ahora tienen el
+     tamaño de un titular y su rótulo debajo, que es como se leen las de Ondo.
+     `auto-fit` con un mínimo en `ch` y no en px: el mínimo tiene que crecer
+     cuando crece la letra, o al 200 % tres columnas de 200 px reales se
+     quedan con dos palabras por renglón.
+     Las cifras van en Fraunces y no en mono: a este tamaño la mono se lee
+     como un contador de servidor, y estas tres son parte de lo que la página
+     AFIRMA — o sea de la misma casta que los titulares. La mono se queda con
+     el rótulo, que es lo que sí es interfaz. `tabular-nums` igual, que es lo
+     que evita que el 1 y el 4 bailen. */
+  .cifras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(11ch, 100%), 1fr));
+    gap: var(--sp-6) var(--sp-8);
+    max-width: 720px;
+    border-top: 1px solid var(--cvh-raya);
+    padding-top: var(--sp-6);
+  }
+  .cifras li { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .cifra {
+    font-family: var(--font-serif); font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(2.75rem, 9vw, 5rem); line-height: .9;
+    letter-spacing: -0.03em;
+  }
+  .cifra-que {
+    font-family: var(--font-mono); font-size: var(--fs-caption);
+    line-height: 1.4; letter-spacing: .04em; color: var(--cvh-tinta-2);
+    overflow-wrap: anywhere;
+  }
 
   /* ---- Fotos y huecos de foto en fila ---- */
   .fila-fotos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-3); max-width: 720px; }

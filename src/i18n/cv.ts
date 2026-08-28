@@ -146,8 +146,13 @@ const en = {
     // Las cifras de al lado se CUENTAN en el build desde los archivos reales
     // del repo (Historia.astro); estos son solo sus rótulos.
     stats: {
-      lecciones: 'lessons, each written in English and Spanish',
-      fuentes: 'primary sources cited across those lessons',
+      // Este ya NO es un rótulo de cifra grande: va en una frase, con el
+      // número delante, porque un «10» al tamaño de un titular no se sostiene.
+      lecciones: 'lessons, each written in English and Spanish — the sources above are theirs.',
+      // Los tres rótulos de las cifras grandes. Cortos a propósito: van
+      // debajo de un número enorme y compiten con él si se alargan.
+      pruebas: 'automated tests, run on every change',
+      fuentes: 'primary sources cited in the lessons',
       glosario: 'glossary terms, bilingual',
       // El 403 de los borradores: la promesa ética del sitio, verificable.
       promesa: 'And one promise you can test: no AI-written text is published without a person approving it. Asking the public endpoint for unreviewed drafts answers 403, on purpose.'
@@ -563,8 +568,9 @@ const es: typeof en = {
   prueba: {
     lede: 'smartfinance.lat es un sitio bilingüe de educación financiera, y esta página corre sobre su mismo código: los mismos endpoints, los mismos chips de fuente, los mismos retrasos. Los precios de abajo se piden al abrir esta página. Nada de lo que hay aquí es una captura.',
     stats: {
-      lecciones: 'lecciones, cada una escrita en inglés y en español',
-      fuentes: 'fuentes primarias citadas en esas lecciones',
+      lecciones: 'lecciones, cada una escrita en inglés y en español — las fuentes de arriba son suyas.',
+      pruebas: 'pruebas automáticas, en cada cambio',
+      fuentes: 'fuentes primarias citadas en las lecciones',
       glosario: 'términos de glosario, bilingües',
       promesa: 'Y una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe. Pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
     },
