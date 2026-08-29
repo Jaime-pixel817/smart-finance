@@ -668,14 +668,20 @@ const en = {
     // simulación de Vista Equity Partners (2026-08, urn 7495934696430764032).
     // En inglés en el original: aquí no hay traducción que revisar.
     //
-    // LA CITA LLEGA HASTA DONDE TERMINA LA IDEA, Y EL RECORTE SE VE. Antes
+    // LA CITA LLEGA HASTA DONDE TERMINA LA IDEA, Y TODO RECORTE SE VE. Antes
     // cortaba en «Rule of 40 framework.» con punto final, y ese punto no
     // estaba en el post: se leía como el final de su frase cuando el post
     // seguía. Ahora va la idea entera —del 10-K al resumen de méritos contra
-    // riesgos— y lo que falta en medio lleva su «[…]» dentro de las comillas.
-    // Lo omitido es lo que la captura de la evidencia no traía
-    // (cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md), no una elección de estilo.
-    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
+    // riesgos— y lo ÚNICO que falta lleva su «[…]» dentro de las comillas:
+    // la explicación de la Rule of 40 («one of the key benchmarks investors
+    // use to assess whether a SaaS company is balancing growth and
+    // profitability effectively. From there,»). El post completo está en
+    // cv-material/MATERIAL.md (LI-01), así que la omisión es una elección de
+    // longitud, marcada. El paréntesis «(alongside investor presentation
+    // data)» es SUYO y va verbatim: se había caído sin marca (un segundo
+    // recorte invisible dentro de una cita «verbatim») y se restauró el
+    // 2026-08-29. Un recorte sin su marca convierte la cita en desmentible.
+    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings (alongside investor presentation data) into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
     peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation (2026). The “[…]” marks a passage this page does not reproduce.',
     // Marca de traducción, VISIBLE, encima de la cita. Vacía en inglés: ahí la
     // cita es el original. Misma regla que la traducción de la frase final.
@@ -1103,7 +1109,7 @@ const es: typeof en = {
     // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
-    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
+    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré (junto con datos de la presentación a inversionistas) en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
     peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
     peTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
