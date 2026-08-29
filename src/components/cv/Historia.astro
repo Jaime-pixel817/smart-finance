@@ -1,6 +1,7 @@
 ---
-// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Nueve capítulos, blanco y
-// negro, scroll con imán. Se renderiza UNA VEZ POR IDIOMA dentro de la misma
+// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Nueve capítulos, tinta
+// sobre papel con fotos a color, scroll suelto (el imán se quitó: ver
+// Cv.astro). Se renderiza UNA VEZ POR IDIOMA dentro de la misma
 // página (ver Cv.astro). Sustituye a "La mesa", y se queda con lo mejor de
 // ella: la cinta viva, el calendario del Reto, la tarjeta del research y la
 // cartera del concurso — la prueba de que detrás hay una plataforma real.
@@ -333,11 +334,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
 
   <!-- ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
        El capítulo 1 sigue siendo UNO —el orden que aprobó Jaime no se toca—,
-       pero ahora ocupa tres pantallas seguidas con la MISMA foto detrás:
+       pero ahora ocupa tres pantallas seguidas:
 
-         1ª  la portada: el nombre partido en dos con el señuelo en medio
-         2ª  el manifiesto: su frase de apertura, y el índice pegado debajo
-         3ª  el papel: su meta, los dos huecos y su retrato
+         1ª  la portada: el nombre partido en dos con el señuelo en medio,
+             sobre la foto a sangre (la tapa oscura)
+         2ª  EL EFECTO DE LA TARJETA: la foto se encoge en una tarjeta de
+             esquinas redondeadas entre las dos mitades del titular, ya
+             sobre papel, y debajo el manifiesto y el índice
+         3ª  el papel: su meta, el hueco y su retrato
 
        ── QUÉ SE COPIÓ DE ondo.finance Y QUÉ NO ─────────────────────────────
        De Ondo se copia la ESTRUCTURA y el RITMO: foto de ciudad a sangre,
@@ -468,30 +472,71 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      </div>
     </div>
 
-    <!-- ── 2ª pantalla: el manifiesto, sobre la misma foto ────────────────
-         Es el segundo tiempo de Ondo: la imagen se queda y encima entra un
-         párrafo grande. Ahí el párrafo es el manifiesto de la empresa; aquí
-         es la frase con la que Jaime abre su CV, que es lo mismo que pidió
-         él («quiero que priorices primero la primera frase»).
-         El velo de esta pantalla es más fuerte que el de la portada porque
-         el texto ocupa el centro, que es por donde pasa el mástil. Los
-         números, abajo. -->
-    <div class="portada-capa portada-dos">
+    <!-- ── 2ª pantalla: EL EFECTO DE LA TARJETA (la secuencia de Ondo) ────
+         Es el paso 2 del vídeo de referencia (cv-material/referencia-efecto):
+         al bajar, la foto de portada SE ENCOGE EN UNA TARJETA de esquinas
+         redondeadas que queda anidada ENTRE las dos mitades del titular, ya
+         sobre papel — y debajo entra el manifiesto, que en Ondo es su promesa
+         comercial y aquí es la frase de apertura de Jaime.
+
+         ── CÓMO ESTÁ HECHO, Y EN QUÉ DEGRADA ─────────────────────────────
+         Esta pantalla es PAPEL OPACO que sube sobre la foto pegada de la
+         tapa. Dentro, la tarjeta trae la MISMA foto (el recorte vertical del
+         manifiesto, otro archivo del mismo original) y entra escalada a 1.9
+         con `animation-timeline: view()` sobre la propia pantalla: mientras
+         la pantalla entra, lo que se ve es la ciudad a sangre encogiéndose
+         hasta su marco redondeado, con el titular partido alrededor. Cero
+         JavaScript.
+           · El radio NO se anima (la regla de motion.css solo permite
+             transform/opacity/filter): la tarjeta tiene su radio ESCRITO y
+             `overflow: hidden`, y lo que se anima es `transform: scale` — a
+             1.9 las esquinas quedan recortadas por la propia pantalla
+             (`overflow: clip`), así que a sangre no se ven y al encoger
+             aparecen. Ninguna excepción nueva.
+           · Los keyframes solo declaran el `from`: el estado final ES el CSS
+             normal. En un navegador sin scroll-driven animations (Firefox
+             estable) o con «menos movimiento», la tarjeta nace YA ENCOGIDA y
+             quieta entre las dos mitades — la secuencia completa se degrada a
+             su último fotograma, sin JS y sin saltos.
+           · Los marcos concéntricos del vídeo de referencia son el ::after:
+             un aro redondeado que nace pequeño y se disuelve al llegar. Es
+             parte del MISMO gesto (una sola animación de atención por
+             pantalla: la tarjeta, con sus tres capas moviéndose juntas, igual
+             que la órbita del globo son varios transform de un solo gesto).
+
+         LAS DOS MITADES DEL NOMBRE VAN `aria-hidden`: el nombre completo ya
+         lo dio el <h1> de la tapa una pantalla antes, y repetirlo aquí en el
+         árbol de accesibilidad sería anunciarlo dos veces. Lo mismo la
+         tarjeta: es la foto de portada otra vez (su descripción visible sigue
+         en la 3ª pantalla). -->
+    <div class="portada-tarjeta">
      <div class="portada-col">
+      <div class="tarjeta-escena" aria-hidden="true">
+        <p class="tarjeta-n">{c.head.nameL1}</p>
+        <div class="tarjeta">
+          <img src={foto('cv-toronto-alto-620.webp')}
+            srcset={`${foto('cv-toronto-alto-440.webp')} 440w, ${foto('cv-toronto-alto-620.webp')} 620w, ${foto('cv-toronto-alto-800.webp')} 800w`}
+            sizes="(max-width: 480px) 88vw, 420px"
+            alt="" width={PORTADA_ALTO_W} height={PORTADA_ALTO_H}
+            loading="lazy" decoding="async" />
+        </div>
+        <p class="tarjeta-n">{c.head.nameL2}</p>
+      </div>
       <!-- Palabras de Jaime, con la ortografía y la puntuación pulidas y
            nada más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
            final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
            (`aperturaTag`, vacío en español): unas comillas sin marca se leen
            como sus palabras exactas. Misma regla que `voz.pe` y que la
-           traducción de la frase final. -->
+           traducción de la frase final. AHORA VA SOBRE PAPEL, no sobre la
+           foto: es el mismo movimiento de Ondo (su manifiesto entra en blanco
+           justo debajo de la segunda mitad del titular). -->
       <blockquote class="abre">
         {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
         <p>{c.voz.apertura}</p>
       </blockquote>
       <!-- EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
            QUE ANTES: es la salida de emergencia del lector con prisa y tiene
-           que verse sin bajar más. Lo que cambió es que ahora la frase tiene
-           su propia pantalla, así que caben las dos con aire. -->
+           que verse sin bajar más. -->
       <div class="indice-linea">
         <p class="meta-mono">{c.indice.resumen}</p>
         <details class="indice">
@@ -507,9 +552,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           </ol>
         </details>
       </div>
-      <!-- El pie de foto: de quién es y de cuándo. Va aquí y no en la
-           portada porque en la portada compite con el nombre, y porque es
-           la última pantalla en la que la foto todavía se ve. -->
+      <!-- El pie de foto: de quién es. Va en la pantalla de la tarjeta, que
+           es la última en la que la foto se ve. -->
       <p class="portada-pie">{c.head.portadaPie}</p>
      </div>
     </div>
@@ -1074,15 +1118,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      viéndose B/N porque SU original es B/N: así la publicó él). */
 
   /* ═══ El esqueleto de capítulo (dirección §3, "Ritmo") ═══════════════
-     min-height y no height: con el texto al 200 % el contenido crece y
-     `proximity` tolera secciones altas (medido). El imán vive en cv.css. */
+     min-height y no height: con el texto al 200 % el contenido crece y un
+     alto fijo lo recortaría. (El imán de scroll ya no existe: Cv.astro.) */
   .cap {
     position: relative;
     min-height: 100svh;
     display: flex; flex-direction: column; justify-content: center;
     gap: var(--sp-5);
     padding-block: var(--sp-8);
-    scroll-snap-align: start;
     /* LA COLUMNA VIVE AQUÍ Y YA NO EN EL PANEL. Hasta la portada a sangre,
        `.cv-pane` llevaba la clase `container` y ese ancho máximo cubría
        TODA la página, portada incluida: ninguna foto podía tocar el borde.
@@ -1277,8 +1320,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        de la pantalla. La columna la reparten sus tres capas. */
     max-width: none; padding-inline: 0; padding-block: 0;
     min-height: 0; gap: 0; justify-content: flex-start;
-    /* Snapean las tres pantallas, no el capítulo que las contiene. */
-    scroll-snap-align: none;
   }
 
   /* LA FOTO, PEGADA ARRIBA MIENTRAS DURA EL CAPÍTULO. Es la mecánica del
@@ -1428,7 +1469,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     position: relative; z-index: 1;
     min-height: 100svh;
     display: flex; flex-direction: column;
-    scroll-snap-align: start;
   }
   .portada-col {
     width: 100%; max-width: calc(var(--container) - 2 * var(--gutter));
@@ -1461,26 +1501,22 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       rgba(0, 0, 0, 0) 100%
     );
   }
-  /* La tinta de la tapa. Va en la CAPA y no en cada pieza: dentro de estas dos
-     pantallas todo el texto es claro, y lo que no lo sea se notará. */
-  .portada-uno, .portada-dos { color: var(--cvh-tapa-tinta); }
-  .portada-uno .etiqueta, .portada-dos .etiqueta,
-  .portada-uno .meta-mono, .portada-dos .meta-mono,
-  .portada-uno .portada-num, .portada-dos .pie,
-  .portada-senuelo, .portada-pie { color: var(--cvh-tapa-tinta-2); }
-  .portada-dos .indice-lista a { color: var(--cvh-tapa-tinta); }
-  .portada-dos .indice-lista a:hover,
-  .portada-dos .indice-ver:hover { color: var(--cvh-tapa-tinta-2); }
+  /* La tinta de la tapa. Va en la CAPA y no en cada pieza: dentro de la
+     portada todo el texto es claro, y lo que no lo sea se notará. (La 2ª
+     pantalla ya no es de la tapa: es papel, y hereda la tinta del documento.) */
+  .portada-uno { color: var(--cvh-tapa-tinta); }
+  .portada-uno .etiqueta,
+  .portada-uno .meta-mono,
+  .portada-uno .portada-num,
+  .portada-senuelo { color: var(--cvh-tapa-tinta-2); }
   /* EL ANILLO DE FOCO TAMBIÉN ES DE LA TAPA, y esto es lo que la portada
      oscura obliga a arreglar: el anillo del sitio es `--brand-text`, que en
      tema claro es #087248 (verde oscuro), y sobre el velo de la tapa da
      1.76:1 — WCAG 1.4.11 pide 3:1 a un indicador de foco. En blanco da
      10.5:1. Se cambia SOLO el color, en `outline-color`: la propiedad sigue
      siendo `outline` y no una sombra, que es la regla del repo. En la tapa se
-     tabula por las dos pastillas de idioma y, en la 2ª pantalla, por el
-     índice; sin esto, ninguno de esos focos se veía. */
-  .portada-uno :focus-visible,
-  .portada-dos :focus-visible { outline-color: var(--cvh-tapa-tinta); }
+     tabula por las dos pastillas de idioma; sin esto, esos focos no se veían. */
+  .portada-uno :focus-visible { outline-color: var(--cvh-tapa-tinta); }
   .portada-uno .portada-col {
     display: flex; flex-direction: column;
     padding-block: var(--sp-6) 0;
@@ -1519,42 +1555,105 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .portada-num { margin-left: var(--sp-2); }
   .portada-num::before { content: '· '; }
 
-  /* ---- 2ª pantalla: el manifiesto sobre la foto ----
-     El velo de esta pantalla es SUYO y es más fuerte que el de la portada,
-     porque aquí el texto ocupa el CENTRO y por el centro pasan la corona de
-     la Torre CN y las ventanas encendidas, que son los píxeles más claros de
-     toda la foto (247). Con .72 ese peor píxel baja a 69, o sea 7.5:1 con las
-     etiquetas mono y 9.1:1 con el titular blanco. */
-  .portada-dos {
-    justify-content: center;
-    /* ARRANCA EN .55 Y NO EN 0, y es la misma lección del 200 %: la rampa de
-       entrada existe para que la pantalla no se lea como una persiana
-       bajando de golpe, pero con el texto grande el bloque crece, se
-       desborda del centrado y su primer renglón puede caer dentro de la
-       rampa. Empezando en .55 el peor píxel de la foto ya está en 111 y sigue
-       pasando: la rampa se sigue viendo y deja de poder ser un agujero de
-       contraste. */
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, .55) 0%,
-      rgba(0, 0, 0, .72) 12%,
-      rgba(0, 0, 0, .72) 100%
-    );
+  /* ---- 2ª pantalla: EL EFECTO DE LA TARJETA ----
+     Papel opaco que sube sobre la foto pegada, con la tarjeta anidada entre
+     las dos mitades del titular. El razonamiento entero (por qué el radio no
+     se anima, en qué degrada) está en el comentario del marcado.
+
+     `overflow: clip` hace DOS trabajos: recorta la tarjeta escalada a 1.9
+     para que a sangre no se le vean las esquinas, y evita que ese transform
+     ensanche el área de scroll de la página (un elemento transformado SÍ
+     cuenta para el scrollable overflow del ancestro — sin esto, check-reflow
+     mediría scroll horizontal durante la animación). */
+  .portada-tarjeta {
+    position: relative; z-index: 1;
+    background: var(--cvh-papel);
+    min-height: 100svh;
+    display: flex; flex-direction: column; justify-content: center;
+    overflow: clip;
+    view-timeline: --tarjeta block;
   }
-  .portada-dos .portada-col {
+  .portada-tarjeta .portada-col {
     display: flex; flex-direction: column; gap: var(--sp-6);
     padding-block: var(--sp-10);
   }
-  /* LA FRASE VA DE BANDERA IZQUIERDA Y NO CENTRADA, que es lo único del ritmo
-     de Ondo que aquí no se copia. Su manifiesto son 18 palabras y su sitio
-     entero está centrado; esta frase son 30 palabras y el resto del documento
-     es de bandera izquierda, así que centrar solo esta la convierte en la
-     excepción de la página en vez de en su declaración — y una cita larga
-     centrada se lee peor, porque cada renglón empieza en un sitio distinto. */
+  /* La escena del titular partido: centrada, que es la composición exacta de
+     Ondo en esta pantalla (el resto del documento sigue de bandera
+     izquierda; esta escena es una portada interior, no un párrafo). */
+  .tarjeta-escena {
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--sp-4);
+    text-align: center;
+  }
+  .tarjeta-n {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: clamp(2rem, 9vw, 4.5rem); line-height: 0.95;
+    letter-spacing: -0.03em; overflow-wrap: break-word;
+    max-width: 100%;
+  }
+  /* LA TARJETA. El radio va ESCRITO y lo que se anima es el transform:
+     ninguna excepción a la regla de motion.css. El fondo oscuro es el
+     letterbox mientras la foto llega (misma razón que .clip-video). */
+  .tarjeta {
+    position: relative;
+    width: min(88vw, 420px);
+    aspect-ratio: 10 / 11;
+    border-radius: clamp(20px, 6vw, 36px);
+    overflow: hidden;
+    background: #0C0C0C;
+  }
+  .tarjeta img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: 38% 30%;
+    display: block;
+  }
+  /* El aro concéntrico del vídeo de referencia: nace pequeño y se disuelve
+     al llegar. Su estado BASE es invisible (opacity 0), así que sin
+     scroll-driven animations no existe. */
+  .tarjeta::after {
+    content: ''; position: absolute; inset: 0;
+    border: 1.5px solid rgba(255, 255, 255, .6);
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* EL MOVIMIENTO, solo donde el navegador sabe conducirlo con el scroll.
+     Los keyframes de tarjeta/foto solo declaran el `from`: el estado final ES
+     el CSS normal, o sea que sin soporte la secuencia degrada a su último
+     fotograma (la tarjeta ya encogida, quieta). `linear` a propósito: el
+     easing lo pone el dedo. */
+  @supports (animation-timeline: view()) {
+    .tarjeta {
+      animation: tarjeta-encoge linear both;
+      animation-timeline: --tarjeta;
+      animation-range: entry 15% entry 95%;
+    }
+    .tarjeta img {
+      animation: tarjeta-foto linear both;
+      animation-timeline: --tarjeta;
+      animation-range: entry 15% entry 95%;
+    }
+    .tarjeta::after {
+      animation: tarjeta-aro linear both;
+      animation-timeline: --tarjeta;
+      animation-range: entry 25% entry 95%;
+    }
+  }
+  @keyframes tarjeta-encoge { from { transform: scale(1.9); } }
+  @keyframes tarjeta-foto { from { transform: scale(1.3); } }
+  @keyframes tarjeta-aro {
+    from { opacity: .9; transform: scale(.7); }
+    60% { opacity: .9; }
+    to { opacity: 0; transform: none; }
+  }
+  /* LA FRASE VA DE BANDERA IZQUIERDA Y NO CENTRADA: son 30 palabras y el
+     resto del documento es de bandera izquierda — una cita larga centrada se
+     lee peor, porque cada renglón empieza en un sitio distinto. */
   .portada-pie {
     margin-top: var(--sp-4);
     font-family: var(--font-mono); font-size: var(--fs-caption);
     letter-spacing: .08em;
+    color: var(--cvh-tinta-2);
   }
 
   /* ---- 3ª pantalla: se acabó la foto ----
@@ -1571,7 +1670,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        pegada detrás y hace falta papel opaco que la cubra entera. */
     min-height: 100svh;
     display: flex; flex-direction: column; justify-content: center;
-    scroll-snap-align: start;
   }
   .portada-papel-cierre .portada-col {
     display: flex; flex-direction: column; gap: var(--sp-6);
@@ -1597,6 +1695,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   @media (prefers-reduced-motion: reduce) {
     .portada-lienzo { position: static; }
     .portada-foto { animation: none; }
+    /* La tarjeta también: su estado base es el fotograma final, así que sin
+       animación nace encogida y quieta, y el aro ni existe. */
+    .tarjeta, .tarjeta img, .tarjeta::after { animation: none; }
   }
 
   /* ---- La portada impresa ----
@@ -1618,14 +1719,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     .portada-sombra, .portada-tapa { background: none; }
     .portada-tapa { padding-bottom: 0; }
     .portada-uno { margin-top: 0; }
-    .portada-capa, .portada-papel-cierre { min-height: 0; }
-    .portada-dos { background: none; }
-    .portada-uno, .portada-dos { color: var(--cvh-tinta); }
-    .portada-uno .etiqueta, .portada-dos .etiqueta,
-    .portada-uno .meta-mono, .portada-dos .meta-mono,
-    .portada-uno .portada-num, .portada-dos .pie,
-    .portada-senuelo, .portada-pie { color: var(--cvh-tinta-2); }
-    .portada-dos .indice-lista a { color: var(--cvh-tinta); }
+    .portada-capa, .portada-tarjeta, .portada-papel-cierre { min-height: 0; }
+    .portada-uno { color: var(--cvh-tinta); }
+    .portada-uno .etiqueta,
+    .portada-uno .meta-mono,
+    .portada-uno .portada-num,
+    .portada-senuelo { color: var(--cvh-tinta-2); }
+    /* La tarjeta impresa: la foto ya salió una vez arriba — en papel el
+       efecto no existe, así que no se imprime dos veces la misma ciudad. */
+    .tarjeta, .tarjeta::after { display: none; }
+    .tarjeta, .tarjeta img { animation: none; }
   }
 
   /* ---- Selector de idioma ----

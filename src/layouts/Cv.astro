@@ -316,6 +316,49 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
       }
       aplicar(false);
       addEventListener('hashchange', function () { aplicar(true); });
+
+      // ═══ EL ÍNDICE YA NO SE CONDUCE CON LA NAVEGACIÓN DEL HASH ═══════════
+      // Es el arreglo del «índice trabado» que reportó Jaime, y la causa se
+      // MIDIÓ en Chrome de verdad (no en headless, donde no se reproduce: el
+      // scroll animado va en el hilo del compositor). Con `scroll-behavior:
+      // smooth` y una página de ~21 000 px, la animación de un ancla dura
+      // bastante — y una SEGUNDA navegación de ancla mientras la primera
+      // sigue en vuelo NO desplaza: el hash cambia y la página se queda donde
+      // iba (medido: clic a cap-8 y, a los 400 ms, clic a cap-3 → aterriza a
+      // +14 189 px de cap-3; en una corrida con vueltas suaves interrumpidas,
+      // 4 de 9 clics aterrizaban a miles de píxeles: −3 992 … −19 198).
+      //
+      // Los scrolls PROGRAMÁTICOS suaves sí se re-apuntan entre sí (medido:
+      // 9/9 a 0 px, también con interrupciones y con el gesto impaciente).
+      // Así que el clic del índice se intercepta y el viaje lo hace
+      // `scrollIntoView`; el hash se escribe AL LLEGAR —es una navegación de
+      // verdad, así que `:target` y los paneles de idioma siguen mandando— y
+      // solo si de verdad se llegó: si la persona canceló el viaje con el
+      // dedo, escribirlo la arrastraría a donde ya no quería ir.
+      // SIN JavaScript el índice funciona igual con sus anclas (el primer
+      // clic siempre llega; lo que no existe sin JS es el reintento en vuelo).
+      var RED = matchMedia('(prefers-reduced-motion: reduce)');
+      var vuelo = 0;
+      document.addEventListener('click', function (ev) {
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"]') : null;
+        if (!a) return;
+        var h = a.getAttribute('href');
+        var destino = document.getElementById(h.slice(1));
+        if (!destino) return;
+        ev.preventDefault();
+        destino.scrollIntoView({ behavior: RED.matches ? 'auto' : 'smooth', block: 'start' });
+        var mio = ++vuelo;
+        var y = -1, q = 0;
+        var t = setInterval(function () {
+          if (mio !== vuelo) return clearInterval(t);
+          q = Math.abs(scrollY - y) < 1 ? q + 1 : 0;
+          y = scrollY;
+          if (q >= 3) {
+            clearInterval(t);
+            if (Math.abs(destino.getBoundingClientRect().top) < 24) location.hash = h;
+          }
+        }, 90);
+      }, true);
     })();
   </script>
 
@@ -330,17 +373,19 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
 </html>
 
 <style is:global>
-  /* ═══ El scroll de presentación: imán nativo, medido ═══════════════════
-     `proximity` y no `mandatory` ni secuestro JS (dirección §4): simétrico,
-     +126 bytes, cero JavaScript, y el lector con prisa avanza igual que sin
-     nada (65 % con cinco golpes de rueda; el secuestro: 12 %). Si al verlo
-     sabe a poco, `mandatory` es cambiar una palabra aquí. Va en el elemento
-     raíz porque el scroller de esta página es el documento. */
-  html { scroll-snap-type: y proximity; }
-  /* Los saltos del índice y del teclado, suaves — y quietos si se pide. */
+  /* ═══ EL SCROLL VA SUELTO: EL IMÁN SE QUITÓ ════════════════════════════
+     Aquí vivió `scroll-snap-type: y proximity`. Se quitó por el brief de
+     Jaime del 2026-08-28: «el scroll de celular no me gustó», y la
+     referencia que él mandó (ondo.finance en un iPhone) va SUELTA, sin imán.
+     En escritorio tampoco vuelve: el efecto de la tarjeta es scroll-driven y
+     con el pulgar o la rueda tiene que sentirse continuo, no por golpes.
+     OJO: el imán NO era la causa del índice trabado — se comprobó midiendo
+     (con y sin imán inyectado, los mismos clics fallaban igual). La causa
+     real y su arreglo están en el guion de abajo, con los números.
+     Los saltos del índice siguen suaves — y quietos si se pide. */
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-snap-type: none; scroll-behavior: auto; }
+    html { scroll-behavior: auto; }
   }
 </style>
 
