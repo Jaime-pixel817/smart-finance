@@ -322,7 +322,27 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
         });
       }
       aplicar(false);
-      addEventListener('hashchange', function () { aplicar(true); });
+      addEventListener('hashchange', function () {
+        aplicar(true);
+        // ── El «atrás» del navegador, con el mismo arreglo que el índice ──
+        // Volver atrás entre dos anclas de capítulo es otra navegación con
+        // scroll suave, así que hereda el mismo bug medido abajo: un DOBLE
+        // «atrás» rápido lanza la segunda restauración con la primera en
+        // vuelo, y la segunda no desplaza — aterrizaba a ~1 047 px del
+        // ancla. El clic del índice ya no pasa por aquí (se intercepta y
+        // viaja con scrollIntoView), pero atrás/adelante disparan
+        // `hashchange`, no `click`: este re-apuntado es su versión del
+        // mismo arreglo, porque los scrolls PROGRAMÁTICOS suaves sí se
+        // re-apuntan entre sí (los números, abajo). Solo anclas de capítulo
+        // — `#en`/`#es` llevan su propia lógica de foco — y solo si NO
+        // estamos ya encima (si no, le metería un ajustito visible al hash
+        // que el propio índice escribe al llegar).
+        var mCap = /^#(?:en|es)-cap-\d+$/.exec(location.hash);
+        if (!mCap) return;
+        var destino = document.getElementById(location.hash.slice(1));
+        if (!destino || Math.abs(destino.getBoundingClientRect().top) < 24) return;
+        destino.scrollIntoView({ behavior: RED.matches ? 'auto' : 'smooth', block: 'start' });
+      });
 
       // ═══ EL ÍNDICE YA NO SE CONDUCE CON LA NAVEGACIÓN DEL HASH ═══════════
       // Es el arreglo del «índice trabado» que reportó Jaime, y la causa se
