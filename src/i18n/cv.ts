@@ -131,7 +131,8 @@ const en = {
     // licencia de aprovecharse de ella y porque este sitio acredita todas sus
     // fuentes. La procedencia completa y la fecha de verificación están en
     // public/assets/portada/LICENCIA.md.
-    portadaAlt: 'The Toronto skyline seen from the water at dusk, in black and white: the CN Tower over the lit downtown towers, and the lake in front of them.',
+    // A COLOR desde el brief del 2026-08-28 (el B/N grabado se quitó).
+    portadaAlt: 'The Toronto skyline seen from the water at dusk: the CN Tower lit over the downtown towers, and the lake in front of them.',
     portadaPie: 'Toronto · photograph by Jochem Raat, Unsplash',
     // El rótulo que dice de qué foto habla la descripción visible. Ver el
     // comentario de `.portada-alt` en Historia.astro: sin él, la descripción
@@ -145,8 +146,10 @@ const en = {
     // que llevaba sobreimpreso. La fecha que se escribe es la de PUBLICACIÓN,
     // que es la que se puede comprobar abriendo el perfil — misma regla que
     // las fechas del arco de Singapur (`tiktok.arcoFuente`).
+    // La Torre CN sí sigue en blanco y negro: SU original es B/N (así la
+    // publicó él). Solo el año en el pie, como todo el CV.
     torreAlt: 'The CN Tower in Toronto seen from below, in black and white: the mast against an overcast sky, the observation deck, and two office buildings at the edges.',
-    torrePie: 'Toronto · his photograph, published July 2026'
+    torrePie: 'Toronto · his photograph (2026)'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -458,16 +461,38 @@ const en = {
     // PDF — que el nombre del certificado empiece por la marca no es la
     // fuente de que la marca lo expida.
     // Cuando falta el emisor, la columna de la derecha también lo pide.
-    pendiente: 'date and verification link to come',
-    pendienteInst: 'issuer, date and verification link to come',
+    // ── TARJETAS DISEÑADAS, NO CAPTURAS (brief 2026-08-28) ───────────────
+    // Los recortes de los certificados de LinkedIn NO se pudieron guardar en
+    // la cosecha (limitación del entorno, anotada en MATERIAL.md): cada
+    // tarjeta lleva su FotoHueco para cuando Jaime entregue las imágenes.
+    // AÑOS: solo el año, y solo donde hay fuente — las publicaciones de
+    // LinkedIn de 2026 (CFA, Vista, BofA, Bloomberg) y el curso de Singapur
+    // (Green Technology, 2026). El B2 no tiene fecha publicada: se pide.
+    // EMISORES: solo donde una fuente lo diga (la regla de siempre).
+    // El enlace de cada tarjeta va al PERFIL de Jaime, que es donde el
+    // certificado está publicado y donde un comité puede comprobarlo.
+    verLinkedIn: 'See it on LinkedIn',
+    fotoPend: 'The certificate image, when Jaime captures it from LinkedIn.',
+    sinEmisor: 'Issuer to verify',
+    sinAnio: 'year to verify',
     filas: [
-      { que: 'Bloomberg Finance Fundamentals', de: '' },
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
-      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, on Forage' },
-      { que: 'Investment Banking Virtual Experience', de: 'Bank of America, on Forage' },
-      { que: 'B2 First Certificate', de: '' },
-      { que: 'Green Technology Programme', de: '' }
-    ]
+      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
+      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, on Forage', anio: '2026' },
+      { que: 'Investment Banking — Job Simulation', de: 'Bank of America, on Forage', anio: '2026' },
+      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
+      { que: 'Green Technology Programme', de: '', anio: '2026' },
+      { que: 'B2 First Certificate', de: '', anio: '' }
+    ],
+    // ── FRANCÉS A2: AFIRMACIÓN SUYA, MARCADA COMO TAL ────────────────────
+    // No hay certificado publicado en su actividad (verificado en la
+    // cosecha). Entra porque él lo pidió, como afirmación suya pendiente de
+    // verificación — sin emisor, sin imagen y con la marca en pantalla. Que
+    // estudia francés sí tiene fuente: su publicación sobre Concordia.
+    frances: {
+      que: 'French — A2',
+      tag: 'His claim, pending verification',
+      nota: 'No certificate is published on his LinkedIn. What is sourced: his Concordia post (2026) says he has been studying French.'
+    }
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
@@ -501,11 +526,12 @@ const en = {
   },
 
   // ---- Contacto (bajo la frase) ----
+  // El pie, como lo pidió Jaime (2026-08-28): sus dos redes y el sitio. El
+  // enlace del código en GitHub se quitó.
   contacto: {
     h: 'Where to find me',
     linkedin: 'LinkedIn',
     tiktok: 'TikTok',
-    repo: 'The code, on GitHub',
     site: 'smartfinance.lat'
   },
 
@@ -650,7 +676,7 @@ const en = {
     // Lo omitido es lo que la captura de la evidencia no traía
     // (cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md), no una elección de estilo.
     pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
-    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation, August 2026. The “[…]” marks a passage this page does not reproduce.',
+    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation (2026). The “[…]” marks a passage this page does not reproduce.',
     // Marca de traducción, VISIBLE, encima de la cita. Vacía en inglés: ahí la
     // cita es el original. Misma regla que la traducción de la frase final.
     peTag: '',
@@ -738,11 +764,11 @@ const es: typeof en = {
     // Licencia Unsplash, acreditada aunque la licencia no lo exija) y la de la
     // Torre CN sí, con la fecha de publicación en su TikTok (20 de julio de
     // 2026), que es la comprobable.
-    portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer, en blanco y negro: la Torre CN sobre las torres iluminadas del centro, y el lago delante de ellas.',
+    portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer: la Torre CN encendida sobre las torres del centro, y el lago delante de ellas.',
     portadaPie: 'Toronto · foto de Jochem Raat, Unsplash',
     portadaAltRotulo: 'La portada',
     torreAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
-    torrePie: 'Toronto · foto suya, publicada en julio de 2026'
+    torrePie: 'Toronto · foto suya (2026)'
   },
 
   proyectos: {
@@ -782,7 +808,10 @@ const es: typeof en = {
 
   dos: {
     actinverH: 'Reto Actinver',
-    peH: 'Private equity research'
+    // «Research de private equity» y no «Private equity research»: la pasada
+    // de idioma del brief — el panel español no lleva rótulos en inglés
+    // («research» y «private equity» son términos que el sitio ya usa así).
+    peH: 'Research de private equity'
   },
 
   research: {
@@ -919,17 +948,24 @@ const es: typeof en = {
   },
 
   certs: {
-    lede: 'Los recibos. El nombre exacto, tal como lo publica su LinkedIn; el emisor solo donde una fuente lo diga.',
-    pendiente: 'fecha y enlace de verificación por llegar',
-    pendienteInst: 'emisor, fecha y enlace de verificación por llegar',
+    lede: 'Los recibos. El nombre exacto, tal como lo publica su LinkedIn; el emisor y el año, solo donde una fuente lo diga.',
+    verLinkedIn: 'Verlo en LinkedIn',
+    fotoPend: 'La imagen del certificado, cuando Jaime la capture de LinkedIn.',
+    sinEmisor: 'Emisor por verificar',
+    sinAnio: 'año por verificar',
     filas: [
-      { que: 'Bloomberg Finance Fundamentals', de: '' },
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
-      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, en Forage' },
-      { que: 'Investment Banking Virtual Experience', de: 'Bank of America, en Forage' },
-      { que: 'B2 First Certificate', de: '' },
-      { que: 'Green Technology Programme', de: '' }
-    ]
+      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
+      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, en Forage', anio: '2026' },
+      { que: 'Investment Banking — Job Simulation', de: 'Bank of America, en Forage', anio: '2026' },
+      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
+      { que: 'Green Technology Programme', de: '', anio: '2026' },
+      { que: 'B2 First Certificate', de: '', anio: '' }
+    ],
+    frances: {
+      que: 'Francés — A2',
+      tag: 'Afirmación suya, pendiente de verificación',
+      nota: 'No hay certificado publicado en su LinkedIn. Lo que sí tiene fuente: su publicación sobre Concordia (2026) dice que estudia francés.'
+    }
   },
 
   cartas: {
@@ -955,7 +991,6 @@ const es: typeof en = {
     h: 'Dónde encontrarme',
     linkedin: 'LinkedIn',
     tiktok: 'TikTok',
-    repo: 'El código, en GitHub',
     site: 'smartfinance.lat'
   },
 
@@ -1069,7 +1104,7 @@ const es: typeof en = {
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
     pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
-    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners, agosto de 2026. El «[…]» marca un trozo que esta página no reproduce.',
+    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
     peTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
     dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',

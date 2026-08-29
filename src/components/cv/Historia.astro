@@ -131,7 +131,7 @@ const p = locale;
 
 const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
 const TIKTOK = 'https://www.tiktok.com/@smart.financee';
-const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
+// GITHUB ya no está: Jaime pidió el pie solo con sus dos redes y el sitio.
 
 // ------------------------------------------------ las cifras de la prueba
 // CONTADAS de los archivos reales, en el build. Si mañana hay 11 lecciones,
@@ -1113,19 +1113,32 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     <p class="cap-num" aria-hidden="true">{num(6)}</p>
     <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
-    <!-- Filas como el calendario del reto: el recibo a la izquierda y lo que
-         falta a la derecha, en mono. Que se vea que falta es el punto: nada
-         se disimula. Y cuando falta también el EMISOR —el PDF de LinkedIn no
-         trae institución de ningún certificado— la columna lo pide también,
-         en vez de que la página se invente uno. -->
-    <ol class="cal">
+    <!-- ══ TARJETAS DE CERTIFICADO DISEÑADAS (brief 2026-08-28) ════════════
+         Los recortes de LinkedIn no se pudieron guardar en la cosecha, así
+         que cada certificado va como TARJETA diseñada —emisor, nombre, año y
+         «Verlo en LinkedIn» a su perfil, que es donde está publicado— con un
+         FotoHueco para la imagen original cuando Jaime la entregue. Se ven
+         mejor que un pantallazo y no inventan nada: donde falta el emisor o
+         el año, la tarjeta LO DICE en vez de adivinarlo.
+         La de FRANCÉS A2 es distinta y lo dice en pantalla: afirmación suya
+         pendiente de verificación — sin emisor, sin imagen y sin enlace,
+         porque no hay certificado publicado que enlazar. -->
+    <ul class="certs">
       {c.certs.filas.map((f) => (
-        <li>
-          <span class="cal-que">{f.que}{f.de ? ' — ' + f.de : ''}</span>
-          <span class="cal-cuando meta-mono">{f.de ? c.certs.pendiente : c.certs.pendienteInst}</span>
+        <li class="cert">
+          <p class="etiqueta">{f.de || c.certs.sinEmisor}</p>
+          <p class="cert-nombre">{f.que}</p>
+          <p class="cert-anio num">{f.anio || c.certs.sinAnio}</p>
+          <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />
+          <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
         </li>
       ))}
-    </ol>
+      <li class="cert cert-afirmacion">
+        <p class="etiqueta cert-claim">{c.certs.frances.tag}</p>
+        <p class="cert-nombre">{c.certs.frances.que}</p>
+        <p class="pie">{c.certs.frances.nota}</p>
+      </li>
+    </ul>
   </section>
 
   <!-- ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
@@ -1166,10 +1179,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     )}
     <div class="cierre">
       <p class="cierre-nombre">{c.head.name}</p>
+      <!-- EL PIE, COMO LO PIDIÓ JAIME (brief 2026-08-28): sus dos redes y
+           smartfinance.lat. El enlace de «el código, en GitHub» se quitó. -->
       <p class="links-row">
         <a class="hist-link" href={LINKEDIN} target="_blank" rel="noopener">{c.contacto.linkedin} ↗</a>
         <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.contacto.tiktok} ↗</a>
-        <a class="hist-link" href={GITHUB} target="_blank" rel="noopener">{c.contacto.repo} ↗</a>
         <a class="hist-link" href={L('home')}>{c.contacto.site} →</a>
       </p>
       <p class="pie">{c.hueco.note}</p>
@@ -2142,6 +2156,27 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .citas-btn:hover { background: var(--bg-2); }
   .citas-btn[data-inerte] { opacity: .35; cursor: default; }
   .citas-btn[data-inerte]:hover { background: var(--cvh-papel); }
+
+  /* ---- Certificaciones: tarjetas diseñadas, no capturas ---- */
+  .certs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
+    gap: var(--sp-4); max-width: 960px;
+  }
+  .cert {
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-5); background: var(--cvh-papel);
+  }
+  .cert-nombre { font-weight: 600; overflow-wrap: anywhere; }
+  .cert-anio { color: var(--cvh-tinta-2); font-size: var(--fs-small); }
+  /* El hueco de la imagen empuja el enlace al pie de la tarjeta. `:global`
+     porque FotoHueco tiene su propio ámbito de estilos. */
+  .cert :global(.foto-hueco) { margin-top: auto; }
+  /* La tarjeta del francés: afirmación, no recibo — borde discontinuo y su
+     marca en ámbar, el color con el que este sitio dice «ojo con esto». */
+  .cert-afirmacion { border-style: dashed; }
+  .cert-claim { color: var(--warn); }
 
   /* ---- Cartas de recomendación: los tres huecos honestos ---- */
   .cartas {
