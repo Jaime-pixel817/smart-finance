@@ -1091,6 +1091,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
           <p class="t-h3 rep-name">{rep.meta.name}</p>
           <dl class="rep-meta t-caption">
+            {/* «Data as of» va con FECHA COMPLETA a propósito (decisión del
+                2026-08-29). La regla de solo-año de Jaime (brief 2026-08-28)
+                es para fechas BIOGRÁFICAS —cuándo vivió una experiencia—;
+                este asOf es el sello de frescura de una CIFRA, que la regla
+                del sitio exige con día (CLAUDE.md: asOf en cada cifra), la
+                misma clase que el calendario del Reto. Un «Data as of 2026»
+                no dice si el dato tiene una semana o diez meses. Si Jaime
+                no está de acuerdo, revertir es UNA línea: cambiar
+                `day(rep.meta.dataAsOf, locale)` por
+                `rep.meta.dataAsOf.slice(0, 4)`. */}
             <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
             <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
             <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
