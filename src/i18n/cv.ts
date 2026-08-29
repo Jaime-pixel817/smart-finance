@@ -460,7 +460,9 @@ const en = {
 
   // ---- Capítulo 10: certificaciones ----
   certs: {
-    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer only where a source says so.',
+    // El lede promete lo MISMO que el español (emisor Y año con fuente): los
+    // dos paneles hacen la misma promesa o uno de los dos miente (2026-08-29).
+    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer and the year only where a source says so.',
     // Nombres tal cual los publica su LinkedIn (el PDF que Jaime exportó).
     // ─────────────────────────────────────────────────────────────────────
     // EL PDF NO TRAE LA INSTITUCIÓN DE CADA CERTIFICADO, NI SU FECHA.
@@ -494,10 +496,14 @@ const en = {
     fotoPend: 'The certificate image, when Jaime captures it from LinkedIn.',
     sinEmisor: 'Issuer to verify',
     sinAnio: 'year to verify',
+    // SIN « — » dentro de los nombres de las simulaciones: los certificados
+    // publicados dicen «Demystifying Private Equity Job Simulation» e
+    // «Investment Banking Job Simulation» (MATERIAL.md LI-01 y LI-02), y un
+    // guion insertado contradice el «the exact name» del lede (2026-08-29).
     filas: [
       { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
-      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, on Forage', anio: '2026' },
-      { que: 'Investment Banking — Job Simulation', de: 'Bank of America, on Forage', anio: '2026' },
+      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, on Forage', anio: '2026' },
+      { que: 'Investment Banking Job Simulation', de: 'Bank of America, on Forage', anio: '2026' },
       { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
       { que: 'Green Technology Programme', de: '', anio: '2026' },
       { que: 'B2 First Certificate', de: '', anio: '' }
@@ -982,8 +988,8 @@ const es: typeof en = {
     sinAnio: 'año por verificar',
     filas: [
       { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
-      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, en Forage', anio: '2026' },
-      { que: 'Investment Banking — Job Simulation', de: 'Bank of America, en Forage', anio: '2026' },
+      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, en Forage', anio: '2026' },
+      { que: 'Investment Banking Job Simulation', de: 'Bank of America, en Forage', anio: '2026' },
       { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
       { que: 'Green Technology Programme', de: '', anio: '2026' },
       { que: 'B2 First Certificate', de: '', anio: '' }
