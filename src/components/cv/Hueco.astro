@@ -81,15 +81,12 @@ const h = c.huecos[id];
     max-width: var(--measure);
     padding: var(--card-pad);
     border: 1px dashed var(--ink-3);
-    /* CUADRADO, como todo lo demás de esta página. Se quedó con el
-       `--r-card` de 14 px heredado de la versión anterior de esta página
-       mientras el CV narrativo pasaba a esquinas rectas: `.rep` escribe
-       `border-radius: 0` a propósito, y la
-       cinta y `.foto-hueco` no tienen radio. Se veía en el capítulo del
-       research, con la tarjeta LULU de esquinas rectas justo encima de un
-       recuadro "FALTA ESCRIBIRLO" redondeado. Este componente solo lo usa el
-       CV (Historia.astro), así que el 0 va aquí y no en una excepción. */
-    border-radius: 0;
+    /* REDONDEADO desde el brief del 2026-08-28: el lenguaje del CV pasó a
+       tarjetas de esquinas redondeadas (la referencia de Ondo), y un hueco
+       cuadrado entre tarjetas redondeadas se leía como pieza de otra página.
+       Cuando esta página iba toda a esquina recta, aquí decía 0 a propósito;
+       si algún día vuelve, esta es la línea que hay que devolver. */
+    border-radius: 14px;
     background: var(--bg-1);
   }
   .hueco-tag {

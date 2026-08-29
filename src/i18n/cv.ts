@@ -55,7 +55,8 @@ const en = {
     research: 'Jaime working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
     sol: 'A portrait of Sol — or a frame from the march videos.',
-    playas: 'The beach clean-up in Singapore — the photos are on his LinkedIn.'
+    playas: 'The beach clean-up in Singapore — the photos are on his LinkedIn.',
+    jasa: 'The shop or the online store: a real photo or a capture.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -114,8 +115,15 @@ const en = {
     senuelo: 'Scroll to read',
     // Su meta, dicha por él (texto de Jaime, pendiente de su revisión final):
     // programas de negocios en Canadá, entrada septiembre de 2027.
-    meta: 'Business programs in Canada · September 2027 entry',
-    fotoAlt: 'Jaime Sandoval Ricaño',
+    // SOLO EL AÑO (decisión de Jaime, 2026-08-28): nada de meses en pantalla.
+    meta: 'Business programs in Canada · 2027 entry',
+    // ---- Su primera foto: el panel con micrófono (LA ELIGIÓ ÉL) ----
+    // Del brief del 2026-08-28: él con micrófono en un panel en Singapur,
+    // con los logos de Mitsubishi Heavy Industries y Forest City
+    // International School detrás. Entra por build-photos.mjs con huella
+    // (`cv-retrato-*`), como todas.
+    fotoAlt: 'Jaime speaking into a microphone on a panel, with the logos of Mitsubishi Heavy Industries and Forest City International School on the screen behind him.',
+    retratoPie: 'Singapore · on a panel, 2026',
     // ---- La foto de la portada ----
     // NO ES DE JAIME, y por eso lleva crédito. Jochem Raat (@jchmrt), Licencia
     // Unsplash: uso libre, también comercial, y la atribución NO es
@@ -152,7 +160,21 @@ const en = {
     grupo: 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
     grupoLink: 'The community, on the site',
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
-    sitioH: 'smartfinance.lat'
+    // El cuadro del vídeo de promo del grupo (2026, @smart.financee): qué es
+    // y de dónde sale, como piden los pies de foto del brief.
+    grupoTecPie: 'The group’s promo at Tec, from his TikTok (2026)',
+    grupoTecAlt: 'Two students talking in front of a Mexican stock-exchange poster at Tec',
+    sitioH: 'smartfinance.lat',
+    // ---- Jasa Motor (bloque nuevo, brief del 2026-08-28) ----
+    // FRAMING APROBADO POR JAIME: es la refaccionaria DE SU FAMILIA y él
+    // desarrolló la tienda en línea y lleva el marketing para apoyar a su
+    // papá. NO se usa «CEO». Verificado que existe: jasamotor.com.mx y
+    // tienda.jasamotor.com.mx (consultadas 2026-08-28). Los datos del
+    // negocio (Cuautitlán, 20+ años) salen del propio sitio de la
+    // refaccionaria. Pendiente de su revisión final, como todo voz.*.
+    jasaH: 'Jasa Motor',
+    jasa: 'His family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. Jaime built its online store and runs its marketing.',
+    jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   // ---- Capítulo 5: la prueba (el bloque del sitio) ----
@@ -376,31 +398,45 @@ const en = {
   // El grupo estudiantil se fue al capítulo de proyectos: aquí se quedan los
   // voluntariados, que es lo que Jaime pidió junto a las experiencias.
   servir: {
-    // El clip del voluntariado con animales: existe, con fecha, en su TikTok.
-    animalesClip: 'The clip: animal care and responsible adoption (August 23, 2026).',
+    // El clip del voluntariado con animales existe en su TikTok. SOLO EL AÑO
+    // en pantalla (decisión de Jaime).
+    animalesClip: 'The clip: the march with Callejeritos for responsible adoption — he also interviewed Sol, its founder (2026).',
+    // La donación al stand de adopción: hecho de su publicación en LinkedIn.
+    donacion: 'He also donated pet food to a local adoption stand and spent the day with the volunteers and the animals (2026).',
+    // LA PLAYA FUE EN SINGAPUR — corrección del brief del 2026-08-28, con el
+    // texto de su propia publicación: fue un voluntariado de su curso de
+    // Green Technology and Sustainable Ecology.
+    playa: 'The beach clean-up was in Singapore, a volunteer day from his Green Technology and Sustainable Ecology course (2026).',
     bloques: {
       animales: 'The animals',
-      playas: 'Beach clean-ups'
+      playas: 'Beach clean-up'
     }
   },
 
   // ---- Capítulo 2: experiencias (en seco) ----
+  // FECHAS: SOLO EL AÑO (decisión de Jaime, 2026-08-28). Y con los años
+  // REALES derivados del material cosechado: la sesión de ETFs con Jon Maier
+  // es de 2025 — Jaime avisó que estaba mal como 2026, y su fila lo corrige.
+  // Las publicaciones nuevas que suman (visita a U of T/Rotman, Concordia,
+  // AEM, la firma CFA×Tec con Marg Franklin) entran con su año.
   exp: {
-    lede: 'What, where, when. This chapter and the next are the ones a committee scans.',
+    lede: 'What, where, when — years only. This chapter and the next are the ones a committee scans.',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
+      // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
+      // él: es 2025, no 2026.
+      { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
       { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
-      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering' },
-      { cuando: 'Jun–Jul 2026', que: 'Singapore: summer programme, presentation about Mexico to National University of Singapore students, interviews' },
-      { cuando: 'Aug 2026', que: 'Student Groups Fair at Tec de Monterrey, with the Smart Finance group' },
-      // Jon Maier va en su PROPIA fila y no en la de las conversaciones: la
-      // sesión de J.P. Morgan fue algo a lo que Jaime asistió (ver el bloque
-      // `entrevistas` de arriba), y meterlo en la lista de entrevistas era
-      // convertir un asiento en el público en una entrevista suya.
-      { cuando: '2026', que: 'Conversations: Andy Toh, Moris Dieck, Prof. Lloyd, Raúl Irabién, and the Financial Trading Room podcast' },
-      { cuando: '2026', que: 'Attended the session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management' },
-      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos' },
-      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 5' }
+      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
+      { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
+      { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
+      { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
+      { cuando: '2026', que: 'AEM General Assembly — his first business conference and networking event' },
+      { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin, CEO of CFA Institute, for advice on studying in Canada' },
+      { cuando: '2026', que: 'Jasa Motor — online store and marketing for his family’s auto-parts business (chapter 5)' },
+      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
+      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 6' }
     ]
   },
 
@@ -484,12 +520,9 @@ const en = {
   // Ninguno de los dos es contenido del CV: son las instrucciones del hueco.
   // ═════════════════════════════════════════════════════════════════════════
   huecos: {
-    aplicaA: {
-      que: 'What I am applying to',
-      // "intake" está vetado por la regla de vocabulario del proyecto. "entry"
-      // además es la palabra que ya usa la portada ("September 2027 entry").
-      pista: 'One line: the university, the programme and the entry term. Nothing else fits here.'
-    },
+    // `aplicaA` («What I'm applying to») YA NO EXISTE: Jaime lo pidió fuera
+    // en su brief del 2026-08-28 («está de más»). La meta de la portada
+    // (`head.meta`) y la cita de su visita a la U of T dicen lo mismo mejor.
     // `linea` ya no existe: era el hueco de "la frase que resume quién eres",
     // y esa frase ya la escribió Jaime — es `voz.apertura`, que abre la
     // página. Un hueco pidiendo lo que está tres centímetros más arriba es
@@ -566,7 +599,6 @@ const en = {
   // hueco de arriba con su rótulo; cuando tenga texto, sale el texto.
   // ═════════════════════════════════════════════════════════════════════════
   suyo: {
-    aplicaA: '',
     quienSoy: '',
     retoNota: '',
     researchNota: '',
@@ -631,7 +663,21 @@ const en = {
     // texto de Jaime (traducción), pendiente de su revisión final
     entrevistas: '“You can take something from everyone, because they are small experiences and different points of view.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    servir: '“Helping my community, the animals, and cleaning up beaches.”'
+    servir: '“Helping my community, the animals, and cleaning up beaches.”',
+    // ---- Jasa Motor ----
+    // Palabras de Jaime (2026-08-28): «es de mi familia y yo implementé eso
+    // porque quería apoyar a mi papá». Pulidas SIN cambiar el sentido; esta
+    // versión inglesa es TRADUCCIÓN y lo dice en pantalla (`jasaTag`).
+    // texto de Jaime (traducción), pendiente de su revisión final
+    jasa: '“It is my family’s, and I built it because I wanted to support my dad.”',
+    jasaTag: 'His words, in Spanish. This is a translation; the original is in the Spanish panel.',
+    // ---- La visita a la University of Toronto ----
+    // VERBATIM de su publicación en LinkedIn sobre la visita (en inglés en el
+    // original): es la línea que dice a dónde apunta este CV, y sustituye al
+    // hueco «What I'm applying to» que Jaime pidió quitar.
+    toronto: '“This visit reinforced something I had been thinking about for a long time: this is where I want to study Finance.”',
+    torontoTag: '',
+    torontoFuente: 'From his LinkedIn post on his visit to the University of Toronto and Rotman Commerce (2026).'
   }
 };
 
@@ -650,7 +696,8 @@ const es: typeof en = {
     research: 'Jaime trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
-    playas: 'La limpieza de playa en Singapur — las fotos están en su LinkedIn.'
+    playas: 'La limpieza de playa en Singapur — las fotos están en su LinkedIn.',
+    jasa: 'La refaccionaria o la tienda en línea: una foto real o una captura.'
   },
   clip: {
     tag: 'Falta el clip',
@@ -683,9 +730,10 @@ const es: typeof en = {
     nameL2: 'Ricaño',
     site: 'smartfinance.lat',
     senuelo: 'Baja para leer',
-    // texto de Jaime, pendiente de su revisión final
-    meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
-    fotoAlt: 'Jaime Sandoval Ricaño',
+    // texto de Jaime, pendiente de su revisión final. SOLO EL AÑO.
+    meta: 'Programas de negocios en Canadá · entrada 2027',
+    fotoAlt: 'Jaime hablando al micrófono en un panel, con los logos de Mitsubishi Heavy Industries y Forest City International School en la pantalla de atrás.',
+    retratoPie: 'Singapur · en un panel, 2026',
     // Ver el bloque inglés: la de la portada NO es de Jaime (Jochem Raat,
     // Licencia Unsplash, acreditada aunque la licencia no lo exija) y la de la
     // Torre CN sí, con la fecha de publicación en su TikTok (20 de julio de
@@ -702,7 +750,12 @@ const es: typeof en = {
     grupo: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
     grupoLink: 'La comunidad, en el sitio',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
-    sitioH: 'smartfinance.lat'
+    grupoTecPie: 'La promo del grupo en el Tec, de su TikTok (2026)',
+    grupoTecAlt: 'Dos estudiantes conversando delante de un cartel de la Bolsa Mexicana de Valores en el Tec',
+    sitioH: 'smartfinance.lat',
+    jasaH: 'Jasa Motor',
+    jasa: 'La refaccionaria de su familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Jaime desarrolló su tienda en línea y lleva su marketing.',
+    jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   prueba: {
@@ -838,25 +891,30 @@ const es: typeof en = {
   },
 
   servir: {
-    animalesClip: 'El clip: cuidado animal y adopción responsable (23 de agosto de 2026).',
+    animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevistó a Sol, su fundadora (2026).',
+    donacion: 'También donó alimento a un stand de adopción local y pasó el día con los voluntarios y los animalitos (2026).',
+    playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de su curso de Green Technology and Sustainable Ecology (2026).',
     bloques: {
       animales: 'Los animalitos',
-      playas: 'Limpieza de playas'
+      playas: 'Limpieza de playa'
     }
   },
 
   exp: {
-    lede: 'Qué, dónde, cuándo. Este capítulo y el siguiente son los que un comité escanea.',
+    lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
-      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados' },
-      { cuando: 'Jun–jul 2026', que: 'Singapur: programa de verano, presentación sobre México a estudiantes de la National University of Singapore, entrevistas' },
-      { cuando: 'Ago 2026', que: 'Feria de Grupos Estudiantiles del Tec de Monterrey, con el grupo Smart Finance' },
-      { cuando: '2026', que: 'Conversaciones: Andy Toh, Moris Dieck, el profesor Lloyd, Raúl Irabién y el podcast del Financial Trading Room' },
-      { cuando: '2026', que: 'Asistencia a la sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management' },
-      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera' },
-      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 5' }
+      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
+      { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
+      { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
+      { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
+      { cuando: '2026', que: 'Asamblea General de la AEM — su primera conferencia de negocios y evento de networking' },
+      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin, CEO de CFA Institute, sobre estudiar en Canadá' },
+      { cuando: '2026', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de su familia (capítulo 5)' },
+      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
+      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
     ]
   },
 
@@ -907,10 +965,6 @@ const es: typeof en = {
   },
 
   huecos: {
-    aplicaA: {
-      que: 'A qué estoy aplicando',
-      pista: 'Una línea: la universidad, el programa y la generación. Aquí no cabe nada más.'
-    },
     quienSoy: {
       que: 'Dónde empezó',
       pista: 'De tres a cinco frases: de dónde te viene esa frase, y qué pasó exactamente. Lo más corto de la página, y lo que más se recuerda.'
@@ -978,7 +1032,6 @@ const es: typeof en = {
   },
 
   suyo: {
-    aplicaA: '',
     quienSoy: '',
     retoNota: '',
     researchNota: '',
@@ -1027,7 +1080,18 @@ const es: typeof en = {
     // texto de Jaime, pendiente de su revisión final
     entrevistas: '«Te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
     // texto de Jaime, pendiente de su revisión final
-    servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»'
+    servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»',
+    // ORIGINAL de Jaime (2026-08-28), con su ortografía: «es de mi familia y
+    // yo implemente eso porque queria apoyar a mi papa». Pulido sin cambiar
+    // el sentido. texto de Jaime, pendiente de su revisión final
+    jasa: '«Es de mi familia, y yo lo implementé porque quería apoyar a mi papá.»',
+    jasaTag: '',
+    // Su publicación sobre la U of T está en inglés: esta versión es
+    // TRADUCCIÓN para el panel español y lo dice en pantalla (`torontoTag`).
+    // texto de Jaime (traducción), pendiente de su revisión final
+    toronto: '«Esta visita reforzó algo que llevaba mucho tiempo pensando: aquí es donde quiero estudiar finanzas.»',
+    torontoTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    torontoFuente: 'De su publicación en LinkedIn sobre su visita a la University of Toronto y Rotman Commerce (2026).'
   }
 };
 

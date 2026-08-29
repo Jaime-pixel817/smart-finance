@@ -589,11 +589,28 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <div class="cap-1-texto">
           <!-- texto de Jaime (su meta), pendiente de su revisión final -->
           <p class="meta-mono">{c.head.meta}</p>
-          <Hueco c={c} id="aplicaA" />
+          <!-- El hueco «What I'm applying to» YA NO EXISTE: Jaime lo pidió
+               fuera (brief 2026-08-28). En su lugar habla él: la cita
+               VERBATIM de su publicación sobre la visita a la U of T, que es
+               la línea de a dónde apunta este CV. -->
+          <blockquote class="voz">
+            {c.voz.torontoTag && <p class="meta-mono">{c.voz.torontoTag}</p>}
+            <p>{c.voz.toronto}</p>
+            <footer class="pie">{c.voz.torontoFuente}</footer>
+          </blockquote>
           <Hueco c={c} id="quienSoy" />
         </div>
-        <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
-          width="320" height="320" decoding="async" loading="lazy" />
+        <!-- SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
+             micrófono en Singapur. Pasa por build-photos.mjs con huella,
+             como todas; el retrato de /about (jaime-320) deja de usarse aquí
+             para no repetir a la misma persona dos veces en una pantalla. -->
+        <figure class="cap-1-retrato">
+          <img class="cap-1-foto" src={foto('cv-retrato-480.webp')}
+            srcset={`${foto('cv-retrato-480.webp')} 480w, ${foto('cv-retrato-800.webp')} 800w`}
+            sizes="(max-width: 767px) 100vw, 320px"
+            alt={c.head.fotoAlt} width="480" height="600" decoding="async" loading="lazy" />
+          <figcaption class="pie">{c.head.retratoPie}</figcaption>
+        </figure>
       </div>
       <!-- La descripción de la foto de PORTADA, VISIBLE y no solo en un
            `alt`: la imagen es decorativa para el lector de pantalla (el
@@ -664,17 +681,25 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     <div class="servir">
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        <!-- El clip existe, con fecha, en su TikTok: se sirve desde aquí,
-             sin bucle y sin sonar solo (`controls` + `preload="none"`). -->
+        <!-- El clip existe en su TikTok: se sirve desde aquí, sin bucle y
+             sin sonar solo (`controls` + `preload="none"`). -->
         <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
           data-poster="/assets/cv/cv-poster-animales.jpg"></video>
         <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
           poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
         <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
+        <!-- La donación al stand de adopción: hecho de su publicación en
+             LinkedIn (2026). Las fotos no se pudieron guardar en esta
+             cosecha; el hecho entra igual, sin foto. -->
+        <p class="cap-frases">{c.servir.donacion}</p>
         <Hueco c={c} id="servirAnimales" />
       </div>
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.playas}</h3>
+        <!-- LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
+             línea sale de su propia publicación sobre el voluntariado del
+             curso de Green Technology. -->
+        <p class="cap-frases">{c.servir.playa}</p>
         <FotoHueco c={c} que={c.fotosPend.playas} />
         <Hueco c={c} id="servirPlayas" />
       </div>
@@ -857,6 +882,13 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
+        <!-- El cuadro de la promo del grupo (otro vídeo, otra imagen: la
+             regla de «ninguna imagen dos veces» habla de archivos, y este es
+             el cuadro del vídeo de promo de 2026 en el Tec). -->
+        <figure class="grupo-tec">
+          <span class="recuerdo"><img src={foto('cv-tt-grupo.webp')} alt={c.proyectos.grupoTecAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.proyectos.grupoTecPie} <a class="hist-link" href={urlVideo('7675228112342289685')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+        </figure>
       </div>
 
       <!-- `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
@@ -935,6 +967,28 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
+      </div>
+
+      <!-- ── Jasa Motor (bloque nuevo, brief del 2026-08-28) ──────────────
+           EL FRAMING ES EL FAMILIAR Y LO APROBÓ JAIME: la refaccionaria es
+           de su familia, y él desarrolló la tienda en línea y lleva el
+           marketing para apoyar a su papá. NO se escribe «CEO». Su frase va
+           como voz.* (pulida, pendiente de su revisión final) y el dato del
+           negocio (Cuautitlán, 20+ años) sale del propio sitio de la
+           refaccionaria, verificado el 2026-08-28. El enlace es a la tienda
+           que él construyó — la prueba de que existe. -->
+      <div class="bloque">
+        <h3 class="t-h3">{c.proyectos.jasaH}</h3>
+        <!-- texto de Jaime, pendiente de su revisión final -->
+        <blockquote class="voz">
+          {c.voz.jasaTag && <p class="meta-mono">{c.voz.jasaTag}</p>}
+          <p>{c.voz.jasa}</p>
+        </blockquote>
+        <p class="cap-frases">{c.proyectos.jasa}</p>
+        <div class="fila-fotos">
+          <FotoHueco c={c} que={c.fotosPend.jasa} />
+        </div>
+        <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
       </div>
     </div>
   </section>
@@ -1843,7 +1897,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .cap-1-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
   @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
-  .cap-1-foto { max-width: 100%; height: auto; display: block; }
+  .cap-1-retrato { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cap-1-foto { max-width: 100%; height: auto; display: block; border-radius: 18px; }
   /* La Torre CN de Jaime. `max-width` en px y no en `ch` ni en `%`: es una
      figura y su tamaño lo manda la foto, no el texto. Ya viene en gris del
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
@@ -1918,15 +1973,21 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      AFIRMA — o sea de la misma casta que los titulares. La mono se queda con
      el rótulo, que es lo que sí es interfaz. `tabular-nums` igual, que es lo
      que evita que el 1 y el 4 bailen. */
+  /* Cada cifra en su TARJETA blanca (las tarjetas de cifra de Ondo: rótulo
+     arriba, número grande en serif). El borde sustituye a la raya de arriba
+     que las separaba del bloque. */
   .cifras {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(11ch, 100%), 1fr));
-    gap: var(--sp-6) var(--sp-8);
+    gap: var(--sp-3);
     max-width: 720px;
-    border-top: 1px solid var(--cvh-raya);
-    padding-top: var(--sp-6);
   }
-  .cifras li { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .cifras li {
+    display: flex; flex-direction: column-reverse; justify-content: start;
+    gap: var(--sp-3); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 18px;
+    padding: var(--sp-4);
+  }
   .cifra {
     font-family: var(--font-serif); font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -1942,8 +2003,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   /* ---- Fotos y huecos de foto en fila ---- */
   .fila-fotos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-3); max-width: 720px; }
 
-  /* ---- Research (la tarjeta de la mesa, en blanco y negro) ---- */
-  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 0; background: var(--cvh-papel); box-shadow: none; }
+  /* ---- Research (la tarjeta de la mesa, al lenguaje de tarjetas) ----
+     El radio era 0 cuando toda la página iba a esquina recta; desde el brief
+     del 2026-08-28 el lenguaje es el de Ondo (tarjetas redondeadas), así que
+     la tarjeta del reporte va como las demás. */
+  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 18px; background: var(--cvh-papel); box-shadow: none; }
   .rep-name { font-family: var(--font-sans); font-weight: 600; }
   .rep-meta { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-4); margin: 0; }
   .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
@@ -2103,13 +2167,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
-  /* ---- Los proyectos (cap 5): el grupo primero, el sitio después ----
-     Dos bloques uno debajo del otro, separados por una raya. NO son dos
-     columnas: el del sitio lleva la cinta, que necesita ancho, y partirla en
-     media pantalla es lo que sus propias válvulas (más arriba) evitan. */
-  .bloques { display: flex; flex-direction: column; gap: var(--sp-8); }
-  .bloque { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
-  .bloque + .bloque { border-top: 1px solid var(--cvh-raya); padding-top: var(--sp-8); }
+  /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
+     Tres tarjetas una debajo de la otra: el grupo, el sitio (con la cinta y
+     las cifras) y Jasa Motor. NO son columnas: el del sitio lleva la cinta,
+     que necesita ancho, y partirla en media pantalla es lo que sus propias
+     válvulas (más arriba) evitan. La tarjeta blanca con borde fino y radio
+     de 24 es el bloque de contenido de la referencia. */
+  .bloques { display: flex; flex-direction: column; gap: var(--sp-5); max-width: 960px; }
+  .bloque {
+    display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: clamp(var(--sp-4), 3vw, var(--sp-6));
+    background: var(--cvh-papel);
+  }
+  .grupo-tec { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 480px; }
   /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
      omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
 
@@ -2178,7 +2249,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      con animation-timeline: view(): cero JS, +149 B medidos, y sin soporte
      (Firefox estable) la foto se ve entera y quieta. Casta 3: titulares,
      listas secas y recibos NO se mueven.  */
-  .recuerdo { display: block; overflow: hidden; }
+  /* Radio de tarjeta también en los marcos de foto (el lenguaje del brief). */
+  .recuerdo { display: block; overflow: hidden; border-radius: 14px; }
   .recuerdo img { display: block; width: 100%; height: auto; }
 
   @supports (animation-timeline: view()) {
