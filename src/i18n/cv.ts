@@ -267,18 +267,25 @@ const en = {
     nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
     ensenaH: 'Teaching is half the work',
     // La voz de la página: qué es este bloque y de dónde sale cada pieza.
-    ensenaLede: 'His solo videos: advice, financial data and news, told straight to camera. Each links to the original; titles are the ones he published.',
+    ensenaLede: 'His solo videos: advice, financial data and news, told straight to camera. Each links to the original; titles are the ones he published, quoted in the language he published them in — the English beside a Spanish title is a translation.',
     // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
     // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
+    // ── LO ENTRECOMILLADO ES EL ORIGINAL, EN SU IDIOMA (2026-08-29) ──────
+    // Bajo un lede que jura «titles are the ones he published», este panel
+    // traducía los títulos españoles DENTRO de las comillas: comillas de cita
+    // sobre palabras que él nunca publicó. Regla ahora — la misma de
+    // peTag/torontoTag: el original verbatim entre comillas (español si así
+    // lo publicó) y la traducción FUERA, marcada «in English:». Los títulos
+    // que ya estaban en inglés (jpmorgan, sinImagen) no llevan gloss.
     videos: {
-      singapur: 'Financial data from Singapore — “why the world’s money lives here”',
-      ahorro30: '“Want a treat? Wait 30 days” — the 30-day rule, from the FTR trading-room set',
-      bienvenida: '“The welcome” — the opening of the podcast, same FTR set',
-      linkedin: '“Opening a LinkedIn in the finance world is key” — his advice, with part 2 of the Mauricio interview',
+      singapur: 'Financial data from Singapore — “por qué aquí vive el dinero del mundo” (in English: why the world’s money lives here)',
+      ahorro30: '“¿Quieres comprarte un capricho? Espera 30 días” (in English: Want a treat? Wait 30 days) — the 30-day rule, from the FTR trading-room set',
+      bienvenida: '“La bienvenida” (in English: The welcome) — the opening of the podcast, same FTR set',
+      linkedin: '“Abrir un LinkedIn en el mundo financiero es clave” (in English: Opening a LinkedIn in the finance world is key) — his advice, with part 2 of the Mauricio interview',
       jpmorgan: '“Anything you set your mind to is possible” — the J.P. Morgan story, over his photo of the J.P. Morgan building in Singapore',
-      oro: 'News: “Gold takes off”',
-      noticias: '“4 news stories that moved the money”',
-      tokio: '“Would you believe it?” — financial facts, from the Tokyo Tower',
+      oro: 'News: “El oro se dispara” (in English: Gold takes off)',
+      noticias: '“4 noticias que movieron el dinero” (in English: 4 news stories that moved the money)',
+      tokio: '“¿Lo creerías?” (in English: Would you believe it?) — financial facts, from the Tokyo Tower',
       japon: 'Financial data from Japan'
     },
     // Los tres consejos sin imagen utilizable: fila seca con su enlace.
@@ -365,7 +372,7 @@ const en = {
       nus: {
         nombre: 'A student at NUS',
         rol: 'National University of Singapore',
-        tipo: 'Her name is not published, so this page does not invent it. The interview: “The skills you need for a top-8 university in the world.”'
+        tipo: 'Her name is not published, so this page does not invent it. The interview: “Los skills que ocupas para estar en una universidad top 8 mundial” (in English: the skills you need for a top-8 university in the world).'
       },
       jesus: {
         nombre: 'A content creator from the U.S.',
