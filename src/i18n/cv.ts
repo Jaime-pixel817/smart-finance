@@ -710,8 +710,10 @@ const en = {
     // Palabras de Jaime (2026-08-28): «es de mi familia y yo implementé eso
     // porque quería apoyar a mi papá». Pulidas SIN cambiar el sentido; esta
     // versión inglesa es TRADUCCIÓN y lo dice en pantalla (`jasaTag`).
-    // texto de Jaime (traducción), pendiente de su revisión final
-    jasa: '“It is my family’s, and I built it because I wanted to support my dad.”',
+    // texto de Jaime (traducción), pendiente de su revisión final.
+    // «Implementé eso» → “implemented that”: la traducción sigue sus
+    // palabras («eso», no «lo»), igual que el original del panel español.
+    jasa: '“It is my family’s, and I implemented that because I wanted to support my dad.”',
     jasaTag: 'His words, in Spanish. This is a translation; the original is in the Spanish panel.',
     // ---- La visita a la University of Toronto ----
     // VERBATIM de su publicación en LinkedIn sobre la visita (en inglés en el
@@ -1134,8 +1136,11 @@ const es: typeof en = {
     servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»',
     // ORIGINAL de Jaime (2026-08-28), con su ortografía: «es de mi familia y
     // yo implemente eso porque queria apoyar a mi papa». Pulido sin cambiar
-    // el sentido. texto de Jaime, pendiente de su revisión final
-    jasa: '«Es de mi familia, y yo lo implementé porque quería apoyar a mi papá.»',
+    // el sentido — y SIN cambiar sus palabras: decía «lo implementé» y su
+    // palabra es «implementé eso»; la regla es solo ortografía y puntuación,
+    // así que «eso» se queda (restaurado 2026-08-29).
+    // texto de Jaime, pendiente de su revisión final
+    jasa: '«Es de mi familia, y yo implementé eso porque quería apoyar a mi papá.»',
     jasaTag: '',
     // Su publicación sobre la U of T está en inglés: esta versión es
     // TRADUCCIÓN para el panel español y lo dice en pantalla (`torontoTag`).
