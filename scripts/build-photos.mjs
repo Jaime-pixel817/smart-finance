@@ -506,6 +506,25 @@ console.log('Jaime');
     const w = Math.min(ancho, m2.width);
     console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
   }
+
+  // La presentación sobre México en la NUS (vídeo 7658163945479408917),
+  // RESCATADA el 2026-08-29. El fotograma cosechado venía GIRADO 90° (la
+  // escena de lado, el subtítulo quemado derecho) y por eso quedó fuera de
+  // la primera ola. El original de cv-fotos/ ya está enderezado (sips -r
+  // -90 sobre el cosechado: 720x1280 → 1280x720); lo que NO se pudo quitar
+  // girando es el subtítulo del vídeo («THEN MEXICO, STOCK CHANGE,»), que
+  // enderezado corre EN VERTICAL por x≈780–870. Por eso este recorte para
+  // en x=760: se queda la escena entera que importa —Jaime con el micrófono
+  // de solapa hablando junto a la lámina «Finance facts of Mexico», en el
+  // aula de la NUS— y el rótulo queda fuera. Si algún día se quiere el
+  // encuadre completo, hay que tapar o reconstruir esa franja, no ampliarlo.
+  {
+    const src = CVF('tt-viaje-presentar-mexico-nus.jpg');
+    const buf = await sharp(src).extract({ left: 0, top: 0, width: 760, height: 720 })
+      .resize(720).webp({ quality: 76 }).toBuffer();
+    const archivo = publicar('cv-tt-nus-presentacion.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   720x682');
+  }
 }
 
 /* ── Huérfanas y manifiesto ────────────────────────────────────────────────

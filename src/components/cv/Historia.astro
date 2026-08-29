@@ -859,6 +859,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       ))}
     </ol>
     <p class="pie">{c.tiktok.arcoFuente}</p>
+    {/* El cuadro de la presentación en la NUS, RESCATADO (2026-08-29): el
+         fotograma cosechado venía girado 90° y con el subtítulo del vídeo
+         quemado en medio — enderezado y recortado en build-photos.mjs (ahí
+         está la cuenta del recorte). Es la única presencia visual de ese
+         vídeo: la regla de «ninguna imagen dos veces» queda intacta. */}
+    <figure class="arco-fig">
+      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="720" height="682" loading="lazy" decoding="async" /></span>
+      <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+    </figure>
     <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
   </section>
 
@@ -2235,6 +2244,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     background: var(--cvh-papel);
   }
   .grupo-tec { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 480px; }
+  /* El cuadro de la presentación en la NUS (el rescatado): misma receta que
+     .grupo-tec — figura suelta, pie debajo, ancho capado para que una foto
+     casi cuadrada no se coma el capítulo. */
+  .arco-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 440px; }
   /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
      omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
 

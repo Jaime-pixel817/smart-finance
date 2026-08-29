@@ -303,7 +303,14 @@ const en = {
       { cuando: '2026', que: 'Presentation about Mexico to National University of Singapore students' },
       { cuando: '2026', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
     ],
-    arcoFuente: 'The whole arc is from 2026; each video, with its exact date, is on @smart.financee.'
+    arcoFuente: 'The whole arc is from 2026; each video, with its exact date, is on @smart.financee.',
+    // El cuadro del arco: el fotograma RESCATADO de la presentación en la
+    // NUS (vídeo 7658163945479408917) — venía girado 90° con el subtítulo
+    // quemado; el enderezado y el recorte que deja fuera el rótulo están
+    // explicados en build-photos.mjs (2026-08-29). El alt describe la
+    // imagen real, mirada, incluida la lámina que se lee en ella.
+    arcoImgAlt: 'Jaime, a microphone clipped to his collar, speaking beside a laptop showing a “Finance facts of Mexico” slide, in a lecture room at NUS',
+    arcoImgPie: 'The presentation about Mexico at NUS, a frame from his TikTok (2026)'
   },
 
   // ---- Capítulo 7: la gente ----
@@ -907,7 +914,9 @@ const es: typeof en = {
       { cuando: '2026', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
       { cuando: '2026', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
     ],
-    arcoFuente: 'Todo el arco es de 2026; cada vídeo, con su fecha exacta, está en @smart.financee.'
+    arcoFuente: 'Todo el arco es de 2026; cada vídeo, con su fecha exacta, está en @smart.financee.',
+    arcoImgAlt: 'Jaime, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
+    arcoImgPie: 'La presentación sobre México en la NUS, un cuadro de su TikTok (2026)'
   },
 
   entrevistas: {
