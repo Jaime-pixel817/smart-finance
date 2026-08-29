@@ -19,7 +19,7 @@
 //     pide WCAG 1.4.11.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// LAS TRES COSAS QUE MIDE
+// LAS CUATRO COSAS QUE MIDE
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. LA MATRIZ. Cada pieza de texto de las dos pantallas oscuras, en 5 anchuras
 //    x 2 idiomas x 2 tallas de letra, con las DOS VARAS del repo:
@@ -41,6 +41,32 @@
 //    fotograma es más oscuro que el del siguiente: con texto claro, el peor
 //    fotograma tiene que ser el ÚLTIMO. Esto lo comprueba, porque el `scale`
 //    de 1.05 cambia QUÉ píxel cae debajo de cada letra y podría romperlo.
+//
+// 4. LOS FOTOGRAMAS DEL EFECTO DE LA TARJETA (2026-08-29). El clavado dura una
+//    pantalla de scroll; se mide en 0/25/50/75/100 % de ese tramo, y en cada
+//    fotograma se comprueban las TRES promesas del efecto:
+//      a) LA DISOLUCIÓN NO DEJA TEXTO ILEGIBLE PUESTO. La tapa se funde
+//         entera (velo y texto en una opacidad de grupo), así que su contraste
+//         compuesto decae con la alfa — lo prohibido es que una pieza caiga
+//         por debajo de su mínimo mientras el texto siga siendo texto. La
+//         vara: con α > 0.5 (menos de medio disuelta) toda pieza pasa su
+//         mínimo; medido, cruzan alrededor de α ≈ 0.25, ya casi idas.
+//      b) LAS MITADES DE TINTA, YA ASENTADAS (α ≥ .95), pasan su mínimo sobre
+//         el papel. Durante el cruce (26–70 %) son transicionales — el
+//         doble-expuesto del fotograma 6 de la referencia — y no se les exige.
+//      c) NUNCA HAY DOS FOTOS. Es el fallo que grabó Jaime: la portada
+//         cortada por arriba, una banda blanca y la MISMA ciudad entrando de
+//         nuevo por abajo. Cada FILA de la captura se clasifica por su
+//         fracción de píxeles claros (≤ 40 % claros = foto, también con
+//         glifos blancos encima; ≥ 60 % = papel, también con un renglón de
+//         tinta encima; entre medias hereda, que es la histéresis que impide
+//         que un trazo grueso parta un segmento). Dos segmentos de foto
+//         separados por ≥ 8 px de papel son el fallo — 8 px para que el aro
+//         (una línea de 1.5 px) no dispare la alarma. En 1280x800 la tarjeta
+//         asentada ocupa el 29 % del ancho y sus filas leen como papel: cero
+//         segmentos, que también pasa — lo prohibido es MÁS de uno. Además:
+//         cero <img>/<picture> dentro de .portada-tarjeta (ahí vivía el
+//         duplicado) y UN solo <picture> en la pista por panel.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // DOS TRAMPAS QUE YA COSTARON UNA MEDICIÓN ENTERA, ESCRITAS AQUÍ
@@ -307,6 +333,133 @@ for (const [w, h, esc] of [[390, 844, 200], [1280, 800, 100], [375, 812, 200]]) 
       }
     }
     if (fin < min) fallos.push(`${nombre} en ${w}x${h} al ${esc}%: ${fin.toFixed(2)}:1 al final (mínimo ${min})`);
+  }
+  await ctx.close();
+}
+
+// ═══ 4) LOS FOTOGRAMAS DEL EFECTO DE LA TARJETA ═══════════════════════════
+// El clavado dura exactamente una pantalla de scroll (la pista mide 200svh y
+// el lienzo 100svh): scroll = svh x progreso. Ver la cabecera, punto 4.
+const PROGRESOS = [0, 0.25, 0.5, 0.75, 1];
+console.log('\nLOS FOTOGRAMAS DEL EFECTO (0/25/50/75/100 % del clavado)');
+for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100]]) {
+  console.log(`\n${w}x${h}, texto ${esc} %`);
+  const ctx = await nav.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+  const p = await ctx.newPage();
+  const cdp = await ctx.newCDPSession(p);
+  await cdp.send('Page.setFontSizes', { fontSizes: { standard: Math.round(16 * esc / 100), fixed: Math.round(13 * esc / 100) } });
+  await p.goto(url('en'), { waitUntil: 'load' });
+  await p.addStyleTag({ content: SIN_APERTURA });
+  await p.addStyleTag({ content: SIN_TEXTO });
+  // Si el navegador de la medición no conduce el efecto, no hay fotogramas
+  // que medir (la degradación es la portada de siempre, cubierta por 1–3).
+  const conEfecto = await p.evaluate(() =>
+    CSS.supports('animation-timeline: view()') &&
+    getComputedStyle(document.querySelector('.cv-en .intro-pista')).height !== 'auto');
+  if (!conEfecto) { console.log('  (sin scroll-driven animations aquí: nada que medir)'); await ctx.close(); continue; }
+
+  // c) cero duplicados en el DOM, siempre.
+  const dup = await p.evaluate(() => ({
+    enTarjeta: document.querySelectorAll('.cv-en .portada-tarjeta img, .cv-en .portada-tarjeta picture').length,
+    enPista: document.querySelectorAll('.cv-en .intro-pista picture').length
+  }));
+  if (dup.enTarjeta !== 0) fallos.push(`el manifiesto vuelve a llevar una imagen dentro (${dup.enTarjeta}): ahí vivía el duplicado`);
+  if (dup.enPista !== 1) fallos.push(`la pista lleva ${dup.enPista} <picture> y tiene que llevar exactamente 1`);
+
+  for (const prog of PROGRESOS) {
+    await p.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), Math.round(h * prog));
+    await p.waitForTimeout(160);
+
+    // a) la disolución de la tapa: contraste compuesto contra su alfa.
+    const alfa = await p.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.cv-en .portada-uno')).opacity));
+    const visible = await p.evaluate(() => getComputedStyle(document.querySelector('.cv-en .portada-uno')).visibility !== 'hidden');
+    const detalle = [`  ${Math.round(prog * 100)}%`.padEnd(7) + `tapa α=${alfa.toFixed(2)}${visible ? '' : ' (hidden)'}`];
+    if (visible && alfa > 0.05) {
+      for (const [nombre, sel, min] of PIEZAS) {
+        const el = p.locator('.cv-en ' + sel).first();
+        if (!(await el.count())) continue;
+        const caja = await el.evaluate(CAJA_CONTENIDO);
+        const clip = { x: Math.max(0, caja.x), y: Math.max(0, caja.y),
+                       width: Math.min(caja.width, w - Math.max(0, caja.x)),
+                       height: Math.min(caja.height, h - Math.max(0, caja.y)) };
+        if (clip.width < 2 || clip.height < 2) continue;
+        const color = await el.evaluate((e) => getComputedStyle(e).color);
+        const con = await p.screenshot({ clip });
+        await el.evaluate((e) => e.setAttribute('data-sin-texto', ''));
+        const sin = await p.screenshot({ clip });
+        await el.evaluate((e) => e.removeAttribute('data-sin-texto'));
+        const { caja: rc } = await varas(con, sin, color);
+        if (rc < min && alfa > 0.5) {
+          fallos.push(`efecto: ${nombre} cae a ${rc.toFixed(2)}:1 con la tapa a α=${alfa.toFixed(2)} (> .5) en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}%`);
+        }
+      }
+    }
+
+    // b) las mitades de tinta asentadas, sobre papel.
+    for (const sel of ['.intro-n1', '.intro-n2']) {
+      const st = await p.evaluate((s) => {
+        const e = document.querySelector('.cv-en ' + s);
+        if (!e) return null;
+        const cs = getComputedStyle(e.parentElement); // la escena lleva la alfa
+        return { alfa: parseFloat(cs.opacity), display: cs.display };
+      }, sel);
+      if (!st || st.display === 'none' || st.alfa < 0.95) continue;
+      const el = p.locator('.cv-en ' + sel).first();
+      const caja = await el.evaluate(CAJA_CONTENIDO);
+      const clip = { x: Math.max(0, caja.x), y: Math.max(0, caja.y),
+                     width: Math.min(caja.width, w - Math.max(0, caja.x)),
+                     height: Math.min(caja.height, h - Math.max(0, caja.y)) };
+      if (clip.width < 2 || clip.height < 2) continue;
+      const color = await el.evaluate((e) => getComputedStyle(e).color);
+      const con = await p.screenshot({ clip });
+      await el.evaluate((e) => e.setAttribute('data-sin-texto', ''));
+      const sin = await p.screenshot({ clip });
+      await el.evaluate((e) => e.removeAttribute('data-sin-texto'));
+      const { caja: rc, trazo: rt } = await varas(con, sin, color);
+      detalle.push(`${sel} ${rc.toFixed(2)}/${rt.toFixed(2)}`);
+      if (rc < 3 || rt < 3) fallos.push(`efecto: ${sel} asentada da caja ${rc.toFixed(2)}:1 / trazo ${rt.toFixed(2)}:1 en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}% (mínimo 3)`);
+    }
+
+    // c) nunca dos fotos: cada FILA entera clasificada por su fracción de
+    //    píxeles claros. Una fila es FOTO si es mayormente oscura (≤ 40 % de
+    //    claros: la ciudad de noche, también con glifos blancos encima) y
+    //    PAPEL si es mayormente clara (≥ 60 %: papel, también con un renglón
+    //    de tinta encima — la tinta nunca cubre el 60 % de una fila). Entre
+    //    medias hereda la fila anterior (histéresis), que es lo que evita que
+    //    un trazo grueso de letra parta un segmento — el primer detector iba
+    //    por la columna del centro y contaba los glifos como fotos.
+    const captura = await p.screenshot();
+    const B = await sharp(captura).raw().toBuffer({ resolveWithObject: true });
+    const ch = B.info.channels, W = B.info.width;
+    const filasFoto = [];
+    let previa = true; // la página nace en foto a sangre
+    for (let y = 0; y < B.info.height; y++) {
+      let claras = 0, muestras = 0;
+      for (let x = 0; x < W; x += 3) {
+        const o = (y * W + x) * ch;
+        if (lum(B.data[o], B.data[o + 1], B.data[o + 2]) >= 0.8) claras++;
+        muestras++;
+      }
+      const f = claras / muestras;
+      const esFoto = f <= 0.4 ? true : f >= 0.6 ? false : previa;
+      filasFoto.push(esFoto);
+      previa = esFoto;
+    }
+    // Segmentos de foto separados por ≥ 8 px de papel (el aro es una línea
+    // de 1.5 px y no puede disparar esto).
+    let segmentos = 0, dentro = false, papelSeguido = Infinity;
+    for (const esFoto of filasFoto) {
+      if (esFoto) {
+        if (!dentro && papelSeguido >= 8) segmentos++;
+        dentro = true; papelSeguido = 0;
+      } else {
+        papelSeguido++;
+        if (papelSeguido >= 8) dentro = false;
+      }
+    }
+    if (segmentos > 1) fallos.push(`efecto: la foto sale PARTIDA EN ${segmentos} por una banda de papel en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}% — el fallo de la grabación`);
+    detalle.push(`foto en ${segmentos} segmento${segmentos === 1 ? '' : 's'}`);
+    console.log(detalle.join(' · '));
   }
   await ctx.close();
 }
