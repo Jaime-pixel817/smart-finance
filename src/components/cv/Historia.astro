@@ -2322,6 +2322,12 @@ const resumenIndice = c.indice.resumen
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
   .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
+  /* El de la NUS va ENDEREZADO (TikTok lo publica girado 90°), o sea
+     apaisado: su caja es 16:9 y más ancha. La proporción va aquí y no en un
+     `style=` del elemento porque la reserva de caja es lo que evita el CLS, y
+     el gemelo del <noscript> tiene que medir exactamente lo mismo — con la
+     clase, los dos la heredan de `attrsClip()` por construcción. */
+  .clip-video-ancho { aspect-ratio: 16 / 9; max-width: 100%; }
   .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
   .clip-anio { color: var(--cvh-tinta-3); }
   .clip-tag {

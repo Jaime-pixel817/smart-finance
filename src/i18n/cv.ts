@@ -62,7 +62,11 @@ const en = {
   clip: {
     tag: 'Clip to come',
     pista: 'The clip will be served from this domain, never embedded. Until then, the poster and the link to the original.',
-    ver: 'Watch on TikTok'
+    ver: 'Watch on TikTok',
+    // Un carrusel de fotos no es un vídeo: no hay archivo que servir, y el
+    // rótulo lo dice en vez de dejar un hueco de clip que nunca se va a
+    // llenar. TikTok los publica como láminas + audio, no como mp4.
+    carrusel: 'Photo carousel'
   },
 
   // ---- Índice y meta de la portada ----
@@ -271,9 +275,13 @@ const en = {
     perfil: '@smart.financee, on TikTok',
     // La línea que conecta los clips con las lecciones del sitio.
     nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
-    ensenaH: 'Teaching is half the work',
+    ensenaH: 'Why I record',
     // La voz de la página: qué es este bloque y de dónde sale cada pieza.
-    ensenaLede: 'His solo videos: advice, financial data and news, told straight to camera. Each links to the original; titles are the ones he published, quoted in the language he published them in — the English beside a Spanish title is a translation.',
+    // ── LOS SEIS QUE ELIGIÓ JAIME (2026-08-29) ──────────────────────────
+    // Su mandato fue «solo los siguientes», y estos son, en su orden. Los
+    // clips de consejos que vivían aquí salieron de la sección; los tres que
+    // ya eran enlaces de texto (`sinImagen`) se quedan como estaban.
+    ensenaLede: 'Six pieces I recorded myself, in the order I would show them. Four are videos served from this domain — with sound, and they only start when you press play. The last two are photo carousels on TikTok, so they link out.',
     // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
     // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
     // ── LO ENTRECOMILLADO ES EL ORIGINAL, EN SU IDIOMA (2026-08-29) ──────
@@ -282,18 +290,23 @@ const en = {
     // sobre palabras que él nunca publicó. Regla ahora — la misma de
     // peTag/torontoTag: el original verbatim entre comillas (español si así
     // lo publicó) y la traducción FUERA, marcada «in English:». Los títulos
-    // que ya estaban en inglés (jpmorgan, sinImagen) no llevan gloss.
+    // que ya estaban en inglés no llevan gloss.
     videos: {
-      singapur: 'Financial data from Singapore — “por qué aquí vive el dinero del mundo” (in English: why the world’s money lives here)',
-      ahorro30: '“¿Quieres comprarte un capricho? Espera 30 días” (in English: Want a treat? Wait 30 days) — the 30-day rule, from the FTR trading-room set',
-      bienvenida: '“La bienvenida” (in English: The welcome) — the opening of the podcast, same FTR set',
-      linkedin: '“Abrir un LinkedIn en el mundo financiero es clave” (in English: Opening a LinkedIn in the finance world is key) — his advice, with part 2 of the Mauricio interview',
-      jpmorgan: '“Anything you set your mind to is possible” — the J.P. Morgan story, over his photo of the J.P. Morgan building in Singapore',
-      oro: 'News: “El oro se dispara” (in English: Gold takes off)',
-      noticias: '“4 noticias que movieron el dinero” (in English: 4 news stories that moved the money)',
-      tokio: '“¿Lo creerías?” (in English: Would you believe it?) — financial facts, from the Tokyo Tower',
-      japon: 'Financial data from Japan'
+      // El título del 2026-08-27 llega TRUNCADO en su info.json («…about the
+      // fin…»), así que se cita solo hasta donde el original se puede leer y
+      // el corte lleva su «…» dentro de las comillas. Inventarle el final a
+      // una cita es exactamente lo que este archivo no hace.
+      jpmvisit: '“📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…” — the visit, told to camera',
+      nus: '“Tuve la oportunidad de presentar sobre México a estudiantes de la National University of Singapore” (in English: I had the chance to present about Mexico to National University of Singapore students)',
+      singapur: '“Ahora entendí por qué aquí vive el dinero del mundo” (in English: Now I understood why the world’s money lives here) — Singapore',
+      japon: '“Datos financieros de Japón” (in English: Financial data from Japan)',
+      tokio: '“Lo creerías?” (in English: Would you believe it?) — financial facts about Japan, from the Tokyo Tower',
+      canada: '“Canada is not just beautiful it’s one of the smartest places in the w…” — five financial facts about Canada'
     },
+    // El carrusel de Canadá lleva la foto que YA ESTÁ en el capítulo 1 (la
+    // Torre CN que hizo él), y la regla de Jaime es que ninguna imagen se
+    // repite: aquí va el enlace y esta línea diciendo dónde está la foto.
+    canadaNota: 'Its photo is the CN Tower one that opens this CV, in chapter 1 — it is not repeated here.',
     // Los tres consejos sin imagen utilizable: fila seca con su enlace.
     sinImagen: [
       { id: '7654447626644933909', que: '“Your first investment should be in yourself”' },
@@ -779,7 +792,8 @@ const es: typeof en = {
   clip: {
     tag: 'Falta el clip',
     pista: 'El clip se servirá desde este dominio, nunca incrustado. Mientras tanto, el póster y el enlace al original.',
-    ver: 'Ver en TikTok'
+    ver: 'Ver en TikTok',
+    carrusel: 'Carrusel de fotos'
   },
 
   indice: {
@@ -895,19 +909,17 @@ const es: typeof en = {
   tiktok: {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
-    ensenaH: 'Enseñar es la mitad del trabajo',
-    ensenaLede: 'Sus vídeos en solitario: consejos, datos financieros y noticias, contados a cámara. Cada uno enlaza al original; los títulos son los que él publicó.',
+    ensenaH: 'Por qué grabo',
+    ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Cuatro son vídeos servidos desde este dominio — con sonido, y solo arrancan si le das a reproducir. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
     videos: {
-      singapur: 'Datos financieros de Singapur — «por qué aquí vive el dinero del mundo»',
-      ahorro30: '«¿Quieres comprarte un capricho? Espera 30 días» — la regla de los 30 días, desde el set de la sala FTR',
-      bienvenida: '«La bienvenida» — el arranque del podcast, mismo set FTR',
-      linkedin: '«Abrir un LinkedIn en el mundo financiero es clave» — su consejo, con la parte 2 de la entrevista a Mauricio',
-      jpmorgan: '«Anything you set your mind to is possible» — la historia de J.P. Morgan, sobre su foto del edificio de J.P. Morgan en Singapur',
-      oro: 'Noticias: «El oro se dispara»',
-      noticias: '«4 noticias que movieron el dinero»',
-      tokio: '«¿Lo creerías?» — datos financieros, desde la Torre de Tokio',
-      japon: 'Datos financieros de Japón'
+      jpmvisit: '«📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…» (en español: visitando J.P. Morgan en Singapur y aprendiendo más sobre las fin…) — la visita, contada a cámara',
+      nus: '«Tuve la oportunidad de presentar sobre México a estudiantes de la National University of Singapore»',
+      singapur: '«Ahora entendí por qué aquí vive el dinero del mundo» — Singapur',
+      japon: '«Datos financieros de Japón»',
+      tokio: '«Lo creerías?» — datos financieros de Japón, desde la Torre de Tokio',
+      canada: '«Canada is not just beautiful it’s one of the smartest places in the w…» (en español: Canadá no solo es bonito, es uno de los lugares más inteligentes del m…) — cinco datos financieros de Canadá'
     },
+    canadaNota: 'Su foto es la de la Torre CN que abre este CV, en el capítulo 1 — aquí no se repite.',
     sinImagen: [
       { id: '7654447626644933909', que: '«Your first investment should be in yourself»' },
       { id: '7659438690179026196', que: '«Most people are waiting for the perfect moment. It doesn’t exist» — 4 hábitos' },
