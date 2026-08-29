@@ -66,8 +66,14 @@ const en = {
   },
 
   // ---- Índice y meta de la portada ----
+  // `resumen` es una PLANTILLA: {n} y {min} los rellena Historia.astro con
+  // la MISMA lista que numera las pantallas (capitulos.length) y con las
+  // palabras contadas de la copia real del panel. Antes decía «9 chapters ·
+  // about 7 minutes» escrito a mano, con ~2 650 palabras visibles en el
+  // panel (unos 13 minutos): una cifra inventada al lado de una numeración
+  // contada (2026-08-29).
   indice: {
-    resumen: '9 chapters · about 7 minutes',
+    resumen: '{n} chapters · about {min} minutes',
     ver: 'See the index',
     aria: 'Chapters of this page'
   },
@@ -777,7 +783,7 @@ const es: typeof en = {
   },
 
   indice: {
-    resumen: '9 capítulos · unos 7 minutos',
+    resumen: '{n} capítulos · unos {min} minutos',
     ver: 'Ver el índice',
     aria: 'Capítulos de esta página'
   },

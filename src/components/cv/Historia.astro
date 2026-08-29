@@ -353,7 +353,31 @@ const capitulos = [
   c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4,
   c.caps.c5, c.caps.c6, c.caps.c7, c.caps.c8, c.caps.c9
 ];
-const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.length;
+// Los DOS lados van con dos dígitos («01 / 09», no «01 / 9»): con el índice
+// relleno y el total a pelo, el rótulo cambiaba de forma según el lado
+// (2026-08-29). Si algún día hay 10+ capítulos, el formato ya está listo.
+const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capitulos.length).padStart(2, '0');
+
+// ── El resumen del índice se CUENTA, no se escribe ──────────────────────
+// «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
+// pantallas — y «{min} minutos» de contar las palabras de la copia real del
+// panel (`c` es de donde sale todo el texto pintado; las pocas claves que no
+// se pintan en este idioma —un statusLabel de más, la traducción de la frase
+// en el panel español— son un 2-3 % de ruido, que a «unos X minutos» no le
+// cambia el redondeo). A 200 palabras por minuto, lectura adulta en
+// silencio; las lecciones no tienen una constante que reutilizar (su
+// readingMinutes va escrito a mano en el frontmatter). Antes decía «about 7
+// minutes» a mano con ~2 650 palabras visibles: una cifra inventada al lado
+// de una numeración contada.
+const palabras = (o: unknown): number =>
+  typeof o === 'string' ? (o.match(/\S+/g) || []).length
+  : Array.isArray(o) ? o.reduce((n: number, x) => n + palabras(x), 0)
+  : o && typeof o === 'object' ? Object.values(o).reduce((n: number, x) => n + palabras(x), 0)
+  : 0;
+const minutosLectura = Math.round(palabras(c) / 200);
+const resumenIndice = c.indice.resumen
+  .replace('{n}', String(capitulos.length))
+  .replace('{min}', String(minutosLectura));
 ---
 <div class="historia">
 
@@ -563,7 +587,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
            QUE ANTES: es la salida de emergencia del lector con prisa y tiene
            que verse sin bajar más. */}
       <div class="indice-linea">
-        <p class="meta-mono">{c.indice.resumen}</p>
+        <p class="meta-mono">{resumenIndice}</p>
         <details class="indice">
           <summary class="meta-mono indice-ver">{c.indice.ver}</summary>
           <ol class="indice-lista" aria-label={c.indice.aria}>
@@ -1714,8 +1738,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     letter-spacing: .16em; text-transform: uppercase;
   }
   .portada-flecha { font-size: 1.15em; line-height: 1; }
-  /* El «01 / 9» va pegado a la etiqueta, con una raya de separación en vez de
-     un renglón propio: dos etiquetas mono seguidas en la misma banda segura. */
+  /* El «01 / 09» va pegado a la etiqueta, con una raya de separación en vez
+     de un renglón propio: dos etiquetas mono seguidas en la misma banda segura. */
   .portada-num { margin-left: var(--sp-2); }
   .portada-num::before { content: '· '; }
 
