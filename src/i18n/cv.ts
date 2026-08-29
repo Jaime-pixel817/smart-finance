@@ -442,7 +442,10 @@ const en = {
       { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
       { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
       { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
-      { cuando: '2026', que: 'AEM General Assembly — his first business conference and networking event' },
+      // «One of his first», no «his first»: su post dice «one of my first
+      // experiences attending a business conference» (MATERIAL.md LI-17).
+      // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
+      { cuando: '2026', que: 'AEM General Assembly — one of his first business conferences and networking events' },
       { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin, CEO of CFA Institute, for advice on studying in Canada' },
       { cuando: '2026', que: 'Jasa Motor — online store and marketing for his family’s auto-parts business (chapter 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
@@ -952,7 +955,7 @@ const es: typeof en = {
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
-      { cuando: '2026', que: 'Asamblea General de la AEM — su primera conferencia de negocios y evento de networking' },
+      { cuando: '2026', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
       { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin, CEO de CFA Institute, sobre estudiar en Canadá' },
       { cuando: '2026', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de su familia (capítulo 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
