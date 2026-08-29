@@ -1064,41 +1064,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     color: var(--cvh-tinta);
   }
 
-  /* ═══ BLANCO Y NEGRO, TAMBIÉN LAS FOTOS Y LOS CLIPS ═══════════════════
-     Lo decidió Jaime (2026-08-27) y es lo que cierra la dirección visual:
-     esta página ya era blanca y negra en todo menos en sus imágenes, y una
-     chamarra roja en medio de un documento de tinta y papel es lo único que
-     desentonaba.
-
-     ── POR QUÉ EN EL CSS Y NO EN LOS ARCHIVOS ────────────────────────────
-     Porque NO SON FOTOS DEL CV: son las mismas que publica el sitio. El
-     retrato sale en /about y en la firma de cada lección; la del grupo, en
-     /community; las de las entrevistas, en el home. Grabarles el gris en
-     `scripts/build-photos.mjs` dejaría el sitio público en blanco y negro
-     sin que nadie lo hubiera pedido — y el sitio es de color. Con el filtro
-     aquí, el gris es de ESTA página y de ninguna otra. Los clips igual:
-     recodificarlos en gris haría falta ffmpeg y dejaría los originales de
-     `public/assets/cv/` sirviendo para una sola cosa.
-     Cuesta lo que cuesta pintar `filter` sobre imágenes que no se mueven, o
-     sea nada medible: el compositor lo resuelve una vez y no vuelve.
-
-     ── LAS DOS EXCEPCIONES, LAS DOS A PROPÓSITO ──────────────────────────
-     · `.portada-foto` y `.cap-1-figura img` — las dos fotos de Toronto ya
-       vienen en gris DENTRO del archivo (build-photos.mjs les quita los planos
-       de color, que es lo que las abarata: sin ellos el AVIF pesa la mitad).
-       Pasarles encima un filtro que no cambia nada, y a una de ellas sobre una
-       imagen que cubre la pantalla entera, sería trabajo por gusto. Y hay una
-       razón de más en la portada: ahí el `filter` ya está ocupado — es lo que
-       anima la apertura, y un `grayscale(1)` escrito aparte lo pisaría.
-     · `.logo-placa img` — es el logo del RETO ACTINVER, marca de un tercero.
-       El repo ya tiene escrita la regla: se publica tal como lo publica
-       Actinver, sin recortar y sin recolorear. Pasarlo a gris le quitaría el
-       punto dorado de la i, que es deformar una marca ajena — exactamente lo
-       que la regla prohíbe. Que la página sea en blanco y negro es una
-       decisión sobre el material propio, no un permiso sobre el ajeno. */
-  .historia img, .historia video { filter: grayscale(1); }
-  .historia .portada-foto, .historia .cap-1-figura img,
-  .historia .logo-placa img { filter: none; }
+  /* ═══ LAS FOTOS Y LOS CLIPS VAN A COLOR, Y LO DECIDIÓ JAIME (2026-08-28) ══
+     Aquí vivió el `filter: grayscale(1)` de la dirección en blanco y negro
+     (decidida el 27, revertida PARA LAS FOTOS el 28 con su brief: «fotos a
+     color; el B/N es del diseño, no de las fotos»). El diseño sigue siendo
+     tinta sobre papel — los colores del documento no cambian —, pero ninguna
+     imagen ni ningún clip lleva ya filtro. Las dos fotos de Toronto salen de
+     build-photos.mjs también sin gris grabado (la Torre CN de Jaime sigue
+     viéndose B/N porque SU original es B/N: así la publicó él). */
 
   /* ═══ El esqueleto de capítulo (dirección §3, "Ritmo") ═══════════════
      min-height y no height: con el texto al 200 % el contenido crece y

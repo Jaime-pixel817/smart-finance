@@ -330,16 +330,15 @@ console.log('Jaime');
  * anchuras (375, 390, 414, 768 y 1280 comprobados), así que no hay una
  * consulta de medios por cada teléfono: hay un número, y está medido.
  *
- * ── POR QUÉ EL GRIS VA EN EL ARCHIVO Y NO EN EL CSS ───────────────────────
- * Las demás fotos del CV se pasan a gris con `filter: grayscale(1)` en la hoja
- * del CV, y tiene que ser así: son las MISMAS que /about, /community y las
- * entrevistas del home, donde el sitio es de color. Grabarles el gris aquí
- * dejaría el sitio público en blanco y negro sin que nadie lo pidiera.
- *
- * Las dos de Toronto no: solo las usa el CV. Así que aquí el gris se GRABA
- * (`.greyscale()`), y no es una preferencia de estilo, es bytes: sin planos de
- * color el AVIF pesa la mitad, y encima el filtro dejaría de aplicarse en cada
- * pintado de una imagen que cubre la pantalla entera.
+ * ── LAS FOTOS DEL CV VAN A COLOR, Y LO DECIDIÓ JAIME (2026-08-28) ─────────
+ * Aquí hubo un `.greyscale()` grabado en las dos fotos de Toronto (y un
+ * `filter: grayscale(1)` en la hoja del CV para todas las demás): la dirección
+ * en blanco y negro. Jaime la revirtió PARA LAS FOTOS en su brief del 28 de
+ * agosto: «fotos a color; el B/N es del diseño, no de las fotos». Así que el
+ * gris ya no se graba en ningún archivo y la hoja del CV ya no filtra nada.
+ * Coste conocido y aceptado: con planos de color el AVIF de la portada pesa
+ * más que en gris (el LCP de la página es el titular, no la foto, y se vuelve
+ * a medir con Lighthouse después del cambio).
  *
  * ── LOS ANCHOS ────────────────────────────────────────────────────────────
  * El techo de cada lista es el ancho NATIVO de su recorte: escalar hacia
@@ -352,7 +351,7 @@ console.log('Jaime');
     console.log('portada del CV: no está public/assets/portada/toronto-skyline-original.jpg — me la salto');
   } else {
     const g = await sharp(src).metadata();
-    console.log('portada del CV (horizonte de Toronto, ' + g.width + 'x' + g.height + ', gris grabado)');
+    console.log('portada del CV (horizonte de Toronto, ' + g.width + 'x' + g.height + ', a color)');
 
     /* El mástil de la Torre CN, medido sobre el original, y el recorte
        vertical que sale de ponerlo al 38 % de su ancho. Los dos números están
@@ -371,7 +370,7 @@ console.log('Jaime');
 
     const emitir = async (nombre, pipeline, anchos, nativo) => {
       for (const ancho of anchos) {
-        const base = pipeline().greyscale().resize(ancho);
+        const base = pipeline().resize(ancho);
         // AVIF primero: es la mitad que WebP en una foto de cielo liso.
         const av = await base.clone().avif({ quality: 42, effort: 9 }).toBuffer();
         const a1 = publicar(nombre + ancho + '.avif', av);
@@ -408,28 +407,104 @@ console.log('Jaime');
  * original con el texto sobreimpreso está fuera del repo; lo que entra aquí es
  * el recorte sin texto, 1620x1728, que él aprobó.
  *
- * Sale en DOS anchos y solo en WebP: ya no ocupa la pantalla entera sino una
- * figura de 520 px como mucho, así que el segundo ancho es para densidad 2 y
- * ahí se acaba. El gris se graba por lo mismo que la portada — solo la usa el
- * CV —, y por eso `.cap-1-figura img` está en la lista de excepciones del
- * `filter: grayscale(1)` de la hoja: ya viene en gris. */
+ * Sale en tres anchos y solo en WebP: ya no ocupa la pantalla entera sino una
+ * figura de 520 px como mucho. A COLOR, como todas las fotos del CV desde el
+ * brief del 2026-08-28 (ver el bloque de la portada). */
 {
   const src = p('public/assets/portada/toronto-original.jpg');
   if (!fs.existsSync(src)) {
     console.log('Torre CN de Jaime: no está public/assets/portada/toronto-original.jpg — me la salto');
   } else {
     const g = await sharp(src).metadata();
-    console.log('Torre CN de Jaime (' + g.width + 'x' + g.height + ', gris grabado)');
+    console.log('Torre CN de Jaime (' + g.width + 'x' + g.height + ', a color)');
     /* TRES ANCHOS Y NO DOS: la figura mide 100vw en el teléfono y 520 px como
        mucho en escritorio, así que el móvil de Lighthouse (412 css x densidad
        1.75 = 721 px) pedía el de 1 040 — 16.6 KB por una foto que está dos
        pantallas por debajo del pliegue. Con el escalón de 760 pide ese. */
     for (const ancho of [520, 760, 1040]) {
-      const wp = await sharp(src).greyscale().resize(ancho).webp({ quality: 76 }).toBuffer();
+      const wp = await sharp(src).resize(ancho).webp({ quality: 76 }).toBuffer();
       const a = publicar('cv-torre-' + ancho + '.webp', wp);
       console.log('  ' + a.padEnd(44) + kb(wp).padStart(9) + '   ' + ancho + 'x' +
                   Math.round(ancho * g.height / g.width));
     }
+  }
+}
+
+/* ── LAS FOTOS NUEVAS DEL CV (cosecha del 2026-08-28) ──────────────────────
+ *
+ * ORIGEN: fotogramas y miniaturas de los vídeos públicos de @smart.financee
+ * (extraídos con ffmpeg en la cosecha; la tabla completa, con id y fecha de
+ * cada vídeo, está en cv-material/MATERIAL.md fuera del repo), más el retrato
+ * del panel con micrófono que entregó el propio Jaime. Los originales viven en
+ * public/assets/cv-fotos/ (en .vercelignore: no se sirven) y de aquí salen los
+ * WebP con huella que sí se sirven. A COLOR, como todo el material del CV.
+ *
+ * REGLA DEL CV: ninguna imagen dos veces. Los fotogramas de vídeos que YA
+ * tienen presencia visual en la página (el póster del clip de Singapur, el de
+ * skills, el de Raúl, el del voluntariado, la Torre CN) NO entran aquí: sería
+ * repetir el mismo vídeo con otro cuadro.
+ *
+ * Tres clases de salida:
+ *   caras 4:3 (480x360, con punto focal escrito, como los breakdowns) para las
+ *     tarjetas de conversación; anchas (960) para los cuadros del set FTR
+ *     (1252x576); verticales/otros a su proporción, en un solo ancho. */
+{
+  const CVF = (n) => p('public/assets/cv-fotos', n);
+  console.log('fotos nuevas del CV (cv-fotos/, a color)');
+
+  // Caras 4:3 con punto focal, mismas mecánicas que los breakdowns.
+  const CARAS = [
+    // Lloyd y Jaime de pie ante las letras NUS: caras en y=0.40.
+    { id: 'cara-lloyd', src: 'tt-entrevista-lloyd-nus.jpg', fx: 0.35, fy: 0.52 },
+    // Podcast con Mauricio (pt. 4), sillones y mesa: caras en y=0.38.
+    { id: 'cara-mauricio', src: 'tt-entrevista-mauricio-podcast-p4.jpg', fx: 0.50, fy: 0.47 },
+    // Entrevista al creador de contenido de EE. UU., Marina Bay detrás:
+    // caras en y=0.53; el 0.62 baja el cielo vacío y deja el skyline.
+    { id: 'cara-jesus', src: 'tt-entrevista-jesus-singapur.jpg', fx: 0.50, fy: 0.62 },
+    // Promo del grupo en el Tec, cartel de la BMV detrás: caras en y=0.32.
+    { id: 'tt-grupo', src: 'tt-grupo-smartfinance-tec.jpg', fx: 0.50, fy: 0.45 }
+  ];
+  for (const f of CARAS) {
+    const m2 = await sharp(CVF(f.src)).metadata();
+    const c = caja(m2.width, m2.height, f.fx, f.fy);
+    const buf = await sharp(CVF(f.src)).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
+    const archivo = publicar('cv-' + f.id + '.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   480x360');
+  }
+
+  // El retrato que Jaime ELIGIÓ como su primera foto: él con micrófono en un
+  // panel en Singapur (logos de Mitsubishi Heavy Industries y Forest City
+  // International School detrás). Recorte 4:5 con la cara y el micrófono en el
+  // tercio de arriba (cara en y=0.22, micrófono en y=0.30 del original).
+  {
+    const src = CVF('jaime-panel-microfono.jpg');
+    const m2 = await sharp(src).metadata();
+    const alto45 = Math.round(m2.width / 0.8);
+    const top = Math.max(0, Math.min(m2.height - alto45, Math.round(0.35 * m2.height - alto45 / 2)));
+    for (const ancho of [480, 800]) {
+      const buf = await sharp(src).extract({ left: 0, top, width: m2.width, height: alto45 })
+        .resize(ancho).webp({ quality: 80 }).toBuffer();
+      const archivo = publicar('cv-retrato-' + ancho + '.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + ancho + 'x' + Math.round(ancho / 0.8));
+    }
+  }
+
+  // Los cuadros sin recorte: cada uno a su proporción, en un ancho.
+  const CUADROS = [
+    ['tt-ahorro30', 'tt-podcast-ftr-ahorro30.jpg', 960],      // set FTR, 2.17:1
+    ['tt-bienvenida', 'tt-podcast-ftr-bienvenida.jpg', 960],  // set FTR, 2.17:1
+    ['tt-oro', 'tt-noticias-oro.jpg', 560],                   // infografía vertical
+    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 560],   // infografía vertical
+    ['tt-jpmorgan', 'tt-jpmorgan-singapur-bn.jpg', 560],      // cita sobre foto (ya era B/N en el original)
+    ['tt-linkedin', 'tt-entrevista-mauricio-podcast-p2.jpg', 560], // consejo LinkedIn + pt. 2
+    ['tt-tokio', 'tt-viaje-japon-tokyo-tower.jpg', 720]       // Torre de Tokio, 3:4
+  ];
+  for (const [id, src, ancho] of CUADROS) {
+    const m2 = await sharp(CVF(src)).metadata();
+    const buf = await sharp(CVF(src)).resize(Math.min(ancho, m2.width)).webp({ quality: 76 }).toBuffer();
+    const archivo = publicar('cv-' + id + '.webp', buf);
+    const w = Math.min(ancho, m2.width);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
   }
 }
 
