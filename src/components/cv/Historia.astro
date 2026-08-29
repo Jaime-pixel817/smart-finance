@@ -1153,15 +1153,17 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     <p class="cap-num" aria-hidden="true">{num(7)}</p>
     <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
-    <ul class="cartas">
+    <!-- <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe) y estos recuadros son notas, como los FotoHueco. -->
+    <div class="cartas">
       {c.cartas.slots.map((pista) => (
-        <li class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
+        <div class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
           <p class="carta-tag" aria-hidden="true">{c.cartas.tag}</p>
           <p class="carta-pista" aria-hidden="true">{pista}</p>
           <p class="carta-campos meta-mono">{c.cartas.campos}</p>
-        </li>
+        </div>
       ))}
-    </ul>
+    </div>
   </section>
 
   <!-- ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
