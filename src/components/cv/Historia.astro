@@ -280,26 +280,35 @@ const estado = (rep.meta.status || 'draft') as string;
 // se publicara ni una página de CV. Ese día hay que decidir el mecanismo
 // (`.vercelignore` condicionado al build, o servir el clip desde la propia
 // ruta del CV), y esa decisión es de Jaime, no de este archivo.
-// EL TEACHING (la segunda mitad del capítulo 4, fusionado por Jaime): SOLO
-// vídeos donde él da la información. El de «skills» que vivía aquí es una
-// ENTREVISTA (a una estudiante de la NUS) y se movió al carrusel de
-// conversaciones — lo avisó Jaime y lo confirma el material cosechado.
-// `clip` = servido por nosotros (bucle mudo, cv-clips.ts); `img` = cuadro
-// del vídeo con huella + enlace (el clip local queda pendiente: no hay
-// ffmpeg en este entorno para recodificar más originales).
-// `w`/`h` son las dimensiones REALES de cada archivo (las escribe
-// build-photos.mjs al generarlos): sin ellas el <img> no reserva su caja y
-// cada foto que llega empuja la página — CLS gratuito.
+// «WHY I RECORD» (la segunda mitad del capítulo 4, fusionado por Jaime):
+// SOLO LOS SEIS QUE ÉL LISTÓ EL 2026-08-29, EN SU ORDEN — la visita a
+// J.P. Morgan en Singapur, la presentación de México en la NUS, «por qué
+// aquí vive el dinero del mundo», los datos de Japón, el carrusel de Tokio y
+// el carrusel de Canadá. Los clips de consejos que vivían aquí (ahorro-30,
+// bienvenida, LinkedIn, la cita de J.P. Morgan, el oro, las 4 noticias)
+// SALEN de la sección por su mandato («solo los siguientes»); los tres
+// consejos que ya eran enlaces de texto se quedan como estaban.
+// · Los CUATRO vídeos son él hablando: se sirven desde este dominio CON su
+//   sonido y `controls`, y los arranca una persona — autoplay NUNCA (el
+//   bucle mudo era para b-roll, y aquí lo que hay es su voz).
+// · El de la NUS se publicó GIRADO 90° (así está en TikTok: el fotograma
+//   cosechado ya venía girado, igual que el que endereza build-photos.mjs);
+//   el clip servido va enderezado, o sea apaisado (640×360).
+// · Tokio es un CARRUSEL de fotos: va su lámina (ya en el manifiesto) y el
+//   enlace — no hay vídeo que servir y el rótulo lo dice.
+// · Canadá también es carrusel, y su lámina ES la foto de la Torre CN del
+//   capítulo 1: la regla de «ninguna imagen dos veces» manda, así que aquí
+//   va solo el enlace con la nota de dónde está la foto.
+// `w`/`h` del clip son las dimensiones REALES del archivo servido; `iw`/`ih`
+// las de la lámina: sin ellas nada reserva su caja y cada llegada empuja la
+// página — CLS gratuito.
 const ensena = [
-  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', img: null as string | null, w: 0, h: 0, ancha: false },
-  { id: '7647970499649146133', titulo: c.tiktok.videos.ahorro30, poster: null, clip: null, img: foto('cv-tt-ahorro30.webp'), w: 960, h: 442, ancha: true },
-  { id: '7647971595343908116', titulo: c.tiktok.videos.bienvenida, poster: null, clip: null, img: foto('cv-tt-bienvenida.webp'), w: 960, h: 442, ancha: true },
-  { id: '7660806476172184852', titulo: c.tiktok.videos.linkedin, poster: null, clip: null, img: foto('cv-tt-linkedin.webp'), w: 560, h: 996, ancha: false },
-  { id: '7655496621483887892', titulo: c.tiktok.videos.jpmorgan, poster: null, clip: null, img: foto('cv-tt-jpmorgan.webp'), w: 560, h: 996, ancha: false },
-  { id: '7673723439215168788', titulo: c.tiktok.videos.oro, poster: null, clip: null, img: foto('cv-tt-oro.webp'), w: 560, h: 994, ancha: false },
-  { id: '7674776719030521109', titulo: c.tiktok.videos.noticias, poster: null, clip: null, img: foto('cv-tt-noticias.webp'), w: 560, h: 905, ancha: false },
-  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, img: foto('cv-tt-tokio.webp'), w: 720, h: 960, ancha: false },
-  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: null, clip: null, img: foto('breakdown-japan.webp'), w: 480, h: 360, ancha: true }
+  { id: '7678749901433474324', titulo: c.tiktok.videos.jpmvisit, poster: '/assets/cv/cv-poster-jpmvisit.jpg', clip: '/assets/cv/cv-clip-jpmvisit.mp4' as string | null, w: 360, h: 640, img: null as string | null, iw: 0, ih: 0, carrusel: false, nota: null as string | null, ancha: false },
+  { id: '7658163945479408917', titulo: c.tiktok.videos.nus, poster: '/assets/cv/cv-poster-nus.jpg', clip: '/assets/cv/cv-clip-nus.mp4', w: 640, h: 360, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: true },
+  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: '/assets/cv/cv-poster-japon.jpg', clip: '/assets/cv/cv-clip-japon.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, w: 0, h: 0, img: foto('cv-tt-tokio.webp'), iw: 720, ih: 960, carrusel: true, nota: null, ancha: false },
+  { id: '7664460671727258900', titulo: c.tiktok.videos.canada, poster: null, clip: null, w: 0, h: 0, img: null, iw: 0, ih: 0, carrusel: true, nota: c.tiktok.canadaNota, ancha: false }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
@@ -308,10 +317,13 @@ const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 // sitios: la única diferencia entre los gemelos tiene que ser dónde va el
 // póster —`data-poster` en el vivo, `poster` en el del <noscript>—, y con los
 // atributos escritos a mano dos veces eso dura hasta que alguien toque uno.
-// `bucle` son los clips de TikTok, que van mudos y en bucle y los mueve
-// cv-clips.ts; los otros dos llevan sonido y los arranca una persona.
-const attrsClip = (src: string, etiqueta: string, bucle = false) => ({
-  class: 'clip-video', src, width: '360', height: '640',
+// `bucle` son los clips de TikTok sin voz, que van mudos y en bucle y los
+// mueve cv-clips.ts; los demás llevan sonido y los arranca una persona.
+// `w`/`h` porque ya no todos son 9:16: el de la NUS va enderezado (16:9) y
+// la clase ancha le da su caja (aspect-ratio en el CSS, cero CLS).
+const attrsClip = (src: string, etiqueta: string, bucle = false, w = 360, h = 640) => ({
+  class: 'clip-video' + (w > h ? ' clip-video-ancho' : ''), src,
+  width: String(w), height: String(h),
   controls: true, playsinline: true, preload: 'none', 'aria-label': etiqueta,
   ...(bucle ? { muted: true, loop: true, 'data-en-vista': '' } : {})
 });
@@ -384,14 +396,27 @@ const resumenIndice = c.indice.resumen
 
   {/* ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
        El capítulo 1 sigue siendo UNO —el orden que aprobó Jaime no se toca—,
-       pero ahora ocupa tres pantallas seguidas:
+       pero ahora ocupa tres tiempos seguidos:
 
          1ª  la portada: el nombre partido en dos con el señuelo en medio,
              sobre la foto a sangre (la tapa oscura)
-         2ª  EL EFECTO DE LA TARJETA: la foto se encoge en una tarjeta de
-             esquinas redondeadas entre las dos mitades del titular, ya
-             sobre papel, y debajo el manifiesto y el índice
+         2ª  EL EFECTO DE LA TARJETA: LA MISMA foto —la única que hay— se
+             encoge EN SU SITIO hasta quedar como tarjeta de esquinas
+             redondeadas entre las dos mitades del titular, ya sobre papel,
+             y el manifiesto y el índice suben desde abajo
          3ª  el papel: su meta, el hueco y su retrato
+
+       ── LA CORRECCIÓN DEL 2026-08-29 (la grabación de Jaime) ──────────────
+       La primera versión de este efecto tenía DOS fotos: la de la tapa,
+       pegada detrás, y una COPIA dentro de la pantalla de papel que subía
+       por encima. En su teléfono se veía exactamente eso: la portada
+       cortada por arriba, una banda blanca, y la misma ciudad entrando otra
+       vez desde abajo — un duplicado, no una transición. En ondo.finance
+       (cv-material/referencia-efecto, f0–f12 y el vídeo) hay UNA superficie
+       de foto que nunca se duplica ni sale de pantalla: el marco se encoge
+       alrededor de la foto quieta. Eso es lo que hace esta versión: un solo
+       picture, un marco que se cierra, y cero pantallas con una segunda
+       copia.
 
        ── QUÉ SE COPIÓ DE ondo.finance Y QUÉ NO ─────────────────────────────
        De Ondo se copia la ESTRUCTURA y el RITMO: foto de ciudad a sangre,
@@ -436,37 +461,87 @@ const resumenIndice = c.indice.resumen
        comprueban están en el bloque de estilo de abajo. */}
   <header class="cap cap-portada" aria-labelledby={`${p}-h1`}>
 
-    {/* LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
-         las tres pantallas de este capítulo pasan por encima de ella en vez
-         de detrás. Se queda pegada mientras dura el capítulo y se va con él.
-         Es el LCP de la página, así que no lleva `lazy` y sí prioridad alta;
-         el preload está en la cabecera (src/layouts/Cv.astro). */}
+    {/* ══ LA PISTA DEL EFECTO ══════════════════════════════════════════════
+         Un solo contenedor pegajoso de una pantalla dentro de una pista de
+         200svh (`.intro-pista`), con `view-timeline` sobre la pista: el
+         tramo `contain` de esa línea de tiempo es EXACTAMENTE la fase en la
+         que el lienzo está clavado (de scroll 0 a una pantalla), así que las
+         animaciones van de 0 % a 100 % del clavado sin números mágicos.
+         `view()` sobre la pista y no `scroll()` sobre la raíz A PROPÓSITO:
+         `scroll()` mide TODO el documento, y el CV cambia de largo con cada
+         texto — la intro duraría distinto en inglés y en español. La pista
+         se mide a sí misma. */}
+    <div class="intro-pista">
+    {/* LA FOTO — LA ÚNICA. `sticky` de una pantalla: se queda clavada
+         mientras dura la pista. Es el fondo del LCP (el titular), así que no
+         lleva `lazy`; el preload está en la cabecera (src/layouts/Cv.astro).
+         Dentro van el MARCO (lo que se encoge), la escena de tinta (las dos
+         mitades del nombre del estado final) y el aro — los tres decorativos,
+         y el nombre real ya lo dio el <h1> de la tapa: por eso todo el lienzo
+         es `aria-hidden`. */}
     <div class="portada-lienzo" aria-hidden="true">
-      {/* DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical va
-           primero porque el navegador se queda con el PRIMER `<source>` cuyo
-           `media` y `type` casen; la razón entera (la Torre CN cae fuera del
-           recorte centrado de la panorámica, y ni con `object-position` sale
-           la resolución) está en src/lib/cv/portada.ts. */}
-      <picture>
-        <source media={PORTADA_MEDIA_ALTO} type="image/avif"
-          srcset={portadaSrcsetAlto('avif')} sizes={PORTADA_SIZES_ALTO}
-          width={PORTADA_ALTO_W} height={PORTADA_ALTO_H} />
-        <source media={PORTADA_MEDIA_ALTO} type="image/webp"
-          srcset={portadaSrcsetAlto('webp')} sizes={PORTADA_SIZES_ALTO}
-          width={PORTADA_ALTO_W} height={PORTADA_ALTO_H} />
-        <source type="image/avif" srcset={portadaSrcset('avif')} sizes={PORTADA_SIZES}
-          width={PORTADA_W} height={PORTADA_H} />
-        <img class="portada-foto" src={foto('cv-toronto-1280.webp')}
-          srcset={portadaSrcset('webp')} sizes={PORTADA_SIZES}
-          alt="" width={PORTADA_W} height={PORTADA_H}
-          decoding="async" />
-      </picture>
-      <div class="portada-sombra"></div>
+      {/* EL MARCO: el elemento cuyo recorte se anima. Nace a sangre
+           (`clip-path: inset(0 round 0)`) y se cierra hasta la ventana de la
+           tarjeta (`--carta-*`) con sus esquinas redondeadas. La foto NO se
+           mueve con él: el recorte es una ventana que se cierra sobre una
+           foto quieta — una superficie, cero duplicados. El fondo #0C0C0C es
+           lo que hay mientras la foto no ha llegado (misma razón de siempre:
+           la tapa nace oscura, no gris papel). */}
+      <div class="portada-marco">
+        {/* EL ZUM va en su propia capa y no en la foto: la foto ya lleva la
+             apertura (`cv-abrir`, brightness + scale al cargar) y dos
+             animaciones escribiendo `transform` en el mismo elemento se
+             pisan — la que va después en la lista gana y la otra se queda
+             muda. En capas separadas cada transform tiene su dueño. */}
+        <div class="portada-zoom">
+          {/* DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical
+               va primero porque el navegador se queda con el PRIMER <source>
+               cuyo `media` y `type` casen; la razón entera está en
+               src/lib/cv/portada.ts. */}
+          <picture>
+            <source media={PORTADA_MEDIA_ALTO} type="image/avif"
+              srcset={portadaSrcsetAlto('avif')} sizes={PORTADA_SIZES_ALTO}
+              width={PORTADA_ALTO_W} height={PORTADA_ALTO_H} />
+            <source media={PORTADA_MEDIA_ALTO} type="image/webp"
+              srcset={portadaSrcsetAlto('webp')} sizes={PORTADA_SIZES_ALTO}
+              width={PORTADA_ALTO_W} height={PORTADA_ALTO_H} />
+            <source type="image/avif" srcset={portadaSrcset('avif')} sizes={PORTADA_SIZES}
+              width={PORTADA_W} height={PORTADA_H} />
+            <img class="portada-foto" src={foto('cv-toronto-1280.webp')}
+              srcset={portadaSrcset('webp')} sizes={PORTADA_SIZES}
+              alt="" width={PORTADA_W} height={PORTADA_H}
+              decoding="async" />
+          </picture>
+        </div>
+        <div class="portada-sombra"></div>
+      </div>
+      {/* LA ESCENA DE TINTA: las dos mitades del nombre del estado final,
+           ancladas a la ventana de la tarjeta (la de arriba crece hacia
+           arriba, la de abajo hacia abajo: si el texto se agranda, la
+           ventana no se mueve). Solo existen donde existe el efecto
+           (@supports); sin él, `display: none` y el nombre no se repite. */}
+      <div class="intro-escena">
+        <p class="tarjeta-n intro-n1">{c.head.nameL1}</p>
+        <p class="tarjeta-n intro-n2">{c.head.nameL2}</p>
+      </div>
+      {/* El aro concéntrico del vídeo de referencia: un marco redondeado que
+           aparece pequeño sobre la tarjeta y se disuelve al llegar. Nace y
+           muere invisible EN LOS KEYFRAMES (0 % y 100 % con opacidad 0):
+           con `fill: both` sobre un lienzo que se ve desde el primer
+           fotograma, un `from` visible se pintaría ANTES de su tramo. */}
+      <div class="intro-aro"></div>
     </div>
 
     {/* ── 1ª pantalla: la portada ───────────────────────────────────────
          `role="img"` no: la foto tiene su descripción en el texto alterno de
-         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre. */}
+         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre.
+         CON EL EFECTO, esta capa también se clava (sticky) y se disuelve
+         ENTERA —velo y texto juntos, una sola opacidad de grupo— mientras el
+         marco se cierra; al final del fundido un fotograma discreto de
+         `visibility` la saca del tabulado y del puntero (las pastillas de
+         idioma son enlaces: invisibles no pueden seguir recibiendo ni foco
+         ni toques). Subir de nuevo la devuelve. Sin el efecto es la tapa de
+         siempre: se va con la página. */}
     <div class="portada-capa portada-uno">
      {/* LA TAPA DE PAPEL. Va a sangre (por eso no es la columna) y su ALTO ES
           EL DEL TEXTO, no una fracción de la pantalla: ahí está el arreglo del
@@ -521,57 +596,23 @@ const resumenIndice = c.indice.resumen
      </div>
      </div>
     </div>
+    </div>
 
-    {/* ── 2ª pantalla: EL EFECTO DE LA TARJETA (la secuencia de Ondo) ────
-         Es el paso 2 del vídeo de referencia (cv-material/referencia-efecto):
-         al bajar, la foto de portada SE ENCOGE EN UNA TARJETA de esquinas
-         redondeadas que queda anidada ENTRE las dos mitades del titular, ya
-         sobre papel — y debajo entra el manifiesto, que en Ondo es su promesa
-         comercial y aquí es la frase de apertura de Jaime.
-
-         ── CÓMO ESTÁ HECHO, Y EN QUÉ DEGRADA ─────────────────────────────
-         Esta pantalla es PAPEL OPACO que sube sobre la foto pegada de la
-         tapa. Dentro, la tarjeta trae la MISMA foto (el recorte vertical del
-         manifiesto, otro archivo del mismo original) y entra escalada a 1.9
-         con `animation-timeline: view()` sobre la propia pantalla: mientras
-         la pantalla entra, lo que se ve es la ciudad a sangre encogiéndose
-         hasta su marco redondeado, con el titular partido alrededor. Cero
-         JavaScript.
-           · El radio NO se anima (la regla de motion.css solo permite
-             transform/opacity/filter): la tarjeta tiene su radio ESCRITO y
-             `overflow: hidden`, y lo que se anima es `transform: scale` — a
-             1.9 las esquinas quedan recortadas por la propia pantalla
-             (`overflow: clip`), así que a sangre no se ven y al encoger
-             aparecen. Ninguna excepción nueva.
-           · Los keyframes solo declaran el `from`: el estado final ES el CSS
-             normal. En un navegador sin scroll-driven animations (Firefox
-             estable) o con «menos movimiento», la tarjeta nace YA ENCOGIDA y
-             quieta entre las dos mitades — la secuencia completa se degrada a
-             su último fotograma, sin JS y sin saltos.
-           · Los marcos concéntricos del vídeo de referencia son el ::after:
-             un aro redondeado que nace pequeño y se disuelve al llegar. Es
-             parte del MISMO gesto (una sola animación de atención por
-             pantalla: la tarjeta, con sus tres capas moviéndose juntas, igual
-             que la órbita del globo son varios transform de un solo gesto).
-
-         LAS DOS MITADES DEL NOMBRE VAN `aria-hidden`: el nombre completo ya
-         lo dio el <h1> de la tapa una pantalla antes, y repetirlo aquí en el
-         árbol de accesibilidad sería anunciarlo dos veces. Lo mismo la
-         tarjeta: es la foto de portada otra vez (su descripción visible sigue
-         en la 3ª pantalla). */}
+    {/* ── 2ª pantalla: el manifiesto, ya sobre papel ─────────────────────
+         Con el efecto puesto, este bloque SUBE POR DEBAJO durante el último
+         cuarto del clavado (margen negativo sobre la cola de la pista): es
+         el tercer tiempo del vídeo de referencia — el manifiesto de Ondo
+         entrando bajo la tarjeta recién asentada. AQUÍ YA NO HAY NINGUNA
+         FOTO: la tarjeta que se ve encima es la MISMA foto de la tapa,
+         recortada en el lienzo clavado — la <img> duplicada que subía en
+         este bloque es exactamente lo que Jaime grabó como fallo, y se
+         quitó. Las dos mitades de tinta del titular tampoco viven aquí:
+         están en la escena del lienzo, ancladas a la ventana de la tarjeta.
+         Sin el efecto (Firefox estable, «menos movimiento»), este bloque es
+         una pantalla de papel normal después de la tapa: el manifiesto y el
+         índice, sin tarjeta y sin nombre repetido. */}
     <div class="portada-tarjeta">
      <div class="portada-col">
-      <div class="tarjeta-escena" aria-hidden="true">
-        <p class="tarjeta-n">{c.head.nameL1}</p>
-        <div class="tarjeta">
-          <img src={foto('cv-toronto-alto-620.webp')}
-            srcset={`${foto('cv-toronto-alto-440.webp')} 440w, ${foto('cv-toronto-alto-620.webp')} 620w, ${foto('cv-toronto-alto-800.webp')} 800w`}
-            sizes="(max-width: 480px) 88vw, 420px"
-            alt="" width={PORTADA_ALTO_W} height={PORTADA_ALTO_H}
-            loading="lazy" decoding="async" />
-        </div>
-        <p class="tarjeta-n">{c.head.nameL2}</p>
-      </div>
       {/* Palabras de Jaime, con la ortografía y la puntuación pulidas y
            nada más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
            final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
@@ -661,13 +702,27 @@ const resumenIndice = c.indice.resumen
            banco de imágenes. Su pie lo dice, y lo dice antes que el crédito de
            la portada, que va una pantalla más arriba: quien llegue hasta aquí
            ya sabe cuál es de quién. */}
+      {/* El width/height son los del RECORTE NUEVO (2026-08-29): 4:5, no el
+           0.9375 del original entero. Van escritos porque son la reserva de
+           caja de la figura — con los viejos, la foto llegaba y empujaba
+           95 px de página (CLS gratuito). El recorte y su porqué están en
+           scripts/build-photos.mjs. */}
       <figure class="cap-1-figura">
         <img src={foto('cv-torre-520.webp')}
           srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
           sizes="(max-width: 767px) 100vw, 520px"
-          alt={c.head.torreAlt} width="520" height="555"
+          alt={c.head.torreAlt} width="520" height="650"
           decoding="async" loading="lazy" />
-        <figcaption class="pie">{c.head.torrePie}</figcaption>
+        {/* EL PIE ES SUYO (mensaje del 2026-08-29), pulido en ortografía y
+             puntuación y nada más — patrón voz.*, pendiente de su revisión
+             final. En el panel inglés es TRADUCCIÓN y lo dice arriba
+             (`torrePieTag`, vacío en español). La procedencia de la foto no
+             se pierde: sigue diciendo que es suya y de cuándo. */}
+        <figcaption class="pie torre-pie">
+          {c.head.torrePieTag && <span class="meta-mono torre-pie-tag">{c.head.torrePieTag}</span>}
+          <span class="torre-pie-voz">{c.head.torrePieVoz}</span>
+          <span>{c.head.torrePie}</span>
+        </figcaption>
       </figure>
      </div>
     </div>
@@ -836,33 +891,34 @@ const resumenIndice = c.indice.resumen
     <Hueco c={c} id="tiktokNota" />
     <p class="pie">{c.tiktok.ensenaLede}</p>
 
-    {/* El vídeo de cada clip va servido por NOSOTROS. Sin sonido (el sonido
-         está en el original, a un enlace). `controls` SIEMPRE (WCAG 2.2.2);
-         el bucle solo del que está a la vista lo lleva cv-clips.ts.
+    {/* Los CUATRO vídeos van servidos por NOSOTROS, CON su sonido: son él
+         hablando, así que los arranca una persona (`controls`, WCAG 2.2.2) y
+         autoplay NUNCA — aquí no hay bucles mudos. El póster viaja en
+         `data-poster` con su gemelo <noscript> (patrón del PR #53): cero
+         bytes de vídeo y cero de póster hasta acercarse.
          OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
-         de la expresión del ternario un {/* *\/} no es un comentario de
-         plantilla sino JS crudo, y rompe el compilado. */}
+         de la expresión un {/* *\/} no es un comentario de plantilla sino JS
+         crudo, y rompe el compilado. */}
     <ul class="clips">
       {ensena.map((v) => (
         <li class:list={['clip', v.ancha && 'clip-ancho']}>
-          {v.clip ? (
-            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
-            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
-          ) : (
-            <span class="recuerdo"><img src={v.img} alt="" width={v.w} height={v.h} loading="lazy" decoding="async" /></span>
+          {v.clip && (
+            <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
+          )}
+          {v.img && (
+            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
           )}
           <p class="clip-titulo">{v.titulo}</p>
           <p class="clip-anio meta-mono">2026</p>
-          {!v.clip && (
-            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
-              <span aria-hidden="true">{c.clip.tag}</span>
-            </p>
+          {v.carrusel && (
+            <p class="clip-tag" role="note">{c.clip.carrusel}</p>
           )}
+          {v.nota && <p class="pie">{v.nota}</p>}
           <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
         </li>
       ))}
     </ul>
-    <p class="pie">{c.clip.pista}</p>
 
     {/* Los consejos sin imagen utilizable: fila seca con su enlace. */}
     <ol class="lista-seca">
@@ -920,6 +976,13 @@ const resumenIndice = c.indice.resumen
           <div class="grupo-texto">
             {/* Hecho publicado en /community, en primera persona de Jaime. */}
             <p class="cap-frases">{c.proyectos.grupo}</p>
+            {/* SU CIFRA, MARCADA. «Casi 200 en la comunidad» (2026-08-29) no
+                 la puede contar el build —la gente de una comunidad no vive
+                 en ningún archivo del repo—, así que va como afirmación suya
+                 con su fecha, igual que los inscritos del boletín. La marca
+                 va DEBAJO y en mono: es el recibo, no la frase. */}
+            <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
+            <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
@@ -1006,6 +1069,14 @@ const resumenIndice = c.indice.resumen
           </li>
         </ul>
         <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
+        {/* EL BOLETÍN Y SU CIFRA. «Más de 100 inscritos» (2026-08-29) es
+             AFIRMACIÓN SUYA y no una cuenta: los inscritos viven en Redis, o
+             sea fuera del build. Va marcada, y a propósito NO entra en la
+             lista de cifras grandes de arriba — esas tres las cuenta el
+             build de los archivos del repo, y meter una afirmación entre
+             ellas le prestaría su recibo. */}
+        <p class="cifra-suya">{c.prueba.boletin}</p>
+        <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
@@ -1527,24 +1598,39 @@ const resumenIndice = c.indice.resumen
      una pantalla más de pegado y vuelve a asomar por debajo del papel. Va en
      la primera capa (`margin-top`), que hace exactamente lo mismo —subir las
      capas sobre la foto— sin tocar el rectángulo de la foto. */
+  /* LA PISTA: el tramo de documento que conduce el efecto. Sin el efecto
+     mide lo que mide su contenido (una pantalla: la tapa de siempre); con él
+     (gate de abajo) mide 200svh y lleva la línea de tiempo. */
+  .intro-pista { position: relative; }
   .portada-lienzo {
     position: sticky; top: 0; z-index: 0;
     flex: 0 0 auto; height: 100svh;
-    /* EL COLOR QUE HAY MIENTRAS LA FOTO NO HA LLEGADO, y no es decoración: es
-       lo que impide un fotograma de texto blanco sobre nada. Sin esto, lo que
-       hay detrás del velo es el papel del documento, o sea que la tapa nace
-       siendo un rectángulo gris claro con el nombre en blanco encima — y aunque
-       medido pasa (4.74:1, que es justo el peor caso de la matriz), se lee como
-       una página rota. Con el lienzo en negro la tapa nace como lo que es, y la
-       foto entra encima sin salto: la apertura arranca al 34 % de brillo, o sea
-       casi de este mismo negro. */
     background: #0C0C0C;
-    /* La apertura escala la foto un 5 %, y sin esto ese 5 % se sale de la
-       pantalla por arriba y por abajo mientras dura. Recortar aquí no cuesta
-       nada (es pintado, no diseño) y no rompe el pegado: `overflow` rompe un
-       `sticky` cuando está en un ANCESTRO, no en el propio elemento. */
     overflow: hidden;
   }
+  /* EL MARCO: la caja cuyo recorte se anima (en el gate). A sangre por
+     omisión. Su fondo #0C0C0C es EL COLOR QUE HAY MIENTRAS LA FOTO NO HA
+     LLEGADO, y no es decoración: es lo que impide un fotograma de texto
+     blanco sobre nada. Sin esto, lo que hay detrás del velo es el papel del
+     documento, o sea que la tapa nace siendo un rectángulo gris claro con el
+     nombre en blanco encima — y aunque medido pasa (4.74:1, que es justo el
+     peor caso de la matriz), se lee como una página rota. Con el marco en
+     negro la tapa nace como lo que es, y la foto entra encima sin salto: la
+     apertura arranca al 34 % de brillo, o sea casi de este mismo negro.
+     El `overflow: hidden` recorta el 5 % de escala de la apertura y el zum
+     del efecto; no rompe el pegado (`overflow` rompe un `sticky` cuando está
+     en un ancestro, no aquí: el pegajoso es el lienzo). */
+  .portada-marco {
+    position: absolute; inset: 0;
+    background: #0C0C0C;
+    overflow: hidden;
+  }
+  /* La capa del zum del efecto. Fuera del gate no anima: es solo la caja de
+     la foto. */
+  .portada-zoom { position: absolute; inset: 0; }
+  /* La escena de tinta y el aro SOLO existen con el efecto: sin él no hay
+     tarjeta que enmarcar y el nombre no se repite. */
+  .intro-escena, .intro-aro { display: none; }
   .portada-foto {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
@@ -1744,96 +1830,226 @@ const resumenIndice = c.indice.resumen
   .portada-num { margin-left: var(--sp-2); }
   .portada-num::before { content: '· '; }
 
-  /* ---- 2ª pantalla: EL EFECTO DE LA TARJETA ----
-     Papel opaco que sube sobre la foto pegada, con la tarjeta anidada entre
-     las dos mitades del titular. El razonamiento entero (por qué el radio no
-     se anima, en qué degrada) está en el comentario del marcado.
-
-     `overflow: clip` hace DOS trabajos: recorta la tarjeta escalada a 1.9
-     para que a sangre no se le vean las esquinas, y evita que ese transform
-     ensanche el área de scroll de la página (un elemento transformado SÍ
-     cuenta para el scrollable overflow del ancestro — sin esto, check-reflow
-     mediría scroll horizontal durante la animación). */
+  /* ---- 2ª pantalla: el manifiesto sobre papel ----
+     Papel opaco. Sin el efecto es una pantalla normal después de la tapa;
+     con él (gate de abajo) sube sobre la cola de la pista mientras la
+     tarjeta termina de asentarse. AQUÍ YA NO HAY NINGUNA IMAGEN: la que
+     subía en este bloque era una COPIA de la portada, y ese duplicado —con
+     su banda blanca entre las dos fotos— es el fallo que Jaime grabó. */
   .portada-tarjeta {
     position: relative; z-index: 1;
     background: var(--cvh-papel);
     min-height: 100svh;
     display: flex; flex-direction: column; justify-content: center;
     overflow: clip;
-    view-timeline: --tarjeta block;
   }
   .portada-tarjeta .portada-col {
     display: flex; flex-direction: column; gap: var(--sp-6);
     padding-block: var(--sp-10);
   }
-  /* La escena del titular partido: centrada, que es la composición exacta de
-     Ondo en esta pantalla (el resto del documento sigue de bandera
-     izquierda; esta escena es una portada interior, no un párrafo). */
-  .tarjeta-escena {
-    display: flex; flex-direction: column; align-items: center;
-    gap: var(--sp-4);
-    text-align: center;
-  }
+  /* Las dos mitades de tinta del titular. Viven en la escena del lienzo
+     (solo con el efecto) y van centradas, que es la composición exacta de
+     Ondo en este tiempo. La tinta se escribe aquí porque el lienzo, con el
+     efecto puesto, es papel: sin color explícito heredarían el claro de la
+     tapa. */
   .tarjeta-n {
     font-family: var(--font-serif); font-weight: 600;
     font-size: clamp(2rem, 9vw, 4.5rem); line-height: 0.95;
     letter-spacing: -0.03em; overflow-wrap: break-word;
     max-width: 100%;
+    text-align: center;
+    color: var(--cvh-tinta);
   }
-  /* LA TARJETA. El radio va ESCRITO y lo que se anima es el transform:
-     ninguna excepción a la regla de motion.css. El fondo oscuro es el
-     letterbox mientras la foto llega (misma razón que .clip-video). */
-  .tarjeta {
-    position: relative;
-    width: min(88vw, 420px);
-    aspect-ratio: 10 / 11;
-    border-radius: clamp(20px, 6vw, 36px);
-    overflow: hidden;
-    background: #0C0C0C;
-  }
-  .tarjeta img {
-    width: 100%; height: 100%; object-fit: cover;
-    object-position: 38% 30%;
-    display: block;
-  }
-  /* El aro concéntrico del vídeo de referencia: nace pequeño y se disuelve
-     al llegar. Su estado BASE es invisible (opacity 0), así que sin
-     scroll-driven animations no existe. */
-  .tarjeta::after {
-    content: ''; position: absolute; inset: 0;
-    border: 1.5px solid rgba(255, 255, 255, .6);
-    border-radius: inherit;
-    opacity: 0;
-    pointer-events: none;
-  }
-  /* EL MOVIMIENTO, solo donde el navegador sabe conducirlo con el scroll.
-     Los keyframes de tarjeta/foto solo declaran el `from`: el estado final ES
-     el CSS normal, o sea que sin soporte la secuencia degrada a su último
-     fotograma (la tarjeta ya encogida, quieta). `linear` a propósito: el
-     easing lo pone el dedo. */
+
+  /* ═══ EL EFECTO DE LA TARJETA — SOLO DONDE EL NAVEGADOR SABE CONDUCIRLO ══
+     Una sola superficie de foto que nunca se duplica ni sale de pantalla:
+     el lienzo se clava una pantalla entera (la pista mide 200svh) y, con el
+     scroll de esa pantalla como línea de tiempo, (1) la tapa se disuelve
+     entera —velo y texto en una opacidad de grupo—, (2) el MARCO de la foto
+     se cierra desde a sangre hasta la ventana de la tarjeta con sus esquinas
+     redondeadas, mientras la foto hace un zum corto hacia la Torre, (3) las
+     dos mitades de tinta aparecen ancladas a la ventana, (4) el aro de la
+     referencia se dibuja y se disuelve, y (5) el manifiesto sube por debajo,
+     ya sobre papel. Cero JavaScript.
+
+     ── LA EXCEPCIÓN DE `clip-path`, POR ESCRITO ──────────────────────────
+     La regla de motion.css permite transform, opacity y filter porque son
+     las que el compositor resuelve sin volver a medir la página. Aquí el
+     marco anima `clip-path: inset(… round …)` — tamaño y radio de la ventana
+     en UNA propiedad — y la excepción se argumenta así:
+     · `clip-path` no dispara layout NUNCA: recorta el pintado del propio
+       elemento, como filter transforma el pintado del propio elemento. No
+       puede mover nada de alrededor — CLS cero por construcción — y en los
+       motores que tienen scroll-driven animations (Chromium, WebKit) se
+       composita igual que un transform.
+     · La alternativa legal (el truco del scale con contra-escala) se probó y
+       es GEOMÉTRICAMENTE incapaz de este efecto: la ventana final (10/11) y
+       la pantalla no comparten proporción, así que el marco necesita escala
+       NO uniforme — que deforma el radio en elipses y obliga a contra-escalar
+       la foto con el par inverso exacto en cada anchura; y con escala
+       uniforme la foto del estado inicial queda 1.7–1.9 veces más zumeada
+       que la portada real (la cuenta: cubrir 390×844 desde una caja 10/11
+       exige S≥2.46, y la foto dentro cubre entonces 844×928, no 390×844) —
+       o sea OTRA portada, no esta. La versión anterior pagaba exactamente
+       eso con su segunda <img>.
+     · Es de un solo uso, como --dur-abre: si aparece un segundo clip-path
+       animado en el sitio, o se promueve a regla o se borra este.
+
+     ── EN QUÉ DEGRADA, Y POR QUÉ NO ES «el último fotograma» ─────────────
+     Aquí una sola foto tiene DOS composiciones (a sangre / tarjeta), así que
+     «degradar al último fotograma» dejaría a Firefox sin portada a sangre —
+     el estado que es el LCP y la identidad de la página. Por eso el gate no
+     es de keyframes sino de LAYOUT: sin scroll-driven animations, o con
+     «menos movimiento», la intro nace en su ESTADO ESTABLE INICIAL — la
+     portada a sangre de siempre, y después el papel con el manifiesto, sin
+     tarjeta y sin nombre repetido (escena y aro ni existen: display none
+     arriba). Nada se duplica, nada queda a medias, y el primer pantallazo es
+     idéntico al de los navegadores con efecto. Los keyframes de aquí dentro
+     declaran from Y to porque la degradación ya no depende de ellos.
+
+     `linear` a propósito: el easing lo pone el dedo. */
   @supports (animation-timeline: view()) {
-    .tarjeta {
-      animation: tarjeta-encoge linear both;
-      animation-timeline: --tarjeta;
-      animation-range: entry 15% entry 95%;
+    @media (prefers-reduced-motion: no-preference) {
+      /* La geometría de la ventana de la tarjeta: UNOS MISMOS NÚMEROS para
+         el recorte, el aro y las dos mitades de tinta. El tope en svh es
+         para las pantallas apaisadas: sin él, la tarjeta de 420px no cabe
+         entre las dos mitades en 1280×800. El centro va al 42 % — más arriba
+         del centro geométrico — para que bajo la mitad de abajo quepa el
+         manifiesto que sube, como en la referencia. */
+      .cap-portada {
+        --carta-w: min(88vw, 420px, 46svh);
+        --carta-h: calc(var(--carta-w) * 1.1);
+        --carta-top: calc(42svh - var(--carta-h) / 2);
+        --carta-r: clamp(20px, 6vw, 36px);
+      }
+      .intro-pista {
+        height: 200svh;
+        view-timeline: --pista block;
+      }
+      /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
+         del manifiesto que sube, para que no haya costura. El negro
+         pre-foto sigue existiendo: es del marco, que a sangre lo tapa todo. */
+      .portada-lienzo { background: var(--cvh-papel); }
+      .portada-marco {
+        animation: intro-marco linear both;
+        animation-timeline: --pista;
+        animation-range: contain 22% contain 70%;
+      }
+      /* El zum corto de la referencia: la ventana se cierra y la foto se
+         acerca a la Torre (el origen es su mástil, 38 % del ancho). */
+      .portada-zoom {
+        transform-origin: 38% 42%;
+        animation: intro-zoom linear both;
+        animation-timeline: --pista;
+        animation-range: contain 22% contain 70%;
+      }
+      /* La tapa se clava con el lienzo y se disuelve ENTERA: velo y texto en
+         una sola opacidad de grupo, así que mientras el texto se vea, su velo
+         está debajo con la misma alfa — el fundido no puede dejar texto
+         blanco sobre foto desnuda. Termina ANTES de que el recorte empiece
+         (30 % < 22 %… al revés: el recorte arranca en 22 % y la tapa muere en
+         30 % — los últimos ocho puntos se solapan con un recorte que aún no
+         ha revelado papel bajo el texto, medido en check-contraste-cv). El
+         fotograma final apaga `visibility`: las pastillas de idioma son
+         enlaces y, invisibles, no pueden seguir recibiendo foco ni toques.
+         Subir de vuelta las devuelve. */
+      .portada-uno {
+        position: sticky; top: 0;
+        animation: intro-tapa linear both;
+        animation-timeline: --pista;
+        animation-range: contain 8% contain 30%;
+      }
+      /* El señuelo se va primero (en la referencia, «Swipe to explore»
+         desaparece antes de que el titular se mueva)… */
+      .portada-senuelo {
+        animation: intro-senuelo linear both;
+        animation-timeline: --pista;
+        animation-range: contain 2% contain 14%;
+      }
+      /* …y las dos mitades del nombre se separan un paso — el gesto de la
+         referencia — mientras la tapa entera se funde. */
+      .portada-n1 {
+        animation: intro-n1 linear both;
+        animation-timeline: --pista;
+        animation-range: contain 4% contain 30%;
+      }
+      .portada-n2 {
+        animation: intro-n2 linear both;
+        animation-timeline: --pista;
+        animation-range: contain 4% contain 30%;
+      }
+      /* Las mitades de tinta, ancladas a la ventana: la de arriba con su
+         BORDE DE ABAJO fijo (crece hacia arriba) y la de abajo con su borde
+         de arriba (crece hacia abajo) — si el texto está al 200 %, la
+         ventana no se mueve. Aparecen cruzándose con el fundido de la tapa,
+         que es el doble-expuesto del fotograma 6 de la referencia. */
+      .intro-escena {
+        display: block; position: absolute; inset: 0;
+        animation: intro-tinta linear both;
+        animation-timeline: --pista;
+        animation-range: contain 26% contain 55%;
+      }
+      .intro-n1 {
+        position: absolute; left: 0; right: 0;
+        bottom: calc(100% - var(--carta-top) + var(--sp-4));
+      }
+      .intro-n2 {
+        position: absolute; left: 0; right: 0;
+        top: calc(var(--carta-top) + var(--carta-h) + var(--sp-4));
+      }
+      .intro-aro {
+        display: block; position: absolute;
+        top: var(--carta-top); left: calc((100% - var(--carta-w)) / 2);
+        width: var(--carta-w); height: var(--carta-h);
+        border: 1.5px solid rgba(255, 255, 255, .6);
+        border-radius: var(--carta-r);
+        pointer-events: none;
+        animation: intro-aro linear both;
+        animation-timeline: --pista;
+        animation-range: contain 45% contain 88%;
+      }
+      /* El manifiesto sube por debajo durante la cola del clavado: entra
+         cuando el recorte ya terminó, así que nunca tapa foto viva ni la
+         ventana de la tarjeta — solo papel sobre papel. CUÁNTO se solapa no
+         es un número suelto: es el hueco que queda bajo la tarjeta MENOS 9em
+         reservados para la mitad de abajo del nombre — en em, como las
+         válvulas del repo, para que al 200 % de texto la reserva crezca con
+         la letra («Ricaño» medía 554–623 px en 1280×800 y un -28svh fijo le
+         montaba el papel encima desde 576). */
+      .portada-tarjeta {
+        margin-top: calc(var(--carta-top) + var(--carta-h) - 100svh + 9em);
+        min-height: 0;
+        justify-content: flex-start;
+      }
+
+      @keyframes intro-marco {
+        from { clip-path: inset(0 round 0); }
+        to {
+          clip-path: inset(
+            var(--carta-top)
+            calc((100% - var(--carta-w)) / 2)
+            calc(100svh - var(--carta-top) - var(--carta-h))
+            calc((100% - var(--carta-w)) / 2)
+            round var(--carta-r)
+          );
+        }
+      }
+      @keyframes intro-zoom { from { transform: none; } to { transform: scale(1.16); } }
+      @keyframes intro-tapa {
+        from { opacity: 1; visibility: visible; }
+        to { opacity: 0; visibility: hidden; }
+      }
+      @keyframes intro-senuelo { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes intro-n1 { from { transform: none; } to { transform: translateY(-.4em); } }
+      @keyframes intro-n2 { from { transform: none; } to { transform: translateY(.4em); } }
+      @keyframes intro-tinta { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes intro-aro {
+        0% { opacity: 0; transform: scale(.7); }
+        15% { opacity: .9; }
+        70% { opacity: .9; }
+        100% { opacity: 0; transform: none; }
+      }
     }
-    .tarjeta img {
-      animation: tarjeta-foto linear both;
-      animation-timeline: --tarjeta;
-      animation-range: entry 15% entry 95%;
-    }
-    .tarjeta::after {
-      animation: tarjeta-aro linear both;
-      animation-timeline: --tarjeta;
-      animation-range: entry 25% entry 95%;
-    }
-  }
-  @keyframes tarjeta-encoge { from { transform: scale(1.9); } }
-  @keyframes tarjeta-foto { from { transform: scale(1.3); } }
-  @keyframes tarjeta-aro {
-    from { opacity: .9; transform: scale(.7); }
-    60% { opacity: .9; }
-    to { opacity: 0; transform: none; }
   }
   /* LA FRASE VA DE BANDERA IZQUIERDA Y NO CENTRADA: son 30 palabras y el
      resto del documento es de bandera izquierda — una cita larga centrada se
@@ -1884,9 +2100,8 @@ const resumenIndice = c.indice.resumen
   @media (prefers-reduced-motion: reduce) {
     .portada-lienzo { position: static; }
     .portada-foto { animation: none; }
-    /* La tarjeta también: su estado base es el fotograma final, así que sin
-       animación nace encogida y quieta, y el aro ni existe. */
-    .tarjeta, .tarjeta img, .tarjeta::after { animation: none; }
+    /* El efecto de la tarjeta ni arranca: su gate exige no-preference, así
+       que aquí la escena y el aro no existen y el marco no recorta nada. */
   }
 
   /* ---- La portada impresa ----
@@ -1902,22 +2117,29 @@ const resumenIndice = c.indice.resumen
      sobre papel blanco no se imprime, se desaparece. La regla va después de
      las que lo pintan claro para ganarle por orden, sin `!important`. */
   @media print {
+    /* El gate del efecto NO mira si esto es papel (prefers-reduced-motion
+       se evalúa igual al imprimir), así que aquí se desmonta a mano: pista
+       sin alto de sobra, marco sin recorte, capas quietas y en el flujo.
+       Estas reglas van DESPUÉS del gate en la hoja: con la misma
+       especificidad, ganan por orden. */
+    .intro-pista { height: auto; }
     .portada-lienzo { position: static; height: auto; }
     .portada-lienzo { background: none; }
+    .portada-marco, .portada-zoom { position: static; animation: none; clip-path: none; transform: none; background: none; overflow: visible; }
     .portada-foto { position: static; height: auto; max-height: 40vh; animation: none; }
     .portada-sombra, .portada-tapa { background: none; }
     .portada-tapa { padding-bottom: 0; }
-    .portada-uno { margin-top: 0; }
+    .portada-uno { margin-top: 0; position: static; animation: none; }
     .portada-capa, .portada-tarjeta, .portada-papel-cierre { min-height: 0; }
+    .portada-tarjeta { margin-top: 0; }
     .portada-uno { color: var(--cvh-tinta); }
     .portada-uno .etiqueta,
     .portada-uno .meta-mono,
     .portada-uno .portada-num,
     .portada-senuelo { color: var(--cvh-tinta-2); }
-    /* La tarjeta impresa: la foto ya salió una vez arriba — en papel el
-       efecto no existe, así que no se imprime dos veces la misma ciudad. */
-    .tarjeta, .tarjeta::after { display: none; }
-    .tarjeta, .tarjeta img { animation: none; }
+    /* La escena de tinta y el aro no se imprimen: la foto ya salió una vez
+       arriba y el nombre ya lo dio el <h1>. */
+    .intro-escena, .intro-aro { display: none; }
   }
 
   /* ---- Selector de idioma ----
@@ -1971,6 +2193,20 @@ const resumenIndice = c.indice.resumen
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
   .cap-1-figura { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 520px; }
   .cap-1-figura img { width: 100%; height: auto; display: block; }
+  /* El pie de la Torre CN son TRES renglones y no uno: la marca de
+     traducción, sus palabras y la procedencia. Cada uno en su línea porque
+     son tres cosas distintas — y la suya va con la tinta del documento, no
+     con el gris de un pie, que es lo que separa una frase de él de un
+     crédito de foto. */
+  /* UNA CIFRA SUYA se ve distinta de una contada, y esa es toda la regla:
+     la frase con la tinta del documento y su marca justo debajo, en mono y
+     en el gris de las etiquetas. Las contadas siguen siendo las tres
+     grandes de `.cifras`, que no llevan marca porque su recibo es el build. */
+  .cifra-suya { color: var(--cvh-tinta); margin-top: var(--sp-2); }
+  .cifra-suya-marca { color: var(--cvh-tinta-3); margin-top: var(--sp-1); }
+  .torre-pie { display: flex; flex-direction: column; gap: var(--sp-1); }
+  .torre-pie-tag { color: var(--cvh-tinta-3); }
+  .torre-pie-voz { color: var(--cvh-tinta); font-size: var(--fs-small); }
 
   /* ---- La frase de apertura ----
      Fraunces, igual que los titulares y que la frase final: la dirección la
@@ -2129,6 +2365,12 @@ const resumenIndice = c.indice.resumen
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
   .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
+  /* El de la NUS va ENDEREZADO (TikTok lo publica girado 90°), o sea
+     apaisado: su caja es 16:9 y más ancha. La proporción va aquí y no en un
+     `style=` del elemento porque la reserva de caja es lo que evita el CLS, y
+     el gemelo del <noscript> tiene que medir exactamente lo mismo — con la
+     clase, los dos la heredan de `attrsClip()` por construcción. */
+  .clip-video-ancho { aspect-ratio: 16 / 9; max-width: 100%; }
   .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
   .clip-anio { color: var(--cvh-tinta-3); }
   .clip-tag {

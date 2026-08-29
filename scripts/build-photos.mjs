@@ -417,15 +417,40 @@ console.log('Jaime');
   } else {
     const g = await sharp(src).metadata();
     console.log('Torre CN de Jaime (' + g.width + 'x' + g.height + ', a color)');
+    /* ── EL RECORTE, Y POR QUÉ NO SE PUBLICA EL ORIGINAL ENTERO ───────────
+     * Jaime (2026-08-29): «céntrala mejor para que la torre SE VEA (hoy sale
+     * descentrada)». El original es 1620x1728 y **el mástil ya está en el
+     * 50.2 % del ancho** — medido leyendo la columna más oscura de dos
+     * bandas de cielo puro (24–32 % y 40–46 % del alto): x = 813 y x = 821.
+     * O sea que lo que se ve descentrado NO es el eje horizontal: es que el
+     * 24 % de arriba del encuadre es cielo vacío, la torre queda empujada
+     * hacia abajo y contra la cuña oscura del tejado, y el sujeto de la foto
+     * pesa menos que el aire que tiene encima.
+     *
+     * Así que el arreglo es VERTICAL: se recorta el cielo muerto y se deja
+     * la torre centrada en el eje que ya estaba bien.
+     *   left 254 · top 330 · 1118x1398  (proporción 4:5)
+     * - `left` centra el recorte en el mástil (813 − 1118/2 = 254).
+     * - `top` 330 deja 90 px de cielo por encima de la punta del mástil
+     *   (y = 420, medido), o sea el 6.4 % del alto nuevo: aire suficiente
+     *   para que no se lea recortada, ni tanto como para vaciar el cuadro.
+     * - El alto llega hasta el borde de abajo del original a propósito: el
+     *   fuste saliéndose por abajo es lo que dice que la foto está hecha
+     *   MIRANDO HACIA ARRIBA, y es la foto de él.
+     * La torre queda un 45 % más grande dentro del encuadre y su masa
+     * visible (punta → base del mirador) centrada en el 44 % del alto.
+     * La cuña del tejado y el edificio de la derecha SIGUEN dentro: son su
+     * composición, no estorbo. */
+    const RECORTE = { left: 254, top: 330, width: 1118, height: 1398 };
     /* TRES ANCHOS Y NO DOS: la figura mide 100vw en el teléfono y 520 px como
        mucho en escritorio, así que el móvil de Lighthouse (412 css x densidad
        1.75 = 721 px) pedía el de 1 040 — 16.6 KB por una foto que está dos
        pantallas por debajo del pliegue. Con el escalón de 760 pide ese. */
     for (const ancho of [520, 760, 1040]) {
-      const wp = await sharp(src).resize(ancho).webp({ quality: 76 }).toBuffer();
+      const wp = await sharp(src).extract(RECORTE).resize(ancho).webp({ quality: 76 }).toBuffer();
       const a = publicar('cv-torre-' + ancho + '.webp', wp);
       console.log('  ' + a.padEnd(44) + kb(wp).padStart(9) + '   ' + ancho + 'x' +
-                  Math.round(ancho * g.height / g.width));
+                  Math.round(ancho * RECORTE.height / RECORTE.width));
     }
   }
 }
