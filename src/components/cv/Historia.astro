@@ -280,26 +280,35 @@ const estado = (rep.meta.status || 'draft') as string;
 // se publicara ni una página de CV. Ese día hay que decidir el mecanismo
 // (`.vercelignore` condicionado al build, o servir el clip desde la propia
 // ruta del CV), y esa decisión es de Jaime, no de este archivo.
-// EL TEACHING (la segunda mitad del capítulo 4, fusionado por Jaime): SOLO
-// vídeos donde él da la información. El de «skills» que vivía aquí es una
-// ENTREVISTA (a una estudiante de la NUS) y se movió al carrusel de
-// conversaciones — lo avisó Jaime y lo confirma el material cosechado.
-// `clip` = servido por nosotros (bucle mudo, cv-clips.ts); `img` = cuadro
-// del vídeo con huella + enlace (el clip local queda pendiente: no hay
-// ffmpeg en este entorno para recodificar más originales).
-// `w`/`h` son las dimensiones REALES de cada archivo (las escribe
-// build-photos.mjs al generarlos): sin ellas el <img> no reserva su caja y
-// cada foto que llega empuja la página — CLS gratuito.
+// «WHY I RECORD» (la segunda mitad del capítulo 4, fusionado por Jaime):
+// SOLO LOS SEIS QUE ÉL LISTÓ EL 2026-08-29, EN SU ORDEN — la visita a
+// J.P. Morgan en Singapur, la presentación de México en la NUS, «por qué
+// aquí vive el dinero del mundo», los datos de Japón, el carrusel de Tokio y
+// el carrusel de Canadá. Los clips de consejos que vivían aquí (ahorro-30,
+// bienvenida, LinkedIn, la cita de J.P. Morgan, el oro, las 4 noticias)
+// SALEN de la sección por su mandato («solo los siguientes»); los tres
+// consejos que ya eran enlaces de texto se quedan como estaban.
+// · Los CUATRO vídeos son él hablando: se sirven desde este dominio CON su
+//   sonido y `controls`, y los arranca una persona — autoplay NUNCA (el
+//   bucle mudo era para b-roll, y aquí lo que hay es su voz).
+// · El de la NUS se publicó GIRADO 90° (así está en TikTok: el fotograma
+//   cosechado ya venía girado, igual que el que endereza build-photos.mjs);
+//   el clip servido va enderezado, o sea apaisado (640×360).
+// · Tokio es un CARRUSEL de fotos: va su lámina (ya en el manifiesto) y el
+//   enlace — no hay vídeo que servir y el rótulo lo dice.
+// · Canadá también es carrusel, y su lámina ES la foto de la Torre CN del
+//   capítulo 1: la regla de «ninguna imagen dos veces» manda, así que aquí
+//   va solo el enlace con la nota de dónde está la foto.
+// `w`/`h` del clip son las dimensiones REALES del archivo servido; `iw`/`ih`
+// las de la lámina: sin ellas nada reserva su caja y cada llegada empuja la
+// página — CLS gratuito.
 const ensena = [
-  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', img: null as string | null, w: 0, h: 0, ancha: false },
-  { id: '7647970499649146133', titulo: c.tiktok.videos.ahorro30, poster: null, clip: null, img: foto('cv-tt-ahorro30.webp'), w: 960, h: 442, ancha: true },
-  { id: '7647971595343908116', titulo: c.tiktok.videos.bienvenida, poster: null, clip: null, img: foto('cv-tt-bienvenida.webp'), w: 960, h: 442, ancha: true },
-  { id: '7660806476172184852', titulo: c.tiktok.videos.linkedin, poster: null, clip: null, img: foto('cv-tt-linkedin.webp'), w: 560, h: 996, ancha: false },
-  { id: '7655496621483887892', titulo: c.tiktok.videos.jpmorgan, poster: null, clip: null, img: foto('cv-tt-jpmorgan.webp'), w: 560, h: 996, ancha: false },
-  { id: '7673723439215168788', titulo: c.tiktok.videos.oro, poster: null, clip: null, img: foto('cv-tt-oro.webp'), w: 560, h: 994, ancha: false },
-  { id: '7674776719030521109', titulo: c.tiktok.videos.noticias, poster: null, clip: null, img: foto('cv-tt-noticias.webp'), w: 560, h: 905, ancha: false },
-  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, img: foto('cv-tt-tokio.webp'), w: 720, h: 960, ancha: false },
-  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: null, clip: null, img: foto('breakdown-japan.webp'), w: 480, h: 360, ancha: true }
+  { id: '7678749901433474324', titulo: c.tiktok.videos.jpmvisit, poster: '/assets/cv/cv-poster-jpmvisit.jpg', clip: '/assets/cv/cv-clip-jpmvisit.mp4' as string | null, w: 360, h: 640, img: null as string | null, iw: 0, ih: 0, carrusel: false, nota: null as string | null, ancha: false },
+  { id: '7658163945479408917', titulo: c.tiktok.videos.nus, poster: '/assets/cv/cv-poster-nus.jpg', clip: '/assets/cv/cv-clip-nus.mp4', w: 640, h: 360, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: true },
+  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: '/assets/cv/cv-poster-japon.jpg', clip: '/assets/cv/cv-clip-japon.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, w: 0, h: 0, img: foto('cv-tt-tokio.webp'), iw: 720, ih: 960, carrusel: true, nota: null, ancha: false },
+  { id: '7664460671727258900', titulo: c.tiktok.videos.canada, poster: null, clip: null, w: 0, h: 0, img: null, iw: 0, ih: 0, carrusel: true, nota: c.tiktok.canadaNota, ancha: false }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
@@ -308,10 +317,13 @@ const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 // sitios: la única diferencia entre los gemelos tiene que ser dónde va el
 // póster —`data-poster` en el vivo, `poster` en el del <noscript>—, y con los
 // atributos escritos a mano dos veces eso dura hasta que alguien toque uno.
-// `bucle` son los clips de TikTok, que van mudos y en bucle y los mueve
-// cv-clips.ts; los otros dos llevan sonido y los arranca una persona.
-const attrsClip = (src: string, etiqueta: string, bucle = false) => ({
-  class: 'clip-video', src, width: '360', height: '640',
+// `bucle` son los clips de TikTok sin voz, que van mudos y en bucle y los
+// mueve cv-clips.ts; los demás llevan sonido y los arranca una persona.
+// `w`/`h` porque ya no todos son 9:16: el de la NUS va enderezado (16:9) y
+// la clase ancha le da su caja (aspect-ratio en el CSS, cero CLS).
+const attrsClip = (src: string, etiqueta: string, bucle = false, w = 360, h = 640) => ({
+  class: 'clip-video' + (w > h ? ' clip-video-ancho' : ''), src,
+  width: String(w), height: String(h),
   controls: true, playsinline: true, preload: 'none', 'aria-label': etiqueta,
   ...(bucle ? { muted: true, loop: true, 'data-en-vista': '' } : {})
 });
@@ -865,33 +877,34 @@ const resumenIndice = c.indice.resumen
     <Hueco c={c} id="tiktokNota" />
     <p class="pie">{c.tiktok.ensenaLede}</p>
 
-    {/* El vídeo de cada clip va servido por NOSOTROS. Sin sonido (el sonido
-         está en el original, a un enlace). `controls` SIEMPRE (WCAG 2.2.2);
-         el bucle solo del que está a la vista lo lleva cv-clips.ts.
+    {/* Los CUATRO vídeos van servidos por NOSOTROS, CON su sonido: son él
+         hablando, así que los arranca una persona (`controls`, WCAG 2.2.2) y
+         autoplay NUNCA — aquí no hay bucles mudos. El póster viaja en
+         `data-poster` con su gemelo <noscript> (patrón del PR #53): cero
+         bytes de vídeo y cero de póster hasta acercarse.
          OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
-         de la expresión del ternario un {/* *\/} no es un comentario de
-         plantilla sino JS crudo, y rompe el compilado. */}
+         de la expresión un {/* *\/} no es un comentario de plantilla sino JS
+         crudo, y rompe el compilado. */}
     <ul class="clips">
       {ensena.map((v) => (
         <li class:list={['clip', v.ancha && 'clip-ancho']}>
-          {v.clip ? (
-            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
-            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
-          ) : (
-            <span class="recuerdo"><img src={v.img} alt="" width={v.w} height={v.h} loading="lazy" decoding="async" /></span>
+          {v.clip && (
+            <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
+          )}
+          {v.img && (
+            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
           )}
           <p class="clip-titulo">{v.titulo}</p>
           <p class="clip-anio meta-mono">2026</p>
-          {!v.clip && (
-            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
-              <span aria-hidden="true">{c.clip.tag}</span>
-            </p>
+          {v.carrusel && (
+            <p class="clip-tag" role="note">{c.clip.carrusel}</p>
           )}
+          {v.nota && <p class="pie">{v.nota}</p>}
           <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
         </li>
       ))}
     </ul>
-    <p class="pie">{c.clip.pista}</p>
 
     {/* Los consejos sin imagen utilizable: fila seca con su enlace. */}
     <ol class="lista-seca">
