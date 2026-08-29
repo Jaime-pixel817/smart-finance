@@ -366,9 +366,12 @@ const en = {
     //   publicación de Jaime sobre el podcast de la sala FTR.
     // · Sol — «fundadora de Callejeritos», de la publicación de Jaime sobre
     //   la marcha. Sin imagen utilizable: hueco de foto, no un invento.
+    // Las tres caras nuevas (Lloyd, el creador de EE. UU., Mauricio) llevan
+    // su `alt` AQUÍ y no en ui.ts: son fotos que solo existen en el CV. El
+    // alt describe la imagen real (verificada mirándola), no la ficha.
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '' },
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Jaime, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
       nus: {
         nombre: 'A student at NUS',
         rol: 'National University of Singapore',
@@ -377,7 +380,8 @@ const en = {
       jesus: {
         nombre: 'A content creator from the U.S.',
         rol: '',
-        tipo: 'A Christian content creator he interviewed in Singapore, as his own post about the programme describes him.'
+        tipo: 'A Christian content creator he interviewed in Singapore, as his own post about the programme describes him.',
+        alt: 'Jaime interviewing the U.S. content creator at sunset, with the Marina Bay skyline behind them'
       },
       maier: {
         nombre: 'Jon Maier',
@@ -388,7 +392,8 @@ const en = {
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
-        tipo: 'A podcast in two parts — and, in Jaime’s words on LinkedIn, “his mentorship has played an important role in my development”.'
+        tipo: 'A podcast in two parts — and, in Jaime’s words on LinkedIn, “his mentorship has played an important role in my development”.',
+        alt: 'Jaime and Mauricio Mercenario seated in armchairs around a low table, recording the podcast'
       },
       podcast: {
         nombre: 'Jesús Gutiérrez Parra',
@@ -916,7 +921,7 @@ const es: typeof en = {
     llevo: 'Lo que me llevé',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '' },
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Jaime, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
       nus: {
         nombre: 'Una estudiante de la NUS',
         rol: 'National University of Singapore',
@@ -925,7 +930,8 @@ const es: typeof en = {
       jesus: {
         nombre: 'Un creador de contenido de EE. UU.',
         rol: '',
-        tipo: 'Un creador de contenido cristiano al que entrevistó en Singapur, como lo describe su propia publicación sobre el programa.'
+        tipo: 'Un creador de contenido cristiano al que entrevistó en Singapur, como lo describe su propia publicación sobre el programa.',
+        alt: 'Jaime entrevistando al creador de contenido de EE. UU. al atardecer, con el horizonte de Marina Bay detrás'
       },
       maier: {
         nombre: 'Jon Maier',
@@ -936,7 +942,8 @@ const es: typeof en = {
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
-        tipo: 'Un podcast en dos partes — y, con las palabras de Jaime en LinkedIn, «su mentoría ha jugado un papel importante en mi desarrollo».'
+        tipo: 'Un podcast en dos partes — y, con las palabras de Jaime en LinkedIn, «su mentoría ha jugado un papel importante en mi desarrollo».',
+        alt: 'Jaime y Mauricio Mercenario sentados en sillones alrededor de una mesa baja, grabando el podcast'
       },
       podcast: {
         nombre: 'Jesús Gutiérrez Parra',

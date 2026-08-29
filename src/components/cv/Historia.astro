@@ -326,15 +326,19 @@ const attrsClip = (src: string, etiqueta: string, bucle = false) => ({
 //   aquí desde el canal: es una entrevista, no un monólogo).
 // · Sol no tiene imagen utilizable: hueco de foto, no un invento.
 // EL ALT DE CADA FOTO DEL REPO ES EL QUE YA PUBLICA EL SITIO (`alt.*` de
-// ui.ts); las caras nuevas llevan el alt de su ficha (nombre y escena).
+// ui.ts); las caras nuevas (Lloyd, el creador de EE. UU., Mauricio) llevan
+// el suyo en cv.ts (`entrevistas.personas.<key>.alt`), descrito de la
+// imagen real — iban con `alt=""` mientras este comentario juraba lo
+// contrario, y una cara con nombre al lado no es decorativa (2026-08-29).
+const pers = c.entrevistas.personas;
 const citas = [
   { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null as null | { src: string; poster: string; bucle: boolean }, tiktokId: '7662781308988411156' },
-  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: '', hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
+  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: pers.lloyd.alt, hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
   { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, tiktokId: '7657190267245563156' },
-  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: '', hueco: 'entrevistaJesus' as const, video: null, tiktokId: '7656095688484211988' },
+  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: pers.jesus.alt, hueco: 'entrevistaJesus' as const, video: null, tiktokId: '7656095688484211988' },
   { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
   { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
-  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: '', hueco: 'entrevistaMauricio' as const, video: null, tiktokId: '7671351658227469588' },
+  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: pers.mauricio.alt, hueco: 'entrevistaMauricio' as const, video: null, tiktokId: '7671351658227469588' },
   { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
   { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, tiktokId: '7673350797958155541' },
   { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, tiktokId: '7677118351327431956' }
