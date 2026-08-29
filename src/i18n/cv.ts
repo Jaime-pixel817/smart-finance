@@ -446,7 +446,12 @@ const en = {
       // experiences attending a business conference» (MATERIAL.md LI-17).
       // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
       { cuando: '2026', que: 'AEM General Assembly — one of his first business conferences and networking events' },
-      { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin, CEO of CFA Institute, for advice on studying in Canada' },
+      // SIN el cargo de Marg Franklin: su post capturado (MATERIAL.md LI-20)
+      // no dice «CEO of CFA Institute» — dice que la escuchó «leading one of
+      // the most important organizations in the financial world» y que le
+      // pidió consejo sobre estudiar en Canadá. El cargo exacto era una
+      // anotación externa sin fuente en el material: fuera (2026-08-29).
+      { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin for advice on studying in Canada' },
       { cuando: '2026', que: 'Jasa Motor — online store and marketing for his family’s auto-parts business (chapter 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
       { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 6' }
@@ -958,7 +963,7 @@ const es: typeof en = {
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
       { cuando: '2026', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
-      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin, CEO de CFA Institute, sobre estudiar en Canadá' },
+      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin sobre estudiar en Canadá' },
       { cuando: '2026', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de su familia (capítulo 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
