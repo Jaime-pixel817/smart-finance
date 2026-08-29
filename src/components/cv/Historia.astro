@@ -702,13 +702,27 @@ const resumenIndice = c.indice.resumen
            banco de imágenes. Su pie lo dice, y lo dice antes que el crédito de
            la portada, que va una pantalla más arriba: quien llegue hasta aquí
            ya sabe cuál es de quién. */}
+      {/* El width/height son los del RECORTE NUEVO (2026-08-29): 4:5, no el
+           0.9375 del original entero. Van escritos porque son la reserva de
+           caja de la figura — con los viejos, la foto llegaba y empujaba
+           95 px de página (CLS gratuito). El recorte y su porqué están en
+           scripts/build-photos.mjs. */}
       <figure class="cap-1-figura">
         <img src={foto('cv-torre-520.webp')}
           srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
           sizes="(max-width: 767px) 100vw, 520px"
-          alt={c.head.torreAlt} width="520" height="555"
+          alt={c.head.torreAlt} width="520" height="650"
           decoding="async" loading="lazy" />
-        <figcaption class="pie">{c.head.torrePie}</figcaption>
+        {/* EL PIE ES SUYO (mensaje del 2026-08-29), pulido en ortografía y
+             puntuación y nada más — patrón voz.*, pendiente de su revisión
+             final. En el panel inglés es TRADUCCIÓN y lo dice arriba
+             (`torrePieTag`, vacío en español). La procedencia de la foto no
+             se pierde: sigue diciendo que es suya y de cuándo. */}
+        <figcaption class="pie torre-pie">
+          {c.head.torrePieTag && <span class="meta-mono torre-pie-tag">{c.head.torrePieTag}</span>}
+          <span class="torre-pie-voz">{c.head.torrePieVoz}</span>
+          <span>{c.head.torrePie}</span>
+        </figcaption>
       </figure>
      </div>
     </div>
@@ -962,6 +976,13 @@ const resumenIndice = c.indice.resumen
           <div class="grupo-texto">
             {/* Hecho publicado en /community, en primera persona de Jaime. */}
             <p class="cap-frases">{c.proyectos.grupo}</p>
+            {/* SU CIFRA, MARCADA. «Casi 200 en la comunidad» (2026-08-29) no
+                 la puede contar el build —la gente de una comunidad no vive
+                 en ningún archivo del repo—, así que va como afirmación suya
+                 con su fecha, igual que los inscritos del boletín. La marca
+                 va DEBAJO y en mono: es el recibo, no la frase. */}
+            <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
+            <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
@@ -1048,6 +1069,14 @@ const resumenIndice = c.indice.resumen
           </li>
         </ul>
         <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
+        {/* EL BOLETÍN Y SU CIFRA. «Más de 100 inscritos» (2026-08-29) es
+             AFIRMACIÓN SUYA y no una cuenta: los inscritos viven en Redis, o
+             sea fuera del build. Va marcada, y a propósito NO entra en la
+             lista de cifras grandes de arriba — esas tres las cuenta el
+             build de los archivos del repo, y meter una afirmación entre
+             ellas le prestaría su recibo. */}
+        <p class="cifra-suya">{c.prueba.boletin}</p>
+        <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
@@ -2164,6 +2193,20 @@ const resumenIndice = c.indice.resumen
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
   .cap-1-figura { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 520px; }
   .cap-1-figura img { width: 100%; height: auto; display: block; }
+  /* El pie de la Torre CN son TRES renglones y no uno: la marca de
+     traducción, sus palabras y la procedencia. Cada uno en su línea porque
+     son tres cosas distintas — y la suya va con la tinta del documento, no
+     con el gris de un pie, que es lo que separa una frase de él de un
+     crédito de foto. */
+  /* UNA CIFRA SUYA se ve distinta de una contada, y esa es toda la regla:
+     la frase con la tinta del documento y su marca justo debajo, en mono y
+     en el gris de las etiquetas. Las contadas siguen siendo las tres
+     grandes de `.cifras`, que no llevan marca porque su recibo es el build. */
+  .cifra-suya { color: var(--cvh-tinta); margin-top: var(--sp-2); }
+  .cifra-suya-marca { color: var(--cvh-tinta-3); margin-top: var(--sp-1); }
+  .torre-pie { display: flex; flex-direction: column; gap: var(--sp-1); }
+  .torre-pie-tag { color: var(--cvh-tinta-3); }
+  .torre-pie-voz { color: var(--cvh-tinta); font-size: var(--fs-small); }
 
   /* ---- La frase de apertura ----
      Fraunces, igual que los titulares y que la frase final: la dirección la
