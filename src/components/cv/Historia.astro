@@ -361,14 +361,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capit
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
 // pantallas — y «{min} minutos» de contar las palabras de la copia real del
-// panel (`c` es de donde sale todo el texto pintado; las pocas claves que no
-// se pintan en este idioma —un statusLabel de más, la traducción de la frase
-// en el panel español— son un 2-3 % de ruido, que a «unos X minutos» no le
-// cambia el redondeo). A 200 palabras por minuto, lectura adulta en
-// silencio; las lecciones no tienen una constante que reutilizar (su
-// readingMinutes va escrito a mano en el frontmatter). Antes decía «about 7
-// minutes» a mano con ~2 650 palabras visibles: una cifra inventada al lado
-// de una numeración contada.
+// panel (`c` es de donde sale toda la PROSA pintada). A 200 palabras por
+// minuto, lectura adulta en silencio; las lecciones no tienen una constante
+// que reutilizar (su readingMinutes va escrito a mano en el frontmatter).
+// Contrastado contra la página pintada (2026-08-29, innerText del panel EN
+// en Chromium): 2 722 palabras visibles contra ~2 400 de esta cuenta — el
+// resto son fichas de la interfaz («01 / 09», los años sueltos, cifras
+// calculadas), que se miran, no se leen, así que quedarse con la prosa da
+// el estimado más honesto. Antes decía «about 7 minutes» a mano: una cifra
+// inventada al lado de una numeración contada.
 const palabras = (o: unknown): number =>
   typeof o === 'string' ? (o.match(/\S+/g) || []).length
   : Array.isArray(o) ? o.reduce((n: number, x) => n + palabras(x), 0)
