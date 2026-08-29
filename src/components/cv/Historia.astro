@@ -18,11 +18,14 @@
 //   01 · La frase de apertura   sus palabras, arriba del todo
 //   02 · Experiencias           la lista seca
 //   03 · Servir                 los voluntariados
-//   04 · Cada quien trae algo   las conversaciones (el "etc")
-//   05 · Mis proyectos          EL GRUPO ESTUDIANTIL primero, luego el sitio
-//   06 · Enseñar…               su canal de difusión (TikTok)
-//   07 · Reto Actinver y PE     A LA PAR: dos columnas, no dos capítulos
-//   08 · Certificaciones        los recibos
+//   04 · Cada quien trae algo   conversaciones + teaching, FUSIONADOS
+//                               (brief 2026-08-28: primero la gente, después
+//                               lo que él enseña solo)
+//   05 · Mis proyectos          EL GRUPO ESTUDIANTIL primero, el sitio,
+//                               y Jasa Motor
+//   06 · Reto Actinver y PE     A LA PAR: dos columnas, no dos capítulos
+//   07 · Certificaciones        los recibos
+//   08 · Cartas de recomendación   huecos honestos (sección nueva del brief)
 //   09 · La frase               la de siempre, verbatim
 //
 // DE ONCE CAPÍTULOS A NUEVE, Y NO SE PERDIÓ NI UNA LÍNEA:
@@ -277,11 +280,26 @@ const estado = (rep.meta.status || 'draft') as string;
 // se publicara ni una página de CV. Ese día hay que decidir el mecanismo
 // (`.vercelignore` condicionado al build, o servir el clip desde la propia
 // ruta del CV), y esa decisión es de Jaime, no de este archivo.
-const videos = [
-  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', vertical: true },
-  { id: '7657190267245563156', titulo: c.tiktok.videos.skills, poster: '/assets/cv/cv-poster-skills.jpg', clip: '/assets/cv/cv-clip-skills.webm', vertical: true },
-  { id: '7662781308988411156', titulo: c.tiktok.videos.andy, poster: foto('breakdown-andy-toh.webp'), clip: null, vertical: false },
-  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: foto('breakdown-japan.webp'), clip: null, vertical: false }
+// EL TEACHING (la segunda mitad del capítulo 4, fusionado por Jaime): SOLO
+// vídeos donde él da la información. El de «skills» que vivía aquí es una
+// ENTREVISTA (a una estudiante de la NUS) y se movió al carrusel de
+// conversaciones — lo avisó Jaime y lo confirma el material cosechado.
+// `clip` = servido por nosotros (bucle mudo, cv-clips.ts); `img` = cuadro
+// del vídeo con huella + enlace (el clip local queda pendiente: no hay
+// ffmpeg en este entorno para recodificar más originales).
+// `w`/`h` son las dimensiones REALES de cada archivo (las escribe
+// build-photos.mjs al generarlos): sin ellas el <img> no reserva su caja y
+// cada foto que llega empuja la página — CLS gratuito.
+const ensena = [
+  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', img: null as string | null, w: 0, h: 0, ancha: false },
+  { id: '7647970499649146133', titulo: c.tiktok.videos.ahorro30, poster: null, clip: null, img: foto('cv-tt-ahorro30.webp'), w: 960, h: 442, ancha: true },
+  { id: '7647971595343908116', titulo: c.tiktok.videos.bienvenida, poster: null, clip: null, img: foto('cv-tt-bienvenida.webp'), w: 960, h: 442, ancha: true },
+  { id: '7660806476172184852', titulo: c.tiktok.videos.linkedin, poster: null, clip: null, img: foto('cv-tt-linkedin.webp'), w: 560, h: 996, ancha: false },
+  { id: '7655496621483887892', titulo: c.tiktok.videos.jpmorgan, poster: null, clip: null, img: foto('cv-tt-jpmorgan.webp'), w: 560, h: 996, ancha: false },
+  { id: '7673723439215168788', titulo: c.tiktok.videos.oro, poster: null, clip: null, img: foto('cv-tt-oro.webp'), w: 560, h: 994, ancha: false },
+  { id: '7674776719030521109', titulo: c.tiktok.videos.noticias, poster: null, clip: null, img: foto('cv-tt-noticias.webp'), w: 560, h: 905, ancha: false },
+  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, img: foto('cv-tt-tokio.webp'), w: 720, h: 960, ancha: false },
+  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: null, clip: null, img: foto('breakdown-japan.webp'), w: 480, h: 360, ancha: true }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
@@ -298,25 +316,28 @@ const attrsClip = (src: string, etiqueta: string, bucle = false) => ({
   ...(bucle ? { muted: true, loop: true, 'data-en-vista': '' } : {})
 });
 
-// ------------------------------------------------------ la gente (c7)
-// Seis personas. Cuatro con foto del manifiesto; Raúl Irabién con su clip
-// (servido por nosotros, con sonido, `controls` y `preload="none"`: cero
-// bytes y cero movimiento hasta que alguien le da a reproducir — la casta 2
-// de este capítulo son las fotos, y un vídeo sonando solo competiría); el
-// profesor Lloyd sin material todavía: hueco de foto + enlace al original.
-//
-// EL ALT DE CADA FOTO ES EL QUE YA PUBLICA EL SITIO (`alt.*` de ui.ts), no uno
-// nuevo: describe lo que se ve, que es para lo que sirve un alt, y de paso es
-// la fuente de que la de J.P. Morgan es «Jaime con otros cuatro asistentes en
-// el escenario, al terminar la sesión» — una sesión a la que asistió, no una
-// entrevista suya (ver el bloque `entrevistas` de src/i18n/cv.ts).
-const retratos = [
-  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null, tiktokId: '7662781308988411156' },
+// ------------------------------------------- las conversaciones (c4)
+// Diez tarjetas para el carrusel de citas (la forma de Ondo: tarjeta negra,
+// retrato, nombre, cargo y la frase grande — que aquí es SIEMPRE de Jaime,
+// ver el aviso del capítulo). Cada ficha con su fuente en cv.ts.
+// · Andy Toh va SOLO con texto y la foto del repo (no hay clip utilizable de
+//   esa entrevista: lo dice el material cosechado).
+// · La estudiante de la NUS y Raúl llevan su CLIP servido (skills se movió
+//   aquí desde el canal: es una entrevista, no un monólogo).
+// · Sol no tiene imagen utilizable: hueco de foto, no un invento.
+// EL ALT DE CADA FOTO DEL REPO ES EL QUE YA PUBLICA EL SITIO (`alt.*` de
+// ui.ts); las caras nuevas llevan el alt de su ficha (nombre y escena).
+const citas = [
+  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null as null | { src: string; poster: string; bucle: boolean }, tiktokId: '7662781308988411156' },
+  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: '', hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
+  { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, tiktokId: '7657190267245563156' },
+  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: '', hueco: 'entrevistaJesus' as const, video: null, tiktokId: '7656095688484211988' },
   { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
   { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
+  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: '', hueco: 'entrevistaMauricio' as const, video: null, tiktokId: '7671351658227469588' },
   { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
-  { key: 'lloyd' as const, img: null, alt: '', hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
-  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg' }, tiktokId: '7673350797958155541' }
+  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, tiktokId: '7673350797958155541' },
+  { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, tiktokId: '7677118351327431956' }
 ];
 
 // ------------------------------------------------------------- el índice
@@ -674,8 +695,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        insinuaría un aval que no existe, y es justo el tipo de cosa que un
        comité de admisiones va a comprobar.
 
-       Lo que SÍ se copia es el ritmo: una fila por conversación, retrato a la
-       izquierda, nombre y cargo pequeños, y una frase grande a la derecha. La
+       Lo que SÍ se copia, desde el brief del 2026-08-28, es LA FORMA ENTERA:
+       el carrusel horizontal de tarjetas negras redondeadas — retrato, nombre,
+       cargo y la frase grande abajo, con las flechas ‹ › debajo. La
        diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
        Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
        esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
@@ -683,9 +705,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        una cita suya. Y encima del bloque va escrito, en una frase, que nadie
        de aquí lo está respaldando.
 
-       Los retratos siguen creciendo y encogiendo como recuerdos (casta 2, CSS
-       puro), y la frase de cada uno sigue siendo un hueco hasta que él la
-       escriba. -->
+       La frase de cada uno sigue siendo un hueco hasta que él la escriba. -->
   <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(3)}</p>
@@ -697,41 +717,117 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
          afirmación sobre Jaime, es la página diciendo qué es lo que enseña. -->
     <p class="pie">{c.entrevistas.aviso}</p>
 
-    <ul class="retratos">
-      {retratos.map((rt) => {
-        const per = c.entrevistas.personas[rt.key];
-        // `rol` vacío = no había fuente para el rol y no se inventa uno.
-        // `tipo` lleno = llamarlo entrevista sería falso, y lo dice en pantalla.
-        const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
-        return (
-        <li class="retrato">
-          <div class="retrato-foto">
-            {rt.img && (
-              <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
-            )}
-            {rt.video && (
-              <video {...attrsClip(rt.video.src, etiqueta)} data-poster={rt.video.poster}></video>
-              <noscript><video {...attrsClip(rt.video.src, etiqueta)} poster={rt.video.poster}></video></noscript>
-            )}
-            {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
-          </div>
-          <div class="retrato-dicho">
-            <p class="retrato-nombre">{per.nombre}</p>
-            {per.rol && <p class="retrato-rol">{per.rol}</p>}
-            {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
+    <!-- ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
+         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
+         (el imán vertical de la página se quitó; ESTE es otro gesto: una
+         lista de tarjetas que pagina de lado, que es justo para lo que
+         scroll-snap x existe). Las flechas son <button> de verdad: con
+         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
+         sin JavaScript se esconden (la regla vive en el <noscript> de
+         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
+         flechas del teclado (tabindex="0" en la lista, que es lo que exige
+         una región desplazable alcanzable).
+         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
+         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
+         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
+         todas las letras. Eso no se negocia con la estética. -->
+    <div class="citas-marco" data-citas>
+      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
+        {citas.map((rt) => {
+          const per = c.entrevistas.personas[rt.key];
+          // `rol` vacío = no había fuente para el rol y no se inventa uno.
+          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
+          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+          return (
+          <li class="cita">
+            <div class="cita-media">
+              {rt.img && (
+                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
+              )}
+              {rt.video && (
+                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
+                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
+              )}
+              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
+            </div>
+            <p class="cita-nombre">{per.nombre}</p>
+            {per.rol && <p class="cita-rol">{per.rol}</p>}
+            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
             <!-- EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
-                 no: mientras el hueco esté puesto ya lo dice su propia
-                 etiqueta, pero en cuanto Jaime escriba la frase este renglón
-                 es lo único que separa «lo que me llevé» de «lo que me
-                 dijeron». Por eso no está dentro del hueco. -->
-            <p class="etiqueta retrato-llevo">{c.entrevistas.llevo}</p>
+                 no: en cuanto Jaime escriba la frase este renglón es lo único
+                 que separa «lo que me llevé» de «lo que me dijeron». -->
+            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
             <Hueco c={c} id={rt.hueco} grande />
-            {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
-          </div>
+            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+          </li>
+          );
+        })}
+      </ul>
+      <div class="citas-nav">
+        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
+        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
+      </div>
+    </div>
+
+    <!-- ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
+         Primero las conversaciones, después lo que él enseña SOLO: es el
+         orden que pidió. Aquí van únicamente los vídeos donde él da la
+         información (consejos, datos, noticias) — reclasificados con el
+         material: la entrevista de «skills» que vivía aquí subió al carrusel.
+         Jamás un embed de TikTok; el clip de Singapur se sirve desde este
+         dominio y el resto va como cuadro del vídeo + enlace al original. -->
+    <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
+    <!-- texto de Jaime, pendiente de su revisión final -->
+    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
+    <Hueco c={c} id="tiktokNota" />
+    <p class="pie">{c.tiktok.ensenaLede}</p>
+
+    <ul class="clips">
+      {ensena.map((v) => (
+        <li class:list={['clip', v.ancha && 'clip-ancho']}>
+          {v.clip ? (
+            <!-- Servido por NOSOTROS. Sin sonido (el sonido está en el
+                 original, a un enlace). `controls` SIEMPRE (WCAG 2.2.2); el
+                 bucle solo del que está a la vista lo lleva cv-clips.ts. -->
+            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
+          ) : (
+            <span class="recuerdo"><img src={v.img} alt="" width={v.w} height={v.h} loading="lazy" decoding="async" /></span>
+          )}
+          <p class="clip-titulo">{v.titulo}</p>
+          <p class="clip-anio meta-mono">2026</p>
+          {!v.clip && (
+            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
+              <span aria-hidden="true">{c.clip.tag}</span>
+            </p>
+          )}
+          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
         </li>
-        );
-      })}
+      ))}
     </ul>
+    <p class="pie">{c.clip.pista}</p>
+
+    <!-- Los consejos sin imagen utilizable: fila seca con su enlace. -->
+    <ol class="lista-seca">
+      {c.tiktok.sinImagen.map((f) => (
+        <li>
+          <span class="seca-cuando num">2026</span>
+          <span class="seca-que">{f.que} <a class="hist-link" href={urlVideo(f.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a></span>
+        </li>
+      ))}
+    </ol>
+
+    <h4 class="etiqueta">{c.tiktok.arcoH}</h4>
+    <ol class="lista-seca">
+      {c.tiktok.arco.map((f) => (
+        <li>
+          <span class="seca-cuando num">{f.cuando}</span>
+          <span class="seca-que">{f.que}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="pie">{c.tiktok.arcoFuente}</p>
+    <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
   </section>
 
   <!-- ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
@@ -843,58 +939,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 06 · Enseñar es la mitad del trabajo — su canal ════════════════
-       "luego mi canal de difusión". Marcos de vídeo SERVIDOS POR NOSOTROS
-       cuando lleguen los clips; hoy, póster + enlace al original + marca de
-       clip pendiente. Jamás un embed. -->
-  <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
-    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(5)}</p>
-    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
-    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
-    <Hueco c={c} id="tiktokNota" />
-
-    <ul class="clips">
-      {videos.map((v) => (
-        <li class="clip">
-          {v.clip ? (
-            <!-- Servido por NOSOTROS. Sin sonido (la dirección lo prescribe:
-                 el sonido está en el original, a un enlace). `controls`
-                 SIEMPRE: un vídeo en bucle tiene que poderse pausar (WCAG
-                 2.2.2), y sin JavaScript es lo único que lo arranca. El
-                 bucle solo del que está a la vista lo lleva cv-clips.ts. -->
-            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
-            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
-          ) : (
-            <span class="recuerdo"><img src={v.poster} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
-          )}
-          <p class="clip-titulo">{v.titulo}</p>
-          {!v.clip && (
-            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
-              <span aria-hidden="true">{c.clip.tag}</span>
-            </p>
-          )}
-          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
-        </li>
-      ))}
-    </ul>
-    <p class="pie">{c.clip.pista}</p>
-
-    <h3 class="t-h3">{c.tiktok.arcoH}</h3>
-    <ol class="lista-seca">
-      {c.tiktok.arco.map((f) => (
-        <li>
-          <span class="seca-cuando num">{f.cuando}</span>
-          <span class="seca-que">{f.que}</span>
-        </li>
-      ))}
-    </ol>
-    <p class="pie">{c.tiktok.arcoFuente}</p>
-    <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
-  </section>
-
-  <!-- ════ 07 · Reto Actinver y private equity — A LA PAR ═════════════════
+  <!-- ════ 06 · Reto Actinver y private equity — A LA PAR ═════════════════
        Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
        par del de private equity». A la par NO es uno detrás de otro, así que
        no son dos capítulos: es uno con dos mitades que se leen juntas —
@@ -907,10 +952,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        cartera del concurso del mismo archivo que lee la página pública, y la
        tarjeta del reporte de loadReport. El logo va con las reglas del repo:
        pequeño, placa oscura, y la línea de no afiliación. -->
-  <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
-    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(6)}</p>
-    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
+  <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
 
     <div class="par">
       <!-- ── Mitad 1: el reto ── -->
@@ -1008,11 +1053,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 08 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
-  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
-    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(7)}</p>
-    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
+  <!-- ════ 07 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
+  <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
+    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
     <!-- Filas como el calendario del reto: el recibo a la izquierda y lo que
          falta a la derecha, en mono. Que se vea que falta es el punto: nada
@@ -1027,6 +1072,29 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </li>
       ))}
     </ol>
+  </section>
+
+  <!-- ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
+       SECCIÓN NUEVA (brief del 2026-08-28), después de las certificaciones y
+       antes de la frase. Hoy NO hay ninguna carta entregada y la sección lo
+       dice: tres recuadros con el patrón de hueco del CV, con los campos que
+       un comité puede verificar (nombre, cargo, relación, contacto). Cuando
+       exista una carta de verdad, su recuadro se rellena; hasta entonces, el
+       borde discontinuo dice que falta. NUNCA un nombre inventado. -->
+  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
+    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
+    <p class="cap-lede">{c.cartas.lede}</p>
+    <ul class="cartas">
+      {c.cartas.slots.map((pista) => (
+        <li class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
+          <p class="carta-tag" aria-hidden="true">{c.cartas.tag}</p>
+          <p class="carta-pista" aria-hidden="true">{pista}</p>
+          <p class="carta-campos meta-mono">{c.cartas.campos}</p>
+        </li>
+      ))}
+    </ul>
   </section>
 
   <!-- ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
@@ -1907,50 +1975,129 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .curva-line.flat { color: var(--cvh-tinta-2); }
   .curva-base { stroke: var(--cvh-tinta-3); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
 
-  /* ---- Clips ---- */
-  .clips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-4); }
-  .clip { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  /* ---- El teaching: tarjetas blancas redondeadas (el lenguaje de Ondo) ----
+     Cada vídeo va en una tarjeta blanca con borde fino y radio de 24px sobre
+     el papel — el bloque de tarjetas de contenido de la referencia. Las dos
+     del set FTR son apaisadas y ocupan doble columna donde caben. */
+  .clips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(15em, 100%), 1fr));
+    gap: var(--sp-4);
+  }
+  .clip {
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-4);
+    background: var(--cvh-papel);
+  }
+  @media (min-width: 34em) {
+    .clip-ancho { grid-column: span 2; }
+  }
+  .clip .recuerdo, .clip .recuerdo img { border-radius: 14px; }
+  .clip .recuerdo img { max-width: 300px; }
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
-  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; }
+  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
   .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
+  .clip-anio { color: var(--cvh-tinta-3); }
   .clip-tag {
     align-self: flex-start;
     font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
     letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-2);
-    border: 1px dashed var(--cvh-tinta-3); padding: 4px 8px;
+    border: 1px dashed var(--cvh-tinta-3); padding: 4px 8px; border-radius: 8px;
   }
+  .ens-h { margin-top: var(--sp-6); }
 
-  /* ---- Retratos ---- */
-  /* ---- Las conversaciones, con el ritmo de las citas de Ondo ----
-     Una FILA por conversación en vez de una rejilla de tarjetas: retrato
-     pequeño a la izquierda, y a la derecha el nombre, el cargo y lo que Jaime
-     se llevó, en grande. Es la forma del bloque de citas de Ondo con la
-     diferencia que importa: allí la frase grande es de ellos, aquí es de él.
+  /* ---- Las conversaciones: EL CARRUSEL DE CITAS (tarjetas negras) ----
+     La forma del bloque de citas de Ondo, pedida en el brief: tarjetas negras
+     redondeadas en una fila horizontal con scroll-snap de eje X, foto arriba,
+     nombre y cargo pequeños, la frase grande abajo y las flechas ‹ › debajo.
+     La diferencia que importa —de quién es la frase— está en el comentario
+     del marcado y en el aviso en pantalla.
 
-     EL CORTE VA EN em, como las válvulas de la cinta y las dos mitades del
-     capítulo 7: así se dispara también cuando alguien agranda la letra, en vez
-     de mantener una columna de 200 px reales con dos palabras por renglón.
-     40em son 640 px con la letra por omisión. */
-  .retratos { display: flex; flex-direction: column; }
-  .retrato {
-    display: grid; grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-4);
-    padding-block: var(--sp-6);
-    border-top: 1px solid var(--cvh-raya);
+     EL NEGRO ES EL DE LA PLACA del logo (#101014): esta página ya tiene ese
+     acento oscuro, y las tarjetas son el otro. La tinta clara reutiliza los
+     tokens de la tapa (--cvh-tapa-tinta / -2), que ya están medidos sobre
+     oscuro. El ámbar del hueco dentro de la tarjeta es el --warn del tema
+     OSCURO del sitio (#FFB84D, 11:1 sobre #101014): el del tema claro
+     (#9A6200) se queda en 3.7:1 sobre negro y no pasa para texto pequeño. */
+  .citas-marco { max-width: 100%; }
+  .citas {
+    display: flex; gap: var(--sp-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: var(--sp-1) var(--sp-1) var(--sp-3);
+    /* El anillo de foco de la lista (tabindex=0) no se recorta. */
+    scroll-padding-inline: var(--sp-1);
   }
-  .retrato:first-child { border-top: 0; padding-top: 0; }
-  @media (min-width: 40em) {
-    .retrato { grid-template-columns: minmax(0, 15em) minmax(0, 1fr); gap: var(--sp-6); align-items: start; }
+  .cita {
+    flex: 0 0 min(86%, 340px);
+    scroll-snap-align: start;
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding: var(--sp-5);
+    background: #101014;
+    color: var(--cvh-tapa-tinta);
+    border-radius: 24px;
+    min-width: 0;
   }
-  .retrato-foto { min-width: 0; }
-  .retrato-dicho { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
-  .retrato-nombre { font-weight: 600; }
-  .retrato-rol { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
-  /* El rótulo que dice de quién es la frase de abajo. Con aire por encima
-     para que se lea pegado a la frase y no al cargo de la persona: pegado al
-     cargo se leería como parte de su ficha. */
-  .retrato-llevo { margin-top: var(--sp-3); }
+  .cita-media { min-width: 0; }
+  .cita-foto {
+    display: block; width: min(100%, 200px); height: auto;
+    border-radius: 14px;
+  }
+  .cita .clip-video { max-width: 170px; border-radius: 14px; }
+  .cita-nombre { font-weight: 600; margin-top: var(--sp-2); }
+  .cita-rol, .cita-tipo { font-size: var(--fs-caption); color: var(--cvh-tapa-tinta-2); }
+  /* El rótulo que dice de quién es la frase de abajo, pegado a ella. */
+  .cita-llevo { margin-top: auto; padding-top: var(--sp-3); color: var(--cvh-tapa-tinta-2); }
+  .cita-link { color: var(--cvh-tapa-tinta); }
+  .cita-link:hover { color: var(--cvh-tapa-tinta-2); }
+  .cita :focus-visible { outline-color: var(--cvh-tapa-tinta); }
+  /* Los componentes de hueco, versión para tarjeta oscura. `:global` porque
+     sus estilos tienen ámbito propio (la lección de `.proj` en Hub.astro). */
+  .cita :global(.hueco) { border-color: rgba(255, 255, 255, .5); background: transparent; }
+  .cita :global(.hueco-tag) { color: #FFB84D; }
+  .cita :global(.hueco-que) { color: var(--cvh-tapa-tinta); }
+  .cita :global(.hueco-pista) { color: var(--cvh-tapa-tinta-2); }
+  .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
+  .cita :global(.foto-hueco) { border-color: rgba(255, 255, 255, .5); }
+  .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
+  /* Las flechas: botones de verdad, 44px de blanco, con estado de extremo.
+     `data-inerte` y no `disabled`: un botón deshabilitado suelta el foco del
+     teclado a mitad de recorrido. Sin JavaScript no existen (los esconde el
+     <noscript> de Cv.astro) y la lista se desplaza igual. */
+  .citas-nav { display: flex; gap: var(--sp-3); margin-top: var(--sp-2); }
+  .citas-btn {
+    min-width: 44px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--cvh-tinta-3); border-radius: 12px;
+    background: var(--cvh-papel); color: var(--cvh-tinta);
+    font-size: 1.25rem; line-height: 1; cursor: pointer;
+  }
+  .citas-btn:hover { background: var(--bg-2); }
+  .citas-btn[data-inerte] { opacity: .35; cursor: default; }
+  .citas-btn[data-inerte]:hover { background: var(--cvh-papel); }
+
+  /* ---- Cartas de recomendación: los tres huecos honestos ---- */
+  .cartas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
+    gap: var(--sp-4); max-width: 960px;
+  }
+  .carta-hueco {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding: var(--sp-5);
+    border: 1px dashed var(--cvh-tinta-3);
+    border-radius: 24px;
+    min-height: 11em;
+  }
+  .carta-tag {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--warn);
+  }
+  .carta-pista { color: var(--cvh-tinta); }
+  .carta-campos { margin-top: auto; color: var(--cvh-tinta-2); }
 
   /* ---- Servir ---- */
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }

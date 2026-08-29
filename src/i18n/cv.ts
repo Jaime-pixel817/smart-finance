@@ -54,8 +54,8 @@ const en = {
     origen: 'From when it started. Even blurry ones count.',
     research: 'Jaime working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
-    lloyd: 'A portrait of Prof. Lloyd — or a frame from the interview clip.',
-    playas: 'The beach clean-ups.'
+    sol: 'A portrait of Sol — or a frame from the march videos.',
+    playas: 'The beach clean-up in Singapore — the photos are on his LinkedIn.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -66,7 +66,7 @@ const en = {
 
   // ---- Índice y meta de la portada ----
   indice: {
-    resumen: '9 chapters · about 6 minutes',
+    resumen: '9 chapters · about 7 minutes',
     ver: 'See the index',
     aria: 'Chapters of this page'
   },
@@ -81,15 +81,19 @@ const en = {
   //
   // El 1 lleva su nombre como titular (el título de aquí solo sale en el
   // índice) y el 9 es la frase final.
+  // JAIME PIDIÓ FUSIONAR (brief del 2026-08-28) los capítulos de las
+  // conversaciones y del canal: primero las conversaciones, después el
+  // teaching, en UN capítulo (c4). El hueco que deja lo ocupa la sección
+  // nueva de cartas de recomendación (c8), después de las certificaciones.
   caps: {
     c1: 'I opened my eyes',
     c2: 'Experience',
     c3: 'Serving',
     c4: 'Everyone brings something',
     c5: 'My projects',
-    c6: 'Teaching is half the work',
-    c7: 'Reto Actinver and private equity',
-    c8: 'Certifications',
+    c6: 'Reto Actinver and private equity',
+    c7: 'Certifications',
+    c8: 'Recommendation letters',
     c9: 'The sentence'
   },
 
@@ -225,27 +229,49 @@ const en = {
     source: 'Calendar taken from retoactinver.com on {d}. Smart Finance is not affiliated with Actinver.'
   },
 
-  // ---- Capítulo 6: TikTok ----
+  // ---- Capítulo 4, segunda mitad: el teaching (su canal) ----
+  // FUSIONADO con las conversaciones por decisión de Jaime (2026-08-28):
+  // primero la gente, después lo que él enseña solo. RECLASIFICADO con el
+  // material cosechado: aquí van SOLO los vídeos donde él da la información
+  // —consejos, datos, noticias—; las conversaciones cara a cara viven arriba
+  // (la de «skills», que estaba aquí, es una ENTREVISTA a una estudiante de
+  // la NUS y se movió al carrusel, con su clip).
   tiktok: {
     perfil: '@smart.financee, on TikTok',
     // La línea que conecta los clips con las lecciones del sitio.
     nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
+    ensenaH: 'Teaching is half the work',
+    // La voz de la página: qué es este bloque y de dónde sale cada pieza.
+    ensenaLede: 'His solo videos: advice, financial data and news, told straight to camera. Each links to the original; titles are the ones he published.',
+    // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
+    // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
     videos: {
-      andy: 'Interview: Andy Toh, CEO of BlueSky Education — a summer programme in Singapore',
-      japon: 'Financial data from Japan',
       singapur: 'Financial data from Singapore — “why the world’s money lives here”',
-      skills: 'The skills for a top-8 university in the world'
+      ahorro30: '“Want a treat? Wait 30 days” — the 30-day rule, from the FTR trading-room set',
+      bienvenida: '“The welcome” — the opening of the podcast, same FTR set',
+      linkedin: '“Opening a LinkedIn in the finance world is key” — his advice, with part 2 of the Mauricio interview',
+      jpmorgan: '“Anything you set your mind to is possible” — the J.P. Morgan story, over his photo of the J.P. Morgan building in Singapore',
+      oro: 'News: “Gold takes off”',
+      noticias: '“4 news stories that moved the money”',
+      tokio: '“Would you believe it?” — financial facts, from the Tokyo Tower',
+      japon: 'Financial data from Japan'
     },
-    // El arco de Singapur, con fechas. Las fechas son las de subida de cada
-    // vídeo en @smart.financee: verificables abriendo el perfil.
+    // Los tres consejos sin imagen utilizable: fila seca con su enlace.
+    sinImagen: [
+      { id: '7654447626644933909', que: '“Your first investment should be in yourself”' },
+      { id: '7659438690179026196', que: '“Most people are waiting for the perfect moment. It doesn’t exist” — 4 habits' },
+      { id: '7661209936906521876', que: '“Most people wait until they feel ready. Start now”' }
+    ],
+    // El arco de Singapur. SOLO EL AÑO en pantalla (decisión de Jaime,
+    // 2026-08-28); las fechas exactas de cada vídeo están en su perfil.
     arcoH: 'The Singapore arc',
     arco: [
-      { cuando: 'Jun–Jul 2026', que: 'Summer programme in Singapore' },
-      { cuando: 'Jun 20 · 24', que: 'Financial-data videos: Japan and Singapore' },
-      { cuando: 'Jul 2', que: 'Presentation about Mexico to National University of Singapore students' },
-      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
+      { cuando: '2026', que: 'Summer programme in Singapore' },
+      { cuando: '2026', que: 'Financial-data videos: Japan and Singapore' },
+      { cuando: '2026', que: 'Presentation about Mexico to National University of Singapore students' },
+      { cuando: '2026', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
     ],
-    arcoFuente: 'The dates are the upload dates of each video on @smart.financee.'
+    arcoFuente: 'The whole arc is from 2026; each video, with its exact date, is on @smart.financee.'
   },
 
   // ---- Capítulo 7: la gente ----
@@ -276,27 +302,73 @@ const en = {
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
     // ── LO QUE IMPIDE QUE ESTE CAPÍTULO SE LEA COMO UNA LISTA DE AVALES ──
-    // El capítulo tiene ahora la forma del bloque de citas de ondo.finance
-    // —retrato, nombre, cargo y una frase grande—, y esa forma, sin esta
-    // línea, dice «estas personas me respaldan». Ninguna lo hace: él las
-    // entrevistó, y eso es lo que dice el material del repo. La frase va en la
-    // voz de la PÁGINA (como `prueba.lede` o `tape.note`), no en la de Jaime:
-    // no afirma nada sobre él, describe qué es lo que se está enseñando.
-    aviso: 'These are conversations he sought out and recorded for the site. Nobody here is endorsing him: what is set large is what he took from each conversation, in his own words.',
+    // El capítulo tiene la forma del bloque de citas de ondo.finance —el
+    // carrusel de tarjetas negras: retrato, nombre, cargo y una frase
+    // grande—, y esa forma, sin esta línea, dice «estas personas me
+    // respaldan». Ninguna lo hace: él las entrevistó, y eso es lo que dice el
+    // material del repo. La frase va en la voz de la PÁGINA (como
+    // `prueba.lede` o `tape.note`), no en la de Jaime: no afirma nada sobre
+    // él, describe qué es lo que se está enseñando.
+    aviso: 'These are conversations he sought out and recorded. Nobody here is endorsing him: what is set large is what he took from each conversation, in his own words.',
+    // El carrusel: rótulos de las flechas y de la región desplazable.
+    carruselAria: 'Conversations, one card per person. Horizontal list; it scrolls sideways.',
+    prev: 'Previous conversation',
+    next: 'Next conversation',
     // El rótulo que va encima de cada frase grande, para que ni leyendo por
     // encima se pueda confundir de quién es.
     llevo: 'What I took from it',
+    // ── FUENTE DE CADA FICHA (2026-08-28, MATERIAL.md fuera del repo) ────
+    // · Mauricio Mercenario Nieto — «FX Sales & Trading» es el titular de su
+    //   propio LinkedIn (capturado en la evidencia); el podcast en dos partes
+    //   está en @smart.financee. Que fue su mentor lo dice JAIME en su
+    //   publicación de la AEM, y por eso va como cita en `tipo`, con marca.
+    // · La estudiante de la NUS — sin nombre publicado, y no se inventa: la
+    //   ficha la nombra por lo que es. Su entrevista es el clip de «skills»
+    //   que ANTES estaba en el capítulo del canal: Jaime avisó que es una
+    //   ENTREVISTA, no un monólogo, y por eso vive aquí.
+    // · El creador de contenido de EE. UU. — la publicación de Jaime sobre el
+    //   cierre de Singapur lo describe así («a Christian content creator from
+    //   the United States»); el vídeo se titula «Jesus ✍️». Sin más nombre
+    //   publicado, la ficha usa la descripción de su post.
+    // · Jesús Gutiérrez Parra — nombre y «estudiante de finanzas» salen de la
+    //   publicación de Jaime sobre el podcast de la sala FTR.
+    // · Sol — «fundadora de Callejeritos», de la publicación de Jaime sobre
+    //   la marcha. Sin imagen utilizable: hueco de foto, no un invento.
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '' },
+      nus: {
+        nombre: 'A student at NUS',
+        rol: 'National University of Singapore',
+        tipo: 'Her name is not published, so this page does not invent it. The interview: “The skills you need for a top-8 university in the world.”'
+      },
+      jesus: {
+        nombre: 'A content creator from the U.S.',
+        rol: '',
+        tipo: 'A Christian content creator he interviewed in Singapore, as his own post about the programme describes him.'
+      },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'A session I attended, not an interview of mine — “Takeaways from JPMorgan’s Chief ETF Strategist”, as the site puts it.'
       },
       dieck: { nombre: 'Moris Dieck', rol: '', tipo: '“A conversation with Moris Dieck”, in the site’s own words.' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast', tipo: '' },
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '' },
-      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' }
+      mauricio: {
+        nombre: 'Mauricio Mercenario Nieto',
+        rol: 'FX Sales & Trading',
+        tipo: 'A podcast in two parts — and, in Jaime’s words on LinkedIn, “his mentorship has played an important role in my development”.'
+      },
+      podcast: {
+        nombre: 'Jesús Gutiérrez Parra',
+        rol: 'Finance student',
+        tipo: 'The podcast Jaime organized in the Financial Trading Room at Tec.'
+      },
+      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' },
+      sol: {
+        nombre: 'Sol',
+        rol: 'Founder of Callejeritos',
+        tipo: 'Interviewed at the responsible-adoption march; the clip of that day is in “Serving”.'
+      }
     }
   },
 
@@ -362,7 +434,26 @@ const en = {
     ]
   },
 
-  // ---- Capítulo 11: la frase ----
+  // ---- Capítulo 8: cartas de recomendación ----
+  // SECCIÓN NUEVA pedida por Jaime (2026-08-28), después de certificaciones.
+  // Hoy NO hay ninguna carta entregada, y esta sección no finge lo contrario:
+  // nace con el patrón de hueco honesto del CV — recuadros marcados con lo
+  // que falta (nombre, cargo, relación, contacto), listos para recibir cada
+  // carta cuando exista. NUNCA se inventa una carta ni un nombre. El formato
+  // de los campos es el que piden los programas canadienses que trabajan con
+  // referencias contactables.
+  cartas: {
+    lede: 'Recommendation letters, in the format committees can verify: name, role, relationship, and a way to reach the person. None has been delivered yet — these slots are waiting, and nothing here will ever be invented.',
+    tag: 'Letter to come',
+    campos: 'Name · role · relationship · contact',
+    slots: [
+      'Someone who can answer for the student group and the school.',
+      'Someone who can answer for the summer programme in Singapore.',
+      'Someone who can answer for his financial-education work.'
+    ]
+  },
+
+  // ---- Capítulo 9: la frase ----
   frase: {
     // VERBATIM. Es la voz de Jaime y NO SE TOCA — ni ortografía ni puntuación.
     // En los dos paneles va en español (lang="es" en el marcado); el panel
@@ -440,6 +531,22 @@ const en = {
       que: 'One thing I took from Prof. Lloyd',
       pista: 'One line about the NUS conversation.'
     },
+    entrevistaNus: {
+      que: 'One thing I took from that interview',
+      pista: 'One line about the NUS-student conversation.'
+    },
+    entrevistaJesus: {
+      que: 'One thing I took from that conversation',
+      pista: 'One line about the Marina Bay interview.'
+    },
+    entrevistaMauricio: {
+      que: 'One thing I took from Mauricio',
+      pista: 'One line. The podcast, the AEM, or the mentorship — whichever mattered most.'
+    },
+    entrevistaSol: {
+      que: 'One thing I took from Sol',
+      pista: 'One line about the Callejeritos conversation.'
+    },
     entrevistaRaul: {
       que: 'One thing I took from Raúl Irabién',
       pista: 'One line about the student-groups conversation.'
@@ -469,6 +576,10 @@ const en = {
     entrevistaDieck: '',
     entrevistaPodcast: '',
     entrevistaLloyd: '',
+    entrevistaNus: '',
+    entrevistaJesus: '',
+    entrevistaMauricio: '',
+    entrevistaSol: '',
     entrevistaRaul: '',
     servirAnimales: '',
     servirPlayas: ''
@@ -538,8 +649,8 @@ const es: typeof en = {
     origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
     research: 'Jaime trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
-    lloyd: 'Un retrato del profesor Lloyd — o un cuadro del clip de la entrevista.',
-    playas: 'Las limpiezas de playa.'
+    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
+    playas: 'La limpieza de playa en Singapur — las fotos están en su LinkedIn.'
   },
   clip: {
     tag: 'Falta el clip',
@@ -548,7 +659,7 @@ const es: typeof en = {
   },
 
   indice: {
-    resumen: '9 capítulos · unos 6 minutos',
+    resumen: '9 capítulos · unos 7 minutos',
     ver: 'Ver el índice',
     aria: 'Capítulos de esta página'
   },
@@ -559,9 +670,9 @@ const es: typeof en = {
     c3: 'Servir',
     c4: 'Cada quien trae algo',
     c5: 'Mis proyectos',
-    c6: 'Enseñar es la mitad del trabajo',
-    c7: 'Reto Actinver y private equity',
-    c8: 'Certificaciones',
+    c6: 'Reto Actinver y private equity',
+    c7: 'Certificaciones',
+    c8: 'Cartas de recomendación',
     c9: 'La frase'
   },
 
@@ -651,39 +762,78 @@ const es: typeof en = {
   tiktok: {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
+    ensenaH: 'Enseñar es la mitad del trabajo',
+    ensenaLede: 'Sus vídeos en solitario: consejos, datos financieros y noticias, contados a cámara. Cada uno enlaza al original; los títulos son los que él publicó.',
     videos: {
-      andy: 'Entrevista: Andy Toh, CEO de BlueSky Education — un programa de verano en Singapur',
-      japon: 'Datos financieros de Japón',
       singapur: 'Datos financieros de Singapur — «por qué aquí vive el dinero del mundo»',
-      skills: 'Los skills para una universidad top 8 mundial'
+      ahorro30: '«¿Quieres comprarte un capricho? Espera 30 días» — la regla de los 30 días, desde el set de la sala FTR',
+      bienvenida: '«La bienvenida» — el arranque del podcast, mismo set FTR',
+      linkedin: '«Abrir un LinkedIn en el mundo financiero es clave» — su consejo, con la parte 2 de la entrevista a Mauricio',
+      jpmorgan: '«Anything you set your mind to is possible» — la historia de J.P. Morgan, sobre su foto del edificio de J.P. Morgan en Singapur',
+      oro: 'Noticias: «El oro se dispara»',
+      noticias: '«4 noticias que movieron el dinero»',
+      tokio: '«¿Lo creerías?» — datos financieros, desde la Torre de Tokio',
+      japon: 'Datos financieros de Japón'
     },
+    sinImagen: [
+      { id: '7654447626644933909', que: '«Your first investment should be in yourself»' },
+      { id: '7659438690179026196', que: '«Most people are waiting for the perfect moment. It doesn’t exist» — 4 hábitos' },
+      { id: '7661209936906521876', que: '«Most people wait until they feel ready. Start now»' }
+    ],
     arcoH: 'El arco de Singapur',
     arco: [
-      { cuando: 'Jun–jul 2026', que: 'Programa de verano en Singapur' },
-      { cuando: '20 · 24 jun', que: 'Vídeos de datos financieros: Japón y Singapur' },
-      { cuando: '2 jul', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
-      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
+      { cuando: '2026', que: 'Programa de verano en Singapur' },
+      { cuando: '2026', que: 'Vídeos de datos financieros: Japón y Singapur' },
+      { cuando: '2026', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
+      { cuando: '2026', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
     ],
-    arcoFuente: 'Las fechas son las de subida de cada vídeo en @smart.financee.'
+    arcoFuente: 'Todo el arco es de 2026; cada vídeo, con su fecha exacta, está en @smart.financee.'
   },
 
   entrevistas: {
     verVideo: 'Ver la conversación en TikTok',
     // Ver el bloque inglés: sin esta línea, la forma de las citas de Ondo
     // insinúa un aval que no existe.
-    aviso: 'Son conversaciones que él buscó y grabó para el sitio. Nadie de aquí lo está respaldando: lo que va en grande es lo que él se llevó de cada conversación, en sus palabras.',
+    aviso: 'Son conversaciones que él buscó y grabó. Nadie de aquí lo está respaldando: lo que va en grande es lo que él se llevó de cada conversación, en sus palabras.',
+    carruselAria: 'Conversaciones, una tarjeta por persona. Lista horizontal; se desplaza de lado.',
+    prev: 'Conversación anterior',
+    next: 'Conversación siguiente',
     llevo: 'Lo que me llevé',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '' },
+      nus: {
+        nombre: 'Una estudiante de la NUS',
+        rol: 'National University of Singapore',
+        tipo: 'Su nombre no está publicado, y esta página no lo inventa. La entrevista: «Los skills que ocupas para estar en una universidad top 8 mundial».'
+      },
+      jesus: {
+        nombre: 'Un creador de contenido de EE. UU.',
+        rol: '',
+        tipo: 'Un creador de contenido cristiano al que entrevistó en Singapur, como lo describe su propia publicación sobre el programa.'
+      },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'Una sesión a la que asistí, no una entrevista mía — «Lo que dejó el Chief ETF Strategist de J.P. Morgan», como lo publica el sitio.'
       },
       dieck: { nombre: 'Moris Dieck', rol: '', tipo: '«Una conversación con Moris Dieck», con las palabras del propio sitio.' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast', tipo: '' },
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '' },
-      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' }
+      mauricio: {
+        nombre: 'Mauricio Mercenario Nieto',
+        rol: 'FX Sales & Trading',
+        tipo: 'Un podcast en dos partes — y, con las palabras de Jaime en LinkedIn, «su mentoría ha jugado un papel importante en mi desarrollo».'
+      },
+      podcast: {
+        nombre: 'Jesús Gutiérrez Parra',
+        rol: 'Estudiante de finanzas',
+        tipo: 'El podcast que Jaime organizó en el Financial Trading Room del Tec.'
+      },
+      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' },
+      sol: {
+        nombre: 'Sol',
+        rol: 'Fundadora de Callejeritos',
+        tipo: 'Entrevistada en la marcha por la adopción responsable; el clip de ese día está en «Servir».'
+      }
     }
   },
 
@@ -724,9 +874,22 @@ const es: typeof en = {
     ]
   },
 
+  cartas: {
+    lede: 'Cartas de recomendación, en el formato que un comité puede verificar: nombre, cargo, relación y una forma de contactar a la persona. Hoy no hay ninguna entregada — estos huecos esperan, y aquí nunca se inventará nada.',
+    tag: 'Falta la carta',
+    campos: 'Nombre · cargo · relación · contacto',
+    slots: [
+      'Alguien que pueda responder por el grupo estudiantil y la prepa.',
+      'Alguien que pueda responder por el programa de verano en Singapur.',
+      'Alguien que pueda responder por su trabajo de educación financiera.'
+    ]
+  },
+
   frase: {
     texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
     traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    // Esta clave solo se PINTA en el panel inglés (Historia mira el locale);
+    // aquí existe porque `typeof en` exige las mismas llaves en las dos tablas.
     traduccionTag: 'His words, in Spanish. In English:'
   },
 
@@ -784,6 +947,22 @@ const es: typeof en = {
       que: 'Una cosa que me llevé del profesor Lloyd',
       pista: 'Una línea sobre la conversación en la NUS.'
     },
+    entrevistaNus: {
+      que: 'Una cosa que me llevé de esa entrevista',
+      pista: 'Una línea sobre la conversación con la estudiante de la NUS.'
+    },
+    entrevistaJesus: {
+      que: 'Una cosa que me llevé de esa conversación',
+      pista: 'Una línea sobre la entrevista en Marina Bay.'
+    },
+    entrevistaMauricio: {
+      que: 'Una cosa que me llevé de Mauricio',
+      pista: 'Una línea. El podcast, la AEM o la mentoría — lo que más haya importado.'
+    },
+    entrevistaSol: {
+      que: 'Una cosa que me llevé de Sol',
+      pista: 'Una línea sobre la conversación de Callejeritos.'
+    },
     entrevistaRaul: {
       que: 'Una cosa que me llevé de Raúl Irabién',
       pista: 'Una línea sobre la conversación de los grupos estudiantiles.'
@@ -809,6 +988,10 @@ const es: typeof en = {
     entrevistaDieck: '',
     entrevistaPodcast: '',
     entrevistaLloyd: '',
+    entrevistaNus: '',
+    entrevistaJesus: '',
+    entrevistaMauricio: '',
+    entrevistaSol: '',
     entrevistaRaul: '',
     servirAnimales: '',
     servirPlayas: ''
