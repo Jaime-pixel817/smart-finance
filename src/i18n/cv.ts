@@ -54,8 +54,9 @@ const en = {
     origen: 'From when it started. Even blurry ones count.',
     research: 'Jaime working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
-    lloyd: 'A portrait of Prof. Lloyd — or a frame from the interview clip.',
-    playas: 'The beach clean-ups.'
+    sol: 'A portrait of Sol — or a frame from the march videos.',
+    playas: 'The beach clean-up in Singapore — the photos are on his LinkedIn.',
+    jasa: 'The shop or the online store: a real photo or a capture.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -65,8 +66,14 @@ const en = {
   },
 
   // ---- Índice y meta de la portada ----
+  // `resumen` es una PLANTILLA: {n} y {min} los rellena Historia.astro con
+  // la MISMA lista que numera las pantallas (capitulos.length) y con las
+  // palabras contadas de la copia real del panel. Antes decía «9 chapters ·
+  // about 7 minutes» escrito a mano, con ~2 650 palabras visibles en el
+  // panel (unos 13 minutos): una cifra inventada al lado de una numeración
+  // contada (2026-08-29).
   indice: {
-    resumen: '9 chapters · about 6 minutes',
+    resumen: '{n} chapters · about {min} minutes',
     ver: 'See the index',
     aria: 'Chapters of this page'
   },
@@ -81,15 +88,19 @@ const en = {
   //
   // El 1 lleva su nombre como titular (el título de aquí solo sale en el
   // índice) y el 9 es la frase final.
+  // JAIME PIDIÓ FUSIONAR (brief del 2026-08-28) los capítulos de las
+  // conversaciones y del canal: primero las conversaciones, después el
+  // teaching, en UN capítulo (c4). El hueco que deja lo ocupa la sección
+  // nueva de cartas de recomendación (c8), después de las certificaciones.
   caps: {
     c1: 'I opened my eyes',
     c2: 'Experience',
     c3: 'Serving',
     c4: 'Everyone brings something',
     c5: 'My projects',
-    c6: 'Teaching is half the work',
-    c7: 'Reto Actinver and private equity',
-    c8: 'Certifications',
+    c6: 'Reto Actinver and private equity',
+    c7: 'Certifications',
+    c8: 'Recommendation letters',
     c9: 'The sentence'
   },
 
@@ -110,8 +121,15 @@ const en = {
     senuelo: 'Scroll to read',
     // Su meta, dicha por él (texto de Jaime, pendiente de su revisión final):
     // programas de negocios en Canadá, entrada septiembre de 2027.
-    meta: 'Business programs in Canada · September 2027 entry',
-    fotoAlt: 'Jaime Sandoval Ricaño',
+    // SOLO EL AÑO (decisión de Jaime, 2026-08-28): nada de meses en pantalla.
+    meta: 'Business programs in Canada · 2027 entry',
+    // ---- Su primera foto: el panel con micrófono (LA ELIGIÓ ÉL) ----
+    // Del brief del 2026-08-28: él con micrófono en un panel en Singapur,
+    // con los logos de Mitsubishi Heavy Industries y Forest City
+    // International School detrás. Entra por build-photos.mjs con huella
+    // (`cv-retrato-*`), como todas.
+    fotoAlt: 'Jaime speaking into a microphone on a panel, with the logos of Mitsubishi Heavy Industries and Forest City International School on the screen behind him.',
+    retratoPie: 'Singapore · on a panel, 2026',
     // ---- La foto de la portada ----
     // NO ES DE JAIME, y por eso lleva crédito. Jochem Raat (@jchmrt), Licencia
     // Unsplash: uso libre, también comercial, y la atribución NO es
@@ -119,7 +137,8 @@ const en = {
     // licencia de aprovecharse de ella y porque este sitio acredita todas sus
     // fuentes. La procedencia completa y la fecha de verificación están en
     // public/assets/portada/LICENCIA.md.
-    portadaAlt: 'The Toronto skyline seen from the water at dusk, in black and white: the CN Tower over the lit downtown towers, and the lake in front of them.',
+    // A COLOR desde el brief del 2026-08-28 (el B/N grabado se quitó).
+    portadaAlt: 'The Toronto skyline seen from the water at dusk: the CN Tower lit over the downtown towers, and the lake in front of them.',
     portadaPie: 'Toronto · photograph by Jochem Raat, Unsplash',
     // El rótulo que dice de qué foto habla la descripción visible. Ver el
     // comentario de `.portada-alt` en Historia.astro: sin él, la descripción
@@ -133,8 +152,10 @@ const en = {
     // que llevaba sobreimpreso. La fecha que se escribe es la de PUBLICACIÓN,
     // que es la que se puede comprobar abriendo el perfil — misma regla que
     // las fechas del arco de Singapur (`tiktok.arcoFuente`).
+    // La Torre CN sí sigue en blanco y negro: SU original es B/N (así la
+    // publicó él). Solo el año en el pie, como todo el CV.
     torreAlt: 'The CN Tower in Toronto seen from below, in black and white: the mast against an overcast sky, the observation deck, and two office buildings at the edges.',
-    torrePie: 'Toronto · his photograph, published July 2026'
+    torrePie: 'Toronto · his photograph (2026)'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -148,7 +169,21 @@ const en = {
     grupo: 'The student group I founded and lead: trips to the Mexican stock exchange, finance talks and workshops, and volunteering for our community and the environment.',
     grupoLink: 'The community, on the site',
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
-    sitioH: 'smartfinance.lat'
+    // El cuadro del vídeo de promo del grupo (2026, @smart.financee): qué es
+    // y de dónde sale, como piden los pies de foto del brief.
+    grupoTecPie: 'The group’s promo at Tec, from his TikTok (2026)',
+    grupoTecAlt: 'Two students talking in front of a Mexican stock-exchange poster at Tec',
+    sitioH: 'smartfinance.lat',
+    // ---- Jasa Motor (bloque nuevo, brief del 2026-08-28) ----
+    // FRAMING APROBADO POR JAIME: es la refaccionaria DE SU FAMILIA y él
+    // desarrolló la tienda en línea y lleva el marketing para apoyar a su
+    // papá. NO se usa «CEO». Verificado que existe: jasamotor.com.mx y
+    // tienda.jasamotor.com.mx (consultadas 2026-08-28). Los datos del
+    // negocio (Cuautitlán, 20+ años) salen del propio sitio de la
+    // refaccionaria. Pendiente de su revisión final, como todo voz.*.
+    jasaH: 'Jasa Motor',
+    jasa: 'His family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. Jaime built its online store and runs its marketing.',
+    jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   // ---- Capítulo 5: la prueba (el bloque del sitio) ----
@@ -225,27 +260,63 @@ const en = {
     source: 'Calendar taken from retoactinver.com on {d}. Smart Finance is not affiliated with Actinver.'
   },
 
-  // ---- Capítulo 6: TikTok ----
+  // ---- Capítulo 4, segunda mitad: el teaching (su canal) ----
+  // FUSIONADO con las conversaciones por decisión de Jaime (2026-08-28):
+  // primero la gente, después lo que él enseña solo. RECLASIFICADO con el
+  // material cosechado: aquí van SOLO los vídeos donde él da la información
+  // —consejos, datos, noticias—; las conversaciones cara a cara viven arriba
+  // (la de «skills», que estaba aquí, es una ENTREVISTA a una estudiante de
+  // la NUS y se movió al carrusel, con su clip).
   tiktok: {
     perfil: '@smart.financee, on TikTok',
     // La línea que conecta los clips con las lecciones del sitio.
     nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
+    ensenaH: 'Teaching is half the work',
+    // La voz de la página: qué es este bloque y de dónde sale cada pieza.
+    ensenaLede: 'His solo videos: advice, financial data and news, told straight to camera. Each links to the original; titles are the ones he published, quoted in the language he published them in — the English beside a Spanish title is a translation.',
+    // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
+    // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
+    // ── LO ENTRECOMILLADO ES EL ORIGINAL, EN SU IDIOMA (2026-08-29) ──────
+    // Bajo un lede que jura «titles are the ones he published», este panel
+    // traducía los títulos españoles DENTRO de las comillas: comillas de cita
+    // sobre palabras que él nunca publicó. Regla ahora — la misma de
+    // peTag/torontoTag: el original verbatim entre comillas (español si así
+    // lo publicó) y la traducción FUERA, marcada «in English:». Los títulos
+    // que ya estaban en inglés (jpmorgan, sinImagen) no llevan gloss.
     videos: {
-      andy: 'Interview: Andy Toh, CEO of BlueSky Education — a summer programme in Singapore',
-      japon: 'Financial data from Japan',
-      singapur: 'Financial data from Singapore — “why the world’s money lives here”',
-      skills: 'The skills for a top-8 university in the world'
+      singapur: 'Financial data from Singapore — “por qué aquí vive el dinero del mundo” (in English: why the world’s money lives here)',
+      ahorro30: '“¿Quieres comprarte un capricho? Espera 30 días” (in English: Want a treat? Wait 30 days) — the 30-day rule, from the FTR trading-room set',
+      bienvenida: '“La bienvenida” (in English: The welcome) — the opening of the podcast, same FTR set',
+      linkedin: '“Abrir un LinkedIn en el mundo financiero es clave” (in English: Opening a LinkedIn in the finance world is key) — his advice, with part 2 of the Mauricio interview',
+      jpmorgan: '“Anything you set your mind to is possible” — the J.P. Morgan story, over his photo of the J.P. Morgan building in Singapore',
+      oro: 'News: “El oro se dispara” (in English: Gold takes off)',
+      noticias: '“4 noticias que movieron el dinero” (in English: 4 news stories that moved the money)',
+      tokio: '“¿Lo creerías?” (in English: Would you believe it?) — financial facts, from the Tokyo Tower',
+      japon: 'Financial data from Japan'
     },
-    // El arco de Singapur, con fechas. Las fechas son las de subida de cada
-    // vídeo en @smart.financee: verificables abriendo el perfil.
+    // Los tres consejos sin imagen utilizable: fila seca con su enlace.
+    sinImagen: [
+      { id: '7654447626644933909', que: '“Your first investment should be in yourself”' },
+      { id: '7659438690179026196', que: '“Most people are waiting for the perfect moment. It doesn’t exist” — 4 habits' },
+      { id: '7661209936906521876', que: '“Most people wait until they feel ready. Start now”' }
+    ],
+    // El arco de Singapur. SOLO EL AÑO en pantalla (decisión de Jaime,
+    // 2026-08-28); las fechas exactas de cada vídeo están en su perfil.
     arcoH: 'The Singapore arc',
     arco: [
-      { cuando: 'Jun–Jul 2026', que: 'Summer programme in Singapore' },
-      { cuando: 'Jun 20 · 24', que: 'Financial-data videos: Japan and Singapore' },
-      { cuando: 'Jul 2', que: 'Presentation about Mexico to National University of Singapore students' },
-      { cuando: 'Jul 15 · 26', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
+      { cuando: '2026', que: 'Summer programme in Singapore' },
+      { cuando: '2026', que: 'Financial-data videos: Japan and Singapore' },
+      { cuando: '2026', que: 'Presentation about Mexico to National University of Singapore students' },
+      { cuando: '2026', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
     ],
-    arcoFuente: 'The dates are the upload dates of each video on @smart.financee.'
+    arcoFuente: 'The whole arc is from 2026; each video, with its exact date, is on @smart.financee.',
+    // El cuadro del arco: el fotograma RESCATADO de la presentación en la
+    // NUS (vídeo 7658163945479408917) — venía girado 90° con el subtítulo
+    // quemado; el enderezado y el recorte que deja fuera el rótulo están
+    // explicados en build-photos.mjs (2026-08-29). El alt describe la
+    // imagen real, mirada, incluida la lámina que se lee en ella.
+    arcoImgAlt: 'Jaime, a microphone clipped to his collar, speaking beside a laptop showing a “Finance facts of Mexico” slide, in a lecture room at NUS',
+    arcoImgPie: 'The presentation about Mexico at NUS, a frame from his TikTok (2026)'
   },
 
   // ---- Capítulo 7: la gente ----
@@ -276,27 +347,78 @@ const en = {
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
     // ── LO QUE IMPIDE QUE ESTE CAPÍTULO SE LEA COMO UNA LISTA DE AVALES ──
-    // El capítulo tiene ahora la forma del bloque de citas de ondo.finance
-    // —retrato, nombre, cargo y una frase grande—, y esa forma, sin esta
-    // línea, dice «estas personas me respaldan». Ninguna lo hace: él las
-    // entrevistó, y eso es lo que dice el material del repo. La frase va en la
-    // voz de la PÁGINA (como `prueba.lede` o `tape.note`), no en la de Jaime:
-    // no afirma nada sobre él, describe qué es lo que se está enseñando.
-    aviso: 'These are conversations he sought out and recorded for the site. Nobody here is endorsing him: what is set large is what he took from each conversation, in his own words.',
+    // El capítulo tiene la forma del bloque de citas de ondo.finance —el
+    // carrusel de tarjetas negras: retrato, nombre, cargo y una frase
+    // grande—, y esa forma, sin esta línea, dice «estas personas me
+    // respaldan». Ninguna lo hace: él las entrevistó, y eso es lo que dice el
+    // material del repo. La frase va en la voz de la PÁGINA (como
+    // `prueba.lede` o `tape.note`), no en la de Jaime: no afirma nada sobre
+    // él, describe qué es lo que se está enseñando.
+    aviso: 'These are conversations he sought out and recorded. Nobody here is endorsing him: what is set large is what he took from each conversation, in his own words.',
+    // El carrusel: rótulos de las flechas y de la región desplazable.
+    carruselAria: 'Conversations, one card per person. Horizontal list; it scrolls sideways.',
+    prev: 'Previous conversation',
+    next: 'Next conversation',
     // El rótulo que va encima de cada frase grande, para que ni leyendo por
     // encima se pueda confundir de quién es.
     llevo: 'What I took from it',
+    // ── FUENTE DE CADA FICHA (2026-08-28, MATERIAL.md fuera del repo) ────
+    // · Mauricio Mercenario Nieto — «FX Sales & Trading» es el titular de su
+    //   propio LinkedIn (capturado en la evidencia); el podcast en dos partes
+    //   está en @smart.financee. Que fue su mentor lo dice JAIME en su
+    //   publicación de la AEM, y por eso va como cita en `tipo`, con marca.
+    // · La estudiante de la NUS — sin nombre publicado, y no se inventa: la
+    //   ficha la nombra por lo que es. Su entrevista es el clip de «skills»
+    //   que ANTES estaba en el capítulo del canal: Jaime avisó que es una
+    //   ENTREVISTA, no un monólogo, y por eso vive aquí.
+    // · El creador de contenido de EE. UU. — la publicación de Jaime sobre el
+    //   cierre de Singapur lo describe así («a Christian content creator from
+    //   the United States»); el vídeo se titula «Jesus ✍️». Sin más nombre
+    //   publicado, la ficha usa la descripción de su post.
+    // · Jesús Gutiérrez Parra — nombre y «estudiante de finanzas» salen de la
+    //   publicación de Jaime sobre el podcast de la sala FTR.
+    // · Sol — «fundadora de Callejeritos», de la publicación de Jaime sobre
+    //   la marcha. Sin imagen utilizable: hueco de foto, no un invento.
+    // Las tres caras nuevas (Lloyd, el creador de EE. UU., Mauricio) llevan
+    // su `alt` AQUÍ y no en ui.ts: son fotos que solo existen en el CV. El
+    // alt describe la imagen real (verificada mirándola), no la ficha.
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Jaime, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
+      nus: {
+        nombre: 'A student at NUS',
+        rol: 'National University of Singapore',
+        tipo: 'Her name is not published, so this page does not invent it. The interview: “Los skills que ocupas para estar en una universidad top 8 mundial” (in English: the skills you need for a top-8 university in the world).'
+      },
+      jesus: {
+        nombre: 'A content creator from the U.S.',
+        rol: '',
+        tipo: 'A Christian content creator he interviewed in Singapore, as his own post about the programme describes him.',
+        alt: 'Jaime interviewing the U.S. content creator at sunset, with the Marina Bay skyline behind them'
+      },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'A session I attended, not an interview of mine — “Takeaways from JPMorgan’s Chief ETF Strategist”, as the site puts it.'
       },
       dieck: { nombre: 'Moris Dieck', rol: '', tipo: '“A conversation with Moris Dieck”, in the site’s own words.' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast', tipo: '' },
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '' },
-      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' }
+      mauricio: {
+        nombre: 'Mauricio Mercenario Nieto',
+        rol: 'FX Sales & Trading',
+        tipo: 'A podcast in two parts — and, in Jaime’s words on LinkedIn, “his mentorship has played an important role in my development”.',
+        alt: 'Jaime and Mauricio Mercenario seated in armchairs around a low table, recording the podcast'
+      },
+      podcast: {
+        nombre: 'Jesús Gutiérrez Parra',
+        rol: 'Finance student',
+        tipo: 'The podcast Jaime organized in the Financial Trading Room at Tec.'
+      },
+      raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' },
+      sol: {
+        nombre: 'Sol',
+        rol: 'Founder of Callejeritos',
+        tipo: 'Interviewed at the responsible-adoption march; the clip of that day is in “Serving”.'
+      }
     }
   },
 
@@ -304,37 +426,61 @@ const en = {
   // El grupo estudiantil se fue al capítulo de proyectos: aquí se quedan los
   // voluntariados, que es lo que Jaime pidió junto a las experiencias.
   servir: {
-    // El clip del voluntariado con animales: existe, con fecha, en su TikTok.
-    animalesClip: 'The clip: animal care and responsible adoption (August 23, 2026).',
+    // El clip del voluntariado con animales existe en su TikTok. SOLO EL AÑO
+    // en pantalla (decisión de Jaime).
+    animalesClip: 'The clip: the march with Callejeritos for responsible adoption — he also interviewed Sol, its founder (2026).',
+    // La donación al stand de adopción: hecho de su publicación en LinkedIn.
+    donacion: 'He also donated pet food to a local adoption stand and spent the day with the volunteers and the animals (2026).',
+    // LA PLAYA FUE EN SINGAPUR — corrección del brief del 2026-08-28, con el
+    // texto de su propia publicación: fue un voluntariado de su curso de
+    // Green Technology and Sustainable Ecology.
+    playa: 'The beach clean-up was in Singapore, a volunteer day from his Green Technology and Sustainable Ecology course (2026).',
     bloques: {
       animales: 'The animals',
-      playas: 'Beach clean-ups'
+      playas: 'Beach clean-up'
     }
   },
 
   // ---- Capítulo 2: experiencias (en seco) ----
+  // FECHAS: SOLO EL AÑO (decisión de Jaime, 2026-08-28). Y con los años
+  // REALES derivados del material cosechado: la sesión de ETFs con Jon Maier
+  // es de 2025 — Jaime avisó que estaba mal como 2026, y su fila lo corrige.
+  // Las publicaciones nuevas que suman (visita a U of T/Rotman, Concordia,
+  // AEM, la firma CFA×Tec con Marg Franklin) entran con su año.
   exp: {
-    lede: 'What, where, when. This chapter and the next are the ones a committee scans.',
+    lede: 'What, where, when — years only. This chapter and the next are the ones a committee scans.',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
+      // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
+      // él: es 2025, no 2026.
+      { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
       { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
-      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering' },
-      { cuando: 'Jun–Jul 2026', que: 'Singapore: summer programme, presentation about Mexico to National University of Singapore students, interviews' },
-      { cuando: 'Aug 2026', que: 'Student Groups Fair at Tec de Monterrey, with the Smart Finance group' },
-      // Jon Maier va en su PROPIA fila y no en la de las conversaciones: la
-      // sesión de J.P. Morgan fue algo a lo que Jaime asistió (ver el bloque
-      // `entrevistas` de arriba), y meterlo en la lista de entrevistas era
-      // convertir un asiento en el público en una entrevista suya.
-      { cuando: '2026', que: 'Conversations: Andy Toh, Moris Dieck, Prof. Lloyd, Raúl Irabién, and the Financial Trading Room podcast' },
-      { cuando: '2026', que: 'Attended the session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management' },
-      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos' },
-      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 5' }
+      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
+      { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
+      { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
+      { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
+      // «One of his first», no «his first»: su post dice «one of my first
+      // experiences attending a business conference» (MATERIAL.md LI-17).
+      // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
+      { cuando: '2026', que: 'AEM General Assembly — one of his first business conferences and networking events' },
+      // SIN el cargo de Marg Franklin: su post capturado (MATERIAL.md LI-20)
+      // no dice «CEO of CFA Institute» — dice que la escuchó «leading one of
+      // the most important organizations in the financial world» y que le
+      // pidió consejo sobre estudiar en Canadá. El cargo exacto era una
+      // anotación externa sin fuente en el material: fuera (2026-08-29).
+      { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin for advice on studying in Canada' },
+      { cuando: '2026', que: 'Jasa Motor — online store and marketing for his family’s auto-parts business (chapter 5)' },
+      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
+      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 6' }
     ]
   },
 
   // ---- Capítulo 10: certificaciones ----
   certs: {
-    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer only where a source says so.',
+    // El lede promete lo MISMO que el español (emisor Y año con fuente): los
+    // dos paneles hacen la misma promesa o uno de los dos miente (2026-08-29).
+    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer and the year only where a source says so.',
     // Nombres tal cual los publica su LinkedIn (el PDF que Jaime exportó).
     // ─────────────────────────────────────────────────────────────────────
     // EL PDF NO TRAE LA INSTITUCIÓN DE CADA CERTIFICADO, NI SU FECHA.
@@ -343,26 +489,75 @@ const en = {
     //     LinkedIn lo dice ("CFA Institute Investment Foundations Certificate").
     //   · Vista Equity Partners / Bank of America, en Forage: sus dos
     //     publicaciones de LinkedIn sobre las simulaciones.
-    // Las otras tres van SIN emisor a propósito. "Cambridge English" para el
-    // B2 estaba inventado: el PDF no lo dice en ninguna parte, y un CV que
-    // adivina quién expide un certificado es un CV que se puede desmentir.
-    // "Bloomberg" para el Bloomberg Finance Fundamentals tampoco sale del
-    // PDF — que el nombre del certificado empiece por la marca no es la
-    // fuente de que la marca lo expida.
+    //   · Bloomberg Finance Fundamentals — Bloomberg: su publicación lo dice
+    //     con esas palabras («…program from Bloomberg», MATERIAL.md LI-19).
+    //     La fuente es ese «from Bloomberg», NO que el nombre empiece por la
+    //     marca — eso solo no bastaría. (Recibo actualizado el 2026-08-29:
+    //     antes aquí decía que Bloomberg iba sin emisor, y la fila ya lo
+    //     llevaba con fuente.)
+    // Las otras DOS (Green Technology, B2) van SIN emisor a propósito.
+    // "Cambridge English" para el B2 estaba inventado: el PDF no lo dice en
+    // ninguna parte, y un CV que adivina quién expide un certificado es un
+    // CV que se puede desmentir.
     // Cuando falta el emisor, la columna de la derecha también lo pide.
-    pendiente: 'date and verification link to come',
-    pendienteInst: 'issuer, date and verification link to come',
+    // ── TARJETAS DISEÑADAS, NO CAPTURAS (brief 2026-08-28) ───────────────
+    // Los recortes de los certificados de LinkedIn NO se pudieron guardar en
+    // la cosecha (limitación del entorno, anotada en MATERIAL.md): cada
+    // tarjeta lleva su FotoHueco para cuando Jaime entregue las imágenes.
+    // AÑOS: solo el año, y solo donde hay fuente — las publicaciones de
+    // LinkedIn de 2026 (CFA, Vista, BofA, Bloomberg) y el curso de Singapur
+    // (Green Technology, 2026). El B2 no tiene fecha publicada: se pide.
+    // EMISORES: solo donde una fuente lo diga (la regla de siempre).
+    // El enlace de cada tarjeta va al PERFIL de Jaime, que es donde el
+    // certificado está publicado y donde un comité puede comprobarlo.
+    verLinkedIn: 'See it on LinkedIn',
+    fotoPend: 'The certificate image, when Jaime captures it from LinkedIn.',
+    sinEmisor: 'Issuer to verify',
+    sinAnio: 'year to verify',
+    // SIN « — » dentro de los nombres de las simulaciones: los certificados
+    // publicados dicen «Demystifying Private Equity Job Simulation» e
+    // «Investment Banking Job Simulation» (MATERIAL.md LI-01 y LI-02), y un
+    // guion insertado contradice el «the exact name» del lede (2026-08-29).
     filas: [
-      { que: 'Bloomberg Finance Fundamentals', de: '' },
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
-      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, on Forage' },
-      { que: 'Investment Banking Virtual Experience', de: 'Bank of America, on Forage' },
-      { que: 'B2 First Certificate', de: '' },
-      { que: 'Green Technology Programme', de: '' }
+      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
+      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, on Forage', anio: '2026' },
+      { que: 'Investment Banking Job Simulation', de: 'Bank of America, on Forage', anio: '2026' },
+      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
+      { que: 'Green Technology Programme', de: '', anio: '2026' },
+      { que: 'B2 First Certificate', de: '', anio: '' }
+    ],
+    // ── FRANCÉS A2: AFIRMACIÓN SUYA, MARCADA COMO TAL ────────────────────
+    // No hay certificado publicado en su actividad (verificado en la
+    // cosecha). Entra porque él lo pidió, como afirmación suya pendiente de
+    // verificación — sin emisor, sin imagen y con la marca en pantalla. Que
+    // estudia francés sí tiene fuente: su publicación sobre Concordia.
+    frances: {
+      que: 'French — A2',
+      tag: 'His claim, pending verification',
+      nota: 'No certificate is published on his LinkedIn. What is sourced: his Concordia post (2026) says he has been studying French.'
+    }
+  },
+
+  // ---- Capítulo 8: cartas de recomendación ----
+  // SECCIÓN NUEVA pedida por Jaime (2026-08-28), después de certificaciones.
+  // Hoy NO hay ninguna carta entregada, y esta sección no finge lo contrario:
+  // nace con el patrón de hueco honesto del CV — recuadros marcados con lo
+  // que falta (nombre, cargo, relación, contacto), listos para recibir cada
+  // carta cuando exista. NUNCA se inventa una carta ni un nombre. El formato
+  // de los campos es el que piden los programas canadienses que trabajan con
+  // referencias contactables.
+  cartas: {
+    lede: 'Recommendation letters, in the format committees can verify: name, role, relationship, and a way to reach the person. None has been delivered yet — these slots are waiting, and nothing here will ever be invented.',
+    tag: 'Letter to come',
+    campos: 'Name · role · relationship · contact',
+    slots: [
+      'Someone who can answer for the student group and the school.',
+      'Someone who can answer for the summer programme in Singapore.',
+      'Someone who can answer for his financial-education work.'
     ]
   },
 
-  // ---- Capítulo 11: la frase ----
+  // ---- Capítulo 9: la frase ----
   frase: {
     // VERBATIM. Es la voz de Jaime y NO SE TOCA — ni ortografía ni puntuación.
     // En los dos paneles va en español (lang="es" en el marcado); el panel
@@ -374,11 +569,12 @@ const en = {
   },
 
   // ---- Contacto (bajo la frase) ----
+  // El pie, como lo pidió Jaime (2026-08-28): sus dos redes y el sitio. El
+  // enlace del código en GitHub se quitó.
   contacto: {
     h: 'Where to find me',
     linkedin: 'LinkedIn',
     tiktok: 'TikTok',
-    repo: 'The code, on GitHub',
     site: 'smartfinance.lat'
   },
 
@@ -393,12 +589,9 @@ const en = {
   // Ninguno de los dos es contenido del CV: son las instrucciones del hueco.
   // ═════════════════════════════════════════════════════════════════════════
   huecos: {
-    aplicaA: {
-      que: 'What I am applying to',
-      // "intake" está vetado por la regla de vocabulario del proyecto. "entry"
-      // además es la palabra que ya usa la portada ("September 2027 entry").
-      pista: 'One line: the university, the programme and the entry term. Nothing else fits here.'
-    },
+    // `aplicaA` («What I'm applying to») YA NO EXISTE: Jaime lo pidió fuera
+    // en su brief del 2026-08-28 («está de más»). La meta de la portada
+    // (`head.meta`) y la cita de su visita a la U of T dicen lo mismo mejor.
     // `linea` ya no existe: era el hueco de "la frase que resume quién eres",
     // y esa frase ya la escribió Jaime — es `voz.apertura`, que abre la
     // página. Un hueco pidiendo lo que está tres centímetros más arriba es
@@ -440,6 +633,22 @@ const en = {
       que: 'One thing I took from Prof. Lloyd',
       pista: 'One line about the NUS conversation.'
     },
+    entrevistaNus: {
+      que: 'One thing I took from that interview',
+      pista: 'One line about the NUS-student conversation.'
+    },
+    entrevistaJesus: {
+      que: 'One thing I took from that conversation',
+      pista: 'One line about the Marina Bay interview.'
+    },
+    entrevistaMauricio: {
+      que: 'One thing I took from Mauricio',
+      pista: 'One line. The podcast, the AEM, or the mentorship — whichever mattered most.'
+    },
+    entrevistaSol: {
+      que: 'One thing I took from Sol',
+      pista: 'One line about the Callejeritos conversation.'
+    },
     entrevistaRaul: {
       que: 'One thing I took from Raúl Irabién',
       pista: 'One line about the student-groups conversation.'
@@ -459,7 +668,6 @@ const en = {
   // hueco de arriba con su rótulo; cuando tenga texto, sale el texto.
   // ═════════════════════════════════════════════════════════════════════════
   suyo: {
-    aplicaA: '',
     quienSoy: '',
     retoNota: '',
     researchNota: '',
@@ -469,6 +677,10 @@ const en = {
     entrevistaDieck: '',
     entrevistaPodcast: '',
     entrevistaLloyd: '',
+    entrevistaNus: '',
+    entrevistaJesus: '',
+    entrevistaMauricio: '',
+    entrevistaSol: '',
     entrevistaRaul: '',
     servirAnimales: '',
     servirPlayas: ''
@@ -499,15 +711,21 @@ const en = {
     // simulación de Vista Equity Partners (2026-08, urn 7495934696430764032).
     // En inglés en el original: aquí no hay traducción que revisar.
     //
-    // LA CITA LLEGA HASTA DONDE TERMINA LA IDEA, Y EL RECORTE SE VE. Antes
+    // LA CITA LLEGA HASTA DONDE TERMINA LA IDEA, Y TODO RECORTE SE VE. Antes
     // cortaba en «Rule of 40 framework.» con punto final, y ese punto no
     // estaba en el post: se leía como el final de su frase cuando el post
     // seguía. Ahora va la idea entera —del 10-K al resumen de méritos contra
-    // riesgos— y lo que falta en medio lleva su «[…]» dentro de las comillas.
-    // Lo omitido es lo que la captura de la evidencia no traía
-    // (cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md), no una elección de estilo.
-    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
-    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation, August 2026. The “[…]” marks a passage this page does not reproduce.',
+    // riesgos— y lo ÚNICO que falta lleva su «[…]» dentro de las comillas:
+    // la explicación de la Rule of 40 («one of the key benchmarks investors
+    // use to assess whether a SaaS company is balancing growth and
+    // profitability effectively. From there,»). El post completo está en
+    // cv-material/MATERIAL.md (LI-01), así que la omisión es una elección de
+    // longitud, marcada. El paréntesis «(alongside investor presentation
+    // data)» es SUYO y va verbatim: se había caído sin marca (un segundo
+    // recorte invisible dentro de una cita «verbatim») y se restauró el
+    // 2026-08-29. Un recorte sin su marca convierte la cita en desmentible.
+    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings (alongside investor presentation data) into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
+    peFuente: 'From his LinkedIn post on the Vista Equity Partners job simulation (2026). The “[…]” marks a passage this page does not reproduce.',
     // Marca de traducción, VISIBLE, encima de la cita. Vacía en inglés: ahí la
     // cita es el original. Misma regla que la traducción de la frase final.
     peTag: '',
@@ -520,7 +738,23 @@ const en = {
     // texto de Jaime (traducción), pendiente de su revisión final
     entrevistas: '“You can take something from everyone, because they are small experiences and different points of view.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    servir: '“Helping my community, the animals, and cleaning up beaches.”'
+    servir: '“Helping my community, the animals, and cleaning up beaches.”',
+    // ---- Jasa Motor ----
+    // Palabras de Jaime (2026-08-28): «es de mi familia y yo implementé eso
+    // porque quería apoyar a mi papá». Pulidas SIN cambiar el sentido; esta
+    // versión inglesa es TRADUCCIÓN y lo dice en pantalla (`jasaTag`).
+    // texto de Jaime (traducción), pendiente de su revisión final.
+    // «Implementé eso» → “implemented that”: la traducción sigue sus
+    // palabras («eso», no «lo»), igual que el original del panel español.
+    jasa: '“It is my family’s, and I implemented that because I wanted to support my dad.”',
+    jasaTag: 'His words, in Spanish. This is a translation; the original is in the Spanish panel.',
+    // ---- La visita a la University of Toronto ----
+    // VERBATIM de su publicación en LinkedIn sobre la visita (en inglés en el
+    // original): es la línea que dice a dónde apunta este CV, y sustituye al
+    // hueco «What I'm applying to» que Jaime pidió quitar.
+    toronto: '“This visit reinforced something I had been thinking about for a long time: this is where I want to study Finance.”',
+    torontoTag: '',
+    torontoFuente: 'From his LinkedIn post on his visit to the University of Toronto and Rotman Commerce (2026).'
   }
 };
 
@@ -538,8 +772,9 @@ const es: typeof en = {
     origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
     research: 'Jaime trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
-    lloyd: 'Un retrato del profesor Lloyd — o un cuadro del clip de la entrevista.',
-    playas: 'Las limpiezas de playa.'
+    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
+    playas: 'La limpieza de playa en Singapur — las fotos están en su LinkedIn.',
+    jasa: 'La refaccionaria o la tienda en línea: una foto real o una captura.'
   },
   clip: {
     tag: 'Falta el clip',
@@ -548,7 +783,7 @@ const es: typeof en = {
   },
 
   indice: {
-    resumen: '9 capítulos · unos 6 minutos',
+    resumen: '{n} capítulos · unos {min} minutos',
     ver: 'Ver el índice',
     aria: 'Capítulos de esta página'
   },
@@ -559,9 +794,9 @@ const es: typeof en = {
     c3: 'Servir',
     c4: 'Cada quien trae algo',
     c5: 'Mis proyectos',
-    c6: 'Enseñar es la mitad del trabajo',
-    c7: 'Reto Actinver y private equity',
-    c8: 'Certificaciones',
+    c6: 'Reto Actinver y private equity',
+    c7: 'Certificaciones',
+    c8: 'Cartas de recomendación',
     c9: 'La frase'
   },
 
@@ -572,18 +807,19 @@ const es: typeof en = {
     nameL2: 'Ricaño',
     site: 'smartfinance.lat',
     senuelo: 'Baja para leer',
-    // texto de Jaime, pendiente de su revisión final
-    meta: 'Programas de negocios en Canadá · entrada septiembre 2027',
-    fotoAlt: 'Jaime Sandoval Ricaño',
+    // texto de Jaime, pendiente de su revisión final. SOLO EL AÑO.
+    meta: 'Programas de negocios en Canadá · entrada 2027',
+    fotoAlt: 'Jaime hablando al micrófono en un panel, con los logos de Mitsubishi Heavy Industries y Forest City International School en la pantalla de atrás.',
+    retratoPie: 'Singapur · en un panel, 2026',
     // Ver el bloque inglés: la de la portada NO es de Jaime (Jochem Raat,
     // Licencia Unsplash, acreditada aunque la licencia no lo exija) y la de la
     // Torre CN sí, con la fecha de publicación en su TikTok (20 de julio de
     // 2026), que es la comprobable.
-    portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer, en blanco y negro: la Torre CN sobre las torres iluminadas del centro, y el lago delante de ellas.',
+    portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer: la Torre CN encendida sobre las torres del centro, y el lago delante de ellas.',
     portadaPie: 'Toronto · foto de Jochem Raat, Unsplash',
     portadaAltRotulo: 'La portada',
     torreAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
-    torrePie: 'Toronto · foto suya, publicada en julio de 2026'
+    torrePie: 'Toronto · foto suya (2026)'
   },
 
   proyectos: {
@@ -591,7 +827,12 @@ const es: typeof en = {
     grupo: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
     grupoLink: 'La comunidad, en el sitio',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
-    sitioH: 'smartfinance.lat'
+    grupoTecPie: 'La promo del grupo en el Tec, de su TikTok (2026)',
+    grupoTecAlt: 'Dos estudiantes conversando delante de un cartel de la Bolsa Mexicana de Valores en el Tec',
+    sitioH: 'smartfinance.lat',
+    jasaH: 'Jasa Motor',
+    jasa: 'La refaccionaria de su familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Jaime desarrolló su tienda en línea y lleva su marketing.',
+    jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   prueba: {
@@ -618,7 +859,10 @@ const es: typeof en = {
 
   dos: {
     actinverH: 'Reto Actinver',
-    peH: 'Private equity research'
+    // «Research de private equity» y no «Private equity research»: la pasada
+    // de idioma del brief — el panel español no lleva rótulos en inglés
+    // («research» y «private equity» son términos que el sitio ya usa así).
+    peH: 'Research de private equity'
   },
 
   research: {
@@ -651,82 +895,150 @@ const es: typeof en = {
   tiktok: {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
+    ensenaH: 'Enseñar es la mitad del trabajo',
+    ensenaLede: 'Sus vídeos en solitario: consejos, datos financieros y noticias, contados a cámara. Cada uno enlaza al original; los títulos son los que él publicó.',
     videos: {
-      andy: 'Entrevista: Andy Toh, CEO de BlueSky Education — un programa de verano en Singapur',
-      japon: 'Datos financieros de Japón',
       singapur: 'Datos financieros de Singapur — «por qué aquí vive el dinero del mundo»',
-      skills: 'Los skills para una universidad top 8 mundial'
+      ahorro30: '«¿Quieres comprarte un capricho? Espera 30 días» — la regla de los 30 días, desde el set de la sala FTR',
+      bienvenida: '«La bienvenida» — el arranque del podcast, mismo set FTR',
+      linkedin: '«Abrir un LinkedIn en el mundo financiero es clave» — su consejo, con la parte 2 de la entrevista a Mauricio',
+      jpmorgan: '«Anything you set your mind to is possible» — la historia de J.P. Morgan, sobre su foto del edificio de J.P. Morgan en Singapur',
+      oro: 'Noticias: «El oro se dispara»',
+      noticias: '«4 noticias que movieron el dinero»',
+      tokio: '«¿Lo creerías?» — datos financieros, desde la Torre de Tokio',
+      japon: 'Datos financieros de Japón'
     },
+    sinImagen: [
+      { id: '7654447626644933909', que: '«Your first investment should be in yourself»' },
+      { id: '7659438690179026196', que: '«Most people are waiting for the perfect moment. It doesn’t exist» — 4 hábitos' },
+      { id: '7661209936906521876', que: '«Most people wait until they feel ready. Start now»' }
+    ],
     arcoH: 'El arco de Singapur',
     arco: [
-      { cuando: 'Jun–jul 2026', que: 'Programa de verano en Singapur' },
-      { cuando: '20 · 24 jun', que: 'Vídeos de datos financieros: Japón y Singapur' },
-      { cuando: '2 jul', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
-      { cuando: '15 · 26 jul', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
+      { cuando: '2026', que: 'Programa de verano en Singapur' },
+      { cuando: '2026', que: 'Vídeos de datos financieros: Japón y Singapur' },
+      { cuando: '2026', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
+      { cuando: '2026', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
     ],
-    arcoFuente: 'Las fechas son las de subida de cada vídeo en @smart.financee.'
+    arcoFuente: 'Todo el arco es de 2026; cada vídeo, con su fecha exacta, está en @smart.financee.',
+    arcoImgAlt: 'Jaime, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
+    arcoImgPie: 'La presentación sobre México en la NUS, un cuadro de su TikTok (2026)'
   },
 
   entrevistas: {
     verVideo: 'Ver la conversación en TikTok',
     // Ver el bloque inglés: sin esta línea, la forma de las citas de Ondo
     // insinúa un aval que no existe.
-    aviso: 'Son conversaciones que él buscó y grabó para el sitio. Nadie de aquí lo está respaldando: lo que va en grande es lo que él se llevó de cada conversación, en sus palabras.',
+    aviso: 'Son conversaciones que él buscó y grabó. Nadie de aquí lo está respaldando: lo que va en grande es lo que él se llevó de cada conversación, en sus palabras.',
+    carruselAria: 'Conversaciones, una tarjeta por persona. Lista horizontal; se desplaza de lado.',
+    prev: 'Conversación anterior',
+    next: 'Conversación siguiente',
     llevo: 'Lo que me llevé',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Jaime, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
+      nus: {
+        nombre: 'Una estudiante de la NUS',
+        rol: 'National University of Singapore',
+        tipo: 'Su nombre no está publicado, y esta página no lo inventa. La entrevista: «Los skills que ocupas para estar en una universidad top 8 mundial».'
+      },
+      jesus: {
+        nombre: 'Un creador de contenido de EE. UU.',
+        rol: '',
+        tipo: 'Un creador de contenido cristiano al que entrevistó en Singapur, como lo describe su propia publicación sobre el programa.',
+        alt: 'Jaime entrevistando al creador de contenido de EE. UU. al atardecer, con el horizonte de Marina Bay detrás'
+      },
       maier: {
         nombre: 'Jon Maier',
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'Una sesión a la que asistí, no una entrevista mía — «Lo que dejó el Chief ETF Strategist de J.P. Morgan», como lo publica el sitio.'
       },
       dieck: { nombre: 'Moris Dieck', rol: '', tipo: '«Una conversación con Moris Dieck», con las palabras del propio sitio.' },
-      podcast: { nombre: 'Financial Trading Room', rol: 'Podcast', tipo: '' },
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '' },
-      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' }
+      mauricio: {
+        nombre: 'Mauricio Mercenario Nieto',
+        rol: 'FX Sales & Trading',
+        tipo: 'Un podcast en dos partes — y, con las palabras de Jaime en LinkedIn, «su mentoría ha jugado un papel importante en mi desarrollo».',
+        alt: 'Jaime y Mauricio Mercenario sentados en sillones alrededor de una mesa baja, grabando el podcast'
+      },
+      podcast: {
+        nombre: 'Jesús Gutiérrez Parra',
+        rol: 'Estudiante de finanzas',
+        tipo: 'El podcast que Jaime organizó en el Financial Trading Room del Tec.'
+      },
+      raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' },
+      sol: {
+        nombre: 'Sol',
+        rol: 'Fundadora de Callejeritos',
+        tipo: 'Entrevistada en la marcha por la adopción responsable; el clip de ese día está en «Servir».'
+      }
     }
   },
 
   servir: {
-    animalesClip: 'El clip: cuidado animal y adopción responsable (23 de agosto de 2026).',
+    animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevistó a Sol, su fundadora (2026).',
+    donacion: 'También donó alimento a un stand de adopción local y pasó el día con los voluntarios y los animalitos (2026).',
+    playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de su curso de Green Technology and Sustainable Ecology (2026).',
     bloques: {
       animales: 'Los animalitos',
-      playas: 'Limpieza de playas'
+      playas: 'Limpieza de playa'
     }
   },
 
   exp: {
-    lede: 'Qué, dónde, cuándo. Este capítulo y el siguiente son los que un comité escanea.',
+    lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
-      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados' },
-      { cuando: 'Jun–jul 2026', que: 'Singapur: programa de verano, presentación sobre México a estudiantes de la National University of Singapore, entrevistas' },
-      { cuando: 'Ago 2026', que: 'Feria de Grupos Estudiantiles del Tec de Monterrey, con el grupo Smart Finance' },
-      { cuando: '2026', que: 'Conversaciones: Andy Toh, Moris Dieck, el profesor Lloyd, Raúl Irabién y el podcast del Financial Trading Room' },
-      { cuando: '2026', que: 'Asistencia a la sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management' },
-      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera' },
-      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 5' }
+      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
+      { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
+      { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
+      { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
+      { cuando: '2026', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
+      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin sobre estudiar en Canadá' },
+      { cuando: '2026', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de su familia (capítulo 5)' },
+      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
+      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
     ]
   },
 
   certs: {
-    lede: 'Los recibos. El nombre exacto, tal como lo publica su LinkedIn; el emisor solo donde una fuente lo diga.',
-    pendiente: 'fecha y enlace de verificación por llegar',
-    pendienteInst: 'emisor, fecha y enlace de verificación por llegar',
+    lede: 'Los recibos. El nombre exacto, tal como lo publica su LinkedIn; el emisor y el año, solo donde una fuente lo diga.',
+    verLinkedIn: 'Verlo en LinkedIn',
+    fotoPend: 'La imagen del certificado, cuando Jaime la capture de LinkedIn.',
+    sinEmisor: 'Emisor por verificar',
+    sinAnio: 'año por verificar',
     filas: [
-      { que: 'Bloomberg Finance Fundamentals', de: '' },
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute' },
-      { que: 'Demystifying Private Equity — Job Simulation', de: 'Vista Equity Partners, en Forage' },
-      { que: 'Investment Banking Virtual Experience', de: 'Bank of America, en Forage' },
-      { que: 'B2 First Certificate', de: '' },
-      { que: 'Green Technology Programme', de: '' }
+      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
+      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, en Forage', anio: '2026' },
+      { que: 'Investment Banking Job Simulation', de: 'Bank of America, en Forage', anio: '2026' },
+      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
+      { que: 'Green Technology Programme', de: '', anio: '2026' },
+      { que: 'B2 First Certificate', de: '', anio: '' }
+    ],
+    frances: {
+      que: 'Francés — A2',
+      tag: 'Afirmación suya, pendiente de verificación',
+      nota: 'No hay certificado publicado en su LinkedIn. Lo que sí tiene fuente: su publicación sobre Concordia (2026) dice que estudia francés.'
+    }
+  },
+
+  cartas: {
+    lede: 'Cartas de recomendación, en el formato que un comité puede verificar: nombre, cargo, relación y una forma de contactar a la persona. Hoy no hay ninguna entregada — estos huecos esperan, y aquí nunca se inventará nada.',
+    tag: 'Falta la carta',
+    campos: 'Nombre · cargo · relación · contacto',
+    slots: [
+      'Alguien que pueda responder por el grupo estudiantil y la prepa.',
+      'Alguien que pueda responder por el programa de verano en Singapur.',
+      'Alguien que pueda responder por su trabajo de educación financiera.'
     ]
   },
 
   frase: {
     texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
     traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    // Esta clave solo se PINTA en el panel inglés (Historia mira el locale);
+    // aquí existe porque `typeof en` exige las mismas llaves en las dos tablas.
     traduccionTag: 'His words, in Spanish. In English:'
   },
 
@@ -734,7 +1046,6 @@ const es: typeof en = {
     h: 'Dónde encontrarme',
     linkedin: 'LinkedIn',
     tiktok: 'TikTok',
-    repo: 'El código, en GitHub',
     site: 'smartfinance.lat'
   },
 
@@ -744,10 +1055,6 @@ const es: typeof en = {
   },
 
   huecos: {
-    aplicaA: {
-      que: 'A qué estoy aplicando',
-      pista: 'Una línea: la universidad, el programa y la generación. Aquí no cabe nada más.'
-    },
     quienSoy: {
       que: 'Dónde empezó',
       pista: 'De tres a cinco frases: de dónde te viene esa frase, y qué pasó exactamente. Lo más corto de la página, y lo que más se recuerda.'
@@ -784,6 +1091,22 @@ const es: typeof en = {
       que: 'Una cosa que me llevé del profesor Lloyd',
       pista: 'Una línea sobre la conversación en la NUS.'
     },
+    entrevistaNus: {
+      que: 'Una cosa que me llevé de esa entrevista',
+      pista: 'Una línea sobre la conversación con la estudiante de la NUS.'
+    },
+    entrevistaJesus: {
+      que: 'Una cosa que me llevé de esa conversación',
+      pista: 'Una línea sobre la entrevista en Marina Bay.'
+    },
+    entrevistaMauricio: {
+      que: 'Una cosa que me llevé de Mauricio',
+      pista: 'Una línea. El podcast, la AEM o la mentoría — lo que más haya importado.'
+    },
+    entrevistaSol: {
+      que: 'Una cosa que me llevé de Sol',
+      pista: 'Una línea sobre la conversación de Callejeritos.'
+    },
     entrevistaRaul: {
       que: 'Una cosa que me llevé de Raúl Irabién',
       pista: 'Una línea sobre la conversación de los grupos estudiantiles.'
@@ -799,7 +1122,6 @@ const es: typeof en = {
   },
 
   suyo: {
-    aplicaA: '',
     quienSoy: '',
     retoNota: '',
     researchNota: '',
@@ -809,6 +1131,10 @@ const es: typeof en = {
     entrevistaDieck: '',
     entrevistaPodcast: '',
     entrevistaLloyd: '',
+    entrevistaNus: '',
+    entrevistaJesus: '',
+    entrevistaMauricio: '',
+    entrevistaSol: '',
     entrevistaRaul: '',
     servirAnimales: '',
     servirPlayas: ''
@@ -832,8 +1158,8 @@ const es: typeof en = {
     // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
-    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
-    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners, agosto de 2026. El «[…]» marca un trozo que esta página no reproduce.',
+    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré (junto con datos de la presentación a inversionistas) en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
+    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
     peTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
     dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
@@ -844,7 +1170,21 @@ const es: typeof en = {
     // texto de Jaime, pendiente de su revisión final
     entrevistas: '«Te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
     // texto de Jaime, pendiente de su revisión final
-    servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»'
+    servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»',
+    // ORIGINAL de Jaime (2026-08-28), con su ortografía: «es de mi familia y
+    // yo implemente eso porque queria apoyar a mi papa». Pulido sin cambiar
+    // el sentido — y SIN cambiar sus palabras: decía «lo implementé» y su
+    // palabra es «implementé eso»; la regla es solo ortografía y puntuación,
+    // así que «eso» se queda (restaurado 2026-08-29).
+    // texto de Jaime, pendiente de su revisión final
+    jasa: '«Es de mi familia, y yo implementé eso porque quería apoyar a mi papá.»',
+    jasaTag: '',
+    // Su publicación sobre la U of T está en inglés: esta versión es
+    // TRADUCCIÓN para el panel español y lo dice en pantalla (`torontoTag`).
+    // texto de Jaime (traducción), pendiente de su revisión final
+    toronto: '«Esta visita reforzó algo que llevaba mucho tiempo pensando: aquí es donde quiero estudiar finanzas.»',
+    torontoTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    torontoFuente: 'De su publicación en LinkedIn sobre su visita a la University of Toronto y Rotman Commerce (2026).'
   }
 };
 

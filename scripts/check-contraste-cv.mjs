@@ -85,17 +85,18 @@ const ESCALAS = [100, 200];
 /* Cada pieza con el mínimo que le pide WCAG. 3 para el texto grande (el nombre
    y la frase de apertura pasan de 24 px en cualquier anchura), 4.5 para el
    resto. */
+/* DESDE EL EFECTO DE LA TARJETA (2026-08-28), LA 2ª PANTALLA ES PAPEL: el
+   manifiesto, el índice y el pie de foto ya no caen sobre la foto sino sobre
+   blanco opaco, con la tinta del documento — su contraste es determinista y
+   lo cubren axe y los tokens, no esta matriz. Lo que queda encima de la foto
+   es la 1ª pantalla entera, que se sigue midiendo pieza a pieza. */
 const PIEZAS = [
   ['1 · etiqueta',   '.portada-uno .etiqueta', 4.5],
   ['1 · idioma on',  '.portada-uno .cv-lang-a.on', 4.5],
   ['1 · idioma off', '.portada-uno .cv-lang-a:not(.on)', 4.5],
   ['1 · nombre 1',   '.portada-n1', 3],
   ['1 · señuelo',    '.portada-senuelo', 4.5],
-  ['1 · nombre 2',   '.portada-n2', 3],
-  ['2 · frase',      '.portada-dos .abre p:not(.meta-mono)', 3],
-  ['2 · resumen',    '.portada-dos .indice-linea > .meta-mono', 4.5],
-  ['2 · ver índice', '.portada-dos .indice-ver', 4.5],
-  ['2 · pie foto',   '.portada-pie', 4.5]
+  ['1 · nombre 2',   '.portada-n2', 3]
 ];
 const MIN_BORDE = 3; // WCAG 1.4.11
 

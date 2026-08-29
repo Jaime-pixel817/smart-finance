@@ -31,30 +31,36 @@ const { c, id, class: cls, grande = false } = Astro.props;
 const texto = (c.suyo[id] || '').trim();
 const h = c.huecos[id];
 ---
+{/* EL NOMBRE DE LA REGIÓN LLEVA LA MARCA, NO SOLO EL TÍTULO.
+     Estaba como `aria-label={h.que}` con el MISMO texto pintado dentro, y
+     eso rompía las dos mitades de la promesa de este componente:
+     · el título se anunciaba dos veces (el nombre de la región y luego su
+       contenido), y
+     · la marca "FALTA ESCRIBIRLO" se quedaba FUERA del nombre, así que
+       quien recorra la página por regiones —que es como se recorre un
+       documento largo con un lector de pantalla— oía "A qué estoy
+       aplicando" y se iba creyendo que el hueco tenía contenido.
+     Un hueco que se disimula es exactamente lo que este archivo dice arriba
+     que no puede pasar. Ahora el nombre es "Falta escribirlo: <título>", que
+     es lo que se lee en la pantalla, y el título de dentro deja de repetirse
+     en el nombre porque el nombre ya no se calcula del contenido.
+
+     La marca y el título van `aria-hidden` porque los DOS están ya en el
+     nombre de la región, palabra por palabra. Sin esto se anunciarían dos
+     veces cada uno: una al entrar en la región y otra al leer su contenido.
+     No se pierde nada — el nombre de una región se anuncia al entrar en
+     ella — y lo que queda dentro es lo único que el nombre no dice: la
+     pista. Ninguno de los dos es enfocable, así que aria-hidden aquí no
+     esconde nada del teclado.
+
+     LOS DOS PÁRRAFOS DE ARRIBA VIVEN AQUÍ, FUERA DEL TERNARIO: dentro de
+     la expresión, un comentario en llaves deja de ser comentario de
+     plantilla (es JS crudo y rompe el compilado), y en HTML se EMITÍA en
+     cada uno de los ~16 huecos de cada panel. */}
 {texto ? (
   <p class:list={['cv-suyo', grande && 'cv-suyo-grande', cls]}>{texto}</p>
 ) : (
-  <!-- EL NOMBRE DE LA REGIÓN LLEVA LA MARCA, NO SOLO EL TÍTULO.
-       Estaba como `aria-label={h.que}` con el MISMO texto pintado dentro, y
-       eso rompía las dos mitades de la promesa de este componente:
-       · el título se anunciaba dos veces (el nombre de la región y luego su
-         contenido), y
-       · la marca "FALTA ESCRIBIRLO" se quedaba FUERA del nombre, así que
-         quien recorra la página por regiones —que es como se recorre un
-         documento largo con un lector de pantalla— oía "A qué estoy
-         aplicando" y se iba creyendo que el hueco tenía contenido.
-       Un hueco que se disimula es exactamente lo que este archivo dice arriba
-       que no puede pasar. Ahora el nombre es "Falta escribirlo: <título>", que
-       es lo que se lee en la pantalla, y el título de dentro deja de repetirse
-       en el nombre porque el nombre ya no se calcula del contenido. -->
   <div class:list={['hueco', cls]} role="note" aria-label={`${c.hueco.tag}: ${h.que}`}>
-    <!-- La marca y el título van `aria-hidden` porque los DOS están ya en el
-         nombre de la región de aquí arriba, palabra por palabra. Sin esto se
-         anunciarían dos veces cada uno: una al entrar en la región y otra al
-         leer su contenido. No se pierde nada — el nombre de una región se
-         anuncia al entrar en ella — y lo que queda dentro es lo único que el
-         nombre no dice: la pista. Ninguno de los dos es enfocable, así que
-         aria-hidden aquí no esconde nada del teclado. -->
     <p class="hueco-tag" aria-hidden="true">{c.hueco.tag}</p>
     <p class="hueco-que" aria-hidden="true">{h.que}</p>
     <p class="hueco-pista t-small">{h.pista}</p>
@@ -81,15 +87,12 @@ const h = c.huecos[id];
     max-width: var(--measure);
     padding: var(--card-pad);
     border: 1px dashed var(--ink-3);
-    /* CUADRADO, como todo lo demás de esta página. Se quedó con el
-       `--r-card` de 14 px heredado de la versión anterior de esta página
-       mientras el CV narrativo pasaba a esquinas rectas: `.rep` escribe
-       `border-radius: 0` a propósito, y la
-       cinta y `.foto-hueco` no tienen radio. Se veía en el capítulo del
-       research, con la tarjeta LULU de esquinas rectas justo encima de un
-       recuadro "FALTA ESCRIBIRLO" redondeado. Este componente solo lo usa el
-       CV (Historia.astro), así que el 0 va aquí y no en una excepción. */
-    border-radius: 0;
+    /* REDONDEADO desde el brief del 2026-08-28: el lenguaje del CV pasó a
+       tarjetas de esquinas redondeadas (la referencia de Ondo), y un hueco
+       cuadrado entre tarjetas redondeadas se leía como pieza de otra página.
+       Cuando esta página iba toda a esquina recta, aquí decía 0 a propósito;
+       si algún día vuelve, esta es la línea que hay que devolver. */
+    border-radius: 14px;
     background: var(--bg-1);
   }
   .hueco-tag {

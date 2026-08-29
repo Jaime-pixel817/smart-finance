@@ -1,6 +1,7 @@
 ---
-// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Nueve capítulos, blanco y
-// negro, scroll con imán. Se renderiza UNA VEZ POR IDIOMA dentro de la misma
+// "LA HISTORIA": el CV narrativo de /cv/<codigo>. Nueve capítulos, tinta
+// sobre papel con fotos a color, scroll suelto (el imán se quitó: ver
+// Cv.astro). Se renderiza UNA VEZ POR IDIOMA dentro de la misma
 // página (ver Cv.astro). Sustituye a "La mesa", y se queda con lo mejor de
 // ella: la cinta viva, el calendario del Reto, la tarjeta del research y la
 // cartera del concurso — la prueba de que detrás hay una plataforma real.
@@ -17,11 +18,14 @@
 //   01 · La frase de apertura   sus palabras, arriba del todo
 //   02 · Experiencias           la lista seca
 //   03 · Servir                 los voluntariados
-//   04 · Cada quien trae algo   las conversaciones (el "etc")
-//   05 · Mis proyectos          EL GRUPO ESTUDIANTIL primero, luego el sitio
-//   06 · Enseñar…               su canal de difusión (TikTok)
-//   07 · Reto Actinver y PE     A LA PAR: dos columnas, no dos capítulos
-//   08 · Certificaciones        los recibos
+//   04 · Cada quien trae algo   conversaciones + teaching, FUSIONADOS
+//                               (brief 2026-08-28: primero la gente, después
+//                               lo que él enseña solo)
+//   05 · Mis proyectos          EL GRUPO ESTUDIANTIL primero, el sitio,
+//                               y Jasa Motor
+//   06 · Reto Actinver y PE     A LA PAR: dos columnas, no dos capítulos
+//   07 · Certificaciones        los recibos
+//   08 · Cartas de recomendación   huecos honestos (sección nueva del brief)
 //   09 · La frase               la de siempre, verbatim
 //
 // DE ONCE CAPÍTULOS A NUEVE, Y NO SE PERDIÓ NI UNA LÍNEA:
@@ -127,7 +131,7 @@ const p = locale;
 
 const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
 const TIKTOK = 'https://www.tiktok.com/@smart.financee';
-const GITHUB = 'https://github.com/Jaime-pixel817/smart-finance';
+// GITHUB ya no está: Jaime pidió el pie solo con sus dos redes y el sitio.
 
 // ------------------------------------------------ las cifras de la prueba
 // CONTADAS de los archivos reales, en el build. Si mañana hay 11 lecciones,
@@ -276,11 +280,26 @@ const estado = (rep.meta.status || 'draft') as string;
 // se publicara ni una página de CV. Ese día hay que decidir el mecanismo
 // (`.vercelignore` condicionado al build, o servir el clip desde la propia
 // ruta del CV), y esa decisión es de Jaime, no de este archivo.
-const videos = [
-  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', vertical: true },
-  { id: '7657190267245563156', titulo: c.tiktok.videos.skills, poster: '/assets/cv/cv-poster-skills.jpg', clip: '/assets/cv/cv-clip-skills.webm', vertical: true },
-  { id: '7662781308988411156', titulo: c.tiktok.videos.andy, poster: foto('breakdown-andy-toh.webp'), clip: null, vertical: false },
-  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: foto('breakdown-japan.webp'), clip: null, vertical: false }
+// EL TEACHING (la segunda mitad del capítulo 4, fusionado por Jaime): SOLO
+// vídeos donde él da la información. El de «skills» que vivía aquí es una
+// ENTREVISTA (a una estudiante de la NUS) y se movió al carrusel de
+// conversaciones — lo avisó Jaime y lo confirma el material cosechado.
+// `clip` = servido por nosotros (bucle mudo, cv-clips.ts); `img` = cuadro
+// del vídeo con huella + enlace (el clip local queda pendiente: no hay
+// ffmpeg en este entorno para recodificar más originales).
+// `w`/`h` son las dimensiones REALES de cada archivo (las escribe
+// build-photos.mjs al generarlos): sin ellas el <img> no reserva su caja y
+// cada foto que llega empuja la página — CLS gratuito.
+const ensena = [
+  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.webm', img: null as string | null, w: 0, h: 0, ancha: false },
+  { id: '7647970499649146133', titulo: c.tiktok.videos.ahorro30, poster: null, clip: null, img: foto('cv-tt-ahorro30.webp'), w: 960, h: 442, ancha: true },
+  { id: '7647971595343908116', titulo: c.tiktok.videos.bienvenida, poster: null, clip: null, img: foto('cv-tt-bienvenida.webp'), w: 960, h: 442, ancha: true },
+  { id: '7660806476172184852', titulo: c.tiktok.videos.linkedin, poster: null, clip: null, img: foto('cv-tt-linkedin.webp'), w: 560, h: 996, ancha: false },
+  { id: '7655496621483887892', titulo: c.tiktok.videos.jpmorgan, poster: null, clip: null, img: foto('cv-tt-jpmorgan.webp'), w: 560, h: 996, ancha: false },
+  { id: '7673723439215168788', titulo: c.tiktok.videos.oro, poster: null, clip: null, img: foto('cv-tt-oro.webp'), w: 560, h: 994, ancha: false },
+  { id: '7674776719030521109', titulo: c.tiktok.videos.noticias, poster: null, clip: null, img: foto('cv-tt-noticias.webp'), w: 560, h: 905, ancha: false },
+  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, img: foto('cv-tt-tokio.webp'), w: 720, h: 960, ancha: false },
+  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: null, clip: null, img: foto('breakdown-japan.webp'), w: 480, h: 360, ancha: true }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
@@ -297,25 +316,32 @@ const attrsClip = (src: string, etiqueta: string, bucle = false) => ({
   ...(bucle ? { muted: true, loop: true, 'data-en-vista': '' } : {})
 });
 
-// ------------------------------------------------------ la gente (c7)
-// Seis personas. Cuatro con foto del manifiesto; Raúl Irabién con su clip
-// (servido por nosotros, con sonido, `controls` y `preload="none"`: cero
-// bytes y cero movimiento hasta que alguien le da a reproducir — la casta 2
-// de este capítulo son las fotos, y un vídeo sonando solo competiría); el
-// profesor Lloyd sin material todavía: hueco de foto + enlace al original.
-//
-// EL ALT DE CADA FOTO ES EL QUE YA PUBLICA EL SITIO (`alt.*` de ui.ts), no uno
-// nuevo: describe lo que se ve, que es para lo que sirve un alt, y de paso es
-// la fuente de que la de J.P. Morgan es «Jaime con otros cuatro asistentes en
-// el escenario, al terminar la sesión» — una sesión a la que asistió, no una
-// entrevista suya (ver el bloque `entrevistas` de src/i18n/cv.ts).
-const retratos = [
-  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null, tiktokId: '7662781308988411156' },
+// ------------------------------------------- las conversaciones (c4)
+// Diez tarjetas para el carrusel de citas (la forma de Ondo: tarjeta negra,
+// retrato, nombre, cargo y la frase grande — que aquí es SIEMPRE de Jaime,
+// ver el aviso del capítulo). Cada ficha con su fuente en cv.ts.
+// · Andy Toh va SOLO con texto y la foto del repo (no hay clip utilizable de
+//   esa entrevista: lo dice el material cosechado).
+// · La estudiante de la NUS y Raúl llevan su CLIP servido (skills se movió
+//   aquí desde el canal: es una entrevista, no un monólogo).
+// · Sol no tiene imagen utilizable: hueco de foto, no un invento.
+// EL ALT DE CADA FOTO DEL REPO ES EL QUE YA PUBLICA EL SITIO (`alt.*` de
+// ui.ts); las caras nuevas (Lloyd, el creador de EE. UU., Mauricio) llevan
+// el suyo en cv.ts (`entrevistas.personas.<key>.alt`), descrito de la
+// imagen real — iban con `alt=""` mientras este comentario juraba lo
+// contrario, y una cara con nombre al lado no es decorativa (2026-08-29).
+const pers = c.entrevistas.personas;
+const citas = [
+  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null as null | { src: string; poster: string; bucle: boolean }, tiktokId: '7662781308988411156' },
+  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: pers.lloyd.alt, hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
+  { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, tiktokId: '7657190267245563156' },
+  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: pers.jesus.alt, hueco: 'entrevistaJesus' as const, video: null, tiktokId: '7656095688484211988' },
   { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
   { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
+  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: pers.mauricio.alt, hueco: 'entrevistaMauricio' as const, video: null, tiktokId: '7671351658227469588' },
   { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
-  { key: 'lloyd' as const, img: null, alt: '', hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
-  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg' }, tiktokId: '7673350797958155541' }
+  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, tiktokId: '7673350797958155541' },
+  { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, tiktokId: '7677118351327431956' }
 ];
 
 // ------------------------------------------------------------- el índice
@@ -327,17 +353,45 @@ const capitulos = [
   c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4,
   c.caps.c5, c.caps.c6, c.caps.c7, c.caps.c8, c.caps.c9
 ];
-const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.length;
+// Los DOS lados van con dos dígitos («01 / 09», no «01 / 9»): con el índice
+// relleno y el total a pelo, el rótulo cambiaba de forma según el lado
+// (2026-08-29). Si algún día hay 10+ capítulos, el formato ya está listo.
+const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capitulos.length).padStart(2, '0');
+
+// ── El resumen del índice se CUENTA, no se escribe ──────────────────────
+// «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
+// pantallas — y «{min} minutos» de contar las palabras de la copia real del
+// panel (`c` es de donde sale toda la PROSA pintada). A 200 palabras por
+// minuto, lectura adulta en silencio; las lecciones no tienen una constante
+// que reutilizar (su readingMinutes va escrito a mano en el frontmatter).
+// Contrastado contra la página pintada (2026-08-29, innerText del panel EN
+// en Chromium): 2 722 palabras visibles contra ~2 400 de esta cuenta — el
+// resto son fichas de la interfaz («01 / 09», los años sueltos, cifras
+// calculadas), que se miran, no se leen, así que quedarse con la prosa da
+// el estimado más honesto. Antes decía «about 7 minutes» a mano: una cifra
+// inventada al lado de una numeración contada.
+const palabras = (o: unknown): number =>
+  typeof o === 'string' ? (o.match(/\S+/g) || []).length
+  : Array.isArray(o) ? o.reduce((n: number, x) => n + palabras(x), 0)
+  : o && typeof o === 'object' ? Object.values(o).reduce((n: number, x) => n + palabras(x), 0)
+  : 0;
+const minutosLectura = Math.round(palabras(c) / 200);
+const resumenIndice = c.indice.resumen
+  .replace('{n}', String(capitulos.length))
+  .replace('{min}', String(minutosLectura));
 ---
 <div class="historia">
 
-  <!-- ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
+  {/* ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
        El capítulo 1 sigue siendo UNO —el orden que aprobó Jaime no se toca—,
-       pero ahora ocupa tres pantallas seguidas con la MISMA foto detrás:
+       pero ahora ocupa tres pantallas seguidas:
 
-         1ª  la portada: el nombre partido en dos con el señuelo en medio
-         2ª  el manifiesto: su frase de apertura, y el índice pegado debajo
-         3ª  el papel: su meta, los dos huecos y su retrato
+         1ª  la portada: el nombre partido en dos con el señuelo en medio,
+             sobre la foto a sangre (la tapa oscura)
+         2ª  EL EFECTO DE LA TARJETA: la foto se encoge en una tarjeta de
+             esquinas redondeadas entre las dos mitades del titular, ya
+             sobre papel, y debajo el manifiesto y el índice
+         3ª  el papel: su meta, el hueco y su retrato
 
        ── QUÉ SE COPIÓ DE ondo.finance Y QUÉ NO ─────────────────────────────
        De Ondo se copia la ESTRUCTURA y el RITMO: foto de ciudad a sangre,
@@ -379,20 +433,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        y velo NEGRO— y no lo que hacía la versión anterior de esta portada, que
        tenía una foto de cielo nublado y la resolvía con una tapa de PAPEL. Los
        números, la cuenta de la que salen y las 200 mediciones que la
-       comprueban están en el bloque de estilo de abajo. -->
+       comprueban están en el bloque de estilo de abajo. */}
   <header class="cap cap-portada" aria-labelledby={`${p}-h1`}>
 
-    <!-- LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
+    {/* LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
          las tres pantallas de este capítulo pasan por encima de ella en vez
          de detrás. Se queda pegada mientras dura el capítulo y se va con él.
          Es el LCP de la página, así que no lleva `lazy` y sí prioridad alta;
-         el preload está en la cabecera (src/layouts/Cv.astro). -->
+         el preload está en la cabecera (src/layouts/Cv.astro). */}
     <div class="portada-lienzo" aria-hidden="true">
-      <!-- DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical va
+      {/* DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical va
            primero porque el navegador se queda con el PRIMER `<source>` cuyo
            `media` y `type` casen; la razón entera (la Torre CN cae fuera del
            recorte centrado de la panorámica, y ni con `object-position` sale
-           la resolución) está en src/lib/cv/portada.ts. -->
+           la resolución) está en src/lib/cv/portada.ts. */}
       <picture>
         <source media={PORTADA_MEDIA_ALTO} type="image/avif"
           srcset={portadaSrcsetAlto('avif')} sizes={PORTADA_SIZES_ALTO}
@@ -410,25 +464,25 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       <div class="portada-sombra"></div>
     </div>
 
-    <!-- ── 1ª pantalla: la portada ───────────────────────────────────────
+    {/* ── 1ª pantalla: la portada ───────────────────────────────────────
          `role="img"` no: la foto tiene su descripción en el texto alterno de
-         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre. -->
+         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre. */}
     <div class="portada-capa portada-uno">
-     <!-- LA TAPA DE PAPEL. Va a sangre (por eso no es la columna) y su ALTO ES
+     {/* LA TAPA DE PAPEL. Va a sangre (por eso no es la columna) y su ALTO ES
           EL DEL TEXTO, no una fracción de la pantalla: ahí está el arreglo del
-          bug del 200 %. Ver el bloque de estilo. -->
+          bug del 200 %. Ver el bloque de estilo. */}
      <div class="portada-tapa">
      <div class="portada-col">
       <div class="portada-barra">
-        <!-- LA ETIQUETA Y EL NÚMERO DE CAPÍTULO VAN LOS DOS AQUÍ ARRIBA, y no
+        {/* LA ETIQUETA Y EL NÚMERO DE CAPÍTULO VAN LOS DOS AQUÍ ARRIBA, y no
              es maquetación: es contraste. Puestos abajo (que es donde
              estaban) caen sobre la cuña negra del edificio de la izquierda,
              donde el peor píxel de la foto es 0 y el gris de las etiquetas
              (#6E6E6E) da 1.1:1 — ilegible. La banda de arriba está garantizada
              por el velo (≥ 15.9:1 en el 22 % superior), así que ahí es donde
-             puede vivir cualquier texto pequeño. -->
+             puede vivir cualquier texto pequeño. */}
         <p class="etiqueta">{c.head.eyebrow} <span class="portada-num">{num(0)}</span></p>
-        <!-- ── Idioma ────────────────────────────────────────────────────
+        {/* ── Idioma ────────────────────────────────────────────────────
              Mismo mecanismo de siempre: :target en Cv.astro, cero
              JavaScript. El `href` que va ESCRITO es `#en`/`#es`, que
              funciona en todas partes; el `data-lang` es para que el guion en
@@ -440,7 +494,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
              y el capítulo tenía que reservarle una banda en `em` para que no
              se montara encima de «01 / 09» con el texto al 200 %. En una
              fila normal ese problema no existe: la fila crece con la letra
-             porque es la letra la que la mide. -->
+             porque es la letra la que la mide. */}
         <nav class="cv-lang" aria-label={c.lang.aria}>
           <a href="#en" data-lang="en" class:list={['cv-lang-a', locale === 'en' && 'on']}
             aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
@@ -449,14 +503,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </nav>
       </div>
 
-      <!-- EL NOMBRE PARTIDO EN DOS CON EL SEÑUELO EN MEDIO, que es la forma
+      {/* EL NOMBRE PARTIDO EN DOS CON EL SEÑUELO EN MEDIO, que es la forma
            exacta del titular de Ondo. Las dos mitades son `<span>` dentro
            del MISMO `<h1>`: para un lector de pantalla el título sigue
            siendo «Jaime Sandoval Ricaño», de una pieza.
            El señuelo va `aria-hidden`: es una instrucción para el ojo, y a
            quien navega con teclado o lector no le sirve («baja» no es una
            acción que pueda hacer). Quien tabula llega al índice, que está
-           una pantalla más abajo y lleva a todos los capítulos. -->
+           una pantalla más abajo y lleva a todos los capítulos. */}
       <h1 class="hist-name portada-h1" id={`${p}-h1`}>
         <span class="portada-n1">{c.head.nameL1}</span>
         <span class="portada-senuelo meta-mono" aria-hidden="true">
@@ -468,32 +522,73 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      </div>
     </div>
 
-    <!-- ── 2ª pantalla: el manifiesto, sobre la misma foto ────────────────
-         Es el segundo tiempo de Ondo: la imagen se queda y encima entra un
-         párrafo grande. Ahí el párrafo es el manifiesto de la empresa; aquí
-         es la frase con la que Jaime abre su CV, que es lo mismo que pidió
-         él («quiero que priorices primero la primera frase»).
-         El velo de esta pantalla es más fuerte que el de la portada porque
-         el texto ocupa el centro, que es por donde pasa el mástil. Los
-         números, abajo. -->
-    <div class="portada-capa portada-dos">
+    {/* ── 2ª pantalla: EL EFECTO DE LA TARJETA (la secuencia de Ondo) ────
+         Es el paso 2 del vídeo de referencia (cv-material/referencia-efecto):
+         al bajar, la foto de portada SE ENCOGE EN UNA TARJETA de esquinas
+         redondeadas que queda anidada ENTRE las dos mitades del titular, ya
+         sobre papel — y debajo entra el manifiesto, que en Ondo es su promesa
+         comercial y aquí es la frase de apertura de Jaime.
+
+         ── CÓMO ESTÁ HECHO, Y EN QUÉ DEGRADA ─────────────────────────────
+         Esta pantalla es PAPEL OPACO que sube sobre la foto pegada de la
+         tapa. Dentro, la tarjeta trae la MISMA foto (el recorte vertical del
+         manifiesto, otro archivo del mismo original) y entra escalada a 1.9
+         con `animation-timeline: view()` sobre la propia pantalla: mientras
+         la pantalla entra, lo que se ve es la ciudad a sangre encogiéndose
+         hasta su marco redondeado, con el titular partido alrededor. Cero
+         JavaScript.
+           · El radio NO se anima (la regla de motion.css solo permite
+             transform/opacity/filter): la tarjeta tiene su radio ESCRITO y
+             `overflow: hidden`, y lo que se anima es `transform: scale` — a
+             1.9 las esquinas quedan recortadas por la propia pantalla
+             (`overflow: clip`), así que a sangre no se ven y al encoger
+             aparecen. Ninguna excepción nueva.
+           · Los keyframes solo declaran el `from`: el estado final ES el CSS
+             normal. En un navegador sin scroll-driven animations (Firefox
+             estable) o con «menos movimiento», la tarjeta nace YA ENCOGIDA y
+             quieta entre las dos mitades — la secuencia completa se degrada a
+             su último fotograma, sin JS y sin saltos.
+           · Los marcos concéntricos del vídeo de referencia son el ::after:
+             un aro redondeado que nace pequeño y se disuelve al llegar. Es
+             parte del MISMO gesto (una sola animación de atención por
+             pantalla: la tarjeta, con sus tres capas moviéndose juntas, igual
+             que la órbita del globo son varios transform de un solo gesto).
+
+         LAS DOS MITADES DEL NOMBRE VAN `aria-hidden`: el nombre completo ya
+         lo dio el <h1> de la tapa una pantalla antes, y repetirlo aquí en el
+         árbol de accesibilidad sería anunciarlo dos veces. Lo mismo la
+         tarjeta: es la foto de portada otra vez (su descripción visible sigue
+         en la 3ª pantalla). */}
+    <div class="portada-tarjeta">
      <div class="portada-col">
-      <!-- Palabras de Jaime, con la ortografía y la puntuación pulidas y
+      <div class="tarjeta-escena" aria-hidden="true">
+        <p class="tarjeta-n">{c.head.nameL1}</p>
+        <div class="tarjeta">
+          <img src={foto('cv-toronto-alto-620.webp')}
+            srcset={`${foto('cv-toronto-alto-440.webp')} 440w, ${foto('cv-toronto-alto-620.webp')} 620w, ${foto('cv-toronto-alto-800.webp')} 800w`}
+            sizes="(max-width: 480px) 88vw, 420px"
+            alt="" width={PORTADA_ALTO_W} height={PORTADA_ALTO_H}
+            loading="lazy" decoding="async" />
+        </div>
+        <p class="tarjeta-n">{c.head.nameL2}</p>
+      </div>
+      {/* Palabras de Jaime, con la ortografía y la puntuación pulidas y
            nada más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
            final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
            (`aperturaTag`, vacío en español): unas comillas sin marca se leen
            como sus palabras exactas. Misma regla que `voz.pe` y que la
-           traducción de la frase final. -->
+           traducción de la frase final. AHORA VA SOBRE PAPEL, no sobre la
+           foto: es el mismo movimiento de Ondo (su manifiesto entra en blanco
+           justo debajo de la segunda mitad del titular). */}
       <blockquote class="abre">
         {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
         <p>{c.voz.apertura}</p>
       </blockquote>
-      <!-- EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
+      {/* EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
            QUE ANTES: es la salida de emergencia del lector con prisa y tiene
-           que verse sin bajar más. Lo que cambió es que ahora la frase tiene
-           su propia pantalla, así que caben las dos con aire. -->
+           que verse sin bajar más. */}
       <div class="indice-linea">
-        <p class="meta-mono">{c.indice.resumen}</p>
+        <p class="meta-mono">{resumenIndice}</p>
         <details class="indice">
           <summary class="meta-mono indice-ver">{c.indice.ver}</summary>
           <ol class="indice-lista" aria-label={c.indice.aria}>
@@ -507,30 +602,46 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           </ol>
         </details>
       </div>
-      <!-- El pie de foto: de quién es y de cuándo. Va aquí y no en la
-           portada porque en la portada compite con el nombre, y porque es
-           la última pantalla en la que la foto todavía se ve. -->
+      {/* El pie de foto: de quién es. Va en la pantalla de la tarjeta, que
+           es la última en la que la foto se ve. */}
       <p class="portada-pie">{c.head.portadaPie}</p>
      </div>
     </div>
 
-    <!-- ── 3ª pantalla: ya sobre papel ───────────────────────────────────
+    {/* ── 3ª pantalla: ya sobre papel ───────────────────────────────────
          Aquí se acaba la foto y empieza el documento. El retrato de Jaime
          deja de ser el LCP (lo es la portada), así que baja a carga normal:
-         a esta altura ya se hizo scroll. -->
+         a esta altura ya se hizo scroll. */}
     <div class="portada-papel-cierre">
      <div class="portada-col">
       <div class="cap-1-cuerpo">
         <div class="cap-1-texto">
-          <!-- texto de Jaime (su meta), pendiente de su revisión final -->
+          {/* texto de Jaime (su meta), pendiente de su revisión final */}
           <p class="meta-mono">{c.head.meta}</p>
-          <Hueco c={c} id="aplicaA" />
+          {/* El hueco «What I'm applying to» YA NO EXISTE: Jaime lo pidió
+               fuera (brief 2026-08-28). En su lugar habla él: la cita
+               VERBATIM de su publicación sobre la visita a la U of T, que es
+               la línea de a dónde apunta este CV. */}
+          <blockquote class="voz">
+            {c.voz.torontoTag && <p class="meta-mono">{c.voz.torontoTag}</p>}
+            <p>{c.voz.toronto}</p>
+            <footer class="pie">{c.voz.torontoFuente}</footer>
+          </blockquote>
           <Hueco c={c} id="quienSoy" />
         </div>
-        <img class="cap-1-foto" src={foto('jaime-320.webp')} alt={c.head.fotoAlt}
-          width="320" height="320" decoding="async" loading="lazy" />
+        {/* SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
+             micrófono en Singapur. Pasa por build-photos.mjs con huella,
+             como todas; el retrato de /about (jaime-320) deja de usarse aquí
+             para no repetir a la misma persona dos veces en una pantalla. */}
+        <figure class="cap-1-retrato">
+          <img class="cap-1-foto" src={foto('cv-retrato-480.webp')}
+            srcset={`${foto('cv-retrato-480.webp')} 480w, ${foto('cv-retrato-800.webp')} 800w`}
+            sizes="(max-width: 767px) 100vw, 320px"
+            alt={c.head.fotoAlt} width="480" height="600" decoding="async" loading="lazy" />
+          <figcaption class="pie">{c.head.retratoPie}</figcaption>
+        </figure>
       </div>
-      <!-- La descripción de la foto de PORTADA, VISIBLE y no solo en un
+      {/* La descripción de la foto de PORTADA, VISIBLE y no solo en un
            `alt`: la imagen es decorativa para el lector de pantalla (el
            `alt=""` de arriba) porque describirla dos veces sería repetirla,
            y aquí cuenta lo que se ve para quien no la ve.
@@ -540,16 +651,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
            agua» justo debajo de una foto de la torre desde abajo. Ahora cierra
            la tapa antes de que empiece la foto suya, y dice de qué habla.
            El rótulo va en un `<span>` dentro del mismo párrafo: para un lector
-           de pantalla sigue siendo una sola frase. -->
+           de pantalla sigue siendo una sola frase. */}
       <p class="pie portada-alt"><span class="portada-alt-rotulo">{c.head.portadaAltRotulo}:</span> {c.head.portadaAlt}</p>
-      <!-- LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
+      {/* LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
            portada pasó a copiar el encuadre de Ondo (la ciudad desde el agua,
            a lo ancho), que es un plano que él no tiene. No se tira: baja aquí,
            pegada a la línea donde dice a dónde aplica, porque es de lo que
            habla esa línea — y porque una foto que hizo él vale más que una de
            banco de imágenes. Su pie lo dice, y lo dice antes que el crédito de
            la portada, que va una pantalla más arriba: quien llegue hasta aquí
-           ya sabe cuál es de quién. -->
+           ya sabe cuál es de quién. */}
       <figure class="cap-1-figura">
         <img src={foto('cv-torre-520.webp')}
           srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
@@ -564,10 +675,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
   </header>
 
-  <!-- ════ 02 · Experiencias — en seco, sin movimiento (casta 3) ══════════
+  {/* ════ 02 · Experiencias — en seco, sin movimiento (casta 3) ══════════
        Jaime las quiere justo después de la frase: primero lo que ha hecho,
        después lo que ha construido. Este capítulo y las certificaciones son
-       los que un comité escanea, y por eso no se mueven. -->
+       los que un comité escanea, y por eso no se mueven. */}
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
@@ -583,40 +694,48 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </ol>
   </section>
 
-  <!-- ════ 03 · Servir — los voluntariados ════════════════════════════════
+  {/* ════ 03 · Servir — los voluntariados ════════════════════════════════
        "Experiencias, voluntariados": van pegados, en ese orden.
        EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
        (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
        voluntariados de su frase: los animalitos y las playas. La comunidad
-       sigue nombrada en su cita, que es verbatim y no se toca. -->
+       sigue nombrada en su cita, que es verbatim y no se toca. */}
   <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
     <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(2)}</p>
     <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
+    {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
 
     <div class="servir">
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        <!-- El clip existe, con fecha, en su TikTok: se sirve desde aquí,
-             sin bucle y sin sonar solo (`controls` + `preload="none"`). -->
+        {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
+             sin sonar solo (`controls` + `preload="none"`). */}
         <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
           data-poster="/assets/cv/cv-poster-animales.jpg"></video>
         <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
           poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
         <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
+        {/* La donación al stand de adopción: hecho de su publicación en
+             LinkedIn (2026). Las fotos no se pudieron guardar en esta
+             cosecha; el hecho entra igual, sin foto. */}
+        <p class="cap-frases">{c.servir.donacion}</p>
         <Hueco c={c} id="servirAnimales" />
       </div>
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.playas}</h3>
+        {/* LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
+             línea sale de su propia publicación sobre el voluntariado del
+             curso de Green Technology. */}
+        <p class="cap-frases">{c.servir.playa}</p>
         <FotoHueco c={c} que={c.fotosPend.playas} />
         <Hueco c={c} id="servirPlayas" />
       </div>
     </div>
   </section>
 
-  <!-- ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
+  {/* ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
        El "etc" de "experiencias, voluntariados, etc": la gente con la que
        habló es una experiencia más, y va con ellas, antes de los proyectos.
 
@@ -630,8 +749,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        insinuaría un aval que no existe, y es justo el tipo de cosa que un
        comité de admisiones va a comprobar.
 
-       Lo que SÍ se copia es el ritmo: una fila por conversación, retrato a la
-       izquierda, nombre y cargo pequeños, y una frase grande a la derecha. La
+       Lo que SÍ se copia, desde el brief del 2026-08-28, es LA FORMA ENTERA:
+       el carrusel horizontal de tarjetas negras redondeadas — retrato, nombre,
+       cargo y la frase grande abajo, con las flechas ‹ › debajo. La
        diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
        Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
        esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
@@ -639,58 +759,144 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        una cita suya. Y encima del bloque va escrito, en una frase, que nadie
        de aquí lo está respaldando.
 
-       Los retratos siguen creciendo y encogiendo como recuerdos (casta 2, CSS
-       puro), y la frase de cada uno sigue siendo un hueco hasta que él la
-       escriba. -->
+       La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
   <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(3)}</p>
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
+    {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
-    <!-- La frase que impide que este capítulo se lea como una lista de avales.
+    {/* La frase que impide que este capítulo se lea como una lista de avales.
          Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
-         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. -->
+         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
     <p class="pie">{c.entrevistas.aviso}</p>
 
-    <ul class="retratos">
-      {retratos.map((rt) => {
-        const per = c.entrevistas.personas[rt.key];
-        // `rol` vacío = no había fuente para el rol y no se inventa uno.
-        // `tipo` lleno = llamarlo entrevista sería falso, y lo dice en pantalla.
-        const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
-        return (
-        <li class="retrato">
-          <div class="retrato-foto">
-            {rt.img && (
-              <span class="recuerdo"><img src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" /></span>
-            )}
-            {rt.video && (
-              <video {...attrsClip(rt.video.src, etiqueta)} data-poster={rt.video.poster}></video>
-              <noscript><video {...attrsClip(rt.video.src, etiqueta)} poster={rt.video.poster}></video></noscript>
-            )}
-            {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.lloyd} />}
-          </div>
-          <div class="retrato-dicho">
-            <p class="retrato-nombre">{per.nombre}</p>
-            {per.rol && <p class="retrato-rol">{per.rol}</p>}
-            {per.tipo && <p class="retrato-rol">{per.tipo}</p>}
-            <!-- EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
-                 no: mientras el hueco esté puesto ya lo dice su propia
-                 etiqueta, pero en cuanto Jaime escriba la frase este renglón
-                 es lo único que separa «lo que me llevé» de «lo que me
-                 dijeron». Por eso no está dentro del hueco. -->
-            <p class="etiqueta retrato-llevo">{c.entrevistas.llevo}</p>
+    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
+         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
+         (el imán vertical de la página se quitó; ESTE es otro gesto: una
+         lista de tarjetas que pagina de lado, que es justo para lo que
+         scroll-snap x existe). Las flechas son <button> de verdad: con
+         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
+         sin JavaScript se esconden (la regla vive en el <noscript> de
+         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
+         flechas del teclado (tabindex="0" en la lista, que es lo que exige
+         una región desplazable alcanzable).
+         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
+         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
+         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
+         todas las letras. Eso no se negocia con la estética. */}
+    <div class="citas-marco" data-citas>
+      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
+        {citas.map((rt) => {
+          const per = c.entrevistas.personas[rt.key];
+          // `rol` vacío = no había fuente para el rol y no se inventa uno.
+          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
+          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+          return (
+          <li class="cita">
+            <div class="cita-media">
+              {rt.img && (
+                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
+              )}
+              {rt.video && (
+                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
+                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
+              )}
+              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
+            </div>
+            <p class="cita-nombre">{per.nombre}</p>
+            {per.rol && <p class="cita-rol">{per.rol}</p>}
+            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
+            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
+                 no: en cuanto Jaime escriba la frase este renglón es lo único
+                 que separa «lo que me llevé» de «lo que me dijeron». */}
+            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
             <Hueco c={c} id={rt.hueco} grande />
-            {rt.tiktokId && <a class="hist-link t-small" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
-          </div>
+            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+          </li>
+          );
+        })}
+      </ul>
+      <div class="citas-nav">
+        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
+        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
+      </div>
+    </div>
+
+    {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
+         Primero las conversaciones, después lo que él enseña SOLO: es el
+         orden que pidió. Aquí van únicamente los vídeos donde él da la
+         información (consejos, datos, noticias) — reclasificados con el
+         material: la entrevista de «skills» que vivía aquí subió al carrusel.
+         Jamás un embed de TikTok; el clip de Singapur se sirve desde este
+         dominio y el resto va como cuadro del vídeo + enlace al original. */}
+    <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
+    {/* texto de Jaime, pendiente de su revisión final */}
+    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
+    <Hueco c={c} id="tiktokNota" />
+    <p class="pie">{c.tiktok.ensenaLede}</p>
+
+    {/* El vídeo de cada clip va servido por NOSOTROS. Sin sonido (el sonido
+         está en el original, a un enlace). `controls` SIEMPRE (WCAG 2.2.2);
+         el bucle solo del que está a la vista lo lleva cv-clips.ts.
+         OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
+         de la expresión del ternario un {/* *\/} no es un comentario de
+         plantilla sino JS crudo, y rompe el compilado. */}
+    <ul class="clips">
+      {ensena.map((v) => (
+        <li class:list={['clip', v.ancha && 'clip-ancho']}>
+          {v.clip ? (
+            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
+          ) : (
+            <span class="recuerdo"><img src={v.img} alt="" width={v.w} height={v.h} loading="lazy" decoding="async" /></span>
+          )}
+          <p class="clip-titulo">{v.titulo}</p>
+          <p class="clip-anio meta-mono">2026</p>
+          {!v.clip && (
+            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
+              <span aria-hidden="true">{c.clip.tag}</span>
+            </p>
+          )}
+          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
         </li>
-        );
-      })}
+      ))}
     </ul>
+    <p class="pie">{c.clip.pista}</p>
+
+    {/* Los consejos sin imagen utilizable: fila seca con su enlace. */}
+    <ol class="lista-seca">
+      {c.tiktok.sinImagen.map((f) => (
+        <li>
+          <span class="seca-cuando num">2026</span>
+          <span class="seca-que">{f.que} <a class="hist-link" href={urlVideo(f.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a></span>
+        </li>
+      ))}
+    </ol>
+
+    <h4 class="etiqueta">{c.tiktok.arcoH}</h4>
+    <ol class="lista-seca">
+      {c.tiktok.arco.map((f) => (
+        <li>
+          <span class="seca-cuando num">{f.cuando}</span>
+          <span class="seca-que">{f.que}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="pie">{c.tiktok.arcoFuente}</p>
+    {/* El cuadro de la presentación en la NUS, RESCATADO (2026-08-29): el
+         fotograma cosechado venía girado 90° y con el subtítulo del vídeo
+         quemado en medio — enderezado y recortado en build-photos.mjs (ahí
+         está la cuenta del recorte). Es la única presencia visual de ese
+         vídeo: la regla de «ninguna imagen dos veces» queda intacta. */}
+    <figure class="arco-fig">
+      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="720" height="682" loading="lazy" decoding="async" /></span>
+      <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+    </figure>
+    <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
   </section>
 
-  <!-- ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
+  {/* ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
        "luego mis proyectos y arrancas con el grupo estudiantil": el orden de
        dentro del capítulo lo pidió él, y el grupo abre porque es lo que
        fundó y preside. Después, smartfinance.lat con la prueba viva.
@@ -700,7 +906,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
 
        MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
        cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
-       está mirando y no pide el ojo —, así que no compiten. -->
+       está mirando y no pide el ojo —, así que no compiten. */}
   <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(4)}</p>
@@ -712,16 +918,23 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <div class="grupo">
           <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
           <div class="grupo-texto">
-            <!-- Hecho publicado en /community, en primera persona de Jaime. -->
+            {/* Hecho publicado en /community, en primera persona de Jaime. */}
             <p class="cap-frases">{c.proyectos.grupo}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
+        {/* El cuadro de la promo del grupo (otro vídeo, otra imagen: la
+             regla de «ninguna imagen dos veces» habla de archivos, y este es
+             el cuadro del vídeo de promo de 2026 en el Tec). */}
+        <figure class="grupo-tec">
+          <span class="recuerdo"><img src={foto('cv-tt-grupo.webp')} alt={c.proyectos.grupoTecAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.proyectos.grupoTecPie} <a class="hist-link" href={urlVideo('7675228112342289685')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+        </figure>
       </div>
 
-      <!-- `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
+      {/* `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
            dentro de cada raíz su chip y sus filas, así que la raíz tiene que
-           ser el trozo que las contiene. -->
+           ser el trozo que las contiene. */}
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
@@ -753,7 +966,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </ul>
         <p class="pie">{c.tape.note} {c.tape.fail}</p>
 
-        <!-- ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
+        {/* ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
              El otro ritmo que se copia de Ondo: tres cifras al tamaño de un
              titular con su rótulo debajo. Lo que NO se copia es cuáles y cómo
              se mueven, y las dos cosas están razonadas.
@@ -777,7 +990,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
              se anima. Además la regla de movimiento del sitio da UNA animación
              que llame la atención por pantalla, y en esta ya se la gasta la
              cinta, que es el único número de la pantalla que de verdad llega
-             en caliente. Lo que sí se copia es la escala. -->
+             en caliente. Lo que sí se copia es la escala. */}
         <ul class="cifras">
           <li>
             <span class="cifra num">{nPruebas}</span>
@@ -796,61 +1009,32 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
+
+      {/* ── Jasa Motor (bloque nuevo, brief del 2026-08-28) ──────────────
+           EL FRAMING ES EL FAMILIAR Y LO APROBÓ JAIME: la refaccionaria es
+           de su familia, y él desarrolló la tienda en línea y lleva el
+           marketing para apoyar a su papá. NO se escribe «CEO». Su frase va
+           como voz.* (pulida, pendiente de su revisión final) y el dato del
+           negocio (Cuautitlán, 20+ años) sale del propio sitio de la
+           refaccionaria, verificado el 2026-08-28. El enlace es a la tienda
+           que él construyó — la prueba de que existe. */}
+      <div class="bloque">
+        <h3 class="t-h3">{c.proyectos.jasaH}</h3>
+        {/* texto de Jaime, pendiente de su revisión final */}
+        <blockquote class="voz">
+          {c.voz.jasaTag && <p class="meta-mono">{c.voz.jasaTag}</p>}
+          <p>{c.voz.jasa}</p>
+        </blockquote>
+        <p class="cap-frases">{c.proyectos.jasa}</p>
+        <div class="fila-fotos">
+          <FotoHueco c={c} que={c.fotosPend.jasa} />
+        </div>
+        <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
+      </div>
     </div>
   </section>
 
-  <!-- ════ 06 · Enseñar es la mitad del trabajo — su canal ════════════════
-       "luego mi canal de difusión". Marcos de vídeo SERVIDOS POR NOSOTROS
-       cuando lleguen los clips; hoy, póster + enlace al original + marca de
-       clip pendiente. Jamás un embed. -->
-  <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
-    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(5)}</p>
-    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
-    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
-    <Hueco c={c} id="tiktokNota" />
-
-    <ul class="clips">
-      {videos.map((v) => (
-        <li class="clip">
-          {v.clip ? (
-            <!-- Servido por NOSOTROS. Sin sonido (la dirección lo prescribe:
-                 el sonido está en el original, a un enlace). `controls`
-                 SIEMPRE: un vídeo en bucle tiene que poderse pausar (WCAG
-                 2.2.2), y sin JavaScript es lo único que lo arranca. El
-                 bucle solo del que está a la vista lo lleva cv-clips.ts. -->
-            <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
-            <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
-          ) : (
-            <span class="recuerdo"><img src={v.poster} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
-          )}
-          <p class="clip-titulo">{v.titulo}</p>
-          {!v.clip && (
-            <p class="clip-tag" role="note" aria-label={`${c.clip.tag}: ${c.clip.pista}`}>
-              <span aria-hidden="true">{c.clip.tag}</span>
-            </p>
-          )}
-          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
-        </li>
-      ))}
-    </ul>
-    <p class="pie">{c.clip.pista}</p>
-
-    <h3 class="t-h3">{c.tiktok.arcoH}</h3>
-    <ol class="lista-seca">
-      {c.tiktok.arco.map((f) => (
-        <li>
-          <span class="seca-cuando num">{f.cuando}</span>
-          <span class="seca-que">{f.que}</span>
-        </li>
-      ))}
-    </ol>
-    <p class="pie">{c.tiktok.arcoFuente}</p>
-    <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
-  </section>
-
-  <!-- ════ 07 · Reto Actinver y private equity — A LA PAR ═════════════════
+  {/* ════ 06 · Reto Actinver y private equity — A LA PAR ═════════════════
        Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
        par del de private equity». A la par NO es uno detrás de otro, así que
        no son dos capítulos: es uno con dos mitades que se leen juntas —
@@ -862,24 +1046,24 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        por FECHAS (la fase de hoy se calcula en /research, no aquí), la
        cartera del concurso del mismo archivo que lee la página pública, y la
        tarjeta del reporte de loadReport. El logo va con las reglas del repo:
-       pequeño, placa oscura, y la línea de no afiliación. -->
-  <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
-    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(6)}</p>
-    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
+       pequeño, placa oscura, y la línea de no afiliación. */}
+  <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
 
     <div class="par">
-      <!-- ── Mitad 1: el reto ── -->
+      {/* ── Mitad 1: el reto ── */}
       <div class="par-col">
         <h3 class="t-h3">{c.dos.actinverH}</h3>
-        <!-- texto de Jaime, pendiente de su revisión final -->
+        {/* texto de Jaime, pendiente de su revisión final */}
         <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
         <p class="cap-lede">{c.reto.lede}</p>
 
         <div class="reto-marca">
-          <!-- Placa oscura FIJA: el logo lo publican blanco con el punto
+          {/* Placa oscura FIJA: el logo lo publican blanco con el punto
                dorado, para fondo oscuro. Recolorearlo sería deformar una
-               marca ajena. -->
+               marca ajena. */}
           <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
           <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
         </div>
@@ -923,20 +1107,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </div>
       </div>
 
-      <!-- ── Mitad 2: el private equity ── -->
+      {/* ── Mitad 2: el private equity ── */}
       <div class="par-col">
         <h3 class="t-h3">{c.dos.peH}</h3>
-        <!-- texto de Jaime, pendiente de su revisión final. Su «es a lo que
+        {/* texto de Jaime, pendiente de su revisión final. Su «es a lo que
              me quiero dedicar» era el título del capítulo viejo; ahora lo
-             dice él y no un rótulo. -->
+             dice él y no un rótulo. */}
         <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
-        <!-- Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
+        {/* Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
              inglés, así que el panel español enseña una traducción Y LO DICE
              ARRIBA (`voz.peTag`, vacío en inglés): unas comillas atribuidas a
              su post, sin marca, se leen como sus palabras exactas. Misma
              regla que la traducción de la frase final. El recorte va dentro
              de la cita con su «[…]». El recibo de la simulación está en el
-             capítulo de las certificaciones. -->
+             capítulo de las certificaciones. */}
         <blockquote class="voz">
           {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
           <p>{c.voz.pe}</p>
@@ -948,6 +1132,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
           <p class="t-h3 rep-name">{rep.meta.name}</p>
           <dl class="rep-meta t-caption">
+            {/* «Data as of» va con FECHA COMPLETA a propósito (decisión del
+                2026-08-29). La regla de solo-año de Jaime (brief 2026-08-28)
+                es para fechas BIOGRÁFICAS —cuándo vivió una experiencia—;
+                este asOf es el sello de frescura de una CIFRA, que la regla
+                del sitio exige con día (CLAUDE.md: asOf en cada cifra), la
+                misma clase que el calendario del Reto. Un «Data as of 2026»
+                no dice si el dato tiene una semana o diez meses. Si Jaime
+                no está de acuerdo, revertir es UNA línea: cambiar
+                `day(rep.meta.dataAsOf, locale)` por
+                `rep.meta.dataAsOf.slice(0, 4)`. */}
             <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
             <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
             <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
@@ -964,31 +1158,69 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 08 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
+  {/* ════ 07 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
+  <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
+    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
+    <p class="cap-lede">{c.certs.lede}</p>
+    {/* ══ TARJETAS DE CERTIFICADO DISEÑADAS (brief 2026-08-28) ════════════
+         Los recortes de LinkedIn no se pudieron guardar en la cosecha, así
+         que cada certificado va como TARJETA diseñada —emisor, nombre, año y
+         «Verlo en LinkedIn» a su perfil, que es donde está publicado— con un
+         FotoHueco para la imagen original cuando Jaime la entregue. Se ven
+         mejor que un pantallazo y no inventan nada: donde falta el emisor o
+         el año, la tarjeta LO DICE en vez de adivinarlo.
+         La de FRANCÉS A2 es distinta y lo dice en pantalla: afirmación suya
+         pendiente de verificación — sin emisor, sin imagen y sin enlace,
+         porque no hay certificado publicado que enlazar. */}
+    <ul class="certs">
+      {c.certs.filas.map((f) => (
+        <li class="cert">
+          <p class="etiqueta">{f.de || c.certs.sinEmisor}</p>
+          <p class="cert-nombre">{f.que}</p>
+          <p class="cert-anio num">{f.anio || c.certs.sinAnio}</p>
+          <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />
+          <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
+        </li>
+      ))}
+      <li class="cert cert-afirmacion">
+        <p class="etiqueta cert-claim">{c.certs.frances.tag}</p>
+        <p class="cert-nombre">{c.certs.frances.que}</p>
+        <p class="pie">{c.certs.frances.nota}</p>
+      </li>
+    </ul>
+  </section>
+
+  {/* ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
+       SECCIÓN NUEVA (brief del 2026-08-28), después de las certificaciones y
+       antes de la frase. Hoy NO hay ninguna carta entregada y la sección lo
+       dice: tres recuadros con el patrón de hueco del CV, con los campos que
+       un comité puede verificar (nombre, cargo, relación, contacto). Cuando
+       exista una carta de verdad, su recuadro se rellena; hasta entonces, el
+       borde discontinuo dice que falta. NUNCA un nombre inventado. */}
   <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(7)}</p>
     <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
-    <p class="cap-lede">{c.certs.lede}</p>
-    <!-- Filas como el calendario del reto: el recibo a la izquierda y lo que
-         falta a la derecha, en mono. Que se vea que falta es el punto: nada
-         se disimula. Y cuando falta también el EMISOR —el PDF de LinkedIn no
-         trae institución de ningún certificado— la columna lo pide también,
-         en vez de que la página se invente uno. -->
-    <ol class="cal">
-      {c.certs.filas.map((f) => (
-        <li>
-          <span class="cal-que">{f.que}{f.de ? ' — ' + f.de : ''}</span>
-          <span class="cal-cuando meta-mono">{f.de ? c.certs.pendiente : c.certs.pendienteInst}</span>
-        </li>
+    <p class="cap-lede">{c.cartas.lede}</p>
+    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
+    <div class="cartas">
+      {c.cartas.slots.map((pista) => (
+        <div class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
+          <p class="carta-tag" aria-hidden="true">{c.cartas.tag}</p>
+          <p class="carta-pista" aria-hidden="true">{pista}</p>
+          <p class="carta-campos meta-mono">{c.cartas.campos}</p>
+        </div>
       ))}
-    </ol>
+    </div>
   </section>
 
-  <!-- ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
+  {/* ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
        La que ya estaba, sin tocar. En español en los dos paneles: es su voz.
        El panel inglés lleva debajo la traducción, pequeña y marcada como
-       traducción. La página abre con una frase suya y cierra con otra. -->
+       traducción. La página abre con una frase suya y cierra con otra. */}
   <section class="cap cap-frase" aria-labelledby={`${p}-cap-9-h`}>
     <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
     <h2 class="visually-hidden" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
@@ -1000,10 +1232,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     )}
     <div class="cierre">
       <p class="cierre-nombre">{c.head.name}</p>
+      {/* EL PIE, COMO LO PIDIÓ JAIME (brief 2026-08-28): sus dos redes y
+           smartfinance.lat. El enlace de «el código, en GitHub» se quitó. */}
       <p class="links-row">
         <a class="hist-link" href={LINKEDIN} target="_blank" rel="noopener">{c.contacto.linkedin} ↗</a>
         <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.contacto.tiktok} ↗</a>
-        <a class="hist-link" href={GITHUB} target="_blank" rel="noopener">{c.contacto.repo} ↗</a>
         <a class="hist-link" href={L('home')}>{c.contacto.site} →</a>
       </p>
       <p class="pie">{c.hueco.note}</p>
@@ -1064,52 +1297,24 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     color: var(--cvh-tinta);
   }
 
-  /* ═══ BLANCO Y NEGRO, TAMBIÉN LAS FOTOS Y LOS CLIPS ═══════════════════
-     Lo decidió Jaime (2026-08-27) y es lo que cierra la dirección visual:
-     esta página ya era blanca y negra en todo menos en sus imágenes, y una
-     chamarra roja en medio de un documento de tinta y papel es lo único que
-     desentonaba.
-
-     ── POR QUÉ EN EL CSS Y NO EN LOS ARCHIVOS ────────────────────────────
-     Porque NO SON FOTOS DEL CV: son las mismas que publica el sitio. El
-     retrato sale en /about y en la firma de cada lección; la del grupo, en
-     /community; las de las entrevistas, en el home. Grabarles el gris en
-     `scripts/build-photos.mjs` dejaría el sitio público en blanco y negro
-     sin que nadie lo hubiera pedido — y el sitio es de color. Con el filtro
-     aquí, el gris es de ESTA página y de ninguna otra. Los clips igual:
-     recodificarlos en gris haría falta ffmpeg y dejaría los originales de
-     `public/assets/cv/` sirviendo para una sola cosa.
-     Cuesta lo que cuesta pintar `filter` sobre imágenes que no se mueven, o
-     sea nada medible: el compositor lo resuelve una vez y no vuelve.
-
-     ── LAS DOS EXCEPCIONES, LAS DOS A PROPÓSITO ──────────────────────────
-     · `.portada-foto` y `.cap-1-figura img` — las dos fotos de Toronto ya
-       vienen en gris DENTRO del archivo (build-photos.mjs les quita los planos
-       de color, que es lo que las abarata: sin ellos el AVIF pesa la mitad).
-       Pasarles encima un filtro que no cambia nada, y a una de ellas sobre una
-       imagen que cubre la pantalla entera, sería trabajo por gusto. Y hay una
-       razón de más en la portada: ahí el `filter` ya está ocupado — es lo que
-       anima la apertura, y un `grayscale(1)` escrito aparte lo pisaría.
-     · `.logo-placa img` — es el logo del RETO ACTINVER, marca de un tercero.
-       El repo ya tiene escrita la regla: se publica tal como lo publica
-       Actinver, sin recortar y sin recolorear. Pasarlo a gris le quitaría el
-       punto dorado de la i, que es deformar una marca ajena — exactamente lo
-       que la regla prohíbe. Que la página sea en blanco y negro es una
-       decisión sobre el material propio, no un permiso sobre el ajeno. */
-  .historia img, .historia video { filter: grayscale(1); }
-  .historia .portada-foto, .historia .cap-1-figura img,
-  .historia .logo-placa img { filter: none; }
+  /* ═══ LAS FOTOS Y LOS CLIPS VAN A COLOR, Y LO DECIDIÓ JAIME (2026-08-28) ══
+     Aquí vivió el `filter: grayscale(1)` de la dirección en blanco y negro
+     (decidida el 27, revertida PARA LAS FOTOS el 28 con su brief: «fotos a
+     color; el B/N es del diseño, no de las fotos»). El diseño sigue siendo
+     tinta sobre papel — los colores del documento no cambian —, pero ninguna
+     imagen ni ningún clip lleva ya filtro. Las dos fotos de Toronto salen de
+     build-photos.mjs también sin gris grabado (la Torre CN de Jaime sigue
+     viéndose B/N porque SU original es B/N: así la publicó él). */
 
   /* ═══ El esqueleto de capítulo (dirección §3, "Ritmo") ═══════════════
-     min-height y no height: con el texto al 200 % el contenido crece y
-     `proximity` tolera secciones altas (medido). El imán vive en cv.css. */
+     min-height y no height: con el texto al 200 % el contenido crece y un
+     alto fijo lo recortaría. (El imán de scroll ya no existe: Cv.astro.) */
   .cap {
     position: relative;
     min-height: 100svh;
     display: flex; flex-direction: column; justify-content: center;
     gap: var(--sp-5);
     padding-block: var(--sp-8);
-    scroll-snap-align: start;
     /* LA COLUMNA VIVE AQUÍ Y YA NO EN EL PANEL. Hasta la portada a sangre,
        `.cv-pane` llevaba la clase `container` y ese ancho máximo cubría
        TODA la página, portada incluida: ninguna foto podía tocar el borde.
@@ -1304,8 +1509,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        de la pantalla. La columna la reparten sus tres capas. */
     max-width: none; padding-inline: 0; padding-block: 0;
     min-height: 0; gap: 0; justify-content: flex-start;
-    /* Snapean las tres pantallas, no el capítulo que las contiene. */
-    scroll-snap-align: none;
   }
 
   /* LA FOTO, PEGADA ARRIBA MIENTRAS DURA EL CAPÍTULO. Es la mecánica del
@@ -1455,7 +1658,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     position: relative; z-index: 1;
     min-height: 100svh;
     display: flex; flex-direction: column;
-    scroll-snap-align: start;
   }
   .portada-col {
     width: 100%; max-width: calc(var(--container) - 2 * var(--gutter));
@@ -1488,26 +1690,22 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       rgba(0, 0, 0, 0) 100%
     );
   }
-  /* La tinta de la tapa. Va en la CAPA y no en cada pieza: dentro de estas dos
-     pantallas todo el texto es claro, y lo que no lo sea se notará. */
-  .portada-uno, .portada-dos { color: var(--cvh-tapa-tinta); }
-  .portada-uno .etiqueta, .portada-dos .etiqueta,
-  .portada-uno .meta-mono, .portada-dos .meta-mono,
-  .portada-uno .portada-num, .portada-dos .pie,
-  .portada-senuelo, .portada-pie { color: var(--cvh-tapa-tinta-2); }
-  .portada-dos .indice-lista a { color: var(--cvh-tapa-tinta); }
-  .portada-dos .indice-lista a:hover,
-  .portada-dos .indice-ver:hover { color: var(--cvh-tapa-tinta-2); }
+  /* La tinta de la tapa. Va en la CAPA y no en cada pieza: dentro de la
+     portada todo el texto es claro, y lo que no lo sea se notará. (La 2ª
+     pantalla ya no es de la tapa: es papel, y hereda la tinta del documento.) */
+  .portada-uno { color: var(--cvh-tapa-tinta); }
+  .portada-uno .etiqueta,
+  .portada-uno .meta-mono,
+  .portada-uno .portada-num,
+  .portada-senuelo { color: var(--cvh-tapa-tinta-2); }
   /* EL ANILLO DE FOCO TAMBIÉN ES DE LA TAPA, y esto es lo que la portada
      oscura obliga a arreglar: el anillo del sitio es `--brand-text`, que en
      tema claro es #087248 (verde oscuro), y sobre el velo de la tapa da
      1.76:1 — WCAG 1.4.11 pide 3:1 a un indicador de foco. En blanco da
      10.5:1. Se cambia SOLO el color, en `outline-color`: la propiedad sigue
      siendo `outline` y no una sombra, que es la regla del repo. En la tapa se
-     tabula por las dos pastillas de idioma y, en la 2ª pantalla, por el
-     índice; sin esto, ninguno de esos focos se veía. */
-  .portada-uno :focus-visible,
-  .portada-dos :focus-visible { outline-color: var(--cvh-tapa-tinta); }
+     tabula por las dos pastillas de idioma; sin esto, esos focos no se veían. */
+  .portada-uno :focus-visible { outline-color: var(--cvh-tapa-tinta); }
   .portada-uno .portada-col {
     display: flex; flex-direction: column;
     padding-block: var(--sp-6) 0;
@@ -1541,47 +1739,110 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     letter-spacing: .16em; text-transform: uppercase;
   }
   .portada-flecha { font-size: 1.15em; line-height: 1; }
-  /* El «01 / 9» va pegado a la etiqueta, con una raya de separación en vez de
-     un renglón propio: dos etiquetas mono seguidas en la misma banda segura. */
+  /* El «01 / 09» va pegado a la etiqueta, con una raya de separación en vez
+     de un renglón propio: dos etiquetas mono seguidas en la misma banda segura. */
   .portada-num { margin-left: var(--sp-2); }
   .portada-num::before { content: '· '; }
 
-  /* ---- 2ª pantalla: el manifiesto sobre la foto ----
-     El velo de esta pantalla es SUYO y es más fuerte que el de la portada,
-     porque aquí el texto ocupa el CENTRO y por el centro pasan la corona de
-     la Torre CN y las ventanas encendidas, que son los píxeles más claros de
-     toda la foto (247). Con .72 ese peor píxel baja a 69, o sea 7.5:1 con las
-     etiquetas mono y 9.1:1 con el titular blanco. */
-  .portada-dos {
-    justify-content: center;
-    /* ARRANCA EN .55 Y NO EN 0, y es la misma lección del 200 %: la rampa de
-       entrada existe para que la pantalla no se lea como una persiana
-       bajando de golpe, pero con el texto grande el bloque crece, se
-       desborda del centrado y su primer renglón puede caer dentro de la
-       rampa. Empezando en .55 el peor píxel de la foto ya está en 111 y sigue
-       pasando: la rampa se sigue viendo y deja de poder ser un agujero de
-       contraste. */
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, .55) 0%,
-      rgba(0, 0, 0, .72) 12%,
-      rgba(0, 0, 0, .72) 100%
-    );
+  /* ---- 2ª pantalla: EL EFECTO DE LA TARJETA ----
+     Papel opaco que sube sobre la foto pegada, con la tarjeta anidada entre
+     las dos mitades del titular. El razonamiento entero (por qué el radio no
+     se anima, en qué degrada) está en el comentario del marcado.
+
+     `overflow: clip` hace DOS trabajos: recorta la tarjeta escalada a 1.9
+     para que a sangre no se le vean las esquinas, y evita que ese transform
+     ensanche el área de scroll de la página (un elemento transformado SÍ
+     cuenta para el scrollable overflow del ancestro — sin esto, check-reflow
+     mediría scroll horizontal durante la animación). */
+  .portada-tarjeta {
+    position: relative; z-index: 1;
+    background: var(--cvh-papel);
+    min-height: 100svh;
+    display: flex; flex-direction: column; justify-content: center;
+    overflow: clip;
+    view-timeline: --tarjeta block;
   }
-  .portada-dos .portada-col {
+  .portada-tarjeta .portada-col {
     display: flex; flex-direction: column; gap: var(--sp-6);
     padding-block: var(--sp-10);
   }
-  /* LA FRASE VA DE BANDERA IZQUIERDA Y NO CENTRADA, que es lo único del ritmo
-     de Ondo que aquí no se copia. Su manifiesto son 18 palabras y su sitio
-     entero está centrado; esta frase son 30 palabras y el resto del documento
-     es de bandera izquierda, así que centrar solo esta la convierte en la
-     excepción de la página en vez de en su declaración — y una cita larga
-     centrada se lee peor, porque cada renglón empieza en un sitio distinto. */
+  /* La escena del titular partido: centrada, que es la composición exacta de
+     Ondo en esta pantalla (el resto del documento sigue de bandera
+     izquierda; esta escena es una portada interior, no un párrafo). */
+  .tarjeta-escena {
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--sp-4);
+    text-align: center;
+  }
+  .tarjeta-n {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: clamp(2rem, 9vw, 4.5rem); line-height: 0.95;
+    letter-spacing: -0.03em; overflow-wrap: break-word;
+    max-width: 100%;
+  }
+  /* LA TARJETA. El radio va ESCRITO y lo que se anima es el transform:
+     ninguna excepción a la regla de motion.css. El fondo oscuro es el
+     letterbox mientras la foto llega (misma razón que .clip-video). */
+  .tarjeta {
+    position: relative;
+    width: min(88vw, 420px);
+    aspect-ratio: 10 / 11;
+    border-radius: clamp(20px, 6vw, 36px);
+    overflow: hidden;
+    background: #0C0C0C;
+  }
+  .tarjeta img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: 38% 30%;
+    display: block;
+  }
+  /* El aro concéntrico del vídeo de referencia: nace pequeño y se disuelve
+     al llegar. Su estado BASE es invisible (opacity 0), así que sin
+     scroll-driven animations no existe. */
+  .tarjeta::after {
+    content: ''; position: absolute; inset: 0;
+    border: 1.5px solid rgba(255, 255, 255, .6);
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* EL MOVIMIENTO, solo donde el navegador sabe conducirlo con el scroll.
+     Los keyframes de tarjeta/foto solo declaran el `from`: el estado final ES
+     el CSS normal, o sea que sin soporte la secuencia degrada a su último
+     fotograma (la tarjeta ya encogida, quieta). `linear` a propósito: el
+     easing lo pone el dedo. */
+  @supports (animation-timeline: view()) {
+    .tarjeta {
+      animation: tarjeta-encoge linear both;
+      animation-timeline: --tarjeta;
+      animation-range: entry 15% entry 95%;
+    }
+    .tarjeta img {
+      animation: tarjeta-foto linear both;
+      animation-timeline: --tarjeta;
+      animation-range: entry 15% entry 95%;
+    }
+    .tarjeta::after {
+      animation: tarjeta-aro linear both;
+      animation-timeline: --tarjeta;
+      animation-range: entry 25% entry 95%;
+    }
+  }
+  @keyframes tarjeta-encoge { from { transform: scale(1.9); } }
+  @keyframes tarjeta-foto { from { transform: scale(1.3); } }
+  @keyframes tarjeta-aro {
+    from { opacity: .9; transform: scale(.7); }
+    60% { opacity: .9; }
+    to { opacity: 0; transform: none; }
+  }
+  /* LA FRASE VA DE BANDERA IZQUIERDA Y NO CENTRADA: son 30 palabras y el
+     resto del documento es de bandera izquierda — una cita larga centrada se
+     lee peor, porque cada renglón empieza en un sitio distinto. */
   .portada-pie {
     margin-top: var(--sp-4);
     font-family: var(--font-mono); font-size: var(--fs-caption);
     letter-spacing: .08em;
+    color: var(--cvh-tinta-2);
   }
 
   /* ---- 3ª pantalla: se acabó la foto ----
@@ -1598,7 +1859,6 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        pegada detrás y hace falta papel opaco que la cubra entera. */
     min-height: 100svh;
     display: flex; flex-direction: column; justify-content: center;
-    scroll-snap-align: start;
   }
   .portada-papel-cierre .portada-col {
     display: flex; flex-direction: column; gap: var(--sp-6);
@@ -1624,6 +1884,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   @media (prefers-reduced-motion: reduce) {
     .portada-lienzo { position: static; }
     .portada-foto { animation: none; }
+    /* La tarjeta también: su estado base es el fotograma final, así que sin
+       animación nace encogida y quieta, y el aro ni existe. */
+    .tarjeta, .tarjeta img, .tarjeta::after { animation: none; }
   }
 
   /* ---- La portada impresa ----
@@ -1645,14 +1908,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     .portada-sombra, .portada-tapa { background: none; }
     .portada-tapa { padding-bottom: 0; }
     .portada-uno { margin-top: 0; }
-    .portada-capa, .portada-papel-cierre { min-height: 0; }
-    .portada-dos { background: none; }
-    .portada-uno, .portada-dos { color: var(--cvh-tinta); }
-    .portada-uno .etiqueta, .portada-dos .etiqueta,
-    .portada-uno .meta-mono, .portada-dos .meta-mono,
-    .portada-uno .portada-num, .portada-dos .pie,
-    .portada-senuelo, .portada-pie { color: var(--cvh-tinta-2); }
-    .portada-dos .indice-lista a { color: var(--cvh-tinta); }
+    .portada-capa, .portada-tarjeta, .portada-papel-cierre { min-height: 0; }
+    .portada-uno { color: var(--cvh-tinta); }
+    .portada-uno .etiqueta,
+    .portada-uno .meta-mono,
+    .portada-uno .portada-num,
+    .portada-senuelo { color: var(--cvh-tinta-2); }
+    /* La tarjeta impresa: la foto ya salió una vez arriba — en papel el
+       efecto no existe, así que no se imprime dos veces la misma ciudad. */
+    .tarjeta, .tarjeta::after { display: none; }
+    .tarjeta, .tarjeta img { animation: none; }
   }
 
   /* ---- Selector de idioma ----
@@ -1699,7 +1964,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .cap-1-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
   @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
-  .cap-1-foto { max-width: 100%; height: auto; display: block; }
+  .cap-1-retrato { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .cap-1-foto { max-width: 100%; height: auto; display: block; border-radius: 18px; }
   /* La Torre CN de Jaime. `max-width` en px y no en `ch` ni en `%`: es una
      figura y su tamaño lo manda la foto, no el texto. Ya viene en gris del
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
@@ -1774,15 +2040,21 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      AFIRMA — o sea de la misma casta que los titulares. La mono se queda con
      el rótulo, que es lo que sí es interfaz. `tabular-nums` igual, que es lo
      que evita que el 1 y el 4 bailen. */
+  /* Cada cifra en su TARJETA blanca (las tarjetas de cifra de Ondo: rótulo
+     arriba, número grande en serif). El borde sustituye a la raya de arriba
+     que las separaba del bloque. */
   .cifras {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(11ch, 100%), 1fr));
-    gap: var(--sp-6) var(--sp-8);
+    gap: var(--sp-3);
     max-width: 720px;
-    border-top: 1px solid var(--cvh-raya);
-    padding-top: var(--sp-6);
   }
-  .cifras li { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .cifras li {
+    display: flex; flex-direction: column-reverse; justify-content: start;
+    gap: var(--sp-3); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 18px;
+    padding: var(--sp-4);
+  }
   .cifra {
     font-family: var(--font-serif); font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -1798,8 +2070,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   /* ---- Fotos y huecos de foto en fila ---- */
   .fila-fotos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-3); max-width: 720px; }
 
-  /* ---- Research (la tarjeta de la mesa, en blanco y negro) ---- */
-  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 0; background: var(--cvh-papel); box-shadow: none; }
+  /* ---- Research (la tarjeta de la mesa, al lenguaje de tarjetas) ----
+     El radio era 0 cuando toda la página iba a esquina recta; desde el brief
+     del 2026-08-28 el lenguaje es el de Ondo (tarjetas redondeadas), así que
+     la tarjeta del reporte va como las demás. */
+  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 18px; background: var(--cvh-papel); box-shadow: none; }
   .rep-name { font-family: var(--font-sans); font-weight: 600; }
   .rep-meta { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-4); margin: 0; }
   .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
@@ -1831,62 +2106,173 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
   .curva-line.flat { color: var(--cvh-tinta-2); }
   .curva-base { stroke: var(--cvh-tinta-3); stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
 
-  /* ---- Clips ---- */
-  .clips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--sp-4); }
-  .clip { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  /* ---- El teaching: tarjetas blancas redondeadas (el lenguaje de Ondo) ----
+     Cada vídeo va en una tarjeta blanca con borde fino y radio de 24px sobre
+     el papel — el bloque de tarjetas de contenido de la referencia. Las dos
+     del set FTR son apaisadas y ocupan doble columna donde caben. */
+  .clips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(15em, 100%), 1fr));
+    gap: var(--sp-4);
+  }
+  .clip {
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-4);
+    background: var(--cvh-papel);
+  }
+  @media (min-width: 34em) {
+    .clip-ancho { grid-column: span 2; }
+  }
+  .clip .recuerdo, .clip .recuerdo img { border-radius: 14px; }
+  .clip .recuerdo img { max-width: 300px; }
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
-  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; }
+  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
   .clip-titulo { font-size: var(--fs-small); color: var(--cvh-tinta); max-width: 40ch; }
+  .clip-anio { color: var(--cvh-tinta-3); }
   .clip-tag {
     align-self: flex-start;
     font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
     letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-2);
-    border: 1px dashed var(--cvh-tinta-3); padding: 4px 8px;
+    border: 1px dashed var(--cvh-tinta-3); padding: 4px 8px; border-radius: 8px;
   }
+  .ens-h { margin-top: var(--sp-6); }
 
-  /* ---- Retratos ---- */
-  /* ---- Las conversaciones, con el ritmo de las citas de Ondo ----
-     Una FILA por conversación en vez de una rejilla de tarjetas: retrato
-     pequeño a la izquierda, y a la derecha el nombre, el cargo y lo que Jaime
-     se llevó, en grande. Es la forma del bloque de citas de Ondo con la
-     diferencia que importa: allí la frase grande es de ellos, aquí es de él.
+  /* ---- Las conversaciones: EL CARRUSEL DE CITAS (tarjetas negras) ----
+     La forma del bloque de citas de Ondo, pedida en el brief: tarjetas negras
+     redondeadas en una fila horizontal con scroll-snap de eje X, foto arriba,
+     nombre y cargo pequeños, la frase grande abajo y las flechas ‹ › debajo.
+     La diferencia que importa —de quién es la frase— está en el comentario
+     del marcado y en el aviso en pantalla.
 
-     EL CORTE VA EN em, como las válvulas de la cinta y las dos mitades del
-     capítulo 7: así se dispara también cuando alguien agranda la letra, en vez
-     de mantener una columna de 200 px reales con dos palabras por renglón.
-     40em son 640 px con la letra por omisión. */
-  .retratos { display: flex; flex-direction: column; }
-  .retrato {
-    display: grid; grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-4);
-    padding-block: var(--sp-6);
-    border-top: 1px solid var(--cvh-raya);
+     EL NEGRO ES EL DE LA PLACA del logo (#101014): esta página ya tiene ese
+     acento oscuro, y las tarjetas son el otro. La tinta clara reutiliza los
+     tokens de la tapa (--cvh-tapa-tinta / -2), que ya están medidos sobre
+     oscuro. El ámbar del hueco dentro de la tarjeta es el --warn del tema
+     OSCURO del sitio (#FFB84D, 11:1 sobre #101014): el del tema claro
+     (#9A6200) se queda en 3.7:1 sobre negro y no pasa para texto pequeño. */
+  .citas-marco { max-width: 100%; }
+  .citas {
+    display: flex; gap: var(--sp-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: var(--sp-1) var(--sp-1) var(--sp-3);
+    /* El anillo de foco de la lista (tabindex=0) no se recorta. */
+    scroll-padding-inline: var(--sp-1);
   }
-  .retrato:first-child { border-top: 0; padding-top: 0; }
-  @media (min-width: 40em) {
-    .retrato { grid-template-columns: minmax(0, 15em) minmax(0, 1fr); gap: var(--sp-6); align-items: start; }
+  .cita {
+    flex: 0 0 min(86%, 340px);
+    scroll-snap-align: start;
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding: var(--sp-5);
+    background: #101014;
+    color: var(--cvh-tapa-tinta);
+    border-radius: 24px;
+    min-width: 0;
   }
-  .retrato-foto { min-width: 0; }
-  .retrato-dicho { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
-  .retrato-nombre { font-weight: 600; }
-  .retrato-rol { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
-  /* El rótulo que dice de quién es la frase de abajo. Con aire por encima
-     para que se lea pegado a la frase y no al cargo de la persona: pegado al
-     cargo se leería como parte de su ficha. */
-  .retrato-llevo { margin-top: var(--sp-3); }
+  .cita-media { min-width: 0; }
+  .cita-foto {
+    display: block; width: min(100%, 200px); height: auto;
+    border-radius: 14px;
+  }
+  .cita .clip-video { max-width: 170px; border-radius: 14px; }
+  .cita-nombre { font-weight: 600; margin-top: var(--sp-2); }
+  .cita-rol, .cita-tipo { font-size: var(--fs-caption); color: var(--cvh-tapa-tinta-2); }
+  /* El rótulo que dice de quién es la frase de abajo, pegado a ella. */
+  .cita-llevo { margin-top: auto; padding-top: var(--sp-3); color: var(--cvh-tapa-tinta-2); }
+  .cita-link { color: var(--cvh-tapa-tinta); }
+  .cita-link:hover { color: var(--cvh-tapa-tinta-2); }
+  .cita :focus-visible { outline-color: var(--cvh-tapa-tinta); }
+  /* Los componentes de hueco, versión para tarjeta oscura. `:global` porque
+     sus estilos tienen ámbito propio (la lección de `.proj` en Hub.astro). */
+  .cita :global(.hueco) { border-color: rgba(255, 255, 255, .5); background: transparent; }
+  .cita :global(.hueco-tag) { color: #FFB84D; }
+  .cita :global(.hueco-que) { color: var(--cvh-tapa-tinta); }
+  .cita :global(.hueco-pista) { color: var(--cvh-tapa-tinta-2); }
+  .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
+  .cita :global(.foto-hueco) { border-color: rgba(255, 255, 255, .5); }
+  .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
+  /* Las flechas: botones de verdad, 44px de blanco, con estado de extremo.
+     `data-inerte` y no `disabled`: un botón deshabilitado suelta el foco del
+     teclado a mitad de recorrido. Sin JavaScript no existen (los esconde el
+     <noscript> de Cv.astro) y la lista se desplaza igual. */
+  .citas-nav { display: flex; gap: var(--sp-3); margin-top: var(--sp-2); }
+  .citas-btn {
+    min-width: 44px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--cvh-tinta-3); border-radius: 12px;
+    background: var(--cvh-papel); color: var(--cvh-tinta);
+    font-size: 1.25rem; line-height: 1; cursor: pointer;
+  }
+  .citas-btn:hover { background: var(--bg-2); }
+  .citas-btn[data-inerte] { opacity: .35; cursor: default; }
+  .citas-btn[data-inerte]:hover { background: var(--cvh-papel); }
+
+  /* ---- Certificaciones: tarjetas diseñadas, no capturas ---- */
+  .certs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
+    gap: var(--sp-4); max-width: 960px;
+  }
+  .cert {
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-5); background: var(--cvh-papel);
+  }
+  .cert-nombre { font-weight: 600; overflow-wrap: anywhere; }
+  .cert-anio { color: var(--cvh-tinta-2); font-size: var(--fs-small); }
+  /* El hueco de la imagen empuja el enlace al pie de la tarjeta. `:global`
+     porque FotoHueco tiene su propio ámbito de estilos. */
+  .cert :global(.foto-hueco) { margin-top: auto; }
+  /* La tarjeta del francés: afirmación, no recibo — borde discontinuo y su
+     marca en ámbar, el color con el que este sitio dice «ojo con esto». */
+  .cert-afirmacion { border-style: dashed; }
+  .cert-claim { color: var(--warn); }
+
+  /* ---- Cartas de recomendación: los tres huecos honestos ---- */
+  .cartas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
+    gap: var(--sp-4); max-width: 960px;
+  }
+  .carta-hueco {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding: var(--sp-5);
+    border: 1px dashed var(--cvh-tinta-3);
+    border-radius: 24px;
+    min-height: 11em;
+  }
+  .carta-tag {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--warn);
+  }
+  .carta-pista { color: var(--cvh-tinta); }
+  .carta-campos { margin-top: auto; color: var(--cvh-tinta-2); }
 
   /* ---- Servir ---- */
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
-  /* ---- Los proyectos (cap 5): el grupo primero, el sitio después ----
-     Dos bloques uno debajo del otro, separados por una raya. NO son dos
-     columnas: el del sitio lleva la cinta, que necesita ancho, y partirla en
-     media pantalla es lo que sus propias válvulas (más arriba) evitan. */
-  .bloques { display: flex; flex-direction: column; gap: var(--sp-8); }
-  .bloque { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
-  .bloque + .bloque { border-top: 1px solid var(--cvh-raya); padding-top: var(--sp-8); }
+  /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
+     Tres tarjetas una debajo de la otra: el grupo, el sitio (con la cinta y
+     las cifras) y Jasa Motor. NO son columnas: el del sitio lleva la cinta,
+     que necesita ancho, y partirla en media pantalla es lo que sus propias
+     válvulas (más arriba) evitan. La tarjeta blanca con borde fino y radio
+     de 24 es el bloque de contenido de la referencia. */
+  .bloques { display: flex; flex-direction: column; gap: var(--sp-5); max-width: 960px; }
+  .bloque {
+    display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: clamp(var(--sp-4), 3vw, var(--sp-6));
+    background: var(--cvh-papel);
+  }
+  .grupo-tec { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 480px; }
+  /* El cuadro de la presentación en la NUS (el rescatado): misma receta que
+     .grupo-tec — figura suelta, pie debajo, ancho capado para que una foto
+     casi cuadrada no se coma el capítulo. */
+  .arco-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 440px; }
   /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
      omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
 
@@ -1955,7 +2341,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      con animation-timeline: view(): cero JS, +149 B medidos, y sin soporte
      (Firefox estable) la foto se ve entera y quieta. Casta 3: titulares,
      listas secas y recibos NO se mueven.  */
-  .recuerdo { display: block; overflow: hidden; }
+  /* Radio de tarjeta también en los marcos de foto (el lenguaje del brief). */
+  .recuerdo { display: block; overflow: hidden; border-radius: 14px; }
   .recuerdo img { display: block; width: 100%; height: auto; }
 
   @supports (animation-timeline: view()) {

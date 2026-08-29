@@ -33,6 +33,9 @@ const { c, que, ratio = '4 / 3', class: cls } = Astro.props;
     display: flex; flex-direction: column; justify-content: center; gap: 6px;
     padding: var(--sp-4);
     border: 1px dashed var(--cvh-tinta-3, var(--ink-3));
+    /* Redondeado como las tarjetas del CV (brief 2026-08-28): la caja
+       reserva el rectángulo de una foto que irá con el mismo radio. */
+    border-radius: 14px;
     background: transparent;
     min-width: 0;
   }

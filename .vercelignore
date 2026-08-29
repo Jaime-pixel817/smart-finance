@@ -55,6 +55,7 @@
 /public/assets/breakdowns
 /public/assets/marcas
 /public/assets/portada
+/public/assets/cv-fotos
 
 # Los borradores de difusión que genera `npm run derive` (content/derivados/).
 # Nada del build los lee y no se sirven: son material de trabajo (posts,
