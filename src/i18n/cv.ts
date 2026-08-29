@@ -469,12 +469,16 @@ const en = {
     //     LinkedIn lo dice ("CFA Institute Investment Foundations Certificate").
     //   · Vista Equity Partners / Bank of America, en Forage: sus dos
     //     publicaciones de LinkedIn sobre las simulaciones.
-    // Las otras tres van SIN emisor a propósito. "Cambridge English" para el
-    // B2 estaba inventado: el PDF no lo dice en ninguna parte, y un CV que
-    // adivina quién expide un certificado es un CV que se puede desmentir.
-    // "Bloomberg" para el Bloomberg Finance Fundamentals tampoco sale del
-    // PDF — que el nombre del certificado empiece por la marca no es la
-    // fuente de que la marca lo expida.
+    //   · Bloomberg Finance Fundamentals — Bloomberg: su publicación lo dice
+    //     con esas palabras («…program from Bloomberg», MATERIAL.md LI-19).
+    //     La fuente es ese «from Bloomberg», NO que el nombre empiece por la
+    //     marca — eso solo no bastaría. (Recibo actualizado el 2026-08-29:
+    //     antes aquí decía que Bloomberg iba sin emisor, y la fila ya lo
+    //     llevaba con fuente.)
+    // Las otras DOS (Green Technology, B2) van SIN emisor a propósito.
+    // "Cambridge English" para el B2 estaba inventado: el PDF no lo dice en
+    // ninguna parte, y un CV que adivina quién expide un certificado es un
+    // CV que se puede desmentir.
     // Cuando falta el emisor, la columna de la derecha también lo pide.
     // ── TARJETAS DISEÑADAS, NO CAPTURAS (brief 2026-08-28) ───────────────
     // Los recortes de los certificados de LinkedIn NO se pudieron guardar en
