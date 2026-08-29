@@ -353,7 +353,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
 ---
 <div class="historia">
 
-  <!-- ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
+  {/* ════ 01 · LA PORTADA A SANGRE ═══════════════════════════════════════
        El capítulo 1 sigue siendo UNO —el orden que aprobó Jaime no se toca—,
        pero ahora ocupa tres pantallas seguidas:
 
@@ -404,20 +404,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        y velo NEGRO— y no lo que hacía la versión anterior de esta portada, que
        tenía una foto de cielo nublado y la resolvía con una tapa de PAPEL. Los
        números, la cuenta de la que salen y las 200 mediciones que la
-       comprueban están en el bloque de estilo de abajo. -->
+       comprueban están en el bloque de estilo de abajo. */}
   <header class="cap cap-portada" aria-labelledby={`${p}-h1`}>
 
-    <!-- LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
+    {/* LA FOTO. `sticky` con ALTURA CERO: así no ocupa sitio en el flujo y
          las tres pantallas de este capítulo pasan por encima de ella en vez
          de detrás. Se queda pegada mientras dura el capítulo y se va con él.
          Es el LCP de la página, así que no lleva `lazy` y sí prioridad alta;
-         el preload está en la cabecera (src/layouts/Cv.astro). -->
+         el preload está en la cabecera (src/layouts/Cv.astro). */}
     <div class="portada-lienzo" aria-hidden="true">
-      <!-- DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical va
+      {/* DOS RECORTES, ELEGIDOS POR LA FORMA DE LA PANTALLA. El vertical va
            primero porque el navegador se queda con el PRIMER `<source>` cuyo
            `media` y `type` casen; la razón entera (la Torre CN cae fuera del
            recorte centrado de la panorámica, y ni con `object-position` sale
-           la resolución) está en src/lib/cv/portada.ts. -->
+           la resolución) está en src/lib/cv/portada.ts. */}
       <picture>
         <source media={PORTADA_MEDIA_ALTO} type="image/avif"
           srcset={portadaSrcsetAlto('avif')} sizes={PORTADA_SIZES_ALTO}
@@ -435,25 +435,25 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       <div class="portada-sombra"></div>
     </div>
 
-    <!-- ── 1ª pantalla: la portada ───────────────────────────────────────
+    {/* ── 1ª pantalla: la portada ───────────────────────────────────────
          `role="img"` no: la foto tiene su descripción en el texto alterno de
-         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre. -->
+         más abajo (`.portada-pie`), que es visible. Aquí solo va el nombre. */}
     <div class="portada-capa portada-uno">
-     <!-- LA TAPA DE PAPEL. Va a sangre (por eso no es la columna) y su ALTO ES
+     {/* LA TAPA DE PAPEL. Va a sangre (por eso no es la columna) y su ALTO ES
           EL DEL TEXTO, no una fracción de la pantalla: ahí está el arreglo del
-          bug del 200 %. Ver el bloque de estilo. -->
+          bug del 200 %. Ver el bloque de estilo. */}
      <div class="portada-tapa">
      <div class="portada-col">
       <div class="portada-barra">
-        <!-- LA ETIQUETA Y EL NÚMERO DE CAPÍTULO VAN LOS DOS AQUÍ ARRIBA, y no
+        {/* LA ETIQUETA Y EL NÚMERO DE CAPÍTULO VAN LOS DOS AQUÍ ARRIBA, y no
              es maquetación: es contraste. Puestos abajo (que es donde
              estaban) caen sobre la cuña negra del edificio de la izquierda,
              donde el peor píxel de la foto es 0 y el gris de las etiquetas
              (#6E6E6E) da 1.1:1 — ilegible. La banda de arriba está garantizada
              por el velo (≥ 15.9:1 en el 22 % superior), así que ahí es donde
-             puede vivir cualquier texto pequeño. -->
+             puede vivir cualquier texto pequeño. */}
         <p class="etiqueta">{c.head.eyebrow} <span class="portada-num">{num(0)}</span></p>
-        <!-- ── Idioma ────────────────────────────────────────────────────
+        {/* ── Idioma ────────────────────────────────────────────────────
              Mismo mecanismo de siempre: :target en Cv.astro, cero
              JavaScript. El `href` que va ESCRITO es `#en`/`#es`, que
              funciona en todas partes; el `data-lang` es para que el guion en
@@ -465,7 +465,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
              y el capítulo tenía que reservarle una banda en `em` para que no
              se montara encima de «01 / 09» con el texto al 200 %. En una
              fila normal ese problema no existe: la fila crece con la letra
-             porque es la letra la que la mide. -->
+             porque es la letra la que la mide. */}
         <nav class="cv-lang" aria-label={c.lang.aria}>
           <a href="#en" data-lang="en" class:list={['cv-lang-a', locale === 'en' && 'on']}
             aria-current={locale === 'en' ? 'page' : undefined} lang="en">{c.lang.en}</a>
@@ -474,14 +474,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </nav>
       </div>
 
-      <!-- EL NOMBRE PARTIDO EN DOS CON EL SEÑUELO EN MEDIO, que es la forma
+      {/* EL NOMBRE PARTIDO EN DOS CON EL SEÑUELO EN MEDIO, que es la forma
            exacta del titular de Ondo. Las dos mitades son `<span>` dentro
            del MISMO `<h1>`: para un lector de pantalla el título sigue
            siendo «Jaime Sandoval Ricaño», de una pieza.
            El señuelo va `aria-hidden`: es una instrucción para el ojo, y a
            quien navega con teclado o lector no le sirve («baja» no es una
            acción que pueda hacer). Quien tabula llega al índice, que está
-           una pantalla más abajo y lleva a todos los capítulos. -->
+           una pantalla más abajo y lleva a todos los capítulos. */}
       <h1 class="hist-name portada-h1" id={`${p}-h1`}>
         <span class="portada-n1">{c.head.nameL1}</span>
         <span class="portada-senuelo meta-mono" aria-hidden="true">
@@ -493,7 +493,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
      </div>
     </div>
 
-    <!-- ── 2ª pantalla: EL EFECTO DE LA TARJETA (la secuencia de Ondo) ────
+    {/* ── 2ª pantalla: EL EFECTO DE LA TARJETA (la secuencia de Ondo) ────
          Es el paso 2 del vídeo de referencia (cv-material/referencia-efecto):
          al bajar, la foto de portada SE ENCOGE EN UNA TARJETA de esquinas
          redondeadas que queda anidada ENTRE las dos mitades del titular, ya
@@ -529,7 +529,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
          lo dio el <h1> de la tapa una pantalla antes, y repetirlo aquí en el
          árbol de accesibilidad sería anunciarlo dos veces. Lo mismo la
          tarjeta: es la foto de portada otra vez (su descripción visible sigue
-         en la 3ª pantalla). -->
+         en la 3ª pantalla). */}
     <div class="portada-tarjeta">
      <div class="portada-col">
       <div class="tarjeta-escena" aria-hidden="true">
@@ -543,21 +543,21 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </div>
         <p class="tarjeta-n">{c.head.nameL2}</p>
       </div>
-      <!-- Palabras de Jaime, con la ortografía y la puntuación pulidas y
+      {/* Palabras de Jaime, con la ortografía y la puntuación pulidas y
            nada más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
            final). En el panel inglés es una TRADUCCIÓN y lo dice arriba
            (`aperturaTag`, vacío en español): unas comillas sin marca se leen
            como sus palabras exactas. Misma regla que `voz.pe` y que la
            traducción de la frase final. AHORA VA SOBRE PAPEL, no sobre la
            foto: es el mismo movimiento de Ondo (su manifiesto entra en blanco
-           justo debajo de la segunda mitad del titular). -->
+           justo debajo de la segunda mitad del titular). */}
       <blockquote class="abre">
         {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
         <p>{c.voz.apertura}</p>
       </blockquote>
-      <!-- EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
+      {/* EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
            QUE ANTES: es la salida de emergencia del lector con prisa y tiene
-           que verse sin bajar más. -->
+           que verse sin bajar más. */}
       <div class="indice-linea">
         <p class="meta-mono">{c.indice.resumen}</p>
         <details class="indice">
@@ -573,26 +573,26 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           </ol>
         </details>
       </div>
-      <!-- El pie de foto: de quién es. Va en la pantalla de la tarjeta, que
-           es la última en la que la foto se ve. -->
+      {/* El pie de foto: de quién es. Va en la pantalla de la tarjeta, que
+           es la última en la que la foto se ve. */}
       <p class="portada-pie">{c.head.portadaPie}</p>
      </div>
     </div>
 
-    <!-- ── 3ª pantalla: ya sobre papel ───────────────────────────────────
+    {/* ── 3ª pantalla: ya sobre papel ───────────────────────────────────
          Aquí se acaba la foto y empieza el documento. El retrato de Jaime
          deja de ser el LCP (lo es la portada), así que baja a carga normal:
-         a esta altura ya se hizo scroll. -->
+         a esta altura ya se hizo scroll. */}
     <div class="portada-papel-cierre">
      <div class="portada-col">
       <div class="cap-1-cuerpo">
         <div class="cap-1-texto">
-          <!-- texto de Jaime (su meta), pendiente de su revisión final -->
+          {/* texto de Jaime (su meta), pendiente de su revisión final */}
           <p class="meta-mono">{c.head.meta}</p>
-          <!-- El hueco «What I'm applying to» YA NO EXISTE: Jaime lo pidió
+          {/* El hueco «What I'm applying to» YA NO EXISTE: Jaime lo pidió
                fuera (brief 2026-08-28). En su lugar habla él: la cita
                VERBATIM de su publicación sobre la visita a la U of T, que es
-               la línea de a dónde apunta este CV. -->
+               la línea de a dónde apunta este CV. */}
           <blockquote class="voz">
             {c.voz.torontoTag && <p class="meta-mono">{c.voz.torontoTag}</p>}
             <p>{c.voz.toronto}</p>
@@ -600,10 +600,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           </blockquote>
           <Hueco c={c} id="quienSoy" />
         </div>
-        <!-- SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
+        {/* SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
              micrófono en Singapur. Pasa por build-photos.mjs con huella,
              como todas; el retrato de /about (jaime-320) deja de usarse aquí
-             para no repetir a la misma persona dos veces en una pantalla. -->
+             para no repetir a la misma persona dos veces en una pantalla. */}
         <figure class="cap-1-retrato">
           <img class="cap-1-foto" src={foto('cv-retrato-480.webp')}
             srcset={`${foto('cv-retrato-480.webp')} 480w, ${foto('cv-retrato-800.webp')} 800w`}
@@ -612,7 +612,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
           <figcaption class="pie">{c.head.retratoPie}</figcaption>
         </figure>
       </div>
-      <!-- La descripción de la foto de PORTADA, VISIBLE y no solo en un
+      {/* La descripción de la foto de PORTADA, VISIBLE y no solo en un
            `alt`: la imagen es decorativa para el lector de pantalla (el
            `alt=""` de arriba) porque describirla dos veces sería repetirla,
            y aquí cuenta lo que se ve para quien no la ve.
@@ -622,16 +622,16 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
            agua» justo debajo de una foto de la torre desde abajo. Ahora cierra
            la tapa antes de que empiece la foto suya, y dice de qué habla.
            El rótulo va en un `<span>` dentro del mismo párrafo: para un lector
-           de pantalla sigue siendo una sola frase. -->
+           de pantalla sigue siendo una sola frase. */}
       <p class="pie portada-alt"><span class="portada-alt-rotulo">{c.head.portadaAltRotulo}:</span> {c.head.portadaAlt}</p>
-      <!-- LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
+      {/* LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
            portada pasó a copiar el encuadre de Ondo (la ciudad desde el agua,
            a lo ancho), que es un plano que él no tiene. No se tira: baja aquí,
            pegada a la línea donde dice a dónde aplica, porque es de lo que
            habla esa línea — y porque una foto que hizo él vale más que una de
            banco de imágenes. Su pie lo dice, y lo dice antes que el crédito de
            la portada, que va una pantalla más arriba: quien llegue hasta aquí
-           ya sabe cuál es de quién. -->
+           ya sabe cuál es de quién. */}
       <figure class="cap-1-figura">
         <img src={foto('cv-torre-520.webp')}
           srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
@@ -646,10 +646,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
   </header>
 
-  <!-- ════ 02 · Experiencias — en seco, sin movimiento (casta 3) ══════════
+  {/* ════ 02 · Experiencias — en seco, sin movimiento (casta 3) ══════════
        Jaime las quiere justo después de la frase: primero lo que ha hecho,
        después lo que ha construido. Este capítulo y las certificaciones son
-       los que un comité escanea, y por eso no se mueven. -->
+       los que un comité escanea, y por eso no se mueven. */}
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
@@ -665,40 +665,40 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </ol>
   </section>
 
-  <!-- ════ 03 · Servir — los voluntariados ════════════════════════════════
+  {/* ════ 03 · Servir — los voluntariados ════════════════════════════════
        "Experiencias, voluntariados": van pegados, en ese orden.
        EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
        (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
        voluntariados de su frase: los animalitos y las playas. La comunidad
-       sigue nombrada en su cita, que es verbatim y no se toca. -->
+       sigue nombrada en su cita, que es verbatim y no se toca. */}
   <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
     <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(2)}</p>
     <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
+    {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
 
     <div class="servir">
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        <!-- El clip existe en su TikTok: se sirve desde aquí, sin bucle y
-             sin sonar solo (`controls` + `preload="none"`). -->
+        {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
+             sin sonar solo (`controls` + `preload="none"`). */}
         <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
           data-poster="/assets/cv/cv-poster-animales.jpg"></video>
         <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
           poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
         <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
-        <!-- La donación al stand de adopción: hecho de su publicación en
+        {/* La donación al stand de adopción: hecho de su publicación en
              LinkedIn (2026). Las fotos no se pudieron guardar en esta
-             cosecha; el hecho entra igual, sin foto. -->
+             cosecha; el hecho entra igual, sin foto. */}
         <p class="cap-frases">{c.servir.donacion}</p>
         <Hueco c={c} id="servirAnimales" />
       </div>
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.playas}</h3>
-        <!-- LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
+        {/* LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
              línea sale de su propia publicación sobre el voluntariado del
-             curso de Green Technology. -->
+             curso de Green Technology. */}
         <p class="cap-frases">{c.servir.playa}</p>
         <FotoHueco c={c} que={c.fotosPend.playas} />
         <Hueco c={c} id="servirPlayas" />
@@ -706,7 +706,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
+  {/* ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
        El "etc" de "experiencias, voluntariados, etc": la gente con la que
        habló es una experiencia más, y va con ellas, antes de los proyectos.
 
@@ -730,19 +730,19 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        una cita suya. Y encima del bloque va escrito, en una frase, que nadie
        de aquí lo está respaldando.
 
-       La frase de cada uno sigue siendo un hueco hasta que él la escriba. -->
+       La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
   <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(3)}</p>
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
-    <!-- texto de Jaime, pendiente de su revisión final -->
+    {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
-    <!-- La frase que impide que este capítulo se lea como una lista de avales.
+    {/* La frase que impide que este capítulo se lea como una lista de avales.
          Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
-         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. -->
+         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
     <p class="pie">{c.entrevistas.aviso}</p>
 
-    <!-- ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
+    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
          Tarjetas negras redondeadas en scroll horizontal con imán de eje X
          (el imán vertical de la página se quitó; ESTE es otro gesto: una
          lista de tarjetas que pagina de lado, que es justo para lo que
@@ -755,7 +755,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
          LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
          es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
          su rótulo delante y sin comillas — y el aviso de arriba lo dice con
-         todas las letras. Eso no se negocia con la estética. -->
+         todas las letras. Eso no se negocia con la estética. */}
     <div class="citas-marco" data-citas>
       <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
         {citas.map((rt) => {
@@ -778,9 +778,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
             <p class="cita-nombre">{per.nombre}</p>
             {per.rol && <p class="cita-rol">{per.rol}</p>}
             {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
-            <!-- EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
+            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
                  no: en cuanto Jaime escriba la frase este renglón es lo único
-                 que separa «lo que me llevé» de «lo que me dijeron». -->
+                 que separa «lo que me llevé» de «lo que me dijeron». */}
             <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
             <Hueco c={c} id={rt.hueco} grande />
             {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
@@ -794,26 +794,29 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
       </div>
     </div>
 
-    <!-- ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
+    {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
          Primero las conversaciones, después lo que él enseña SOLO: es el
          orden que pidió. Aquí van únicamente los vídeos donde él da la
          información (consejos, datos, noticias) — reclasificados con el
          material: la entrevista de «skills» que vivía aquí subió al carrusel.
          Jamás un embed de TikTok; el clip de Singapur se sirve desde este
-         dominio y el resto va como cuadro del vídeo + enlace al original. -->
+         dominio y el resto va como cuadro del vídeo + enlace al original. */}
     <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
-    <!-- texto de Jaime, pendiente de su revisión final -->
+    {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
     <Hueco c={c} id="tiktokNota" />
     <p class="pie">{c.tiktok.ensenaLede}</p>
 
+    {/* El vídeo de cada clip va servido por NOSOTROS. Sin sonido (el sonido
+         está en el original, a un enlace). `controls` SIEMPRE (WCAG 2.2.2);
+         el bucle solo del que está a la vista lo lleva cv-clips.ts.
+         OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
+         de la expresión del ternario un {/* *\/} no es un comentario de
+         plantilla sino JS crudo, y rompe el compilado. */}
     <ul class="clips">
       {ensena.map((v) => (
         <li class:list={['clip', v.ancha && 'clip-ancho']}>
           {v.clip ? (
-            <!-- Servido por NOSOTROS. Sin sonido (el sonido está en el
-                 original, a un enlace). `controls` SIEMPRE (WCAG 2.2.2); el
-                 bucle solo del que está a la vista lo lleva cv-clips.ts. -->
             <video {...attrsClip(v.clip, v.titulo, true)} data-poster={v.poster}></video>
             <noscript><video {...attrsClip(v.clip, v.titulo, true)} poster={v.poster}></video></noscript>
           ) : (
@@ -832,7 +835,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </ul>
     <p class="pie">{c.clip.pista}</p>
 
-    <!-- Los consejos sin imagen utilizable: fila seca con su enlace. -->
+    {/* Los consejos sin imagen utilizable: fila seca con su enlace. */}
     <ol class="lista-seca">
       {c.tiktok.sinImagen.map((f) => (
         <li>
@@ -855,7 +858,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
   </section>
 
-  <!-- ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
+  {/* ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
        "luego mis proyectos y arrancas con el grupo estudiantil": el orden de
        dentro del capítulo lo pidió él, y el grupo abre porque es lo que
        fundó y preside. Después, smartfinance.lat con la prueba viva.
@@ -865,7 +868,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
 
        MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
        cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
-       está mirando y no pide el ojo —, así que no compiten. -->
+       está mirando y no pide el ojo —, así que no compiten. */}
   <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(4)}</p>
@@ -877,23 +880,23 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <div class="grupo">
           <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
           <div class="grupo-texto">
-            <!-- Hecho publicado en /community, en primera persona de Jaime. -->
+            {/* Hecho publicado en /community, en primera persona de Jaime. */}
             <p class="cap-frases">{c.proyectos.grupo}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
-        <!-- El cuadro de la promo del grupo (otro vídeo, otra imagen: la
+        {/* El cuadro de la promo del grupo (otro vídeo, otra imagen: la
              regla de «ninguna imagen dos veces» habla de archivos, y este es
-             el cuadro del vídeo de promo de 2026 en el Tec). -->
+             el cuadro del vídeo de promo de 2026 en el Tec). */}
         <figure class="grupo-tec">
           <span class="recuerdo"><img src={foto('cv-tt-grupo.webp')} alt={c.proyectos.grupoTecAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.proyectos.grupoTecPie} <a class="hist-link" href={urlVideo('7675228112342289685')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
         </figure>
       </div>
 
-      <!-- `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
+      {/* `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
            dentro de cada raíz su chip y sus filas, así que la raíz tiene que
-           ser el trozo que las contiene. -->
+           ser el trozo que las contiene. */}
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
@@ -925,7 +928,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </ul>
         <p class="pie">{c.tape.note} {c.tape.fail}</p>
 
-        <!-- ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
+        {/* ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
              El otro ritmo que se copia de Ondo: tres cifras al tamaño de un
              titular con su rótulo debajo. Lo que NO se copia es cuáles y cómo
              se mueven, y las dos cosas están razonadas.
@@ -949,7 +952,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
              se anima. Además la regla de movimiento del sitio da UNA animación
              que llame la atención por pantalla, y en esta ya se la gasta la
              cinta, que es el único número de la pantalla que de verdad llega
-             en caliente. Lo que sí se copia es la escala. -->
+             en caliente. Lo que sí se copia es la escala. */}
         <ul class="cifras">
           <li>
             <span class="cifra num">{nPruebas}</span>
@@ -969,17 +972,17 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
 
-      <!-- ── Jasa Motor (bloque nuevo, brief del 2026-08-28) ──────────────
+      {/* ── Jasa Motor (bloque nuevo, brief del 2026-08-28) ──────────────
            EL FRAMING ES EL FAMILIAR Y LO APROBÓ JAIME: la refaccionaria es
            de su familia, y él desarrolló la tienda en línea y lleva el
            marketing para apoyar a su papá. NO se escribe «CEO». Su frase va
            como voz.* (pulida, pendiente de su revisión final) y el dato del
            negocio (Cuautitlán, 20+ años) sale del propio sitio de la
            refaccionaria, verificado el 2026-08-28. El enlace es a la tienda
-           que él construyó — la prueba de que existe. -->
+           que él construyó — la prueba de que existe. */}
       <div class="bloque">
         <h3 class="t-h3">{c.proyectos.jasaH}</h3>
-        <!-- texto de Jaime, pendiente de su revisión final -->
+        {/* texto de Jaime, pendiente de su revisión final */}
         <blockquote class="voz">
           {c.voz.jasaTag && <p class="meta-mono">{c.voz.jasaTag}</p>}
           <p>{c.voz.jasa}</p>
@@ -993,7 +996,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 06 · Reto Actinver y private equity — A LA PAR ═════════════════
+  {/* ════ 06 · Reto Actinver y private equity — A LA PAR ═════════════════
        Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
        par del de private equity». A la par NO es uno detrás de otro, así que
        no son dos capítulos: es uno con dos mitades que se leen juntas —
@@ -1005,24 +1008,24 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
        por FECHAS (la fase de hoy se calcula en /research, no aquí), la
        cartera del concurso del mismo archivo que lee la página pública, y la
        tarjeta del reporte de loadReport. El logo va con las reglas del repo:
-       pequeño, placa oscura, y la línea de no afiliación. -->
+       pequeño, placa oscura, y la línea de no afiliación. */}
   <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
     <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(5)}</p>
     <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
 
     <div class="par">
-      <!-- ── Mitad 1: el reto ── -->
+      {/* ── Mitad 1: el reto ── */}
       <div class="par-col">
         <h3 class="t-h3">{c.dos.actinverH}</h3>
-        <!-- texto de Jaime, pendiente de su revisión final -->
+        {/* texto de Jaime, pendiente de su revisión final */}
         <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
         <p class="cap-lede">{c.reto.lede}</p>
 
         <div class="reto-marca">
-          <!-- Placa oscura FIJA: el logo lo publican blanco con el punto
+          {/* Placa oscura FIJA: el logo lo publican blanco con el punto
                dorado, para fondo oscuro. Recolorearlo sería deformar una
-               marca ajena. -->
+               marca ajena. */}
           <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
           <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
         </div>
@@ -1066,20 +1069,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
         </div>
       </div>
 
-      <!-- ── Mitad 2: el private equity ── -->
+      {/* ── Mitad 2: el private equity ── */}
       <div class="par-col">
         <h3 class="t-h3">{c.dos.peH}</h3>
-        <!-- texto de Jaime, pendiente de su revisión final. Su «es a lo que
+        {/* texto de Jaime, pendiente de su revisión final. Su «es a lo que
              me quiero dedicar» era el título del capítulo viejo; ahora lo
-             dice él y no un rótulo. -->
+             dice él y no un rótulo. */}
         <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
-        <!-- Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
+        {/* Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
              inglés, así que el panel español enseña una traducción Y LO DICE
              ARRIBA (`voz.peTag`, vacío en inglés): unas comillas atribuidas a
              su post, sin marca, se leen como sus palabras exactas. Misma
              regla que la traducción de la frase final. El recorte va dentro
              de la cita con su «[…]». El recibo de la simulación está en el
-             capítulo de las certificaciones. -->
+             capítulo de las certificaciones. */}
         <blockquote class="voz">
           {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
           <p>{c.voz.pe}</p>
@@ -1117,13 +1120,13 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 07 · Certificaciones — los recibos, sin adjetivos ══════════════ -->
+  {/* ════ 07 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
   <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
     <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(6)}</p>
     <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
-    <!-- ══ TARJETAS DE CERTIFICADO DISEÑADAS (brief 2026-08-28) ════════════
+    {/* ══ TARJETAS DE CERTIFICADO DISEÑADAS (brief 2026-08-28) ════════════
          Los recortes de LinkedIn no se pudieron guardar en la cosecha, así
          que cada certificado va como TARJETA diseñada —emisor, nombre, año y
          «Verlo en LinkedIn» a su perfil, que es donde está publicado— con un
@@ -1132,7 +1135,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
          el año, la tarjeta LO DICE en vez de adivinarlo.
          La de FRANCÉS A2 es distinta y lo dice en pantalla: afirmación suya
          pendiente de verificación — sin emisor, sin imagen y sin enlace,
-         porque no hay certificado publicado que enlazar. -->
+         porque no hay certificado publicado que enlazar. */}
     <ul class="certs">
       {c.certs.filas.map((f) => (
         <li class="cert">
@@ -1151,20 +1154,20 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </ul>
   </section>
 
-  <!-- ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
+  {/* ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
        SECCIÓN NUEVA (brief del 2026-08-28), después de las certificaciones y
        antes de la frase. Hoy NO hay ninguna carta entregada y la sección lo
        dice: tres recuadros con el patrón de hueco del CV, con los campos que
        un comité puede verificar (nombre, cargo, relación, contacto). Cuando
        exista una carta de verdad, su recuadro se rellena; hasta entonces, el
-       borde discontinuo dice que falta. NUNCA un nombre inventado. -->
+       borde discontinuo dice que falta. NUNCA un nombre inventado. */}
   <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(7)}</p>
     <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
-    <!-- <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
-         atrapó axe) y estos recuadros son notas, como los FotoHueco. -->
+    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
     <div class="cartas">
       {c.cartas.slots.map((pista) => (
         <div class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
@@ -1176,10 +1179,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     </div>
   </section>
 
-  <!-- ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
+  {/* ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
        La que ya estaba, sin tocar. En español en los dos paneles: es su voz.
        El panel inglés lleva debajo la traducción, pequeña y marcada como
-       traducción. La página abre con una frase suya y cierra con otra. -->
+       traducción. La página abre con una frase suya y cierra con otra. */}
   <section class="cap cap-frase" aria-labelledby={`${p}-cap-9-h`}>
     <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
     <h2 class="visually-hidden" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
@@ -1191,8 +1194,8 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + capitulos.le
     )}
     <div class="cierre">
       <p class="cierre-nombre">{c.head.name}</p>
-      <!-- EL PIE, COMO LO PIDIÓ JAIME (brief 2026-08-28): sus dos redes y
-           smartfinance.lat. El enlace de «el código, en GitHub» se quitó. -->
+      {/* EL PIE, COMO LO PIDIÓ JAIME (brief 2026-08-28): sus dos redes y
+           smartfinance.lat. El enlace de «el código, en GitHub» se quitó. */}
       <p class="links-row">
         <a class="hist-link" href={LINKEDIN} target="_blank" rel="noopener">{c.contacto.linkedin} ↗</a>
         <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.contacto.tiktok} ↗</a>

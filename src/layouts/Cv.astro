@@ -132,13 +132,13 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   <title>{c.docTitle}</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <!-- Blanca en los dos esquemas: el blanco es del documento. -->
+  {/* Blanca en los dos esquemas: el blanco es del documento. */}
   <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href={FAVICON}>
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
-  <!-- LA PORTADA ES LO PRIMERO QUE SE VE, así que su descarga no espera al
+  {/* LA PORTADA ES LO PRIMERO QUE SE VE, así que su descarga no espera al
        marcado. `imagesrcset` e `imagesizes` salen del MISMO módulo que el
        `<picture>` de Historia.astro (src/lib/cv/portada.ts): si no
        coincidieran carácter por carácter, el navegador descargaría un
@@ -171,7 +171,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
        Lo que hace que eso no se note es el negro de `.portada-lienzo`: la tapa
        nace oscura con o sin foto, y la apertura arranca al 34 % de brillo, o
        sea casi de ese mismo negro. Una foto que llega 200 ms tarde entra donde
-       ya había negro, no donde había un hueco. -->
+       ya había negro, no donde había un hueco. */}
   <link rel="preload" as="image" type="image/avif"
     media={PORTADA_MEDIA_ALTO}
     imagesrcset={portadaSrcsetAlto('avif')} imagesizes={PORTADA_SIZES_ALTO}>
@@ -180,11 +180,14 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
     imagesrcset={portadaSrcset('avif')} imagesizes={PORTADA_SIZES}>
 
   {/* ═══ LOS PÓSTERES DE LOS CLIPS, SIN JAVASCRIPT ══════════════════════
-       ESTE COMENTARIO VA EN LLAVES Y NO EN <!-- -->: un comentario HTML se
-       EMITE, y este mide 1.4 KB. En la página cuyo bug era «109 KB que nadie
-       mira», explicar el arreglo no puede costar 555 B comprimidos en cada
-       carga (medido: el documento pasaba de 37 325 a 37 880 B gzip). En
-       llaves es un comentario de JavaScript: se queda en el repositorio.
+       ESTE COMENTARIO VA EN LLAVES Y NO COMO COMENTARIO HTML: un comentario
+       HTML se EMITE, y este mide 1.4 KB. En la página cuyo bug era «109 KB
+       que nadie mira», explicar el arreglo no puede costar 555 B comprimidos
+       en cada carga (medido: el documento pasaba de 37 325 a 37 880 B gzip).
+       En llaves es un comentario de JavaScript: se queda en el repositorio.
+       Desde el 2026-08-29 TODOS los comentarios de plantilla del CV van así
+       (196 comentarios emitidos = 103 KB crudos, el gzip del documento al
+       DOBLE por notas de diseño); uno nuevo en llaves, nunca en HTML.
 
        El razonamiento largo está en la cabecera de los vídeos de
        Historia.astro. El resumen: `poster=` escrito en el HTML se descarga
@@ -239,20 +242,20 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
 </head>
 <body class="cv-body">
   <main id="main">
-    <!-- Las anclas del cambio de idioma. Van aquí, hermanas de los dos
-         paneles y delante de ellos, porque de eso depende el `~` del CSS. -->
+    {/* Las anclas del cambio de idioma. Van aquí, hermanas de los dos
+         paneles y delante de ellos, porque de eso depende el `~` del CSS. */}
     <div id="en" class="cv-ancla"></div>
     <div id="es" class="cv-ancla"></div>
 
-    <!-- La región viva del cambio de idioma. Nace VACÍA y en el HTML: un
+    {/* La región viva del cambio de idioma. Nace VACÍA y en el HTML: un
          lector de pantalla solo anuncia lo que aparece dentro de una región
-         que ya existía. Los rótulos viajan en `data-`, cada uno en su idioma. -->
+         que ya existía. Los rótulos viajan en `data-`, cada uno en su idioma. */}
     <p id="cv-idioma" class="visually-hidden" role="status"
       data-en={c.lang.en} data-es={cEs.lang.es}></p>
 
-    <!-- `tabindex="-1"`: al cambiar de idioma el foco se va al panel que
-         aparece. No es tabulable (índice negativo), solo enfocable por guion. -->
-    <!-- SIN `container`, Y ESO ES LA PORTADA A SANGRE. Hasta la ola anterior
+    {/* `tabindex="-1"`: al cambiar de idioma el foco se va al panel que
+         aparece. No es tabulable (índice negativo), solo enfocable por guion. */}
+    {/* SIN `container`, Y ESO ES LA PORTADA A SANGRE. Hasta la ola anterior
          el panel llevaba la clase `container` (ancho máximo + gutter), así
          que TODO el CV vivía dentro de una columna de 1 152 px y ninguna
          foto podía tocar el borde de la pantalla. La portada nueva es una
@@ -262,16 +265,16 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
          NO se hace con `100vw`: en un escritorio con barra de scroll clásica
          `100vw` es más ancho que el área visible y eso es scroll horizontal
          —justo lo que mide check-reflow, y que en un Mac con barras
-         superpuestas no se vería nunca. -->
+         superpuestas no se vería nunca. */}
     <div class="cv-pane cv-en" lang="en" tabindex="-1"><Historia locale="en" /></div>
     <div class="cv-pane cv-es" lang="es" tabindex="-1"><Historia locale="es" /></div>
   </main>
 
-  <!-- Lo que el `:target` no puede hacer: el `lang` del documento, el foco y
+  {/* Lo que el `:target` no puede hacer: el `lang` del documento, el foco y
        el anuncio. En línea y no como módulo: cero peticiones, y corre durante
        el análisis del HTML — el `lang` queda bien desde el primer fotograma,
        también si se llega con #es o #es-cap-7 ya puestos. Si esto no llega,
-       el idioma se sigue cambiando: eso lo hace el CSS. -->
+       el idioma se sigue cambiando: eso lo hace el CSS. */}
   <script is:inline>
     (function () {
       var p = document.getElementById('cv-idioma');
@@ -366,9 +369,9 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
     })();
   </script>
 
-  <!-- La cinta: un solo módulo para los dos paneles (los pares se piden UNA
+  {/* La cinta: un solo módulo para los dos paneles (los pares se piden UNA
        vez). Va en el layout y no en Historia.astro, que se renderiza dos veces.
-       Y los clips: solo el que está a la vista se mueve (cv-clips.ts). -->
+       Y los clips: solo el que está a la vista se mueve (cv-clips.ts). */}
   <script>
     import '../scripts/cv-cinta';
     import '../scripts/cv-clips';
