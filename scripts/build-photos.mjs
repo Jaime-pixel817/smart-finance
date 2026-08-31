@@ -486,8 +486,10 @@ console.log('Jaime');
     // Entrevista al creador de contenido de EE. UU., Marina Bay detrás:
     // caras en y=0.53; el 0.62 baja el cielo vacío y deja el skyline.
     { id: 'cara-jesus', src: 'tt-entrevista-jesus-singapur.jpg', fx: 0.50, fy: 0.62 },
-    // Promo del grupo en el Tec, cartel de la BMV detrás: caras en y=0.32.
-    { id: 'tt-grupo', src: 'tt-grupo-smartfinance-tec.jpg', fx: 0.50, fy: 0.45 }
+    // La promo del grupo en el Tec (`tt-grupo`) SE FUE el 2026-08-31: su
+    // único sitio en la página lo ocupa ahora la foto 8 del lote (él
+    // entrevistando en su prepa), que es la sustitución que pidió Jaime.
+    // Generarla igual dejaba un WebP desplegado que no pide nadie.
   ];
   for (const f of CARAS) {
     const m2 = await sharp(CVF(f.src)).metadata();
@@ -543,12 +545,141 @@ console.log('Jaime');
   // de solapa hablando junto a la lámina «Finance facts of Mexico», en el
   // aula de la NUS— y el rótulo queda fuera. Si algún día se quiere el
   // encuadre completo, hay que tapar o reconstruir esa franja, no ampliarlo.
+  /* ⚠️ SUSTITUIDA POR LA FOTO 12 DEL LOTE DEL 2026-08-30. El fotograma del
+   * vídeo llevaba el subtítulo quemado («THEN MEXICO, STOCK CHANGE,») corriendo
+   * en vertical, y por eso se recortaba en x=760 y salía a 720x682. La 12 es la
+   * MISMA escena fotografiada —Jaime con el micrófono de solapa junto a la
+   * lámina «Finance facts of Mexico», en el aula de la NUS— sin subtítulo, sin
+   * girar y a más resolución (1655x1192). Jaime pidió la sustitución con esas
+   * palabras. La clave del manifiesto NO cambia, así que el HTML no se entera:
+   * cambia el contenido y con él la huella, que es justo para lo que está.
+   * El fotograma viejo (tt-viaje-presentar-mexico-nus.jpg) se queda en
+   * cv-fotos/ sin publicar: es el original del vídeo, no una foto de más. */
   {
-    const src = CVF('tt-viaje-presentar-mexico-nus.jpg');
-    const buf = await sharp(src).extract({ left: 0, top: 0, width: 760, height: 720 })
-      .resize(720).webp({ quality: 76 }).toBuffer();
+    const src = CVF('lote-12-nus-explicando-mexico.jpg');
+    const m2 = await sharp(src).metadata();
+    const buf = await sharp(src).resize(960).webp({ quality: 78 }).toBuffer();
     const archivo = publicar('cv-tt-nus-presentacion.webp', buf);
-    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   720x682');
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   960x' + Math.round(960 * m2.height / m2.width));
+  }
+
+  /* ── EL LOTE DE 13 FOTOS QUE JAIME MANDÓ EL 2026-08-30 ──────────────────
+   *
+   * ORIGEN: fotos suyas, mandadas por chat, con un mapa escrito por él de
+   * dónde va cada una (cv-material/imagenes/nuevas/MAPA.md). A COLOR, como
+   * todo el material del CV desde su brief del 2026-08-28.
+   *
+   * SIN RECORTE DE ENCUADRE, y esto es una decisión, no una prisa. Las otras
+   * fotos del CV se recortan a 4:3 con un punto focal ESCRITO porque son
+   * fotogramas de vídeo y miniaturas donde el encuadre útil es una parte del
+   * cuadro. Estas son fotos que hizo alguien apuntando a algo: el encuadre ya
+   * está decidido y recortarlo sería re-encuadrar la foto de otro. Doce de
+   * las trece son verticales (3:4 casi todas), así que meterlas en una caja
+   * 4:3 les cortaría la mitad de arriba o de abajo — a Jaime por la cintura
+   * en la de la playa, la carpa entera en la del refugio. Se reescalan y ya:
+   * cada `<img>` lleva su `width`/`height` de verdad y la caja se adapta, que
+   * es como está montado `.recuerdo` (width 100 %, height auto). Cero CLS
+   * porque la proporción va escrita en el HTML.
+   *
+   * LOS ANCHOS. Todas viven por debajo del pliegue y van `loading="lazy"`, así
+   * que lo que se optimiza es el peso de quien LAS MIRA, no el de la primera
+   * carga — CON UNA EXCEPCIÓN MEDIDA: la de Toronto está en el capítulo 1, a
+   * poco más de una pantalla del pliegue, y el umbral de `lazy` de Chrome en
+   * conexión lenta es de varios miles de píxeles, así que SÍ se baja dentro de
+   * la ventana crítica. Cuesta lo que pesa: el CV pasa de 0.98 a 0.97 de
+   * rendimiento y de 2 277 a 2 425 ms de LCP (mediana de 4 corridas alternadas
+   * de las DOS builds en la misma tanda, que es como manda medirlo el
+   * comentario de lighthouserc.json). El tope es 3 200 ms: quedan 775 de
+   * margen, y la ruta con menos margen del repo (/market/spy, 3 024) no la
+   * toca nada de esto. Se deja a 480 px a propósito — es la foto de su visita
+   * a Toronto justo al lado de su frase sobre querer estudiar ahí, en un CV
+   * dirigido a Toronto — y el coste queda escrito aquí en vez de descubierto
+   * dentro de seis meses. Bajarla a 400 px ahorraría 17.6 KB de los 56.9.
+   * PROBADO Y DESCARTADO: `fetchpriority="low"` en las once. No mueve la
+   * mediana (2 425 con y sin él, 4 corridas), porque el problema no es el
+   * ORDEN de la cola sino los bytes compitiendo por el ancho de banda
+   * estrangulado. Se quitó en vez de dejarlo de adorno. 560 para las que salen en rejilla de dos o tres columnas (la
+   * rejilla mide 720 px como mucho, así que una columna de tres son ~224 px y
+   * 560 cubre densidad 2), 480 para las dos que van capadas a 320 px de ancho
+   * (Toronto y Marg Franklin) y 720 para las dos que salen solas y grandes.
+   *
+   * LA 11 (él con Sol y otra voluntaria en el puesto de Callejeritos) NO SE
+   * PUBLICA, y no por su calidad: el cartel que sostienen lleva un número de
+   * teléfono legible y esta página no publica números de teléfono ni siquiera
+   * cuando son de un tercero (misma regla por la que el teléfono de la carta
+   * de Lloyd George se quedó fuera). Y hay una segunda razón, independiente:
+   * el hueco que llenaría dice «un retrato de Sol», y en la foto hay DOS
+   * mujeres sin que ninguna fuente diga cuál es Sol — publicarla con pie
+   * sería adivinar el nombre de una persona. Su hueco se queda, con las dos
+   * cosas escritas en pantalla. Necesita respuesta de Jaime.
+   * LA 8 y LA 12 SON SUSTITUCIONES, no huecos: los dos sitios ya tenían foto
+   * (ver el comentario de la 12, aquí arriba, y el de `grupo-tec` en
+   * Historia.astro). */
+  const LOTE = [
+    ['cv-lote-carta-lloyd', 'lote-01-lloyd-george-banderas.jpg', 560],
+    ['cv-lote-toronto', 'lote-02-toronto-city-hall.jpg', 480],
+    ['cv-lote-playa-1', 'lote-03-playa-limpiando-cubeta.jpg', 560],
+    ['cv-lote-playa-2', 'lote-04-playa-basura-recogida.jpg', 560],
+    ['cv-lote-playa-3', 'lote-10-playa-limpiando-con-companera.jpg', 560],
+    ['cv-lote-donacion', 'lote-05-donando-alimento-perritos.jpg', 560],
+    ['cv-lote-perritos', 'lote-06-perritos-refugio.jpg', 560],
+    ['cv-lote-marg', 'lote-07-marg-franklin-cfa.jpg', 480],
+    ['cv-lote-grupo-entrevista', 'lote-08-grupo-entrevistando-prepa.jpg', 720],
+    ['cv-lote-grupo-narra', 'lote-09-grupo-narrando-cartel.jpg', 560],
+    ['cv-lote-marcha', 'lote-13-marcha-animales-callejeros.jpg', 560]
+  ];
+  /* CALIDAD 72, y no el 76-78 del resto del archivo. Este bloque es, con
+   * diferencia, el peso de imagen más grande de la página: once fotos que se
+   * bajan enteras cuando alguien LEE el CV hasta el final (la primera carga no
+   * cambia — todas van `lazy` y ninguna está sobre el pliegue). Medido sobre
+   * estas once: 844.3 KB a calidad 78, 731.4 a 72, 699.6 a 68. El salto de 78
+   * a 72 son 113 KB que no se ven en una foto de 560 px; de 72 a 68 se ganan
+   * 32 y ya empiezan a verse los degradados del cielo. Los anchos NO se tocan:
+   * bajarlos sí se nota, y esto lo lee un comité de admisiones. */
+  console.log('lote del 2026-08-30 (sin recorte, a su proporción)');
+  for (const [id, src, ancho] of LOTE) {
+    const m2 = await sharp(CVF(src)).metadata();
+    const w = Math.min(ancho, m2.width);
+    const buf = await sharp(CVF(src)).resize(w).webp({ quality: 72 }).toBuffer();
+    const archivo = publicar(id + '.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
+  }
+
+  /* ── EL HEADER DE smartfinance.lat (Jaime, 2026-08-30) ──────────────────
+   * «pon una imagen del header padre». Es una CAPTURA del sitio en vivo, no
+   * un render: 1280x736 css a densidad 2 (2560x1472), el hero entero con el
+   * globo formado, el titular, la firma, las ocho bolsas y —esto importa— el
+   * chip de fuente de abajo, que dice «Delayed 15 min · Yahoo Finance» con
+   * su hora. Se captura CON el chip a propósito: es una foto de un instante,
+   * y el pie de la figura dice de qué día es. Sin el chip, la captura sería
+   * una lámina de precios sin fecha justo encima de una cinta que sí pide
+   * precios de verdad al abrir esta página, y eso es lo que el sitio entero
+   * está escrito para no hacer.
+   * DOS ANCHOS: la figura mide 100vw en el teléfono y 560 px como mucho en
+   * escritorio, así que 640 cubre el teléfono a densidad 1.75 y 1120 el
+   * escritorio a densidad 2. Uno solo de 1120 le costaría al móvil el doble
+   * de bytes por una imagen que está siete pantallas abajo. */
+  /* DOS CAPTURAS, UNA POR IDIOMA. El panel español del CV no puede enseñar
+   * una foto del sitio en inglés: la regla del CV es que cada panel va 100 %
+   * en su idioma, y aquí la interfaz del sitio ES texto — menú, titular, los
+   * nombres de las ocho ciudades y hasta el chip de fuente («Delayed 15 min»
+   * contra «Retraso 15 min»). Un certificado en inglés dentro del panel
+   * español se queda como está, porque un certificado es un documento
+   * emitido; la portada del sitio de Jaime existe en los dos idiomas, así
+   * que se captura en los dos. */
+  for (const [id, archivoOriginal] of [['', 'sf-header-home.png'], ['-es', 'sf-header-home-es.png']]) {
+    const src = CVF(archivoOriginal);
+    if (!fs.existsSync(src)) {
+      console.log('  header de smartfinance.lat: no está ' + archivoOriginal + ' — me lo salto');
+      continue;
+    }
+    const m2 = await sharp(src).metadata();
+    for (const ancho of [640, 1120]) {
+      const buf = await sharp(src).resize(ancho).webp({ quality: 78 }).toBuffer();
+      const archivo = publicar('cv-sf-header' + id + '-' + ancho + '.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + ancho + 'x' +
+                  Math.round(ancho * m2.height / m2.width));
+    }
   }
 }
 

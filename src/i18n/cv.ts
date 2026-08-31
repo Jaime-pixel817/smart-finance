@@ -59,6 +59,20 @@ const en = {
   // «mi cifra de 2026» no dice si tiene una semana o diez meses.
   cifraSuya: 'My figure, 29 August 2026. This page does not count it: it is my claim.',
 
+  // EL AÑO EN DISPUTA, EN PANTALLA. Mismo recibo que `cifraSuya` y por el
+  // mismo motivo: 2025 es lo que dice Jaime («que la creé desde 2025 empecé»,
+  // 2026-08-30; «el grupo estudiantil lo creó a finales de 2025», 2026-08-29)
+  // y su LinkedIn publica otra cosa (MATERIAL.md, bloque C2: smartfinance.lat
+  // como feb. 2026, el grupo como ene. 2026). Estaba anotado SOLO en los
+  // comentarios de este archivo, o sea invisible para quien lee la página —
+  // y la página aplicaba dos criterios: sus cifras llevaban recibo y un año
+  // que su propio perfil público desmiente salía en seco, en la fila que un
+  // comité escanea primero y a dos capítulos del enlace «Verlo en LinkedIn».
+  // NO RECONCILIA LAS DOS FECHAS. Los dos años podrían ser ciertos (empezar
+  // en 2025 y publicarlo en 2026), pero eso no lo ha dicho nadie, así que no
+  // se escribe: se ponen las dos y se dice de quién es cada una.
+  anioDisputa: 'The year is mine: I started in 2025. My LinkedIn publishes different dates — smartfinance.lat as February 2026, the student group as January 2026. This page writes what I say and shows you the difference; it does not decide which one is right.',
+
   // ---- Marca de hueco ----
   hueco: {
     tag: 'To write',
@@ -67,18 +81,92 @@ const en = {
   // Marca de foto pendiente (FotoHueco.astro).
   fotoHueco: { tag: 'Photo to come' },
   // Qué foto falta en cada sitio. Instrucciones del hueco, no contenido.
+  // ══ LAS 13 FOTOS QUE JAIME MANDÓ POR CHAT EL 2026-08-30: COLOCADAS ════
+  // YA ESTÁN EN DISCO, en cv-material/imagenes/nuevas/ con su MAPA.md. Este
+  // comentario decía «esa carpeta NO EXISTE aún — se comprobó» y era FALSO:
+  // la carpeta se creó 52 minutos antes del commit que lo afirmaba. Doce de
+  // las trece están hoy publicadas; los originales viven en
+  // public/assets/cv-fotos/ (`lote-*.jpg`, sin desplegar) y salen con huella
+  // por el bloque LOTE de scripts/build-photos.mjs.
+  //
+  // EL MAPA QUE DIO ÉL, y dónde quedó cada una:
+  //    1 · el profesor Lloyd      → bajo su carta (cap. 8)              ✔ puesta
+  //    2 · la visita a Toronto    → junto a su cita sobre la U of T (1) ✔ puesta
+  //    3 · recogiendo basura      → playa, 1ª (cap. 3)                  ✔ puesta
+  //    4 · el montón recogido     → playa, 2ª (cap. 3)                  ✔ puesta
+  //    5 · donando alimento       → cap. 3                              ✔ puesta
+  //    6 · los perritos           → cap. 3                              ✔ puesta
+  //    7 · Marg Franklin          → cap. 4, con la gente que conoció    ✔ puesta
+  //    8 · entrevistando en su prepa → SUSTITUYE el cuadro del grupo (5) ✔ hecha
+  //    9 · narrando sobre el grupo → cap. 5                             ✔ puesta
+  //   10 · la playa con una compañera → playa, 3ª (cap. 3)              ✔ puesta
+  //   11 · él con Sol             → `sol` (cap. 4)         ✖ NO se publica
+  //   12 · explicándole a la NUS  → SUSTITUYE el fotograma girado       ✔ hecha
+  //   13 · la marcha              → cap. 3                              ✔ puesta
+  //
+  // POR QUÉ LA 11 NO SE PUBLICA, y son dos motivos independientes:
+  //   (a) el cartel que sostienen lleva un NÚMERO DE TELÉFONO legible, y esta
+  //       página no publica teléfonos ni siquiera de terceros — es la misma
+  //       regla por la que el de la carta de Lloyd George se quedó fuera;
+  //   (b) el hueco que llenaría pide «un retrato de Sol», y en la foto hay dos
+  //       mujeres sin que ninguna fuente diga cuál es Sol: ponerle pie sería
+  //       adivinar el nombre de una persona.
+  // Su hueco se queda y lo dice en pantalla. Necesita respuesta de Jaime.
+  //
+  // NO HAY NINGUNA FOTO «1 · el CEO Andy Toh». Este mapa asignaba la foto 1 a
+  // DOS huecos —el de Lloyd y el de Andy Toh— y el lote no trae ninguna de
+  // Jaime con Andy Toh: son 13 archivos y ninguno es esa. El MAPA.md de Jaime
+  // dice que «la foto con Andy Toh ya está en el repo (breakdown-andy-toh)»,
+  // pero esa es el cuadro de la entrevista que YA sale en el carrusel del
+  // capítulo 4, y la regla del CV es que ninguna imagen se repite. Así que
+  // `cartaAndy` sigue siendo hueco y lo seguirá siendo hasta que exista la
+  // foto; el hueco es honesto, pero conviene saber que nadie ha dicho que esa
+  // foto exista.
   fotosPend: {
     origen: 'From when it started. Even blurry ones count.',
     research: 'Me working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
-    sol: 'A portrait of Sol — or a frame from the march videos.',
-    // TRES huecos, uno por foto, porque la publicación tiene TRES y están
-    // descritas una por una en el material. Un solo hueco genérico decía
-    // «faltan fotos»; tres dicen CUÁLES faltan, que es lo que hace falta
-    // para poder traerlas.
-    playa1: 'Me picking up litter with the red bucket and the grabber, at the edge of the path. Photo 1 of the 3 on my LinkedIn.',
-    playa2: 'The wide shot of the coastal park: the trees, the turquoise sea and a cargo ship on the horizon. Photo 2 of 3.',
-    playa3: 'The same scene, wider: the rubbish truck behind, and the whole group of volunteers working by the sea. Photo 3 of 3.',
+    // EL HUECO DE SOL DICE POR QUÉ SIGUE VACÍO. Jaime mandó una foto suya en
+    // el puesto de Callejeritos (la 11 del lote), y no se publica por dos
+    // razones que van cada una por su lado: el cartel enseña un teléfono
+    // legible, y en la foto hay dos mujeres sin que ninguna fuente diga cuál
+    // es Sol. Las dos están escritas arriba, sobre el mapa del lote.
+    sol: 'A portrait of Sol — or a frame from the march videos. The one I sent from the stand is not published here: a phone number is legible on the sign, and this page does not publish phone numbers.',
+    // NO EXISTE una foto de Jaime con Andy Toh: el lote del 2026-08-30 son 13
+    // archivos y ninguno es esa (ver el mapa, arriba). El hueco se queda
+    // porque es honesto, pero nadie ha dicho que esa foto exista.
+    cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
+  },
+  // ── EL LOTE DEL 2026-08-30, YA COLOCADO ────────────────────────────────
+  // Once fotos suyas que llegaron a disco y ocupan el sitio que su mapa
+  // (cv-material/imagenes/nuevas/MAPA.md) les daba. `alt` describe LO QUE SE
+  // VE —se miraron una por una, no se copió el nombre del archivo— y `pie` es
+  // la línea en primera persona que él pidió, con el año y sin fecha
+  // completa. Ninguna se recorta: van a su proporción (ver el bloque LOTE de
+  // scripts/build-photos.mjs).
+  lote: {
+    cartaLloydAlt: 'Me holding a Singapore flag on its wooden pole, next to Lloyd George, in a white shirt, holding another pole, in a function room',
+    cartaLloydPie: 'With Lloyd George in Singapore (2026).',
+    torontoAlt: 'Me and a classmate in winter coats in front of the red TORONTO letters at Nathan Phillips Square, City Hall behind us',
+    torontoPie: 'The day I visited Toronto (2026).',
+    playa1Alt: 'Me picking up litter with a grabber and a red bucket at the edge of a path, a rubbish truck behind me and the sea past the trees',
+    playa1Pie: 'Picking up litter, with the bucket and the grabber.',
+    playa2Alt: 'The pile of driftwood, planks and coconuts we collected, on the grass beside the sand',
+    playa2Pie: 'What we collected.',
+    playa3Alt: 'Me and a classmate, from behind, pulling litter out of a hedge beside the sea, with cargo ships on the horizon',
+    playa3Pie: 'By the sea, with a classmate.',
+    donacionAlt: 'Me holding a bag of dog food and two sachets of cat food in front of the adoption stand’s awning',
+    donacionPie: 'Handing over the food I donated.',
+    perritosAlt: 'Dogs in a wire pen under the shelter’s awning, with a banner about respect and care for animals behind them',
+    perritosPie: 'The dogs at the stand.',
+    margAlt: 'Me next to Marg Franklin, who is wearing a light grey checked blazer, in front of a dark backdrop',
+    margPie: 'With Marg Franklin at the signing (2026).',
+    grupoEntrevistaAlt: 'Me holding a microphone, interviewing two students in front of the Smart Finance Prepa Tec stand poster',
+    grupoEntrevistaPie: 'Interviewing at my school, for the student group.',
+    grupoNarraAlt: 'Me talking to camera with a clip-on microphone, next to the Smart Finance Prepa Tec poster inviting students to join',
+    grupoNarraPie: 'Talking to camera about the student group.',
+    marchaAlt: 'Me holding a hand-made poster about Canelo, a dog up for adoption, at the march, with the Tlalnepantla arch and the fountain behind me',
+    marchaPie: 'The march for street animals.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -213,8 +301,6 @@ const en = {
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
     // El cuadro del vídeo de promo del grupo (2026, @smart.financee): qué es
     // y de dónde sale, como piden los pies de foto del brief.
-    grupoTecPie: 'The group’s promo at Tec, from my TikTok (2026)',
-    grupoTecAlt: 'Two students talking in front of a Mexican stock-exchange poster at Tec',
     sitioH: 'smartfinance.lat',
     // ---- Jasa Motor (bloque nuevo, brief del 2026-08-28) ----
     // FRAMING APROBADO POR JAIME: es la refaccionaria DE SU FAMILIA y él
@@ -242,7 +328,43 @@ const en = {
     // arquitectura del sitio. Lo que se quitó era cierto pero era una
     // ficha técnica; la frase de que los precios se piden al abrir se
     // queda porque es la que sostiene la cinta que va justo debajo.
-    lede: 'My goal is to make finance easier to understand for any student. smartfinance.lat is where I do it: bilingual lessons, market data, and a newsletter that goes out by email every week. The prices below are asked for when you open this page — nothing here is a screenshot.',
+    // ── MÁS CORTO OTRA VEZ, Y CON EL AÑO (Jaime, 2026-08-30) ───────────
+    // «pon una imagen del header padre y describe para qué la creé y que la
+    // creé desde 2025 empecé, promociona más lo de lessons y pon un link, y
+    // que tengo más de 100 suscritos, omite tanto texto».
+    // El lede pasa de tres frases a dos: PARA QUÉ y DESDE CUÁNDO. Lo que se
+    // fue es la enumeración de lo que hay dentro — la enseñan la captura del
+    // header, las cifras y el bloque de lecciones, que están justo debajo.
+    //
+    // ⚠️ EL AÑO ESTÁ EN DISPUTA CON UNA FUENTE PÚBLICA SUYA, igual que el
+    // del grupo estudiantil. Él dice 2025 («que la creé desde 2025 empecé»,
+    // 2026-08-30); su LinkedIn publica el proyecto smartfinance.lat como
+    // «feb. 2026». Aquí va 2025 porque es lo que él afirma y es su vida, no
+    // la de este repositorio — y la fila de `exp` se cambió a 2025 con el
+    // mismo criterio, para que la página no se contradiga a sí misma. Los
+    // dos años podrían ser ciertos (empezar en 2025 y publicar en 2026),
+    // pero eso no lo dijo nadie y no se escribe. NO borres esta nota sin su
+    // respuesta.
+    // Y LA DISPUTA SE LEE EN PANTALLA, no solo aquí: justo debajo de este
+    // lede va `anioDisputa`, el mismo recibo en mono que llevan sus cifras.
+    // Estuvo anotada solo en este comentario —invisible para quien lee— y
+    // eso era el doble criterio que este archivo no se permite.
+    lede: 'I started smartfinance.lat in 2025, to make finance easier to understand for any student. This is its home page.',
+    // El pie de la captura del header. Dice QUÉ es y DE CUÁNDO: la imagen
+    // lleva dentro precios y una hora, y sin fecha sería una lámina de
+    // cifras sin edad justo encima de una cinta que sí pide precios de
+    // verdad al abrir esta página.
+    headerPie: 'The home page of smartfinance.lat, captured on 31 August 2026. The prices inside the image are from that moment; the ones below are asked for now.',
+    headerAlt: 'The smartfinance.lat home page: the Smart Finance wordmark and menu, a dark globe with markers on New York and Mexico City, the headline “Markets and money, explained for young people. By Jaime Sandoval”, and a row of eight stock-exchange chips',
+    // ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────────
+    // «promociona más lo de lessons y pon un link». Dejan de ser un renglón
+    // suelto detrás de las cifras y pasan a bloque propio con su enlace. El
+    // enlace es INTERNO (`route('lessons', locale)`), o sea /lessons en el
+    // panel inglés y /es/lecciones en el español: el mismo destino que
+    // https://smartfinance.lat/lessons, y además cada panel en su idioma.
+    leccionesH: 'The lessons',
+    leccionesQue: 'The part I would show first: {n} lessons, each written in English and Spanish, each one citing its sources.',
+    leccionesLink: 'Read the lessons',
     // ── LA CIFRA DEL BOLETÍN ES SUYA, NO CONTADA ───────────────────────
     // Las tres cifras grandes de al lado las CUENTA el build de los
     // archivos del repo. Esta no puede: los inscritos viven en Redis, o
@@ -250,19 +372,24 @@ const en = {
     // fecha — el mismo trato que el A2 de francés. Escribirla al lado de
     // las contadas sin marcarla sería prestarle su recibo.
     boletin: 'More than 100 people are signed up to the newsletter.',
+    boletinH: 'The newsletter',
     // Las cifras de al lado se CUENTAN en el build desde los archivos reales
     // del repo (Historia.astro); estos son solo sus rótulos.
     stats: {
       // Este ya NO es un rótulo de cifra grande: va en una frase, con el
       // número delante, porque un «10» al tamaño de un titular no se sostiene.
-      lecciones: 'lessons, each written in English and Spanish — the sources above are theirs.',
+      // Rótulo del renglón que acompaña a las cifras grandes. Ya NO lleva la
+      // promoción de las lecciones: esa se fue a su propio bloque, arriba.
+      lecciones: 'lessons — the sources above are theirs.',
       // Los tres rótulos de las cifras grandes. Cortos a propósito: van
       // debajo de un número enorme y compiten con él si se alargan.
       pruebas: 'automated tests, run on every change',
       fuentes: 'primary sources cited in the lessons',
       glosario: 'glossary terms, bilingual',
       // El 403 de los borradores: la promesa ética del sitio, verificable.
-      promesa: 'And one promise you can test: no AI-written text is published without a person approving it. Asking the public endpoint for unreviewed drafts answers 403, on purpose.'
+      // Una frase, no dos (2026-08-30, «omite tanto texto»). Lo que no se
+      // puede perder es el 403: es la promesa comprobable, no un eslogan.
+      promesa: 'One promise you can test: no AI-written text is published without a person approving it — asking the public endpoint for unreviewed drafts answers 403, on purpose.'
     },
     abrir: 'Open the site'
   },
@@ -270,8 +397,13 @@ const en = {
   // ---- La cinta (dentro del capítulo 2; mismo mecanismo que siempre) ----
   tape: {
     lede: 'Three of the assets the site follows, asked for when this page opens.',
-    note: 'Prices come from the site’s own endpoint, which reads Yahoo Finance and caches it. They are delayed, and the chip says by how much. They update when you open or reload this page, not continuously.',
-    fail: 'If the endpoint does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
+    // ── DOS FRASES DONDE HABÍA CINCO (2026-08-30, «omite tanto texto») ──
+    // Lo que NO se puede perder de aquí es lo que impide que esto se lea
+    // como un dato en vivo: de dónde viene, que va con retraso, que se pide
+    // al abrir y no continuamente, y que si el endpoint falla salen guiones.
+    // Todo eso sigue; lo que se fue es la explicación de la caché.
+    note: 'From the site’s own endpoint, delayed — the chip says by how much — and asked for when you open this page, not continuously.',
+    fail: 'If it does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
     price: 'Price',
     change: 'Change today',
     pending: '—',
@@ -291,7 +423,9 @@ const en = {
 
   // ---- Capítulo 7, mitad derecha: research ----
   research: {
-    lede: 'Analyst-style reports with every figure traced to the filing it came from. The published one is below, with the state it is actually in.',
+    // Una frase (2026-08-30): qué es. El «por qué lo hago» lo dice él en
+    // `voz.dedicacion`, que va justo encima y es verbatim.
+    lede: 'Analyst-style reports, with every figure traced to the filing it came from.',
     link: 'Open the report',
     ticker: 'Ticker',
     dataAsOf: 'Data as of',
@@ -362,29 +496,23 @@ const en = {
     // Torre CN que hizo él), y la regla de Jaime es que ninguna imagen se
     // repite: aquí va el enlace y esta línea diciendo dónde está la foto.
     canadaNota: 'Its photo is the CN Tower one that opens this CV, in chapter 1 — it is not repeated here.',
-    // Los tres consejos sin imagen utilizable: fila seca con su enlace.
-    sinImagen: [
-      { id: '7654447626644933909', que: '“Your first investment should be in yourself”' },
-      { id: '7659438690179026196', que: '“Most people are waiting for the perfect moment. It doesn’t exist” — 4 habits' },
-      { id: '7661209936906521876', que: '“Most people wait until they feel ready. Start now”' }
-    ],
-    // El arco de Singapur. SOLO EL AÑO en pantalla (decisión de Jaime,
-    // 2026-08-28); las fechas exactas de cada vídeo están en su perfil.
-    arcoH: 'The Singapore arc',
-    arco: [
-      { cuando: '2026', que: 'Summer programme in Singapore' },
-      { cuando: '2026', que: 'Financial-data videos: Japan and Singapore' },
-      { cuando: '2026', que: 'Presentation about Mexico to National University of Singapore students' },
-      { cuando: '2026', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
-    ],
-    arcoFuente: 'The whole arc is from 2026; each video, with its exact date, is on @smart.financee.',
-    // El cuadro del arco: el fotograma RESCATADO de la presentación en la
-    // NUS (vídeo 7658163945479408917) — venía girado 90° con el subtítulo
-    // quemado; el enderezado y el recorte que deja fuera el rótulo están
-    // explicados en build-photos.mjs (2026-08-29). El alt describe la
-    // imagen real, mirada, incluida la lámina que se lee en ella.
+    // ── LO QUE HABÍA DEBAJO Y YA NO ESTÁ (Jaime, 2026-08-30) ─────────────
+    // «abajo de eso hay más fechas con títulos, quítalos y pon de link a mi
+    // perfil de TikTok para ver todo mi contenido, con un botón ese, y nos
+    // ahorramos todos los textos con fechas».
+    // Debajo de los dos carruseles vivían DOS listas de renglones con año:
+    // los tres consejos sin imagen (`sinImagen`) y «El arco de Singapur»
+    // (`arcoH` + `arco` + `arcoFuente`), siete renglones que decían «2026»
+    // siete veces. Las dos se fueron enteras y en su sitio va UN botón al
+    // perfil, que es donde vive todo eso y más.
+    // LO QUE NO SE FUE ES LA FOTO. El cuadro rescatado de la presentación en
+    // la NUS vivía dentro del arco, pero Jaime pidió quitar TEXTOS CON
+    // FECHAS, no fotos —y su brief del 2026-08-28 pide justo lo contrario
+    // con las imágenes—, así que la figura se queda, ahora suelta. Lo único
+    // que pierde su pie es el «(2026)»: era una fecha más.
+    verTodo: 'See all my content',
     arcoImgAlt: 'Me, a microphone clipped to my collar, speaking beside a laptop showing a “Finance facts of Mexico” slide, in a lecture room at NUS',
-    arcoImgPie: 'The presentation about Mexico at NUS, a frame from my TikTok (2026)'
+    arcoImgPie: 'The presentation about Mexico at NUS — a photo of mine'
   },
 
   // ---- Capítulo 7: la gente ----
@@ -405,6 +533,11 @@ const en = {
   //   sitio ya publica.
   // · Raúl Irabién — «Presidente de Grupos Estudiantiles» es el título de su
   //   propio TikTok; ese vídeo NO menciona al Tec, así que el Tec no va.
+  // · Prof. Lloyd — «CEO, TAQ Pte Ltd», la primera línea de su propia carta,
+  //   que esta página publica en el capítulo 8. Llevaba «National University
+  //   of Singapore», que la carta desmiente; la nota completa está junto a
+  //   su entrada, abajo. ESTA LISTA ES LA QUE MANDA: un `rol` que no aparezca
+  //   aquí con su fuente no debería estar lleno.
   // LA GRAFÍA ES «BlueSky Education», UNA PALABRA, Y LA DECIDIÓ JAIME
   // (2026-08-27). El sitio la escribía de tres maneras a la vez —«Blue Sky»
   // aquí, «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, o sea tres
@@ -452,7 +585,23 @@ const en = {
     // alt describe la imagen real (verificada mirándola), no la ficha.
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Me, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
+      // ⚠️ EL ROL NO ES «National University of Singapore», y la fuente que
+      // lo desmiente ya está PUBLICADA EN ESTA MISMA PÁGINA. Su carta
+      // (capítulo 8) abre diciendo «I am the Chief Executive Officer of TAQ
+      // Pte Ltd […] Through an educational consultancy with Bluesky
+      // Education, I taught Jaime over two weeks on a Green Technology
+      // programme in Singapore». La NUS no sale ni una vez en la carta: lo
+      // único que dice de la NUS es que Jaime entrevistó a ESTUDIANTES de
+      // Business Administration de ahí. La afiliación venía del título que
+      // el propio Jaime le puso a su TikTok («Interviewing Professor Lloyd
+      // of the NUS», MATERIAL.md #16) y de su post («my NUS professor»), y
+      // se explica sola: el programa se impartió en el Shaw Foundation
+      // Alumni House, que está DENTRO del campus de la NUS. Dar clase en un
+      // campus no es ser de la casa. Y desde que la ficha de la carta dice
+      // que el «Prof. Lloyd» y Lloyd George son la misma persona, la página
+      // se contradecía a sí misma a dos capítulos de distancia.
+      // Se pone el cargo que firma él, y `tipo` explica el «Prof.».
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'I call him “Prof. Lloyd” because he taught me for two weeks on the Green Technology programme in Singapore. He signs his letter — chapter 8 — as CEO of TAQ Pte Ltd.', alt: 'Me, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
       nus: {
         nombre: 'A student at NUS',
         rol: 'National University of Singapore',
@@ -527,6 +676,13 @@ const en = {
   // AEM, la firma CFA×Tec con Marg Franklin) entran con su año.
   exp: {
     lede: 'What, where, when — years only. This chapter and the next are the ones a committee scans.',
+    // ── PLEGADO DESDE EL 2026-08-30 ─────────────────────────────────────
+    // Jaime: «experience consume mucho, mejor que sea una cosa que diga view
+    // y ya se deslice toda mi experience». El rótulo es el suyo. `pista`
+    // lleva `{n}` y lo rellena el componente con `filas.length`: escrito a
+    // mano, el número mentiría en cuanto se añada una fila.
+    ver: 'View my experience',
+    pista: '{n} entries',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
@@ -549,7 +705,16 @@ const en = {
       { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
       // 2025 también, y también corregido por él: «esta la creé en 2025».
       { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
-      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      // ⚠️ 2025 Y NO 2026, y es la MISMA disputa que la del grupo estudiantil
+      // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
+      // empecé». Su LinkedIn publica el proyecto como «feb. 2026». Se pone
+      // lo que él afirma, y se anota que hay una fuente pública suya que
+      // dice otra cosa. Está escrito igual en `prueba.lede`, que es el otro
+      // sitio donde el año se LEE en pantalla; las dos tienen que decir lo
+      // mismo. La anotación NO se queda en este comentario: `anioDisputa` la
+      // pinta al pie de estas filas, dentro del mismo plegable, para que
+      // quien ve el año vea también de quién es.
+      { cuando: '2025', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
       { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
       { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
       { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
@@ -608,8 +773,22 @@ const en = {
     // tarjeta completa.
     sinCred: 'No credential ID published',
     // Solo el DELF A2 llega hasta aquí: es el único sin imagen en ninguna
-    // parte (ni certificado ni logotipo en su LinkedIn).
-    fotoPend: 'The diploma, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
+    // parte (ni certificado ni logotipo en su LinkedIn). Desde el 2026-08-30
+    // su marco ya NO está vacío —lleva una insignia tipográfica—, así que
+    // esta línea pasó de ser el contenido del hueco a ser el pie de la
+    // insignia: sigue diciendo que el diploma de verdad no está.
+    fotoPend: 'The diploma itself, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
+    // ── LA INSIGNIA DEL DELF A2 (Jaime, 2026-08-30) ─────────────────────
+    // «pon el logo de la compañía o de DELF A2 para que no esté vacío».
+    // Se eligió una insignia TIPOGRÁFICA y no un logotipo; la razón entera
+    // está en Historia.astro, junto al marcado. El nombre grande y el emisor
+    // salen de la propia fila, así que no se repiten aquí: lo único escrito
+    // es el nivel del marco europeo, que es lo que se lee de un DELF.
+    insigniaNivel: 'CEFR level A2',
+    // El rótulo que impide que la insignia se lea como un escaneo del
+    // diploma. Va DENTRO del marco, arriba, en mono, como todos los rótulos
+    // de recibo del CV.
+    insigniaTag: 'Designed by this page — not the diploma',
     // SIN « — » dentro de los nombres de las simulaciones: los certificados
     // publicados dicen «Vista Equity Partners - Demystifying Private Equity
     // Job Simulation» y «Bank of America - Investment Banking Job
@@ -665,13 +844,36 @@ const en = {
   // SECCIÓN NUEVA pedida por Jaime (2026-08-28). Nació vacía —tres recuadros
   // marcados, ninguna carta— y el 2026-08-29 llegaron LAS DOS PRIMERAS.
   //
-  // LOS PDF NO SE PUBLICAN, Y ESO NO ES PRUDENCIA: llevan el teléfono y el
-  // correo personales de quien firma. Son documentos para un comité de
-  // admisiones, que los recibe por su canal; colgarlos en una página web
-  // publicaría los datos de contacto de dos personas que no eligieron
-  // publicarlos. Aquí va la FICHA (quién, cargo, empresa, relación, año) y
-  // una frase corta entrecomillada de cada carta, marcada como cita de la
-  // carta. Los datos de contacto, nunca.
+  // LOS PDF SIGUEN SIN PUBLICARSE. Son documentos para un comité de
+  // admisiones, que los recibe por su canal; colgarlos aquí publicaría el
+  // documento entero de dos personas que no eligieron publicarlo. Aquí va la
+  // FICHA (quién, cargo, empresa, relación, año), DOS frases entrecomilladas
+  // y el contacto que el propio firmante ofreció.
+  //
+  // ── EL CORREO SÍ, EL TELÉFONO NO (Jaime, 2026-08-30) ────────────────────
+  // Él pidió «sus contactos directos también que proporcionaron». Los dos
+  // firmantes cierran su carta ofreciéndose a contestar preguntas sobre él,
+  // así que el contacto es suyo y es para esto. Se publican los DOS CORREOS
+  // —`Enquiries.TAQ@outlook.com` es el buzón de consultas de TAQ Pte Ltd y
+  // `Andy.toh@bluesky-education.com` es una dirección de trabajo en el
+  // dominio de la empresa— y NO el teléfono que la carta de Lloyd George
+  // añade al lado del correo. La diferencia no es de grado: un correo de
+  // empresa es un canal profesional que existe para recibir consultas; un
+  // número personal en una página que se puede reenviar entera acaba en
+  // manos que el firmante no eligió, y no hay forma de retirarlo después.
+  // JAIME PUEDE REVERTIRLO: es una decisión suya, no una regla del sitio —
+  // si quiere el teléfono, se añade un campo `tel` junto a `correo` y se
+  // pinta igual. El número está en el PDF de la carta, en cv-material/cartas.
+  //
+  // ── POR QUÉ EL CORREO VA A PELO, SIN TRUCO ANTI-SCRAPING ────────────────
+  // El repo no tiene ningún patrón de ofuscación de correos (se buscó), y
+  // meter uno aquí sería peor que no tenerlo: cualquier truco que sirva de
+  // algo necesita JavaScript, y este CV promete leerse ENTERO sin JavaScript
+  // — un `mailto:` que solo funciona con JS deja al lector sin el contacto,
+  // que es justo lo que Jaime pidió poner. La protección real de esta página
+  // es otra y ya está puesta: dirección impredecible (`CV_SLUG`), `noindex`,
+  // `no-referrer` y fuera del sitemap y del buscador. Un rastreador no llega
+  // a esta página; si llegara, ningún `&#64;` lo pararía.
   //
   // LAS CITAS SON VERBATIM del PDF, en inglés, que es el idioma en que están
   // escritas las dos. En el panel español van TRADUCIDAS y marcadas como
@@ -681,10 +883,14 @@ const en = {
   // que los recuadros de las que faltan se quedan. Ya no hay hueco para el
   // programa de Singapur: las dos cartas que llegaron son de ahí.
   cartas: {
-    lede: 'Two have arrived. The letters themselves are not published here: they are documents for admissions committees and they carry the signatories’ personal phone and email. What is on this page is the record — who, what role, what relationship, what year — and one short quote from each.',
+    lede: 'Two have arrived. The letters themselves are not published here — they are documents for admissions committees. What is on this page is the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. One of the letters also gives a personal phone number; that one is not published.',
     entregadasH: 'Delivered',
     faltanH: 'Still to come',
-    citaTag: 'From the letter',
+    citaTag: 'The two lines that carry the most weight',
+    // RÓTULO DEL CONTACTO. Dice DE DÓNDE sale: no es un correo que Jaime
+    // haya buscado, es el que el propio firmante escribió en su carta
+    // ofreciéndose a contestar preguntas sobre él.
+    contactoTag: 'Contact he gave for enquiries about me',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -692,7 +898,20 @@ const en = {
         donde: 'Singapore — biotechnology, healthcare management and green technologies',
         relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy BlueSky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
         anio: '2026',
-        cita: 'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.'
+        // LAS DOS FRASES, VERBATIM del PDF. La primera es UNA sola idea que la
+        // carta escribe en dos oraciones: cortarla por la mitad deja un
+        // renglón que ni siquiera nombra a Jaime, así que va entera.
+        citas: [
+          'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.',
+          'What he has already achieved without institutional support indicates clearly what he will achieve with it.'
+        ],
+        correo: 'Enquiries.TAQ@outlook.com',
+        // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
+        // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
+        // dice que hay imagen. La de Andy Toh va al revés: esa foto NO existe
+        // en el lote, así que ahí sigue el hueco.
+        foto: null,
+        lote: true
       },
       {
         nombre: 'Andy Toh',
@@ -700,7 +919,13 @@ const en = {
         donde: 'Singapore — the educational consultancy that runs the programme',
         relacion: 'He observed me during my three-week programme in Singapore. He is the same Andy Toh I interviewed, and who is already on this site.',
         anio: '2026',
-        cita: 'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.'
+        citas: [
+          'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.',
+          'His willingness to seek opportunities to learn and continually improve himself reflects a level of maturity and self-motivation that I believe will serve him extremely well at university.'
+        ],
+        correo: 'Andy.toh@bluesky-education.com',
+        foto: 'cartaAndy' as const,
+        lote: false
       }
     ],
     tag: 'Letter to come',
@@ -717,13 +942,24 @@ const en = {
     // a secas no es una fuente, es un rumor con buena presentación.
     verificaH: 'What the letters confirm',
     verificaLede: 'Until these arrived, the facts below were my word. Now someone from outside my school and my family has written them down and signed them.',
+    // EL RÓTULO SOLO EXISTE EN ESPAÑOL: en este panel las citas ya están en
+    // el idioma de la página y no hay nada que avisar. Vacío = no se pinta.
+    verificaCitaTag: '',
+    // `cita` es la frase EXACTA de la carta, separada del renglón que la
+    // presenta. Se separa para que el panel español pueda envolverla en
+    // `lang="en"` — ahí son tres trozos de inglés dentro de un párrafo en
+    // español, y sin esa marca un lector de pantalla los pronuncia con
+    // fonemas españoles. Aquí no hace falta la marca, pero la forma se
+    // mantiene igual en las dos tablas: `es` está tipado `typeof en`.
+    // Las comillas NO van dentro de `cita`: las pone el componente, que sabe
+    // en qué idioma está («» en español, “” en inglés).
     verifica: [
-      { que: 'I founded the Smart Finance student organisation at my campus.', quien: 'Lloyd George' },
-      { que: 'I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.', quien: 'Lloyd George' },
-      { que: 'In Singapore I arranged and conducted the interviews with business leaders and with Business Administration students from NUS myself — “entirely on his own steam”.', quien: 'Lloyd George' },
-      { que: 'I gave my time to community and environmental work in Singapore, “including a beach cleaning project during his stay”.', quien: 'Lloyd George' },
-      { que: 'I work in Spanish, English and French.', quien: 'Lloyd George' },
-      { que: 'At the Green Tech Youth Summit I developed a project and presented it, and “performed particularly well in both his project and presentation”.', quien: 'Andy Toh' }
+      { que: 'I founded the Smart Finance student organisation at my campus.', cita: '', quien: 'Lloyd George' },
+      { que: 'I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.', cita: '', quien: 'Lloyd George' },
+      { que: 'In Singapore I arranged and conducted the interviews with business leaders and with Business Administration students from NUS myself —', cita: 'entirely on his own steam', quien: 'Lloyd George' },
+      { que: 'I gave my time to community and environmental work in Singapore,', cita: 'including a beach cleaning project during his stay', quien: 'Lloyd George' },
+      { que: 'I work in Spanish, English and French.', cita: '', quien: 'Lloyd George' },
+      { que: 'At the Green Tech Youth Summit I developed a project and presented it, and', cita: 'performed particularly well in both his project and presentation', quien: 'Andy Toh' }
     ],
     // ── EL PREMIO QUE ÉL NUNCA PUBLICÓ ──────────────────────────────────
     // La carta de Lloyd George dice que Jaime y su equipo ganaron un premio
@@ -748,9 +984,20 @@ const en = {
     // VERBATIM. Es la voz de Jaime y NO SE TOCA — ni ortografía ni puntuación.
     // En los dos paneles va en español (lang="es" en el marcado); el panel
     // inglés enseña debajo la traducción pequeña de aquí abajo, marcada.
-    texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
+    //
+    // ── LA CAMBIÓ ÉL, EL 2026-08-30 ─────────────────────────────────────
+    // Esta frase es NUEVA y sustituye a la que cerraba el CV desde el
+    // 2026-08-27. Lo que cambia no es el estilo, es lo que dice: la anterior
+    // terminaba explicando el fracaso («si no, es porque te pudieron haber
+    // destruido a ti») y esta termina en lo que te queda («te quedarás con
+    // que lo diste todo»). Es otra idea, así que no se «actualizó» la vieja:
+    // se sustituyó entera. Lo único que se tocó de lo que él mandó es la
+    // puntuación —la coma y los dos puntos finales—, que es lo que la regla
+    // de este archivo permite. Queda anotada en
+    // cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md, entrada del 2026-08-30.
+    texto: 'Si la vida destruye tus planes, es porque tus planes te pudieron haber destruido a ti. Haz tu mejor esfuerzo y los resultados se darán, y si no, te quedarás con que lo diste todo.',
     // Traducción de la frase, solo para el panel inglés, marcada como tal.
-    traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”',
     traduccionTag: 'My words, in Spanish. In English:'
   },
 
@@ -910,19 +1157,29 @@ const en = {
     // data)» es SUYO y va verbatim: se había caído sin marca (un segundo
     // recorte invisible dentro de una cita «verbatim») y se restauró el
     // 2026-08-29. Un recorte sin su marca convierte la cita en desmentible.
-    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings (alongside investor presentation data) into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
+    // ── RECORTADA AL MÍNIMO (Jaime, 2026-08-30) ─────────────────────────
+    // «no lo pongas tan extenso, solo pon de lo que es y por qué lo hago y
+    // que me gusta mucho lo corporativo». Su publicación son cuatro frases
+    // largas (el estado de resultados conforme a GAAP desde el 10-K, la Rule
+    // of 40, el resumen de méritos frente a riesgos); aquí se queda LA
+    // PRIMERA, que es la que dice QUÉ es. Sigue siendo verbatim y el «[…]»
+    // marca lo que no se reproduce, igual que antes — recortar una cita se
+    // puede, reescribirla no. El recibo de la simulación (el certificado de
+    // Forage con Vista) está entero en el capítulo de certificaciones, así
+    // que no se pierde nada comprobable.
+    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. […]”',
     peFuente: 'From my LinkedIn post on the Vista Equity Partners job simulation (2026). The “[…]” marks a passage this page does not reproduce.',
     // Marca de traducción, VISIBLE, encima de la cita. Vacía en inglés: ahí la
     // cita es el original. Misma regla que la traducción de la frase final.
     peTag: '',
     // texto de Jaime (traducción), pendiente de su revisión final
-    dedicacion: '“I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
+    dedicacion: '“Private equity: I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    actinver: '“I want to represent my school, Prepa Tec CEM; to learn, to visit Actinver, to bring people from Actinver to give us talks, and to promote contests like this one so everyone joins in.”',
+    actinver: '“The Reto Actinver: I want to represent my school, Prepa Tec CEM; to learn from it, to visit Actinver, to bring people from Actinver to give us talks, and to help promote contests like this one so everyone joins in and learns.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    ensenar: '“I want to show myself as a student who wants to communicate finance to everyone. I am a kid who wants to share the advice and the motivation of important people, help guide others toward their vocation, and leave a little mark on everyone.”',
+    ensenar: '“I want to show myself as a student who wants to communicate finance and advice to everyone. I am a kid who wants to share the advice and the motivation of important people, and to help guide them toward knowing their vocation, to leave a little mark on everyone as much as I can.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    entrevistas: '“You can take something from everyone, because they are small experiences and different points of view.”',
+    entrevistas: '“I like interviewing all kinds of people, because you can take something from everyone — they are small experiences and different points of view.”',
     // texto de Jaime (traducción), pendiente de su revisión final
     servir: '“Helping my community, the animals, and cleaning up beaches.”',
     // ---- Jasa Motor ----
@@ -963,10 +1220,25 @@ const en = {
   }
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ESTA TABLA VA EN PRIMERA PERSONA, IGUAL QUE LA INGLESA. Es SU CV: la voz es
+// la suya, no la de alguien contando lo que hizo. El español lo pone fácil de
+// romper porque el pretérito de «yo» y el de «él» solo se distinguen por el
+// acento —doné/donó, entrevisté/entrevistó, pedí/pidió— y porque «su curso» y
+// «mi curso» se escriben casi igual; se colaron seis y ninguna se veía en la
+// tabla inglesa, que estaba bien. Antes de tocar una cadena de aquí: si la
+// gemela inglesa dice «I», esta tiene que decir «yo».
+// ÚNICA EXCEPCIÓN: los textos de `Hueco` hablan CON Jaime, no DE él, y por eso
+// van en segunda persona («de dónde te viene esa frase»). Son instrucciones
+// del hueco, no contenido del CV.
+// ═══════════════════════════════════════════════════════════════════════════
 const es: typeof en = {
   docTitle: 'Jaime Sandoval Ricaño — Smart Finance',
 
   cifraSuya: 'Mi cifra, del 29 de agosto de 2026. Esta página no la cuenta: es mi afirmación.',
+
+  // Ver la nota de la tabla inglesa.
+  anioDisputa: 'El año es mío: empecé en 2025. Mi LinkedIn publica otras fechas — smartfinance.lat como feb. 2026 y el grupo estudiantil como ene. 2026. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 
@@ -979,10 +1251,34 @@ const es: typeof en = {
     origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
-    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
-    playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
-    playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
-    playa3: 'La misma escena, más abierta: el camión de basura detrás y el grupo completo de voluntarios trabajando junto al mar. Foto 3 de 3.',
+    // Ver la nota de la tabla inglesa.
+    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha. La que mandé del puesto no se publica aquí: en el cartel se lee un número de teléfono, y esta página no publica teléfonos.',
+    cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
+  },
+  // Ver la nota de la tabla inglesa.
+  lote: {
+    cartaLloydAlt: 'Yo sosteniendo una bandera de Singapur en su asta de madera, junto a Lloyd George, de camisa blanca, que sostiene otra asta, en un salón',
+    cartaLloydPie: 'Con Lloyd George en Singapur (2026).',
+    torontoAlt: 'Yo y una compañera, con abrigos de invierno, frente a las letras rojas de TORONTO en Nathan Phillips Square, con el ayuntamiento detrás',
+    torontoPie: 'El día que visité Toronto (2026).',
+    playa1Alt: 'Yo recogiendo basura con una pinza y una cubeta roja en la orilla de un sendero, con un camión de basura detrás y el mar pasando los árboles',
+    playa1Pie: 'Recogiendo basura, con la cubeta y la pinza.',
+    playa2Alt: 'El montón de madera, tablas y cocos que recogimos, sobre el pasto junto a la arena',
+    playa2Pie: 'Lo que recogimos.',
+    playa3Alt: 'Yo y una compañera, de espaldas, sacando basura de un seto junto al mar, con cargueros en el horizonte',
+    playa3Pie: 'Junto al mar, con una compañera.',
+    donacionAlt: 'Yo con una bolsa de alimento para perro y dos sobres de alimento para gato, frente a la carpa del stand de adopción',
+    donacionPie: 'Entregando el alimento que doné.',
+    perritosAlt: 'Perros en un corral de rejilla bajo la carpa del refugio, con una lona sobre el respeto y el cuidado de los animales detrás',
+    perritosPie: 'Los perritos del stand.',
+    margAlt: 'Yo junto a Marg Franklin, que lleva un saco gris claro de cuadros, frente a un fondo oscuro',
+    margPie: 'Con Marg Franklin en la firma (2026).',
+    grupoEntrevistaAlt: 'Yo con un micrófono, entrevistando a dos estudiantes frente al cartel del stand de Smart Finance Prepa Tec',
+    grupoEntrevistaPie: 'Entrevistando en mi prepa, para el grupo estudiantil.',
+    grupoNarraAlt: 'Yo hablando a cámara con un micrófono de solapa, junto al cartel de Smart Finance Prepa Tec que invita a sumarse',
+    grupoNarraPie: 'Hablando a cámara sobre el grupo estudiantil.',
+    marchaAlt: 'Yo con un cartel hecho a mano sobre Canelo, un perro en adopción, en la marcha, con el arco y la fuente de Tlalnepantla detrás',
+    marchaPie: 'La marcha por los animales callejeros.'
   },
   clip: {
     tag: 'Falta el clip',
@@ -1041,8 +1337,6 @@ const es: typeof en = {
     grupoCifra: 'Somos casi 200 en la comunidad.',
     grupoLink: 'La comunidad, en el sitio',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
-    grupoTecPie: 'La promo del grupo en el Tec, de mi TikTok (2026)',
-    grupoTecAlt: 'Dos estudiantes conversando delante de un cartel de la Bolsa Mexicana de Valores en el Tec',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
     jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea en 2025 y llevo su marketing.',
@@ -1052,22 +1346,28 @@ const es: typeof en = {
   },
 
   prueba: {
-    lede: 'Mi objetivo es que las finanzas sean más fáciles de entender para cualquier estudiante. smartfinance.lat es donde lo hago: lecciones bilingües, datos de mercado y un boletín que sale por correo cada semana. Los precios de abajo se piden al abrir esta página — nada de lo que hay aquí es una captura.',
+    lede: 'Empecé smartfinance.lat en 2025, para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
+    headerPie: 'La portada de smartfinance.lat, capturada el 31 de agosto de 2026. Los precios que se ven dentro de la imagen son de ese momento; los de abajo se piden ahora.',
+    headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Mercados y dinero, explicados para jóvenes. Por Jaime Sandoval» y una fila de ocho chips de bolsas',
+    leccionesH: 'Las lecciones',
+    leccionesQue: 'Lo que enseñaría primero: {n} lecciones, cada una escrita en inglés y en español, y cada una citando sus fuentes.',
+    leccionesLink: 'Leer las lecciones',
     boletin: 'Más de 100 personas están inscritas al boletín.',
+    boletinH: 'El boletín',
     stats: {
-      lecciones: 'lecciones, cada una escrita en inglés y en español — las fuentes de arriba son suyas.',
+      lecciones: 'lecciones — las fuentes de arriba son suyas.',
       pruebas: 'pruebas automáticas, en cada cambio',
       fuentes: 'fuentes primarias citadas en las lecciones',
       glosario: 'términos de glosario, bilingües',
-      promesa: 'Y una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe. Pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
+      promesa: 'Una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe — pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
     },
     abrir: 'Abrir el sitio'
   },
 
   tape: {
     lede: 'Tres de los activos que sigue el sitio, pedidos al abrir esta página.',
-    note: 'Los precios salen del endpoint del propio sitio, que lee Yahoo Finance y lo cachea. Llegan con retraso, y el chip dice cuánto. Se actualizan al abrir o recargar esta página, no continuamente.',
-    fail: 'Si el endpoint no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
+    note: 'Salen del endpoint del propio sitio, con retraso —el chip dice cuánto— y se piden al abrir esta página, no continuamente.',
+    fail: 'Si no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
     price: 'Precio',
     change: 'Cambio de hoy',
     pending: '—',
@@ -1083,7 +1383,7 @@ const es: typeof en = {
   },
 
   research: {
-    lede: 'Reportes tipo analista con cada cifra rastreada hasta el documento del que sale. El publicado está abajo, con el estado en el que de verdad está.',
+    lede: 'Reportes tipo analista, con cada cifra rastreada hasta el documento del que sale.',
     link: 'Abrir el reporte',
     ticker: 'Ticker',
     dataAsOf: 'Datos al',
@@ -1123,21 +1423,9 @@ const es: typeof en = {
       canada: '«Canada is not just beautiful it’s one of the smartest places in the w…» (en español: Canadá no solo es bonito, es uno de los lugares más inteligentes del m…) — cinco datos financieros de Canadá'
     },
     canadaNota: 'Su foto es la de la Torre CN que abre este CV, en el capítulo 1 — aquí no se repite.',
-    sinImagen: [
-      { id: '7654447626644933909', que: '«Your first investment should be in yourself»' },
-      { id: '7659438690179026196', que: '«Most people are waiting for the perfect moment. It doesn’t exist» — 4 hábitos' },
-      { id: '7661209936906521876', que: '«Most people wait until they feel ready. Start now»' }
-    ],
-    arcoH: 'El arco de Singapur',
-    arco: [
-      { cuando: '2026', que: 'Programa de verano en Singapur' },
-      { cuando: '2026', que: 'Vídeos de datos financieros: Japón y Singapur' },
-      { cuando: '2026', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
-      { cuando: '2026', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
-    ],
-    arcoFuente: 'Todo el arco es de 2026; cada vídeo, con su fecha exacta, está en @smart.financee.',
+    verTodo: 'Ver todo mi contenido',
     arcoImgAlt: 'Yo, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
-    arcoImgPie: 'La presentación sobre México en la NUS, un cuadro de mi TikTok (2026)'
+    arcoImgPie: 'La presentación sobre México en la NUS — una foto mía'
   },
 
   entrevistas: {
@@ -1151,7 +1439,8 @@ const es: typeof en = {
     llevo: 'Lo que me llevé',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
+      // Rol corregido: ver la nota larga en la tabla inglesa.
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'Le digo «profesor Lloyd» porque me dio clase dos semanas en el programa de Green Technology en Singapur. Su carta —capítulo 8— la firma como CEO de TAQ Pte Ltd.', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
       nus: {
         nombre: 'Una estudiante de la NUS',
         rol: 'National University of Singapore',
@@ -1160,7 +1449,7 @@ const es: typeof en = {
       jesus: {
         nombre: 'Un creador de contenido de EE. UU.',
         rol: '',
-        tipo: 'Un creador de contenido cristiano al que entrevistó en Singapur, como lo describe su propia publicación sobre el programa.',
+        tipo: 'Un creador de contenido cristiano al que entrevisté en Singapur, como lo describe mi propia publicación sobre el programa.',
         alt: 'Yo entrevistando al creador de contenido de EE. UU. al atardecer, con el horizonte de Marina Bay detrás'
       },
       maier: {
@@ -1190,9 +1479,9 @@ const es: typeof en = {
   },
 
   servir: {
-    animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevistó a Sol, su fundadora (2026).',
-    donacion: 'También donó alimento a un stand de adopción local y pasó el día con los voluntarios y los animalitos (2026).',
-    playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de su curso de Green Technology and Sustainable Ecology (2026).',
+    animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevisté a Sol, su fundadora (2026).',
+    donacion: 'También doné alimento a un stand de adopción local y pasé el día con los voluntarios y los animalitos (2026).',
+    playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de mi curso de Green Technology and Sustainable Ecology (2026).',
     playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de BlueSky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
     bloques: {
       animales: 'Los animalitos',
@@ -1202,18 +1491,20 @@ const es: typeof en = {
 
   exp: {
     lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
+    ver: 'Ver mi experiencia',
+    pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
       { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
-      { cuando: '2025', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
+      { cuando: '2025', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
       { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
-      { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
+      { cuando: '2025', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
-      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin sobre estudiar en Canadá' },
+      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pedí consejo a Marg Franklin sobre estudiar en Canadá' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
     ]
@@ -1224,7 +1515,9 @@ const es: typeof en = {
     verLinkedIn: 'Verlo en LinkedIn',
     credencial: 'ID de la credencial',
     sinCred: 'Sin ID de credencial publicado',
-    fotoPend: 'El diploma, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
+    fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
+    insigniaNivel: 'Nivel A2 del marco europeo',
+    insigniaTag: 'Diseñada por esta página — no es el diploma',
     // Los NOMBRES no se traducen: son el nombre propio del certificado, y es
     // lo que un comité va a buscar. Lo que sí va en español es todo lo demás.
     filas: [
@@ -1273,12 +1566,13 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión y llevan el teléfono y el correo personales de quien firma. En esta página va la ficha —quién, cargo, relación, año— y una frase corta de cada una.',
+    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión. En esta página va la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. Una de las cartas trae además un teléfono personal; ese no se publica.',
     entregadasH: 'Entregadas',
     faltanH: 'Las que faltan',
-    // Las dos cartas están escritas en inglés: en este panel la cita va
-    // TRADUCIDA, y la marca lo dice, como con las frases de `voz.*`.
-    citaTag: 'Cita de la carta, traducida del inglés',
+    // Las dos cartas están escritas en inglés: en este panel las citas van
+    // TRADUCIDAS, y la marca lo dice, como con las frases de `voz.*`.
+    citaTag: 'Las dos frases que más pesan, traducidas del inglés',
+    contactoTag: 'Contacto que dio para preguntar por mí',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -1286,7 +1580,17 @@ const es: typeof en = {
         donde: 'Singapur — biotecnología, gestión sanitaria y tecnologías verdes',
         relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa BlueSky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
         anio: '2026',
-        cita: 'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.'
+        citas: [
+          'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.',
+          'Lo que ya ha logrado sin apoyo institucional indica con claridad lo que logrará con él.'
+        ],
+        correo: 'Enquiries.TAQ@outlook.com',
+        // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
+        // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
+        // dice que hay imagen. La de Andy Toh va al revés: esa foto NO existe
+        // en el lote, así que ahí sigue el hueco.
+        foto: null,
+        lote: true
       },
       {
         nombre: 'Andy Toh',
@@ -1294,7 +1598,13 @@ const es: typeof en = {
         donde: 'Singapur — la consultoría educativa que organiza el programa',
         relacion: 'Me observó durante mi programa de tres semanas en Singapur. Es el mismo Andy Toh que entrevisté y que ya aparece en este sitio.',
         anio: '2026',
-        cita: 'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.'
+        citas: [
+          'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.',
+          'Su disposición a buscar oportunidades para aprender y mejorar continuamente refleja un grado de madurez y automotivación que, en mi opinión, le servirá extremadamente bien en la universidad.'
+        ],
+        correo: 'Andy.toh@bluesky-education.com',
+        foto: 'cartaAndy' as const,
+        lote: false
       }
     ],
     tag: 'Falta la carta',
@@ -1308,14 +1618,19 @@ const es: typeof en = {
     verificaH: 'Lo que las cartas verifican',
     verificaLede: 'Hasta que llegaron, lo de abajo era palabra mía. Ahora lo escribe y lo firma alguien de fuera de mi escuela y de mi familia.',
     // Los entrecomillados son la frase EXACTA de la carta, en inglés; el
-    // resto va traducido.
+    // resto va traducido. Ahora van en su propio campo y el componente los
+    // envuelve en `lang="en"`: eran tres trozos de inglés sueltos dentro de
+    // un párrafo en español, sin marca de idioma y sin rótulo que dijera por
+    // qué estaban en inglés — las cuatro citas largas de las cartas sí lo
+    // llevan («traducidas del inglés»), así que el capítulo se contradecía.
+    verificaCitaTag: 'Lo entrecomillado es la frase exacta de la carta, en inglés.',
     verifica: [
-      { que: 'Fundé la organización estudiantil Smart Finance en mi campus.', quien: 'Lloyd George' },
-      { que: 'Conduzco un podcast de educación financiera en el que entrevisto a ejecutivos de finanzas, emprendedores y profesores universitarios.', quien: 'Lloyd George' },
-      { que: 'En Singapur organicé y conduje por mi cuenta las entrevistas con líderes de negocio y con estudiantes de Business Administration de la NUS — «entirely on his own steam».', quien: 'Lloyd George' },
-      { que: 'Di mi tiempo a trabajo comunitario y ambiental en Singapur, «including a beach cleaning project during his stay».', quien: 'Lloyd George' },
-      { que: 'Trabajo en español, inglés y francés.', quien: 'Lloyd George' },
-      { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y «performed particularly well in both his project and presentation».', quien: 'Andy Toh' }
+      { que: 'Fundé la organización estudiantil Smart Finance en mi campus.', cita: '', quien: 'Lloyd George' },
+      { que: 'Conduzco un podcast de educación financiera en el que entrevisto a ejecutivos de finanzas, emprendedores y profesores universitarios.', cita: '', quien: 'Lloyd George' },
+      { que: 'En Singapur organicé y conduje por mi cuenta las entrevistas con líderes de negocio y con estudiantes de Business Administration de la NUS —', cita: 'entirely on his own steam', quien: 'Lloyd George' },
+      { que: 'Di mi tiempo a trabajo comunitario y ambiental en Singapur,', cita: 'including a beach cleaning project during his stay', quien: 'Lloyd George' },
+      { que: 'Trabajo en español, inglés y francés.', cita: '', quien: 'Lloyd George' },
+      { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y', cita: 'performed particularly well in both his project and presentation', quien: 'Andy Toh' }
     ],
     premio: {
       h: 'Un premio que nunca publiqué',
@@ -1327,8 +1642,8 @@ const es: typeof en = {
   },
 
   frase: {
-    texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
-    traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    texto: 'Si la vida destruye tus planes, es porque tus planes te pudieron haber destruido a ti. Haz tu mejor esfuerzo y los resultados se darán, y si no, te quedarás con que lo diste todo.',
+    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”',
     // Esta clave solo se PINTA en el panel inglés (Historia mira el locale);
     // aquí existe porque `typeof en` exige las mismas llaves en las dos tablas.
     traduccionTag: 'His words, in Spanish. In English:'
@@ -1445,17 +1760,35 @@ const es: typeof en = {
     // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
-    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré (junto con datos de la presentación a inversionistas) en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
+    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. […]»',
     peFuente: 'De mi publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
     peTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    // ⚠️ LAS CUATRO CITAS DE ABAJO SE RESTAURARON EL 2026-08-31.
+    // La regla es «ortografía y puntuación se pueden pulir; el sentido no», y
+    // se habían caído trozos de contenido SIN el «[…]» que esta misma página
+    // usa para marcar un recorte (`voz.pe`, `voz.playa`). Cotejado con el
+    // original de Jaime que transcribe cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md:
+    //  · dedicación — faltaba «el private equity» al principio, que es de qué
+    //    está hablando;
+    //  · actinver — faltaban «yo ayudar a» (cambiaba su papel: de ayudar a
+    //    promover, a promover) y «y aprender» al final; «aprender» volvió a
+    //    ser «aprender de ello»;
+    //  · enseñar — faltaban «y consejos» y, sobre todo, «de lo que pueda»,
+    //    que convertía una frase modesta en una afirmación absoluta;
+    //  · entrevistas — faltaba la oración de apertura entera, la que dice qué
+    //    le gusta hacer: «me gusta entrevistar a todo tipo de personas».
+    // Lo pulido sigue siendo solo ortografía y puntuación (quein→quien,
+    // imoortante→importante, voacion→vocación, los acentos y las comas).
+    // «ayudarlos a guiarlos» se queda como lo escribió él: es su construcción,
+    // no una errata. Las inglesas son TRADUCCIÓN y van al día con estas.
     // texto de Jaime, pendiente de su revisión final
-    dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
+    dedicacion: '«El private equity: me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
     // texto de Jaime, pendiente de su revisión final
-    actinver: '«Quiero representar a mi prepa, el Tec CEM; aprender, visitar Actinver, traer gente de Actinver a que nos dé pláticas, y promover este tipo de retos para invitar a todos a sumarse.»',
+    actinver: '«El Reto Actinver: quiero representar a mi prepa, el Tec CEM; aprender de ello, visitar Actinver, traer gente de Actinver a que nos dé pláticas, y yo ayudar a promover este tipo de retos para invitar a todos a sumarse y aprender.»',
     // texto de Jaime, pendiente de su revisión final
-    ensenar: '«Quiero mostrarme como un estudiante que quiere comunicar finanzas a todos. Soy un niño que quiere compartir los consejos y la motivación de gente importante, ayudar a guiar a los demás hacia su vocación, y dejar una huellita en todos.»',
+    ensenar: '«Quiero mostrarme como un estudiante que quiere comunicar a todos finanzas y consejos. Soy un niño que quiere compartir los consejos y la motivación de gente importante, y ayudarlos a guiarlos para saber su vocación, dejar una huellita en todos de lo que pueda.»',
     // texto de Jaime, pendiente de su revisión final
-    entrevistas: '«Te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
+    entrevistas: '«Me gusta entrevistar a todo tipo de personas, ya que te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
     // texto de Jaime, pendiente de su revisión final
     servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»',
     // ORIGINAL de Jaime (2026-08-28), con su ortografía: «es de mi familia y
