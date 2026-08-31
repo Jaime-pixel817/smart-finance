@@ -942,13 +942,24 @@ const en = {
     // a secas no es una fuente, es un rumor con buena presentación.
     verificaH: 'What the letters confirm',
     verificaLede: 'Until these arrived, the facts below were my word. Now someone from outside my school and my family has written them down and signed them.',
+    // EL RÓTULO SOLO EXISTE EN ESPAÑOL: en este panel las citas ya están en
+    // el idioma de la página y no hay nada que avisar. Vacío = no se pinta.
+    verificaCitaTag: '',
+    // `cita` es la frase EXACTA de la carta, separada del renglón que la
+    // presenta. Se separa para que el panel español pueda envolverla en
+    // `lang="en"` — ahí son tres trozos de inglés dentro de un párrafo en
+    // español, y sin esa marca un lector de pantalla los pronuncia con
+    // fonemas españoles. Aquí no hace falta la marca, pero la forma se
+    // mantiene igual en las dos tablas: `es` está tipado `typeof en`.
+    // Las comillas NO van dentro de `cita`: las pone el componente, que sabe
+    // en qué idioma está («» en español, “” en inglés).
     verifica: [
-      { que: 'I founded the Smart Finance student organisation at my campus.', quien: 'Lloyd George' },
-      { que: 'I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.', quien: 'Lloyd George' },
-      { que: 'In Singapore I arranged and conducted the interviews with business leaders and with Business Administration students from NUS myself — “entirely on his own steam”.', quien: 'Lloyd George' },
-      { que: 'I gave my time to community and environmental work in Singapore, “including a beach cleaning project during his stay”.', quien: 'Lloyd George' },
-      { que: 'I work in Spanish, English and French.', quien: 'Lloyd George' },
-      { que: 'At the Green Tech Youth Summit I developed a project and presented it, and “performed particularly well in both his project and presentation”.', quien: 'Andy Toh' }
+      { que: 'I founded the Smart Finance student organisation at my campus.', cita: '', quien: 'Lloyd George' },
+      { que: 'I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.', cita: '', quien: 'Lloyd George' },
+      { que: 'In Singapore I arranged and conducted the interviews with business leaders and with Business Administration students from NUS myself —', cita: 'entirely on his own steam', quien: 'Lloyd George' },
+      { que: 'I gave my time to community and environmental work in Singapore,', cita: 'including a beach cleaning project during his stay', quien: 'Lloyd George' },
+      { que: 'I work in Spanish, English and French.', cita: '', quien: 'Lloyd George' },
+      { que: 'At the Green Tech Youth Summit I developed a project and presented it, and', cita: 'performed particularly well in both his project and presentation', quien: 'Andy Toh' }
     ],
     // ── EL PREMIO QUE ÉL NUNCA PUBLICÓ ──────────────────────────────────
     // La carta de Lloyd George dice que Jaime y su equipo ganaron un premio
@@ -1607,14 +1618,19 @@ const es: typeof en = {
     verificaH: 'Lo que las cartas verifican',
     verificaLede: 'Hasta que llegaron, lo de abajo era palabra mía. Ahora lo escribe y lo firma alguien de fuera de mi escuela y de mi familia.',
     // Los entrecomillados son la frase EXACTA de la carta, en inglés; el
-    // resto va traducido.
+    // resto va traducido. Ahora van en su propio campo y el componente los
+    // envuelve en `lang="en"`: eran tres trozos de inglés sueltos dentro de
+    // un párrafo en español, sin marca de idioma y sin rótulo que dijera por
+    // qué estaban en inglés — las cuatro citas largas de las cartas sí lo
+    // llevan («traducidas del inglés»), así que el capítulo se contradecía.
+    verificaCitaTag: 'Lo entrecomillado es la frase exacta de la carta, en inglés.',
     verifica: [
-      { que: 'Fundé la organización estudiantil Smart Finance en mi campus.', quien: 'Lloyd George' },
-      { que: 'Conduzco un podcast de educación financiera en el que entrevisto a ejecutivos de finanzas, emprendedores y profesores universitarios.', quien: 'Lloyd George' },
-      { que: 'En Singapur organicé y conduje por mi cuenta las entrevistas con líderes de negocio y con estudiantes de Business Administration de la NUS — «entirely on his own steam».', quien: 'Lloyd George' },
-      { que: 'Di mi tiempo a trabajo comunitario y ambiental en Singapur, «including a beach cleaning project during his stay».', quien: 'Lloyd George' },
-      { que: 'Trabajo en español, inglés y francés.', quien: 'Lloyd George' },
-      { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y «performed particularly well in both his project and presentation».', quien: 'Andy Toh' }
+      { que: 'Fundé la organización estudiantil Smart Finance en mi campus.', cita: '', quien: 'Lloyd George' },
+      { que: 'Conduzco un podcast de educación financiera en el que entrevisto a ejecutivos de finanzas, emprendedores y profesores universitarios.', cita: '', quien: 'Lloyd George' },
+      { que: 'En Singapur organicé y conduje por mi cuenta las entrevistas con líderes de negocio y con estudiantes de Business Administration de la NUS —', cita: 'entirely on his own steam', quien: 'Lloyd George' },
+      { que: 'Di mi tiempo a trabajo comunitario y ambiental en Singapur,', cita: 'including a beach cleaning project during his stay', quien: 'Lloyd George' },
+      { que: 'Trabajo en español, inglés y francés.', cita: '', quien: 'Lloyd George' },
+      { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y', cita: 'performed particularly well in both his project and presentation', quien: 'Andy Toh' }
     ],
     premio: {
       h: 'Un premio que nunca publiqué',

@@ -1645,10 +1645,25 @@ const resumenIndice = c.indice.resumen
          recuadro, marcado con que su ÚNICA fuente es la carta. */}
     <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
     <p class="cap-lede">{c.cartas.verificaLede}</p>
+    {/* EL RÓTULO SOLO SALE EN ESPAÑOL (en inglés la cadena va vacía): en ese
+         panel las tres citas son inglés dentro de un párrafo español, y las
+         cuatro citas largas de las cartas sí avisan de que están traducidas.
+         Sin este renglón, el mismo capítulo traduce unas frases y deja otras
+         en inglés sin decir por qué. */}
+    {c.cartas.verificaCitaTag && <p class="meta-mono">{c.cartas.verificaCitaTag}</p>}
     <ul class="verifica">
       {c.cartas.verifica.map((v) => (
         <li class="verifica-fila">
-          <p>{v.que}</p>
+          {/* LA CITA VA EN `lang="en"`. Es la frase literal de la carta, y en
+               el panel español es inglés metido en un párrafo en español: sin
+               la marca, un lector de pantalla la pronuncia con fonemas
+               españoles («entirely on his own steam» leído en español no se
+               entiende). Las comillas las pone el panel, no la cadena, porque
+               son puntuación del idioma que las rodea: « » en español y “ ”
+               en inglés. */}
+          <p>{v.que}{v.cita && (
+            <>{' '}{locale === 'es' ? '«' : '“'}<span lang="en">{v.cita}</span>{locale === 'es' ? '»' : '”'}.</>
+          )}</p>
           <p class="meta-mono fuente-carta">{v.quien}</p>
         </li>
       ))}
