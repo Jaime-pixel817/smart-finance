@@ -1301,7 +1301,9 @@ const es: typeof en = {
     campos: 'Nombre · cargo · relación · contacto',
     slots: [
       'Alguien que pueda responder por el grupo estudiantil y la prepa.',
-      'Alguien que pueda responder por su trabajo de educación financiera.'
+      // «MI trabajo», no «su»: el panel español va en primera persona desde
+      // el brief del 2026-08-27 y este renglón se había quedado en tercera.
+      'Alguien que pueda responder por mi trabajo de educación financiera.'
     ],
     verificaH: 'Lo que las cartas verifican',
     verificaLede: 'Hasta que llegaron, lo de abajo era palabra mía. Ahora lo escribe y lo firma alguien de fuera de mi escuela y de mi familia.',
@@ -1444,8 +1446,8 @@ const es: typeof en = {
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
     pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré (junto con datos de la presentación a inversionistas) en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
-    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
-    peTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    peFuente: 'De mi publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
+    peTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
     dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
     // texto de Jaime, pendiente de su revisión final
@@ -1468,14 +1470,21 @@ const es: typeof en = {
     // TRADUCCIÓN para el panel español y lo dice en pantalla (`torontoTag`).
     // texto de Jaime (traducción), pendiente de su revisión final
     toronto: '«Esta visita reforzó algo que llevaba mucho tiempo pensando: aquí es donde quiero estudiar finanzas.»',
-    torontoTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
-    torontoFuente: 'De su publicación en LinkedIn sobre su visita a la University of Toronto y Rotman Commerce (2026).',
-    // Su publicación de la playa está en inglés: esta versión es TRADUCCIÓN
+    torontoTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    torontoFuente: 'De mi publicación en LinkedIn sobre mi visita a la University of Toronto y Rotman Commerce (2026).',
+    // ── PRIMERA PERSONA TAMBIÉN EN LAS MARCAS (2026-08-30) ─────────────
+    // Las marcas del panel español van en primera persona («Mi cifra, del
+    // 29 de agosto…»), pero estas de aquí —peTag, peFuente, torontoTag,
+    // torontoFuente— se habían quedado en tercera («Su publicación…»),
+    // que es de antes de que el CV pasara a hablar en su voz. Corregidas
+    // las cuatro al escribir las dos de la playa: una marca nueva en
+    // tercera persona habría hecho crecer el desliz en vez de arreglarlo.
+    // Mi publicación de la playa está en inglés: esta versión es TRADUCCIÓN
     // para el panel español y lo dice en pantalla (`playaTag`).
     // texto de Jaime (traducción), pendiente de su revisión final
     playa: '«Fue una experiencia gratificante que me recordó cuánto significan las acciones pequeñas cuando una comunidad trabaja junta hacia una meta común. Cuidar el medio ambiente no es solo cuestión de políticas o de tecnología; también es que la gente asuma su responsabilidad. […] Ver cómo las iniciativas ambientales y el desarrollo económico van de la mano ha sido una de las lecciones más interesantes de esta experiencia.»',
-    playaTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
-    playaFuente: 'De su publicación en LinkedIn sobre la limpieza de playa voluntaria en Singapur (2026). El «[…]» marca una frase que esta página no reproduce.'
+    playaTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    playaFuente: 'De mi publicación en LinkedIn sobre la limpieza de playa voluntaria en Singapur (2026). El «[…]» marca una frase que esta página no reproduce.'
   }
 };
 
