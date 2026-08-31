@@ -81,61 +81,92 @@ const en = {
   // Marca de foto pendiente (FotoHueco.astro).
   fotoHueco: { tag: 'Photo to come' },
   // Qué foto falta en cada sitio. Instrucciones del hueco, no contenido.
-  // ══ LAS 13 FOTOS QUE JAIME MANDÓ POR CHAT EL 2026-08-30 ═══════════════
-  // TODAVÍA NO ESTÁN EN DISCO. Él dijo que las guardaría en
-  // cv-material/imagenes/nuevas/, y esa carpeta NO EXISTE aún — se comprobó.
-  // Así que aquí NO hay ni una ruta inventada: hay un hueco por foto, y cada
-  // uno dice EN PANTALLA cuál espera, con las palabras con las que él la
-  // describió. Cuando lleguen, colocarlas es: original a
-  // public/assets/cv-fotos/, una línea en scripts/build-photos.mjs, y cambiar
-  // el <FotoHueco> por su <img> en el sitio donde ya está reservado.
+  // ══ LAS 13 FOTOS QUE JAIME MANDÓ POR CHAT EL 2026-08-30: COLOCADAS ════
+  // YA ESTÁN EN DISCO, en cv-material/imagenes/nuevas/ con su MAPA.md. Este
+  // comentario decía «esa carpeta NO EXISTE aún — se comprobó» y era FALSO:
+  // la carpeta se creó 52 minutos antes del commit que lo afirmaba. Doce de
+  // las trece están hoy publicadas; los originales viven en
+  // public/assets/cv-fotos/ (`lote-*.jpg`, sin desplegar) y salen con huella
+  // por el bloque LOTE de scripts/build-photos.mjs.
   //
-  // EL MAPA QUE DIO ÉL, y dónde queda cada una en esta página:
-  //    1 · el profesor Lloyd      → `cartaLloyd`, bajo su carta (cap. 8)
-  //    1 · el CEO Andy Toh        → `cartaAndy`,  bajo su carta (cap. 8)
-  //    2 · la visita a Toronto    → `toronto`, junto a su cita sobre la U of T (cap. 1)
-  //  3,4,10 · playas y basura     → `playa1/2/3`, que YA existían (cap. 3)
-  //    5 · donando alimento       → `donacion` (cap. 3)
-  //    6 · los perritos           → `perritos` (cap. 3)
-  //    7 · Marg Franklin          → `marg` (cap. 4, con la gente que conoció)
-  //    8 · entrevistando en su prepa → SUSTITUYE la foto del grupo (cap. 5)
-  //    9 · narrando sobre el grupo → `grupoNarra` (cap. 5)
-  //   11 · él con Sol             → `sol`, que YA existía (cap. 4)
-  //   12 · explicándole a la NUS  → SUSTITUYE la del arco, con más calidad
-  //   13 · la marcha              → `marcha` (cap. 3)
+  // EL MAPA QUE DIO ÉL, y dónde quedó cada una:
+  //    1 · el profesor Lloyd      → bajo su carta (cap. 8)              ✔ puesta
+  //    2 · la visita a Toronto    → junto a su cita sobre la U of T (1) ✔ puesta
+  //    3 · recogiendo basura      → playa, 1ª (cap. 3)                  ✔ puesta
+  //    4 · el montón recogido     → playa, 2ª (cap. 3)                  ✔ puesta
+  //    5 · donando alimento       → cap. 3                              ✔ puesta
+  //    6 · los perritos           → cap. 3                              ✔ puesta
+  //    7 · Marg Franklin          → cap. 4, con la gente que conoció    ✔ puesta
+  //    8 · entrevistando en su prepa → SUSTITUYE el cuadro del grupo (5) ✔ hecha
+  //    9 · narrando sobre el grupo → cap. 5                             ✔ puesta
+  //   10 · la playa con una compañera → playa, 3ª (cap. 3)              ✔ puesta
+  //   11 · él con Sol             → `sol` (cap. 4)         ✖ NO se publica
+  //   12 · explicándole a la NUS  → SUSTITUYE el fotograma girado       ✔ hecha
+  //   13 · la marcha              → cap. 3                              ✔ puesta
   //
-  // LAS DOS QUE NO SON HUECO SON SUSTITUCIONES (8 y 12): hoy esos dos sitios
-  // ya tienen foto, así que poner un recuadro punteado al lado diría que
-  // falta algo que no falta. Cuando lleguen se cambia el `src` y su `alt`;
-  // está escrito dónde, junto a cada <img> en Historia.astro.
+  // POR QUÉ LA 11 NO SE PUBLICA, y son dos motivos independientes:
+  //   (a) el cartel que sostienen lleva un NÚMERO DE TELÉFONO legible, y esta
+  //       página no publica teléfonos ni siquiera de terceros — es la misma
+  //       regla por la que el de la carta de Lloyd George se quedó fuera;
+  //   (b) el hueco que llenaría pide «un retrato de Sol», y en la foto hay dos
+  //       mujeres sin que ninguna fuente diga cuál es Sol: ponerle pie sería
+  //       adivinar el nombre de una persona.
+  // Su hueco se queda y lo dice en pantalla. Necesita respuesta de Jaime.
+  //
+  // NO HAY NINGUNA FOTO «1 · el CEO Andy Toh». Este mapa asignaba la foto 1 a
+  // DOS huecos —el de Lloyd y el de Andy Toh— y el lote no trae ninguna de
+  // Jaime con Andy Toh: son 13 archivos y ninguno es esa. El MAPA.md de Jaime
+  // dice que «la foto con Andy Toh ya está en el repo (breakdown-andy-toh)»,
+  // pero esa es el cuadro de la entrevista que YA sale en el carrusel del
+  // capítulo 4, y la regla del CV es que ninguna imagen se repite. Así que
+  // `cartaAndy` sigue siendo hueco y lo seguirá siendo hasta que exista la
+  // foto; el hueco es honesto, pero conviene saber que nadie ha dicho que esa
+  // foto exista.
   fotosPend: {
     origen: 'From when it started. Even blurry ones count.',
     research: 'Me working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
-    sol: 'A portrait of Sol — or a frame from the march videos.',
-    // ── Las que Jaime mandó el 2026-08-30 y todavía no están en disco ────
-    cartaLloyd: 'A photo of me with Lloyd George, the professor who wrote this letter.',
+    // EL HUECO DE SOL DICE POR QUÉ SIGUE VACÍO. Jaime mandó una foto suya en
+    // el puesto de Callejeritos (la 11 del lote), y no se publica por dos
+    // razones que van cada una por su lado: el cartel enseña un teléfono
+    // legible, y en la foto hay dos mujeres sin que ninguna fuente diga cuál
+    // es Sol. Las dos están escritas arriba, sobre el mapa del lote.
+    sol: 'A portrait of Sol — or a frame from the march videos. The one I sent from the stand is not published here: a phone number is legible on the sign, and this page does not publish phone numbers.',
+    // NO EXISTE una foto de Jaime con Andy Toh: el lote del 2026-08-30 son 13
+    // archivos y ninguno es esa (ver el mapa, arriba). El hueco se queda
+    // porque es honesto, pero nadie ha dicho que esa foto exista.
     cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
-    toronto: 'The day I visited Toronto.',
-    donacion: 'Me handing over the food I donated to the shelter.',
-    perritos: 'The dogs themselves.',
-    marcha: 'The march for street animals.',
-    // SIN CARGO, por el mismo motivo por el que la fila de `exp` no lo lleva
-    // (ver la nota larga junto a esa fila): el cargo exacto no sale de
-    // ninguna fuente del material — su post dice que la escuchó «leading one
-    // of the most important organizations in the financial world», no
-    // «CEO» —, y el certificado del CFA Institute que él tiene, de agosto de
-    // 2026, lo firma «Tricia Rothschild, Interim CEO». Se nombra a la persona
-    // y se dice qué pasó, que es lo que el material sostiene.
-    marg: 'Me with Marg Franklin at the signing.',
-    grupoNarra: 'Me talking to camera about the student group.',
-    // TRES huecos, uno por foto, porque la publicación tiene TRES y están
-    // descritas una por una en el material. Un solo hueco genérico decía
-    // «faltan fotos»; tres dicen CUÁLES faltan, que es lo que hace falta
-    // para poder traerlas.
-    playa1: 'Me picking up litter with the red bucket and the grabber, at the edge of the path. Photo 1 of the 3 on my LinkedIn.',
-    playa2: 'The wide shot of the coastal park: the trees, the turquoise sea and a cargo ship on the horizon. Photo 2 of 3.',
-    playa3: 'The same scene, wider: the rubbish truck behind, and the whole group of volunteers working by the sea. Photo 3 of 3.',
+  },
+  // ── EL LOTE DEL 2026-08-30, YA COLOCADO ────────────────────────────────
+  // Once fotos suyas que llegaron a disco y ocupan el sitio que su mapa
+  // (cv-material/imagenes/nuevas/MAPA.md) les daba. `alt` describe LO QUE SE
+  // VE —se miraron una por una, no se copió el nombre del archivo— y `pie` es
+  // la línea en primera persona que él pidió, con el año y sin fecha
+  // completa. Ninguna se recorta: van a su proporción (ver el bloque LOTE de
+  // scripts/build-photos.mjs).
+  lote: {
+    cartaLloydAlt: 'Me holding a Singapore flag on its wooden pole, next to Lloyd George, in a white shirt, holding another pole, in a function room',
+    cartaLloydPie: 'With Lloyd George in Singapore (2026).',
+    torontoAlt: 'Me and a classmate in winter coats in front of the red TORONTO letters at Nathan Phillips Square, City Hall behind us',
+    torontoPie: 'The day I visited Toronto (2026).',
+    playa1Alt: 'Me picking up litter with a grabber and a red bucket at the edge of a path, a rubbish truck behind me and the sea past the trees',
+    playa1Pie: 'Picking up litter, with the bucket and the grabber.',
+    playa2Alt: 'The pile of driftwood, planks and coconuts we collected, on the grass beside the sand',
+    playa2Pie: 'What we collected.',
+    playa3Alt: 'Me and a classmate, from behind, pulling litter out of a hedge beside the sea, with cargo ships on the horizon',
+    playa3Pie: 'By the sea, with a classmate.',
+    donacionAlt: 'Me holding a bag of dog food and two sachets of cat food in front of the adoption stand’s awning',
+    donacionPie: 'Handing over the food I donated.',
+    perritosAlt: 'Dogs in a wire pen under the shelter’s awning, with a banner about respect and care for animals behind them',
+    perritosPie: 'The dogs at the stand.',
+    margAlt: 'Me next to Marg Franklin, who is wearing a light grey checked blazer, in front of a dark backdrop',
+    margPie: 'With Marg Franklin at the signing (2026).',
+    grupoEntrevistaAlt: 'Me holding a microphone, interviewing two students in front of the Smart Finance Prepa Tec stand poster',
+    grupoEntrevistaPie: 'Interviewing at my school, for the student group.',
+    grupoNarraAlt: 'Me talking to camera with a clip-on microphone, next to the Smart Finance Prepa Tec poster inviting students to join',
+    grupoNarraPie: 'Talking to camera about the student group.',
+    marchaAlt: 'Me holding a hand-made poster about Canelo, a dog up for adoption, at the march, with the Tlalnepantla arch and the fountain behind me',
+    marchaPie: 'The march for street animals.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -270,8 +301,6 @@ const en = {
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
     // El cuadro del vídeo de promo del grupo (2026, @smart.financee): qué es
     // y de dónde sale, como piden los pies de foto del brief.
-    grupoTecPie: 'The group’s promo at Tec, from my TikTok (2026)',
-    grupoTecAlt: 'Two students talking in front of a Mexican stock-exchange poster at Tec',
     sitioH: 'smartfinance.lat',
     // ---- Jasa Motor (bloque nuevo, brief del 2026-08-28) ----
     // FRAMING APROBADO POR JAIME: es la refaccionaria DE SU FAMILIA y él
@@ -483,7 +512,7 @@ const en = {
     // que pierde su pie es el «(2026)»: era una fecha más.
     verTodo: 'See all my content',
     arcoImgAlt: 'Me, a microphone clipped to my collar, speaking beside a laptop showing a “Finance facts of Mexico” slide, in a lecture room at NUS',
-    arcoImgPie: 'The presentation about Mexico at NUS, a frame from my TikTok'
+    arcoImgPie: 'The presentation about Mexico at NUS — a photo of mine'
   },
 
   // ---- Capítulo 7: la gente ----
@@ -877,9 +906,12 @@ const en = {
           'What he has already achieved without institutional support indicates clearly what he will achieve with it.'
         ],
         correo: 'Enquiries.TAQ@outlook.com',
-        // Clave del hueco de la foto que va debajo (foto 1 del lote del
-        // 2026-08-30). NO es un archivo: es la clave de `fotosPend`.
-        foto: 'cartaLloyd' as const
+        // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
+        // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
+        // dice que hay imagen. La de Andy Toh va al revés: esa foto NO existe
+        // en el lote, así que ahí sigue el hueco.
+        foto: null,
+        lote: true
       },
       {
         nombre: 'Andy Toh',
@@ -892,7 +924,8 @@ const en = {
           'His willingness to seek opportunities to learn and continually improve himself reflects a level of maturity and self-motivation that I believe will serve him extremely well at university.'
         ],
         correo: 'Andy.toh@bluesky-education.com',
-        foto: 'cartaAndy' as const
+        foto: 'cartaAndy' as const,
+        lote: false
       }
     ],
     tag: 'Letter to come',
@@ -1207,19 +1240,34 @@ const es: typeof en = {
     origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
-    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
-    cartaLloyd: 'Una foto mía con Lloyd George, el profesor que escribió esta carta.',
+    // Ver la nota de la tabla inglesa.
+    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha. La que mandé del puesto no se publica aquí: en el cartel se lee un número de teléfono, y esta página no publica teléfonos.',
     cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
-    toronto: 'El día que visité Toronto.',
-    donacion: 'Yo entregando el alimento que doné al albergue.',
-    perritos: 'Los perritos.',
-    marcha: 'La marcha por los animales callejeros.',
-    // Sin cargo: ver la nota de la tabla inglesa.
-    marg: 'Yo con Marg Franklin en la firma.',
-    grupoNarra: 'Yo hablando a cámara sobre el grupo estudiantil.',
-    playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
-    playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
-    playa3: 'La misma escena, más abierta: el camión de basura detrás y el grupo completo de voluntarios trabajando junto al mar. Foto 3 de 3.',
+  },
+  // Ver la nota de la tabla inglesa.
+  lote: {
+    cartaLloydAlt: 'Yo sosteniendo una bandera de Singapur en su asta de madera, junto a Lloyd George, de camisa blanca, que sostiene otra asta, en un salón',
+    cartaLloydPie: 'Con Lloyd George en Singapur (2026).',
+    torontoAlt: 'Yo y una compañera, con abrigos de invierno, frente a las letras rojas de TORONTO en Nathan Phillips Square, con el ayuntamiento detrás',
+    torontoPie: 'El día que visité Toronto (2026).',
+    playa1Alt: 'Yo recogiendo basura con una pinza y una cubeta roja en la orilla de un sendero, con un camión de basura detrás y el mar pasando los árboles',
+    playa1Pie: 'Recogiendo basura, con la cubeta y la pinza.',
+    playa2Alt: 'El montón de madera, tablas y cocos que recogimos, sobre el pasto junto a la arena',
+    playa2Pie: 'Lo que recogimos.',
+    playa3Alt: 'Yo y una compañera, de espaldas, sacando basura de un seto junto al mar, con cargueros en el horizonte',
+    playa3Pie: 'Junto al mar, con una compañera.',
+    donacionAlt: 'Yo con una bolsa de alimento para perro y dos sobres de alimento para gato, frente a la carpa del stand de adopción',
+    donacionPie: 'Entregando el alimento que doné.',
+    perritosAlt: 'Perros en un corral de rejilla bajo la carpa del refugio, con una lona sobre el respeto y el cuidado de los animales detrás',
+    perritosPie: 'Los perritos del stand.',
+    margAlt: 'Yo junto a Marg Franklin, que lleva un saco gris claro de cuadros, frente a un fondo oscuro',
+    margPie: 'Con Marg Franklin en la firma (2026).',
+    grupoEntrevistaAlt: 'Yo con un micrófono, entrevistando a dos estudiantes frente al cartel del stand de Smart Finance Prepa Tec',
+    grupoEntrevistaPie: 'Entrevistando en mi prepa, para el grupo estudiantil.',
+    grupoNarraAlt: 'Yo hablando a cámara con un micrófono de solapa, junto al cartel de Smart Finance Prepa Tec que invita a sumarse',
+    grupoNarraPie: 'Hablando a cámara sobre el grupo estudiantil.',
+    marchaAlt: 'Yo con un cartel hecho a mano sobre Canelo, un perro en adopción, en la marcha, con el arco y la fuente de Tlalnepantla detrás',
+    marchaPie: 'La marcha por los animales callejeros.'
   },
   clip: {
     tag: 'Falta el clip',
@@ -1278,8 +1326,6 @@ const es: typeof en = {
     grupoCifra: 'Somos casi 200 en la comunidad.',
     grupoLink: 'La comunidad, en el sitio',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
-    grupoTecPie: 'La promo del grupo en el Tec, de mi TikTok (2026)',
-    grupoTecAlt: 'Dos estudiantes conversando delante de un cartel de la Bolsa Mexicana de Valores en el Tec',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
     jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea en 2025 y llevo su marketing.',
@@ -1368,7 +1414,7 @@ const es: typeof en = {
     canadaNota: 'Su foto es la de la Torre CN que abre este CV, en el capítulo 1 — aquí no se repite.',
     verTodo: 'Ver todo mi contenido',
     arcoImgAlt: 'Yo, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
-    arcoImgPie: 'La presentación sobre México en la NUS, un cuadro de mi TikTok'
+    arcoImgPie: 'La presentación sobre México en la NUS — una foto mía'
   },
 
   entrevistas: {
@@ -1528,9 +1574,12 @@ const es: typeof en = {
           'Lo que ya ha logrado sin apoyo institucional indica con claridad lo que logrará con él.'
         ],
         correo: 'Enquiries.TAQ@outlook.com',
-        // Clave del hueco de la foto que va debajo (foto 1 del lote del
-        // 2026-08-30). NO es un archivo: es la clave de `fotosPend`.
-        foto: 'cartaLloyd' as const
+        // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
+        // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
+        // dice que hay imagen. La de Andy Toh va al revés: esa foto NO existe
+        // en el lote, así que ahí sigue el hueco.
+        foto: null,
+        lote: true
       },
       {
         nombre: 'Andy Toh',
@@ -1543,7 +1592,8 @@ const es: typeof en = {
           'Su disposición a buscar oportunidades para aprender y mejorar continuamente refleja un grado de madurez y automotivación que, en mi opinión, le servirá extremadamente bien en la universidad.'
         ],
         correo: 'Andy.toh@bluesky-education.com',
-        foto: 'cartaAndy' as const
+        foto: 'cartaAndy' as const,
+        lote: false
       }
     ],
     tag: 'Falta la carta',

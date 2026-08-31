@@ -486,8 +486,10 @@ console.log('Jaime');
     // Entrevista al creador de contenido de EE. UU., Marina Bay detrás:
     // caras en y=0.53; el 0.62 baja el cielo vacío y deja el skyline.
     { id: 'cara-jesus', src: 'tt-entrevista-jesus-singapur.jpg', fx: 0.50, fy: 0.62 },
-    // Promo del grupo en el Tec, cartel de la BMV detrás: caras en y=0.32.
-    { id: 'tt-grupo', src: 'tt-grupo-smartfinance-tec.jpg', fx: 0.50, fy: 0.45 }
+    // La promo del grupo en el Tec (`tt-grupo`) SE FUE el 2026-08-31: su
+    // único sitio en la página lo ocupa ahora la foto 8 del lote (él
+    // entrevistando en su prepa), que es la sustitución que pidió Jaime.
+    // Generarla igual dejaba un WebP desplegado que no pide nadie.
   ];
   for (const f of CARAS) {
     const m2 = await sharp(CVF(f.src)).metadata();
@@ -543,12 +545,89 @@ console.log('Jaime');
   // de solapa hablando junto a la lámina «Finance facts of Mexico», en el
   // aula de la NUS— y el rótulo queda fuera. Si algún día se quiere el
   // encuadre completo, hay que tapar o reconstruir esa franja, no ampliarlo.
+  /* ⚠️ SUSTITUIDA POR LA FOTO 12 DEL LOTE DEL 2026-08-30. El fotograma del
+   * vídeo llevaba el subtítulo quemado («THEN MEXICO, STOCK CHANGE,») corriendo
+   * en vertical, y por eso se recortaba en x=760 y salía a 720x682. La 12 es la
+   * MISMA escena fotografiada —Jaime con el micrófono de solapa junto a la
+   * lámina «Finance facts of Mexico», en el aula de la NUS— sin subtítulo, sin
+   * girar y a más resolución (1655x1192). Jaime pidió la sustitución con esas
+   * palabras. La clave del manifiesto NO cambia, así que el HTML no se entera:
+   * cambia el contenido y con él la huella, que es justo para lo que está.
+   * El fotograma viejo (tt-viaje-presentar-mexico-nus.jpg) se queda en
+   * cv-fotos/ sin publicar: es el original del vídeo, no una foto de más. */
   {
-    const src = CVF('tt-viaje-presentar-mexico-nus.jpg');
-    const buf = await sharp(src).extract({ left: 0, top: 0, width: 760, height: 720 })
-      .resize(720).webp({ quality: 76 }).toBuffer();
+    const src = CVF('lote-12-nus-explicando-mexico.jpg');
+    const m2 = await sharp(src).metadata();
+    const buf = await sharp(src).resize(960).webp({ quality: 78 }).toBuffer();
     const archivo = publicar('cv-tt-nus-presentacion.webp', buf);
-    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   720x682');
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   960x' + Math.round(960 * m2.height / m2.width));
+  }
+
+  /* ── EL LOTE DE 13 FOTOS QUE JAIME MANDÓ EL 2026-08-30 ──────────────────
+   *
+   * ORIGEN: fotos suyas, mandadas por chat, con un mapa escrito por él de
+   * dónde va cada una (cv-material/imagenes/nuevas/MAPA.md). A COLOR, como
+   * todo el material del CV desde su brief del 2026-08-28.
+   *
+   * SIN RECORTE DE ENCUADRE, y esto es una decisión, no una prisa. Las otras
+   * fotos del CV se recortan a 4:3 con un punto focal ESCRITO porque son
+   * fotogramas de vídeo y miniaturas donde el encuadre útil es una parte del
+   * cuadro. Estas son fotos que hizo alguien apuntando a algo: el encuadre ya
+   * está decidido y recortarlo sería re-encuadrar la foto de otro. Doce de
+   * las trece son verticales (3:4 casi todas), así que meterlas en una caja
+   * 4:3 les cortaría la mitad de arriba o de abajo — a Jaime por la cintura
+   * en la de la playa, la carpa entera en la del refugio. Se reescalan y ya:
+   * cada `<img>` lleva su `width`/`height` de verdad y la caja se adapta, que
+   * es como está montado `.recuerdo` (width 100 %, height auto). Cero CLS
+   * porque la proporción va escrita en el HTML.
+   *
+   * LOS ANCHOS. Todas viven por debajo del pliegue y van `loading="lazy"`, así
+   * que lo que se optimiza es el peso de quien LAS MIRA, no el de la primera
+   * carga. 560 para las que salen en rejilla de dos o tres columnas (la
+   * rejilla mide 720 px como mucho, así que una columna de tres son ~224 px y
+   * 560 cubre densidad 2), 480 para las dos que van capadas a 320 px de ancho
+   * (Toronto y Marg Franklin) y 720 para las dos que salen solas y grandes.
+   *
+   * LA 11 (él con Sol y otra voluntaria en el puesto de Callejeritos) NO SE
+   * PUBLICA, y no por su calidad: el cartel que sostienen lleva un número de
+   * teléfono legible y esta página no publica números de teléfono ni siquiera
+   * cuando son de un tercero (misma regla por la que el teléfono de la carta
+   * de Lloyd George se quedó fuera). Y hay una segunda razón, independiente:
+   * el hueco que llenaría dice «un retrato de Sol», y en la foto hay DOS
+   * mujeres sin que ninguna fuente diga cuál es Sol — publicarla con pie
+   * sería adivinar el nombre de una persona. Su hueco se queda, con las dos
+   * cosas escritas en pantalla. Necesita respuesta de Jaime.
+   * LA 8 y LA 12 SON SUSTITUCIONES, no huecos: los dos sitios ya tenían foto
+   * (ver el comentario de la 12, aquí arriba, y el de `grupo-tec` en
+   * Historia.astro). */
+  const LOTE = [
+    ['cv-lote-carta-lloyd', 'lote-01-lloyd-george-banderas.jpg', 560],
+    ['cv-lote-toronto', 'lote-02-toronto-city-hall.jpg', 480],
+    ['cv-lote-playa-1', 'lote-03-playa-limpiando-cubeta.jpg', 560],
+    ['cv-lote-playa-2', 'lote-04-playa-basura-recogida.jpg', 560],
+    ['cv-lote-playa-3', 'lote-10-playa-limpiando-con-companera.jpg', 560],
+    ['cv-lote-donacion', 'lote-05-donando-alimento-perritos.jpg', 560],
+    ['cv-lote-perritos', 'lote-06-perritos-refugio.jpg', 560],
+    ['cv-lote-marg', 'lote-07-marg-franklin-cfa.jpg', 480],
+    ['cv-lote-grupo-entrevista', 'lote-08-grupo-entrevistando-prepa.jpg', 720],
+    ['cv-lote-grupo-narra', 'lote-09-grupo-narrando-cartel.jpg', 560],
+    ['cv-lote-marcha', 'lote-13-marcha-animales-callejeros.jpg', 560]
+  ];
+  /* CALIDAD 72, y no el 76-78 del resto del archivo. Este bloque es, con
+   * diferencia, el peso de imagen más grande de la página: once fotos que se
+   * bajan enteras cuando alguien LEE el CV hasta el final (la primera carga no
+   * cambia — todas van `lazy` y ninguna está sobre el pliegue). Medido sobre
+   * estas once: 844.3 KB a calidad 78, 731.4 a 72, 699.6 a 68. El salto de 78
+   * a 72 son 113 KB que no se ven en una foto de 560 px; de 72 a 68 se ganan
+   * 32 y ya empiezan a verse los degradados del cielo. Los anchos NO se tocan:
+   * bajarlos sí se nota, y esto lo lee un comité de admisiones. */
+  console.log('lote del 2026-08-30 (sin recorte, a su proporción)');
+  for (const [id, src, ancho] of LOTE) {
+    const m2 = await sharp(CVF(src)).metadata();
+    const w = Math.min(ancho, m2.width);
+    const buf = await sharp(CVF(src)).resize(w).webp({ quality: 72 }).toBuffer();
+    const archivo = publicar(id + '.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
   }
 
   /* ── EL HEADER DE smartfinance.lat (Jaime, 2026-08-30) ──────────────────

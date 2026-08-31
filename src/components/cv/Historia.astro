@@ -683,10 +683,11 @@ const resumenIndice = c.indice.resumen
             <footer class="pie">{c.voz.torontoFuente}</footer>
           </blockquote>
           {/* Foto 2 del lote del 2026-08-30: la visita a Toronto. Va PEGADA a
-               su cita sobre la U of T, que es de esa visita. Todavía no está
-               en disco (ver el mapa completo en src/i18n/cv.ts, sobre
-               `fotosPend`). */}
-          <FotoHueco c={c} que={c.fotosPend.toronto} ratio="4 / 3" class="hueco-toronto" />
+               su cita sobre la U of T, que es de esa visita. */}
+          <figure class="lote-fig lote-toronto">
+            <span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.torontoPie}</figcaption>
+          </figure>
           <Hueco c={c} id="quienSoy" />
         </div>
         {/* SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
@@ -837,15 +838,24 @@ const resumenIndice = c.indice.resumen
              LinkedIn (2026). Las fotos no se pudieron guardar en esta
              cosecha; el hecho entra igual, sin foto. */}
         <p class="cap-frases">{c.servir.donacion}</p>
-        {/* Fotos 5, 6 y 13 del lote del 2026-08-30 — él entregando el
-             alimento, los perritos y la marcha. Ninguna está en disco
-             todavía; cada hueco dice cuál espera. La cuarta de este tema
-             (él con Sol, la 11) tiene su hueco desde antes, dentro de la
-             tarjeta de Sol en el carrusel del capítulo 4. */}
+        {/* Fotos 5, 6 y 13 del lote del 2026-08-30, YA COLOCADAS: él
+             entregando el alimento, los perritos del stand y la marcha. La
+             cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
+             enseña un teléfono— y su hueco, en la tarjeta de Sol del
+             capítulo 4, lo dice en pantalla. */}
         <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.donacion} ratio="4 / 3" />
-          <FotoHueco c={c} que={c.fotosPend.perritos} ratio="4 / 3" />
-          <FotoHueco c={c} que={c.fotosPend.marcha} ratio="4 / 3" />
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-donacion.webp')} alt={c.lote.donacionAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.donacionPie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.perritosPie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.marchaPie}</figcaption>
+          </figure>
         </div>
         <Hueco c={c} id="servirAnimales" />
       </div>
@@ -881,9 +891,18 @@ const resumenIndice = c.indice.resumen
              automáticas para linkedin.com — es un permiso del navegador de
              Jaime, no algo que se arregle desde aquí. */}
         <div class="playa-fotos">
-          <FotoHueco c={c} que={c.fotosPend.playa1} ratio="3 / 4" />
-          <FotoHueco c={c} que={c.fotosPend.playa2} ratio="4 / 3" />
-          <FotoHueco c={c} que={c.fotosPend.playa3} ratio="4 / 3" />
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.playa1Pie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.playa2Pie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" height="731" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.playa3Pie}</figcaption>
+          </figure>
         </div>
       </div>
     </div>
@@ -992,7 +1011,10 @@ const resumenIndice = c.indice.resumen
          insinuaría una entrevista que no existe. Fuera del carrusel, en el
          mismo capítulo, es la gente que conoció. */}
     <div class="fila-fotos marg-fila">
-      <FotoHueco c={c} que={c.fotosPend.marg} ratio="4 / 3" />
+      <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.margPie}</figcaption>
+          </figure>
     </div>
 
     {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
@@ -1060,7 +1082,7 @@ const resumenIndice = c.indice.resumen
          nombre nuevo — y entonces el recorte raro de build-photos.mjs se
          puede borrar entero. */}
     <figure class="arco-fig">
-      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="720" height="682" loading="lazy" decoding="async" /></span>
+      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
       <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
     </figure>
     <p class="cap-frases">{c.tiktok.nota}</p>
@@ -1114,24 +1136,27 @@ const resumenIndice = c.indice.resumen
              regla de «ninguna imagen dos veces» habla de archivos, y este es
              el cuadro del vídeo de promo de 2026 en el Tec).
 
-             ⚠️ ESTA FOTO LA SUSTITUYE LA 8 DEL LOTE DEL 2026-08-30 — «él
-             entrevistando gente en su prepa por parte de su grupo
-             estudiantil», y Jaime dijo con esas palabras que sustituye a la
-             actual del grupo abrazado. NO lleva FotoHueco al lado a
-             propósito: hoy este sitio tiene foto, y un recuadro punteado
-             junto a una foto que está diría que falta algo que no falta.
-             CUANDO LLEGUE: original a public/assets/cv-fotos/, una línea en
-             build-photos.mjs, y aquí se cambia `cv-tt-grupo.webp` por el
-             nombre nuevo, más `grupoTecAlt` y `grupoTecPie` en cv.ts. */}
-        <figure class="grupo-tec">
-          <span class="recuerdo"><img src={foto('cv-tt-grupo.webp')} alt={c.proyectos.grupoTecAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
-          <figcaption class="pie">{c.proyectos.grupoTecPie} <a class="hist-link" href={urlVideo('7675228112342289685')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+             SUSTITUCIÓN HECHA (2026-08-31): aquí estaba `cv-tt-grupo.webp`,
+             el cuadro del vídeo de promo, y Jaime pidió con esas palabras que
+             lo sustituyera la 8 del lote — «él entrevistando gente en su
+             prepa por parte de su grupo estudiantil». Se va también el enlace
+             «ver en TikTok» del pie: apuntaba al vídeo del que salía ESE
+             cuadro, y colgarlo de una foto que no es de ese vídeo diría que
+             la foto sale de ahí. El vídeo de promo no se pierde — sigue en el
+             carrusel de clips del capítulo 6. NO lleva FotoHueco al lado a
+             propósito: este sitio tiene foto. */}
+        <figure class="grupo-tec lote-fig">
+          <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" height="810" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
         </figure>
         {/* Foto 9 del lote del 2026-08-30: él narrando algo sobre su grupo
              estudiantil. Esa sí es nueva y no sustituye a nada, así que va
              con su hueco. */}
-        <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.grupoNarra} ratio="4 / 3" />
+        <div class="fila-fotos grupo-narra-fila">
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" height="786" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
+          </figure>
         </div>
       </div>
 
@@ -1588,13 +1613,20 @@ const resumenIndice = c.indice.resumen
             <span class="meta-mono carta-contacto-tag">{c.cartas.contactoTag}</span>
             <a class="hist-link" href={`mailto:${k.correo}`}>{k.correo}</a>
           </p>
-          {/* LA FOTO CON QUIEN FIRMA — fotos 1 de las 13 que Jaime mandó por
-               chat el 2026-08-30 y que TODAVÍA NO ESTÁN EN DISCO. Él las
-               guardará en cv-material/imagenes/nuevas/; esa carpeta aún no
-               existe, así que aquí no hay ninguna ruta inventada, hay un
-               hueco que dice a quién espera. `k.foto` es la clave del texto
-               del hueco, no un archivo. */}
-          <FotoHueco c={c} que={c.fotosPend[k.foto]} ratio="4 / 3" />
+          {/* LA FOTO CON QUIEN FIRMA. La de Lloyd George es la 1 del lote del
+               2026-08-30 y ya está puesta. La de Andy Toh NO EXISTE: el lote
+               son 13 archivos y ninguno es Jaime con él, así que ahí sigue el
+               hueco diciendo a quién espera (`k.foto` es la clave del texto
+               del hueco, no un archivo). Este comentario decía que la carpeta
+               del lote «aún no existe» y era falso. */}
+          {k.lote ? (
+            <figure class="lote-fig">
+              <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" height="996" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
+            </figure>
+          ) : k.foto ? (
+            <FotoHueco c={c} que={c.fotosPend[k.foto]} ratio="4 / 3" />
+          ) : null}
         </article>
       ))}
     </div>
@@ -3020,6 +3052,23 @@ const resumenIndice = c.indice.resumen
     padding: clamp(var(--sp-4), 3vw, var(--sp-6));
     background: var(--cvh-papel);
   }
+  /* ── LAS FOTOS DEL LOTE DEL 2026-08-30 ────────────────────────────────
+     Misma receta que .grupo-tec (figura suelta, pie debajo) pero con el
+     ancho CAPADO POR SITIO, porque estas fotos NO se recortan: doce de las
+     trece son verticales, y una vertical a todo el ancho de la columna se
+     come una pantalla entera de teléfono ella sola. El tope no es estética:
+     es cuántas caben a la vista a la vez.
+     El `min-width: 0` es para las que van dentro de `.fila-fotos`, que es
+     una rejilla — sin él, un `1fr` tiene suelo de min-content y la fila se
+     sale (la misma trampa que documenta la regla de reflow de CLAUDE.md). */
+  .lote-fig { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  /* La de Toronto va en la columna de texto del capítulo 1, que ya es
+     estrecha (antes lo hacía `:global(.hueco-toronto)`, que ya no existe). */
+  .lote-toronto { max-width: 320px; }
+  /* Las tres de la playa van en columna, una debajo de otra: capadas para
+     que las tres se puedan recorrer sin que cada una sea una pantalla. */
+  .playa-fotos .lote-fig { max-width: 420px; }
+  .grupo-narra-fila .lote-fig { max-width: 360px; }
   .grupo-tec { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 480px; }
   /* El cuadro de la presentación en la NUS (el rescatado): misma receta que
      .grupo-tec — figura suelta, pie debajo, ancho capado para que una foto
