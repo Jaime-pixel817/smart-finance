@@ -1235,31 +1235,40 @@ const resumenIndice = c.indice.resumen
     <p class="cap-num" aria-hidden="true">{num(6)}</p>
     <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
-    {/* ══ TARJETAS DE CERTIFICADO DISEÑADAS (brief 2026-08-28) ════════════
-         Los recortes de LinkedIn no se pudieron guardar en la cosecha, así
-         que cada certificado va como TARJETA diseñada —emisor, nombre, año y
-         «Verlo en LinkedIn» a su perfil, que es donde está publicado— con un
-         FotoHueco para la imagen original cuando Jaime la entregue. Se ven
-         mejor que un pantallazo y no inventan nada: donde falta el emisor o
-         el año, la tarjeta LO DICE en vez de adivinarlo.
-         La de FRANCÉS A2 es distinta y lo dice en pantalla: afirmación suya
-         pendiente de verificación — sin emisor, sin imagen y sin enlace,
-         porque no hay certificado publicado que enlazar. */}
+    {/* ══ LAS SIETE TARJETAS, CON SU IMAGEN Y SU ID (cosecha 2026-08-29) ══
+         La tarjeta sigue siendo una tarjeta diseñada —emisor arriba, nombre,
+         año, ID de la credencial en mono— y ahora lleva DENTRO la imagen del
+         certificado que Jaime tiene publicada en su LinkedIn. Seis de siete:
+         el DELF A2 no tiene imagen en ninguna parte y se queda con su
+         FotoHueco, en el MISMO rectángulo 4:3, para que la rejilla no se
+         desordene por el que falta.
+
+         EL MARCO ES 4:3 Y LA IMAGEN VA CON `contain`, no con `cover`: cuatro
+         certificados son apaisados y dos verticales, y `cover` recortaría a
+         cuál más — un certificado al que le cortas la mitad deja de ser un
+         recibo. Con `contain` se ve entero y el aire que sobra es papel.
+
+         El ID va en TEXTO y no como enlace: los siete tienen «Mostrar
+         credencial» en LinkedIn, pero LinkedIn envuelve el destino y esa
+         dirección no se pudo leer. El enlace de la tarjeta sigue yendo a su
+         perfil, que es donde el certificado está publicado. Al de Green
+         Technology LinkedIn no le publica ID, y la tarjeta LO DICE. */}
     <ul class="certs">
       {c.certs.filas.map((f) => (
         <li class="cert">
-          <p class="etiqueta">{f.de || c.certs.sinEmisor}</p>
+          <p class="etiqueta">{f.de}</p>
           <p class="cert-nombre">{f.que}</p>
-          <p class="cert-anio num">{f.anio || c.certs.sinAnio}</p>
-          <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />
+          <p class="cert-anio num">{f.anio}</p>
+          {f.img
+            ? <span class="cert-marco"><img class="cert-img" src={foto(f.img)} alt={f.alt}
+                width={f.w} height={f.h} loading="lazy" decoding="async" /></span>
+            : <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />}
+          {f.cred
+            ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
+            : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
           <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
         </li>
       ))}
-      <li class="cert cert-afirmacion">
-        <p class="etiqueta cert-claim">{c.certs.frances.tag}</p>
-        <p class="cert-nombre">{c.certs.frances.que}</p>
-        <p class="pie">{c.certs.frances.nota}</p>
-      </li>
     </ul>
   </section>
 
@@ -2465,13 +2474,24 @@ const resumenIndice = c.indice.resumen
   }
   .cert-nombre { font-weight: 600; overflow-wrap: anywhere; }
   .cert-anio { color: var(--cvh-tinta-2); font-size: var(--fs-small); }
-  /* El hueco de la imagen empuja el enlace al pie de la tarjeta. `:global`
-     porque FotoHueco tiene su propio ámbito de estilos. */
-  .cert :global(.foto-hueco) { margin-top: auto; }
-  /* La tarjeta del francés: afirmación, no recibo — borde discontinuo y su
-     marca en ámbar, el color con el que este sitio dice «ojo con esto». */
-  .cert-afirmacion { border-style: dashed; }
-  .cert-claim { color: var(--warn); }
+  /* La imagen (o el hueco del que no la tiene) empuja el pie de la tarjeta
+     hacia abajo, así que el ID y el enlace quedan alineados entre tarjetas.
+     `:global` porque FotoHueco tiene su propio ámbito de estilos. */
+  .cert :global(.foto-hueco), .cert-marco { margin-top: auto; }
+  /* MARCO 4:3 FIJO PARA LOS SIETE, imagen `contain` dentro. El rectángulo es
+     el mismo que reserva FotoHueco, así que la fila no se descuadra por el
+     DELF A2, que no tiene imagen. `contain` y no `cover`: cuatro
+     certificados son apaisados y dos verticales, y recortarlos para que
+     encajen sería cortar el recibo. El aire que sobra es papel. */
+  .cert-marco {
+    display: block; aspect-ratio: 4 / 3; overflow: hidden;
+    border-radius: 14px; border: 1px solid var(--cvh-raya);
+    background: var(--bg-2);
+  }
+  .cert-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  /* El ID de la credencial: mono, porque es un código que alguien va a
+     copiar, y partible porque son 24 caracteres sin espacios. */
+  .cert-cred { overflow-wrap: anywhere; }
 
   /* ---- Cartas de recomendación: los tres huecos honestos ---- */
   .cartas {

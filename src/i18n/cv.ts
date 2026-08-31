@@ -536,65 +536,100 @@ const en = {
   },
 
   // ---- Capítulo 10: certificaciones ----
+  // ═══════════════════════════════════════════════════════════════════════
+  // LAS SIETE, CON SU IMAGEN Y SU ID (cosecha del 2026-08-29, bloque C1)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Hasta esta cosecha, este bloque iba con la mano atada: el PDF que Jaime
+  // había exportado de LinkedIn no traía ni el emisor ni la fecha de cada
+  // certificado, así que dos filas salían SIN emisor, una SIN año y las seis
+  // con un FotoHueco en vez de imagen. Ahora se entró a la sección de
+  // certificaciones de su perfil (`/details/certifications/`) y están las
+  // siete con su nombre exacto, su emisor, su fecha y su ID de credencial —
+  // y seis con su imagen guardada. Ya no hace falta adivinar nada, así que
+  // los rótulos de «emisor por verificar» y «año por verificar» se fueron
+  // con lo que los necesitaba.
+  //
+  // TRES COSAS QUE CAMBIARON DE FONDO:
+  //  1. EL A2 DE FRANCÉS YA NO ES UNA AFIRMACIÓN. Estaba aparte, en una
+  //     tarjeta de borde discontinuo marcada «afirmación mía, pendiente de
+  //     verificación», porque no aparecía en ninguna fuente. Sí está: es
+  //     `DELF A2`, lo expide la Alliance Française de Paris y tiene ID.
+  //     Entra como una de las siete, sin marca de duda.
+  //  2. EL NOMBRE DEL DE BLOOMBERG ES «Bloomberg Finance Fundamentals»,
+  //     confirmado leyendo el certificado. No es «Market Concepts» — la
+  //     carta de Lloyd George lo llama así y la carta es la equivocada.
+  //  3. «Cambridge English» YA NO ESTÁ INVENTADO. Antes se quitó por eso
+  //     mismo; hoy es el emisor que declara su LinkedIn y lo imprime el
+  //     propio certificado.
+  //
+  // SIN URL DE VERIFICACIÓN. Las siete tienen botón «Mostrar credencial» en
+  // LinkedIn, pero LinkedIn envuelve el destino en `linkedin.com/safety/go/`
+  // y esa dirección no se pudo leer. El ID en texto es suficiente para que un
+  // comité lo compruebe, y el enlace de la tarjeta va a su perfil, que es
+  // donde el certificado está publicado.
+  //
+  // AÑOS: solo el año, que es la regla de Jaime para fechas biográficas. Seis
+  // son de 2026 y el B2 de Cambridge de 2024.
   certs: {
-    // El lede promete lo MISMO que el español (emisor Y año con fuente): los
-    // dos paneles hacen la misma promesa o uno de los dos miente (2026-08-29).
-    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer and the year only where a source says so.',
-    // Nombres tal cual los publica su LinkedIn (el PDF que Jaime exportó).
-    // ─────────────────────────────────────────────────────────────────────
-    // EL PDF NO TRAE LA INSTITUCIÓN DE CADA CERTIFICADO, NI SU FECHA.
-    // Así que `de` solo lleva emisor donde hay una fuente que lo diga:
-    //   · Investment Foundations® — CFA Institute: su propia publicación de
-    //     LinkedIn lo dice ("CFA Institute Investment Foundations Certificate").
-    //   · Vista Equity Partners / Bank of America, en Forage: sus dos
-    //     publicaciones de LinkedIn sobre las simulaciones.
-    //   · Bloomberg Finance Fundamentals — Bloomberg: su publicación lo dice
-    //     con esas palabras («…program from Bloomberg», MATERIAL.md LI-19).
-    //     La fuente es ese «from Bloomberg», NO que el nombre empiece por la
-    //     marca — eso solo no bastaría. (Recibo actualizado el 2026-08-29:
-    //     antes aquí decía que Bloomberg iba sin emisor, y la fila ya lo
-    //     llevaba con fuente.)
-    // Las otras DOS (Green Technology, B2) van SIN emisor a propósito.
-    // "Cambridge English" para el B2 estaba inventado: el PDF no lo dice en
-    // ninguna parte, y un CV que adivina quién expide un certificado es un
-    // CV que se puede desmentir.
-    // Cuando falta el emisor, la columna de la derecha también lo pide.
-    // ── TARJETAS DISEÑADAS, NO CAPTURAS (brief 2026-08-28) ───────────────
-    // Los recortes de los certificados de LinkedIn NO se pudieron guardar en
-    // la cosecha (limitación del entorno, anotada en MATERIAL.md): cada
-    // tarjeta lleva su FotoHueco para cuando Jaime entregue las imágenes.
-    // AÑOS: solo el año, y solo donde hay fuente — las publicaciones de
-    // LinkedIn de 2026 (CFA, Vista, BofA, Bloomberg) y el curso de Singapur
-    // (Green Technology, 2026). El B2 no tiene fecha publicada: se pide.
-    // EMISORES: solo donde una fuente lo diga (la regla de siempre).
-    // El enlace de cada tarjeta va al PERFIL de Jaime, que es donde el
-    // certificado está publicado y donde un comité puede comprobarlo.
+    lede: 'The receipts. Exact name, issuer, year and credential ID, as my LinkedIn publishes them.',
     verLinkedIn: 'See it on LinkedIn',
-    fotoPend: 'The certificate image, when I capture it from LinkedIn.',
-    sinEmisor: 'Issuer to verify',
-    sinAnio: 'year to verify',
+    credencial: 'Credential ID',
+    // El único de los siete que LinkedIn publica sin ID. Se dice, no se
+    // esconde: una tarjeta a la que le falta un campo y se calla parece una
+    // tarjeta completa.
+    sinCred: 'No credential ID published',
+    // Solo el DELF A2 llega hasta aquí: es el único sin imagen en ninguna
+    // parte (ni certificado ni logotipo en su LinkedIn).
+    fotoPend: 'The diploma, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
     // SIN « — » dentro de los nombres de las simulaciones: los certificados
-    // publicados dicen «Demystifying Private Equity Job Simulation» e
-    // «Investment Banking Job Simulation» (MATERIAL.md LI-01 y LI-02), y un
-    // guion insertado contradice el «the exact name» del lede (2026-08-29).
+    // publicados dicen «Vista Equity Partners - Demystifying Private Equity
+    // Job Simulation» y «Bank of America - Investment Banking Job
+    // Simulation», con el emisor delante. El nombre va EXACTO, guion
+    // incluido, porque eso es lo que promete el lede.
+    // El orden es el de LinkedIn: el más reciente primero.
     filas: [
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
-      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, on Forage', anio: '2026' },
-      { que: 'Investment Banking Job Simulation', de: 'Bank of America, on Forage', anio: '2026' },
-      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
-      { que: 'Green Technology Programme', de: '', anio: '2026' },
-      { que: 'B2 First Certificate', de: '', anio: '' }
-    ],
-    // ── FRANCÉS A2: AFIRMACIÓN SUYA, MARCADA COMO TAL ────────────────────
-    // No hay certificado publicado en su actividad (verificado en la
-    // cosecha). Entra porque él lo pidió, como afirmación suya pendiente de
-    // verificación — sin emisor, sin imagen y con la marca en pantalla. Que
-    // estudia francés sí tiene fuente: su publicación sobre Concordia.
-    frances: {
-      que: 'French — A2',
-      tag: 'My claim, pending verification',
-      nota: 'No certificate is published on my LinkedIn. What is sourced: my Concordia post (2026) says I have been studying French.'
-    }
+      {
+        que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        img: 'cv-cert-vista.webp', w: 700, h: 495,
+        alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Vista Equity Partners Demystifying Private Equity job simulation, with the Vista and Forage logos.'
+      },
+      {
+        que: 'Bank of America - Investment Banking Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        img: 'cv-cert-bofa.webp', w: 700, h: 495,
+        alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Bank of America investment banking job simulation, with the Bank of America and Forage logos.'
+      },
+      {
+        que: 'Investment Foundations® Certificate',
+        de: 'CFA Institute', anio: '2026', cred: '191463283',
+        img: 'cv-cert-cfa.webp', w: 700, h: 541,
+        alt: 'CFA Institute certificate awarding the Investment Foundations Certificate to Jaime Sandoval Ricano, with its date, certificate number and verification QR code.'
+      },
+      {
+        que: 'GREEN TECHNOLOGY PROGRAMME',
+        de: 'BlueSky Education', anio: '2026', cred: '',
+        img: 'cv-cert-green-tech.webp', w: 501, h: 700,
+        alt: 'BlueSky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
+      },
+      {
+        que: 'Bloomberg Finance Fundamentals',
+        de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
+        alt: 'Bloomberg for Education certificate of completion for the Bloomberg Finance Fundamentals course, on a black background with candlestick charts.'
+      },
+      {
+        que: 'DELF A2',
+        de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        img: '', w: 0, h: 0, alt: ''
+      },
+      {
+        que: 'B2 First Certificate',
+        de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
+        alt: 'Cambridge English certificate stating that Jaime Sandoval Ricaño was awarded Grade C in the First Certificate in English, Council of Europe level B2, with an overall score of 163.'
+      }
+    ]
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
@@ -1069,24 +1104,56 @@ const es: typeof en = {
   },
 
   certs: {
-    lede: 'Los recibos. El nombre exacto, tal como lo publica mi LinkedIn; el emisor y el año, solo donde una fuente lo diga.',
+    lede: 'Los recibos. Nombre exacto, emisor, año e ID de la credencial, tal como los publica mi LinkedIn.',
     verLinkedIn: 'Verlo en LinkedIn',
-    fotoPend: 'La imagen del certificado, cuando yo la capture de LinkedIn.',
-    sinEmisor: 'Emisor por verificar',
-    sinAnio: 'año por verificar',
+    credencial: 'ID de la credencial',
+    sinCred: 'Sin ID de credencial publicado',
+    fotoPend: 'El diploma, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
+    // Los NOMBRES no se traducen: son el nombre propio del certificado, y es
+    // lo que un comité va a buscar. Lo que sí va en español es todo lo demás.
     filas: [
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
-      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, en Forage', anio: '2026' },
-      { que: 'Investment Banking Job Simulation', de: 'Bank of America, en Forage', anio: '2026' },
-      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
-      { que: 'Green Technology Programme', de: '', anio: '2026' },
-      { que: 'B2 First Certificate', de: '', anio: '' }
-    ],
-    frances: {
-      que: 'Francés — A2',
-      tag: 'Afirmación mía, pendiente de verificación',
-      nota: 'No hay certificado publicado en mi LinkedIn. Lo que sí tiene fuente: mi publicación sobre Concordia (2026) dice que estudio francés.'
-    }
+      {
+        que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        img: 'cv-cert-vista.webp', w: 700, h: 495,
+        alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de private equity de Vista Equity Partners, con los logotipos de Vista y de Forage.'
+      },
+      {
+        que: 'Bank of America - Investment Banking Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        img: 'cv-cert-bofa.webp', w: 700, h: 495,
+        alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de banca de inversión de Bank of America, con los logotipos de Bank of America y de Forage.'
+      },
+      {
+        que: 'Investment Foundations® Certificate',
+        de: 'CFA Institute', anio: '2026', cred: '191463283',
+        img: 'cv-cert-cfa.webp', w: 700, h: 541,
+        alt: 'Certificado del CFA Institute que otorga el Investment Foundations Certificate a Jaime Sandoval Ricano, con su fecha, su número de certificado y un código QR de verificación.'
+      },
+      {
+        que: 'GREEN TECHNOLOGY PROGRAMME',
+        de: 'BlueSky Education', anio: '2026', cred: '',
+        img: 'cv-cert-green-tech.webp', w: 501, h: 700,
+        alt: 'Certificado de BlueSky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
+      },
+      {
+        que: 'Bloomberg Finance Fundamentals',
+        de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
+        alt: 'Certificado de Bloomberg for Education por el curso Bloomberg Finance Fundamentals, sobre fondo negro con gráficas de velas.'
+      },
+      {
+        que: 'DELF A2',
+        de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        img: '', w: 0, h: 0, alt: ''
+      },
+      {
+        que: 'B2 First Certificate',
+        de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
+        alt: 'Certificado de Cambridge English que acredita que Jaime Sandoval Ricaño obtuvo Grade C en el First Certificate in English, nivel B2 del Consejo de Europa, con una puntuación global de 163.'
+      }
+    ]
   },
 
   cartas: {

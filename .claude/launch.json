@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "autoPort": true,
+  "configurations": [
+    {
+      "name": "cv-preview",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "npx astro preview --port $PORT"],
+      "port": 4331,
+      "autoPort": true
+    }
+  ]
+}
