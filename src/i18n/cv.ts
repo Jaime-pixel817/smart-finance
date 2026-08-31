@@ -72,8 +72,13 @@ const en = {
     research: 'Me working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
     sol: 'A portrait of Sol — or a frame from the march videos.',
-    playas: 'The beach clean-up in Singapore — the photos are on my LinkedIn.',
-    jasa: 'The shop or the online store: a real photo or a capture.'
+    // TRES huecos, uno por foto, porque la publicación tiene TRES y están
+    // descritas una por una en el material. Un solo hueco genérico decía
+    // «faltan fotos»; tres dicen CUÁLES faltan, que es lo que hace falta
+    // para poder traerlas.
+    playa1: 'Me picking up litter with the red bucket and the grabber, at the edge of the path. Photo 1 of the 3 on my LinkedIn.',
+    playa2: 'The wide shot of the coastal park: the trees, the turquoise sea and a cargo ship on the horizon. Photo 2 of 3.',
+    playa3: 'The same scene, wider: the rubbish truck behind, and the whole group of volunteers working by the sea. Photo 3 of 3.',
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -219,7 +224,11 @@ const en = {
     // negocio (Cuautitlán, 20+ años) salen del propio sitio de la
     // refaccionaria. Pendiente de su revisión final, como todo voz.*.
     jasaH: 'Jasa Motor',
-    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store and I run its marketing.',
+    // EL AÑO ES 2025 y lo corrigió Jaime (2026-08-29): la tienda la creó en
+    // 2025, no en 2026 como decía la línea del capítulo de experiencias.
+    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store in 2025 and I run its marketing.',
+    jasaAlt: 'Home page of the Jasa Motor online store: the logo with a piston in the A, a search by make, model, year and engine, the “Refacciones para Motor” heading and the best-sellers grid with real prices.',
+    jasaPie: 'The store I built — tienda.jasamotor.com.mx (2025)',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -494,6 +503,16 @@ const en = {
     // texto de su propia publicación: fue un voluntariado de su curso de
     // Green Technology and Sustainable Ecology.
     playa: 'The beach clean-up was in Singapore, a volunteer day from my Green Technology and Sustainable Ecology course (2026).',
+    // ── Y ES EL MISMO PROGRAMA DEL CERTIFICADO ───────────────────────────
+    // La publicación de la playa (LI-16) y el certificado 4 del capítulo de
+    // certificaciones son LA MISMA COSA: el 2026 GREEN TECHNOLOGY PROGRAMME
+    // de BlueSky Education, del 22 de junio al 11 de julio de 2026 en la
+    // Shaw Foundation Alumni House (que está dentro de la NUS). Estaban
+    // escritos como dos actividades sueltas, y no lo son: la limpieza es la
+    // parte de servicio del programa que certifica el diploma. Decirlo hace
+    // que el voluntariado deje de parecer un día suelto y el certificado
+    // deje de parecer un curso sin práctica.
+    playaPrograma: 'That day was part of the programme whose certificate is in “Certifications”: the 2026 Green Technology Programme, BlueSky Education, in Singapore. The clean-up is the service part of the same programme.',
     bloques: {
       animales: 'The animals',
       playas: 'Beach clean-up'
@@ -514,106 +533,214 @@ const en = {
       // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
       // él: es 2025, no 2026.
       { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
-      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
-      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
-      { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
-      { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
-      { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
+      // ⚠️ EL AÑO DEL GRUPO ESTUDIANTIL ESTÁ EN DISPUTA Y NO LO RESUELVE
+      // ESTA PÁGINA. Jaime dijo el 2026-08-29 que lo creó «a finales de
+      // 2025»; su propio LinkedIn publica el grupo como «ene. 2026» y el
+      // proyecto smartfinance.lat como «feb. 2026». Aquí va 2025 porque es
+      // lo que él afirmó y es su vida, no la de este repositorio — pero es
+      // una contradicción REAL con una fuente pública suya, y hasta que él
+      // la aclare (corrigiendo el LinkedIn o corrigiendo esta línea) se
+      // queda anotada aquí. No la borres sin su respuesta.
+      { cuando: '2025', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
       // «One of his first», no «his first»: su post dice «one of my first
       // experiences attending a business conference» (MATERIAL.md LI-17).
       // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
-      { cuando: '2026', que: 'AEM General Assembly — one of my first business conferences and networking events' },
+      // EL AÑO ES 2025, corregido por Jaime el 2026-08-29 (iba como 2026).
+      { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
+      // 2025 también, y también corregido por él: «esta la creé en 2025».
+      { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
+      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
+      { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
+      { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
       // SIN el cargo de Marg Franklin: su post capturado (MATERIAL.md LI-20)
       // no dice «CEO of CFA Institute» — dice que la escuchó «leading one of
       // the most important organizations in the financial world» y que le
       // pidió consejo sobre estudiar en Canadá. El cargo exacto era una
       // anotación externa sin fuente en el material: fuera (2026-08-29).
       { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin for advice on studying in Canada' },
-      { cuando: '2026', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
       { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 6' }
     ]
   },
 
   // ---- Capítulo 10: certificaciones ----
+  // ═══════════════════════════════════════════════════════════════════════
+  // LAS SIETE, CON SU IMAGEN Y SU ID (cosecha del 2026-08-29, bloque C1)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Hasta esta cosecha, este bloque iba con la mano atada: el PDF que Jaime
+  // había exportado de LinkedIn no traía ni el emisor ni la fecha de cada
+  // certificado, así que dos filas salían SIN emisor, una SIN año y las seis
+  // con un FotoHueco en vez de imagen. Ahora se entró a la sección de
+  // certificaciones de su perfil (`/details/certifications/`) y están las
+  // siete con su nombre exacto, su emisor, su fecha y su ID de credencial —
+  // y seis con su imagen guardada. Ya no hace falta adivinar nada, así que
+  // los rótulos de «emisor por verificar» y «año por verificar» se fueron
+  // con lo que los necesitaba.
+  //
+  // TRES COSAS QUE CAMBIARON DE FONDO:
+  //  1. EL A2 DE FRANCÉS YA NO ES UNA AFIRMACIÓN. Estaba aparte, en una
+  //     tarjeta de borde discontinuo marcada «afirmación mía, pendiente de
+  //     verificación», porque no aparecía en ninguna fuente. Sí está: es
+  //     `DELF A2`, lo expide la Alliance Française de Paris y tiene ID.
+  //     Entra como una de las siete, sin marca de duda.
+  //  2. EL NOMBRE DEL DE BLOOMBERG ES «Bloomberg Finance Fundamentals»,
+  //     confirmado leyendo el certificado. No es «Market Concepts» — la
+  //     carta de Lloyd George lo llama así y la carta es la equivocada.
+  //  3. «Cambridge English» YA NO ESTÁ INVENTADO. Antes se quitó por eso
+  //     mismo; hoy es el emisor que declara su LinkedIn y lo imprime el
+  //     propio certificado.
+  //
+  // SIN URL DE VERIFICACIÓN. Las siete tienen botón «Mostrar credencial» en
+  // LinkedIn, pero LinkedIn envuelve el destino en `linkedin.com/safety/go/`
+  // y esa dirección no se pudo leer. El ID en texto es suficiente para que un
+  // comité lo compruebe, y el enlace de la tarjeta va a su perfil, que es
+  // donde el certificado está publicado.
+  //
+  // AÑOS: solo el año, que es la regla de Jaime para fechas biográficas. Seis
+  // son de 2026 y el B2 de Cambridge de 2024.
   certs: {
-    // El lede promete lo MISMO que el español (emisor Y año con fuente): los
-    // dos paneles hacen la misma promesa o uno de los dos miente (2026-08-29).
-    lede: 'The receipts. The exact name, as LinkedIn publishes it; the issuer and the year only where a source says so.',
-    // Nombres tal cual los publica su LinkedIn (el PDF que Jaime exportó).
-    // ─────────────────────────────────────────────────────────────────────
-    // EL PDF NO TRAE LA INSTITUCIÓN DE CADA CERTIFICADO, NI SU FECHA.
-    // Así que `de` solo lleva emisor donde hay una fuente que lo diga:
-    //   · Investment Foundations® — CFA Institute: su propia publicación de
-    //     LinkedIn lo dice ("CFA Institute Investment Foundations Certificate").
-    //   · Vista Equity Partners / Bank of America, en Forage: sus dos
-    //     publicaciones de LinkedIn sobre las simulaciones.
-    //   · Bloomberg Finance Fundamentals — Bloomberg: su publicación lo dice
-    //     con esas palabras («…program from Bloomberg», MATERIAL.md LI-19).
-    //     La fuente es ese «from Bloomberg», NO que el nombre empiece por la
-    //     marca — eso solo no bastaría. (Recibo actualizado el 2026-08-29:
-    //     antes aquí decía que Bloomberg iba sin emisor, y la fila ya lo
-    //     llevaba con fuente.)
-    // Las otras DOS (Green Technology, B2) van SIN emisor a propósito.
-    // "Cambridge English" para el B2 estaba inventado: el PDF no lo dice en
-    // ninguna parte, y un CV que adivina quién expide un certificado es un
-    // CV que se puede desmentir.
-    // Cuando falta el emisor, la columna de la derecha también lo pide.
-    // ── TARJETAS DISEÑADAS, NO CAPTURAS (brief 2026-08-28) ───────────────
-    // Los recortes de los certificados de LinkedIn NO se pudieron guardar en
-    // la cosecha (limitación del entorno, anotada en MATERIAL.md): cada
-    // tarjeta lleva su FotoHueco para cuando Jaime entregue las imágenes.
-    // AÑOS: solo el año, y solo donde hay fuente — las publicaciones de
-    // LinkedIn de 2026 (CFA, Vista, BofA, Bloomberg) y el curso de Singapur
-    // (Green Technology, 2026). El B2 no tiene fecha publicada: se pide.
-    // EMISORES: solo donde una fuente lo diga (la regla de siempre).
-    // El enlace de cada tarjeta va al PERFIL de Jaime, que es donde el
-    // certificado está publicado y donde un comité puede comprobarlo.
+    lede: 'The receipts. Exact name, issuer, year and credential ID, as my LinkedIn publishes them.',
     verLinkedIn: 'See it on LinkedIn',
-    fotoPend: 'The certificate image, when I capture it from LinkedIn.',
-    sinEmisor: 'Issuer to verify',
-    sinAnio: 'year to verify',
+    credencial: 'Credential ID',
+    // El único de los siete que LinkedIn publica sin ID. Se dice, no se
+    // esconde: una tarjeta a la que le falta un campo y se calla parece una
+    // tarjeta completa.
+    sinCred: 'No credential ID published',
+    // Solo el DELF A2 llega hasta aquí: es el único sin imagen en ninguna
+    // parte (ni certificado ni logotipo en su LinkedIn).
+    fotoPend: 'The diploma, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
     // SIN « — » dentro de los nombres de las simulaciones: los certificados
-    // publicados dicen «Demystifying Private Equity Job Simulation» e
-    // «Investment Banking Job Simulation» (MATERIAL.md LI-01 y LI-02), y un
-    // guion insertado contradice el «the exact name» del lede (2026-08-29).
+    // publicados dicen «Vista Equity Partners - Demystifying Private Equity
+    // Job Simulation» y «Bank of America - Investment Banking Job
+    // Simulation», con el emisor delante. El nombre va EXACTO, guion
+    // incluido, porque eso es lo que promete el lede.
+    // El orden es el de LinkedIn: el más reciente primero.
     filas: [
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
-      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, on Forage', anio: '2026' },
-      { que: 'Investment Banking Job Simulation', de: 'Bank of America, on Forage', anio: '2026' },
-      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
-      { que: 'Green Technology Programme', de: '', anio: '2026' },
-      { que: 'B2 First Certificate', de: '', anio: '' }
-    ],
-    // ── FRANCÉS A2: AFIRMACIÓN SUYA, MARCADA COMO TAL ────────────────────
-    // No hay certificado publicado en su actividad (verificado en la
-    // cosecha). Entra porque él lo pidió, como afirmación suya pendiente de
-    // verificación — sin emisor, sin imagen y con la marca en pantalla. Que
-    // estudia francés sí tiene fuente: su publicación sobre Concordia.
-    frances: {
-      que: 'French — A2',
-      tag: 'My claim, pending verification',
-      nota: 'No certificate is published on my LinkedIn. What is sourced: my Concordia post (2026) says I have been studying French.'
-    }
+      {
+        que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        img: 'cv-cert-vista.webp', w: 700, h: 495,
+        alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Vista Equity Partners Demystifying Private Equity job simulation, with the Vista and Forage logos.'
+      },
+      {
+        que: 'Bank of America - Investment Banking Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        img: 'cv-cert-bofa.webp', w: 700, h: 495,
+        alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Bank of America investment banking job simulation, with the Bank of America and Forage logos.'
+      },
+      {
+        que: 'Investment Foundations® Certificate',
+        de: 'CFA Institute', anio: '2026', cred: '191463283',
+        img: 'cv-cert-cfa.webp', w: 700, h: 541,
+        alt: 'CFA Institute certificate awarding the Investment Foundations Certificate to Jaime Sandoval Ricano, with its date, certificate number and verification QR code.'
+      },
+      {
+        que: 'GREEN TECHNOLOGY PROGRAMME',
+        de: 'BlueSky Education', anio: '2026', cred: '',
+        img: 'cv-cert-green-tech.webp', w: 501, h: 700,
+        alt: 'BlueSky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
+      },
+      {
+        que: 'Bloomberg Finance Fundamentals',
+        de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
+        alt: 'Bloomberg for Education certificate of completion for the Bloomberg Finance Fundamentals course, on a black background with candlestick charts.'
+      },
+      {
+        que: 'DELF A2',
+        de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        img: '', w: 0, h: 0, alt: ''
+      },
+      {
+        que: 'B2 First Certificate',
+        de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
+        alt: 'Cambridge English certificate stating that Jaime Sandoval Ricaño was awarded Grade C in the First Certificate in English, Council of Europe level B2, with an overall score of 163.'
+      }
+    ]
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
-  // SECCIÓN NUEVA pedida por Jaime (2026-08-28), después de certificaciones.
-  // Hoy NO hay ninguna carta entregada, y esta sección no finge lo contrario:
-  // nace con el patrón de hueco honesto del CV — recuadros marcados con lo
-  // que falta (nombre, cargo, relación, contacto), listos para recibir cada
-  // carta cuando exista. NUNCA se inventa una carta ni un nombre. El formato
-  // de los campos es el que piden los programas canadienses que trabajan con
-  // referencias contactables.
+  // SECCIÓN NUEVA pedida por Jaime (2026-08-28). Nació vacía —tres recuadros
+  // marcados, ninguna carta— y el 2026-08-29 llegaron LAS DOS PRIMERAS.
+  //
+  // LOS PDF NO SE PUBLICAN, Y ESO NO ES PRUDENCIA: llevan el teléfono y el
+  // correo personales de quien firma. Son documentos para un comité de
+  // admisiones, que los recibe por su canal; colgarlos en una página web
+  // publicaría los datos de contacto de dos personas que no eligieron
+  // publicarlos. Aquí va la FICHA (quién, cargo, empresa, relación, año) y
+  // una frase corta entrecomillada de cada carta, marcada como cita de la
+  // carta. Los datos de contacto, nunca.
+  //
+  // LAS CITAS SON VERBATIM del PDF, en inglés, que es el idioma en que están
+  // escritas las dos. En el panel español van TRADUCIDAS y marcadas como
+  // traducción (`citaTag`), igual que las frases de `voz.*`.
+  //
+  // LOS HUECOS SIGUEN. Jaime dijo «todavía faltan varias, ahí vamos», así
+  // que los recuadros de las que faltan se quedan. Ya no hay hueco para el
+  // programa de Singapur: las dos cartas que llegaron son de ahí.
   cartas: {
-    lede: 'Recommendation letters, in the format committees can verify: name, role, relationship, and a way to reach the person. None has been delivered yet — these slots are waiting, and nothing here will ever be invented.',
+    lede: 'Two have arrived. The letters themselves are not published here: they are documents for admissions committees and they carry the signatories’ personal phone and email. What is on this page is the record — who, what role, what relationship, what year — and one short quote from each.',
+    entregadasH: 'Delivered',
+    faltanH: 'Still to come',
+    citaTag: 'From the letter',
+    entregadas: [
+      {
+        nombre: 'Lloyd George',
+        cargo: 'CEO, TAQ Pte Ltd',
+        donde: 'Singapore — biotechnology, healthcare management and green technologies',
+        relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy BlueSky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
+        anio: '2026',
+        cita: 'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.'
+      },
+      {
+        nombre: 'Andy Toh',
+        cargo: 'CEO, BlueSky Education',
+        donde: 'Singapore — the educational consultancy that runs the programme',
+        relacion: 'He observed me during my three-week programme in Singapore. He is the same Andy Toh I interviewed, and who is already on this site.',
+        anio: '2026',
+        cita: 'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.'
+      }
+    ],
     tag: 'Letter to come',
     campos: 'Name · role · relationship · contact',
     slots: [
       'Someone who can answer for the student group and the school.',
-      'Someone who can answer for the summer programme in Singapore.',
       'Someone who can answer for my financial-education work.'
-    ]
+    ],
+    // ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
+    // Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime. Ahora
+    // los firma un tercero, así que se pueden AFIRMAR citando la carta — y
+    // en los sitios del CV donde ya estaban dichos con su voz, se les pone
+    // `fuenteCarta` debajo. La marca dice de QUIÉN es la carta: «un tercero»
+    // a secas no es una fuente, es un rumor con buena presentación.
+    verificaH: 'What the letters confirm',
+    verificaLede: 'Until these arrived, the facts below were my word. Now someone from outside my school and my family has written them down and signed them.',
+    verifica: [
+      { que: 'I founded the Smart Finance student organisation at my campus.', quien: 'Lloyd George' },
+      { que: 'I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.', quien: 'Lloyd George' },
+      { que: 'In Singapore I arranged and conducted the interviews with business leaders and with Business Administration students from NUS myself — “entirely on his own steam”.', quien: 'Lloyd George' },
+      { que: 'I gave my time to community and environmental work in Singapore, “including a beach cleaning project during his stay”.', quien: 'Lloyd George' },
+      { que: 'I work in Spanish, English and French.', quien: 'Lloyd George' },
+      { que: 'At the Green Tech Youth Summit I developed a project and presented it, and “performed particularly well in both his project and presentation”.', quien: 'Andy Toh' }
+    ],
+    // ── EL PREMIO QUE ÉL NUNCA PUBLICÓ ──────────────────────────────────
+    // La carta de Lloyd George dice que Jaime y su equipo ganaron un premio
+    // en el GreenTech Summit 2026 contra estudiantes de Taiwán y Rusia. Se
+    // revisaron sus 21 publicaciones con imagen y los tres posts de Singapur
+    // una por una: NO está publicado en ninguna parte. Va con su marca
+    // diciendo exactamente eso, porque un premio del que la única fuente es
+    // una carta no se puede enseñar como si tuviera dos.
+    premio: {
+      h: 'An award I never posted',
+      que: 'An award at the GreenTech Summit 2026, with my teammates, competing against students from Taiwan and Russia.',
+      tag: 'Only source: Lloyd George’s letter',
+      nota: 'This is not on my LinkedIn and not on my TikTok — I never posted it. It is here because someone else wrote it down and signed it, and this page says so instead of passing it off as something I published.'
+    },
+    // Se pinta donde una afirmación de Jaime pasó a tener fuente de tercero.
+    // {n} es quien firma la carta y {s} el título de este capítulo.
+    fuenteCarta: 'Third-party source: {n}’s letter, in “{s}”.'
   },
 
   // ---- Capítulo 9: la frase ----
@@ -715,11 +842,12 @@ const en = {
     servirAnimales: {
       que: 'The animals, in my words',
       pista: 'One or two sentences. What you did, not what you felt.'
-    },
-    servirPlayas: {
-      que: 'The beach clean-ups, in my words',
-      pista: 'One or two sentences. What you did, not what you felt.'
     }
+    // EL HUECO DE LAS PLAYAS SE FUE (2026-08-29): pedía «las playas, con mis
+    // palabras» y sus palabras aparecieron — su publicación de LinkedIn
+    // sobre el voluntariado, hoy citada en el bloque (`voz.playa`). Un hueco
+    // que pide algo que ya está en la pantalla de al lado no es honesto, es
+    // ruido.
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -741,8 +869,7 @@ const en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
-    servirAnimales: '',
-    servirPlayas: ''
+    servirAnimales: ''
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -813,7 +940,26 @@ const en = {
     // hueco «What I'm applying to» que Jaime pidió quitar.
     toronto: '“This visit reinforced something I had been thinking about for a long time: this is where I want to study Finance.”',
     torontoTag: '',
-    torontoFuente: 'From my LinkedIn post on my visit to the University of Toronto and Rotman Commerce (2026).'
+    torontoFuente: 'From my LinkedIn post on my visit to the University of Toronto and Rotman Commerce (2026).',
+    // ---- La limpieza de playa en Singapur ----
+    // VERBATIM de su publicación de LinkedIn sobre el voluntariado (LI-16, en
+    // inglés en el original). Hasta el 2026-08-29 el CV no tenía este texto:
+    // la publicación se daba por perdida y el bloque de la playa iba con una
+    // sola frase escrita por la página. Está publicada, se volvió a
+    // encontrar y se transcribió palabra por palabra.
+    // DOS MARCAS, LAS DOS OBLIGATORIAS:
+    //  · El «[…]» se come UNA frase suya («During my time in Singapore, I've
+    //    also been learning a lot about its economy and how sustainability is
+    //    deeply integrated into the country's long term vision»), que es la
+    //    que da pie a la última. Se recorta por longitud y se marca, igual
+    //    que en `pe`: un recorte sin marca convierte una cita verbatim en
+    //    algo desmentible.
+    //  · El punto y coma de «technology; it's» no está en el original, que va
+    //    sin puntuación ahí. Es la misma regla de siempre: ortografía y
+    //    puntuación se pulen, el sentido y las palabras no se tocan.
+    playa: '“It was a rewarding experience that reminded me how meaningful small actions can be when a community works together toward a common goal. Taking care of the environment isn’t just about policies or technology; it’s also about people taking responsibility. […] Seeing how environmental initiatives and economic development go hand in hand has been one of the most interesting lessons of this experience.”',
+    playaTag: '',
+    playaFuente: 'From my LinkedIn post on the volunteer beach clean-up in Singapore (2026). The “[…]” marks a sentence this page does not reproduce.'
   }
 };
 
@@ -834,8 +980,9 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
-    playas: 'La limpieza de playa en Singapur — las fotos están en mi LinkedIn.',
-    jasa: 'La refaccionaria o la tienda en línea: una foto real o una captura.'
+    playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
+    playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
+    playa3: 'La misma escena, más abierta: el camión de basura detrás y el grupo completo de voluntarios trabajando junto al mar. Foto 3 de 3.',
   },
   clip: {
     tag: 'Falta el clip',
@@ -898,7 +1045,9 @@ const es: typeof en = {
     grupoTecAlt: 'Dos estudiantes conversando delante de un cartel de la Bolsa Mexicana de Valores en el Tec',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
-    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea y llevo su marketing.',
+    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea en 2025 y llevo su marketing.',
+    jasaAlt: 'Portada de la tienda en línea de Jasa Motor: el logotipo con un pistón en la A, el buscador por marca, modelo, año y motor, el título «Refacciones para Motor» y la rejilla de los más vendidos con precios reales.',
+    jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx (2025)',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -1044,6 +1193,7 @@ const es: typeof en = {
     animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevistó a Sol, su fundadora (2026).',
     donacion: 'También donó alimento a un stand de adopción local y pasó el día con los voluntarios y los animalitos (2026).',
     playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de su curso de Green Technology and Sustainable Ecology (2026).',
+    playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de BlueSky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
     bloques: {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
@@ -1055,49 +1205,125 @@ const es: typeof en = {
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
+      // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
+      { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
+      { cuando: '2025', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
+      { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
       { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
-      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
-      { cuando: '2026', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
       { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin sobre estudiar en Canadá' },
-      { cuando: '2026', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
     ]
   },
 
   certs: {
-    lede: 'Los recibos. El nombre exacto, tal como lo publica mi LinkedIn; el emisor y el año, solo donde una fuente lo diga.',
+    lede: 'Los recibos. Nombre exacto, emisor, año e ID de la credencial, tal como los publica mi LinkedIn.',
     verLinkedIn: 'Verlo en LinkedIn',
-    fotoPend: 'La imagen del certificado, cuando yo la capture de LinkedIn.',
-    sinEmisor: 'Emisor por verificar',
-    sinAnio: 'año por verificar',
+    credencial: 'ID de la credencial',
+    sinCred: 'Sin ID de credencial publicado',
+    fotoPend: 'El diploma, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
+    // Los NOMBRES no se traducen: son el nombre propio del certificado, y es
+    // lo que un comité va a buscar. Lo que sí va en español es todo lo demás.
     filas: [
-      { que: 'Investment Foundations® Certificate', de: 'CFA Institute', anio: '2026' },
-      { que: 'Demystifying Private Equity Job Simulation', de: 'Vista Equity Partners, en Forage', anio: '2026' },
-      { que: 'Investment Banking Job Simulation', de: 'Bank of America, en Forage', anio: '2026' },
-      { que: 'Bloomberg Finance Fundamentals', de: 'Bloomberg', anio: '2026' },
-      { que: 'Green Technology Programme', de: '', anio: '2026' },
-      { que: 'B2 First Certificate', de: '', anio: '' }
-    ],
-    frances: {
-      que: 'Francés — A2',
-      tag: 'Afirmación mía, pendiente de verificación',
-      nota: 'No hay certificado publicado en mi LinkedIn. Lo que sí tiene fuente: mi publicación sobre Concordia (2026) dice que estudio francés.'
-    }
+      {
+        que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        img: 'cv-cert-vista.webp', w: 700, h: 495,
+        alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de private equity de Vista Equity Partners, con los logotipos de Vista y de Forage.'
+      },
+      {
+        que: 'Bank of America - Investment Banking Job Simulation',
+        de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        img: 'cv-cert-bofa.webp', w: 700, h: 495,
+        alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de banca de inversión de Bank of America, con los logotipos de Bank of America y de Forage.'
+      },
+      {
+        que: 'Investment Foundations® Certificate',
+        de: 'CFA Institute', anio: '2026', cred: '191463283',
+        img: 'cv-cert-cfa.webp', w: 700, h: 541,
+        alt: 'Certificado del CFA Institute que otorga el Investment Foundations Certificate a Jaime Sandoval Ricano, con su fecha, su número de certificado y un código QR de verificación.'
+      },
+      {
+        que: 'GREEN TECHNOLOGY PROGRAMME',
+        de: 'BlueSky Education', anio: '2026', cred: '',
+        img: 'cv-cert-green-tech.webp', w: 501, h: 700,
+        alt: 'Certificado de BlueSky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
+      },
+      {
+        que: 'Bloomberg Finance Fundamentals',
+        de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
+        alt: 'Certificado de Bloomberg for Education por el curso Bloomberg Finance Fundamentals, sobre fondo negro con gráficas de velas.'
+      },
+      {
+        que: 'DELF A2',
+        de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        img: '', w: 0, h: 0, alt: ''
+      },
+      {
+        que: 'B2 First Certificate',
+        de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
+        alt: 'Certificado de Cambridge English que acredita que Jaime Sandoval Ricaño obtuvo Grade C en el First Certificate in English, nivel B2 del Consejo de Europa, con una puntuación global de 163.'
+      }
+    ]
   },
 
   cartas: {
-    lede: 'Cartas de recomendación, en el formato que un comité puede verificar: nombre, cargo, relación y una forma de contactar a la persona. Hoy no hay ninguna entregada — estos huecos esperan, y aquí nunca se inventará nada.',
+    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión y llevan el teléfono y el correo personales de quien firma. En esta página va la ficha —quién, cargo, relación, año— y una frase corta de cada una.',
+    entregadasH: 'Entregadas',
+    faltanH: 'Las que faltan',
+    // Las dos cartas están escritas en inglés: en este panel la cita va
+    // TRADUCIDA, y la marca lo dice, como con las frases de `voz.*`.
+    citaTag: 'Cita de la carta, traducida del inglés',
+    entregadas: [
+      {
+        nombre: 'Lloyd George',
+        cargo: 'CEO, TAQ Pte Ltd',
+        donde: 'Singapur — biotecnología, gestión sanitaria y tecnologías verdes',
+        relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa BlueSky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
+        anio: '2026',
+        cita: 'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.'
+      },
+      {
+        nombre: 'Andy Toh',
+        cargo: 'CEO, BlueSky Education',
+        donde: 'Singapur — la consultoría educativa que organiza el programa',
+        relacion: 'Me observó durante mi programa de tres semanas en Singapur. Es el mismo Andy Toh que entrevisté y que ya aparece en este sitio.',
+        anio: '2026',
+        cita: 'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.'
+      }
+    ],
     tag: 'Falta la carta',
     campos: 'Nombre · cargo · relación · contacto',
     slots: [
       'Alguien que pueda responder por el grupo estudiantil y la prepa.',
-      'Alguien que pueda responder por el programa de verano en Singapur.',
-      'Alguien que pueda responder por su trabajo de educación financiera.'
-    ]
+      // «MI trabajo», no «su»: el panel español va en primera persona desde
+      // el brief del 2026-08-27 y este renglón se había quedado en tercera.
+      'Alguien que pueda responder por mi trabajo de educación financiera.'
+    ],
+    verificaH: 'Lo que las cartas verifican',
+    verificaLede: 'Hasta que llegaron, lo de abajo era palabra mía. Ahora lo escribe y lo firma alguien de fuera de mi escuela y de mi familia.',
+    // Los entrecomillados son la frase EXACTA de la carta, en inglés; el
+    // resto va traducido.
+    verifica: [
+      { que: 'Fundé la organización estudiantil Smart Finance en mi campus.', quien: 'Lloyd George' },
+      { que: 'Conduzco un podcast de educación financiera en el que entrevisto a ejecutivos de finanzas, emprendedores y profesores universitarios.', quien: 'Lloyd George' },
+      { que: 'En Singapur organicé y conduje por mi cuenta las entrevistas con líderes de negocio y con estudiantes de Business Administration de la NUS — «entirely on his own steam».', quien: 'Lloyd George' },
+      { que: 'Di mi tiempo a trabajo comunitario y ambiental en Singapur, «including a beach cleaning project during his stay».', quien: 'Lloyd George' },
+      { que: 'Trabajo en español, inglés y francés.', quien: 'Lloyd George' },
+      { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y «performed particularly well in both his project and presentation».', quien: 'Andy Toh' }
+    ],
+    premio: {
+      h: 'Un premio que nunca publiqué',
+      que: 'Un premio en el GreenTech Summit 2026, con mi equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
+      tag: 'Única fuente: la carta de Lloyd George',
+      nota: 'Esto no está en mi LinkedIn ni en mi TikTok — nunca lo publiqué. Está aquí porque lo escribió y lo firmó alguien más, y esta página lo dice en vez de hacerlo pasar por algo que yo publiqué.'
+    },
+    fuenteCarta: 'Fuente de tercero: la carta de {n}, en «{s}».'
   },
 
   frase: {
@@ -1180,10 +1406,6 @@ const es: typeof en = {
     servirAnimales: {
       que: 'Los animalitos, con mis palabras',
       pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
-    },
-    servirPlayas: {
-      que: 'Las playas, con mis palabras',
-      pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
     }
   },
 
@@ -1202,8 +1424,7 @@ const es: typeof en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
-    servirAnimales: '',
-    servirPlayas: ''
+    servirAnimales: ''
   },
 
   voz: {
@@ -1225,8 +1446,8 @@ const es: typeof en = {
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
     pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré (junto con datos de la presentación a inversionistas) en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
-    peFuente: 'De su publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
-    peTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    peFuente: 'De mi publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
+    peTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
     dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
     // texto de Jaime, pendiente de su revisión final
@@ -1249,8 +1470,21 @@ const es: typeof en = {
     // TRADUCCIÓN para el panel español y lo dice en pantalla (`torontoTag`).
     // texto de Jaime (traducción), pendiente de su revisión final
     toronto: '«Esta visita reforzó algo que llevaba mucho tiempo pensando: aquí es donde quiero estudiar finanzas.»',
-    torontoTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
-    torontoFuente: 'De su publicación en LinkedIn sobre su visita a la University of Toronto y Rotman Commerce (2026).'
+    torontoTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    torontoFuente: 'De mi publicación en LinkedIn sobre mi visita a la University of Toronto y Rotman Commerce (2026).',
+    // ── PRIMERA PERSONA TAMBIÉN EN LAS MARCAS (2026-08-30) ─────────────
+    // Las marcas del panel español van en primera persona («Mi cifra, del
+    // 29 de agosto…»), pero estas de aquí —peTag, peFuente, torontoTag,
+    // torontoFuente— se habían quedado en tercera («Su publicación…»),
+    // que es de antes de que el CV pasara a hablar en su voz. Corregidas
+    // las cuatro al escribir las dos de la playa: una marca nueva en
+    // tercera persona habría hecho crecer el desliz en vez de arreglarlo.
+    // Mi publicación de la playa está en inglés: esta versión es TRADUCCIÓN
+    // para el panel español y lo dice en pantalla (`playaTag`).
+    // texto de Jaime (traducción), pendiente de su revisión final
+    playa: '«Fue una experiencia gratificante que me recordó cuánto significan las acciones pequeñas cuando una comunidad trabaja junta hacia una meta común. Cuidar el medio ambiente no es solo cuestión de políticas o de tecnología; también es que la gente asuma su responsabilidad. […] Ver cómo las iniciativas ambientales y el desarrollo económico van de la mano ha sido una de las lecciones más interesantes de esta experiencia.»',
+    playaTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    playaFuente: 'De mi publicación en LinkedIn sobre la limpieza de playa voluntaria en Singapur (2026). El «[…]» marca una frase que esta página no reproduce.'
   }
 };
 

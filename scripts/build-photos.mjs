@@ -552,6 +552,63 @@ console.log('Jaime');
   }
 }
 
+/* ── LOS CERTIFICADOS Y LA TIENDA DE JASA (cosecha del 2026-08-29) ─────────
+ *
+ * ORIGEN: las imágenes que el propio Jaime tiene publicadas en la sección de
+ * certificaciones de su LinkedIn, más la portada de tienda.jasamotor.com.mx.
+ * Los originales viven en public/assets/cv-fotos/ (en .vercelignore) y de aquí
+ * salen los WebP con huella. Van SIN recorte de encuadre: un certificado
+ * recortado por la mitad deja de ser un recibo, así que solo se reescalan.
+ *
+ * ⚠️ EL DE CAMBRIDGE ENTRÓ YA RECORTADO AL REPOSITORIO, Y ESO NO ES UN
+ * DESCUIDO. El original completo lleva impresos su Verification Number, su
+ * Certificate Number y un tercer número de control. Este repositorio es
+ * PÚBLICO: guardar aquí el original entero publicaría esos números aunque la
+ * carpeta esté en .vercelignore, porque .vercelignore solo decide qué se
+ * despliega, no qué se puede leer en GitHub. Por eso el archivo que hay en
+ * cv-fotos/ ya es la mitad de arriba (899x850 de 899x1280, cortado justo
+ * encima del renglón «Date of Examination / Verification Number»): conserva
+ * el nombre, el Grade C, el First Certificate in English, el B2 y las cinco
+ * puntuaciones, y no trae ni uno de los números de control. El ID de la
+ * credencial (814072MSJ) sí se publica, pero EN TEXTO, en la tarjeta: es el
+ * que LinkedIn enseña y con el que un comité puede comprobarlo.
+ * Si algún día hace falta el original entero, se lo pides a Jaime; no vuelve
+ * a este repositorio.
+ *
+ * EL DELF A2 NO ESTÁ AQUÍ a propósito: no hay imagen suya en ninguna parte
+ * (ni certificado ni logotipo en LinkedIn) y el logotipo de la Alliance
+ * Française es una marca ajena que no se va a buscar por su cuenta. Su
+ * tarjeta se queda con el FotoHueco, que es lo honesto. */
+{
+  const CVF = (n) => p('public/assets/cv-fotos', n);
+  console.log('certificados y tienda (cv-fotos/, a color)');
+
+  // Nombre lógico → archivo original y lado LARGO de la salida. El lado largo
+  // y no el ancho: cuatro son apaisados y dos verticales, y lo que tiene que
+  // caber igual en la tarjeta es el lado mayor.
+  const DOCS = [
+    ['cv-cert-vista', 'cert-vista.png', 700],
+    ['cv-cert-bofa', 'cert-bofa.png', 700],
+    ['cv-cert-cfa', 'cert-cfa-investment-foundations.png', 700],
+    ['cv-cert-green-tech', 'cert-green-technology-programme.png', 700],
+    ['cv-cert-bloomberg', 'cert-bloomberg-finance-fundamentals.png', 700],
+    ['cv-cert-b2-cambridge', 'cert-b2-first-cambridge-recortado.png', 700],
+    // La portada de la tienda que construyó él. 1280x1600 es 4:5 clavado, o
+    // sea la misma proporción del marco donde se pinta: entra sin letterbox.
+    ['cv-jasa-tienda', 'jasa-tienda.png', 800]
+  ];
+  for (const [id, src, largo] of DOCS) {
+    const m2 = await sharp(CVF(src)).metadata();
+    const opciones = m2.width >= m2.height ? { width: largo } : { height: largo };
+    const buf = await sharp(CVF(src)).resize({ ...opciones, withoutEnlargement: true })
+      .webp({ quality: 80 }).toBuffer();
+    const archivo = publicar(id + '.webp', buf);
+    const salida = await sharp(buf).metadata();
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' +
+                salida.width + 'x' + salida.height);
+  }
+}
+
 /* ── Huérfanas y manifiesto ────────────────────────────────────────────────
  * Con huella, cambiar una foto deja el archivo viejo en la carpeta para
  * siempre. Aquí se barre: lo que no se acaba de escribir, fuera. Si el script

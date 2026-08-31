@@ -370,6 +370,18 @@ const capitulos = [
 // (2026-08-29). Si algún día hay 10+ capítulos, el formato ya está listo.
 const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capitulos.length).padStart(2, '0');
 
+// ── LA MARCA DE «ESTO LO FIRMA UN TERCERO» ──────────────────────────────
+// Se pinta donde una afirmación de Jaime pasó a tener fuente de fuera desde
+// que llegaron las cartas (2026-08-29). Nombra a QUIEN firma —«un tercero» a
+// secas no es una fuente— y manda al capítulo de las cartas POR SU TÍTULO,
+// no por su número: el número cambia si algún día se mueve un capítulo, el
+// título sale de la misma tabla que pinta el encabezado. Y no lleva enlace a
+// propósito: una navegación de ancla con `scroll-behavior: smooth` en vuelo
+// deja muerta a la siguiente, que es el bug del índice que ya costó una
+// tarde (ver la cabecera de Cv.astro).
+const fuenteCarta = (quien: string) =>
+  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.c8);
+
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
 // pantallas — y «{min} minutos» de contar las palabras de la copia real del
@@ -463,9 +475,9 @@ const resumenIndice = c.indice.resumen
 
     {/* ══ LA PISTA DEL EFECTO ══════════════════════════════════════════════
          Un solo contenedor pegajoso de una pantalla dentro de una pista de
-         200svh (`.intro-pista`), con `view-timeline` sobre la pista: el
+         160svh (`.intro-pista`), con `view-timeline` sobre la pista: el
          tramo `contain` de esa línea de tiempo es EXACTAMENTE la fase en la
-         que el lienzo está clavado (de scroll 0 a una pantalla), así que las
+         que el lienzo está clavado (0.6 de pantalla), así que las
          animaciones van de 0 % a 100 % del clavado sin números mágicos.
          `view()` sobre la pista y no `scroll()` sobre la raíz A PROPÓSITO:
          `scroll()` mide TODO el documento, y el CV cambia de largo con cada
@@ -784,8 +796,36 @@ const resumenIndice = c.indice.resumen
              línea sale de su propia publicación sobre el voluntariado del
              curso de Green Technology. */}
         <p class="cap-frases">{c.servir.playa}</p>
-        <FotoHueco c={c} que={c.fotosPend.playas} />
-        <Hueco c={c} id="servirPlayas" />
+        {/* ── ES EL MISMO PROGRAMA DEL CERTIFICADO ────────────────────────
+             La publicación de la playa y el certificado 4 del capítulo de
+             certificaciones son LA MISMA COSA: el 2026 Green Technology
+             Programme de BlueSky Education. Estaban escritos como dos
+             actividades sueltas y no lo son — la limpieza es la parte de
+             servicio del programa que certifica el diploma. */}
+        <p class="cap-frases">{c.servir.playaPrograma}</p>
+        {/* SUS PALABRAS, recuperadas el 2026-08-29. La publicación se daba
+             por perdida y este bloque iba con una sola frase escrita por la
+             página; está publicada, se encontró y se transcribió. */}
+        <blockquote class="voz">
+          {c.voz.playaTag && <p class="meta-mono">{c.voz.playaTag}</p>}
+          <p>{c.voz.playa}</p>
+        </blockquote>
+        <p class="pie">{c.voz.playaFuente}</p>
+        {/* La limpieza de playa la firma ahora un tercero: la carta de Lloyd
+             George la nombra («including a beach cleaning project during his
+             stay»). Antes solo estaba su propia publicación. */}
+        <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
+        {/* TRES huecos, uno por foto: la publicación tiene tres y están
+             descritas una por una. Un hueco genérico decía «faltan fotos»;
+             tres dicen CUÁLES, que es lo que hace falta para traerlas. No
+             se pudieron bajar porque Chrome activó su bloqueo de descargas
+             automáticas para linkedin.com — es un permiso del navegador de
+             Jaime, no algo que se arregle desde aquí. */}
+        <div class="playa-fotos">
+          <FotoHueco c={c} que={c.fotosPend.playa1} ratio="3 / 4" />
+          <FotoHueco c={c} que={c.fotosPend.playa2} ratio="4 / 3" />
+          <FotoHueco c={c} que={c.fotosPend.playa3} ratio="4 / 3" />
+        </div>
       </div>
     </div>
   </section>
@@ -825,6 +865,12 @@ const resumenIndice = c.indice.resumen
          Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
          afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
     <p class="pie">{c.entrevistas.aviso}</p>
+    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
+         organizó por su cuenta («entirely on his own steam») lo firma la
+         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
+         nadie: lo que la carta respalda es que las conversaciones son suyas,
+         no lo que dijeron los entrevistados. */}
+    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
 
     {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
          Tarjetas negras redondeadas en scroll horizontal con imán de eje X
@@ -983,6 +1029,10 @@ const resumenIndice = c.indice.resumen
                  va DEBAJO y en mono: es el recibo, no la frase. */}
             <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
             <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+            {/* Que FUNDÓ el grupo era palabra suya hasta el 2026-08-29: hoy
+                 lo firma la carta de Lloyd George. La cifra de arriba NO —
+                 esa sigue siendo suya y su marca lo sigue diciendo. */}
+            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
@@ -1097,9 +1147,17 @@ const resumenIndice = c.indice.resumen
           <p>{c.voz.jasa}</p>
         </blockquote>
         <p class="cap-frases">{c.proyectos.jasa}</p>
-        <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.jasa} />
-        </div>
+        {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
+             o la tienda en línea: una foto real o una captura» y ya hay
+             captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
+             en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
+             clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
+             corrigió Jaime — 2025, no 2026. */}
+        <figure class="jasa-fig">
+          <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
+            width="640" height="800" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
+        </figure>
         <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
       </div>
     </div>
@@ -1235,46 +1293,112 @@ const resumenIndice = c.indice.resumen
     <p class="cap-num" aria-hidden="true">{num(6)}</p>
     <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
-    {/* ══ TARJETAS DE CERTIFICADO DISEÑADAS (brief 2026-08-28) ════════════
-         Los recortes de LinkedIn no se pudieron guardar en la cosecha, así
-         que cada certificado va como TARJETA diseñada —emisor, nombre, año y
-         «Verlo en LinkedIn» a su perfil, que es donde está publicado— con un
-         FotoHueco para la imagen original cuando Jaime la entregue. Se ven
-         mejor que un pantallazo y no inventan nada: donde falta el emisor o
-         el año, la tarjeta LO DICE en vez de adivinarlo.
-         La de FRANCÉS A2 es distinta y lo dice en pantalla: afirmación suya
-         pendiente de verificación — sin emisor, sin imagen y sin enlace,
-         porque no hay certificado publicado que enlazar. */}
+    {/* ══ LAS SIETE TARJETAS, CON SU IMAGEN Y SU ID (cosecha 2026-08-29) ══
+         La tarjeta sigue siendo una tarjeta diseñada —emisor arriba, nombre,
+         año, ID de la credencial en mono— y ahora lleva DENTRO la imagen del
+         certificado que Jaime tiene publicada en su LinkedIn. Seis de siete:
+         el DELF A2 no tiene imagen en ninguna parte y se queda con su
+         FotoHueco, en el MISMO rectángulo 4:3, para que la rejilla no se
+         desordene por el que falta.
+
+         EL MARCO ES 4:3 Y LA IMAGEN VA CON `contain`, no con `cover`: cuatro
+         certificados son apaisados y dos verticales, y `cover` recortaría a
+         cuál más — un certificado al que le cortas la mitad deja de ser un
+         recibo. Con `contain` se ve entero y el aire que sobra es papel.
+
+         El ID va en TEXTO y no como enlace: los siete tienen «Mostrar
+         credencial» en LinkedIn, pero LinkedIn envuelve el destino y esa
+         dirección no se pudo leer. El enlace de la tarjeta sigue yendo a su
+         perfil, que es donde el certificado está publicado. Al de Green
+         Technology LinkedIn no le publica ID, y la tarjeta LO DICE. */}
     <ul class="certs">
       {c.certs.filas.map((f) => (
         <li class="cert">
-          <p class="etiqueta">{f.de || c.certs.sinEmisor}</p>
+          <p class="etiqueta">{f.de}</p>
           <p class="cert-nombre">{f.que}</p>
-          <p class="cert-anio num">{f.anio || c.certs.sinAnio}</p>
-          <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />
+          <p class="cert-anio num">{f.anio}</p>
+          {f.img
+            ? <span class="cert-marco"><img class="cert-img" src={foto(f.img)} alt={f.alt}
+                width={f.w} height={f.h} loading="lazy" decoding="async" /></span>
+            : <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />}
+          {f.cred
+            ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
+            : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
           <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
         </li>
       ))}
-      <li class="cert cert-afirmacion">
-        <p class="etiqueta cert-claim">{c.certs.frances.tag}</p>
-        <p class="cert-nombre">{c.certs.frances.que}</p>
-        <p class="pie">{c.certs.frances.nota}</p>
-      </li>
     </ul>
   </section>
 
-  {/* ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
-       SECCIÓN NUEVA (brief del 2026-08-28), después de las certificaciones y
-       antes de la frase. Hoy NO hay ninguna carta entregada y la sección lo
-       dice: tres recuadros con el patrón de hueco del CV, con los campos que
-       un comité puede verificar (nombre, cargo, relación, contacto). Cuando
-       exista una carta de verdad, su recuadro se rellena; hasta entonces, el
-       borde discontinuo dice que falta. NUNCA un nombre inventado. */}
+  {/* ════ 08 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
+       La sección nació vacía (brief del 2026-08-28) con tres recuadros
+       marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
+       dos mitades: las entregadas, con su ficha y una cita corta de la
+       carta, y los recuadros de las que faltan, que se quedan porque Jaime
+       dijo «todavía faltan varias, ahí vamos».
+
+       LOS PDF NO SE PUBLICAN y esto no es un descuido: llevan el teléfono y
+       el correo personales de quien firma. Va la ficha —quién, cargo,
+       empresa, relación, año— y la cita, marcada como cita de la carta. Los
+       datos de contacto, nunca. El hueco del programa de Singapur ya no
+       está: las dos cartas que llegaron son justo de ahí.
+
+       La cita es de un TERCERO, no de Jaime, así que no lleva la marca de
+       `voz.*` sino la suya, y va en <blockquote> con <cite> real. */}
   <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(7)}</p>
     <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
+
+    <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
+    <div class="cartas">
+      {c.cartas.entregadas.map((k) => (
+        <article class="carta">
+          <p class="carta-nombre">{k.nombre}</p>
+          <p class="etiqueta">{k.cargo}</p>
+          <p class="carta-donde pie">{k.donde}</p>
+          <p class="carta-anio num">{k.anio}</p>
+          <p class="carta-relacion">{k.relacion}</p>
+          <figure class="carta-cita">
+            <p class="meta-mono carta-cita-tag">{c.cartas.citaTag}</p>
+            <blockquote><p>{'“' + k.cita + '”'}</p></blockquote>
+            <figcaption class="pie">— <cite>{k.nombre}</cite></figcaption>
+          </figure>
+        </article>
+      ))}
+    </div>
+
+    {/* ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
+         Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime y que
+         ahora firma un tercero. Cada renglón dice QUIÉN lo firma: «un
+         tercero» a secas no es una fuente. En los sitios del CV donde esos
+         hechos ya estaban dichos con su voz hay una línea apuntando aquí.
+
+         Y APARTE, EL PREMIO. La carta de Lloyd George dice que Jaime y su
+         equipo ganaron en el GreenTech Summit 2026 contra estudiantes de
+         Taiwán y Rusia. Se revisaron sus 21 publicaciones con imagen y los
+         tres posts de Singapur uno por uno: NO está publicado en ninguna
+         parte. Por eso no va en la lista de arriba sino en su propio
+         recuadro, marcado con que su ÚNICA fuente es la carta. */}
+    <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
+    <p class="cap-lede">{c.cartas.verificaLede}</p>
+    <ul class="verifica">
+      {c.cartas.verifica.map((v) => (
+        <li class="verifica-fila">
+          <p>{v.que}</p>
+          <p class="meta-mono fuente-carta">{v.quien}</p>
+        </li>
+      ))}
+    </ul>
+    <div class="premio" role="note" aria-label={`${c.cartas.premio.h}: ${c.cartas.premio.tag}`}>
+      <p class="etiqueta premio-tag">{c.cartas.premio.tag}</p>
+      <h4 class="t-h4">{c.cartas.premio.h}</h4>
+      <p>{c.cartas.premio.que}</p>
+      <p class="pie">{c.cartas.premio.nota}</p>
+    </div>
+
+    <h3 class="t-h3 cartas-h">{c.cartas.faltanH}</h3>
     {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
          atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
     <div class="cartas">
@@ -1600,7 +1724,7 @@ const resumenIndice = c.indice.resumen
      capas sobre la foto— sin tocar el rectángulo de la foto. */
   /* LA PISTA: el tramo de documento que conduce el efecto. Sin el efecto
      mide lo que mide su contenido (una pantalla: la tapa de siempre); con él
-     (gate de abajo) mide 200svh y lleva la línea de tiempo. */
+     (gate de abajo) mide 160svh y lleva la línea de tiempo. */
   .intro-pista { position: relative; }
   .portada-lienzo {
     position: sticky; top: 0; z-index: 0;
@@ -1863,8 +1987,8 @@ const resumenIndice = c.indice.resumen
 
   /* ═══ EL EFECTO DE LA TARJETA — SOLO DONDE EL NAVEGADOR SABE CONDUCIRLO ══
      Una sola superficie de foto que nunca se duplica ni sale de pantalla:
-     el lienzo se clava una pantalla entera (la pista mide 200svh) y, con el
-     scroll de esa pantalla como línea de tiempo, (1) la tapa se disuelve
+     el lienzo se clava 0.6 de pantalla (la pista mide 160svh) y, con el
+     scroll de ese tramo como línea de tiempo, (1) la tapa se disuelve
      entera —velo y texto en una opacidad de grupo—, (2) el MARCO de la foto
      se cierra desde a sangre hasta la ventana de la tarjeta con sus esquinas
      redondeadas, mientras la foto hace un zum corto hacia la Torre, (3) las
@@ -1922,8 +2046,33 @@ const resumenIndice = c.indice.resumen
         --carta-top: calc(42svh - var(--carta-h) / 2);
         --carta-r: clamp(20px, 6vw, 36px);
       }
+      /* ── LA PISTA MIDE 160svh, Y ESE NÚMERO ESTÁ MEDIDO ──────────────────
+         Medía 200svh, y con el lienzo clavado a 100svh el tramo `contain`
+         —que es lo que conduce TODO el efecto— valía 200 − 100 = 100svh:
+         una pantalla ENTERA de scroll. En el teléfono de Jaime (390×844) la
+         secuencia completa, del señuelo (2 %) al último fotograma del aro
+         (88 %), necesitaba **743 px de scroll**, o sea dos o tres
+         deslizamientos de pulgar. Él lo pidió en uno («que de un scroll se
+         haga la transición, no de varios»), y un swipe cómodo recorre
+         350–500 px.
+         Con 160svh el tramo `contain` pasa a 60svh (506 px a 844 de alto) y
+         la secuencia entera termina en **446 px**, con 435 px útiles. Un
+         deslizamiento.
+
+         SE TOCA LA PISTA Y NO LOS `animation-range`, y la razón no es
+         pereza: los porcentajes de aquí abajo NO son un reparto cualquiera,
+         son relaciones medidas —la tapa muere en el 30 % mientras el recorte
+         arranca en el 22 %, y esos ocho puntos de solape los comprobó
+         `check-contraste-cv` sobre los fotogramas pintados—. Acortar la
+         pista escala las seis fases por igual y deja intacta cada una de
+         esas relaciones; reescribir los rangos las cambiaría una por una y
+         habría que volver a medir el contraste de la tapa entera para
+         recuperar lo que ya estaba bien.
+         Y no baja más porque por debajo de ~45svh de recorrido útil el
+         recorte de la ventana se resuelve en menos de 200 px y deja de
+         leerse como una transición: se ve un corte. */
       .intro-pista {
-        height: 200svh;
+        height: 160svh;
         view-timeline: --pista block;
       }
       /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
@@ -2465,20 +2614,81 @@ const resumenIndice = c.indice.resumen
   }
   .cert-nombre { font-weight: 600; overflow-wrap: anywhere; }
   .cert-anio { color: var(--cvh-tinta-2); font-size: var(--fs-small); }
-  /* El hueco de la imagen empuja el enlace al pie de la tarjeta. `:global`
-     porque FotoHueco tiene su propio ámbito de estilos. */
-  .cert :global(.foto-hueco) { margin-top: auto; }
-  /* La tarjeta del francés: afirmación, no recibo — borde discontinuo y su
-     marca en ámbar, el color con el que este sitio dice «ojo con esto». */
-  .cert-afirmacion { border-style: dashed; }
-  .cert-claim { color: var(--warn); }
+  /* La imagen (o el hueco del que no la tiene) empuja el pie de la tarjeta
+     hacia abajo, así que el ID y el enlace quedan alineados entre tarjetas.
+     `:global` porque FotoHueco tiene su propio ámbito de estilos. */
+  .cert :global(.foto-hueco), .cert-marco { margin-top: auto; }
+  /* MARCO 4:3 FIJO PARA LOS SIETE, imagen `contain` dentro. El rectángulo es
+     el mismo que reserva FotoHueco, así que la fila no se descuadra por el
+     DELF A2, que no tiene imagen. `contain` y no `cover`: cuatro
+     certificados son apaisados y dos verticales, y recortarlos para que
+     encajen sería cortar el recibo. El aire que sobra es papel. */
+  .cert-marco {
+    display: block; aspect-ratio: 4 / 3; overflow: hidden;
+    border-radius: 14px; border: 1px solid var(--cvh-raya);
+    background: var(--bg-2);
+  }
+  .cert-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  /* El ID de la credencial: mono, porque es un código que alguien va a
+     copiar, y partible porque son 24 caracteres sin espacios. */
+  .cert-cred { overflow-wrap: anywhere; }
 
-  /* ---- Cartas de recomendación: los tres huecos honestos ---- */
+  /* ---- Cartas de recomendación: las entregadas y los huecos ---- */
   .cartas {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
     gap: var(--sp-4); max-width: 960px;
   }
+  /* Los dos encabezados («Entregadas» / «Las que faltan») separan las dos
+     mitades. El primero va pegado al lede y el segundo respira más, que es
+     donde cambia de sentido la lista. */
+  .cartas-h { margin-top: var(--sp-5); }
+  /* La tarjeta de una carta ENTREGADA: tarjeta llena, como las de
+     certificaciones — borde continuo y papel. El borde discontinuo es del
+     hueco, y confundirlos sería decir que falta algo que ya está. */
+  .carta {
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-5); background: var(--cvh-papel);
+  }
+  .carta-nombre { font-weight: 600; font-size: var(--fs-h4, 1.05rem); }
+  .carta-donde, .carta-anio { color: var(--cvh-tinta-2); }
+  .carta-anio { font-size: var(--fs-small); }
+  .carta-relacion { color: var(--cvh-tinta); }
+  /* La cita: pegada al pie de la tarjeta, con su marca encima. Es de un
+     TERCERO, así que se lee distinto del resto — filete a la izquierda,
+     como las citas de todo el sitio. */
+  .carta-cita {
+    margin: auto 0 0; padding-top: var(--sp-3);
+    display: flex; flex-direction: column; gap: var(--sp-2);
+  }
+  .carta-cita-tag { color: var(--cvh-tinta-2); }
+  .carta-cita blockquote {
+    margin: 0; padding-left: var(--sp-3);
+    border-left: 2px solid var(--cvh-raya);
+  }
+  .carta-cita cite { font-style: normal; }
+
+  /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
+     `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse
+     como la misma clase de cosa aunque digan lo contrario la una de la otra
+     (una dice «esto lo afirmo yo», la otra «esto lo firma otro»). */
+  .fuente-carta { color: var(--cvh-tinta-2); }
+
+  /* La lista de lo que las cartas verifican: un hecho por renglón con quien
+     lo firma debajo. No es una tabla: son seis frases sueltas. */
+  .verifica { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 720px; }
+  .verifica-fila { display: flex; flex-direction: column; gap: 4px; }
+  /* El premio: recuadro aparte, discontinuo y con la marca en ámbar — el
+     color con el que este sitio dice «ojo con esto». No es un hueco (el
+     hecho está), es un hecho con UNA sola fuente, y la forma lo dice antes
+     de que nadie lea la letra chica. */
+  .premio {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    border: 1px dashed var(--cvh-tinta-3); border-radius: 24px;
+    padding: var(--sp-5); max-width: 720px; margin-top: var(--sp-5);
+  }
+  .premio-tag { color: var(--warn); }
   .carta-hueco {
     display: flex; flex-direction: column; gap: var(--sp-2);
     padding: var(--sp-5);
@@ -2495,6 +2705,10 @@ const resumenIndice = c.indice.resumen
 
   /* ---- Servir ---- */
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
+  /* Los tres huecos de las fotos de la playa, uno por foto. En columna: la
+     de arriba es vertical y las otras dos apaisadas, y ponerlas en fila las
+     dejaría a las tres del tamaño de un sello dentro de media columna. */
+  .playa-fotos { display: flex; flex-direction: column; gap: var(--sp-3); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
   /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
@@ -2515,6 +2729,10 @@ const resumenIndice = c.indice.resumen
      .grupo-tec — figura suelta, pie debajo, ancho capado para que una foto
      casi cuadrada no se coma el capítulo. */
   .arco-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 440px; }
+  /* La captura de la tienda de Jasa Motor: misma receta que .grupo-tec, con
+     el ancho más corto porque es una captura VERTICAL (4:5) y a 480 px se
+     comería el bloque entero. */
+  .jasa-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 320px; }
   /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
      omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
 

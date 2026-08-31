@@ -42,9 +42,12 @@
 //    fotograma tiene que ser el ÚLTIMO. Esto lo comprueba, porque el `scale`
 //    de 1.05 cambia QUÉ píxel cae debajo de cada letra y podría romperlo.
 //
-// 4. LOS FOTOGRAMAS DEL EFECTO DE LA TARJETA (2026-08-29). El clavado dura una
-//    pantalla de scroll; se mide en 0/25/50/75/100 % de ese tramo, y en cada
-//    fotograma se comprueban las TRES promesas del efecto:
+// 4. LOS FOTOGRAMAS DEL EFECTO DE LA TARJETA (2026-08-29). El clavado dura lo
+//    que mide la pista menos una pantalla, Y ESO SE LE PREGUNTA A LA PÁGINA
+//    en vez de suponerlo: cuando la pista bajó de 200svh a 160svh, la cuenta
+//    supuesta dejó el «75 %» y el «100 %» fuera del efecto (ver el bloque 4).
+//    Se mide en 0/25/50/75/100 % de ese tramo, y en cada fotograma se
+//    comprueban las TRES promesas del efecto:
 //      a) LA DISOLUCIÓN NO DEJA TEXTO ILEGIBLE PUESTO. La tapa se funde
 //         entera (velo y texto en una opacidad de grupo), así que su contraste
 //         compuesto decae con la alfa — lo prohibido es que una pieza caiga
@@ -338,8 +341,18 @@ for (const [w, h, esc] of [[390, 844, 200], [1280, 800, 100], [375, 812, 200]]) 
 }
 
 // ═══ 4) LOS FOTOGRAMAS DEL EFECTO DE LA TARJETA ═══════════════════════════
-// El clavado dura exactamente una pantalla de scroll (la pista mide 200svh y
-// el lienzo 100svh): scroll = svh x progreso. Ver la cabecera, punto 4.
+// EL CLAVADO SE MIDE, NO SE SUPONE. Aquí decía «dura exactamente una pantalla
+// de scroll (la pista mide 200svh y el lienzo 100svh): scroll = svh x
+// progreso», y era verdad mientras la pista midiera 200svh. El 2026-08-30 la
+// pista bajó a 160svh —Jaime pidió que la transición terminara en UN
+// deslizamiento— y el clavado pasó a 60svh. Con la cuenta vieja, el «75 %» y
+// el «100 %» caían FUERA del efecto, ya en el cuerpo del capítulo 1, y el
+// detector de «nunca hay dos fotos» encontraba allí la Torre CN: dos y tres
+// segmentos de foto, o sea una alarma sobre algo que no es el efecto. El
+// progreso se calcula ahora contra el clavado REAL (alto de la pista menos el
+// alto de la ventana, que es exactamente el tramo `contain` de la línea de
+// tiempo), así que «100 % del clavado» quiere decir eso mida lo que mida la
+// pista. Ver la cabecera, punto 4.
 const PROGRESOS = [0, 0.25, 0.5, 0.75, 1];
 console.log('\nLOS FOTOGRAMAS DEL EFECTO (0/25/50/75/100 % del clavado)');
 for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100]]) {
@@ -366,8 +379,15 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100]]) 
   if (dup.enTarjeta !== 0) fallos.push(`el manifiesto vuelve a llevar una imagen dentro (${dup.enTarjeta}): ahí vivía el duplicado`);
   if (dup.enPista !== 1) fallos.push(`la pista lleva ${dup.enPista} <picture> y tiene que llevar exactamente 1`);
 
+  // El tramo que conduce el efecto: alto de la pista menos alto de la
+  // ventana. Es la definición del rango `contain` de la view-timeline, así
+  // que este número y el que usa el CSS son el mismo por construcción.
+  const clavado = await p.evaluate(() =>
+    Math.max(0, document.querySelector('.cv-en .intro-pista').offsetHeight - window.innerHeight));
+  console.log(`  (clavado: ${clavado} px de scroll)`);
+
   for (const prog of PROGRESOS) {
-    await p.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), Math.round(h * prog));
+    await p.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), Math.round(clavado * prog));
     await p.waitForTimeout(160);
 
     // a) la disolución de la tapa: contraste compuesto contra su alfa.
