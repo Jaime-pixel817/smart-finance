@@ -213,6 +213,35 @@ const en = {
     aria: 'Chapters of this page'
   },
 
+  // ═════════════════════════════════════════════════════════════════════════
+  // LA FRANJA DE PRUEBAS (ola 2, 2026-08-31) — LOS PRIMEROS 90 SEGUNDOS
+  // ═════════════════════════════════════════════════════════════════════════
+  // Un lector voluntario de UBC dedica entre 4 y 9 minutos por perfil (su
+  // convocatoria pide «10 to 15 applications/week (approximately 1 – 1.5
+  // hours)»), y lo mejor de este CV vivía en el tercio final: los siete
+  // certificados con número de credencial, las dos cartas firmadas por CEOs,
+  // las cifras del sitio y el premio. Con 4 minutos, ese tercio final no
+  // existe. Esta franja va DEBAJO de la cita de apertura y ARRIBA del índice,
+  // sin una sola frase de prosa, y cada pieza enlaza a su capítulo.
+  //
+  // NINGUNA CIFRA DE ESTA FRANJA SE ESCRIBE AQUÍ. Las cuatro se CUENTAN en el
+  // build: los certificados de `certs.filas.length`, las cartas de
+  // `cartas.entregadas.length`, los premios de `premios.entregados.length` y
+  // las cuatro del sitio de `contarCifras`/`contarPruebas` (los mismos
+  // números que pinta el capítulo de los proyectos). Una franja de resumen
+  // con números a mano es justo donde un CV se desincroniza de sí mismo.
+  franja: {
+    tag: 'Checkable, before you scroll',
+    certsQ: 'certifications, each with its credential ID',
+    cartasQ: 'letters signed by CEOs in Singapore, with the contact each of them gave',
+    sitioN: 'smartfinance.lat',
+    sitioQ: 'a site I built: {p} automated tests · {l} bilingual lessons · {f} cited sources · {g} glossary terms',
+    premiosQ: 'award — GreenTech Summit 2026, and its only source is a letter',
+    // Sufijo del nombre accesible de cada pieza: son enlaces, y «7» a secas
+    // no dice a dónde llevan.
+    ir: 'Go to “{s}”'
+  },
+
   // ---- Títulos de capítulo ────────────────────────────────────────────────
   // EL ORDEN LO PIDIÓ JAIME (mensaje del 2026-08-27) y es el de esta lista:
   // su frase de apertura primero, después experiencias y voluntariados,
@@ -227,16 +256,38 @@ const en = {
   // conversaciones y del canal: primero las conversaciones, después el
   // teaching, en UN capítulo (c4). El hueco que deja lo ocupa la sección
   // nueva de cartas de recomendación (c8), después de las certificaciones.
+  // ── DE NUEVE A ONCE, Y UN CAPÍTULO SE MOVIÓ (ola 2, 2026-08-31) ────────
+  // Entran DOS capítulos nuevos y ninguno inventa nada:
+  //  · c3 «School, grades and English» — el CV no tenía UN SOLO dato
+  //    académico (comprobado: ni promedio, ni cálculo, ni idioma en
+  //    pantalla) y es la primera pregunta de cualquier solicitud. Lo que
+  //    existe se publica; lo que no, es hueco marcado.
+  //  · c9 «Awards» — Ivey evalúa los premios EN SECCIÓN APARTE. Había siete
+  //    certificados (que son cursos) y cero competencias, y el único premio
+  //    estaba enterrado en el capítulo de las cartas.
+  //
+  // Y «Everyone brings something» BAJA del 4 al 6, detrás de los proyectos.
+  // Es el capítulo con DIEZ de los quince huecos de texto de la página, y
+  // era la quinta pantalla. El orden que pidió Jaime el 2026-08-27 ponía su
+  // canal DESPUÉS de los proyectos («luego mis proyectos y arrancas con el
+  // grupo estudiantil, luego mi canal de difusión»); el brief del 2026-08-28
+  // fusionó conversaciones y canal y dijo «primero la gente, después lo que
+  // él enseña solo», que es el orden DENTRO del capítulo y se respeta igual.
+  // ES REVERSIBLE EN UNA LÍNEA: el orden lo manda la lista `capitulos` de
+  // Historia.astro y el orden de los bloques JSX. Si Jaime lo quiere arriba,
+  // vuelve arriba.
   caps: {
     c1: 'I opened my eyes',
     c2: 'Experience',
-    c3: 'Serving',
-    c4: 'Everyone brings something',
+    c3: 'School, grades and English',
+    c4: 'Serving',
     c5: 'My projects',
-    c6: 'Reto Actinver and private equity',
-    c7: 'Certifications',
-    c8: 'Recommendation letters',
-    c9: 'The sentence'
+    c6: 'Everyone brings something',
+    c7: 'Reto Actinver and private equity',
+    c8: 'Certifications',
+    c9: 'Awards',
+    c10: 'Recommendation letters',
+    c11: 'The sentence'
   },
 
   // ---- Capítulo 1: portada ----
@@ -302,7 +353,18 @@ const en = {
     // La procedencia NO se pierde con el pie nuevo: sigue diciendo que la
     // foto es suya y de cuándo (la fecha comprobable es la de publicación
     // en su TikTok, misma regla que el arco de Singapur).
-    torrePie: 'Toronto · my photograph (2026)'
+    torrePie: 'Toronto · my photograph (2026)',
+    // ── LA LÍNEA QUE SOLO EXISTE EN PAPEL (ola 2, 2026-08-31) ───────────
+    // La vista impresa es un SUBCONJUNTO —experiencia, expediente,
+    // certificaciones, premios, cartas y la frase—, porque el documento
+    // entero salían veinticuatro hojas y nadie adjunta eso. Esta línea es
+    // la que impide que el recorte sea un disimulo: la hoja dice, en su
+    // primera línea, que hay más y dónde está. NO nombra la dirección: la
+    // dirección del CV es su credencial y no se escribe en ninguna parte
+    // (ver la regla de CV_SLUG en CLAUDE.md); quien tiene el papel lo
+    // imprimió desde la página, y el pie del navegador ya la escribe si
+    // quien imprime lo deja puesto.
+    impresionNota: 'Printed summary: experience, school record, certifications, awards, letters and the closing sentence. The full CV — the photographs, the clips, the conversations and the site — is on the page this was printed from.'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -517,7 +579,7 @@ const en = {
     // El carrusel de Canadá lleva la foto que YA ESTÁ en el capítulo 1 (la
     // Torre CN que hizo él), y la regla de Jaime es que ninguna imagen se
     // repite: aquí va el enlace y esta línea diciendo dónde está la foto.
-    canadaNota: 'Its photo is the CN Tower one that opens this CV, in chapter 1 — it is not repeated here.',
+    canadaNota: 'Its photo is the CN Tower one that opens this CV — it is not repeated here.',
     // ── LO QUE HABÍA DEBAJO Y YA NO ESTÁ (Jaime, 2026-08-30) ─────────────
     // «abajo de eso hay más fechas con títulos, quítalos y pon de link a mi
     // perfil de TikTok para ver todo mi contenido, con un botón ese, y nos
@@ -636,7 +698,7 @@ const en = {
       // que el «Prof. Lloyd» y Lloyd George son la misma persona, la página
       // se contradecía a sí misma a dos capítulos de distancia.
       // Se pone el cargo que firma él, y `tipo` explica el «Prof.».
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'I call him “Prof. Lloyd” because he taught me for two weeks on the Green Technology programme in Singapore. He signs his letter — chapter 8 — as CEO of TAQ Pte Ltd.', alt: 'Me, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'I call him “Prof. Lloyd” because he taught me for two weeks on the Green Technology programme in Singapore. He signs his letter — in “Recommendation letters” — as CEO of TAQ Pte Ltd.', alt: 'Me, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
       nus: {
         nombre: 'A student at NUS',
         rol: 'National University of Singapore',
@@ -716,7 +778,14 @@ const en = {
     // y ya se deslice toda mi experience». El rótulo es el suyo. `pista`
     // lleva `{n}` y lo rellena el componente con `filas.length`: escrito a
     // mano, el número mentiría en cuanto se añada una fila.
-    ver: 'View my experience',
+    // ── EL RÓTULO DEJÓ DE DECIR «VER» (2026-08-31) ─────────────────────
+    // El plegable nace ABIERTO desde la ola 2 (ver Historia.astro), así que
+    // «View my experience» con la lista ya desplegada debajo era una
+    // instrucción para algo que ya pasó. Ahora el `<summary>` es el rótulo
+    // de la sección y la flecha —que gira 180° con `[open]`— dice el estado.
+    // La palabra de Jaime («una cosa que diga view») sigue teniendo sentido
+    // el día que alguien lo cierre: el control es el mismo.
+    ver: 'My experience',
     pista: '{n} entries',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
@@ -753,7 +822,7 @@ const en = {
       // LinkedIn (MATERIAL.md, bloque C2, verbatim: «Jasa Motor no aparece en
       // ningún lado de su LinkedIn»). No es una contradicción, es un año sin
       // contraste — y el recibo lo dice con esas palabras en vez de callarlo.
-      { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
+      { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (in “My projects”)' },
       // ⚠️ 2025 Y NO 2026, y es la MISMA disputa que la del grupo estudiantil
       // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
       // empecé». Su LinkedIn publica el proyecto como «feb. 2026». Se pone
@@ -773,9 +842,167 @@ const en = {
       // pidió consejo sobre estudiar en Canadá. El cargo exacto era una
       // anotación externa sin fuente en el material: fuera (2026-08-29).
       { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin for advice on studying in Canada' },
-      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
-      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 6' }
+      { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of “Everyone brings something”' },
+      { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in “Reto Actinver and private equity”' }
     ]
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════
+  // LA MISMA EXPERIENCIA, EN EL FORMATO QUE PIDEN LAS SOLICITUDES (ola 2)
+  // ═════════════════════════════════════════════════════════════════════════
+  // La lista seca de arriba es año + título, y las cuatro cosas que de verdad
+  // hay que llenar piden lo mismo por actividad: ROL · ORGANIZACIÓN · PERIODO
+  // · QUÉ HIZO ÉL · RESULTADO CON NÚMERO · QUIÉN LO CONFIRMA.
+  //  · Schulich (Leadership Profile, plantilla Word): «Leadership Profiles
+  //    with fewer than 3 experiences will not be evaluated» y «Leadership
+  //    Profiles with missing or incomplete references will not be evaluated».
+  //  · Ivey (método STAR publicado por ellos): «provide quantifiable evidence
+  //    with numbers».
+  //  · UBC: hasta 5 actividades y DOS referees, uno funcionario de la escuela
+  //    y otro que pueda hablar de una actividad descrita; NINGUNO puede ser
+  //    familiar, amigo ni agente pagado.
+  //  · Y el nominador de Prepa Tec CEM: es exactamente lo que necesita para
+  //    poder firmar.
+  // Por eso son CINCO: es el máximo de Schulich y de UBC, y el mínimo de
+  // Schulich son tres.
+  //
+  // ┌─ DOS AVISOS PARA JAIME, Y NO SE PINTAN EN PANTALLA ──────────────────┐
+  // │ 1. JASA MOTOR NECESITA UN REFEREE QUE NO SEA SU PAPÁ. UBC prohíbe    │
+  // │    expresamente que un referee sea familiar. Sirve un proveedor, el  │
+  // │    contador, un cliente de mayoreo o quien haya trabajado en la      │
+  // │    tienda — cualquiera que pueda confirmar qué construyó él.         │
+  // │ 2. LAS CIFRAS QUE HOY TIENE SON DE VANIDAD Y NO SIRVEN COMO          │
+  // │    RESULTADO: 497 impresiones, 473 contactos, 23 publicaciones.      │
+  // │    Miden alcance de una red social, no lo que pasó por lo que él     │
+  // │    hizo. Las que cuentan: cuántos miembros tiene el grupo, cuánta    │
+  // │    gente fue a cada plática o taller, cuántos eventos organizó,      │
+  // │    cuánto creció la tienda desde que la hizo.                        │
+  // └──────────────────────────────────────────────────────────────────────┘
+  //
+  // `resultado` y `quien` VACÍOS son huecos marcados: el bloque pinta una
+  // sola línea discontinua por fila diciendo qué campo falta, no uno por
+  // campo — cinco filas con dos marcas cada una serían diez tropiezos en el
+  // capítulo que un comité escanea primero. `pide` es la pregunta exacta para
+  // Jaime y NO SE PINTA, igual que `huecos.*.pista`.
+  expApp: {
+    h: 'The same experience, in the format the applications ask for',
+    lede: 'Role, organisation, period, what I did, result with a number, and who can confirm it. Five: the most Schulich and UBC accept, and more than the three Schulich requires.',
+    campos: {
+      rol: 'Role', org: 'Organisation', cuando: 'Period',
+      accion: 'What I did', resultado: 'Result', quien: 'Who can confirm it'
+    },
+    // Rótulo de la línea de campos que faltan, y su unión.
+    falta: 'Still missing',
+    y: 'and',
+    filas: [
+      {
+        id: 'grupo',
+        hueco: 'expGrupo' as const,
+        rol: 'Founder and president',
+        org: 'Smart Finance student community, Prepa Tec CEM',
+        cuando: '2025 – today',
+        accion: 'I founded it and I lead it: visits to the Mexican stock exchange, finance talks and workshops, volunteering for our community and the environment, and the Student Groups Fair at Tec.',
+        resultado: '',
+        quien: '',
+        pide: '¿Cuántos miembros tiene hoy el grupo? ¿Cuánta gente fue a la última plática y al último taller? ¿Cuántos eventos organizaste en el ciclo? Y el referee: un funcionario de tu escuela (coordinador, director, tu mentor) con nombre, cargo, correo y qué relación tiene contigo — UBC pide que uno de los dos sea de la escuela.'
+      },
+      {
+        id: 'sitio',
+        hueco: 'expSitio' as const,
+        rol: 'Author and developer',
+        org: 'smartfinance.lat — my own project',
+        cuando: '2025 – today',
+        accion: 'I write the bilingual lessons, I build the site and I send the weekly newsletter. The figures it publishes are counted from its own files on every build.',
+        resultado: '',
+        quien: '',
+        pide: '¿Cuántas personas lo visitan al mes y de dónde sacas ese dato? Los inscritos al boletín ya están en la página como cifra tuya («más de 100»): si tienes el número exacto y la fecha, mejor. NO uses impresiones ni contactos de LinkedIn: eso no es un resultado. Y el referee: alguien que haya usado el sitio o que pueda hablar de él — un profesor, un mentor, alguien de la comunidad.'
+      },
+      {
+        id: 'jasa',
+        hueco: 'expJasa' as const,
+        rol: 'Online store and marketing',
+        org: 'Jasa Motor — my family’s auto-parts business, Cuautitlán, State of Mexico',
+        cuando: '2025 – today',
+        accion: 'I built its online store (tienda.jasamotor.com.mx) and I run its marketing, for a business with more than twenty years of history.',
+        resultado: '',
+        quien: '',
+        pide: '¿Qué cambió desde que hiciste la tienda? Pedidos al mes, ventas en línea, clientes nuevos, o el número que sí tengas — y desde qué fecha. Y OJO CON EL REFEREE: UBC prohíbe que sea familiar, así que TU PAPÁ NO PUEDE SER. Piensa en un proveedor, el contador, un cliente de mayoreo o alguien que haya trabajado en la refaccionaria.'
+      },
+      {
+        id: 'tiktok',
+        hueco: 'expTiktok' as const,
+        rol: 'Creator and host',
+        org: '@smart.financee — financial education, and the conversations of the chapter “Everyone brings something”',
+        cuando: '2026 – today',
+        accion: 'I record short financial-education videos, and I arrange and conduct the interviews myself: executives, entrepreneurs and university professors.',
+        resultado: '',
+        quien: 'Lloyd George, CEO of TAQ Pte Ltd, writes in his letter that I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.',
+        pide: '¿Qué número cuenta aquí? Personas alcanzadas no: eso es vanidad. Sirve, por ejemplo, cuántas entrevistas has hecho, cuántas se publicaron, o cuánta gente te ha escrito a raíz de un video (y cómo lo sabes).'
+      },
+      {
+        id: 'singapur',
+        hueco: null,
+        rol: 'Participant, and speaker at NUS',
+        org: 'Green Technology Programme, BlueSky Education — Singapore',
+        cuando: '2026',
+        accion: 'Two weeks of programme; I presented about Mexico to students at the National University of Singapore, I joined the beach clean-up and I arranged and conducted the interviews myself.',
+        resultado: 'An award at the GreenTech Summit 2026 with my teammates, competing against students from Taiwan and Russia (chapter “Awards”).',
+        quien: 'Lloyd George, CEO of TAQ Pte Ltd, and Andy Toh, of BlueSky Education. Both letters are in “Recommendation letters”, each with the contact its signatory gave.',
+        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
+      }
+    ]
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════
+  // CAPÍTULO 3: EL RENGLÓN ACADÉMICO (ola 2, 2026-08-31)
+  // ═════════════════════════════════════════════════════════════════════════
+  // Este CV no tenía UN SOLO dato académico: ni promedio, ni cálculo, ni
+  // idioma en pantalla (se comprobó buscando en este archivo). Es la primera
+  // pregunta de cualquier solicitud, y el sitio donde el silencio se lee como
+  // «no lo tiene».
+  //
+  // LO QUE SE PUBLICA AQUÍ EXISTE Y ESTÁ COMPROBADO:
+  //  · La escuela y el plan salen de la misma fila que ya pinta `exp`.
+  //  · El B2 First con su 163 sale de SU PROPIO CERTIFICADO (transcrito en
+  //    cv-material/MATERIAL.md, bloque C1 nº 7: Grade C, Overall Score 163,
+  //    Reading 168 · Use of English 147 · Writing 157 · Listening 168 ·
+  //    Speaking 175, examen del 19 de noviembre de 2024). Hasta hoy ese 163
+  //    vivía SOLO en el `alt` de la imagen del certificado, así que en
+  //    pantalla el renglón del inglés parecía cerrado y no lo está.
+  //  · Que le falta otro examen NO es una opinión: las dos universidades lo
+  //    publican y las dos citas se comprobaron el 2026-08-31 en sus páginas
+  //    oficiales (los URL están en `inglesFuentes`).
+  //
+  // NO SE INVENTA NI UNA CIFRA. Promedio, posición de clase y cálculo son
+  // huecos marcados con su pregunta exacta en `huecos.acad*.pista`.
+  acad: {
+    lede: 'The first thing any application asks, and until today this page did not answer it. What is checkable is here; what is missing is marked as missing.',
+    escuelaH: 'Where I study',
+    escuela: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business.',
+    escuelaCuando: '2024–2027',
+    inglesH: 'English',
+    ingles: 'B2 First Certificate, Cambridge English. Grade C, overall score 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examination 19 November 2024.',
+    inglesTag: 'From my own certificate',
+    // El hecho, en primera persona y sin dramatismo: es un paso pendiente.
+    inglesFalta: 'It is not enough yet, and this page says so instead of leaving the row looking closed. The University of Toronto does not accept B2 First at any score; UBC does accept it, but from 180, and I have 163. So I have one more exam to sit.',
+    fuentesH: 'Checked on 31 August 2026',
+    inglesFuentes: [
+      {
+        que: 'University of Toronto — “Results from the B2 First exam are not accepted (regardless of the result achieved).” C1 Advanced or C2 Proficiency: 180 overall, at least 170 in each component. TOEFL iBT 89 with 22 in Speaking and Writing; IELTS Academic 6.5 with no band below 6.0; Duolingo 120; PTE Academic 65.',
+        url: 'https://future.utoronto.ca/apply/english-language-requirements/'
+      },
+      {
+        que: 'UBC Vancouver — Cambridge English Qualifications (B2 First, C1 Advanced, C2 Proficiency): 180 for undergraduate admission.',
+        url: 'https://vancouver.calendar.ubc.ca/admissions/english-language-admission-standard/english-language-proficiency-tests'
+      }
+    ],
+    // Por qué los tres huecos de abajo están ahí. Una frase y su fuente: sin
+    // esto, tres recuadros vacíos en el capítulo académico se leen como una
+    // ausencia y no como un dato que falta por llegar.
+    notaH: 'Why the boxes below are empty and not quietly missing',
+    nota: 'Rotman Commerce publishes that “our students are generally in the top 5% of their class”, and asks for a mid-high 80s average with close attention to English and Calculus. Ivey asks for a low 90% average including English; Schulich, Calculus with at least 70%. Those are numbers only I can supply, so they are marked as missing rather than left out.',
+    notaFuente: 'rotmancommerce.utoronto.ca — What we look for',
+    notaUrl: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/'
   },
 
   // ---- Capítulo 10: certificaciones ----
@@ -887,6 +1114,49 @@ const en = {
         alt: 'Cambridge English certificate stating that Jaime Sandoval Ricaño was awarded Grade C in the First Certificate in English, Council of Europe level B2, with an overall score of 163.'
       }
     ]
+  },
+
+  // ═════════════════════════════════════════════════════════════════════════
+  // CAPÍTULO 9: PREMIOS. SECCIÓN PROPIA (ola 2, 2026-08-31)
+  // ═════════════════════════════════════════════════════════════════════════
+  // Ivey evalúa los premios EN UNA SECCIÓN APARTE y admite explícitamente
+  // premios no académicos («Awards like "Employee of the Month" and
+  // recognition for community service are just as valuable»). En este CV esa
+  // sección no existía: había siete certificados —que son CURSOS COMPLETADOS,
+  // no competencias ganadas— y el único premio estaba enterrado en el
+  // capítulo de las cartas, en un recuadro que gastaba 44 palabras en el
+  // descargo y 19 en el hecho.
+  //
+  // EL DESCARGO SE QUEDA, LA PROPORCIÓN SE INVIERTE. Que la única fuente sea
+  // una carta ajena es verdad y hay que decirlo, pero se dice UNA vez, en
+  // mono, como todos los recibos de esta página — no en un párrafo que pesa
+  // el doble que el premio. El hecho manda; la marca lo acompaña.
+  //
+  // NO SE INVENTA NINGÚN PREMIO. Hay uno, y el hueco dice que hay sitio para
+  // más sin nombrar a nadie que no lo haya dado (misma regla que las cartas).
+  premios: {
+    lede: 'Awards are evaluated separately from courses, so they are separate here. Courses I have completed are in “Certifications”; this is what someone gave me for competing.',
+    entregadosH: 'What I have',
+    faltanH: 'Room for more',
+    campos: 'Award · who gives it · year · what for',
+    slot: 'Space reserved for the next award.',
+    tag: 'Award to come',
+    // {s} es el título del capítulo de las cartas: se enlaza por TÍTULO y no
+    // por número, como `cartas.fuenteCarta`.
+    fuenteTag: 'Only source: Lloyd George’s letter, in “{s}”',
+    entregados: [
+      {
+        que: 'An award at the GreenTech Summit 2026, in Singapore, with my teammates, competing against students from Taiwan and Russia.',
+        // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
+        // salía «GreenTech Summit 2026 · 2026».
+        de: 'GreenTech Summit',
+        anio: '2026',
+        nota: 'I never posted this — not on my LinkedIn, not on my TikTok. It is here because someone else wrote it down and signed it.'
+      }
+    ],
+    // El documento no existe todavía: la única fuente es la carta. Se dice
+    // dónde falta, sin adornarlo.
+    docPend: 'The certificate or diploma itself, when BlueSky Education or Lloyd George sends it to me.'
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
@@ -1024,19 +1294,13 @@ const en = {
       { que: 'I work in Spanish, English and French.', cita: '', quien: 'Lloyd George' },
       { que: 'At the Green Tech Youth Summit I developed a project and presented it, and', cita: 'performed particularly well in both his project and presentation', quien: 'Andy Toh' }
     ],
-    // ── EL PREMIO QUE ÉL NUNCA PUBLICÓ ──────────────────────────────────
-    // La carta de Lloyd George dice que Jaime y su equipo ganaron un premio
-    // en el GreenTech Summit 2026 contra estudiantes de Taiwán y Rusia. Se
-    // revisaron sus 21 publicaciones con imagen y los tres posts de Singapur
-    // una por una: NO está publicado en ninguna parte. Va con su marca
-    // diciendo exactamente eso, porque un premio del que la única fuente es
-    // una carta no se puede enseñar como si tuviera dos.
-    premio: {
-      h: 'An award I never posted',
-      que: 'An award at the GreenTech Summit 2026, with my teammates, competing against students from Taiwan and Russia.',
-      tag: 'Only source: Lloyd George’s letter',
-      nota: 'This is not on my LinkedIn and not on my TikTok — I never posted it. It is here because someone else wrote it down and signed it, and this page says so instead of passing it off as something I published.'
-    },
+    // ── EL PREMIO SE MUDÓ A SU PROPIO CAPÍTULO (2026-08-31) ─────────────
+    // Vivía aquí, en un recuadro de 44 palabras de descargo y 19 de hecho, al
+    // final del capítulo de las cartas. Ivey evalúa los premios en sección
+    // aparte, así que ahora tiene la suya (`premios`) y el descargo sigue
+    // yendo con él, en mono y una sola vez. Lo que se queda aquí es la línea
+    // de `verifica` que firma Andy Toh sobre el Green Tech Youth Summit: esa
+    // no es el premio, es lo que una carta confirma de su trabajo.
     // Se pinta donde una afirmación de Jaime pasó a tener fuente de tercero.
     // {n} es quien firma la carta y {s} el título de este capítulo.
     fuenteCarta: 'Third-party source: {n}’s letter, in “{s}”.'
@@ -1152,7 +1416,93 @@ const en = {
     servirAnimales: {
       que: 'The animals, in my words',
       pista: 'One or two sentences. What you did, not what you felt.'
-    }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // LOS TRES DEL RENGLÓN ACADÉMICO (ola 2)
+    // ═══════════════════════════════════════════════════════════════════════
+    acadPromedio: {
+      que: 'My average, and my class standing if I know it',
+      pista: '¿Cuál es tu promedio general del bachillerato hasta hoy, y en qué escala está (Tec usa 0-100)? Si tu escuela publica tu posición en la clase o tu percentil, ponlo también; si no lo sabes, se pregunta en servicios escolares. Rotman dice que sus alumnos «están generalmente en el 5 % más alto de su clase», así que este número decide más que cualquier otra cosa de esta página.'
+    },
+    acadCalculo: {
+      que: 'Calculus: whether my plan includes it, and my grade',
+      pista: '¿Tu plan Multicultural 2024-2027 incluye cálculo? Si sí: en qué semestre lo llevas o lo llevaste y con qué calificación. Si no lo incluye, ¿qué materia de matemáticas es la más avanzada de tu plan? PREGÚNTALO EN LA ESCUELA ANTES DE OCTUBRE: Rotman exige que el expediente muestre que estás INSCRITO en los cursos requeridos para dar una oferta condicional, y Schulich pide cálculo (MCV4U) con al menos 70 %.'
+    },
+    acadIngles: {
+      que: 'The English exam I still have to sit: which one, and when',
+      pista: '¿Cuál vas a presentar y qué fecha tienes agendada? Los objetivos, de las páginas oficiales: C1 Advanced 180 con mínimo 170 por componente · TOEFL iBT 89 con 22 en Speaking y Writing · IELTS Academic 6.5 sin banda bajo 6.0 · Duolingo 120 · PTE Academic 65. El propio Road to College del Tec ofrece certificaciones de idiomas: es la vía institucional y es por donde conviene preguntarlo.'
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // UN CONTRATIEMPO POR CAPÍTULO (ola 2) — EL NIVEL 5 DE LA ÚNICA RÚBRICA
+    // PUBLICADA
+    // ═══════════════════════════════════════════════════════════════════════
+    // Queen's publica su rúbrica de 5 niveles
+    // (queensu.ca/admission/applying/supplementary-application-rubric,
+    // consultada el 2026-08-31). El nivel 5 exige, verbatim: «Handles
+    // setbacks or complexity with clarity and purpose» y «Reflects
+    // meaningfully on what they learned and how it shaped their perspective
+    // or behavior going forward». El nivel 3 se conforma con «a clear and
+    // relevant example».
+    //
+    // ESTE CV NO REGISTRABA UN SOLO FRACASO, así que con esa rúbrica en la
+    // mano no podía puntuar 5. Y no es solo Queen's: Sauder pide «un problema
+    // o situación desconocida — acciones, resultado, aprendizaje» y UBC
+    // evalúa «Personal growth and resilience».
+    //
+    // NO SE INVENTA NI UN CONTRATIEMPO. Son huecos, uno por capítulo con
+    // cuerpo, cada uno con su pregunta concreta. NO HAY UNO EN LAS CARTAS:
+    // ahí el contratiempo sería «alguien que no me escribió», y la regla del
+    // 2026-08-31 dice que un hueco puede reservar sitio pero no puede decir
+    // quién no lo ha llenado. Tampoco en la portada ni en la frase final.
+    // LO QUE PIDE CADA UNO SON DOS COSAS, no una: el hecho, y qué cambiaste
+    // después. Sin la segunda mitad es una disculpa, y la rúbrica pide
+    // exactamente la segunda.
+    contraExp: {
+      que: 'The experience that did not work, and what I changed',
+      pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen\'s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
+    },
+    contraAcad: {
+      que: 'The subject or the exam that went badly, and what I changed',
+      pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English en el B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
+    },
+    contraServir: {
+      que: 'The day volunteering did not go as planned, and what I changed',
+      pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
+    },
+    contraProyectos: {
+      que: 'What broke in the group or in the store, and what I changed',
+      pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
+    },
+    contraGente: {
+      que: 'The interview or the video that went wrong, and what I changed',
+      pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
+    },
+    contraReto: {
+      que: 'The trade or the analysis I got wrong, and what I changed',
+      pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
+    },
+    contraCerts: {
+      que: 'The course or the exam I dropped or failed, and what I changed',
+      pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
+    },
+    contraPremios: {
+      que: 'A competition I did not win, and what I changed',
+      pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // LOS CINCO DEL BLOQUE DE EXPERIENCIA EN FORMATO DE SOLICITUD (ola 2)
+    // ═══════════════════════════════════════════════════════════════════════
+    // Uno por fila con campos vacíos. Se pinta UNO por fila, no uno por
+    // campo: cinco filas con dos marcas cada una serían diez tropiezos en el
+    // capítulo que un comité escanea primero. La pregunta exacta de cada uno
+    // vive en `expApp.filas[].pide`, junto a la fila que la necesita.
+    expGrupo: { que: 'Result and referee — the student community', pista: 'Ver expApp.filas → grupo.' },
+    expSitio: { que: 'Result and referee — smartfinance.lat', pista: 'Ver expApp.filas → sitio.' },
+    expJasa: { que: 'Result and referee — Jasa Motor', pista: 'Ver expApp.filas → jasa. OJO: el referee NO puede ser su papá (UBC prohíbe familiares).' },
+    expTiktok: { que: 'Result — the channel and the interviews', pista: 'Ver expApp.filas → tiktok.' }
     // EL HUECO DE LAS PLAYAS SE FUE (2026-08-29): pedía «las playas, con mis
     // palabras» y sus palabras aparecieron — su publicación de LinkedIn
     // sobre el voluntariado, hoy citada en el bloque (`voz.playa`). Un hueco
@@ -1179,7 +1529,26 @@ const en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
-    servirAnimales: ''
+    servirAnimales: '',
+    // Los quince de la ola 2. Mismo mecanismo: en cuanto tienen texto, el
+    // hueco desaparece solo. Si Jaime escribe solo el español, el hueco
+    // inglés sigue puesto — que es lo honesto: una traducción que nadie ha
+    // hecho no se inventa.
+    acadPromedio: '',
+    acadCalculo: '',
+    acadIngles: '',
+    expGrupo: '',
+    expSitio: '',
+    expJasa: '',
+    expTiktok: '',
+    contraExp: '',
+    contraAcad: '',
+    contraServir: '',
+    contraProyectos: '',
+    contraGente: '',
+    contraReto: '',
+    contraCerts: '',
+    contraPremios: ''
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -1357,16 +1726,32 @@ const es: typeof en = {
     aria: 'Capítulos de esta página'
   },
 
+  // Ver la nota larga de la tabla inglesa: ninguna cifra de la franja se
+  // escribe, las cuatro se cuentan en el build.
+  franja: {
+    tag: 'Comprobable, antes de bajar',
+    certsQ: 'certificaciones, cada una con su ID de credencial',
+    cartasQ: 'cartas firmadas por CEOs en Singapur, con el contacto que dio cada uno',
+    sitioN: 'smartfinance.lat',
+    sitioQ: 'un sitio que construí: {p} pruebas automáticas · {l} lecciones bilingües · {f} fuentes citadas · {g} términos de glosario',
+    premiosQ: 'premio — GreenTech Summit 2026, y su única fuente es una carta',
+    ir: 'Ir a «{s}»'
+  },
+
+  // Ver la nota larga de la tabla inglesa: dos capítulos nuevos (c3 y c9) y
+  // «Cada quien trae algo» baja del 4 al 6.
   caps: {
     c1: 'Abrí los ojos',
     c2: 'Experiencias',
-    c3: 'Servir',
-    c4: 'Cada quien trae algo',
+    c3: 'Escuela, calificaciones e inglés',
+    c4: 'Servir',
     c5: 'Mis proyectos',
-    c6: 'Reto Actinver y private equity',
-    c7: 'Certificaciones',
-    c8: 'Cartas de recomendación',
-    c9: 'La frase'
+    c6: 'Cada quien trae algo',
+    c7: 'Reto Actinver y private equity',
+    c8: 'Certificaciones',
+    c9: 'Premios',
+    c10: 'Cartas de recomendación',
+    c11: 'La frase'
   },
 
   head: {
@@ -1392,7 +1777,9 @@ const es: typeof en = {
     // inglés). Aquí va el original, así que `torrePieTag` está vacío.
     torrePieVoz: '«La tomé cuando fui a visitar los campus de Toronto. Me inspira todos los días a seguir creciendo: mi meta está ahí.»',
     torrePieTag: '',
-    torrePie: 'Toronto · foto mía (2026)'
+    torrePie: 'Toronto · foto mía (2026)',
+    // Ver la nota de la tabla inglesa: solo se pinta al imprimir.
+    impresionNota: 'Resumen impreso: experiencia, expediente, certificaciones, premios, cartas y la frase final. El CV completo —las fotografías, los clips, las conversaciones y el sitio— está en la página desde la que se imprimió.'
   },
 
   proyectos: {
@@ -1486,7 +1873,7 @@ const es: typeof en = {
       tokio: '«Lo creerías?» — datos financieros de Japón, desde la Torre de Tokio',
       canada: '«Canada is not just beautiful it’s one of the smartest places in the w…» (en español: Canadá no solo es bonito, es uno de los lugares más inteligentes del m…) — cinco datos financieros de Canadá'
     },
-    canadaNota: 'Su foto es la de la Torre CN que abre este CV, en el capítulo 1 — aquí no se repite.',
+    canadaNota: 'Su foto es la de la Torre CN que abre este CV — aquí no se repite.',
     verTodo: 'Ver todo mi contenido',
     arcoImgAlt: 'Yo, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
     arcoImgPie: 'La presentación sobre México en la NUS — una foto mía'
@@ -1504,7 +1891,7 @@ const es: typeof en = {
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
       // Rol corregido: ver la nota larga en la tabla inglesa.
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'Le digo «profesor Lloyd» porque me dio clase dos semanas en el programa de Green Technology en Singapur. Su carta —capítulo 8— la firma como CEO de TAQ Pte Ltd.', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'Le digo «profesor Lloyd» porque me dio clase dos semanas en el programa de Green Technology en Singapur. Su carta —en «Cartas de recomendación»— la firma como CEO de TAQ Pte Ltd.', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
       nus: {
         nombre: 'Una estudiante de la NUS',
         rol: 'National University of Singapore',
@@ -1555,7 +1942,8 @@ const es: typeof en = {
 
   exp: {
     lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
-    ver: 'Ver mi experiencia',
+    // Ver la nota de la tabla inglesa: el plegable nace abierto.
+    ver: 'Mi experiencia',
     pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
@@ -1563,15 +1951,115 @@ const es: typeof en = {
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
       { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
       { cuando: '2025', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
-      { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
+      { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (en «Mis proyectos»)' },
       { cuando: '2025', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
       { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pedí consejo a Marg Franklin sobre estudiar en Canadá' },
-      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
-      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
+      { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones de «Cada quien trae algo»' },
+      { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en «Reto Actinver y private equity»' }
     ]
+  },
+
+  // Ver la nota larga de la tabla inglesa, incluidos LOS DOS AVISOS para
+  // Jaime (el referee de Jasa Motor no puede ser su papá; las cifras de
+  // vanidad no sirven como resultado).
+  expApp: {
+    h: 'La misma experiencia, en el formato que piden las solicitudes',
+    lede: 'Rol, organización, periodo, qué hice, resultado con número y quién lo confirma. Cinco: el máximo que aceptan Schulich y UBC, y más que los tres que Schulich exige.',
+    campos: {
+      rol: 'Rol', org: 'Organización', cuando: 'Periodo',
+      accion: 'Qué hice', resultado: 'Resultado', quien: 'Quién lo confirma'
+    },
+    falta: 'Todavía falta',
+    y: 'y',
+    filas: [
+      {
+        id: 'grupo',
+        hueco: 'expGrupo' as const,
+        rol: 'Fundador y presidente',
+        org: 'Comunidad estudiantil Smart Finance, Prepa Tec CEM',
+        cuando: '2025 – hoy',
+        accion: 'La fundé y la dirijo: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, voluntariados por la comunidad y el medio ambiente, y la Feria de Grupos Estudiantiles del Tec.',
+        resultado: '',
+        quien: '',
+        pide: '¿Cuántos miembros tiene hoy el grupo? ¿Cuánta gente fue a la última plática y al último taller? ¿Cuántos eventos organizaste en el ciclo? Y el referee: un funcionario de tu escuela (coordinador, director, tu mentor) con nombre, cargo, correo y qué relación tiene contigo — UBC pide que uno de los dos sea de la escuela.'
+      },
+      {
+        id: 'sitio',
+        hueco: 'expSitio' as const,
+        rol: 'Autor y desarrollador',
+        org: 'smartfinance.lat — proyecto propio',
+        cuando: '2025 – hoy',
+        accion: 'Escribo las lecciones bilingües, construyo el sitio y mando el boletín semanal. Las cifras que publica las cuenta él mismo de sus archivos en cada build.',
+        resultado: '',
+        quien: '',
+        pide: '¿Cuántas personas lo visitan al mes y de dónde sacas ese dato? Los inscritos al boletín ya están en la página como cifra tuya («más de 100»): si tienes el número exacto y la fecha, mejor. NO uses impresiones ni contactos de LinkedIn: eso no es un resultado. Y el referee: alguien que haya usado el sitio o que pueda hablar de él — un profesor, un mentor, alguien de la comunidad.'
+      },
+      {
+        id: 'jasa',
+        hueco: 'expJasa' as const,
+        rol: 'Tienda en línea y marketing',
+        org: 'Jasa Motor — refaccionaria de mi familia, Cuautitlán, Estado de México',
+        cuando: '2025 – hoy',
+        accion: 'Construí su tienda en línea (tienda.jasamotor.com.mx) y llevo su marketing, para un negocio con más de veinte años de historia.',
+        resultado: '',
+        quien: '',
+        pide: '¿Qué cambió desde que hiciste la tienda? Pedidos al mes, ventas en línea, clientes nuevos, o el número que sí tengas — y desde qué fecha. Y OJO CON EL REFEREE: UBC prohíbe que sea familiar, así que TU PAPÁ NO PUEDE SER. Piensa en un proveedor, el contador, un cliente de mayoreo o alguien que haya trabajado en la refaccionaria.'
+      },
+      {
+        id: 'tiktok',
+        hueco: 'expTiktok' as const,
+        rol: 'Creador y conductor',
+        org: '@smart.financee — educación financiera, y las conversaciones del capítulo «Cada quien trae algo»',
+        cuando: '2026 – hoy',
+        accion: 'Grabo videos cortos de educación financiera, y consigo y conduzco yo mismo las entrevistas: directivos, emprendedores y profesores universitarios.',
+        resultado: '',
+        quien: 'Lloyd George, CEO de TAQ Pte Ltd, escribe en su carta que conduzco un podcast de educación financiera en el que entrevisto a directivos de finanzas, emprendedores y profesores universitarios.',
+        pide: '¿Qué número cuenta aquí? Personas alcanzadas no: eso es vanidad. Sirve, por ejemplo, cuántas entrevistas has hecho, cuántas se publicaron, o cuánta gente te ha escrito a raíz de un video (y cómo lo sabes).'
+      },
+      {
+        id: 'singapur',
+        hueco: null,
+        rol: 'Participante, y ponente en la NUS',
+        org: 'Green Technology Programme, BlueSky Education — Singapur',
+        cuando: '2026',
+        accion: 'Dos semanas de programa; presenté sobre México a estudiantes de la National University of Singapore, participé en la limpieza de playa y conseguí y conduje yo mismo las entrevistas.',
+        resultado: 'Un premio en el GreenTech Summit 2026 con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia (capítulo «Premios»).',
+        quien: 'Lloyd George, CEO de TAQ Pte Ltd, y Andy Toh, de BlueSky Education. Las dos cartas están en «Cartas de recomendación», cada una con el contacto que dio quien la firma.',
+        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
+      }
+    ]
+  },
+
+  // Ver la nota larga de la tabla inglesa. Las dos citas de requisitos van
+  // EN INGLÉS también aquí (con `lang="en"` en el marcado): son verbatim de
+  // páginas oficiales, y traducir una cita la deja de ser cita.
+  acad: {
+    lede: 'Lo primero que pregunta cualquier solicitud, y hasta hoy esta página no lo contestaba. Lo que se puede comprobar está aquí; lo que falta está marcado como que falta.',
+    escuelaH: 'Dónde estudio',
+    escuela: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business.',
+    escuelaCuando: '2024–2027',
+    inglesH: 'Inglés',
+    ingles: 'B2 First Certificate, Cambridge English. Grade C, puntaje global 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examen del 19 de noviembre de 2024.',
+    inglesTag: 'De mi propio certificado',
+    inglesFalta: 'Todavía no alcanza, y esta página lo dice en vez de dejar el renglón como si estuviera cerrado. La University of Toronto no acepta el B2 First con ningún puntaje; UBC sí lo acepta, pero desde 180, y yo tengo 163. O sea que me falta presentar otro examen.',
+    fuentesH: 'Consultadas el 31 de agosto de 2026',
+    inglesFuentes: [
+      {
+        que: 'University of Toronto — «Results from the B2 First exam are not accepted (regardless of the result achieved).» C1 Advanced o C2 Proficiency: 180 global y mínimo 170 por componente. TOEFL iBT 89 con 22 en Speaking y Writing; IELTS Academic 6.5 sin banda bajo 6.0; Duolingo 120; PTE Academic 65.',
+        url: 'https://future.utoronto.ca/apply/english-language-requirements/'
+      },
+      {
+        que: 'UBC Vancouver — Cambridge English Qualifications (B2 First, C1 Advanced, C2 Proficiency): 180 para admisión de licenciatura.',
+        url: 'https://vancouver.calendar.ubc.ca/admissions/english-language-admission-standard/english-language-proficiency-tests'
+      }
+    ],
+    notaH: 'Por qué los recuadros de abajo están vacíos en vez de no estar',
+    nota: 'Rotman Commerce publica que «our students are generally in the top 5% of their class», y pide un promedio de mid-high 80s con atención especial a inglés y cálculo. Ivey pide un promedio de low 90% incluyendo inglés; Schulich, cálculo con al menos 70 %. Son números que solo puedo dar yo, así que están marcados como que faltan en vez de no aparecer.',
+    notaFuente: 'rotmancommerce.utoronto.ca — What we look for',
+    notaUrl: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/'
   },
 
   certs: {
@@ -1627,6 +2115,29 @@ const es: typeof en = {
         alt: 'Certificado de Cambridge English que acredita que Jaime Sandoval Ricaño obtuvo Grade C en el First Certificate in English, nivel B2 del Consejo de Europa, con una puntuación global de 163.'
       }
     ]
+  },
+
+  // Ver la nota larga de la tabla inglesa: sección propia porque Ivey evalúa
+  // los premios aparte, y el descargo se dice una vez y en mono.
+  premios: {
+    lede: 'Un premio no es un curso, así que va aparte. Los cursos que terminé están en «Certificaciones»; esto es lo que alguien me dio por competir.',
+    entregadosH: 'Lo que tengo',
+    faltanH: 'Espacio para más',
+    campos: 'Premio · quién lo da · año · por qué',
+    slot: 'Espacio reservado para el siguiente premio.',
+    tag: 'Premio por llegar',
+    fuenteTag: 'Única fuente: la carta de Lloyd George, en «{s}»',
+    entregados: [
+      {
+        que: 'Un premio en el GreenTech Summit 2026, en Singapur, con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
+        // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
+        // salía «GreenTech Summit 2026 · 2026».
+        de: 'GreenTech Summit',
+        anio: '2026',
+        nota: 'Nunca lo publiqué — ni en mi LinkedIn ni en mi TikTok. Está aquí porque alguien más lo escribió y lo firmó.'
+      }
+    ],
+    docPend: 'El certificado o diploma, cuando me lo manden BlueSky Education o Lloyd George.'
   },
 
   cartas: {
@@ -1695,12 +2206,8 @@ const es: typeof en = {
       { que: 'Trabajo en español, inglés y francés.', cita: '', quien: 'Lloyd George' },
       { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y', cita: 'performed particularly well in both his project and presentation', quien: 'Andy Toh' }
     ],
-    premio: {
-      h: 'Un premio que nunca publiqué',
-      que: 'Un premio en el GreenTech Summit 2026, con mi equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
-      tag: 'Única fuente: la carta de Lloyd George',
-      nota: 'Esto no está en mi LinkedIn ni en mi TikTok — nunca lo publiqué. Está aquí porque lo escribió y lo firmó alguien más, y esta página lo dice en vez de hacerlo pasar por algo que yo publiqué.'
-    },
+    // El premio se mudó a su propio capítulo (`premios`) el 2026-08-31: ver
+    // la nota de la tabla inglesa.
     fuenteCarta: 'Fuente de tercero: la carta de {n}, en «{s}».'
   },
 
@@ -1784,7 +2291,64 @@ const es: typeof en = {
     servirAnimales: {
       que: 'Los animalitos, con mis palabras',
       pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
-    }
+    },
+
+    // ── LOS TRES DEL RENGLÓN ACADÉMICO (ola 2) ────────────────────────────
+    acadPromedio: {
+      que: 'Mi promedio, y mi posición en la clase si la sé',
+      pista: '¿Cuál es tu promedio general del bachillerato hasta hoy, y en qué escala está (Tec usa 0-100)? Si tu escuela publica tu posición en la clase o tu percentil, ponlo también; si no lo sabes, se pregunta en servicios escolares. Rotman dice que sus alumnos «están generalmente en el 5 % más alto de su clase», así que este número decide más que cualquier otra cosa de esta página.'
+    },
+    acadCalculo: {
+      que: 'Cálculo: si mi plan lo incluye, y con qué calificación',
+      pista: '¿Tu plan Multicultural 2024-2027 incluye cálculo? Si sí: en qué semestre lo llevas o lo llevaste y con qué calificación. Si no lo incluye, ¿qué materia de matemáticas es la más avanzada de tu plan? PREGÚNTALO EN LA ESCUELA ANTES DE OCTUBRE: Rotman exige que el expediente muestre que estás INSCRITO en los cursos requeridos para dar una oferta condicional, y Schulich pide cálculo (MCV4U) con al menos 70 %.'
+    },
+    acadIngles: {
+      que: 'El examen de inglés que me falta: cuál, y cuándo',
+      pista: '¿Cuál vas a presentar y qué fecha tienes agendada? Los objetivos, de las páginas oficiales: C1 Advanced 180 con mínimo 170 por componente · TOEFL iBT 89 con 22 en Speaking y Writing · IELTS Academic 6.5 sin banda bajo 6.0 · Duolingo 120 · PTE Academic 65. El propio Road to College del Tec ofrece certificaciones de idiomas: es la vía institucional y es por donde conviene preguntarlo.'
+    },
+
+    // ── UN CONTRATIEMPO POR CAPÍTULO (ola 2) ──────────────────────────────
+    // Ver la nota larga de la tabla inglesa: la rúbrica de Queen's pide el
+    // hecho Y la corrección de rumbo. No hay uno en las cartas a propósito.
+    contraExp: {
+      que: 'La experiencia que no funcionó, y qué cambié',
+      pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen’s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
+    },
+    contraAcad: {
+      que: 'La materia o el examen que salió mal, y qué cambié',
+      pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English del B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
+    },
+    contraServir: {
+      que: 'El día que el voluntariado no salió como estaba planeado, y qué cambié',
+      pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
+    },
+    contraProyectos: {
+      que: 'Qué se rompió en el grupo o en la tienda, y qué cambié',
+      pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
+    },
+    contraGente: {
+      que: 'La entrevista o el video que salió mal, y qué cambié',
+      pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
+    },
+    contraReto: {
+      que: 'La operación o el análisis que me salió al revés, y qué cambié',
+      pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
+    },
+    contraCerts: {
+      que: 'El curso o el examen que dejé o reprobé, y qué cambié',
+      pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
+    },
+    contraPremios: {
+      que: 'Un concurso que no gané, y qué cambié',
+      pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
+    },
+
+    // ── LOS CUATRO DEL BLOQUE DE EXPERIENCIA EN FORMATO DE SOLICITUD ──────
+    // La pregunta exacta de cada uno vive en `expApp.filas[].pide`.
+    expGrupo: { que: 'Resultado y referee — la comunidad estudiantil', pista: 'Ver expApp.filas → grupo.' },
+    expSitio: { que: 'Resultado y referee — smartfinance.lat', pista: 'Ver expApp.filas → sitio.' },
+    expJasa: { que: 'Resultado y referee — Jasa Motor', pista: 'Ver expApp.filas → jasa. OJO: el referee NO puede ser su papá (UBC prohíbe familiares).' },
+    expTiktok: { que: 'Resultado — el canal y las entrevistas', pista: 'Ver expApp.filas → tiktok.' }
   },
 
   suyo: {
@@ -1802,7 +2366,23 @@ const es: typeof en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
-    servirAnimales: ''
+    servirAnimales: '',
+    // Los quince de la ola 2.
+    acadPromedio: '',
+    acadCalculo: '',
+    acadIngles: '',
+    expGrupo: '',
+    expSitio: '',
+    expJasa: '',
+    expTiktok: '',
+    contraExp: '',
+    contraAcad: '',
+    contraServir: '',
+    contraProyectos: '',
+    contraGente: '',
+    contraReto: '',
+    contraCerts: '',
+    contraPremios: ''
   },
 
   voz: {

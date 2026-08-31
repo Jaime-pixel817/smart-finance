@@ -367,7 +367,13 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
       var RED = matchMedia('(prefers-reduced-motion: reduce)');
       var vuelo = 0;
       document.addEventListener('click', function (ev) {
-        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"]') : null;
+        // `.cv-salto` entró con la franja de pruebas de la portada (ola 2):
+        // son enlaces a capítulos igual que los del índice, así que tienen
+        // que viajar por el MISMO camino. Dejarlos como anclas nativas los
+        // metía en el bug de arriba — dos clics seguidos y el segundo no
+        // desplaza —, y ahí el segundo clic es lo normal: la franja invita a
+        // mirar los certificados y volver por las cartas.
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"]') : null;
         if (!a) return;
         var h = a.getAttribute('href');
         var destino = document.getElementById(h.slice(1));

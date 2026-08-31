@@ -93,6 +93,20 @@ const SU_ES = /\bsus?\b/;
 // tienen varias cadenas cada una, y una de las seis que estaban mal era
 // justamente un `tipo` («al que entrevistó en Singapur»). Exentar la clave
 // entera habría dejado el agujero abierto; exentar el verbo exacto no.
+//
+// ── Y HAY UNA TERCERA PARTE OPCIONAL: `clave|verbo|fragmento` (2026-08-31)
+// La llegó a pedir la ola 2. Los ocho huecos de «qué salió mal y qué cambié»
+// son `que`, que es LA CLAVE MÁS REPETIDA DEL ARCHIVO —la usan los quince
+// huecos, las doce filas de experiencias y las siete certificaciones—, y en
+// cinco de ellos el verbo es «salió». Exentar `que|salió` a secas habría
+// abierto la puerta a que cualquier `que` futuro dijera «Jaime salió» sin que
+// nadie se enterara: la exención valdría para toda la clave.
+// Con la tercera parte, la exención solo vale si la cadena española CONTIENE
+// ese fragmento, o sea si es esta cadena y no otra. Las entradas de dos
+// partes siguen funcionando igual — se prueban primero — así que esto no
+// afloja nada de lo que ya estaba: solo permite ser MÁS preciso donde hace
+// falta. Añadir una excepción sin motivo escrito sigue siendo saltarse la
+// prueba a mano.
 const SUJETO_AJENO = new Map([
   ['cartaLloyd|escribió', 'el sujeto es Lloyd George: «el profesor que escribió esta carta»'],
   ['cartaAndy|escribió', 'el sujeto es Andy Toh: «el CEO que escribió esta carta»'],
@@ -100,8 +114,29 @@ const SUJETO_AJENO = new Map([
   ['toronto|reforzó', 'el sujeto es la visita: «esta visita reforzó algo…»'],
   ['playa|recordó', 'el sujeto es la experiencia: «una experiencia… que me recordó…»'],
   ['tipo|dejó', 'el sujeto es el Chief ETF Strategist: «lo que dejó…», título que publica el sitio'],
-  ['relacion|observó', 'el sujeto es Andy Toh: «me observó durante mi programa»']
+  ['relacion|observó', 'el sujeto es Andy Toh: «me observó durante mi programa»'],
+  // Los rótulos de los ocho huecos de contratiempo (ola 2). En los seis de
+  // abajo el sujeto es LA COSA que salió mal, no Jaime, y la mitad en primera
+  // persona de cada frase («y qué cambié») está ahí y es la que la rúbrica de
+  // Queen's pide. Los otros dos (`contraCerts`, `contraPremios`) no aparecen
+  // aquí porque su verbo español ya va en primera persona.
+  ['que|funcionó|La experiencia que no funcionó', 'el sujeto es la experiencia, no Jaime'],
+  ['que|salió|el examen que salió mal', 'el sujeto es la materia o el examen'],
+  ['que|salió|el voluntariado no salió', 'el sujeto es el voluntariado'],
+  ['que|rompió|Qué se rompió en el grupo', 'el sujeto es lo que se rompió, no Jaime'],
+  ['que|salió|el video que salió mal', 'el sujeto es la entrevista o el video'],
+  ['que|salió|el análisis que me salió al revés', 'el sujeto es la operación o el análisis']
 ]);
+
+/** ¿Está exento este (clave, verbo, cadena española)? */
+function exento(k, verbo, esp) {
+  if (SUJETO_AJENO.has(`${k}|${verbo}`)) return true;
+  const pre = `${k}|${verbo}|`;
+  for (const e of SUJETO_AJENO.keys()) {
+    if (e.startsWith(pre) && esp.includes(e.slice(pre.length))) return true;
+  }
+  return false;
+}
 
 // «su/sus» que son CORRECTOS porque lo poseído es de otra persona. Mismo
 // formato `clave|fragmento`, por el mismo motivo.
@@ -129,7 +164,7 @@ test('ninguna cadena española habla de Jaime en tercera persona cuando la ingle
     if (!PRIMERA_EN.test(ing)) continue;
     const verbo = esp.match(TERCERA_ES);
     if (!verbo) continue;
-    if (SUJETO_AJENO.has(`${k}|${verbo[0]}`)) continue;
+    if (exento(k, verbo[0], esp)) continue;
     fallos.push(`[${k}] «${verbo[0]}»\n    EN: ${ing}\n    ES: ${esp}`);
   }
   assert.deepEqual(
@@ -150,5 +185,28 @@ test('ninguna cadena española dice «su» donde la inglesa dice «my»', () => 
   assert.deepEqual(
     fallos, [],
     'el inglés dice «my» y el español «su». Si lo que posee es otra persona, añade la clave a POSEE_OTRO con su motivo.\n' + fallos.join('\n')
+  );
+});
+
+// LA EXCEPCIÓN QUE YA NO CORRESPONDE A NINGUNA CADENA ES UN AGUJERO CALLADO.
+// Con la tercera parte (`clave|verbo|fragmento`) esto se puede comprobar, y
+// hace falta: si alguien reescribe el rótulo del hueco y deja la exención,
+// la exención se queda ahí, sin coincidir con nada, esperando a cubrir una
+// cadena futura que sí esté mal. La prueba exige que cada fragmento siga
+// existiendo en la tabla española, o que se borre con su rótulo.
+test('cada excepción de SUJETO_AJENO con fragmento sigue casando con una cadena real', () => {
+  const huerfanas = [];
+  for (const e of SUJETO_AJENO.keys()) {
+    const partes = e.split('|');
+    if (partes.length < 3) continue;
+    const [k, , ...resto] = partes;
+    const frag = resto.join('|');
+    const cadenas = ES.get(k) || [];
+    if (!cadenas.some((esp) => esp.includes(frag))) huerfanas.push(e);
+  }
+  assert.deepEqual(
+    huerfanas, [],
+    'estas excepciones ya no casan con ninguna cadena española: o el rótulo cambió y hay que actualizarlas, o sobran. ' +
+    'Una exención huérfana no protege nada y sí puede cubrir una cadena futura que de verdad esté mal.\n' + huerfanas.join('\n')
   );
 });
