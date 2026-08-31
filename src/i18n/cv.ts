@@ -362,29 +362,23 @@ const en = {
     // Torre CN que hizo él), y la regla de Jaime es que ninguna imagen se
     // repite: aquí va el enlace y esta línea diciendo dónde está la foto.
     canadaNota: 'Its photo is the CN Tower one that opens this CV, in chapter 1 — it is not repeated here.',
-    // Los tres consejos sin imagen utilizable: fila seca con su enlace.
-    sinImagen: [
-      { id: '7654447626644933909', que: '“Your first investment should be in yourself”' },
-      { id: '7659438690179026196', que: '“Most people are waiting for the perfect moment. It doesn’t exist” — 4 habits' },
-      { id: '7661209936906521876', que: '“Most people wait until they feel ready. Start now”' }
-    ],
-    // El arco de Singapur. SOLO EL AÑO en pantalla (decisión de Jaime,
-    // 2026-08-28); las fechas exactas de cada vídeo están en su perfil.
-    arcoH: 'The Singapore arc',
-    arco: [
-      { cuando: '2026', que: 'Summer programme in Singapore' },
-      { cuando: '2026', que: 'Financial-data videos: Japan and Singapore' },
-      { cuando: '2026', que: 'Presentation about Mexico to National University of Singapore students' },
-      { cuando: '2026', que: 'Interviews: Andy Toh (CEO, BlueSky Education) and Prof. Lloyd (NUS)' }
-    ],
-    arcoFuente: 'The whole arc is from 2026; each video, with its exact date, is on @smart.financee.',
-    // El cuadro del arco: el fotograma RESCATADO de la presentación en la
-    // NUS (vídeo 7658163945479408917) — venía girado 90° con el subtítulo
-    // quemado; el enderezado y el recorte que deja fuera el rótulo están
-    // explicados en build-photos.mjs (2026-08-29). El alt describe la
-    // imagen real, mirada, incluida la lámina que se lee en ella.
+    // ── LO QUE HABÍA DEBAJO Y YA NO ESTÁ (Jaime, 2026-08-30) ─────────────
+    // «abajo de eso hay más fechas con títulos, quítalos y pon de link a mi
+    // perfil de TikTok para ver todo mi contenido, con un botón ese, y nos
+    // ahorramos todos los textos con fechas».
+    // Debajo de los dos carruseles vivían DOS listas de renglones con año:
+    // los tres consejos sin imagen (`sinImagen`) y «El arco de Singapur»
+    // (`arcoH` + `arco` + `arcoFuente`), siete renglones que decían «2026»
+    // siete veces. Las dos se fueron enteras y en su sitio va UN botón al
+    // perfil, que es donde vive todo eso y más.
+    // LO QUE NO SE FUE ES LA FOTO. El cuadro rescatado de la presentación en
+    // la NUS vivía dentro del arco, pero Jaime pidió quitar TEXTOS CON
+    // FECHAS, no fotos —y su brief del 2026-08-28 pide justo lo contrario
+    // con las imágenes—, así que la figura se queda, ahora suelta. Lo único
+    // que pierde su pie es el «(2026)»: era una fecha más.
+    verTodo: 'See all my content',
     arcoImgAlt: 'Me, a microphone clipped to my collar, speaking beside a laptop showing a “Finance facts of Mexico” slide, in a lecture room at NUS',
-    arcoImgPie: 'The presentation about Mexico at NUS, a frame from my TikTok (2026)'
+    arcoImgPie: 'The presentation about Mexico at NUS, a frame from my TikTok'
   },
 
   // ---- Capítulo 7: la gente ----
@@ -527,6 +521,13 @@ const en = {
   // AEM, la firma CFA×Tec con Marg Franklin) entran con su año.
   exp: {
     lede: 'What, where, when — years only. This chapter and the next are the ones a committee scans.',
+    // ── PLEGADO DESDE EL 2026-08-30 ─────────────────────────────────────
+    // Jaime: «experience consume mucho, mejor que sea una cosa que diga view
+    // y ya se deslice toda mi experience». El rótulo es el suyo. `pista`
+    // lleva `{n}` y lo rellena el componente con `filas.length`: escrito a
+    // mano, el número mentiría en cuanto se añada una fila.
+    ver: 'View my experience',
+    pista: '{n} entries',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
@@ -1161,21 +1162,9 @@ const es: typeof en = {
       canada: '«Canada is not just beautiful it’s one of the smartest places in the w…» (en español: Canadá no solo es bonito, es uno de los lugares más inteligentes del m…) — cinco datos financieros de Canadá'
     },
     canadaNota: 'Su foto es la de la Torre CN que abre este CV, en el capítulo 1 — aquí no se repite.',
-    sinImagen: [
-      { id: '7654447626644933909', que: '«Your first investment should be in yourself»' },
-      { id: '7659438690179026196', que: '«Most people are waiting for the perfect moment. It doesn’t exist» — 4 hábitos' },
-      { id: '7661209936906521876', que: '«Most people wait until they feel ready. Start now»' }
-    ],
-    arcoH: 'El arco de Singapur',
-    arco: [
-      { cuando: '2026', que: 'Programa de verano en Singapur' },
-      { cuando: '2026', que: 'Vídeos de datos financieros: Japón y Singapur' },
-      { cuando: '2026', que: 'Presentación sobre México a estudiantes de la National University of Singapore' },
-      { cuando: '2026', que: 'Entrevistas: Andy Toh (CEO, BlueSky Education) y el profesor Lloyd (NUS)' }
-    ],
-    arcoFuente: 'Todo el arco es de 2026; cada vídeo, con su fecha exacta, está en @smart.financee.',
+    verTodo: 'Ver todo mi contenido',
     arcoImgAlt: 'Yo, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
-    arcoImgPie: 'La presentación sobre México en la NUS, un cuadro de mi TikTok (2026)'
+    arcoImgPie: 'La presentación sobre México en la NUS, un cuadro de mi TikTok'
   },
 
   entrevistas: {
@@ -1240,6 +1229,8 @@ const es: typeof en = {
 
   exp: {
     lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
+    ver: 'Ver mi experiencia',
+    pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },

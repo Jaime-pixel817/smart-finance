@@ -742,23 +742,59 @@ const resumenIndice = c.indice.resumen
     <span id={`${p}-cap-1`} class="cap-ancla" aria-hidden="true"></span>
   </header>
 
-  {/* ════ 02 · Experiencias — en seco, sin movimiento (casta 3) ══════════
+  {/* ════ 02 · Experiencias — PLEGADO, en seco, sin movimiento (casta 3) ══
        Jaime las quiere justo después de la frase: primero lo que ha hecho,
        después lo que ha construido. Este capítulo y las certificaciones son
-       los que un comité escanea, y por eso no se mueven. */}
+       los que un comité escanea, y por eso no se mueven.
+
+       ── SE PLIEGA DESDE EL 2026-08-30 ──────────────────────────────────
+       Jaime: «experience consume mucho, mejor que sea una cosa que diga view
+       y ya se deslice toda mi experience». Son doce renglones y ocupaban una
+       pantalla y media entre la frase de apertura y los voluntariados.
+
+       ES UN <details> NATIVO, sin una línea de JavaScript: es el único
+       plegable que funciona con el JS caído, que es la promesa de esta
+       página. Y por eso NO lleva `aria-expanded` escrito a mano — un
+       atributo fijo se quedaría en `false` para siempre y MENTIRÍA: el
+       `<summary>` ya expone el estado él solo (HTML-AAM lo mapea a `button`
+       con el `aria-expanded` que sale del `open` del `<details>`), así que
+       lo correcto aquí es no escribirlo. Mantenerlo sincronizado a mano
+       exigiría el JavaScript que este plegable existe para no necesitar.
+
+       EL `<summary>` NO CAMBIA SU `display`. Es el hallazgo del repo: con
+       `display: inline-flex` sobre el propio `<summary>`, Safari deja de
+       tratarlo como resumen y el plegable no abre. La fila en flex va en un
+       `<span>` DENTRO; el triángulo nativo se apaga con `list-style` y con
+       el pseudo de WebKit, que no tocan el `display`.
+
+       AL IMPRIMIR SE DESPLIEGA SIEMPRE (regla en el bloque de estilo): un
+       CV que se imprime con el capítulo de experiencia vacío no es un CV. */}
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
     <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.c2}</h2>
     <p class="cap-lede">{c.exp.lede}</p>
-    <ol class="lista-seca">
-      {c.exp.filas.map((f) => (
-        <li>
-          <span class="seca-cuando num">{f.cuando}</span>
-          <span class="seca-que">{f.que}</span>
-        </li>
-      ))}
-    </ol>
+    <details class="exp-plegable">
+      {/* La cuenta sale de la lista, no está escrita: una fila nueva la
+           actualiza sola. Y va DENTRO del rótulo accesible (no
+           `aria-hidden`) porque «12 renglones» es justo lo que le falta a
+           quien no ve el bloque para saber si le compensa abrirlo. */}
+      <summary class="exp-ver">
+        <span class="exp-ver-fila">
+          <span class="exp-ver-txt">{c.exp.ver}</span>
+          <span class="exp-ver-pista meta-mono">{c.exp.pista.replace('{n}', String(c.exp.filas.length))}</span>
+          <span class="exp-flecha" aria-hidden="true">↓</span>
+        </span>
+      </summary>
+      <ol class="lista-seca">
+        {c.exp.filas.map((f) => (
+          <li>
+            <span class="seca-cuando num">{f.cuando}</span>
+            <span class="seca-que">{f.que}</span>
+          </li>
+        ))}
+      </ol>
+    </details>
   </section>
 
   {/* ════ 03 · Servir — los voluntariados ════════════════════════════════
@@ -966,36 +1002,30 @@ const resumenIndice = c.indice.resumen
       ))}
     </ul>
 
-    {/* Los consejos sin imagen utilizable: fila seca con su enlace. */}
-    <ol class="lista-seca">
-      {c.tiktok.sinImagen.map((f) => (
-        <li>
-          <span class="seca-cuando num">2026</span>
-          <span class="seca-que">{f.que} <a class="hist-link" href={urlVideo(f.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a></span>
-        </li>
-      ))}
-    </ol>
-
-    <h4 class="etiqueta">{c.tiktok.arcoH}</h4>
-    <ol class="lista-seca">
-      {c.tiktok.arco.map((f) => (
-        <li>
-          <span class="seca-cuando num">{f.cuando}</span>
-          <span class="seca-que">{f.que}</span>
-        </li>
-      ))}
-    </ol>
-    <p class="pie">{c.tiktok.arcoFuente}</p>
-    {/* El cuadro de la presentación en la NUS, RESCATADO (2026-08-29): el
-         fotograma cosechado venía girado 90° y con el subtítulo del vídeo
-         quemado en medio — enderezado y recortado en build-photos.mjs (ahí
-         está la cuenta del recorte). Es la única presencia visual de ese
-         vídeo: la regla de «ninguna imagen dos veces» queda intacta. */}
+    {/* ── AQUÍ DEBAJO HABÍA SIETE RENGLONES CON AÑO. YA NO ────────────────
+         Jaime (2026-08-30): «abajo de eso hay más fechas con títulos,
+         quítalos y pon de link a mi perfil de TikTok para ver todo mi
+         contenido, con un botón ese, y nos ahorramos todos los textos con
+         fechas». Se fueron los tres consejos sin imagen y el bloque entero
+         de «El arco de Singapur» (encabezado, cuatro renglones y su línea de
+         fuente), que decía «2026» siete veces seguidas. En su sitio va UN
+         botón al perfil, que es donde vive todo eso.
+         LA FOTO DEL ARCO SE QUEDA. Vivía dentro de ese bloque, pero lo que
+         Jaime pidió quitar son TEXTOS CON FECHAS, no fotos — y su brief del
+         2026-08-28 pide lo contrario con las imágenes («usar todas las
+         posibles»). Así que el cuadro de la presentación en la NUS sigue
+         aquí, ahora suelto; lo único que perdió es el «(2026)» del pie. */}
     <figure class="arco-fig">
       <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="720" height="682" loading="lazy" decoding="async" /></span>
       <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
     </figure>
-    <p class="cap-frases">{c.tiktok.nota} <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.perfil} ↗</a></p>
+    <p class="cap-frases">{c.tiktok.nota}</p>
+    <p class="tt-cta">
+      <a class="cv-boton" href={TIKTOK} target="_blank" rel="noopener">
+        {c.tiktok.verTodo} <span aria-hidden="true">↗</span>
+      </a>
+      <span class="pie">{c.tiktok.perfil}</span>
+    </p>
   </section>
 
   {/* ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
@@ -2786,6 +2816,44 @@ const resumenIndice = c.indice.resumen
      .grupo-tec — figura suelta, pie debajo, ancho capado para que una foto
      casi cuadrada no se coma el capítulo. */
   .arco-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 440px; }
+
+  /* ---- EL BOTÓN DEL CV (Jaime, 2026-08-30: «con un botón ese») ----------
+     El primero de la página, y por eso hay estilo nuevo en vez de reutilizar
+     algo: el CV no tenía botones, solo `.hist-link` (texto subrayado) y las
+     flechas del carrusel. Este es la única llamada a la acción del
+     documento, así que va SOLO donde Jaime la pidió — si aparece un segundo,
+     que sea porque alguien decidió que el CV tiene dos acciones.
+
+     Es la pastilla del selector de idioma llevada a papel: mismo radio de
+     999, mismo borde fino, mismo salto de tinta al pasar por encima. No lleva
+     fondo sólido a propósito — un botón relleno en medio de un documento de
+     tinta sobre papel se lee como un anuncio.
+     El alto mínimo es 44 px, que es el objetivo táctil de WCAG 2.5.8, y el
+     `--press` del sistema hace el hundido al tocar (con «menos movimiento»
+     vale 1 y no pasa nada). El anillo de foco lo pone `base.css` en
+     `outline`, así que aquí NO se declara ninguna sombra que pueda taparlo. */
+  .cv-boton {
+    display: inline-flex; align-items: center; gap: var(--sp-2);
+    min-height: 44px; padding: 0 var(--sp-5);
+    border: 1px solid var(--cvh-tinta-3); border-radius: 999px;
+    color: var(--cvh-tinta); text-decoration: none;
+    transition: transform var(--dur-1) var(--ease-std),
+                border-color var(--dur-1) var(--ease-std);
+  }
+  .cv-boton:hover { border-color: var(--cvh-tinta); }
+  .cv-boton:active { transform: scale(var(--press)); }
+  /* La fila del botón: el botón y, al lado, de qué perfil se trata. En
+     columna cuando no caben, que a 320 px es siempre. */
+  .tt-cta {
+    margin-top: var(--sp-4);
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: var(--sp-2) var(--sp-4);
+  }
+  /* Al imprimir, un botón no es un botón: es una dirección. El borde se
+     queda (marca dónde acaba) y la URL la escribe la regla global de
+     `a[href^="http"]::after` si la hubiera; aquí basta con que no parezca un
+     control muerto. */
+  @media print { .cv-boton { border-color: var(--cvh-raya); } }
   /* La captura de la tienda de Jasa Motor: misma receta que .grupo-tec, con
      el ancho más corto porque es una captura VERTICAL (4:5) y a 480 px se
      comería el bloque entero. */
@@ -2838,6 +2906,71 @@ const resumenIndice = c.indice.resumen
   .lista-seca li { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); padding: var(--sp-3) 0; border-top: 1px solid var(--cvh-raya); }
   .seca-cuando { flex: none; width: 11ch; color: var(--cvh-tinta-2); font-size: var(--fs-small); }
   .seca-que { flex: 1; min-width: min(28ch, 100%); color: var(--cvh-tinta); overflow-wrap: anywhere; }
+
+  /* ---- El plegable de las experiencias (Jaime, 2026-08-30) --------------
+     `<details>` nativo: abre sin JavaScript, con teclado (Enter y Espacio,
+     que el `<summary>` trae de fábrica) y con el estado expuesto solo.
+
+     EL `<summary>` NO CAMBIA SU `display`, Y ESA ES LA REGLA. Con
+     `display: inline-flex` encima, Safari deja de tratarlo como resumen y el
+     plegable no abre; la fila en flex va en `.exp-ver-fila`, que es un
+     `<span>` de dentro. Lo único que se toca del propio `<summary>` es el
+     triángulo nativo, con `list-style` y con el pseudo de WebKit — ninguno
+     de los dos toca el `display`. Si alguno de los dos fallara, lo peor que
+     pasa es que salga el triángulo del sistema junto a la flecha; nada se
+     rompe. */
+  .exp-plegable { max-width: 720px; }
+  .exp-ver {
+    list-style: none;
+    cursor: pointer;
+    padding: var(--sp-3) 0;
+    border-top: 1px solid var(--cvh-raya);
+    border-bottom: 1px solid var(--cvh-raya);
+  }
+  .exp-ver::-webkit-details-marker { display: none; }
+  .exp-ver-fila { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3); }
+  /* Subrayado como el «Ver el índice» de la portada: es el mismo gesto y se
+     tiene que leer como el mismo gesto. */
+  .exp-ver-txt { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
+  .exp-ver:hover .exp-ver-txt { color: var(--cvh-tinta-2); }
+  .exp-ver-pista { color: var(--cvh-tinta-2); }
+  /* La flecha empujada a la derecha: es la que dice que hay algo dentro. Gira
+     media vuelta al abrir — `transform`, o sea de las tres propiedades que el
+     compositor resuelve sin remedir la página (regla 1 de motion.css), y con
+     «menos movimiento» `--dur-2` vale .01 ms y el giro es instantáneo. */
+  .exp-flecha {
+    margin-left: auto; color: var(--cvh-tinta-2);
+    transition: transform var(--dur-2) var(--ease-std);
+  }
+  .exp-plegable[open] .exp-flecha { transform: rotate(180deg); }
+  /* LO QUE SE ANIMA AL ABRIR ES EL CONTENIDO, NO EL ALTO. Animar la altura
+     de un `<details>` remide la página en cada fotograma y empuja lo de
+     abajo; la regla 1 de motion.css lo prohíbe y con razón. Así que la
+     página crece de golpe —es la respuesta inmediata a un toque, que es lo
+     que se espera de un plegable— y lo que se mueve es la lista, que entra
+     con opacidad y `--rise`. En `reduce` las dos valen cero desde el token,
+     así que la lista aparece puesta y quieta, sin una regla más. */
+  .exp-plegable[open] .lista-seca { animation: exp-abre var(--dur-3) var(--ease-out) both; }
+  @keyframes exp-abre {
+    from { opacity: 0; transform: translateY(calc(var(--rise) * -1)); }
+  }
+  /* AL IMPRIMIR, ABIERTO SIEMPRE. Un CV impreso con el capítulo de
+     experiencia vacío no es un CV, y el navegador imprime el `<details>` tal
+     como esté en pantalla. Son DOS reglas porque hay dos mecanismos según el
+     motor: el viejo esconde los hijos que no son el resumen y el nuevo pone
+     `content-visibility: hidden` en `::details-content`. La segunda va en su
+     propio bloque con `@supports selector()`: un pseudo desconocido dentro
+     de una lista de selectores invalidaría la regla entera. */
+  @media print {
+    .exp-ver { display: none; }
+    .exp-plegable > :not(summary) { display: block !important; }
+    .exp-plegable[open] .lista-seca { animation: none; }
+  }
+  @supports selector(::details-content) {
+    @media print {
+      .exp-plegable::details-content { content-visibility: visible !important; }
+    }
+  }
 
   /* ---- La frase ---- */
   .cap-frase { justify-content: center; gap: var(--sp-6); }
