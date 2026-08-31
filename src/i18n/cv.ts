@@ -59,6 +59,20 @@ const en = {
   // «mi cifra de 2026» no dice si tiene una semana o diez meses.
   cifraSuya: 'My figure, 29 August 2026. This page does not count it: it is my claim.',
 
+  // EL AÑO EN DISPUTA, EN PANTALLA. Mismo recibo que `cifraSuya` y por el
+  // mismo motivo: 2025 es lo que dice Jaime («que la creé desde 2025 empecé»,
+  // 2026-08-30; «el grupo estudiantil lo creó a finales de 2025», 2026-08-29)
+  // y su LinkedIn publica otra cosa (MATERIAL.md, bloque C2: smartfinance.lat
+  // como feb. 2026, el grupo como ene. 2026). Estaba anotado SOLO en los
+  // comentarios de este archivo, o sea invisible para quien lee la página —
+  // y la página aplicaba dos criterios: sus cifras llevaban recibo y un año
+  // que su propio perfil público desmiente salía en seco, en la fila que un
+  // comité escanea primero y a dos capítulos del enlace «Verlo en LinkedIn».
+  // NO RECONCILIA LAS DOS FECHAS. Los dos años podrían ser ciertos (empezar
+  // en 2025 y publicarlo en 2026), pero eso no lo ha dicho nadie, así que no
+  // se escribe: se ponen las dos y se dice de quién es cada una.
+  anioDisputa: 'The year is mine: I started in 2025. My LinkedIn publishes different dates — smartfinance.lat as February 2026, the student group as January 2026. This page writes what I say and shows you the difference; it does not decide which one is right.',
+
   // ---- Marca de hueco ----
   hueco: {
     tag: 'To write',
@@ -302,6 +316,10 @@ const en = {
     // dos años podrían ser ciertos (empezar en 2025 y publicar en 2026),
     // pero eso no lo dijo nadie y no se escribe. NO borres esta nota sin su
     // respuesta.
+    // Y LA DISPUTA SE LEE EN PANTALLA, no solo aquí: justo debajo de este
+    // lede va `anioDisputa`, el mismo recibo en mono que llevan sus cifras.
+    // Estuvo anotada solo en este comentario —invisible para quien lee— y
+    // eso era el doble criterio que este archivo no se permite.
     lede: 'I started smartfinance.lat in 2025, to make finance easier to understand for any student. This is its home page.',
     // El pie de la captura del header. Dice QUÉ es y DE CUÁNDO: la imagen
     // lleva dentro precios y una hora, y sin fecha sería una lámina de
@@ -662,8 +680,11 @@ const en = {
       // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
       // empecé». Su LinkedIn publica el proyecto como «feb. 2026». Se pone
       // lo que él afirma, y se anota que hay una fuente pública suya que
-      // dice otra cosa. Está escrito igual en `prueba.lede`, que es donde el
-      // año se LEE en pantalla; las dos tienen que decir lo mismo.
+      // dice otra cosa. Está escrito igual en `prueba.lede`, que es el otro
+      // sitio donde el año se LEE en pantalla; las dos tienen que decir lo
+      // mismo. La anotación NO se queda en este comentario: `anioDisputa` la
+      // pinta al pie de estas filas, dentro del mismo plegable, para que
+      // quien ve el año vea también de quién es.
       { cuando: '2025', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
       { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
       { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
@@ -1171,6 +1192,9 @@ const es: typeof en = {
   docTitle: 'Jaime Sandoval Ricaño — Smart Finance',
 
   cifraSuya: 'Mi cifra, del 29 de agosto de 2026. Esta página no la cuenta: es mi afirmación.',
+
+  // Ver la nota de la tabla inglesa.
+  anioDisputa: 'El año es mío: empecé en 2025. Mi LinkedIn publica otras fechas — smartfinance.lat como feb. 2026 y el grupo estudiantil como ene. 2026. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 

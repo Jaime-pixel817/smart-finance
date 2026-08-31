@@ -801,6 +801,12 @@ const resumenIndice = c.indice.resumen
           </li>
         ))}
       </ol>
+      {/* EL RECIBO DEL AÑO EN DISPUTA. Dos de estas filas dicen 2025 —el
+           grupo estudiantil y smartfinance.lat— y el LinkedIn público de
+           Jaime dice ene. 2026 y feb. 2026. Va DENTRO del plegable, pegado
+           a las filas que afecta y no en la cabecera, y en mono como
+           `cifra-suya-marca`: es un recibo, no una frase del CV. */}
+      <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
     </details>
   </section>
 
@@ -1135,6 +1141,10 @@ const resumenIndice = c.indice.resumen
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
+        {/* El lede de aquí arriba es el OTRO sitio donde el 2025 se lee en
+             pantalla, así que lleva el mismo recibo que la tabla del
+             capítulo 2. Las dos tienen que decir lo mismo. */}
+        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
 
         {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
              header padre») ─────────────────────────────────────────────
