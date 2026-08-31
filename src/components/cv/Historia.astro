@@ -1147,9 +1147,17 @@ const resumenIndice = c.indice.resumen
           <p>{c.voz.jasa}</p>
         </blockquote>
         <p class="cap-frases">{c.proyectos.jasa}</p>
-        <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.jasa} />
-        </div>
+        {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
+             o la tienda en línea: una foto real o una captura» y ya hay
+             captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
+             en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
+             clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
+             corrigió Jaime — 2025, no 2026. */}
+        <figure class="jasa-fig">
+          <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
+            width="640" height="800" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
+        </figure>
         <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
       </div>
     </div>
@@ -2696,6 +2704,10 @@ const resumenIndice = c.indice.resumen
      .grupo-tec — figura suelta, pie debajo, ancho capado para que una foto
      casi cuadrada no se coma el capítulo. */
   .arco-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 440px; }
+  /* La captura de la tienda de Jasa Motor: misma receta que .grupo-tec, con
+     el ancho más corto porque es una captura VERTICAL (4:5) y a 480 px se
+     comería el bloque entero. */
+  .jasa-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 320px; }
   /* La foto del grupo al lado de su texto desde 44em (704 px con la letra por
      omisión). Debajo de eso, la foto encima del texto y a todo el ancho.
 

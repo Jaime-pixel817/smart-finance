@@ -79,7 +79,6 @@ const en = {
     playa1: 'Me picking up litter with the red bucket and the grabber, at the edge of the path. Photo 1 of the 3 on my LinkedIn.',
     playa2: 'The wide shot of the coastal park: the trees, the turquoise sea and a cargo ship on the horizon. Photo 2 of 3.',
     playa3: 'The same scene, wider: the rubbish truck behind, and the whole group of volunteers working by the sea. Photo 3 of 3.',
-    jasa: 'The shop or the online store: a real photo or a capture.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -225,7 +224,11 @@ const en = {
     // negocio (Cuautitlán, 20+ años) salen del propio sitio de la
     // refaccionaria. Pendiente de su revisión final, como todo voz.*.
     jasaH: 'Jasa Motor',
-    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store and I run its marketing.',
+    // EL AÑO ES 2025 y lo corrigió Jaime (2026-08-29): la tienda la creó en
+    // 2025, no en 2026 como decía la línea del capítulo de experiencias.
+    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store in 2025 and I run its marketing.',
+    jasaAlt: 'Home page of the Jasa Motor online store: the logo with a piston in the A, a search by make, model, year and engine, the “Refacciones para Motor” heading and the best-sellers grid with real prices.',
+    jasaPie: 'The store I built — tienda.jasamotor.com.mx (2025)',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -530,22 +533,32 @@ const en = {
       // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
       // él: es 2025, no 2026.
       { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
-      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
-      { cuando: '2026', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
-      { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
-      { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
-      { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
+      // ⚠️ EL AÑO DEL GRUPO ESTUDIANTIL ESTÁ EN DISPUTA Y NO LO RESUELVE
+      // ESTA PÁGINA. Jaime dijo el 2026-08-29 que lo creó «a finales de
+      // 2025»; su propio LinkedIn publica el grupo como «ene. 2026» y el
+      // proyecto smartfinance.lat como «feb. 2026». Aquí va 2025 porque es
+      // lo que él afirmó y es su vida, no la de este repositorio — pero es
+      // una contradicción REAL con una fuente pública suya, y hasta que él
+      // la aclare (corrigiendo el LinkedIn o corrigiendo esta línea) se
+      // queda anotada aquí. No la borres sin su respuesta.
+      { cuando: '2025', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
       // «One of his first», no «his first»: su post dice «one of my first
       // experiences attending a business conference» (MATERIAL.md LI-17).
       // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
-      { cuando: '2026', que: 'AEM General Assembly — one of my first business conferences and networking events' },
+      // EL AÑO ES 2025, corregido por Jaime el 2026-08-29 (iba como 2026).
+      { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
+      // 2025 también, y también corregido por él: «esta la creé en 2025».
+      { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
+      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
+      { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
+      { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
       // SIN el cargo de Marg Franklin: su post capturado (MATERIAL.md LI-20)
       // no dice «CEO of CFA Institute» — dice que la escuchó «leading one of
       // the most important organizations in the financial world» y que le
       // pidió consejo sobre estudiar en Canadá. El cargo exacto era una
       // anotación externa sin fuente en el material: fuera (2026-08-29).
       { cuando: '2026', que: 'Signing of the CFA Institute × Tec de Monterrey global agreement — asked Marg Franklin for advice on studying in Canada' },
-      { cuando: '2026', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — short financial-education videos, and the conversations of chapter 4' },
       { cuando: '2026', que: 'Reto Actinver — the calendar and the contest portfolio are in chapter 6' }
     ]
@@ -970,7 +983,6 @@ const es: typeof en = {
     playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
     playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
     playa3: 'La misma escena, más abierta: el camión de basura detrás y el grupo completo de voluntarios trabajando junto al mar. Foto 3 de 3.',
-    jasa: 'La refaccionaria o la tienda en línea: una foto real o una captura.'
   },
   clip: {
     tag: 'Falta el clip',
@@ -1033,7 +1045,9 @@ const es: typeof en = {
     grupoTecAlt: 'Dos estudiantes conversando delante de un cartel de la Bolsa Mexicana de Valores en el Tec',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
-    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea y llevo su marketing.',
+    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea en 2025 y llevo su marketing.',
+    jasaAlt: 'Portada de la tienda en línea de Jasa Motor: el logotipo con un pistón en la A, el buscador por marca, modelo, año y motor, el título «Refacciones para Motor» y la rejilla de los más vendidos con precios reales.',
+    jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx (2025)',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -1191,14 +1205,15 @@ const es: typeof en = {
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
+      // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
+      { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
+      { cuando: '2025', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
+      { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
       { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
-      { cuando: '2026', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
-      { cuando: '2026', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
       { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin sobre estudiar en Canadá' },
-      { cuando: '2026', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
     ]
