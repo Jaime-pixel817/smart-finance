@@ -486,6 +486,11 @@ const en = {
   //   sitio ya publica.
   // · Raúl Irabién — «Presidente de Grupos Estudiantiles» es el título de su
   //   propio TikTok; ese vídeo NO menciona al Tec, así que el Tec no va.
+  // · Prof. Lloyd — «CEO, TAQ Pte Ltd», la primera línea de su propia carta,
+  //   que esta página publica en el capítulo 8. Llevaba «National University
+  //   of Singapore», que la carta desmiente; la nota completa está junto a
+  //   su entrada, abajo. ESTA LISTA ES LA QUE MANDA: un `rol` que no aparezca
+  //   aquí con su fuente no debería estar lleno.
   // LA GRAFÍA ES «BlueSky Education», UNA PALABRA, Y LA DECIDIÓ JAIME
   // (2026-08-27). El sitio la escribía de tres maneras a la vez —«Blue Sky»
   // aquí, «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, o sea tres
@@ -533,7 +538,23 @@ const en = {
     // alt describe la imagen real (verificada mirándola), no la ficha.
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
-      lloyd: { nombre: 'Prof. Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Me, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
+      // ⚠️ EL ROL NO ES «National University of Singapore», y la fuente que
+      // lo desmiente ya está PUBLICADA EN ESTA MISMA PÁGINA. Su carta
+      // (capítulo 8) abre diciendo «I am the Chief Executive Officer of TAQ
+      // Pte Ltd […] Through an educational consultancy with Bluesky
+      // Education, I taught Jaime over two weeks on a Green Technology
+      // programme in Singapore». La NUS no sale ni una vez en la carta: lo
+      // único que dice de la NUS es que Jaime entrevistó a ESTUDIANTES de
+      // Business Administration de ahí. La afiliación venía del título que
+      // el propio Jaime le puso a su TikTok («Interviewing Professor Lloyd
+      // of the NUS», MATERIAL.md #16) y de su post («my NUS professor»), y
+      // se explica sola: el programa se impartió en el Shaw Foundation
+      // Alumni House, que está DENTRO del campus de la NUS. Dar clase en un
+      // campus no es ser de la casa. Y desde que la ficha de la carta dice
+      // que el «Prof. Lloyd» y Lloyd George son la misma persona, la página
+      // se contradecía a sí misma a dos capítulos de distancia.
+      // Se pone el cargo que firma él, y `tipo` explica el «Prof.».
+      lloyd: { nombre: 'Prof. Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'I call him “Prof. Lloyd” because he taught me for two weeks on the Green Technology programme in Singapore. He signs his letter — chapter 8 — as CEO of TAQ Pte Ltd.', alt: 'Me, in a green Mexico jersey, interviewing Prof. Lloyd beside the large NUS letters' },
       nus: {
         nombre: 'A student at NUS',
         rol: 'National University of Singapore',
@@ -1325,7 +1346,8 @@ const es: typeof en = {
     llevo: 'Lo que me llevé',
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
-      lloyd: { nombre: 'Profesor Lloyd', rol: 'National University of Singapore', tipo: '', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
+      // Rol corregido: ver la nota larga en la tabla inglesa.
+      lloyd: { nombre: 'Profesor Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'Le digo «profesor Lloyd» porque me dio clase dos semanas en el programa de Green Technology en Singapur. Su carta —capítulo 8— la firma como CEO de TAQ Pte Ltd.', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
       nus: {
         nombre: 'Una estudiante de la NUS',
         rol: 'National University of Singapore',
