@@ -67,11 +67,47 @@ const en = {
   // Marca de foto pendiente (FotoHueco.astro).
   fotoHueco: { tag: 'Photo to come' },
   // Qué foto falta en cada sitio. Instrucciones del hueco, no contenido.
+  // ══ LAS 13 FOTOS QUE JAIME MANDÓ POR CHAT EL 2026-08-30 ═══════════════
+  // TODAVÍA NO ESTÁN EN DISCO. Él dijo que las guardaría en
+  // cv-material/imagenes/nuevas/, y esa carpeta NO EXISTE aún — se comprobó.
+  // Así que aquí NO hay ni una ruta inventada: hay un hueco por foto, y cada
+  // uno dice EN PANTALLA cuál espera, con las palabras con las que él la
+  // describió. Cuando lleguen, colocarlas es: original a
+  // public/assets/cv-fotos/, una línea en scripts/build-photos.mjs, y cambiar
+  // el <FotoHueco> por su <img> en el sitio donde ya está reservado.
+  //
+  // EL MAPA QUE DIO ÉL, y dónde queda cada una en esta página:
+  //    1 · el profesor Lloyd      → `cartaLloyd`, bajo su carta (cap. 8)
+  //    1 · el CEO Andy Toh        → `cartaAndy`,  bajo su carta (cap. 8)
+  //    2 · la visita a Toronto    → `toronto`, junto a su cita sobre la U of T (cap. 1)
+  //  3,4,10 · playas y basura     → `playa1/2/3`, que YA existían (cap. 3)
+  //    5 · donando alimento       → `donacion` (cap. 3)
+  //    6 · los perritos           → `perritos` (cap. 3)
+  //    7 · Marg Franklin          → `marg` (cap. 4, con la gente que conoció)
+  //    8 · entrevistando en su prepa → SUSTITUYE la foto del grupo (cap. 5)
+  //    9 · narrando sobre el grupo → `grupoNarra` (cap. 5)
+  //   11 · él con Sol             → `sol`, que YA existía (cap. 4)
+  //   12 · explicándole a la NUS  → SUSTITUYE la del arco, con más calidad
+  //   13 · la marcha              → `marcha` (cap. 3)
+  //
+  // LAS DOS QUE NO SON HUECO SON SUSTITUCIONES (8 y 12): hoy esos dos sitios
+  // ya tienen foto, así que poner un recuadro punteado al lado diría que
+  // falta algo que no falta. Cuando lleguen se cambia el `src` y su `alt`;
+  // está escrito dónde, junto a cada <img> en Historia.astro.
   fotosPend: {
     origen: 'From when it started. Even blurry ones count.',
     research: 'Me working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
     sol: 'A portrait of Sol — or a frame from the march videos.',
+    // ── Las que Jaime mandó el 2026-08-30 y todavía no están en disco ────
+    cartaLloyd: 'A photo of me with Lloyd George, the professor who wrote this letter.',
+    cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
+    toronto: 'The day I visited Toronto.',
+    donacion: 'Me handing over the food I donated to the shelter.',
+    perritos: 'The dogs themselves.',
+    marcha: 'The march for street animals.',
+    marg: 'Me with Marg Franklin, CEO of the CFA Institute, at the signing.',
+    grupoNarra: 'Me talking to camera about the student group.',
     // TRES huecos, uno por foto, porque la publicación tiene TRES y están
     // descritas una por una en el material. Un solo hueco genérico decía
     // «faltan fotos»; tres dicen CUÁLES faltan, que es lo que hace falta
@@ -791,7 +827,10 @@ const en = {
           'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.',
           'What he has already achieved without institutional support indicates clearly what he will achieve with it.'
         ],
-        correo: 'Enquiries.TAQ@outlook.com'
+        correo: 'Enquiries.TAQ@outlook.com',
+        // Clave del hueco de la foto que va debajo (foto 1 del lote del
+        // 2026-08-30). NO es un archivo: es la clave de `fotosPend`.
+        foto: 'cartaLloyd' as const
       },
       {
         nombre: 'Andy Toh',
@@ -803,7 +842,8 @@ const en = {
           'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.',
           'His willingness to seek opportunities to learn and continually improve himself reflects a level of maturity and self-motivation that I believe will serve him extremely well at university.'
         ],
-        correo: 'Andy.toh@bluesky-education.com'
+        correo: 'Andy.toh@bluesky-education.com',
+        foto: 'cartaAndy' as const
       }
     ],
     tag: 'Letter to come',
@@ -1104,6 +1144,14 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
+    cartaLloyd: 'Una foto mía con Lloyd George, el profesor que escribió esta carta.',
+    cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
+    toronto: 'El día que visité Toronto.',
+    donacion: 'Yo entregando el alimento que doné al albergue.',
+    perritos: 'Los perritos.',
+    marcha: 'La marcha por los animales callejeros.',
+    marg: 'Yo con Marg Franklin, CEO del CFA Institute, en la firma.',
+    grupoNarra: 'Yo hablando a cámara sobre el grupo estudiantil.',
     playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
     playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
     playa3: 'La misma escena, más abierta: el camión de basura detrás y el grupo completo de voluntarios trabajando junto al mar. Foto 3 de 3.',
@@ -1413,7 +1461,10 @@ const es: typeof en = {
           'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.',
           'Lo que ya ha logrado sin apoyo institucional indica con claridad lo que logrará con él.'
         ],
-        correo: 'Enquiries.TAQ@outlook.com'
+        correo: 'Enquiries.TAQ@outlook.com',
+        // Clave del hueco de la foto que va debajo (foto 1 del lote del
+        // 2026-08-30). NO es un archivo: es la clave de `fotosPend`.
+        foto: 'cartaLloyd' as const
       },
       {
         nombre: 'Andy Toh',
@@ -1425,7 +1476,8 @@ const es: typeof en = {
           'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.',
           'Su disposición a buscar oportunidades para aprender y mejorar continuamente refleja un grado de madurez y automotivación que, en mi opinión, le servirá extremadamente bien en la universidad.'
         ],
-        correo: 'Andy.toh@bluesky-education.com'
+        correo: 'Andy.toh@bluesky-education.com',
+        foto: 'cartaAndy' as const
       }
     ],
     tag: 'Falta la carta',
