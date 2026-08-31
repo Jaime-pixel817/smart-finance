@@ -2341,8 +2341,16 @@ const resumenIndice = c.indice.resumen
          EXACTAMENTE lo que conduce el efecto— vale ese `clamp`, o sea entre
          250 y 330 px en cualquier pantalla, y el 36svh de en medio deja que
          siga escalando dentro de esa banda. En 390×844 son 304 px de pista
-         útil; medido sobre `dist`, la secuencia entera va del píxel 3 al 280
-         (**277 px de recorrido útil**, contra 435 antes). Un flick.
+         útil; medido sobre `dist`, el primer fotograma que se mueve es el del
+         píxel 4, el último incompleto el 279 y en el 280 están las ocho fases
+         al 100 % (**276 px de recorrido útil**, contra 435 antes). Un flick.
+         EL NÚMERO ES 276 Y NO 277: aquí ponía «del píxel 3 al 280 (277 px)» y
+         no cuadraba con lo medido. Vuelto a medir leyendo `getAnimations()` —
+         no `getComputedStyle`, que con animaciones conducidas por scroll
+         devuelve valores rancios en el hilo principal — con `scroll-behavior:
+         auto` forzado y esperando los 2 400 ms de la apertura, que si no se
+         mide un fotograma intermedio. Si vuelve a cambiar, este número y el
+         del párrafo de abajo se cambian LOS DOS.
 
          Y ESTA VEZ SÍ SE TOCAN LOS `animation-range`, que la vez anterior no
          se tocaron a propósito. La razón de entonces sigue siendo cierta —los
@@ -2353,7 +2361,7 @@ const resumenIndice = c.indice.resumen
          se queda casi entero y lo que se recorta es lo de alrededor: la
          entrada del señuelo, la cola del aro y el fundido de la tapa. El
          recorte pasa de 243 px a 188 px (−22 %) mientras el total baja de
-         435 a 277 (−36 %).
+         435 a 276 (−36.6 %).
          LA RELACIÓN QUE NO SE PODÍA PERDER se conservó a mano: la tapa muere
          en el 30 % y el recorte arranca en el 22 %, los mismos OCHO PUNTOS de
          solape de antes. Lo que importa de ese solape no son los puntos sino
@@ -2421,7 +2429,38 @@ const resumenIndice = c.indice.resumen
          BORDE DE ABAJO fijo (crece hacia arriba) y la de abajo con su borde
          de arriba (crece hacia abajo) — si el texto está al 200 %, la
          ventana no se mueve. Aparecen cruzándose con el fundido de la tapa,
-         que es el doble-expuesto del fotograma 6 de la referencia. */
+         que es el doble-expuesto del fotograma 6 de la referencia.
+
+         ⚠️ DEFECTO CONOCIDO, MEDIDO Y SIN ARREGLAR: «Jaime Sandoval» SE CORTA
+         POR ARRIBA cuando el hueco que queda sobre la tarjeta no da para el
+         nombre. Es consecuencia directa de este anclaje: `.intro-n1` cuelga su
+         borde de abajo de `--carta-top` y crece hacia arriba, así que cuando
+         el nombre ocupa más que `--carta-top` se sale de la pantalla y el
+         `overflow: clip` lo recorta.
+         Medido el 2026-08-31 sobre `dist`, en el FOTOGRAMA FINAL de cada
+         pantalla (el primer scrollY con las ocho fases al 100 %):
+             844×390  texto 100 %  →  se cortan 19.3 px   (teléfono de lado)
+             320×568  texto 200 %  →  se cortan 42.7 px
+             360×640  texto 200 %  →  se cortan 30.7 px
+             375×667  texto 200 %  →  se cortan 26.2 px
+         Y NO se corta en 390×844 (100 % y 200 %), 320×568 al 100 %, 430×932 al
+         200 %, 768×1024 ni 1280×800.
+         NO LO INTRODUCE LA OLA 2: este bloque, `--carta-*` y `.tarjeta-n` son
+         idénticos en 7e55def (comprobado con `git show`).
+         POR QUÉ NO SE ARREGLA AQUÍ. A 200 % el nombre PARTE EN DOS RENGLONES
+         (medido: 121.6 px en 320×568, que son dos líneas de 60.8), y cuántos
+         renglones ocupa no lo puede saber una hoja de estilos, así que un
+         suelo con `max()` sobre `--carta-top` no lo cierra: habría que dejar
+         que la composición REFLUYA — n1, ventana y n2 en columna centrada en
+         vez de tres posiciones absolutas colgadas de `--carta-top`. Eso
+         desacopla la geometría del nombre de la del `clip-path` de la tapa,
+         cambia la portada entera (que es lo más diseñado de la página y sale
+         de un vídeo que eligió Jaime) y obliga a volver a medir la transición
+         y `check-contraste-cv`. Es un cambio propio, con su medición, y con
+         los ojos de Jaime encima — no una línea de paso en un PR de otra cosa.
+         POR QUÉ NO LO VE NINGÚN GUARDIÁN: `check-reflow` mide desbordamiento
+         HORIZONTAL (WCAG 1.4.10) y esto se sale por ARRIBA; `check-contraste-cv`
+         mide tinta sobre foto, no si la caja cabe. */
       .intro-escena {
         display: block; position: absolute; inset: 0;
         animation: intro-tinta linear both;
