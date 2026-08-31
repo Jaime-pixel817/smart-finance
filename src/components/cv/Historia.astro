@@ -2958,7 +2958,10 @@ const resumenIndice = c.indice.resumen.replace('{n}', String(capitulos.length));
   .cita :global(.hueco) { border-color: rgba(255, 255, 255, .5); background: transparent; }
   .cita :global(.hueco-tag) { color: #FFB84D; }
   .cita :global(.hueco-que) { color: var(--cvh-tapa-tinta); }
-  .cita :global(.hueco-pista) { color: var(--cvh-tapa-tinta-2); }
+  /* `.hueco-pista` YA NO EXISTE en el DOM (Hueco.astro dejó de pintar la
+     pista el 2026-08-31), así que su regla para tarjeta oscura se va con
+     ella: una regla huérfana no se ve fallar, se lee como que el elemento
+     sigue ahí. Si la pista vuelve a pintarse algún día, vuelve esta línea. */
   .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
   .cita :global(.foto-hueco) { border-color: rgba(255, 255, 255, .5); }
   .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
