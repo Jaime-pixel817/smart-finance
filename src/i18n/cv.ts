@@ -71,7 +71,25 @@ const en = {
   // NO RECONCILIA LAS DOS FECHAS. Los dos años podrían ser ciertos (empezar
   // en 2025 y publicarlo en 2026), pero eso no lo ha dicho nadie, así que no
   // se escribe: se ponen las dos y se dice de quién es cada una.
-  anioDisputa: 'The year is mine: I started in 2025. My LinkedIn publishes different dates — smartfinance.lat as February 2026, the student group as January 2026. This page writes what I say and shows you the difference; it does not decide which one is right.',
+  //
+  // ── SON CINCO, NO DOS (2026-08-31) ────────────────────────────────────
+  // El recibo nombraba dos filas y en la página hay CINCO fechas de 2025, y
+  // las cinco son palabra suya. Son exactamente las cinco filas de `exp` que
+  // dicen 2025 —ninguna otra fila de la tabla lo dice—, así que el recibo
+  // puede señalarlas por su año sin marcar nada en la lista:
+  //   1 · grupo estudiantil     · LinkedIn lo publica como «ene. 2026»
+  //   2 · smartfinance.lat      · LinkedIn lo publica como «feb. 2026»
+  //   3 · Jasa Motor            · NO aparece en su LinkedIn (MATERIAL.md C2)
+  //   4 · asamblea de la AEM    · su publicación es de ~jun. 2026
+  //   5 · sesión con Jon Maier  · su publicación es de ~abr. 2026
+  // Las antigüedades salen de MATERIAL.md («hace ~2 meses» y «hace ~4
+  // meses», cosechado el 2026-08-27), y por eso el recibo dice que LAS
+  // PUBLICACIONES son de 2026 — no que los eventos lo fueran. Un evento de
+  // 2025 se puede publicar en 2026 y las dos cosas serían ciertas; eso no lo
+  // decide esta página. LO QUE NO SE HACE ES INVENTAR: donde no hay fuente
+  // pública (Jasa Motor) el recibo dice que no hay con qué comparar, y no se
+  // le pone un año de adorno ni se le quita el suyo.
+  anioDisputa: 'The five 2025 dates on this page are my word: the student group, smartfinance.lat, Jasa Motor, the AEM assembly and the session with Jon Maier. My LinkedIn publishes the group as January 2026 and smartfinance.lat as February 2026; my posts about the AEM and about that session are from 2026; Jasa Motor has no published date to compare against. This page writes what I say and shows you the difference; it does not decide which one is right.',
 
   // ---- Marca de hueco ----
   hueco: {
@@ -123,7 +141,8 @@ const en = {
   // foto; el hueco es honesto, pero conviene saber que nadie ha dicho que esa
   // foto exista.
   fotosPend: {
-    origen: 'From when it started. Even blurry ones count.',
+    // `origen` se fue el 2026-08-31: no lo usaba nadie desde que se
+    // colocaron las 12 fotos del lote. Texto muerto en las dos tablas.
     research: 'Me working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
     // EL HUECO DE SOL DICE POR QUÉ SIGUE VACÍO. Jaime mandó una foto suya en
@@ -180,14 +199,16 @@ const en = {
   },
 
   // ---- Índice y meta de la portada ----
-  // `resumen` es una PLANTILLA: {n} y {min} los rellena Historia.astro con
-  // la MISMA lista que numera las pantallas (capitulos.length) y con las
-  // palabras contadas de la copia real del panel. Antes decía «9 chapters ·
-  // about 7 minutes» escrito a mano, con ~2 650 palabras visibles en el
-  // panel (unos 13 minutos): una cifra inventada al lado de una numeración
-  // contada (2026-08-29).
+  // `resumen` es una PLANTILLA: {n} lo rellena Historia.astro con la MISMA
+  // lista que numera las pantallas (capitulos.length), así que un capítulo
+  // nuevo lo actualiza solo.
+  // {min} YA NO EXISTE (2026-08-31): el rótulo decía «about 18 minutes» a un
+  // lector que dispone de 4 a 9, y la cuenta sumaba `alt`, rótulos ARIA y
+  // pistas de huecos — el 22.6 % de sus palabras en inglés. El porqué, con
+  // los números, está en Historia.astro, encima de `resumenIndice`. Si
+  // vuelve, se cuenta lo PINTADO, no este objeto.
   indice: {
-    resumen: '{n} chapters · about {min} minutes',
+    resumen: '{n} chapters',
     ver: 'See the index',
     aria: 'Chapters of this page'
   },
@@ -344,7 +365,8 @@ const en = {
     // mismo criterio, para que la página no se contradiga a sí misma. Los
     // dos años podrían ser ciertos (empezar en 2025 y publicar en 2026),
     // pero eso no lo dijo nadie y no se escribe. NO borres esta nota sin su
-    // respuesta.
+    // respuesta. Desde el 2026-08-31 el recibo cubre las CINCO fechas de
+    // 2025 de la página, no solo esta y la del grupo.
     // Y LA DISPUTA SE LEE EN PANTALLA, no solo aquí: justo debajo de este
     // lede va `anioDisputa`, el mismo recibo en mono que llevan sus cifras.
     // Estuvo anotada solo en este comentario —invisible para quien lee— y
@@ -565,9 +587,22 @@ const en = {
     llevo: 'What I took from it',
     // ── FUENTE DE CADA FICHA (2026-08-28, MATERIAL.md fuera del repo) ────
     // · Mauricio Mercenario Nieto — «FX Sales & Trading» es el titular de su
-    //   propio LinkedIn (capturado en la evidencia); el podcast en dos partes
-    //   está en @smart.financee. Que fue su mentor lo dice JAIME en su
-    //   publicación de la AEM, y por eso va como cita en `tipo`, con marca.
+    //   propio LinkedIn (capturado en la evidencia); el podcast está en
+    //   @smart.financee. Que fue su mentor lo dice JAIME en su publicación de
+    //   la AEM, y por eso va como cita en `tipo`, con marca.
+    //   ⚠️ SON CUATRO PARTES, NO DOS (corregido el 2026-08-31). Aquí ponía
+    //   «dos» y era el único hecho comprobablemente falso de la página: la
+    //   propia tarjeta enlaza al vídeo titulado «Parte 4», así que quien
+    //   hiciera clic veía el número 4 debajo de la palabra «dos». Lo que hay
+    //   documentado en el material cosechado, con su id de TikTok:
+    //     · pt. 2 — 7660806476172184852, 2026-07-10 («pt. 2 de la entrevista
+    //       a @mauriciomercenario», en la descripción del clip descargado)
+    //     · pte. 3 — 7663530569631911188, 2026-07-17 (listado de la cosecha)
+    //     · Parte 4 — 7671351658227469588, 2026-08-07 (descripción del clip
+    //       descargado, y ES EL QUE ENLAZA ESTA TARJETA)
+    //   La 1 no está en la cosecha: se deduce de que él numeró la 2. La 4 es
+    //   la más alta publicada al 2026-08-31. Si sale una quinta, esto y las
+    //   dos cadenas `tipo` cambian de palabra; el número no se estima.
     // · La estudiante de la NUS — sin nombre publicado, y no se inventa: la
     //   ficha la nombra por lo que es. Su entrevista es el clip de «skills»
     //   que ANTES estaba en el capítulo del canal: Jaime avisó que es una
@@ -622,7 +657,7 @@ const en = {
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
-        tipo: 'A podcast in two parts — and, in my own words on LinkedIn, “his mentorship has played an important role in my development”.',
+        tipo: 'A podcast in four parts — and, in my own words on LinkedIn, “his mentorship has played an important role in my development”.',
         alt: 'Mauricio Mercenario and me seated in armchairs around a low table, recording the podcast'
       },
       podcast: {
@@ -688,6 +723,12 @@ const en = {
       // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
       // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
       // él: es 2025, no 2026.
+      // ⚠️ AÑO SUYO, Y HAY UNA FUENTE PÚBLICA CON OTRA FECHA. Su publicación
+      // de LinkedIn sobre esta sesión es la MÁS ANTIGUA de su historial y
+      // MATERIAL.md la fecha en «hace ~4 meses» sobre una cosecha del
+      // 2026-08-27, o sea ~abril de 2026. Publicar en 2026 un evento de 2025
+      // es posible y nadie lo ha desmentido: se pone el año que él afirma y
+      // el recibo `anioDisputa` lo dice. Estaba SIN anotar hasta 2026-08-31.
       { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
       // ⚠️ EL AÑO DEL GRUPO ESTUDIANTIL ESTÁ EN DISPUTA Y NO LO RESUELVE
       // ESTA PÁGINA. Jaime dijo el 2026-08-29 que lo creó «a finales de
@@ -702,8 +743,16 @@ const en = {
       // experiences attending a business conference» (MATERIAL.md LI-17).
       // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
       // EL AÑO ES 2025, corregido por Jaime el 2026-08-29 (iba como 2026).
+      // ⚠️ Misma situación que la fila de Jon Maier: su publicación de la AEM
+      // está fechada «hace ~2 meses» en MATERIAL.md (cosecha del 2026-08-27),
+      // o sea ~junio de 2026. Anotada desde el 2026-08-31 y recogida en
+      // `anioDisputa`.
       { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
       // 2025 también, y también corregido por él: «esta la creé en 2025».
+      // ⚠️ AQUÍ NO HAY FUENTE PÚBLICA NINGUNA: Jasa Motor no aparece en su
+      // LinkedIn (MATERIAL.md, bloque C2, verbatim: «Jasa Motor no aparece en
+      // ningún lado de su LinkedIn»). No es una contradicción, es un año sin
+      // contraste — y el recibo lo dice con esas palabras en vez de callarlo.
       { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
       // ⚠️ 2025 Y NO 2026, y es la MISMA disputa que la del grupo estudiantil
       // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
@@ -880,12 +929,26 @@ const en = {
   // traducción (`citaTag`), igual que las frases de `voz.*`.
   //
   // LOS HUECOS SIGUEN. Jaime dijo «todavía faltan varias, ahí vamos», así
-  // que los recuadros de las que faltan se quedan. Ya no hay hueco para el
+  // que el recuadro de lo que falta se queda. Ya no hay hueco para el
   // programa de Singapur: las dos cartas que llegaron son de ahí.
+  //
+  // ── UN HUECO, Y SIN NOMBRAR A QUIEN NO HA ESCRITO (2026-08-31) ─────────
+  // Aquí había DOS recuadros, y el primero decía «alguien que pueda
+  // responder por el grupo estudiantil y la prepa». O sea: este documento,
+  // cuyo objetivo declarado es que Prepa Tec CEM lo nomine, anunciaba por
+  // escrito que Prepa Tec CEM todavía no le ha escrito una carta — y lo
+  // anunciaba dos veces, en dos recuadros seguidos, justo antes de la frase
+  // final. Las dos cartas que SÍ están ya demuestran la honestidad; esos dos
+  // recuadros solo añadían una ausencia con destinatario.
+  // La regla que queda: **un hueco puede reservar sitio; no puede decir
+  // quién no lo ha llenado.** Por eso ahora es UNO, dice lo que es —espacio
+  // reservado para la siguiente carta— y `campos` sigue enseñando qué trae
+  // una carta cuando llega. No se inventa ninguna carta y no se disimula que
+  // faltan: el rótulo en ámbar sigue ahí, como en todos los huecos.
   cartas: {
     lede: 'Two have arrived. The letters themselves are not published here — they are documents for admissions committees. What is on this page is the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. One of the letters also gives a personal phone number; that one is not published.',
     entregadasH: 'Delivered',
-    faltanH: 'Still to come',
+    faltanH: 'Room for more',
     citaTag: 'The two lines that carry the most weight',
     // RÓTULO DEL CONTACTO. Dice DE DÓNDE sale: no es un correo que Jaime
     // haya buscado, es el que el propio firmante escribió en su carta
@@ -930,9 +993,9 @@ const en = {
     ],
     tag: 'Letter to come',
     campos: 'Name · role · relationship · contact',
+    // UN solo hueco, y sin nombrar a nadie. Ver la nota larga arriba.
     slots: [
-      'Someone who can answer for the student group and the school.',
-      'Someone who can answer for my financial-education work.'
+      'Space reserved for the next letter.'
     ],
     // ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
     // Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime. Ahora
@@ -1238,7 +1301,8 @@ const es: typeof en = {
   cifraSuya: 'Mi cifra, del 29 de agosto de 2026. Esta página no la cuenta: es mi afirmación.',
 
   // Ver la nota de la tabla inglesa.
-  anioDisputa: 'El año es mío: empecé en 2025. Mi LinkedIn publica otras fechas — smartfinance.lat como feb. 2026 y el grupo estudiantil como ene. 2026. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
+  // Ver la nota de la tabla inglesa: son las CINCO filas de 2025.
+  anioDisputa: 'Las cinco fechas de 2025 de esta página son palabra mía: el grupo estudiantil, smartfinance.lat, Jasa Motor, la asamblea de la AEM y la sesión con Jon Maier. Mi LinkedIn publica el grupo como ene. 2026 y smartfinance.lat como feb. 2026; mis publicaciones sobre la AEM y sobre esa sesión son de 2026; Jasa Motor no tiene fecha publicada con la que comparar. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 
@@ -1248,7 +1312,6 @@ const es: typeof en = {
   },
   fotoHueco: { tag: 'Falta la foto' },
   fotosPend: {
-    origen: 'De cuando empezó. Aunque estén movidas, cuentan.',
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
@@ -1287,8 +1350,9 @@ const es: typeof en = {
     carrusel: 'Carrusel de fotos'
   },
 
+  // Ver la nota de la tabla inglesa: {min} se fue el 2026-08-31.
   indice: {
-    resumen: '{n} capítulos · unos {min} minutos',
+    resumen: '{n} capítulos',
     ver: 'Ver el índice',
     aria: 'Capítulos de esta página'
   },
@@ -1461,7 +1525,7 @@ const es: typeof en = {
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
-        tipo: 'Un podcast en dos partes — y, con mis propias palabras en LinkedIn, «su mentoría ha jugado un papel importante en mi desarrollo».',
+        tipo: 'Un podcast en cuatro partes — y, con mis propias palabras en LinkedIn, «su mentoría ha jugado un papel importante en mi desarrollo».',
         alt: 'Mauricio Mercenario y yo sentados en sillones alrededor de una mesa baja, grabando el podcast'
       },
       podcast: {
@@ -1568,7 +1632,7 @@ const es: typeof en = {
   cartas: {
     lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión. En esta página va la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. Una de las cartas trae además un teléfono personal; ese no se publica.',
     entregadasH: 'Entregadas',
-    faltanH: 'Las que faltan',
+    faltanH: 'Espacio para más',
     // Las dos cartas están escritas en inglés: en este panel las citas van
     // TRADUCIDAS, y la marca lo dice, como con las frases de `voz.*`.
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
@@ -1607,13 +1671,12 @@ const es: typeof en = {
         lote: false
       }
     ],
-    tag: 'Falta la carta',
+    tag: 'Carta por llegar',
     campos: 'Nombre · cargo · relación · contacto',
+    // Ver la nota de la tabla inglesa: UN hueco, y no dice quién no ha
+    // escrito. «Falta la carta» pasó a «Carta por llegar» por lo mismo.
     slots: [
-      'Alguien que pueda responder por el grupo estudiantil y la prepa.',
-      // «MI trabajo», no «su»: el panel español va en primera persona desde
-      // el brief del 2026-08-27 y este renglón se había quedado en tercera.
-      'Alguien que pueda responder por mi trabajo de educación financiera.'
+      'Espacio reservado para la siguiente carta.'
     ],
     verificaH: 'Lo que las cartas verifican',
     verificaLede: 'Hasta que llegaron, lo de abajo era palabra mía. Ahora lo escribe y lo firma alguien de fuera de mi escuela y de mi familia.',

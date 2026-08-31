@@ -2,9 +2,11 @@
 // UN hueco del CV: el sitio donde va una frase que todavía no está escrita.
 //
 // La regla de este componente es la del apartado entero: si `c.suyo[id]` está
-// vacío se pinta el hueco, con el rótulo de qué falta y una pista de qué va
+// vacío se pinta el hueco, con el rótulo de qué falta y el título de lo que va
 // dentro; en cuanto esa cadena tiene texto, sale el texto y el hueco
-// desaparece. Nadie tiene que acordarse de quitar nada.
+// desaparece. Nadie tiene que acordarse de quitar nada. La `pista` de `cv.ts`
+// NO se pinta desde el 2026-08-31: es la instrucción para Jaime, y el porqué
+// está escrito abajo, encima del marcado.
 //
 // SE VE QUE FALTA. Un hueco que se disimula es peor que no tenerlo: alguien
 // mandaría el enlace creyendo que la página está terminada. Por eso el borde
@@ -49,21 +51,37 @@ const h = c.huecos[id];
      nombre de la región, palabra por palabra. Sin esto se anunciarían dos
      veces cada uno: una al entrar en la región y otra al leer su contenido.
      No se pierde nada — el nombre de una región se anuncia al entrar en
-     ella — y lo que queda dentro es lo único que el nombre no dice: la
-     pista. Ninguno de los dos es enfocable, así que aria-hidden aquí no
-     esconde nada del teclado.
+     ella —, y desde que la pista no se pinta, dentro del recuadro no queda
+     nada que el nombre no diga ya. Ninguno de los dos es enfocable, así que
+     aria-hidden aquí no esconde nada del teclado.
 
      LOS DOS PÁRRAFOS DE ARRIBA VIVEN AQUÍ, FUERA DEL TERNARIO: dentro de
      la expresión, un comentario en llaves deja de ser comentario de
      plantilla (es JS crudo y rompe el compilado), y en HTML se EMITÍA en
-     cada uno de los ~16 huecos de cada panel. */}
+     cada uno de los ~16 huecos de cada panel.
+
+     ── LA PISTA YA NO SE PINTA (2026-08-31) ──────────────────────────────
+     `h.pista` sigue en `cv.ts`, y sigue siendo para Jaime: es la instrucción
+     de qué escribir («De tres a cinco frases: de dónde te viene esa
+     frase…»). Lo que cambió es que dejó de salir EN PANTALLA. En la tercera
+     pantalla del documento, un lector que no es Jaime leía una nota de
+     trabajo dirigida a Jaime, y el hueco pasaba de «esto falta» a «esto es
+     un formulario a medio llenar». El hueco honesto es una virtud; enseñar
+     el guion editorial no lo es.
+     NO SE ESCONDE EL HUECO, se esconde la instrucción: el rótulo en ámbar y
+     el título siguen ahí, y el nombre accesible de la región sigue siendo
+     «Falta escribirlo: <título>». Un lector de pantalla oye lo mismo que
+     antes menos la nota interna.
+     Y NO SE PONE EN `visually-hidden`: eso la sacaría de la vista pero la
+     dejaría en el árbol de accesibilidad, o sea le leería la nota de trabajo
+     a quien navega con lector de pantalla y a nadie más. O se pinta para
+     todos o no se pinta: no se pinta. */}
 {texto ? (
   <p class:list={['cv-suyo', grande && 'cv-suyo-grande', cls]}>{texto}</p>
 ) : (
   <div class:list={['hueco', cls]} role="note" aria-label={`${c.hueco.tag}: ${h.que}`}>
     <p class="hueco-tag" aria-hidden="true">{c.hueco.tag}</p>
     <p class="hueco-que" aria-hidden="true">{h.que}</p>
-    <p class="hueco-pista t-small">{h.pista}</p>
   </div>
 )}
 
@@ -104,5 +122,4 @@ const h = c.huecos[id];
     color: var(--warn);
   }
   .hueco-que { color: var(--ink); font-weight: 600; }
-  .hueco-pista { color: var(--ink-2); }
 </style>

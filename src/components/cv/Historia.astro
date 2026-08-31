@@ -386,25 +386,30 @@ const fuenteCarta = (quien: string) =>
 
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
-// pantallas — y «{min} minutos» de contar las palabras de la copia real del
-// panel (`c` es de donde sale toda la PROSA pintada). A 200 palabras por
-// minuto, lectura adulta en silencio; las lecciones no tienen una constante
-// que reutilizar (su readingMinutes va escrito a mano en el frontmatter).
-// Contrastado contra la página pintada (2026-08-29, innerText del panel EN
-// en Chromium): 2 722 palabras visibles contra ~2 400 de esta cuenta — el
-// resto son fichas de la interfaz («01 / 09», los años sueltos, cifras
-// calculadas), que se miran, no se leen, así que quedarse con la prosa da
-// el estimado más honesto. Antes decía «about 7 minutes» a mano: una cifra
-// inventada al lado de una numeración contada.
-const palabras = (o: unknown): number =>
-  typeof o === 'string' ? (o.match(/\S+/g) || []).length
-  : Array.isArray(o) ? o.reduce((n: number, x) => n + palabras(x), 0)
-  : o && typeof o === 'object' ? Object.values(o).reduce((n: number, x) => n + palabras(x), 0)
-  : 0;
-const minutosLectura = Math.round(palabras(c) / 200);
-const resumenIndice = c.indice.resumen
-  .replace('{n}', String(capitulos.length))
-  .replace('{min}', String(minutosLectura));
+// pantallas. Es lo único que queda: una cuenta, de una lista, que no puede
+// desincronizarse.
+//
+// ── SE FUE EL RÓTULO DE MINUTOS (2026-08-31) ────────────────────────────
+// Decía «9 chapters · about 18 minutes» / «9 capítulos · unos 19 minutos»
+// (medido sobre `dist` en 0776bae; la propuesta de la ola 2 lo citaba como
+// 17 y ya había subido). Es la PRIMERA cifra que ve el lector y le dice
+// «esto te va a costar 18 minutos» a alguien que dedica entre 4 y 9 por
+// perfil — el rol de lector voluntario de UBC pide 10-15 solicitudes por
+// semana en 1-1.5 horas. Un número así no informa: cierra la pestaña.
+// Y ESTABA CONTANDO LO QUE NADIE LEE. La cuenta recorría el objeto `c`
+// entero, así que sumaba los `alt` de las fotos, los rótulos ARIA y las
+// pistas de los huecos: de las 3 611 palabras que sumaba en inglés, 816
+// (22.6 %) eran de esas tres cosas; en español, 872 de 3 721 (23.4 %).
+// Que el total se pareciera al de la página pintada (3 384 palabras de
+// `innerText` en inglés con el plegable de experiencia abierto) era una
+// casualidad: le sobraba casi un cuarto por un lado y le faltaba por el
+// otro todo lo que no vive en este objeto.
+// SE QUITA EN VEZ DE ARREGLARSE. Recontar solo lo visible daría 17, que
+// sigue siendo el doble de lo que ese lector tiene; y un CV no se lee de
+// corrido, se escanea. Los nueve capítulos con su índice ya dicen cuánto
+// hay. Si algún día vuelve, que salga de las palabras PINTADAS y no de este
+// objeto: `{min}` ya no existe en `indice.resumen`.
+const resumenIndice = c.indice.resumen.replace('{n}', String(capitulos.length));
 ---
 <div class="historia">
 
@@ -802,11 +807,15 @@ const resumenIndice = c.indice.resumen
           </li>
         ))}
       </ol>
-      {/* EL RECIBO DEL AÑO EN DISPUTA. Dos de estas filas dicen 2025 —el
-           grupo estudiantil y smartfinance.lat— y el LinkedIn público de
-           Jaime dice ene. 2026 y feb. 2026. Va DENTRO del plegable, pegado
-           a las filas que afecta y no en la cabecera, y en mono como
-           `cifra-suya-marca`: es un recibo, no una frase del CV. */}
+      {/* EL RECIBO DE LOS AÑOS QUE SOSTIENE SU PALABRA. CINCO de estas
+           filas dicen 2025 —Jon Maier, el grupo estudiantil, la AEM, Jasa
+           Motor y smartfinance.lat— y ninguna otra fila de la tabla lo dice,
+           así que el recibo las señala POR SU AÑO y la lista no lleva
+           ninguna marca encima: en el capítulo que un comité escanea
+           primero, cinco marcas serían cinco tropiezos. Va DENTRO del
+           plegable, pegado a las filas que afecta y no en la cabecera, y en
+           mono como `cifra-suya-marca`: es un recibo, no una frase del CV.
+           Hasta el 2026-08-31 nombraba solo dos de las cinco. */}
       <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
     </details>
   </section>
@@ -1166,9 +1175,10 @@ const resumenIndice = c.indice.resumen
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
-        {/* El lede de aquí arriba es el OTRO sitio donde el 2025 se lee en
-             pantalla, así que lleva el mismo recibo que la tabla del
-             capítulo 2. Las dos tienen que decir lo mismo. */}
+        {/* El lede de aquí arriba es otro de los tres sitios donde un 2025 se
+             lee en pantalla (los otros: la tabla del capítulo 2 y el bloque
+             de Jasa Motor, más abajo), así que lleva el mismo recibo. Los
+             tres pintan LA MISMA cadena: no pueden decir cosas distintas. */}
         <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
 
         {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
@@ -1311,6 +1321,14 @@ const resumenIndice = c.indice.resumen
           <p>{c.voz.jasa}</p>
         </blockquote>
         <p class="cap-frases">{c.proyectos.jasa}</p>
+        {/* EL TERCER SITIO DONDE SE LEE UN 2025 (2026-08-31). Este párrafo y
+             el pie de la captura dicen 2025, y ese año es de los cinco que
+             solo sostiene la palabra de Jaime — Jasa Motor ni siquiera
+             aparece en su LinkedIn. La tabla del capítulo 2 y el lede del
+             sitio ya llevaban el recibo; este no, y era el único año de la
+             página que salía en seco. Es LA MISMA cadena en los tres sitios:
+             si cambia, cambia en los tres a la vez. */}
+        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
         {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
              o la tienda en línea: una foto real o una captura» y ya hay
              captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
@@ -1394,8 +1412,11 @@ const resumenIndice = c.indice.resumen
           <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
           <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
         </p>
+        {/* UN hueco, no dos. Aquí había dos `FotoHueco` seguidos con el
+             MISMO texto: en pantalla, dos recuadros punteados idénticos, uno
+             debajo del otro, pidiendo la misma foto (2026-08-31). El de
+             research, dos bloques más abajo, siempre fue uno. */}
         <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.actinver} />
           <FotoHueco c={c} que={c.fotosPend.actinver} />
         </div>
       </div>
@@ -2461,11 +2482,31 @@ const resumenIndice = c.indice.resumen
          POR QUÉ NO LO VE NINGÚN GUARDIÁN: `check-reflow` mide desbordamiento
          HORIZONTAL (WCAG 1.4.10) y esto se sale por ARRIBA; `check-contraste-cv`
          mide tinta sobre foto, no si la caja cabe. */
+      /* ── LA TINTA NEGRA NO PUEDE LLEGAR ANTES QUE EL PAPEL ─────────────
+         Este es el nombre en NEGRO, el de la escena de papel. Iba de
+         `contain 26%` a `contain 58%` y llegaba a opacidad 1 mucho antes de
+         que el recorte hubiera convertido en papel la franja donde vive:
+         medido sobre `dist` a 390x844, la tinta asomaba en y=80, estaba al
+         100 % en y=180 y hasta y=248 seguía habiendo **68 px de letra negra
+         sobre la foto nocturna** (34 px de «Jaime Sandoval» arriba y 34 de
+         «Ricaño» abajo, de 34 que miden). Con opacidad ≥ 0.5 sobre foto:
+         264 px de scroll, casi un tercio de una pantalla de teléfono. En la
+         referencia de Ondo ese texto es blanco; aquí era negro sobre un
+         cielo azul oscuro y sobre los edificios encendidos.
+         EL 78 % NO ES UN NÚMERO ELEGIDO: es donde el recorte termina de
+         pasar por debajo del renglón de arriba. `recorteTop` va de 11.6 px
+         (contain 26.3 %) a 165.7 px (contain 84 %) de forma lineal, y el
+         borde de abajo de `.intro-n1` está en 150 px → contain 78.1 %. Antes
+         de ahí, pintar tinta negra a opacidad 1 es pintarla sobre la foto.
+         Y LA MESETA HACE LO OTRO MEDIO: la tinta sube a .22 enseguida (para
+         que el nombre no aparezca de golpe al final, que sería un salto) y
+         se queda ahí mientras el recorte trabaja; el tramo de .22 a 1 cae
+         entero en la cola, ya con papel debajo. */
       .intro-escena {
         display: block; position: absolute; inset: 0;
         animation: intro-tinta linear both;
         animation-timeline: --pista;
-        animation-range: contain 26% contain 58%;
+        animation-range: contain 26% contain 78%;
       }
       .intro-n1 {
         position: absolute; left: 0; right: 0;
@@ -2520,7 +2561,7 @@ const resumenIndice = c.indice.resumen
       @keyframes intro-senuelo { from { opacity: 1; } to { opacity: 0; } }
       @keyframes intro-n1 { from { transform: none; } to { transform: translateY(-.4em); } }
       @keyframes intro-n2 { from { transform: none; } to { transform: translateY(.4em); } }
-      @keyframes intro-tinta { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes intro-tinta { from { opacity: 0; } 12%, 62% { opacity: .22; } to { opacity: 1; } }
       @keyframes intro-aro {
         0% { opacity: 0; transform: scale(.7); }
         15% { opacity: .9; }
@@ -3322,8 +3363,22 @@ const resumenIndice = c.indice.resumen
      con animation-timeline: view(): cero JS, +149 B medidos, y sin soporte
      (Firefox estable) la foto se ve entera y quieta. Casta 3: titulares,
      listas secas y recibos NO se mueven.  */
-  /* Radio de tarjeta también en los marcos de foto (el lenguaje del brief). */
-  .recuerdo { display: block; overflow: hidden; border-radius: 14px; }
+  /* Radio de tarjeta también en los marcos de foto (el lenguaje del brief).
+     ── `clip` Y NO `hidden`, Y NO ES UN GUSTO (2026-08-31) ───────────────
+     `overflow: hidden` convierte a este `<span>` en CONTENEDOR DE SCROLL, y
+     un contenedor de scroll es lo que busca el `animation-timeline: view()`
+     ANÓNIMO de la imagen de dentro para resolverse. Lo encontraba: su propio
+     padre, que no scrollea nunca — así que la animación se quedaba clavada
+     en `progress: 0.5` y las fotos no se movían jamás.
+     LO PEOR ES QUE FALLABA PARECIENDO CORRECTA: 0.5 cae justo en la meseta
+     de estos keyframes (`45%, 55% { opacity: 1 }`), o sea foto entera y
+     quieta, que es exactamente el aspecto que tiene una degradación bien
+     hecha. Medido sobre `dist` a 390x844: las 15 `.recuerdo img` visibles
+     del panel daban progress 0.5 en las 26 muestras de un pase completo de
+     31 514 px. `overflow: clip` recorta igual, respeta el `border-radius` y
+     NO crea contenedor de scroll, así que el timeline sube hasta el
+     documento, que es el que se mueve. */
+  .recuerdo { display: block; overflow: clip; border-radius: 14px; }
   .recuerdo img { display: block; width: 100%; height: auto; }
 
   @supports (animation-timeline: view()) {
@@ -3335,10 +3390,20 @@ const resumenIndice = c.indice.resumen
     .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre {
       animation: frase-entra var(--dur-3) var(--ease-out) both;
       animation-timeline: view();
-      /* El tramo termina pronto a propósito: al llegar la sección al imán
-         (arriba de la pantalla) la entrada YA acabó, también con el texto al
-         200 % — `entry` se completa cuando la sección cubre el viewport. */
-      animation-range: entry 0% entry 30%;
+      /* ── EL TRAMO ERA TAN CORTO QUE NADIE LO VEÍA (2026-08-31) ────────
+         Ponía `entry 0% entry 30%` con este argumento: al llegar la sección
+         al imán, la entrada ya acabó. El imán se quitó, y medido sobre
+         `dist` a 390x844 ese 30 % se consume en **68 px de scroll** — de
+         y=30 748 a y=30 816. El bloque asoma por el borde inferior de la
+         pantalla en y=30 756, cuando la opacidad ya va por 0.47, y para
+         cuando se lee su primer renglón (y=30 792) va por 0.97. O sea: la
+         entrada corría entera antes de que hubiera nada que ver, y lo único
+         que llegaba a los ojos era el último 3 %.
+         `entry 100%` es el tramo completo: la animación termina cuando la
+         sección acaba de entrar, no en su primer sexto. Sigue cumpliendo lo
+         de arriba (con el texto al 200 % `entry` se completa igual, porque
+         se mide contra el viewport, no contra el largo del texto). */
+      animation-range: entry 0% entry 100%;
     }
   }
   @keyframes recuerdo {
