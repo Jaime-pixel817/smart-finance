@@ -679,7 +679,39 @@ const en = {
     slots: [
       'Someone who can answer for the student group and the school.',
       'Someone who can answer for my financial-education work.'
-    ]
+    ],
+    // ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
+    // Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime. Ahora
+    // los firma un tercero, así que se pueden AFIRMAR citando la carta — y
+    // en los sitios del CV donde ya estaban dichos con su voz, se les pone
+    // `fuenteCarta` debajo. La marca dice de QUIÉN es la carta: «un tercero»
+    // a secas no es una fuente, es un rumor con buena presentación.
+    verificaH: 'What the letters confirm',
+    verificaLede: 'Until these arrived, the facts below were my word. Now someone from outside my school and my family has written them down and signed them.',
+    verifica: [
+      { que: 'I founded the Smart Finance student organisation at my campus.', quien: 'Lloyd George' },
+      { que: 'I host a financial-education podcast in which I interview finance executives, entrepreneurs and university professors.', quien: 'Lloyd George' },
+      { que: 'In Singapore I arranged and conducted the interviews with business leaders and with Business Administration students from NUS myself — “entirely on his own steam”.', quien: 'Lloyd George' },
+      { que: 'I gave my time to community and environmental work in Singapore, “including a beach cleaning project during his stay”.', quien: 'Lloyd George' },
+      { que: 'I work in Spanish, English and French.', quien: 'Lloyd George' },
+      { que: 'At the Green Tech Youth Summit I developed a project and presented it, and “performed particularly well in both his project and presentation”.', quien: 'Andy Toh' }
+    ],
+    // ── EL PREMIO QUE ÉL NUNCA PUBLICÓ ──────────────────────────────────
+    // La carta de Lloyd George dice que Jaime y su equipo ganaron un premio
+    // en el GreenTech Summit 2026 contra estudiantes de Taiwán y Rusia. Se
+    // revisaron sus 21 publicaciones con imagen y los tres posts de Singapur
+    // una por una: NO está publicado en ninguna parte. Va con su marca
+    // diciendo exactamente eso, porque un premio del que la única fuente es
+    // una carta no se puede enseñar como si tuviera dos.
+    premio: {
+      h: 'An award I never posted',
+      que: 'An award at the GreenTech Summit 2026, with my teammates, competing against students from Taiwan and Russia.',
+      tag: 'Only source: Lloyd George’s letter',
+      nota: 'This is not on my LinkedIn and not on my TikTok — I never posted it. It is here because someone else wrote it down and signed it, and this page says so instead of passing it off as something I published.'
+    },
+    // Se pinta donde una afirmación de Jaime pasó a tener fuente de tercero.
+    // {n} es quien firma la carta y {s} el título de este capítulo.
+    fuenteCarta: 'Third-party source: {n}’s letter, in “{s}”.'
   },
 
   // ---- Capítulo 9: la frase ----
@@ -1217,7 +1249,26 @@ const es: typeof en = {
     slots: [
       'Alguien que pueda responder por el grupo estudiantil y la prepa.',
       'Alguien que pueda responder por su trabajo de educación financiera.'
-    ]
+    ],
+    verificaH: 'Lo que las cartas verifican',
+    verificaLede: 'Hasta que llegaron, lo de abajo era palabra mía. Ahora lo escribe y lo firma alguien de fuera de mi escuela y de mi familia.',
+    // Los entrecomillados son la frase EXACTA de la carta, en inglés; el
+    // resto va traducido.
+    verifica: [
+      { que: 'Fundé la organización estudiantil Smart Finance en mi campus.', quien: 'Lloyd George' },
+      { que: 'Conduzco un podcast de educación financiera en el que entrevisto a ejecutivos de finanzas, emprendedores y profesores universitarios.', quien: 'Lloyd George' },
+      { que: 'En Singapur organicé y conduje por mi cuenta las entrevistas con líderes de negocio y con estudiantes de Business Administration de la NUS — «entirely on his own steam».', quien: 'Lloyd George' },
+      { que: 'Di mi tiempo a trabajo comunitario y ambiental en Singapur, «including a beach cleaning project during his stay».', quien: 'Lloyd George' },
+      { que: 'Trabajo en español, inglés y francés.', quien: 'Lloyd George' },
+      { que: 'En el Green Tech Youth Summit desarrollé un proyecto y lo presenté, y «performed particularly well in both his project and presentation».', quien: 'Andy Toh' }
+    ],
+    premio: {
+      h: 'Un premio que nunca publiqué',
+      que: 'Un premio en el GreenTech Summit 2026, con mi equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
+      tag: 'Única fuente: la carta de Lloyd George',
+      nota: 'Esto no está en mi LinkedIn ni en mi TikTok — nunca lo publiqué. Está aquí porque lo escribió y lo firmó alguien más, y esta página lo dice en vez de hacerlo pasar por algo que yo publiqué.'
+    },
+    fuenteCarta: 'Fuente de tercero: la carta de {n}, en «{s}».'
   },
 
   frase: {

@@ -370,6 +370,18 @@ const capitulos = [
 // (2026-08-29). Si algún día hay 10+ capítulos, el formato ya está listo.
 const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capitulos.length).padStart(2, '0');
 
+// ── LA MARCA DE «ESTO LO FIRMA UN TERCERO» ──────────────────────────────
+// Se pinta donde una afirmación de Jaime pasó a tener fuente de fuera desde
+// que llegaron las cartas (2026-08-29). Nombra a QUIEN firma —«un tercero» a
+// secas no es una fuente— y manda al capítulo de las cartas POR SU TÍTULO,
+// no por su número: el número cambia si algún día se mueve un capítulo, el
+// título sale de la misma tabla que pinta el encabezado. Y no lleva enlace a
+// propósito: una navegación de ancla con `scroll-behavior: smooth` en vuelo
+// deja muerta a la siguiente, que es el bug del índice que ya costó una
+// tarde (ver la cabecera de Cv.astro).
+const fuenteCarta = (quien: string) =>
+  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.c8);
+
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
 // pantallas — y «{min} minutos» de contar las palabras de la copia real del
@@ -784,6 +796,10 @@ const resumenIndice = c.indice.resumen
              línea sale de su propia publicación sobre el voluntariado del
              curso de Green Technology. */}
         <p class="cap-frases">{c.servir.playa}</p>
+        {/* La limpieza de playa la firma ahora un tercero: la carta de Lloyd
+             George la nombra («including a beach cleaning project during his
+             stay»). Antes solo estaba su propia publicación. */}
+        <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
         <FotoHueco c={c} que={c.fotosPend.playas} />
         <Hueco c={c} id="servirPlayas" />
       </div>
@@ -825,6 +841,12 @@ const resumenIndice = c.indice.resumen
          Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
          afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
     <p class="pie">{c.entrevistas.aviso}</p>
+    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
+         organizó por su cuenta («entirely on his own steam») lo firma la
+         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
+         nadie: lo que la carta respalda es que las conversaciones son suyas,
+         no lo que dijeron los entrevistados. */}
+    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
 
     {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
          Tarjetas negras redondeadas en scroll horizontal con imán de eje X
@@ -983,6 +1005,10 @@ const resumenIndice = c.indice.resumen
                  va DEBAJO y en mono: es el recibo, no la frase. */}
             <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
             <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+            {/* Que FUNDÓ el grupo era palabra suya hasta el 2026-08-29: hoy
+                 lo firma la carta de Lloyd George. La cifra de arriba NO —
+                 esa sigue siendo suya y su marca lo sigue diciendo. */}
+            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
@@ -1309,6 +1335,35 @@ const resumenIndice = c.indice.resumen
           </figure>
         </article>
       ))}
+    </div>
+
+    {/* ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
+         Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime y que
+         ahora firma un tercero. Cada renglón dice QUIÉN lo firma: «un
+         tercero» a secas no es una fuente. En los sitios del CV donde esos
+         hechos ya estaban dichos con su voz hay una línea apuntando aquí.
+
+         Y APARTE, EL PREMIO. La carta de Lloyd George dice que Jaime y su
+         equipo ganaron en el GreenTech Summit 2026 contra estudiantes de
+         Taiwán y Rusia. Se revisaron sus 21 publicaciones con imagen y los
+         tres posts de Singapur uno por uno: NO está publicado en ninguna
+         parte. Por eso no va en la lista de arriba sino en su propio
+         recuadro, marcado con que su ÚNICA fuente es la carta. */}
+    <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
+    <p class="cap-lede">{c.cartas.verificaLede}</p>
+    <ul class="verifica">
+      {c.cartas.verifica.map((v) => (
+        <li class="verifica-fila">
+          <p>{v.que}</p>
+          <p class="meta-mono fuente-carta">{v.quien}</p>
+        </li>
+      ))}
+    </ul>
+    <div class="premio" role="note" aria-label={`${c.cartas.premio.h}: ${c.cartas.premio.tag}`}>
+      <p class="etiqueta premio-tag">{c.cartas.premio.tag}</p>
+      <h4 class="t-h4">{c.cartas.premio.h}</h4>
+      <p>{c.cartas.premio.que}</p>
+      <p class="pie">{c.cartas.premio.nota}</p>
     </div>
 
     <h3 class="t-h3 cartas-h">{c.cartas.faltanH}</h3>
@@ -2556,6 +2611,27 @@ const resumenIndice = c.indice.resumen
     border-left: 2px solid var(--cvh-raya);
   }
   .carta-cita cite { font-style: normal; }
+
+  /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
+     `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse
+     como la misma clase de cosa aunque digan lo contrario la una de la otra
+     (una dice «esto lo afirmo yo», la otra «esto lo firma otro»). */
+  .fuente-carta { color: var(--cvh-tinta-2); }
+
+  /* La lista de lo que las cartas verifican: un hecho por renglón con quien
+     lo firma debajo. No es una tabla: son seis frases sueltas. */
+  .verifica { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 720px; }
+  .verifica-fila { display: flex; flex-direction: column; gap: 4px; }
+  /* El premio: recuadro aparte, discontinuo y con la marca en ámbar — el
+     color con el que este sitio dice «ojo con esto». No es un hueco (el
+     hecho está), es un hecho con UNA sola fuente, y la forma lo dice antes
+     de que nadie lea la letra chica. */
+  .premio {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    border: 1px dashed var(--cvh-tinta-3); border-radius: 24px;
+    padding: var(--sp-5); max-width: 720px; margin-top: var(--sp-5);
+  }
+  .premio-tag { color: var(--warn); }
   .carta-hueco {
     display: flex; flex-direction: column; gap: var(--sp-2);
     padding: var(--sp-5);
