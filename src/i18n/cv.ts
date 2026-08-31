@@ -633,20 +633,51 @@ const en = {
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
-  // SECCIÓN NUEVA pedida por Jaime (2026-08-28), después de certificaciones.
-  // Hoy NO hay ninguna carta entregada, y esta sección no finge lo contrario:
-  // nace con el patrón de hueco honesto del CV — recuadros marcados con lo
-  // que falta (nombre, cargo, relación, contacto), listos para recibir cada
-  // carta cuando exista. NUNCA se inventa una carta ni un nombre. El formato
-  // de los campos es el que piden los programas canadienses que trabajan con
-  // referencias contactables.
+  // SECCIÓN NUEVA pedida por Jaime (2026-08-28). Nació vacía —tres recuadros
+  // marcados, ninguna carta— y el 2026-08-29 llegaron LAS DOS PRIMERAS.
+  //
+  // LOS PDF NO SE PUBLICAN, Y ESO NO ES PRUDENCIA: llevan el teléfono y el
+  // correo personales de quien firma. Son documentos para un comité de
+  // admisiones, que los recibe por su canal; colgarlos en una página web
+  // publicaría los datos de contacto de dos personas que no eligieron
+  // publicarlos. Aquí va la FICHA (quién, cargo, empresa, relación, año) y
+  // una frase corta entrecomillada de cada carta, marcada como cita de la
+  // carta. Los datos de contacto, nunca.
+  //
+  // LAS CITAS SON VERBATIM del PDF, en inglés, que es el idioma en que están
+  // escritas las dos. En el panel español van TRADUCIDAS y marcadas como
+  // traducción (`citaTag`), igual que las frases de `voz.*`.
+  //
+  // LOS HUECOS SIGUEN. Jaime dijo «todavía faltan varias, ahí vamos», así
+  // que los recuadros de las que faltan se quedan. Ya no hay hueco para el
+  // programa de Singapur: las dos cartas que llegaron son de ahí.
   cartas: {
-    lede: 'Recommendation letters, in the format committees can verify: name, role, relationship, and a way to reach the person. None has been delivered yet — these slots are waiting, and nothing here will ever be invented.',
+    lede: 'Two have arrived. The letters themselves are not published here: they are documents for admissions committees and they carry the signatories’ personal phone and email. What is on this page is the record — who, what role, what relationship, what year — and one short quote from each.',
+    entregadasH: 'Delivered',
+    faltanH: 'Still to come',
+    citaTag: 'From the letter',
+    entregadas: [
+      {
+        nombre: 'Lloyd George',
+        cargo: 'CEO, TAQ Pte Ltd',
+        donde: 'Singapore — biotechnology, healthcare management and green technologies',
+        relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy BlueSky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
+        anio: '2026',
+        cita: 'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.'
+      },
+      {
+        nombre: 'Andy Toh',
+        cargo: 'CEO, BlueSky Education',
+        donde: 'Singapore — the educational consultancy that runs the programme',
+        relacion: 'He observed me during my three-week programme in Singapore. He is the same Andy Toh I interviewed, and who is already on this site.',
+        anio: '2026',
+        cita: 'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.'
+      }
+    ],
     tag: 'Letter to come',
     campos: 'Name · role · relationship · contact',
     slots: [
       'Someone who can answer for the student group and the school.',
-      'Someone who can answer for the summer programme in Singapore.',
       'Someone who can answer for my financial-education work.'
     ]
   },
@@ -1157,12 +1188,34 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Cartas de recomendación, en el formato que un comité puede verificar: nombre, cargo, relación y una forma de contactar a la persona. Hoy no hay ninguna entregada — estos huecos esperan, y aquí nunca se inventará nada.',
+    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión y llevan el teléfono y el correo personales de quien firma. En esta página va la ficha —quién, cargo, relación, año— y una frase corta de cada una.',
+    entregadasH: 'Entregadas',
+    faltanH: 'Las que faltan',
+    // Las dos cartas están escritas en inglés: en este panel la cita va
+    // TRADUCIDA, y la marca lo dice, como con las frases de `voz.*`.
+    citaTag: 'Cita de la carta, traducida del inglés',
+    entregadas: [
+      {
+        nombre: 'Lloyd George',
+        cargo: 'CEO, TAQ Pte Ltd',
+        donde: 'Singapur — biotecnología, gestión sanitaria y tecnologías verdes',
+        relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa BlueSky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
+        anio: '2026',
+        cita: 'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.'
+      },
+      {
+        nombre: 'Andy Toh',
+        cargo: 'CEO, BlueSky Education',
+        donde: 'Singapur — la consultoría educativa que organiza el programa',
+        relacion: 'Me observó durante mi programa de tres semanas en Singapur. Es el mismo Andy Toh que entrevisté y que ya aparece en este sitio.',
+        anio: '2026',
+        cita: 'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.'
+      }
+    ],
     tag: 'Falta la carta',
     campos: 'Nombre · cargo · relación · contacto',
     slots: [
       'Alguien que pueda responder por el grupo estudiantil y la prepa.',
-      'Alguien que pueda responder por el programa de verano en Singapur.',
       'Alguien que pueda responder por su trabajo de educación financiera.'
     ]
   },

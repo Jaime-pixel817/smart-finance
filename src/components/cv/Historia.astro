@@ -1272,18 +1272,46 @@ const resumenIndice = c.indice.resumen
     </ul>
   </section>
 
-  {/* ════ 08 · Cartas de recomendación — huecos honestos, jamás inventos ═
-       SECCIÓN NUEVA (brief del 2026-08-28), después de las certificaciones y
-       antes de la frase. Hoy NO hay ninguna carta entregada y la sección lo
-       dice: tres recuadros con el patrón de hueco del CV, con los campos que
-       un comité puede verificar (nombre, cargo, relación, contacto). Cuando
-       exista una carta de verdad, su recuadro se rellena; hasta entonces, el
-       borde discontinuo dice que falta. NUNCA un nombre inventado. */}
+  {/* ════ 08 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
+       La sección nació vacía (brief del 2026-08-28) con tres recuadros
+       marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
+       dos mitades: las entregadas, con su ficha y una cita corta de la
+       carta, y los recuadros de las que faltan, que se quedan porque Jaime
+       dijo «todavía faltan varias, ahí vamos».
+
+       LOS PDF NO SE PUBLICAN y esto no es un descuido: llevan el teléfono y
+       el correo personales de quien firma. Va la ficha —quién, cargo,
+       empresa, relación, año— y la cita, marcada como cita de la carta. Los
+       datos de contacto, nunca. El hueco del programa de Singapur ya no
+       está: las dos cartas que llegaron son justo de ahí.
+
+       La cita es de un TERCERO, no de Jaime, así que no lleva la marca de
+       `voz.*` sino la suya, y va en <blockquote> con <cite> real. */}
   <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(7)}</p>
     <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
+
+    <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
+    <div class="cartas">
+      {c.cartas.entregadas.map((k) => (
+        <article class="carta">
+          <p class="carta-nombre">{k.nombre}</p>
+          <p class="etiqueta">{k.cargo}</p>
+          <p class="carta-donde pie">{k.donde}</p>
+          <p class="carta-anio num">{k.anio}</p>
+          <p class="carta-relacion">{k.relacion}</p>
+          <figure class="carta-cita">
+            <p class="meta-mono carta-cita-tag">{c.cartas.citaTag}</p>
+            <blockquote><p>{'“' + k.cita + '”'}</p></blockquote>
+            <figcaption class="pie">— <cite>{k.nombre}</cite></figcaption>
+          </figure>
+        </article>
+      ))}
+    </div>
+
+    <h3 class="t-h3 cartas-h">{c.cartas.faltanH}</h3>
     {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
          atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
     <div class="cartas">
@@ -2493,12 +2521,41 @@ const resumenIndice = c.indice.resumen
      copiar, y partible porque son 24 caracteres sin espacios. */
   .cert-cred { overflow-wrap: anywhere; }
 
-  /* ---- Cartas de recomendación: los tres huecos honestos ---- */
+  /* ---- Cartas de recomendación: las entregadas y los huecos ---- */
   .cartas {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
     gap: var(--sp-4); max-width: 960px;
   }
+  /* Los dos encabezados («Entregadas» / «Las que faltan») separan las dos
+     mitades. El primero va pegado al lede y el segundo respira más, que es
+     donde cambia de sentido la lista. */
+  .cartas-h { margin-top: var(--sp-5); }
+  /* La tarjeta de una carta ENTREGADA: tarjeta llena, como las de
+     certificaciones — borde continuo y papel. El borde discontinuo es del
+     hueco, y confundirlos sería decir que falta algo que ya está. */
+  .carta {
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-5); background: var(--cvh-papel);
+  }
+  .carta-nombre { font-weight: 600; font-size: var(--fs-h4, 1.05rem); }
+  .carta-donde, .carta-anio { color: var(--cvh-tinta-2); }
+  .carta-anio { font-size: var(--fs-small); }
+  .carta-relacion { color: var(--cvh-tinta); }
+  /* La cita: pegada al pie de la tarjeta, con su marca encima. Es de un
+     TERCERO, así que se lee distinto del resto — filete a la izquierda,
+     como las citas de todo el sitio. */
+  .carta-cita {
+    margin: auto 0 0; padding-top: var(--sp-3);
+    display: flex; flex-direction: column; gap: var(--sp-2);
+  }
+  .carta-cita-tag { color: var(--cvh-tinta-2); }
+  .carta-cita blockquote {
+    margin: 0; padding-left: var(--sp-3);
+    border-left: 2px solid var(--cvh-raya);
+  }
+  .carta-cita cite { font-style: normal; }
   .carta-hueco {
     display: flex; flex-direction: column; gap: var(--sp-2);
     padding: var(--sp-5);
