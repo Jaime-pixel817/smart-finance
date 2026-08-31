@@ -1173,13 +1173,13 @@ const en = {
     // cita es el original. Misma regla que la traducción de la frase final.
     peTag: '',
     // texto de Jaime (traducción), pendiente de su revisión final
-    dedicacion: '“I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
+    dedicacion: '“Private equity: I like the corporate side, and the research behind investing in companies. That is what I want to dedicate myself to.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    actinver: '“I want to represent my school, Prepa Tec CEM; to learn, to visit Actinver, to bring people from Actinver to give us talks, and to promote contests like this one so everyone joins in.”',
+    actinver: '“The Reto Actinver: I want to represent my school, Prepa Tec CEM; to learn from it, to visit Actinver, to bring people from Actinver to give us talks, and to help promote contests like this one so everyone joins in and learns.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    ensenar: '“I want to show myself as a student who wants to communicate finance to everyone. I am a kid who wants to share the advice and the motivation of important people, help guide others toward their vocation, and leave a little mark on everyone.”',
+    ensenar: '“I want to show myself as a student who wants to communicate finance and advice to everyone. I am a kid who wants to share the advice and the motivation of important people, and to help guide them toward knowing their vocation, to leave a little mark on everyone as much as I can.”',
     // texto de Jaime (traducción), pendiente de su revisión final
-    entrevistas: '“You can take something from everyone, because they are small experiences and different points of view.”',
+    entrevistas: '“I like interviewing all kinds of people, because you can take something from everyone — they are small experiences and different points of view.”',
     // texto de Jaime (traducción), pendiente de su revisión final
     servir: '“Helping my community, the animals, and cleaning up beaches.”',
     // ---- Jasa Motor ----
@@ -1763,14 +1763,32 @@ const es: typeof en = {
     pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. […]»',
     peFuente: 'De mi publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
     peTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    // ⚠️ LAS CUATRO CITAS DE ABAJO SE RESTAURARON EL 2026-08-31.
+    // La regla es «ortografía y puntuación se pueden pulir; el sentido no», y
+    // se habían caído trozos de contenido SIN el «[…]» que esta misma página
+    // usa para marcar un recorte (`voz.pe`, `voz.playa`). Cotejado con el
+    // original de Jaime que transcribe cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md:
+    //  · dedicación — faltaba «el private equity» al principio, que es de qué
+    //    está hablando;
+    //  · actinver — faltaban «yo ayudar a» (cambiaba su papel: de ayudar a
+    //    promover, a promover) y «y aprender» al final; «aprender» volvió a
+    //    ser «aprender de ello»;
+    //  · enseñar — faltaban «y consejos» y, sobre todo, «de lo que pueda»,
+    //    que convertía una frase modesta en una afirmación absoluta;
+    //  · entrevistas — faltaba la oración de apertura entera, la que dice qué
+    //    le gusta hacer: «me gusta entrevistar a todo tipo de personas».
+    // Lo pulido sigue siendo solo ortografía y puntuación (quein→quien,
+    // imoortante→importante, voacion→vocación, los acentos y las comas).
+    // «ayudarlos a guiarlos» se queda como lo escribió él: es su construcción,
+    // no una errata. Las inglesas son TRADUCCIÓN y van al día con estas.
     // texto de Jaime, pendiente de su revisión final
-    dedicacion: '«Me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
+    dedicacion: '«El private equity: me gusta lo corporativo y la investigación para inversión en empresas. Es a lo que me quiero dedicar.»',
     // texto de Jaime, pendiente de su revisión final
-    actinver: '«Quiero representar a mi prepa, el Tec CEM; aprender, visitar Actinver, traer gente de Actinver a que nos dé pláticas, y promover este tipo de retos para invitar a todos a sumarse.»',
+    actinver: '«El Reto Actinver: quiero representar a mi prepa, el Tec CEM; aprender de ello, visitar Actinver, traer gente de Actinver a que nos dé pláticas, y yo ayudar a promover este tipo de retos para invitar a todos a sumarse y aprender.»',
     // texto de Jaime, pendiente de su revisión final
-    ensenar: '«Quiero mostrarme como un estudiante que quiere comunicar finanzas a todos. Soy un niño que quiere compartir los consejos y la motivación de gente importante, ayudar a guiar a los demás hacia su vocación, y dejar una huellita en todos.»',
+    ensenar: '«Quiero mostrarme como un estudiante que quiere comunicar a todos finanzas y consejos. Soy un niño que quiere compartir los consejos y la motivación de gente importante, y ayudarlos a guiarlos para saber su vocación, dejar una huellita en todos de lo que pueda.»',
     // texto de Jaime, pendiente de su revisión final
-    entrevistas: '«Te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
+    entrevistas: '«Me gusta entrevistar a todo tipo de personas, ya que te puedes llevar algo de cada quien, porque son pequeñas experiencias y puntos de vista diferentes.»',
     // texto de Jaime, pendiente de su revisión final
     servir: '«Ayudar a mi comunidad, a los animalitos, y limpieza de playas.»',
     // ORIGINAL de Jaime (2026-08-28), con su ortografía: «es de mi familia y
