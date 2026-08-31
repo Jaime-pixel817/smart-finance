@@ -583,7 +583,22 @@ console.log('Jaime');
    *
    * LOS ANCHOS. Todas viven por debajo del pliegue y van `loading="lazy"`, así
    * que lo que se optimiza es el peso de quien LAS MIRA, no el de la primera
-   * carga. 560 para las que salen en rejilla de dos o tres columnas (la
+   * carga — CON UNA EXCEPCIÓN MEDIDA: la de Toronto está en el capítulo 1, a
+   * poco más de una pantalla del pliegue, y el umbral de `lazy` de Chrome en
+   * conexión lenta es de varios miles de píxeles, así que SÍ se baja dentro de
+   * la ventana crítica. Cuesta lo que pesa: el CV pasa de 0.98 a 0.97 de
+   * rendimiento y de 2 277 a 2 425 ms de LCP (mediana de 4 corridas alternadas
+   * de las DOS builds en la misma tanda, que es como manda medirlo el
+   * comentario de lighthouserc.json). El tope es 3 200 ms: quedan 775 de
+   * margen, y la ruta con menos margen del repo (/market/spy, 3 024) no la
+   * toca nada de esto. Se deja a 480 px a propósito — es la foto de su visita
+   * a Toronto justo al lado de su frase sobre querer estudiar ahí, en un CV
+   * dirigido a Toronto — y el coste queda escrito aquí en vez de descubierto
+   * dentro de seis meses. Bajarla a 400 px ahorraría 17.6 KB de los 56.9.
+   * PROBADO Y DESCARTADO: `fetchpriority="low"` en las once. No mueve la
+   * mediana (2 425 con y sin él, 4 corridas), porque el problema no es el
+   * ORDEN de la cola sino los bytes compitiendo por el ancho de banda
+   * estrangulado. Se quitó en vez de dejarlo de adorno. 560 para las que salen en rejilla de dos o tres columnas (la
    * rejilla mide 720 px como mucho, así que una columna de tres son ~224 px y
    * 560 cubre densidad 2), 480 para las dos que van capadas a 320 px de ancho
    * (Toronto y Marg Franklin) y 720 para las dos que salen solas y grandes.
