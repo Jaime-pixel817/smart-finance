@@ -1155,6 +1155,18 @@ const en = {
   }
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ESTA TABLA VA EN PRIMERA PERSONA, IGUAL QUE LA INGLESA. Es SU CV: la voz es
+// la suya, no la de alguien contando lo que hizo. El español lo pone fácil de
+// romper porque el pretérito de «yo» y el de «él» solo se distinguen por el
+// acento —doné/donó, entrevisté/entrevistó, pedí/pidió— y porque «su curso» y
+// «mi curso» se escriben casi igual; se colaron seis y ninguna se veía en la
+// tabla inglesa, que estaba bien. Antes de tocar una cadena de aquí: si la
+// gemela inglesa dice «I», esta tiene que decir «yo».
+// ÚNICA EXCEPCIÓN: los textos de `Hueco` hablan CON Jaime, no DE él, y por eso
+// van en segunda persona («de dónde te viene esa frase»). Son instrucciones
+// del hueco, no contenido del CV.
+// ═══════════════════════════════════════════════════════════════════════════
 const es: typeof en = {
   docTitle: 'Jaime Sandoval Ricaño — Smart Finance',
 
@@ -1356,7 +1368,7 @@ const es: typeof en = {
       jesus: {
         nombre: 'Un creador de contenido de EE. UU.',
         rol: '',
-        tipo: 'Un creador de contenido cristiano al que entrevistó en Singapur, como lo describe su propia publicación sobre el programa.',
+        tipo: 'Un creador de contenido cristiano al que entrevisté en Singapur, como lo describe mi propia publicación sobre el programa.',
         alt: 'Yo entrevistando al creador de contenido de EE. UU. al atardecer, con el horizonte de Marina Bay detrás'
       },
       maier: {
@@ -1386,9 +1398,9 @@ const es: typeof en = {
   },
 
   servir: {
-    animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevistó a Sol, su fundadora (2026).',
-    donacion: 'También donó alimento a un stand de adopción local y pasó el día con los voluntarios y los animalitos (2026).',
-    playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de su curso de Green Technology and Sustainable Ecology (2026).',
+    animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevisté a Sol, su fundadora (2026).',
+    donacion: 'También doné alimento a un stand de adopción local y pasé el día con los voluntarios y los animalitos (2026).',
+    playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de mi curso de Green Technology and Sustainable Ecology (2026).',
     playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de BlueSky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
     bloques: {
       animales: 'Los animalitos',
@@ -1405,13 +1417,13 @@ const es: typeof en = {
       { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
       { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
-      { cuando: '2025', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
+      { cuando: '2025', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
       { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
       { cuando: '2025', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
-      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pidió consejo a Marg Franklin sobre estudiar en Canadá' },
+      { cuando: '2026', que: 'Firma del acuerdo global CFA Institute × Tec de Monterrey — le pedí consejo a Marg Franklin sobre estudiar en Canadá' },
       { cuando: '2026', que: 'TikTok @smart.financee — videos cortos de educación financiera, y las conversaciones del capítulo 4' },
       { cuando: '2026', que: 'Reto Actinver — el calendario y la cartera del concurso están en el capítulo 6' }
     ]
