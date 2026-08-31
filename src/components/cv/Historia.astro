@@ -2046,33 +2046,46 @@ const resumenIndice = c.indice.resumen
         --carta-top: calc(42svh - var(--carta-h) / 2);
         --carta-r: clamp(20px, 6vw, 36px);
       }
-      /* ── LA PISTA MIDE 160svh, Y ESE NÚMERO ESTÁ MEDIDO ──────────────────
-         Medía 200svh, y con el lienzo clavado a 100svh el tramo `contain`
-         —que es lo que conduce TODO el efecto— valía 200 − 100 = 100svh:
-         una pantalla ENTERA de scroll. En el teléfono de Jaime (390×844) la
-         secuencia completa, del señuelo (2 %) al último fotograma del aro
-         (88 %), necesitaba **743 px de scroll**, o sea dos o tres
-         deslizamientos de pulgar. Él lo pidió en uno («que de un scroll se
-         haga la transición, no de varios»), y un swipe cómodo recorre
-         350–500 px.
-         Con 160svh el tramo `contain` pasa a 60svh (506 px a 844 de alto) y
-         la secuencia entera termina en **446 px**, con 435 px útiles. Un
-         deslizamiento.
+      /* ── EL RECORRIDO SE MIDE EN PÍXELES, NO EN PANTALLAS ────────────────
+         Historia de tres intentos, y el tercero cambia la UNIDAD, no el
+         número. La pista midió 200svh (tramo `contain` = 100svh = 743 px de
+         recorrido en 390×844: dos o tres deslizamientos) y luego 160svh
+         (`contain` = 60svh = 506 px; 435 px útiles, del señuelo en el 2 % al
+         último fotograma del aro en el 88 %). Jaime volvió a decir lo mismo
+         el 2026-08-30: «la transicion del header sigue igual, que sea con un
+         solo scroll se haga». O sea que 435 px TAMPOCO le caben en un gesto.
 
-         SE TOCA LA PISTA Y NO LOS `animation-range`, y la razón no es
-         pereza: los porcentajes de aquí abajo NO son un reparto cualquiera,
-         son relaciones medidas —la tapa muere en el 30 % mientras el recorte
-         arranca en el 22 %, y esos ocho puntos de solape los comprobó
-         `check-contraste-cv` sobre los fotogramas pintados—. Acortar la
-         pista escala las seis fases por igual y deja intacta cada una de
-         esas relaciones; reescribir los rangos las cambiaría una por una y
-         habría que volver a medir el contraste de la tapa entera para
-         recuperar lo que ya estaba bien.
-         Y no baja más porque por debajo de ~45svh de recorrido útil el
-         recorte de la ventana se resuelve en menos de 200 px y deja de
-         leerse como una transición: se ve un corte. */
+         POR QUÉ NO BASTABA CON SEGUIR BAJANDO EL svh: **un pulgar no crece
+         con la pantalla**. Un flick corto en iOS recorre 250–350 px SIEMPRE,
+         en un 375×667 y en un 768×1024; atar el recorrido a una fracción de
+         la altura hace que el mismo diseño pida un gesto en el teléfono
+         chico y dos en la tableta. Por eso la pista es ahora
+         `100svh + clamp(250px, 36svh, 330px)`: el tramo `contain` —que es
+         EXACTAMENTE lo que conduce el efecto— vale ese `clamp`, o sea entre
+         250 y 330 px en cualquier pantalla, y el 36svh de en medio deja que
+         siga escalando dentro de esa banda. En 390×844 son 304 px de pista
+         útil; medido sobre `dist`, la secuencia entera va del píxel 3 al 280
+         (**277 px de recorrido útil**, contra 435 antes). Un flick.
+
+         Y ESTA VEZ SÍ SE TOCAN LOS `animation-range`, que la vez anterior no
+         se tocaron a propósito. La razón de entonces sigue siendo cierta —los
+         porcentajes son relaciones medidas, no un reparto cualquiera— pero
+         escalar las seis fases por igual tiene un límite: encogiendo el
+         conjunto un 40 %, el recorte de la ventana (que es LA transición) se
+         habría quedado en 146 px y ahí sí se ve un corte. Así que el recorte
+         se queda casi entero y lo que se recorta es lo de alrededor: la
+         entrada del señuelo, la cola del aro y el fundido de la tapa. El
+         recorte pasa de 243 px a 188 px (−22 %) mientras el total baja de
+         435 a 277 (−36 %).
+         LA RELACIÓN QUE NO SE PODÍA PERDER se conservó a mano: la tapa muere
+         en el 30 % y el recorte arranca en el 22 %, los mismos OCHO PUNTOS de
+         solape de antes. Lo que importa de ese solape no son los puntos sino
+         cuánto papel hay revelado bajo el texto blanco cuando la tapa aún se
+         ve, y eso MEJORA: el recorte va por el 12.9 % de su propio avance
+         (antes 16.7 %), o sea menos papel bajo la tinta blanca. Aun así
+         `check-contraste-cv` se volvió a correr entero. */
       .intro-pista {
-        height: 160svh;
+        height: calc(100svh + clamp(250px, 36svh, 330px));
         view-timeline: --pista block;
       }
       /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
@@ -2082,7 +2095,7 @@ const resumenIndice = c.indice.resumen
       .portada-marco {
         animation: intro-marco linear both;
         animation-timeline: --pista;
-        animation-range: contain 22% contain 70%;
+        animation-range: contain 22% contain 84%;
       }
       /* El zum corto de la referencia: la ventana se cierra y la foto se
          acerca a la Torre (el origen es su mástil, 38 % del ancho). */
@@ -2090,7 +2103,7 @@ const resumenIndice = c.indice.resumen
         transform-origin: 38% 42%;
         animation: intro-zoom linear both;
         animation-timeline: --pista;
-        animation-range: contain 22% contain 70%;
+        animation-range: contain 22% contain 84%;
       }
       /* La tapa se clava con el lienzo y se disuelve ENTERA: velo y texto en
          una sola opacidad de grupo, así que mientras el texto se vea, su velo
@@ -2106,26 +2119,26 @@ const resumenIndice = c.indice.resumen
         position: sticky; top: 0;
         animation: intro-tapa linear both;
         animation-timeline: --pista;
-        animation-range: contain 8% contain 30%;
+        animation-range: contain 4% contain 30%;
       }
       /* El señuelo se va primero (en la referencia, «Swipe to explore»
          desaparece antes de que el titular se mueva)… */
       .portada-senuelo {
         animation: intro-senuelo linear both;
         animation-timeline: --pista;
-        animation-range: contain 2% contain 14%;
+        animation-range: contain 1% contain 12%;
       }
       /* …y las dos mitades del nombre se separan un paso — el gesto de la
          referencia — mientras la tapa entera se funde. */
       .portada-n1 {
         animation: intro-n1 linear both;
         animation-timeline: --pista;
-        animation-range: contain 4% contain 30%;
+        animation-range: contain 3% contain 30%;
       }
       .portada-n2 {
         animation: intro-n2 linear both;
         animation-timeline: --pista;
-        animation-range: contain 4% contain 30%;
+        animation-range: contain 3% contain 30%;
       }
       /* Las mitades de tinta, ancladas a la ventana: la de arriba con su
          BORDE DE ABAJO fijo (crece hacia arriba) y la de abajo con su borde
@@ -2136,7 +2149,7 @@ const resumenIndice = c.indice.resumen
         display: block; position: absolute; inset: 0;
         animation: intro-tinta linear both;
         animation-timeline: --pista;
-        animation-range: contain 26% contain 55%;
+        animation-range: contain 26% contain 58%;
       }
       .intro-n1 {
         position: absolute; left: 0; right: 0;
@@ -2155,7 +2168,7 @@ const resumenIndice = c.indice.resumen
         pointer-events: none;
         animation: intro-aro linear both;
         animation-timeline: --pista;
-        animation-range: contain 45% contain 88%;
+        animation-range: contain 48% contain 92%;
       }
       /* El manifiesto sube por debajo durante la cola del clavado: entra
          cuando el recorte ya terminó, así que nunca tapa foto viva ni la
