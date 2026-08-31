@@ -1305,6 +1305,19 @@ const resumenIndice = c.indice.resumen
       {/* ── Mitad 2: el private equity ── */}
       <div class="par-col">
         <h3 class="t-h3">{c.dos.peH}</h3>
+        {/* ── TRES COSAS Y NADA MÁS (Jaime, 2026-08-30) ─────────────────
+             «no lo pongas tan extenso, solo pon de lo que es y por qué lo
+             hago y que me gusta mucho lo corporativo». Ese es el orden de
+             aquí abajo, y por eso `research.lede` subió por encima de las
+             citas: antes iba detrás de ellas y el apartado empezaba con la
+             respuesta a una pregunta que nadie había hecho todavía.
+             1 · QUÉ ES — una frase, en la voz de la página.
+             2 · POR QUÉ Y QUE LE GUSTA LO CORPORATIVO — suya, verbatim, y
+                 es literalmente la frase que él pidió que estuviera.
+             3 · QUÉ HIZO — su publicación, recortada a la primera frase con
+                 su «[…]». El recibo entero (el certificado de Forage con
+                 Vista) sigue en el capítulo de certificaciones. */}
+        <p class="cap-lede">{c.research.lede}</p>
         {/* texto de Jaime, pendiente de su revisión final. Su «es a lo que
              me quiero dedicar» era el título del capítulo viejo; ahora lo
              dice él y no un rótulo. */}
@@ -1313,15 +1326,13 @@ const resumenIndice = c.indice.resumen
              inglés, así que el panel español enseña una traducción Y LO DICE
              ARRIBA (`voz.peTag`, vacío en inglés): unas comillas atribuidas a
              su post, sin marca, se leen como sus palabras exactas. Misma
-             regla que la traducción de la frase final. El recorte va dentro
-             de la cita con su «[…]». El recibo de la simulación está en el
-             capítulo de las certificaciones. */}
+             regla que la traducción de la frase final. Lo que NO se
+             reproduce va marcado con «[…]» dentro de la propia cita. */}
         <blockquote class="voz">
           {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
           <p>{c.voz.pe}</p>
           <footer class="pie">{c.voz.peFuente}</footer>
         </blockquote>
-        <p class="cap-lede">{c.research.lede}</p>
 
         <a class="card card-link rep" href={L(rep.routeId)}>
           <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
@@ -1386,7 +1397,51 @@ const resumenIndice = c.indice.resumen
           {f.img
             ? <span class="cert-marco"><img class="cert-img" src={foto(f.img)} alt={f.alt}
                 width={f.w} height={f.h} loading="lazy" decoding="async" /></span>
-            : <FotoHueco c={c} que={c.certs.fotoPend} ratio="4 / 3" class="cert-foto" />}
+            : (
+              <>
+                {/* ══ LA INSIGNIA DEL DELF A2 ══════════════════════════════
+                     Jaime, 2026-08-30: «pon el logo de la compañía o de DELF
+                     A2 para que no esté vacío». Es el único de los siete sin
+                     imagen y su marco 4:3 se veía como un hueco al lado de
+                     seis certificados.
+
+                     ── POR QUÉ UNA INSIGNIA TIPOGRÁFICA Y NO UN LOGOTIPO ──
+                     Un logotipo aquí sería una marca AJENA (DELF es del
+                     Ministerio de Educación francés y la Alliance Française
+                     es el centro examinador), y este CV ya tiene escrita su
+                     regla para eso: el logo del Reto Actinver va pequeño,
+                     junto al nombre del concurso y sobre placa oscura fija,
+                     porque recolorear o reencuadrar una marca ajena es
+                     deformarla. Un logotipo a 4:3 dentro de un marco donde
+                     los otros seis llevan un ESCANEO DEL CERTIFICADO diría
+                     algo que no es cierto: que aquí también hay un recibo.
+                     Y la insignia gana además en coherencia — es la única
+                     de las siete que se puede dibujar con la tipografía del
+                     documento, así que en vez de un logo pegado en medio de
+                     seis fotos, la rejilla queda con seis recibos y una
+                     pieza que se ve, a la primera, hecha por esta página.
+                     SI JAIME PREFIERE EL LOGOTIPO: se baja de fuente oficial
+                     (france-education-international.fr o el sitio de la
+                     Alliance Française), va sin recolorear, con uso
+                     NOMINATIVO —identificar SU propio certificado— y pasa por
+                     build-photos.mjs como todo. Es cambiar `img` en su fila.
+
+                     El rótulo de arriba y el pie de abajo son lo que impide
+                     que esto se lea como el diploma: uno dice quién la
+                     dibujó y el otro que el diploma llegará cuando lo
+                     escanee. `role="img"` con su `aria-label`: para un lector
+                     de pantalla es UNA cosa, no cuatro renglones sueltos. */}
+                <span class="cert-marco cert-insignia" role="img"
+                  aria-label={`${f.que} — ${f.de}. ${c.certs.insigniaTag}`}>
+                  <span class="cert-insignia-tag meta-mono" aria-hidden="true">{c.certs.insigniaTag}</span>
+                  <span class="cert-insignia-que" aria-hidden="true">{f.que}</span>
+                  <span class="cert-insignia-raya" aria-hidden="true"></span>
+                  <span class="cert-insignia-de meta-mono" aria-hidden="true">{f.de}</span>
+                  <span class="cert-insignia-nivel meta-mono" aria-hidden="true">{c.certs.insigniaNivel}</span>
+                </span>
+                <p class="pie cert-insignia-pie">{c.certs.fotoPend}</p>
+              </>
+            )}
           {f.cred
             ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
             : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
@@ -2737,6 +2792,37 @@ const resumenIndice = c.indice.resumen
     background: var(--bg-2);
   }
   .cert-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  /* ---- La insignia del DELF A2 (Jaime, 2026-08-30) ----------------------
+     El séptimo marco, el único sin escaneo. Ocupa EXACTAMENTE el mismo
+     rectángulo 4:3 que los otros seis, así que la rejilla no se mueve; lo que
+     cambia es lo de dentro, que aquí es tipografía del propio documento y no
+     una imagen. El borde discontinuo que tenía cuando era FotoHueco se va: ya
+     no es un hueco. Quien dice que esto no es el diploma es el rótulo de
+     arriba, no la forma de la caja.
+     `text-align: center` es la única vez que el CV centra texto, y se lo gana:
+     son cuatro renglones de dos a cinco palabras dentro de un marco, o sea una
+     placa, no un párrafo — la regla de bandera izquierda se escribió para la
+     frase de 30 palabras de la portada. */
+  .cert-insignia {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: var(--sp-2); padding: var(--sp-4); text-align: center;
+    background: var(--cvh-papel);
+  }
+  .cert-insignia-tag { color: var(--cvh-tinta-3); }
+  /* El nombre del certificado, en la serif del documento y al tamaño de un
+     titular pequeño: es lo único que se lee de lejos. `clamp` porque el marco
+     mide 4:3 de una columna de rejilla y a 320 px es estrecho. */
+  .cert-insignia-que {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 5.5vw, 1.9rem); line-height: 1.1;
+    color: var(--cvh-tinta);
+  }
+  .cert-insignia-raya { width: 40px; height: 1px; background: var(--cvh-tinta-3); }
+  .cert-insignia-de, .cert-insignia-nivel { color: var(--cvh-tinta-2); }
+  /* El pie va PEGADO a la insignia, con el mismo aire que hay entre una foto
+     y su pie en el resto del CV. No empuja el ID de la tarjeta: `margin-top:
+     auto` sigue estando en el marco, no aquí. */
+  .cert-insignia-pie { margin-top: var(--sp-2); }
   /* El ID de la credencial: mono, porque es un código que alguien va a
      copiar, y partible porque son 24 caracteres sin espacios. */
   .cert-cred { overflow-wrap: anywhere; }

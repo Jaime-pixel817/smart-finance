@@ -333,7 +333,9 @@ const en = {
 
   // ---- Capítulo 7, mitad derecha: research ----
   research: {
-    lede: 'Analyst-style reports with every figure traced to the filing it came from. The published one is below, with the state it is actually in.',
+    // Una frase (2026-08-30): qué es. El «por qué lo hago» lo dice él en
+    // `voz.dedicacion`, que va justo encima y es verbatim.
+    lede: 'Analyst-style reports, with every figure traced to the filing it came from.',
     link: 'Open the report',
     ticker: 'Ticker',
     dataAsOf: 'Data as of',
@@ -657,8 +659,22 @@ const en = {
     // tarjeta completa.
     sinCred: 'No credential ID published',
     // Solo el DELF A2 llega hasta aquí: es el único sin imagen en ninguna
-    // parte (ni certificado ni logotipo en su LinkedIn).
-    fotoPend: 'The diploma, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
+    // parte (ni certificado ni logotipo en su LinkedIn). Desde el 2026-08-30
+    // su marco ya NO está vacío —lleva una insignia tipográfica—, así que
+    // esta línea pasó de ser el contenido del hueco a ser el pie de la
+    // insignia: sigue diciendo que el diploma de verdad no está.
+    fotoPend: 'The diploma itself, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
+    // ── LA INSIGNIA DEL DELF A2 (Jaime, 2026-08-30) ─────────────────────
+    // «pon el logo de la compañía o de DELF A2 para que no esté vacío».
+    // Se eligió una insignia TIPOGRÁFICA y no un logotipo; la razón entera
+    // está en Historia.astro, junto al marcado. El nombre grande y el emisor
+    // salen de la propia fila, así que no se repiten aquí: lo único escrito
+    // es el nivel del marco europeo, que es lo que se lee de un DELF.
+    insigniaNivel: 'CEFR level A2',
+    // El rótulo que impide que la insignia se lea como un escaneo del
+    // diploma. Va DENTRO del marco, arriba, en mono, como todos los rótulos
+    // de recibo del CV.
+    insigniaTag: 'Designed by this page — not the diploma',
     // SIN « — » dentro de los nombres de las simulaciones: los certificados
     // publicados dicen «Vista Equity Partners - Demystifying Private Equity
     // Job Simulation» y «Bank of America - Investment Banking Job
@@ -835,9 +851,20 @@ const en = {
     // VERBATIM. Es la voz de Jaime y NO SE TOCA — ni ortografía ni puntuación.
     // En los dos paneles va en español (lang="es" en el marcado); el panel
     // inglés enseña debajo la traducción pequeña de aquí abajo, marcada.
-    texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
+    //
+    // ── LA CAMBIÓ ÉL, EL 2026-08-30 ─────────────────────────────────────
+    // Esta frase es NUEVA y sustituye a la que cerraba el CV desde el
+    // 2026-08-27. Lo que cambia no es el estilo, es lo que dice: la anterior
+    // terminaba explicando el fracaso («si no, es porque te pudieron haber
+    // destruido a ti») y esta termina en lo que te queda («te quedarás con
+    // que lo diste todo»). Es otra idea, así que no se «actualizó» la vieja:
+    // se sustituyó entera. Lo único que se tocó de lo que él mandó es la
+    // puntuación —la coma y los dos puntos finales—, que es lo que la regla
+    // de este archivo permite. Queda anotada en
+    // cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md, entrada del 2026-08-30.
+    texto: 'Si la vida destruye tus planes, es porque tus planes te pudieron haber destruido a ti. Haz tu mejor esfuerzo y los resultados se darán, y si no, te quedarás con que lo diste todo.',
     // Traducción de la frase, solo para el panel inglés, marcada como tal.
-    traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”',
     traduccionTag: 'My words, in Spanish. In English:'
   },
 
@@ -997,7 +1024,17 @@ const en = {
     // data)» es SUYO y va verbatim: se había caído sin marca (un segundo
     // recorte invisible dentro de una cita «verbatim») y se restauró el
     // 2026-08-29. Un recorte sin su marca convierte la cita en desmentible.
-    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. I built a GAAP-compliant income statement from Workday’s 10-K using Vista’s modeling standards, then applied the Rule of 40 framework […] I synthesized my findings (alongside investor presentation data) into an Investment Merits vs. Risks & Considerations summary, just like I’d present to a deal team ahead of a full diligence decision.”',
+    // ── RECORTADA AL MÍNIMO (Jaime, 2026-08-30) ─────────────────────────
+    // «no lo pongas tan extenso, solo pon de lo que es y por qué lo hago y
+    // que me gusta mucho lo corporativo». Su publicación son cuatro frases
+    // largas (el estado de resultados conforme a GAAP desde el 10-K, la Rule
+    // of 40, el resumen de méritos frente a riesgos); aquí se queda LA
+    // PRIMERA, que es la que dice QUÉ es. Sigue siendo verbatim y el «[…]»
+    // marca lo que no se reproduce, igual que antes — recortar una cita se
+    // puede, reescribirla no. El recibo de la simulación (el certificado de
+    // Forage con Vista) está entero en el capítulo de certificaciones, así
+    // que no se pierde nada comprobable.
+    pe: '“This program put me in the shoes of a Private Equity Summer Analyst evaluating Workday as a potential investment. […]”',
     peFuente: 'From my LinkedIn post on the Vista Equity Partners job simulation (2026). The “[…]” marks a passage this page does not reproduce.',
     // Marca de traducción, VISIBLE, encima de la cita. Vacía en inglés: ahí la
     // cita es el original. Misma regla que la traducción de la frase final.
@@ -1176,7 +1213,7 @@ const es: typeof en = {
   },
 
   research: {
-    lede: 'Reportes tipo analista con cada cifra rastreada hasta el documento del que sale. El publicado está abajo, con el estado en el que de verdad está.',
+    lede: 'Reportes tipo analista, con cada cifra rastreada hasta el documento del que sale.',
     link: 'Abrir el reporte',
     ticker: 'Ticker',
     dataAsOf: 'Datos al',
@@ -1307,7 +1344,9 @@ const es: typeof en = {
     verLinkedIn: 'Verlo en LinkedIn',
     credencial: 'ID de la credencial',
     sinCred: 'Sin ID de credencial publicado',
-    fotoPend: 'El diploma, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
+    fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
+    insigniaNivel: 'Nivel A2 del marco europeo',
+    insigniaTag: 'Diseñada por esta página — no es el diploma',
     // Los NOMBRES no se traducen: son el nombre propio del certificado, y es
     // lo que un comité va a buscar. Lo que sí va en español es todo lo demás.
     filas: [
@@ -1419,8 +1458,8 @@ const es: typeof en = {
   },
 
   frase: {
-    texto: 'Si la vida destruye tus planes, es porque tus planes te pueden destruir a ti. Haz tu mejor esfuerzo siempre, y los resultados se darán, y si no, es porque te pudieron haber destruido a ti.',
-    traduccion: '“If life destroys your plans, it is because your plans could destroy you. Always do your best, and the results will come — and if they don’t, it is because they could have destroyed you.”',
+    texto: 'Si la vida destruye tus planes, es porque tus planes te pudieron haber destruido a ti. Haz tu mejor esfuerzo y los resultados se darán, y si no, te quedarás con que lo diste todo.',
+    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”',
     // Esta clave solo se PINTA en el panel inglés (Historia mira el locale);
     // aquí existe porque `typeof en` exige las mismas llaves en las dos tablas.
     traduccionTag: 'His words, in Spanish. In English:'
@@ -1537,7 +1576,7 @@ const es: typeof en = {
     // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a
     // su post sin más se leen como sus palabras exactas y el post está en
     // inglés. El «[…]» marca el trozo que esta página no reproduce.
-    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. Construí un estado de resultados conforme a GAAP desde el 10-K de Workday con los estándares de modelado de Vista, y después apliqué el marco de la Rule of 40 […] Sinteticé lo que encontré (junto con datos de la presentación a inversionistas) en un resumen de méritos de inversión frente a riesgos y consideraciones, igual que se lo presentaría a un equipo de operaciones antes de una decisión de diligencia completa.»',
+    pe: '«Este programa me puso en los zapatos de un analista de verano de private equity evaluando Workday como posible inversión. […]»',
     peFuente: 'De mi publicación en LinkedIn sobre la simulación de Vista Equity Partners (2026). El «[…]» marca un trozo que esta página no reproduce.',
     peTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     // texto de Jaime, pendiente de su revisión final
