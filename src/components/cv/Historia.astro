@@ -126,6 +126,8 @@ const { locale } = Astro.props as { locale: Locale };
 const t = useT(locale);
 const c = useCv(locale);
 const L = (id: string) => route(id, locale);
+/** Sufijo de la captura del header de smartfinance.lat: una por idioma. */
+const sufHeader = locale === 'es' ? '-es' : '';
 /** Prefijo de los ids de este pane: sin él, los dos idiomas los repetirían. */
 const p = locale;
 
@@ -1142,8 +1144,17 @@ const resumenIndice = c.indice.resumen
              abrir esta página. Sin fecha, las dos se leerían como lo mismo.
              `loading="lazy"`: está siete pantallas por debajo del pliegue. */}
         <figure class="sf-header-fig">
-          <img class="sf-header-img" src={foto('cv-sf-header-640.webp')}
-            srcset={`${foto('cv-sf-header-640.webp')} 640w, ${foto('cv-sf-header-1120.webp')} 1120w`}
+          {/* UNA CAPTURA POR IDIOMA. El panel español enseña la portada del
+               sitio EN ESPAÑOL, y no es un capricho: aquí la interfaz del
+               sitio ES texto —menú, titular, los nombres de las ocho
+               ciudades, y hasta el chip de fuente («Delayed 15 min» contra
+               «Retraso 15 min»)—, así que la captura inglesa dentro del panel
+               español rompería la regla de que cada panel va 100 % en su
+               idioma. Un certificado en inglés sí se queda como está en el
+               panel español, porque un certificado es un documento emitido y
+               no existe en otra versión; la portada de su sitio sí existe. */}
+          <img class="sf-header-img" src={foto(`cv-sf-header${sufHeader}-640.webp`)}
+            srcset={`${foto(`cv-sf-header${sufHeader}-640.webp`)} 640w, ${foto(`cv-sf-header${sufHeader}-1120.webp`)} 1120w`}
             sizes="(max-width: 767px) 100vw, 560px"
             alt={c.prueba.headerAlt} width="1120" height="644"
             loading="lazy" decoding="async" />

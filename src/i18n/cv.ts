@@ -1226,7 +1226,7 @@ const es: typeof en = {
   prueba: {
     lede: 'Empecé smartfinance.lat en 2025, para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
     headerPie: 'La portada de smartfinance.lat, capturada el 31 de agosto de 2026. Los precios que se ven dentro de la imagen son de ese momento; los de abajo se piden ahora.',
-    headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Markets and money, explained for young people. By Jaime Sandoval» y una fila de ocho chips de bolsas',
+    headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Mercados y dinero, explicados para jóvenes. Por Jaime Sandoval» y una fila de ocho chips de bolsas',
     leccionesH: 'Las lecciones',
     leccionesQue: 'Lo que enseñaría primero: {n} lecciones, cada una escrita en inglés y en español, y cada una citando sus fuentes.',
     leccionesLink: 'Leer las lecciones',

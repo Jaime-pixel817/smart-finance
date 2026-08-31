@@ -565,18 +565,26 @@ console.log('Jaime');
    * escritorio, así que 640 cubre el teléfono a densidad 1.75 y 1120 el
    * escritorio a densidad 2. Uno solo de 1120 le costaría al móvil el doble
    * de bytes por una imagen que está siete pantallas abajo. */
-  {
-    const src = CVF('sf-header-home.png');
+  /* DOS CAPTURAS, UNA POR IDIOMA. El panel español del CV no puede enseñar
+   * una foto del sitio en inglés: la regla del CV es que cada panel va 100 %
+   * en su idioma, y aquí la interfaz del sitio ES texto — menú, titular, los
+   * nombres de las ocho ciudades y hasta el chip de fuente («Delayed 15 min»
+   * contra «Retraso 15 min»). Un certificado en inglés dentro del panel
+   * español se queda como está, porque un certificado es un documento
+   * emitido; la portada del sitio de Jaime existe en los dos idiomas, así
+   * que se captura en los dos. */
+  for (const [id, archivoOriginal] of [['', 'sf-header-home.png'], ['-es', 'sf-header-home-es.png']]) {
+    const src = CVF(archivoOriginal);
     if (!fs.existsSync(src)) {
-      console.log('  header de smartfinance.lat: no está sf-header-home.png — me lo salto');
-    } else {
-      const m2 = await sharp(src).metadata();
-      for (const ancho of [640, 1120]) {
-        const buf = await sharp(src).resize(ancho).webp({ quality: 78 }).toBuffer();
-        const archivo = publicar('cv-sf-header-' + ancho + '.webp', buf);
-        console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + ancho + 'x' +
-                    Math.round(ancho * m2.height / m2.width));
-      }
+      console.log('  header de smartfinance.lat: no está ' + archivoOriginal + ' — me lo salto');
+      continue;
+    }
+    const m2 = await sharp(src).metadata();
+    for (const ancho of [640, 1120]) {
+      const buf = await sharp(src).resize(ancho).webp({ quality: 78 }).toBuffer();
+      const archivo = publicar('cv-sf-header' + id + '-' + ancho + '.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + ancho + 'x' +
+                  Math.round(ancho * m2.height / m2.width));
     }
   }
 }
