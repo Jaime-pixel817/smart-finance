@@ -72,7 +72,13 @@ const en = {
     research: 'Me working: a screen, a notebook, something real.',
     actinver: 'The visit, the school, the team, the talks.',
     sol: 'A portrait of Sol — or a frame from the march videos.',
-    playas: 'The beach clean-up in Singapore — the photos are on my LinkedIn.',
+    // TRES huecos, uno por foto, porque la publicación tiene TRES y están
+    // descritas una por una en el material. Un solo hueco genérico decía
+    // «faltan fotos»; tres dicen CUÁLES faltan, que es lo que hace falta
+    // para poder traerlas.
+    playa1: 'Me picking up litter with the red bucket and the grabber, at the edge of the path. Photo 1 of the 3 on my LinkedIn.',
+    playa2: 'The wide shot of the coastal park: the trees, the turquoise sea and a cargo ship on the horizon. Photo 2 of 3.',
+    playa3: 'The same scene, wider: the rubbish truck behind, and the whole group of volunteers working by the sea. Photo 3 of 3.',
     jasa: 'The shop or the online store: a real photo or a capture.'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
@@ -494,6 +500,16 @@ const en = {
     // texto de su propia publicación: fue un voluntariado de su curso de
     // Green Technology and Sustainable Ecology.
     playa: 'The beach clean-up was in Singapore, a volunteer day from my Green Technology and Sustainable Ecology course (2026).',
+    // ── Y ES EL MISMO PROGRAMA DEL CERTIFICADO ───────────────────────────
+    // La publicación de la playa (LI-16) y el certificado 4 del capítulo de
+    // certificaciones son LA MISMA COSA: el 2026 GREEN TECHNOLOGY PROGRAMME
+    // de BlueSky Education, del 22 de junio al 11 de julio de 2026 en la
+    // Shaw Foundation Alumni House (que está dentro de la NUS). Estaban
+    // escritos como dos actividades sueltas, y no lo son: la limpieza es la
+    // parte de servicio del programa que certifica el diploma. Decirlo hace
+    // que el voluntariado deje de parecer un día suelto y el certificado
+    // deje de parecer un curso sin práctica.
+    playaPrograma: 'That day was part of the programme whose certificate is in “Certifications”: the 2026 Green Technology Programme, BlueSky Education, in Singapore. The clean-up is the service part of the same programme.',
     bloques: {
       animales: 'The animals',
       playas: 'Beach clean-up'
@@ -813,11 +829,12 @@ const en = {
     servirAnimales: {
       que: 'The animals, in my words',
       pista: 'One or two sentences. What you did, not what you felt.'
-    },
-    servirPlayas: {
-      que: 'The beach clean-ups, in my words',
-      pista: 'One or two sentences. What you did, not what you felt.'
     }
+    // EL HUECO DE LAS PLAYAS SE FUE (2026-08-29): pedía «las playas, con mis
+    // palabras» y sus palabras aparecieron — su publicación de LinkedIn
+    // sobre el voluntariado, hoy citada en el bloque (`voz.playa`). Un hueco
+    // que pide algo que ya está en la pantalla de al lado no es honesto, es
+    // ruido.
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -839,8 +856,7 @@ const en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
-    servirAnimales: '',
-    servirPlayas: ''
+    servirAnimales: ''
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -911,7 +927,26 @@ const en = {
     // hueco «What I'm applying to» que Jaime pidió quitar.
     toronto: '“This visit reinforced something I had been thinking about for a long time: this is where I want to study Finance.”',
     torontoTag: '',
-    torontoFuente: 'From my LinkedIn post on my visit to the University of Toronto and Rotman Commerce (2026).'
+    torontoFuente: 'From my LinkedIn post on my visit to the University of Toronto and Rotman Commerce (2026).',
+    // ---- La limpieza de playa en Singapur ----
+    // VERBATIM de su publicación de LinkedIn sobre el voluntariado (LI-16, en
+    // inglés en el original). Hasta el 2026-08-29 el CV no tenía este texto:
+    // la publicación se daba por perdida y el bloque de la playa iba con una
+    // sola frase escrita por la página. Está publicada, se volvió a
+    // encontrar y se transcribió palabra por palabra.
+    // DOS MARCAS, LAS DOS OBLIGATORIAS:
+    //  · El «[…]» se come UNA frase suya («During my time in Singapore, I've
+    //    also been learning a lot about its economy and how sustainability is
+    //    deeply integrated into the country's long term vision»), que es la
+    //    que da pie a la última. Se recorta por longitud y se marca, igual
+    //    que en `pe`: un recorte sin marca convierte una cita verbatim en
+    //    algo desmentible.
+    //  · El punto y coma de «technology; it's» no está en el original, que va
+    //    sin puntuación ahí. Es la misma regla de siempre: ortografía y
+    //    puntuación se pulen, el sentido y las palabras no se tocan.
+    playa: '“It was a rewarding experience that reminded me how meaningful small actions can be when a community works together toward a common goal. Taking care of the environment isn’t just about policies or technology; it’s also about people taking responsibility. […] Seeing how environmental initiatives and economic development go hand in hand has been one of the most interesting lessons of this experience.”',
+    playaTag: '',
+    playaFuente: 'From my LinkedIn post on the volunteer beach clean-up in Singapore (2026). The “[…]” marks a sentence this page does not reproduce.'
   }
 };
 
@@ -932,7 +967,9 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha.',
-    playas: 'La limpieza de playa en Singapur — las fotos están en mi LinkedIn.',
+    playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
+    playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
+    playa3: 'La misma escena, más abierta: el camión de basura detrás y el grupo completo de voluntarios trabajando junto al mar. Foto 3 de 3.',
     jasa: 'La refaccionaria o la tienda en línea: una foto real o una captura.'
   },
   clip: {
@@ -1142,6 +1179,7 @@ const es: typeof en = {
     animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevistó a Sol, su fundadora (2026).',
     donacion: 'También donó alimento a un stand de adopción local y pasó el día con los voluntarios y los animalitos (2026).',
     playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de su curso de Green Technology and Sustainable Ecology (2026).',
+    playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de BlueSky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
     bloques: {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
@@ -1351,10 +1389,6 @@ const es: typeof en = {
     servirAnimales: {
       que: 'Los animalitos, con mis palabras',
       pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
-    },
-    servirPlayas: {
-      que: 'Las playas, con mis palabras',
-      pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
     }
   },
 
@@ -1373,8 +1407,7 @@ const es: typeof en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
-    servirAnimales: '',
-    servirPlayas: ''
+    servirAnimales: ''
   },
 
   voz: {
@@ -1421,7 +1454,13 @@ const es: typeof en = {
     // texto de Jaime (traducción), pendiente de su revisión final
     toronto: '«Esta visita reforzó algo que llevaba mucho tiempo pensando: aquí es donde quiero estudiar finanzas.»',
     torontoTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
-    torontoFuente: 'De su publicación en LinkedIn sobre su visita a la University of Toronto y Rotman Commerce (2026).'
+    torontoFuente: 'De su publicación en LinkedIn sobre su visita a la University of Toronto y Rotman Commerce (2026).',
+    // Su publicación de la playa está en inglés: esta versión es TRADUCCIÓN
+    // para el panel español y lo dice en pantalla (`playaTag`).
+    // texto de Jaime (traducción), pendiente de su revisión final
+    playa: '«Fue una experiencia gratificante que me recordó cuánto significan las acciones pequeñas cuando una comunidad trabaja junta hacia una meta común. Cuidar el medio ambiente no es solo cuestión de políticas o de tecnología; también es que la gente asuma su responsabilidad. […] Ver cómo las iniciativas ambientales y el desarrollo económico van de la mano ha sido una de las lecciones más interesantes de esta experiencia.»',
+    playaTag: 'Su publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
+    playaFuente: 'De su publicación en LinkedIn sobre la limpieza de playa voluntaria en Singapur (2026). El «[…]» marca una frase que esta página no reproduce.'
   }
 };
 

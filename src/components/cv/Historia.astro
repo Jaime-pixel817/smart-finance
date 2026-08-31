@@ -796,12 +796,36 @@ const resumenIndice = c.indice.resumen
              línea sale de su propia publicación sobre el voluntariado del
              curso de Green Technology. */}
         <p class="cap-frases">{c.servir.playa}</p>
+        {/* ── ES EL MISMO PROGRAMA DEL CERTIFICADO ────────────────────────
+             La publicación de la playa y el certificado 4 del capítulo de
+             certificaciones son LA MISMA COSA: el 2026 Green Technology
+             Programme de BlueSky Education. Estaban escritos como dos
+             actividades sueltas y no lo son — la limpieza es la parte de
+             servicio del programa que certifica el diploma. */}
+        <p class="cap-frases">{c.servir.playaPrograma}</p>
+        {/* SUS PALABRAS, recuperadas el 2026-08-29. La publicación se daba
+             por perdida y este bloque iba con una sola frase escrita por la
+             página; está publicada, se encontró y se transcribió. */}
+        <blockquote class="voz">
+          {c.voz.playaTag && <p class="meta-mono">{c.voz.playaTag}</p>}
+          <p>{c.voz.playa}</p>
+        </blockquote>
+        <p class="pie">{c.voz.playaFuente}</p>
         {/* La limpieza de playa la firma ahora un tercero: la carta de Lloyd
              George la nombra («including a beach cleaning project during his
              stay»). Antes solo estaba su propia publicación. */}
         <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-        <FotoHueco c={c} que={c.fotosPend.playas} />
-        <Hueco c={c} id="servirPlayas" />
+        {/* TRES huecos, uno por foto: la publicación tiene tres y están
+             descritas una por una. Un hueco genérico decía «faltan fotos»;
+             tres dicen CUÁLES, que es lo que hace falta para traerlas. No
+             se pudieron bajar porque Chrome activó su bloqueo de descargas
+             automáticas para linkedin.com — es un permiso del navegador de
+             Jaime, no algo que se arregle desde aquí. */}
+        <div class="playa-fotos">
+          <FotoHueco c={c} que={c.fotosPend.playa1} ratio="3 / 4" />
+          <FotoHueco c={c} que={c.fotosPend.playa2} ratio="4 / 3" />
+          <FotoHueco c={c} que={c.fotosPend.playa3} ratio="4 / 3" />
+        </div>
       </div>
     </div>
   </section>
@@ -2648,6 +2672,10 @@ const resumenIndice = c.indice.resumen
 
   /* ---- Servir ---- */
   .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
+  /* Los tres huecos de las fotos de la playa, uno por foto. En columna: la
+     de arriba es vertical y las otras dos apaisadas, y ponerlas en fila las
+     dejaría a las tres del tamaño de un sello dentro de media columna. */
+  .playa-fotos { display: flex; flex-direction: column; gap: var(--sp-3); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
   /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
