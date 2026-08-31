@@ -106,7 +106,14 @@ const en = {
     donacion: 'Me handing over the food I donated to the shelter.',
     perritos: 'The dogs themselves.',
     marcha: 'The march for street animals.',
-    marg: 'Me with Marg Franklin, CEO of the CFA Institute, at the signing.',
+    // SIN CARGO, por el mismo motivo por el que la fila de `exp` no lo lleva
+    // (ver la nota larga junto a esa fila): el cargo exacto no sale de
+    // ninguna fuente del material — su post dice que la escuchó «leading one
+    // of the most important organizations in the financial world», no
+    // «CEO» —, y el certificado del CFA Institute que él tiene, de agosto de
+    // 2026, lo firma «Tricia Rothschild, Interim CEO». Se nombra a la persona
+    // y se dice qué pasó, que es lo que el material sostiene.
+    marg: 'Me with Marg Franklin at the signing.',
     grupoNarra: 'Me talking to camera about the student group.',
     // TRES huecos, uno por foto, porque la publicación tiene TRES y están
     // descritas una por una en el material. Un solo hueco genérico decía
@@ -1150,7 +1157,8 @@ const es: typeof en = {
     donacion: 'Yo entregando el alimento que doné al albergue.',
     perritos: 'Los perritos.',
     marcha: 'La marcha por los animales callejeros.',
-    marg: 'Yo con Marg Franklin, CEO del CFA Institute, en la firma.',
+    // Sin cargo: ver la nota de la tabla inglesa.
+    marg: 'Yo con Marg Franklin en la firma.',
     grupoNarra: 'Yo hablando a cámara sobre el grupo estudiantil.',
     playa1: 'Yo recogiendo basura con la cubeta roja y la pinza, en la orilla del sendero. Foto 1 de las 3 que están en mi LinkedIn.',
     playa2: 'El plano abierto del parque costero: los árboles, el mar turquesa y un carguero en el horizonte. Foto 2 de 3.',
