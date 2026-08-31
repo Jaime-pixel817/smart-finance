@@ -550,6 +550,35 @@ console.log('Jaime');
     const archivo = publicar('cv-tt-nus-presentacion.webp', buf);
     console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   720x682');
   }
+
+  /* ── EL HEADER DE smartfinance.lat (Jaime, 2026-08-30) ──────────────────
+   * «pon una imagen del header padre». Es una CAPTURA del sitio en vivo, no
+   * un render: 1280x736 css a densidad 2 (2560x1472), el hero entero con el
+   * globo formado, el titular, la firma, las ocho bolsas y —esto importa— el
+   * chip de fuente de abajo, que dice «Delayed 15 min · Yahoo Finance» con
+   * su hora. Se captura CON el chip a propósito: es una foto de un instante,
+   * y el pie de la figura dice de qué día es. Sin el chip, la captura sería
+   * una lámina de precios sin fecha justo encima de una cinta que sí pide
+   * precios de verdad al abrir esta página, y eso es lo que el sitio entero
+   * está escrito para no hacer.
+   * DOS ANCHOS: la figura mide 100vw en el teléfono y 560 px como mucho en
+   * escritorio, así que 640 cubre el teléfono a densidad 1.75 y 1120 el
+   * escritorio a densidad 2. Uno solo de 1120 le costaría al móvil el doble
+   * de bytes por una imagen que está siete pantallas abajo. */
+  {
+    const src = CVF('sf-header-home.png');
+    if (!fs.existsSync(src)) {
+      console.log('  header de smartfinance.lat: no está sf-header-home.png — me lo salto');
+    } else {
+      const m2 = await sharp(src).metadata();
+      for (const ancho of [640, 1120]) {
+        const buf = await sharp(src).resize(ancho).webp({ quality: 78 }).toBuffer();
+        const archivo = publicar('cv-sf-header-' + ancho + '.webp', buf);
+        console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + ancho + 'x' +
+                    Math.round(ancho * m2.height / m2.width));
+      }
+    }
+  }
 }
 
 /* ── LOS CERTIFICADOS Y LA TIENDA DE JASA (cosecha del 2026-08-29) ─────────

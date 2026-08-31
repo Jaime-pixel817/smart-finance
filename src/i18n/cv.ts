@@ -242,7 +242,39 @@ const en = {
     // arquitectura del sitio. Lo que se quitó era cierto pero era una
     // ficha técnica; la frase de que los precios se piden al abrir se
     // queda porque es la que sostiene la cinta que va justo debajo.
-    lede: 'My goal is to make finance easier to understand for any student. smartfinance.lat is where I do it: bilingual lessons, market data, and a newsletter that goes out by email every week. The prices below are asked for when you open this page — nothing here is a screenshot.',
+    // ── MÁS CORTO OTRA VEZ, Y CON EL AÑO (Jaime, 2026-08-30) ───────────
+    // «pon una imagen del header padre y describe para qué la creé y que la
+    // creé desde 2025 empecé, promociona más lo de lessons y pon un link, y
+    // que tengo más de 100 suscritos, omite tanto texto».
+    // El lede pasa de tres frases a dos: PARA QUÉ y DESDE CUÁNDO. Lo que se
+    // fue es la enumeración de lo que hay dentro — la enseñan la captura del
+    // header, las cifras y el bloque de lecciones, que están justo debajo.
+    //
+    // ⚠️ EL AÑO ESTÁ EN DISPUTA CON UNA FUENTE PÚBLICA SUYA, igual que el
+    // del grupo estudiantil. Él dice 2025 («que la creé desde 2025 empecé»,
+    // 2026-08-30); su LinkedIn publica el proyecto smartfinance.lat como
+    // «feb. 2026». Aquí va 2025 porque es lo que él afirma y es su vida, no
+    // la de este repositorio — y la fila de `exp` se cambió a 2025 con el
+    // mismo criterio, para que la página no se contradiga a sí misma. Los
+    // dos años podrían ser ciertos (empezar en 2025 y publicar en 2026),
+    // pero eso no lo dijo nadie y no se escribe. NO borres esta nota sin su
+    // respuesta.
+    lede: 'I started smartfinance.lat in 2025, to make finance easier to understand for any student. This is its home page.',
+    // El pie de la captura del header. Dice QUÉ es y DE CUÁNDO: la imagen
+    // lleva dentro precios y una hora, y sin fecha sería una lámina de
+    // cifras sin edad justo encima de una cinta que sí pide precios de
+    // verdad al abrir esta página.
+    headerPie: 'The home page of smartfinance.lat, captured on 31 August 2026. The prices inside the image are from that moment; the ones below are asked for now.',
+    headerAlt: 'The smartfinance.lat home page: the Smart Finance wordmark and menu, a dark globe with markers on New York and Mexico City, the headline “Markets and money, explained for young people. By Jaime Sandoval”, and a row of eight stock-exchange chips',
+    // ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────────
+    // «promociona más lo de lessons y pon un link». Dejan de ser un renglón
+    // suelto detrás de las cifras y pasan a bloque propio con su enlace. El
+    // enlace es INTERNO (`route('lessons', locale)`), o sea /lessons en el
+    // panel inglés y /es/lecciones en el español: el mismo destino que
+    // https://smartfinance.lat/lessons, y además cada panel en su idioma.
+    leccionesH: 'The lessons',
+    leccionesQue: 'The part I would show first: {n} lessons, each written in English and Spanish, each one citing its sources.',
+    leccionesLink: 'Read the lessons',
     // ── LA CIFRA DEL BOLETÍN ES SUYA, NO CONTADA ───────────────────────
     // Las tres cifras grandes de al lado las CUENTA el build de los
     // archivos del repo. Esta no puede: los inscritos viven en Redis, o
@@ -250,19 +282,24 @@ const en = {
     // fecha — el mismo trato que el A2 de francés. Escribirla al lado de
     // las contadas sin marcarla sería prestarle su recibo.
     boletin: 'More than 100 people are signed up to the newsletter.',
+    boletinH: 'The newsletter',
     // Las cifras de al lado se CUENTAN en el build desde los archivos reales
     // del repo (Historia.astro); estos son solo sus rótulos.
     stats: {
       // Este ya NO es un rótulo de cifra grande: va en una frase, con el
       // número delante, porque un «10» al tamaño de un titular no se sostiene.
-      lecciones: 'lessons, each written in English and Spanish — the sources above are theirs.',
+      // Rótulo del renglón que acompaña a las cifras grandes. Ya NO lleva la
+      // promoción de las lecciones: esa se fue a su propio bloque, arriba.
+      lecciones: 'lessons — the sources above are theirs.',
       // Los tres rótulos de las cifras grandes. Cortos a propósito: van
       // debajo de un número enorme y compiten con él si se alargan.
       pruebas: 'automated tests, run on every change',
       fuentes: 'primary sources cited in the lessons',
       glosario: 'glossary terms, bilingual',
       // El 403 de los borradores: la promesa ética del sitio, verificable.
-      promesa: 'And one promise you can test: no AI-written text is published without a person approving it. Asking the public endpoint for unreviewed drafts answers 403, on purpose.'
+      // Una frase, no dos (2026-08-30, «omite tanto texto»). Lo que no se
+      // puede perder es el 403: es la promesa comprobable, no un eslogan.
+      promesa: 'One promise you can test: no AI-written text is published without a person approving it — asking the public endpoint for unreviewed drafts answers 403, on purpose.'
     },
     abrir: 'Open the site'
   },
@@ -270,8 +307,13 @@ const en = {
   // ---- La cinta (dentro del capítulo 2; mismo mecanismo que siempre) ----
   tape: {
     lede: 'Three of the assets the site follows, asked for when this page opens.',
-    note: 'Prices come from the site’s own endpoint, which reads Yahoo Finance and caches it. They are delayed, and the chip says by how much. They update when you open or reload this page, not continuously.',
-    fail: 'If the endpoint does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
+    // ── DOS FRASES DONDE HABÍA CINCO (2026-08-30, «omite tanto texto») ──
+    // Lo que NO se puede perder de aquí es lo que impide que esto se lea
+    // como un dato en vivo: de dónde viene, que va con retraso, que se pide
+    // al abrir y no continuamente, y que si el endpoint falla salen guiones.
+    // Todo eso sigue; lo que se fue es la explicación de la caché.
+    note: 'From the site’s own endpoint, delayed — the chip says by how much — and asked for when you open this page, not continuously.',
+    fail: 'If it does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
     price: 'Price',
     change: 'Change today',
     pending: '—',
@@ -550,7 +592,13 @@ const en = {
       { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
       // 2025 también, y también corregido por él: «esta la creé en 2025».
       { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (chapter 5)' },
-      { cuando: '2026', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      // ⚠️ 2025 Y NO 2026, y es la MISMA disputa que la del grupo estudiantil
+      // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
+      // empecé». Su LinkedIn publica el proyecto como «feb. 2026». Se pone
+      // lo que él afirma, y se anota que hay una fuente pública suya que
+      // dice otra cosa. Está escrito igual en `prueba.lede`, que es donde el
+      // año se LEE en pantalla; las dos tienen que decir lo mismo.
+      { cuando: '2025', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
       { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
       { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
       { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
@@ -1091,22 +1139,28 @@ const es: typeof en = {
   },
 
   prueba: {
-    lede: 'Mi objetivo es que las finanzas sean más fáciles de entender para cualquier estudiante. smartfinance.lat es donde lo hago: lecciones bilingües, datos de mercado y un boletín que sale por correo cada semana. Los precios de abajo se piden al abrir esta página — nada de lo que hay aquí es una captura.',
+    lede: 'Empecé smartfinance.lat en 2025, para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
+    headerPie: 'La portada de smartfinance.lat, capturada el 31 de agosto de 2026. Los precios que se ven dentro de la imagen son de ese momento; los de abajo se piden ahora.',
+    headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Markets and money, explained for young people. By Jaime Sandoval» y una fila de ocho chips de bolsas',
+    leccionesH: 'Las lecciones',
+    leccionesQue: 'Lo que enseñaría primero: {n} lecciones, cada una escrita en inglés y en español, y cada una citando sus fuentes.',
+    leccionesLink: 'Leer las lecciones',
     boletin: 'Más de 100 personas están inscritas al boletín.',
+    boletinH: 'El boletín',
     stats: {
-      lecciones: 'lecciones, cada una escrita en inglés y en español — las fuentes de arriba son suyas.',
+      lecciones: 'lecciones — las fuentes de arriba son suyas.',
       pruebas: 'pruebas automáticas, en cada cambio',
       fuentes: 'fuentes primarias citadas en las lecciones',
       glosario: 'términos de glosario, bilingües',
-      promesa: 'Y una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe. Pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
+      promesa: 'Una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe — pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
     },
     abrir: 'Abrir el sitio'
   },
 
   tape: {
     lede: 'Tres de los activos que sigue el sitio, pedidos al abrir esta página.',
-    note: 'Los precios salen del endpoint del propio sitio, que lee Yahoo Finance y lo cachea. Llegan con retraso, y el chip dice cuánto. Se actualizan al abrir o recargar esta página, no continuamente.',
-    fail: 'Si el endpoint no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
+    note: 'Salen del endpoint del propio sitio, con retraso —el chip dice cuánto— y se piden al abrir esta página, no continuamente.',
+    fail: 'Si no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
     price: 'Precio',
     change: 'Cambio de hoy',
     pending: '—',
@@ -1238,7 +1292,7 @@ const es: typeof en = {
       { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
       { cuando: '2025', que: 'Asamblea General de la AEM — una de sus primeras conferencias de negocios y eventos de networking' },
       { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (capítulo 5)' },
-      { cuando: '2026', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
+      { cuando: '2025', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },

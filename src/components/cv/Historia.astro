@@ -1082,6 +1082,23 @@ const resumenIndice = c.indice.resumen
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
 
+        {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
+             header padre») ─────────────────────────────────────────────
+             Es una foto del sitio EN VIVO tomada a 1280 px de ancho con el
+             globo ya formado, no un render ni un mockup, y por eso el pie
+             dice de qué día es: la imagen lleva dentro precios y una hora, y
+             justo debajo hay una cinta que sí pide precios de verdad al
+             abrir esta página. Sin fecha, las dos se leerían como lo mismo.
+             `loading="lazy"`: está siete pantallas por debajo del pliegue. */}
+        <figure class="sf-header-fig">
+          <img class="sf-header-img" src={foto('cv-sf-header-640.webp')}
+            srcset={`${foto('cv-sf-header-640.webp')} 640w, ${foto('cv-sf-header-1120.webp')} 1120w`}
+            sizes="(max-width: 767px) 100vw, 560px"
+            alt={c.prueba.headerAlt} width="1120" height="644"
+            loading="lazy" decoding="async" />
+          <figcaption class="pie">{c.prueba.headerPie}</figcaption>
+        </figure>
+
         <div class="sec-head">
           <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
         </div>
@@ -1149,14 +1166,33 @@ const resumenIndice = c.indice.resumen
           </li>
         </ul>
         <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
-        {/* EL BOLETÍN Y SU CIFRA. «Más de 100 inscritos» (2026-08-29) es
-             AFIRMACIÓN SUYA y no una cuenta: los inscritos viven en Redis, o
-             sea fuera del build. Va marcada, y a propósito NO entra en la
-             lista de cifras grandes de arriba — esas tres las cuenta el
-             build de los archivos del repo, y meter una afirmación entre
-             ellas le prestaría su recibo. */}
-        <p class="cifra-suya">{c.prueba.boletin}</p>
-        <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+
+        {/* ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────
+             «promociona más lo de lessons y pon un link». Dejan de ser la
+             coletilla del renglón de las cifras y pasan a apartado propio,
+             con su botón. La cuenta (`nLecciones`) la sigue haciendo el
+             build de los MDX del repo: no hay ni un número escrito a mano.
+             El enlace es INTERNO y por eso cada panel va a su idioma —
+             /lessons en inglés y /es/lecciones en español—, que es el mismo
+             destino que https://smartfinance.lat/lessons. */}
+        <div class="sf-destaca">
+          <h4 class="t-h4">{c.prueba.leccionesH}</h4>
+          <p>{c.prueba.leccionesQue.replace('{n}', String(nLecciones))}</p>
+          <p><a class="cv-boton" href={L('lessons')}>{c.prueba.leccionesLink} →</a></p>
+        </div>
+
+        {/* EL BOLETÍN Y SU CIFRA. «Más de 100 inscritos» (2026-08-29, y
+             Jaime volvió a pedirla el 2026-08-30) es AFIRMACIÓN SUYA y no
+             una cuenta: los inscritos viven en Redis, o sea fuera del build.
+             Va marcada, y a propósito NO entra en la lista de cifras grandes
+             de arriba — esas tres las cuenta el build de los archivos del
+             repo, y meter una afirmación entre ellas le prestaría su recibo. */}
+        <div class="sf-destaca">
+          <h4 class="t-h4">{c.prueba.boletinH}</h4>
+          <p class="cifra-suya">{c.prueba.boletin}</p>
+          <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+        </div>
+
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
@@ -2854,6 +2890,25 @@ const resumenIndice = c.indice.resumen
      `a[href^="http"]::after` si la hubiera; aquí basta con que no parezca un
      control muerto. */
   @media print { .cv-boton { border-color: var(--cvh-raya); } }
+  /* La captura del header de smartfinance.lat. Ancho capado a 560 px: es una
+     imagen APAISADA (1.74:1) y a 960 se comería el bloque entero, que además
+     lleva debajo la cinta de precios de verdad. Borde y radio como las demás
+     tarjetas del capítulo, para que se lea como una captura enmarcada y no
+     como una banda a sangre dentro del papel. */
+  .sf-header-fig { margin: var(--sp-3) 0 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 560px; }
+  .sf-header-img {
+    display: block; width: 100%; height: auto;
+    border: 1px solid var(--cvh-raya); border-radius: 14px;
+  }
+  /* Los dos apartados destacados del bloque del sitio: las lecciones (con su
+     botón) y el boletín (con su cifra). Un filete a la izquierda y nada más
+     — dentro de una tarjeta que ya tiene borde y radio, una segunda tarjeta
+     anidada es una caja dentro de una caja. */
+  .sf-destaca {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding-left: var(--sp-4); border-left: 2px solid var(--cvh-raya);
+    max-width: 620px;
+  }
   /* La captura de la tienda de Jasa Motor: misma receta que .grupo-tec, con
      el ancho más corto porque es una captura VERTICAL (4:5) y a 480 px se
      comería el bloque entero. */
