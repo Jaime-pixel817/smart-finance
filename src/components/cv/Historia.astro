@@ -1337,14 +1337,28 @@ const resumenIndice = c.indice.resumen
        carta, y los recuadros de las que faltan, que se quedan porque Jaime
        dijo «todavía faltan varias, ahí vamos».
 
-       LOS PDF NO SE PUBLICAN y esto no es un descuido: llevan el teléfono y
-       el correo personales de quien firma. Va la ficha —quién, cargo,
-       empresa, relación, año— y la cita, marcada como cita de la carta. Los
-       datos de contacto, nunca. El hueco del programa de Singapur ya no
-       está: las dos cartas que llegaron son justo de ahí.
+       LOS PDF SIGUEN SIN PUBLICARSE. Va la ficha —quién, cargo, empresa,
+       relación, año—, DOS frases verbatim y el contacto que el propio
+       firmante ofreció. El hueco del programa de Singapur ya no está: las
+       dos cartas que llegaron son justo de ahí.
 
-       La cita es de un TERCERO, no de Jaime, así que no lleva la marca de
-       `voz.*` sino la suya, y va en <blockquote> con <cite> real. */}
+       CAMBIO DEL 2026-08-30 (Jaime): «en recommendation no pongas las de "to
+       comey", solo pon las 2 frases más importantes de cada una y sus
+       contactos directos también que proporcionaron». Lo de «to comey» es el
+       encabezado «To the Admissions Committee» con el que ABREN las dos
+       cartas — y NUNCA estuvo en esta página: se buscó la cadena en el CV
+       entero y solo vive dentro de los PDF, que no se publican. O sea que no
+       había nada que quitar, y lo que sí cambia es lo otro: de UNA cita se
+       pasa a DOS por carta, y aparece el correo.
+
+       EL CORREO SÍ, EL TELÉFONO NO. Los dos correos son de trabajo (el buzón
+       de consultas de TAQ y el dominio de Bluesky Education); el teléfono
+       personal que trae la carta de Lloyd George se queda fuera. Por qué, y
+       cómo revertirlo si Jaime quiere, está escrito en src/i18n/cv.ts sobre
+       `cartas` — junto con la razón de que el `mailto:` vaya a pelo.
+
+       Las citas son de un TERCERO, no de Jaime, así que no llevan la marca
+       de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
   <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(7)}</p>
@@ -1360,11 +1374,26 @@ const resumenIndice = c.indice.resumen
           <p class="carta-donde pie">{k.donde}</p>
           <p class="carta-anio num">{k.anio}</p>
           <p class="carta-relacion">{k.relacion}</p>
+          {/* DOS FRASES por carta, verbatim (Jaime, 2026-08-30: «solo pon las
+               2 frases más importantes de cada una»). Un solo <figure> con
+               las dos citas dentro y UN solo <figcaption>: son dos frases de
+               la MISMA carta y de la misma persona, así que repetir la
+               atribución debajo de cada una sería leerlo dos veces. */}
           <figure class="carta-cita">
             <p class="meta-mono carta-cita-tag">{c.cartas.citaTag}</p>
-            <blockquote><p>{'“' + k.cita + '”'}</p></blockquote>
+            {k.citas.map((cita) => (
+              <blockquote><p>{'“' + cita + '”'}</p></blockquote>
+            ))}
             <figcaption class="pie">— <cite>{k.nombre}</cite></figcaption>
           </figure>
+          {/* EL CONTACTO QUE DIO ÉL MISMO. `mailto:` a pelo y sin truco
+               anti-scraping: la razón entera está en src/i18n/cv.ts, sobre
+               `cartas`. El teléfono que trae una de las cartas NO se publica,
+               y también está escrito allí por qué. */}
+          <p class="carta-contacto">
+            <span class="meta-mono carta-contacto-tag">{c.cartas.contactoTag}</span>
+            <a class="hist-link" href={`mailto:${k.correo}`}>{k.correo}</a>
+          </p>
         </article>
       ))}
     </div>
@@ -2668,9 +2697,11 @@ const resumenIndice = c.indice.resumen
   .carta-donde, .carta-anio { color: var(--cvh-tinta-2); }
   .carta-anio { font-size: var(--fs-small); }
   .carta-relacion { color: var(--cvh-tinta); }
-  /* La cita: pegada al pie de la tarjeta, con su marca encima. Es de un
-     TERCERO, así que se lee distinto del resto — filete a la izquierda,
-     como las citas de todo el sitio. */
+  /* Las DOS citas: pegadas al pie de la tarjeta, con su marca encima. Son de
+     un TERCERO, así que se leen distinto del resto — filete a la izquierda,
+     como las citas de todo el sitio. Al ser dos, el hueco entre ellas es
+     `--sp-3` y no `--sp-2`: con el mismo aire que hay entre la marca y la
+     primera, las dos frases se leían como un solo párrafo partido. */
   .carta-cita {
     margin: auto 0 0; padding-top: var(--sp-3);
     display: flex; flex-direction: column; gap: var(--sp-2);
@@ -2680,7 +2711,20 @@ const resumenIndice = c.indice.resumen
     margin: 0; padding-left: var(--sp-3);
     border-left: 2px solid var(--cvh-raya);
   }
+  .carta-cita blockquote + blockquote { margin-top: var(--sp-1); }
   .carta-cita cite { font-style: normal; }
+  /* EL CONTACTO. Va DEBAJO de las citas y fuera del <figure>: no es parte de
+     la cita, es el canal que el firmante ofreció. En columna y no en una
+     fila con dos puntos, porque el correo es largo y a 320 px una fila lo
+     partía por la arroba. El `overflow-wrap: anywhere` es la única forma de
+     que `Enquiries.TAQ@outlook.com` quepa en la tarjeta más estrecha sin
+     desbordarla — es la excepción que `check-reflow` mide. */
+  .carta-contacto {
+    display: flex; flex-direction: column; gap: 2px;
+    padding-top: var(--sp-3);
+    overflow-wrap: anywhere;
+  }
+  .carta-contacto-tag { color: var(--cvh-tinta-2); }
 
   /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
      `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse

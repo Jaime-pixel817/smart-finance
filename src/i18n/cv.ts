@@ -665,13 +665,36 @@ const en = {
   // SECCIÓN NUEVA pedida por Jaime (2026-08-28). Nació vacía —tres recuadros
   // marcados, ninguna carta— y el 2026-08-29 llegaron LAS DOS PRIMERAS.
   //
-  // LOS PDF NO SE PUBLICAN, Y ESO NO ES PRUDENCIA: llevan el teléfono y el
-  // correo personales de quien firma. Son documentos para un comité de
-  // admisiones, que los recibe por su canal; colgarlos en una página web
-  // publicaría los datos de contacto de dos personas que no eligieron
-  // publicarlos. Aquí va la FICHA (quién, cargo, empresa, relación, año) y
-  // una frase corta entrecomillada de cada carta, marcada como cita de la
-  // carta. Los datos de contacto, nunca.
+  // LOS PDF SIGUEN SIN PUBLICARSE. Son documentos para un comité de
+  // admisiones, que los recibe por su canal; colgarlos aquí publicaría el
+  // documento entero de dos personas que no eligieron publicarlo. Aquí va la
+  // FICHA (quién, cargo, empresa, relación, año), DOS frases entrecomilladas
+  // y el contacto que el propio firmante ofreció.
+  //
+  // ── EL CORREO SÍ, EL TELÉFONO NO (Jaime, 2026-08-30) ────────────────────
+  // Él pidió «sus contactos directos también que proporcionaron». Los dos
+  // firmantes cierran su carta ofreciéndose a contestar preguntas sobre él,
+  // así que el contacto es suyo y es para esto. Se publican los DOS CORREOS
+  // —`Enquiries.TAQ@outlook.com` es el buzón de consultas de TAQ Pte Ltd y
+  // `Andy.toh@bluesky-education.com` es una dirección de trabajo en el
+  // dominio de la empresa— y NO el teléfono que la carta de Lloyd George
+  // añade al lado del correo. La diferencia no es de grado: un correo de
+  // empresa es un canal profesional que existe para recibir consultas; un
+  // número personal en una página que se puede reenviar entera acaba en
+  // manos que el firmante no eligió, y no hay forma de retirarlo después.
+  // JAIME PUEDE REVERTIRLO: es una decisión suya, no una regla del sitio —
+  // si quiere el teléfono, se añade un campo `tel` junto a `correo` y se
+  // pinta igual. El número está en el PDF de la carta, en cv-material/cartas.
+  //
+  // ── POR QUÉ EL CORREO VA A PELO, SIN TRUCO ANTI-SCRAPING ────────────────
+  // El repo no tiene ningún patrón de ofuscación de correos (se buscó), y
+  // meter uno aquí sería peor que no tenerlo: cualquier truco que sirva de
+  // algo necesita JavaScript, y este CV promete leerse ENTERO sin JavaScript
+  // — un `mailto:` que solo funciona con JS deja al lector sin el contacto,
+  // que es justo lo que Jaime pidió poner. La protección real de esta página
+  // es otra y ya está puesta: dirección impredecible (`CV_SLUG`), `noindex`,
+  // `no-referrer` y fuera del sitemap y del buscador. Un rastreador no llega
+  // a esta página; si llegara, ningún `&#64;` lo pararía.
   //
   // LAS CITAS SON VERBATIM del PDF, en inglés, que es el idioma en que están
   // escritas las dos. En el panel español van TRADUCIDAS y marcadas como
@@ -681,10 +704,14 @@ const en = {
   // que los recuadros de las que faltan se quedan. Ya no hay hueco para el
   // programa de Singapur: las dos cartas que llegaron son de ahí.
   cartas: {
-    lede: 'Two have arrived. The letters themselves are not published here: they are documents for admissions committees and they carry the signatories’ personal phone and email. What is on this page is the record — who, what role, what relationship, what year — and one short quote from each.',
+    lede: 'Two have arrived. The letters themselves are not published here — they are documents for admissions committees. What is on this page is the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. One of the letters also gives a personal phone number; that one is not published.',
     entregadasH: 'Delivered',
     faltanH: 'Still to come',
-    citaTag: 'From the letter',
+    citaTag: 'The two lines that carry the most weight',
+    // RÓTULO DEL CONTACTO. Dice DE DÓNDE sale: no es un correo que Jaime
+    // haya buscado, es el que el propio firmante escribió en su carta
+    // ofreciéndose a contestar preguntas sobre él.
+    contactoTag: 'Contact he gave for enquiries about me',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -692,7 +719,14 @@ const en = {
         donde: 'Singapore — biotechnology, healthcare management and green technologies',
         relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy BlueSky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
         anio: '2026',
-        cita: 'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.'
+        // LAS DOS FRASES, VERBATIM del PDF. La primera es UNA sola idea que la
+        // carta escribe en dos oraciones: cortarla por la mitad deja un
+        // renglón que ni siquiera nombra a Jaime, así que va entera.
+        citas: [
+          'Two weeks is a short period, but it is long enough to tell apart the student who works from the student who merely attends. Jaime stood out from the first day.',
+          'What he has already achieved without institutional support indicates clearly what he will achieve with it.'
+        ],
+        correo: 'Enquiries.TAQ@outlook.com'
       },
       {
         nombre: 'Andy Toh',
@@ -700,7 +734,11 @@ const en = {
         donde: 'Singapore — the educational consultancy that runs the programme',
         relacion: 'He observed me during my three-week programme in Singapore. He is the same Andy Toh I interviewed, and who is already on this site.',
         anio: '2026',
-        cita: 'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.'
+        citas: [
+          'While many students spent their breaks socialising with their peers, Jaime actively approached and engaged with the educators, programme leaders, and industry professionals involved in the programme.',
+          'His willingness to seek opportunities to learn and continually improve himself reflects a level of maturity and self-motivation that I believe will serve him extremely well at university.'
+        ],
+        correo: 'Andy.toh@bluesky-education.com'
       }
     ],
     tag: 'Letter to come',
@@ -1273,12 +1311,13 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión y llevan el teléfono y el correo personales de quien firma. En esta página va la ficha —quién, cargo, relación, año— y una frase corta de cada una.',
+    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión. En esta página va la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. Una de las cartas trae además un teléfono personal; ese no se publica.',
     entregadasH: 'Entregadas',
     faltanH: 'Las que faltan',
-    // Las dos cartas están escritas en inglés: en este panel la cita va
-    // TRADUCIDA, y la marca lo dice, como con las frases de `voz.*`.
-    citaTag: 'Cita de la carta, traducida del inglés',
+    // Las dos cartas están escritas en inglés: en este panel las citas van
+    // TRADUCIDAS, y la marca lo dice, como con las frases de `voz.*`.
+    citaTag: 'Las dos frases que más pesan, traducidas del inglés',
+    contactoTag: 'Contacto que dio para preguntar por mí',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -1286,7 +1325,11 @@ const es: typeof en = {
         donde: 'Singapur — biotecnología, gestión sanitaria y tecnologías verdes',
         relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa BlueSky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
         anio: '2026',
-        cita: 'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.'
+        citas: [
+          'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.',
+          'Lo que ya ha logrado sin apoyo institucional indica con claridad lo que logrará con él.'
+        ],
+        correo: 'Enquiries.TAQ@outlook.com'
       },
       {
         nombre: 'Andy Toh',
@@ -1294,7 +1337,11 @@ const es: typeof en = {
         donde: 'Singapur — la consultoría educativa que organiza el programa',
         relacion: 'Me observó durante mi programa de tres semanas en Singapur. Es el mismo Andy Toh que entrevisté y que ya aparece en este sitio.',
         anio: '2026',
-        cita: 'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.'
+        citas: [
+          'Mientras muchos estudiantes pasaban los descansos conviviendo entre ellos, Jaime se acercaba y conversaba con los educadores, los responsables del programa y los profesionales de la industria que participaban en él.',
+          'Su disposición a buscar oportunidades para aprender y mejorar continuamente refleja un grado de madurez y automotivación que, en mi opinión, le servirá extremadamente bien en la universidad.'
+        ],
+        correo: 'Andy.toh@bluesky-education.com'
       }
     ],
     tag: 'Falta la carta',
