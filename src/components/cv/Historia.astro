@@ -475,9 +475,9 @@ const resumenIndice = c.indice.resumen
 
     {/* ══ LA PISTA DEL EFECTO ══════════════════════════════════════════════
          Un solo contenedor pegajoso de una pantalla dentro de una pista de
-         200svh (`.intro-pista`), con `view-timeline` sobre la pista: el
+         160svh (`.intro-pista`), con `view-timeline` sobre la pista: el
          tramo `contain` de esa línea de tiempo es EXACTAMENTE la fase en la
-         que el lienzo está clavado (de scroll 0 a una pantalla), así que las
+         que el lienzo está clavado (0.6 de pantalla), así que las
          animaciones van de 0 % a 100 % del clavado sin números mágicos.
          `view()` sobre la pista y no `scroll()` sobre la raíz A PROPÓSITO:
          `scroll()` mide TODO el documento, y el CV cambia de largo con cada
@@ -1724,7 +1724,7 @@ const resumenIndice = c.indice.resumen
      capas sobre la foto— sin tocar el rectángulo de la foto. */
   /* LA PISTA: el tramo de documento que conduce el efecto. Sin el efecto
      mide lo que mide su contenido (una pantalla: la tapa de siempre); con él
-     (gate de abajo) mide 200svh y lleva la línea de tiempo. */
+     (gate de abajo) mide 160svh y lleva la línea de tiempo. */
   .intro-pista { position: relative; }
   .portada-lienzo {
     position: sticky; top: 0; z-index: 0;
@@ -1987,8 +1987,8 @@ const resumenIndice = c.indice.resumen
 
   /* ═══ EL EFECTO DE LA TARJETA — SOLO DONDE EL NAVEGADOR SABE CONDUCIRLO ══
      Una sola superficie de foto que nunca se duplica ni sale de pantalla:
-     el lienzo se clava una pantalla entera (la pista mide 200svh) y, con el
-     scroll de esa pantalla como línea de tiempo, (1) la tapa se disuelve
+     el lienzo se clava 0.6 de pantalla (la pista mide 160svh) y, con el
+     scroll de ese tramo como línea de tiempo, (1) la tapa se disuelve
      entera —velo y texto en una opacidad de grupo—, (2) el MARCO de la foto
      se cierra desde a sangre hasta la ventana de la tarjeta con sus esquinas
      redondeadas, mientras la foto hace un zum corto hacia la Torre, (3) las
@@ -2046,8 +2046,33 @@ const resumenIndice = c.indice.resumen
         --carta-top: calc(42svh - var(--carta-h) / 2);
         --carta-r: clamp(20px, 6vw, 36px);
       }
+      /* ── LA PISTA MIDE 160svh, Y ESE NÚMERO ESTÁ MEDIDO ──────────────────
+         Medía 200svh, y con el lienzo clavado a 100svh el tramo `contain`
+         —que es lo que conduce TODO el efecto— valía 200 − 100 = 100svh:
+         una pantalla ENTERA de scroll. En el teléfono de Jaime (390×844) la
+         secuencia completa, del señuelo (2 %) al último fotograma del aro
+         (88 %), necesitaba **743 px de scroll**, o sea dos o tres
+         deslizamientos de pulgar. Él lo pidió en uno («que de un scroll se
+         haga la transición, no de varios»), y un swipe cómodo recorre
+         350–500 px.
+         Con 160svh el tramo `contain` pasa a 60svh (506 px a 844 de alto) y
+         la secuencia entera termina en **446 px**, con 435 px útiles. Un
+         deslizamiento.
+
+         SE TOCA LA PISTA Y NO LOS `animation-range`, y la razón no es
+         pereza: los porcentajes de aquí abajo NO son un reparto cualquiera,
+         son relaciones medidas —la tapa muere en el 30 % mientras el recorte
+         arranca en el 22 %, y esos ocho puntos de solape los comprobó
+         `check-contraste-cv` sobre los fotogramas pintados—. Acortar la
+         pista escala las seis fases por igual y deja intacta cada una de
+         esas relaciones; reescribir los rangos las cambiaría una por una y
+         habría que volver a medir el contraste de la tapa entera para
+         recuperar lo que ya estaba bien.
+         Y no baja más porque por debajo de ~45svh de recorrido útil el
+         recorte de la ventana se resuelve en menos de 200 px y deja de
+         leerse como una transición: se ve un corte. */
       .intro-pista {
-        height: 200svh;
+        height: 160svh;
         view-timeline: --pista block;
       }
       /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
