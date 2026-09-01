@@ -4457,8 +4457,22 @@ const cifrasFranja = c.franja.sitioQ
        cierra el documento, el nombre de la tapa y los pies que se miden
        contra su propia figura. Van al final para ganar por orden. */
     .cifra, .franja-n, .franja-n-txt, .tarjeta-n,
-    .abre p, .frase p, .cita-nombre, .carta-nombre, .premio-que,
+    .abre, .frase, .abre p, .frase p, .cita-nombre, .carta-nombre, .premio-que,
     .cert-insignia-que, .cap-frases.cifra-suya, .cifra-suya { max-width: none; }
+    /* ── LAS DOS CITAS GRANDES SE MIDEN EN SU PROPIA LETRA ───────────────
+       `.abre` y `.frase` son `<blockquote>`, o sea que la regla de prosa de
+       arriba les daba 33em DE SU FONT-SIZE, que es el 16 px del documento:
+       528 px. Dentro, el párrafo va a 68 px (la apertura) y 88 px (el
+       cierre), así que el tope del PADRE los estrangulaba aunque el hijo
+       tuviera `max-width: none` — medido a 1440: caja de 528 px en un marco
+       de 1 310, con «I opened my eyes and saw every possible opportunity»
+       partida en ocho renglones de tres palabras y 780 px de blanco al lado.
+       En un texto de 68 px, 33em serían 2 244 px: la unidad estaba bien, la
+       caja donde se aplicaba no. Las dos citas se miden ahora con `14em` DE
+       SU PROPIO TAMAÑO —el mismo número que ya usa `.cap-h`, ~28 caracteres
+       por renglón a cualquier escala— y son sus párrafos, no sus
+       `<blockquote>`, quienes lo llevan. */
+    .abre p { max-width: 14em; }
     .frase p { max-width: 14em; }
     figure .pie, .lote-fig .pie { max-width: min(100%, 33em); }
     /* El hueco de foto de los premios ocupa su pista entera, como cualquier
@@ -4478,22 +4492,38 @@ const cifrasFranja = c.franja.sitioQ
     }
     /* El capítulo 1 no cuelga de `.cap` sino de `.portada-papel-cierre`
        (vive dentro de la portada), así que su rejilla se escribe aquí con
-       las MISMAS tres pistas: prosa · canal · margen. `.cap-1-cuerpo` pasa
-       a `display: contents` para que sus dos hijos —el texto y el retrato—
-       sean items de ESTA rejilla y no de una propia: así el retrato puede
-       compartir fila con el texto entero y el pie de la portada y la Torre
-       CN caen debajo de cada uno, en su pista. */
-    .portada-papel-cierre .portada-col {
-      display: grid;
-      grid-template-columns:
+       las MISMAS tres pistas: prosa · canal · margen. Las declara una
+       variable para que `.cap-1-cuerpo` repita EXACTAMENTE las mismas y no
+       una copia que se pueda desincronizar. */
+    .portada-papel-cierre .portada-col,
+    .cap-1-cuerpo {
+      --c1-cols:
         min(43rem, calc(100% - 48px - 280px))
         48px
         minmax(280px, 1fr);
+      display: grid;
+      grid-template-columns: var(--c1-cols);
       column-gap: 0;
       row-gap: var(--cv-v2);
       align-items: start;
     }
-    .cap-1-cuerpo { display: contents; }
+    /* ── `display: contents` AQUÍ NO ES GRATIS: SUELTA AL PEGAJOSO ────────
+       La versión anterior ponía `.cap-1-cuerpo { display: contents }` para
+       que el texto y el retrato fueran items de la rejilla de fuera. Coloca
+       bien —y por eso se escribió así—, pero un elemento con `display:
+       contents` NO GENERA CAJA, y el bloque contenedor de un `position:
+       sticky` sale de la caja del padre. Sin caja, Chromium le da al retrato
+       el contenedor de la rejilla ENTERA en vez de su celda, y el pegajoso
+       deja de tener techo: se lleva por delante la fila siguiente.
+       Medido en un recorrido secuencial de 900 en 900 px a 1440×900, que es
+       como se lee la página: la foto del panel en Singapur se imprimía
+       ENCIMA de la Torre CN, 574×164 px a scroll 3 600 y 574×632 px a 4 500,
+       y su pie sobre el pie de la Torre. Con `.cap-1-cuerpo` como rejilla de
+       verdad —las mismas tres pistas, ocupando el ancho entero— el retrato
+       vuelve a tener celda y su recorrido acaba donde acaba el texto que
+       acompaña. La colocación no cambia: la Torre CN sigue en la pista de
+       margen, al lado del párrafo «The cover:». */
+    .cap-1-cuerpo { grid-column: 1 / -1; }
     .cap-1-texto, .portada-alt { grid-column: 1; }
     .cap-1-texto { gap: var(--cv-v2); }
     /* El raíl deja de morirse a los 145 px: la primera foto de Jaime
