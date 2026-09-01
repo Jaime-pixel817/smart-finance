@@ -4635,6 +4635,36 @@ const cifrasFranja = c.franja.sitioQ
     .carta-cita { margin-block-start: var(--cv-v1); }
     .acad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .expapp, .exp-plegable, .cinta, .cifras, .cal, .curva, .rep, .verifica, .premios { max-width: 100%; }
+
+    /* ── LA EXPERIENCIA EN FORMATO DE SOLICITUD, EN DOS COLUMNAS ─────────
+       Es el bloque que un comité escanea, y es el que peor aprovechaba el
+       marco: los cinco campos iban apilados en una sola columna, así que la
+       raya de separación llegaba a 1 310 px y el texto moría en 980 (medido
+       a 1920). En dos columnas se lee como lo que es —una ficha de
+       solicitud—: a la izquierda quién y cuándo (rol · organización ·
+       periodo), a la derecha qué hizo, el resultado, quién lo confirma y su
+       hueco. Es el mismo orden de lectura de arriba abajo para un lector de
+       pantalla: no se reordena nada, solo se reparte en dos pistas.
+       `.expapp-rol/org/cuando` van a la izquierda por nombre y todo lo demás
+       cae a la derecha por omisión, incluido el hueco, que lo pinta otro
+       componente y por eso lleva `:global()`. */
+    .expapp-fila {
+      display: grid;
+      /* La segunda pista lleva tope: con `1fr` el hueco «TO WRITE» se
+         estiraba a 910 px mientras su texto paraba en 528 (los 33em de
+         medida), y la ficha se leía descuadrada. La raya de separación sí
+         cruza el marco entero — es la que ordena la lista. */
+      grid-template-columns: minmax(220px, 22rem) minmax(0, 36rem);
+      justify-content: start;
+      column-gap: var(--cv-canal);
+      row-gap: 4px;
+      align-items: start;
+      padding-top: var(--cv-v1);
+    }
+    .expapp-fila > :global(*) { grid-column: 2; }
+    .expapp-rol, .expapp-org, .expapp-cuando { grid-column: 1; }
+    .expapp-campo:first-of-type, .expapp-fila > .expapp-campo { margin-top: 0; }
+    .expapp-campo + .expapp-campo { margin-top: var(--sp-2); }
   }
 
   /* ═══ LA VISTA IMPRESA (ola 2, 2026-08-31) ════════════════════════════
