@@ -3955,6 +3955,603 @@ const cifrasFranja = c.franja.sitioQ
     }
   }
 
+  /* ══════════════════════════════════════════════════════════════════════
+     EL CV EN ESCRITORIO — LA OLA 2b (2026-08-31)
+     ══════════════════════════════════════════════════════════════════════
+     Jaime, textual: «la mayoría de inspectores lo verá en computadora, de
+     hecho todas… la transición del header se rompió en computadora… y en
+     general reestructurar absolutamente todo para que queden las imágenes
+     perfectamente puestas y que se vea con armonía».
+
+     LO QUE HABÍA, MEDIDO (Playwright sobre `dist`, cuatro anchuras, EN y ES):
+     el CV NO TENÍA DISEÑO DE ESCRITORIO. Tenía un diseño de teléfono con un
+     `max-width`. Los cuatro `@media (min-width: …)` de esta hoja topan en
+     56em = 896 px, así que a 1280, 1440, 1536 y 1920 llegaba EL MISMO CSS
+     que a una ventana de 900 px. Consecuencias medidas:
+       · el documento mide 29 006 px a 1280 y 29 194 a 1920 — 188 px de
+         diferencia en 640 px de ventana: no refluye nada, solo crece el
+         blanco de los lados (88 px → 408 px por lado);
+       · la columna se queda clavada en 1104 px, o sea el 86 % del viewport
+         a 1280 y el 58 % a 1920;
+       · la tarjeta de la intro (`min(88vw, 420px, 46svh)`) mide el 87.9 %
+         del ancho en 390×844 y el 21.9 % en 1920×1080 — la misma línea de
+         CSS. Y su forma es 0.909 (vertical) dentro de una ventana 1.60;
+       · 39 imágenes con ancho medio de 280 px = el 25 % de la columna,
+         TODAS pintadas a su tamaño intrínseco;
+       · 21 párrafos por encima de 75 caracteres por renglón, el peor a 110.
+
+     ── POR QUÉ EL CORTE ES POR FORMA DE VENTANA Y NO POR PÍXELES ──────────
+     `min-aspect-ratio: 1/1`, y hay tres razones en orden de peso:
+     (1) LO QUE SE ROMPE ES LA FORMA, NO EL TAMAÑO. El fallo es una tarjeta
+         0.909 viviendo en una ventana 1.60. Un iPad de pie (1024×1366) mide
+         1024 px de ancho y necesita la composición MÓVIL; una ventana de
+         900×600 mide 900 y necesita la de ESCRITORIO. Un corte en px acierta
+         en uno y falla en el otro.
+     (2) CIERRA UN FALLO QUE YA EXISTÍA. El `<picture>` de la portada elige
+         el recorte por `max-aspect-ratio: 1/1` y la composición no tenía
+         ningún corte por forma: en una ventana apaisada pequeña se servía el
+         recorte PANORÁMICO dentro de la maqueta VERTICAL. Ahora foto y
+         maqueta cambian a la vez, por la misma consulta.
+     (3) DOS COMPOSICIONES SERÍAN DOS JUEGOS DE BUGS. El efecto ya tiene
+         cuatro caminos de degradación probados y una matriz de contraste
+         medida sobre la página pintada. Aquí no se duplica el mecanismo: se
+         cambian sus NÚMEROS y una suposición de apilado.
+
+     ── Y ES `screen and (…)`, TAMBIÉN A PROPÓSITO ────────────────────────
+     El papel de una hoja Carta es 8.5×11, o sea relación 0.77: `min-aspect-
+     ratio: 1/1` ya sería falso ahí. Pero una impresión APAISADA sí lo
+     cumpliría y se llevaría esta rejilla a una hoja. Con `screen` el bloque
+     entero es invisible para `@media print` en cualquier orientación, y la
+     vista impresa —que es un subconjunto de seis capítulos y ya está medida
+     en 11 hojas— no depende del orden de las reglas para seguir siendo la
+     que es.
+
+     ── EL MÓVIL NO LEE NI UNA REGLA DE AQUÍ ──────────────────────────────
+     Todo lo nuevo vive detrás de `min-aspect-ratio: 1/1`. Los `--carta-*`
+     del teléfono, su `clamp(250px, 36svh, 330px)` y el nombre partido en dos
+     se quedan EXACTAMENTE donde estaban. Los 276 px de recorrido medidos en
+     390×844 siguen siendo los mismos y no hay que volver a medirlos (se
+     midieron igual: 275 px antes y después).
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── 1 · LA TAPA EN APAISADO ───────────────────────────────────────────
+     La referencia manda, y en escritorio hace OTRA COSA. Medido en Ondo con
+     Chromium real: en el teléfono su titular son dos mitades APILADAS —y ahí,
+     entre ellas, cabe una tarjeta—; en escritorio las mismas dos mitades van
+     UNA AL LADO DE LA OTRA, en una sola línea (x=394 w=334 y x=729 w=317 a
+     1440), su centro vertical al 50.1 % del alto y el deck anclado al 95 %.
+     En escritorio NO HAY HUECO VERTICAL donde anidar nada, y Ondo no lo
+     inventa: cambia la composición. El CV copió la composición móvil y la
+     dejó también aquí. Eso es la raíz, y esto es el arreglo. */
+  @media screen and (min-aspect-ratio: 1/1) {
+    .historia {
+      /* El gutter del documento en escritorio: 1280→58 · 1440→65 · 1920→86 */
+      --cv-gutter: clamp(40px, 4.5vw, 112px);
+      /* El titular de capítulo. Era `clamp(2.5rem, 11vw, 7rem)`, o sea
+         112 px CLAVADOS desde 1018 px de ventana, y en una columna de
+         1104 px se partía en dos líneas de ~130 px: un tercio de pantalla,
+         once veces seguidas. Ondo pone 48–56 px. Los dos extremos siguen en
+         rem (WCAG 1.4.4). 1280→72 · 1440→81 · 1920→88. */
+      --cvh-h: clamp(3.5rem, 5.6vw, 5.5rem);
+      /* Los cuatro pasos del ritmo vertical, y ninguno más. Hoy había 14
+         valores de hueco distintos medidos (7, 8, 9, 19, 20, 21, 24, 29, 31,
+         36, 37, 39, 40, 43, 44 px) y `gap: var(--sp-5)` = 20 px entre bloques
+         de primer nivel: a 21 px de cuerpo, medio interlineado — todo se leía
+         como un bloque continuo. Ondo pone 130–170 px entre bloques. */
+      --cv-v1: 24px;    /* dentro de un grupo: una figura y su pie */
+      --cv-v2: 48px;    /* entre bloques de la misma idea */
+      --cv-v3: 96px;    /* entre ideas dentro de un capítulo */
+      --cv-v4: 160px;   /* entre capítulos */
+    }
+
+    /* La columna de la tapa se alinea con el MARCO del documento (≤1320) en
+       vez de con el contenedor de 1152: la barra de arriba (etiqueta a la
+       izquierda, pastillas de idioma a la derecha) queda en los mismos
+       bordes que todo lo de abajo. */
+    .portada-uno .portada-col {
+      position: relative;
+      display: block;
+      max-width: min(100% - 2 * var(--cv-gutter), 1320px);
+      padding-inline: 0;
+      padding-block: var(--sp-6) 0;
+      min-height: 100svh;
+    }
+
+    /* ── EL VELO PASA A SER PLANO Y A CUBRIR LA PANTALLA ENTERA ──────────
+       Y ESO NO ROMPE LA LECCIÓN DE LOS `em`, LA CUMPLE MEJOR. El velo de la
+       composición móvil mide lo que mide el TEXTO (paradas en `em` desde el
+       final de su caja) porque ahí el texto vive en una banda: el titular
+       está donde lo deje su propia letra, y con el texto del navegador al
+       200 % el degradado en % de pantalla dejaba «Ricaño» en 1.91:1.
+       En apaisado el texto ya no vive en una banda: la etiqueta va arriba,
+       el nombre en el CENTRO y el señuelo al 92 %. O sea que la banda es la
+       pantalla. Un velo plano de pantalla completa cubre las tres a
+       cualquier tamaño de letra, POR CONSTRUCCIÓN, sin depender de dónde
+       caiga el texto — que es lo que el bug del 200 % vino a enseñar.
+       DE DÓNDE SALE 0.58. Con un velo negro de opacidad `a` sobre un píxel
+       `v` se ve `v(1 − a)`. El texto más exigente de la tapa en apaisado ya
+       no son las etiquetas mono de la banda de cielo (peor píxel 141, piden
+       el fondo en 102 → a ≥ 0.28) sino el NOMBRE BLANCO, que ahora cruza la
+       franja del skyline, donde el peor píxel de la foto es 247 y el blanco
+       puro pide el fondo en 118 → a ≥ 0.522. 0.58 es ese borde con margen.
+       Y NO SE RAZONA, SE MIDE: `npm run check-contraste-cv`, que en esta ola
+       añade 1440×900 y 1920×1080 a su matriz justo por esto. */
+    .portada-tapa {
+      min-height: 100svh;
+      padding-bottom: 0;
+      background: rgba(0, 0, 0, .58);
+    }
+
+    /* EL NOMBRE, EN UNA LÍNEA, CENTRADO, CON SU CENTRO VERTICAL AL 50 %.
+       Es la composición de Ondo en escritorio, y de paso es la que MATA la
+       causa única del recorte del nombre: partido en dos y colgado de
+       `--carta-top`, «Jaime Sandoval» se salía por arriba en cuanto el hueco
+       sobre la tarjeta no daba (medido: 19.3 px cortados en 844×390 a texto
+       normal y 42.7 px en 320×568 al 200 %). En una línea centrada no hay
+       nada de qué colgarlo.
+       El `<h1>` se posiciona sobre la pantalla entera y sus dos mitades se
+       centran con `align-content`, así que si la letra crece y el nombre
+       pasa a dos renglones, los dos siguen centrados y nada se recorta. */
+    .portada-h1 {
+      position: absolute; inset-inline: 0; top: 0; height: 100svh;
+      font-size: var(--cvh-h);
+      flex-direction: row; flex-wrap: wrap;
+      align-items: baseline; align-content: center; justify-content: center;
+      gap: 0 .28em;
+      text-align: center;
+    }
+    /* El señuelo baja al 92 % del alto, que es donde Ondo ancla su deck
+       (94–96 %). Metido entre las dos mitades del nombre, en el 26 % del
+       alto, no anclaba nada: la portada dejaba el peso arriba y 545 px de
+       foto sin nada debajo. Sale del flujo del titular, así que el nombre
+       queda de una pieza; el `<h1>` sigue leyéndose entero. */
+    .portada-senuelo {
+      position: absolute; inset-inline: 0; top: 92svh;
+      translate: 0 -50%;
+      justify-content: center;
+      padding-block: 0;
+    }
+  }
+
+  /* ── 2 · LA MECÁNICA DE LA INTRO EN APAISADO ───────────────────────────
+     Mismo mecanismo, otros números. `clip-path: inset()` sobre la foto
+     pegada, `animation-timeline: view()`, el radio escrito y no animado, el
+     `overflow: clip` de la pantalla y los cuatro caminos de degradación se
+     quedan tal cual: es la parte buena.
+
+     LA TARJETA PASA A SER UNA COPIA A ESCALA DEL VIEWPORT, que es el
+     movimiento de Ondo medido: al cargar, su vídeo entra como tarjeta de
+     725×453 en (358, 224) a 1440×900 — 50.3 % × 50.3 %, centrada al píxel
+     (358 izq / 357 der, 224 arr / 223 ab) y con la RELACIÓN DE ASPECTO DE LA
+     PROPIA VENTANA (725/453 = 1.601 contra 1440/900 = 1.600).
+     AQUÍ ES 62 % Y NO 50.3 %, y la razón es que allí la tarjeta dura un
+     segundo y aquí es el ESTADO FINAL PERMANENTE que se queda mientras se
+     lee el manifiesto. Y sobre todo: la ventana del recorte es lo que decide
+     cuánta ciudad se ve. Medido en captura, a 28.8 % el fotograma final de
+     1440 deja la Torre CN pegada al borde izquierdo y corta el resto del
+     skyline; a 21.9 % (1920) la deja FUERA y enseña cielo vacío con dos
+     torres anónimas. Al 62 % la ventana recupera la relación 1.60 del
+     recorte panorámico que ya se genera y vuelve a caber el skyline, que es
+     el tema de la portada. */
+  @supports (animation-timeline: view()) {
+    @media screen and (prefers-reduced-motion: no-preference) and (min-aspect-ratio: 1/1) {
+      .cap-portada {
+        --carta-w: min(62vw, 1180px);
+        --carta-h: 62svh;                                  /* la tarjeta hereda la forma de la ventana */
+        --carta-top: calc((100svh - var(--carta-h)) / 2);  /* CENTRADA, no al 42 % */
+        --carta-r: clamp(24px, 1.8vw, 40px);
+      }
+      /* EL RECORRIDO. En el teléfono los 276 px salen de un flick del
+         pulgar. En escritorio el gesto es otro: una muesca de rueda en
+         Chrome/macOS son ~100–120 px y un deslizamiento de trackpad
+         300–800 px. `clamp(280px, 34svh, 380px)` son dos o tres muescas o
+         UN gesto de trackpad, y escala con la ventana sin pasar nunca de
+         uno: 800→280 · 864→294 · 900→306 · 1080→367. Ondo gasta 225 px
+         (25 % del alto) en su hero de escritorio; aquí es algo más porque
+         aquí sí hay una transformación que leer. */
+      .intro-pista { height: calc(100svh + clamp(280px, 34svh, 380px)); }
+
+      /* LA ESCENA DE TINTA: UNA SOLA LÍNEA, EN EL HUECO DE ENCIMA DE LA
+         TARJETA, Y SUBE CON UN SOLO `translateY`.
+         Las dos mitades dejan de ser dos posiciones absolutas colgadas de
+         `--carta-top` (que es de donde salía el recorte del nombre) y pasan
+         a ser dos palabras de la misma línea, centradas en la franja que
+         hay sobre la tarjeta. La franja mide `--carta-top` exacto, así que
+         el nombre no puede pisar la ventana del recorte. */
+      .intro-escena {
+        inset: 0 0 auto;
+        height: var(--carta-top);
+        display: flex; flex-wrap: wrap;
+        align-items: baseline; align-content: center; justify-content: center;
+        /* EL HUECO ENTRE LAS DOS MITADES SE MIDE EN LA LETRA DEL NOMBRE, y
+           por eso el tamaño se declara AQUÍ y los dos `<p>` lo heredan: en
+           el contenedor, `.28em` valdría 4.5 px (el 16 px del documento) y
+           el nombre saldría pegado — «SandovalRicaño». */
+        font-size: min(var(--cvh-h), calc(var(--carta-top) * .62));
+        gap: 0 .28em;
+        animation-name: intro-tinta-ancho;
+      }
+      .intro-n1, .intro-n2 {
+        position: static; inset: auto;
+        text-align: center;
+        /* EL TECHO POR LA FRANJA CIERRA EL RECORTE DEL NOMBRE POR
+           CONSTRUCCIÓN, y no es un recorte de accesibilidad: este nombre es
+           un DUPLICADO DECORATIVO dentro de un `aria-hidden` — el nombre de
+           verdad lo da el `<h1>` de la tapa, que sí crece entero con el
+           zoom de texto. Aquí, crecer más que la franja no es «texto
+           grande», es texto que el `overflow: clip` del lienzo se come.
+           0.62 de `--carta-top` deja siempre el interlineado dentro:
+           1280×800 → franja 152, letra 71.7 (tope 94) · 1440×900 → 171 y
+           80.6 (106) · 1920×1080 → 205 y 88 (127); y al 200 % de texto el
+           tope muerde y da 94 / 106 / 127, todos por debajo de su franja. */
+        font-size: inherit;
+      }
+      /* LAS DOS MITADES DEL NOMBRE BLANCO YA NO SE SEPARAN. `intro-n1` y
+         `intro-n2` mueven una mitad −0.4em y la otra +0.4em: apiladas eso
+         es el gesto de la referencia (se abren para dejar sitio a la
+         tarjeta), pero UNA AL LADO DE LA OTRA lo que se ve es «Ricaño»
+         cayéndose en diagonal respecto a «Jaime Sandoval» — el nombre se
+         rompe en dos a media pantalla. En escritorio Ondo no mueve su
+         titular ni un píxel (medido: `head@y=422` constante en los 40
+         fotogramas): la tarjeta crece detrás del texto. Aquí igual — el
+         titular se queda quieto y se disuelve con su velo. */
+      .portada-n1, .portada-n2 { animation: none; }
+      /* EL ARO NO SE PINTA EN APAISADO. Medido: a `sy=210` en 1440 el aro
+         mide 346×381 mientras la ventana del recorte todavía mide ≈1134×571
+         — se dibuja DENTRO de la foto, descentrado y con una esquina fuera
+         de cuadro, y se lee como un fallo de render, no como un gesto. Su
+         `animation-range` (contain 48–92 %) nunca estuvo sincronizado con
+         el del recorte en la relación apaisada. Y de paso: `motion.css`
+         pide una sola animación llamando la atención por pantalla. */
+      .intro-aro { display: none; }
+      /* El manifiesto sube por debajo, pegado al borde de abajo de la
+         tarjeta. La reserva de 9em de la composición móvil era el hueco de
+         la MITAD DE ABAJO del nombre; en apaisado no hay mitad de abajo,
+         así que la reserva es un respiro y nada más. */
+      .portada-tarjeta {
+        margin-top: calc(var(--carta-top) + var(--carta-h) - 100svh + var(--sp-10));
+      }
+    }
+  }
+  /* La misma meseta de `intro-tinta` (la tinta negra no puede llegar antes
+     que el papel: sube a .22 enseguida y el tramo de .22 a 1 cae entero en
+     la cola, ya con papel debajo) MÁS el ascenso. Un solo `translateY`, de
+     su centro al 50 % del alto —donde está el nombre blanco de la tapa, así
+     que el relevo se ve como un mismo nombre que cambia de tinta— hasta la
+     franja de encima de la tarjeta. Los keyframes intermedios no declaran
+     `transform`, así que el ascenso interpola de un extremo al otro. */
+  @keyframes intro-tinta-ancho {
+    from { opacity: 0; transform: translateY(calc(50svh - var(--carta-top) / 2)); }
+    12%, 62% { opacity: .22; }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ── 3 · LA REJILLA DEL CUERPO: CUATRO PISTAS Y NADA MÁS ───────────────
+     Había 60 posiciones x distintas y 8 anchos de bloque hijos de `.cap`
+     (1104, 960, 875, 720, 680, 500, 440, 320) más otros ~36 anchos de
+     nietos: cada bloque inventaba su ancho. Ahora cada bloque DECLARA en
+     qué pista vive y la ocupa entera.
+
+       pista      ancho          qué va aquí
+       texto      ~688 px        toda la prosa
+       margen     280–592 px     figuras que acompañan, pies, huecos de foto
+       marco      ≤1320 px       rejillas de tarjetas, carruseles, tablas
+       sangre     ≤1680 px       como mucho dos por documento
+
+     LAS CUENTAS SON DETERMINISTAS Y SUMAN EL MARCO EXACTO, que es lo que
+     impide que la rejilla se desborde nunca (una pista `minmax(280px,
+     592px)` entre dos `1fr` se dimensiona por CONTENIDO, y eso no es una
+     rejilla, es una lotería):
+       marco  = min(100% − 2·gutter, 1320)
+       prosa  = min(43rem, marco − canal − 280)
+       margen = marco − canal − prosa
+     1280 → gutter 58, marco 1164, prosa 688, margen 428, aire 58/lado
+     1440 → gutter 65, marco 1310, prosa 688, margen 574, aire 65/lado
+     1536 → gutter 69, marco 1320, prosa 688, margen 584, aire 108/lado
+     1920 → gutter 86, marco 1320, prosa 688, margen 584, aire 300/lado
+     O sea el marco pasa del 58 % del viewport a 1920 al 69 %, y a 1280 del
+     86 % al 91 %.
+
+     LA PROSA EN `rem` Y NO EN PX ES LO QUE HACE QUE ESTO AGUANTE EL ZOOM DE
+     TEXTO: 43rem son 688 px al 100 % y 1376 al 200 %, y el `min(…)` con lo
+     que quede del marco impide que la suma de las pistas pase del marco —
+     así que al 200 % la prosa se come el margen hasta su suelo de 280 px y
+     la rejilla sigue midiendo exactamente el marco. Nada se sale de lado. */
+  @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
+    .cap:not(.cap-portada) {
+      /* OJO CON ESTAS TRES: llevan `100%` dentro, y un `100%` metido en
+         una variable NO se resuelve donde se declara sino DONDE SE USA.
+         Solo valen para dimensionar las pistas de `.cap`; en un
+         descendiente vuelven a medirse contra SU caja y dan otra cosa
+         (medido: `.marg-fila` dentro de la pista de margen calculaba
+         `--cv-margen` = 280 px en vez de 574 y se quedaba a la mitad). Un
+         hijo que quiera el ancho de su pista pide `100%`, que es lo que
+         ya hace por omisión; y el que quiera un tope escribe el número. */
+      --cv-frame: min(100% - 2 * var(--cv-gutter), 1320px);
+      --cv-canal: 48px;
+      --cv-prosa: min(43rem, calc(var(--cv-frame) - var(--cv-canal) - 280px));
+      --cv-margen: calc(var(--cv-frame) - var(--cv-canal) - var(--cv-prosa));
+
+      max-width: none;
+      padding-inline: 0;
+      /* FUERA `min-height: 100svh` + `justify-content: center`. Los
+         capítulos miden entre 1.2 y 4.9 pantallas, así que esa regla solo
+         actuaba sobre los dos cortos y les metía aire arbitrario mientras
+         los largos iban sin respiración. El ritmo lo pone la escala. */
+      min-height: 0;
+      padding-block: var(--cv-v4) 0;
+      display: grid;
+      grid-template-columns:
+        [sangre-i] minmax(0, 1fr)
+        [marco-i texto-i] var(--cv-prosa)
+        [texto-f] var(--cv-canal)
+        [margen-i] var(--cv-margen)
+        [margen-f marco-f] minmax(0, 1fr) [sangre-f];
+      /* El hueco lo ponen los márgenes de cada hijo y no `row-gap`: un
+         `gap` uniforme no sabe distinguir «el titular debajo de su número»
+         de «una idea nueva». */
+      gap: 0;
+      align-content: start;
+    }
+    /* Por omisión, todo vive en el MARCO. Es el valor seguro: un bloque
+       nuevo que nadie clasifique sale a ancho de documento, no metido en la
+       primera pista de aire.
+       ── `:global()` NO ES OPCIONAL AQUÍ, Y COSTÓ UNA TANDA DE CAPTURAS ──
+       Los `<style>` de Astro tienen ámbito por componente: le pegan a cada
+       parte del selector el atributo del ARCHIVO donde se escribe. Los
+       huecos («TO WRITE») y los huecos de foto los pinta otro componente
+       (Hueco.astro y FotoHueco.astro), así que ni `> *` ni `> .hueco`
+       escritos a secas alcanzan su marcado — y un hijo de rejilla sin
+       `grid-column` cae por colocación automática en la PRIMERA pista
+       libre, que aquí es el aire de la izquierda. Medido en captura: el
+       hueco del contratiempo del capítulo 2 salía como una tira de 55 px
+       pegada al borde derecho, con una letra por renglón. */
+    .cap:not(.cap-portada) > :global(*) { grid-column: marco-i / marco-f; }
+    /* LA PROSA, EN SU PISTA. */
+    .cap:not(.cap-portada) > .cap-num,
+    .cap:not(.cap-portada) > .cap-lede,
+    .cap:not(.cap-portada) > .cap-frases,
+    .cap:not(.cap-portada) > .voz,
+    .cap:not(.cap-portada) > .pie,
+    .cap:not(.cap-portada) > .meta-mono,
+    .cap:not(.cap-portada) > h3,
+    .cap:not(.cap-portada) > :global(.hueco),
+    .cap:not(.cap-portada) > :global(.cv-suyo),
+    .cap:not(.cap-portada) > .acad-nota,
+    .cap:not(.cap-portada) > .exp-plegable,
+    .cap:not(.cap-portada) > .verifica,
+    .cap:not(.cap-portada) > .premios,
+    .cap:not(.cap-portada) > .tt-cta,
+    .cap:not(.cap-portada) > .frase-trad,
+    .cap:not(.cap-portada) > .cierre { grid-column: texto-i / texto-f; }
+    /* LO QUE ACOMPAÑA, EN EL MARGEN. */
+    .cap:not(.cap-portada) > :global(.premio-doc),
+    .cap:not(.cap-portada) > .arco-fig,
+    .cap:not(.cap-portada) > .marg-fila { grid-column: margen-i / margen-f; }
+
+    /* EL RITMO, EN CUATRO PASOS Y NINGUNO MÁS. */
+    .cap:not(.cap-portada) > :global(*) { margin-block-start: var(--cv-v2); }
+    .cap:not(.cap-portada) > .cap-num { margin-block-start: 0; }
+    .cap:not(.cap-portada) > .cap-h { margin-block-start: var(--cv-v1); }
+    .cap:not(.cap-portada) > h3,
+    .cap:not(.cap-portada) > .citas-marco,
+    .cap:not(.cap-portada) > .clips,
+    .cap:not(.cap-portada) > :global(.hueco.contra) { margin-block-start: var(--cv-v3); }
+
+    /* EL TITULAR DE CAPÍTULO ocupa el marco pero con medida de titular:
+       14em de su propio tamaño son ~28 caracteres por renglón a cualquier
+       escala. En una columna de 688 px, 81 px de Fraunces darían ocho. */
+    .cap:not(.cap-portada) > .cap-h { max-width: 14em; }
+
+    /* La frase final SÍ se queda con su pantalla entera: es lo único que
+       cierra el documento y está solo a propósito. */
+    .cap-frase { min-height: 100svh; justify-content: center; align-content: center; }
+    .frase p { max-width: 14em; }
+
+    /* ── 4 · LA LONGITUD DE RENGLÓN: UN CAMBIO DE UNIDAD, NO DE GUSTO ────
+       Medido: 21 párrafos por encima de 75 caracteres por renglón en
+       inglés (18 en español), el peor a 110. Y la causa es UNA y está al
+       revés. `.cap-lede`, `.cap-frases`, `.pie` y `.voz p` llevaban
+       `max-width: 62ch` SOBRE FUENTES PROPORCIONALES: `ch` es el ancho del
+       glifo `0`, más estrecho que el avance medio de la minúscula, así que
+       62ch entregan ~82 caracteres reales (medido: 62ch = 875 px a 21 px, y
+       ese renglón trae 82). Y los bloques mono NO llevaban `max-width`
+       ninguno: corrían hasta la columna entera y llegaban a 110.
+       O sea: la unidad correcta estaba puesta en el sitio equivocado.
+       · PROPORCIONAL → `33em`. Un solo número para todos los tamaños,
+         porque el avance medio medido en esta pila es 0.508 em a cualquier
+         tamaño (a 21 px: 875 px → 82 car. = 10.67 px/car.; a 16 px: 706 px
+         → 87 car. = 8.11). 33em dan 65 caracteres a 21 px y 65 a 16 px.
+       · MONO → `62ch`, Y HAY QUE PONÉRSELO. Ahí `ch` sí es el avance real,
+         así que 62ch son 62 caracteres clavados. */
+    .cap-lede, .cap-frases, .voz p, .pie, .abre p, .frase-trad,
+    .servir-bloque p, .bloque p, .par-col p, .grupo-texto p,
+    .acad-bloque p, .acad-nota p, .expapp-campo, .verifica-fila p {
+      max-width: 33em;
+    }
+    .meta-mono, .cifra-suya-marca, .cita-tipo,
+    :global(.foto-hueco-que), :global(.hueco-que) { max-width: 62ch; }
+    /* El hueco de foto de los premios ocupa su pista entera, como cualquier
+       otra figura del margen. */
+    :global(.premio-doc), :global(.hueco-toronto) { max-width: 100%; }
+    /* El pie de una figura se mide contra SU figura, no contra la prosa:
+       una foto de 592 px con un pie de 33em (693) sería un pie más ancho
+       que su foto. */
+    figure .pie, .lote-fig .pie, .clip-titulo { max-width: 100%; }
+
+    /* ── 5 · CAPÍTULO 1: EL RAÍL DEJA DE MORIRSE A LOS 145 PX ────────────
+       Medido: la rejilla `minmax(0,1fr) 320px` se acaba a los 145 px y a
+       partir de ahí el 44 % derecho de la página queda VACÍO mientras la
+       columna izquierda sigue durante casi pantalla y media — dos maquetas
+       distintas dentro del mismo capítulo. Con la foto pegada, el raíl
+       acompaña al capítulo entero. */
+    .portada-papel-cierre .portada-col,
+    .portada-tarjeta .portada-col {
+      max-width: min(100% - 2 * var(--cv-gutter), 1320px);
+      padding-inline: 0;
+    }
+    /* El capítulo 1 no cuelga de `.cap` sino de `.portada-papel-cierre`
+       (vive dentro de la portada), así que su rejilla se escribe aquí con
+       las MISMAS tres pistas: prosa · canal · margen. `.cap-1-cuerpo` pasa
+       a `display: contents` para que sus dos hijos —el texto y el retrato—
+       sean items de ESTA rejilla y no de una propia: así el retrato puede
+       compartir fila con el texto entero y el pie de la portada y la Torre
+       CN caen debajo de cada uno, en su pista. */
+    .portada-papel-cierre .portada-col {
+      display: grid;
+      grid-template-columns:
+        min(43rem, calc(100% - 48px - 280px))
+        48px
+        minmax(280px, 1fr);
+      column-gap: 0;
+      row-gap: var(--cv-v2);
+      align-items: start;
+    }
+    .cap-1-cuerpo { display: contents; }
+    .cap-1-texto, .portada-alt { grid-column: 1; }
+    .cap-1-texto { gap: var(--cv-v2); }
+    /* El raíl deja de morirse a los 145 px: la primera foto de Jaime
+       acompaña el capítulo entero en vez de dejar 490 px vacíos durante
+       750 px de scroll. `align-items: start` es lo que le deja alto que
+       recorrer — estirada a la fila no habría nada que pegar. */
+    .cap-1-retrato {
+      grid-column: 3;
+      position: sticky; top: var(--sp-16);
+      gap: var(--cv-v1);
+    }
+    .cap-1-foto { width: 100%; }
+    /* La Torre CN de Jaime: era la huérfana más visible del documento —la
+       imagen más alta, con 584 px de blanco al lado— porque llevaba
+       `max-width: 520px` dentro de una columna de 1104. Pasa al margen y lo
+       ocupa entero, emparejada con el párrafo que la explica. */
+    .cap-1-figura {
+      grid-column: 3;
+      max-width: 100%;
+      gap: var(--cv-v1);
+    }
+    .cap-1-figura img { width: 100%; }
+    /* La foto de Toronto se queda PEGADA a su cita sobre la U of T (es de
+       esa visita), o sea en la columna de texto y no en el margen, que aquí
+       lo ocupa el retrato pegajoso. Lo que cambia es que deja de pintarse a
+       su tamaño intrínseco. */
+    .lote-toronto { max-width: min(100%, 420px); }
+
+    /* ── 6 · DÓNDE VA CADA IMAGEN ───────────────────────────────────────
+       La regla que arregla «flotan»: NINGUNA imagen se pinta a su tamaño
+       intrínseco. Cada figura declara su pista y la ocupa. Suelo 280 px. */
+
+    /* El refugio y la playa: tres columnas en el marco, no dos de 350 px
+       dentro de un tope de 720. `.servir` deja de repartir sus dos bloques
+       en columnas para que las filas de fotos puedan usar el marco entero. */
+    .servir { grid-template-columns: minmax(0, 1fr); gap: var(--cv-v3); }
+    .servir-bloque { gap: var(--cv-v2); }
+    .fila-fotos, .playa-fotos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--sp-6);
+      max-width: none;
+    }
+    .playa-fotos .lote-fig, .fila-fotos .lote-fig { max-width: 100%; }
+    .lote-fig img { width: 100%; }
+    /* Las dos filas de UNA sola foto no son rejillas de tres: son figuras
+       de margen. */
+    .marg-fila, .grupo-narra-fila {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 592px;
+    }
+    .grupo-narra-fila .lote-fig { max-width: 100%; }
+
+    /* La captura del sitio es LA PRUEBA del proyecto insignia y se servía a
+       media escala: a 560 px su texto no se lee. Va al marco. El tope de
+       1600 px es el archivo, no un gusto: por encima de ahí se estaría
+       ampliando una captura, que es justo lo que la deja ilegible. */
+    .bloques { max-width: none; gap: var(--cv-v3); }
+    .bloque { gap: var(--cv-v2); }
+    .sf-header-fig { max-width: min(100%, 1600px); margin-top: 0; }
+    /* La captura de la tienda de Jasa Motor, por lo mismo: 275 px es una
+       miniatura de una página web. A ancho de prosa se leen sus rótulos. */
+    .jasa-fig { max-width: 43rem; margin-top: 0; }
+    .jasa-fig img { width: 100%; }
+    /* La foto del grupo va AL LADO de su texto y no debajo: es el bento de
+       Ondo en escritorio. A 305 px no se distinguía a nadie; a 520 sí, y
+       520 es además el tamaño al que su archivo (800 px) no se amplía. */
+    .grupo { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: var(--cv-v2); align-items: start; }
+    .grupo .recuerdo img { width: 100%; }
+    .grupo-tec { max-width: 592px; }
+    .arco-fig, .premio-doc { max-width: 100%; margin-top: 0; }
+    .carta .lote-fig { max-width: 100%; }
+    .carta .lote-fig img { width: 100%; }
+
+    /* ── 7 · LAS FILAS DE TARJETAS: UNA LÍNEA DE BASE DE VERDAD ──────────
+       El defecto medido: en el carrusel, «Andy Toh» salía en y=162 y «A
+       student at NUS» en y=315, porque las fotos son 4:3 (150 px de alto) y
+       los clips 9:16 (302 px). La fila no tenía línea de base.
+       LA CAJA DE MEDIA PASA A TENER ALTO FIJO, y el media se centra dentro
+       a su proporción en vez de estirarse al 100 % del ancho: un clip 9:16
+       y una foto 4:3 NO pueden llenar la misma caja apaisada sin destrozar
+       uno de los dos — el clip saldría como una rebanada horizontal de un
+       vídeo vertical. Alto fijo + ancho por proporción alinea los títulos,
+       que es lo que había que arreglar, sin romper ningún encuadre. */
+    /* LA TARJETA PASA A SER UN BENTO: media a la izquierda, todo el texto a
+       la derecha. Es lo que arregla las dos cosas de una vez.
+       (a) LA LÍNEA DE BASE. Apiladas, la foto (4:3, 150 px de alto) y el
+           clip (9:16, 302 px) empujaban el título a alturas distintas —
+           medido: «Andy Toh» en y=162 y «A student at NUS» en y=315. Con el
+           media en su propia COLUMNA, los títulos arrancan todos en la
+           primera fila de la columna de texto y la proporción del media deja
+           de decidir nada.
+       (b) LOS HUECOS NEGROS. La tarjeta corta se estiraba a la más alta y
+           dejaba ~300 px de negro entre el cargo y «WHAT I TOOK FROM IT».
+           Ahora la altura la pone el contenido (`align-items: start`) y el
+           media se estira a lo que mida su tarjeta, no al revés.
+       Y de paso la tarjeta pasa de 340 px a 880: es la medida de Ondo en
+       escritorio (1128 px = 78 % del viewport, con la vecina asomando). */
+    .citas { scroll-padding-inline: 0; align-items: start; }
+    .cita {
+      flex: 0 0 min(72%, 880px);
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      column-gap: var(--sp-5); row-gap: var(--sp-2);
+      align-content: start;
+    }
+    .cita > :global(*) { grid-column: 2; }
+    /* `span 10` Y NO `1 / -1`: sin filas explícitas declaradas, la línea
+       `-1` es la última del grid EXPLÍCITO — o sea la 1 — y el media se
+       quedaba en la primera fila, empujando el cargo 230 px hacia abajo.
+       Con un span mayor que el número de renglones de cualquier tarjeta, el
+       media llega hasta abajo y la columna de texto arranca pegada arriba. */
+    .cita-media {
+      grid-column: 1; grid-row: 1 / span 10;
+      align-self: stretch;
+      min-height: 220px;
+    }
+    .cita-foto, .cita .clip-video {
+      width: 100%; height: 100%; max-width: none;
+      object-fit: cover;
+    }
+    .cita-nombre { margin-top: 0; }
+
+    /* La rejilla de clips: tres columnas IGUALES (eran 250/528/250 porque
+       el clip apaisado mandaba) y el clip ancho ocupa dos. Cinco tarjetas
+       llenan exactamente dos filas de tres. `align-items: start` evita que
+       la corta se estire y deje blanco debajo de su texto. */
+    .clips { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-6); align-items: start; }
+    .clip-ancho { grid-column: span 2; }
+    .clip .clip-video { max-width: 100%; width: 100%; }
+    .clip .recuerdo img { max-width: 100%; }
+
+    /* Los certificados: tres columnas en el marco y una ZONA DE TÍTULO DE
+       ALTO FIJO, que es lo que hace que los seis escaneos arranquen a la
+       misma y (medido: el 3.º empezaba 22 px más abajo porque su título
+       ocupa una línea menos). */
+    .certs, .cartas, .premios-huecos, .acad-huecos, .acad, .franja { max-width: none; }
+    .certs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cert-nombre { min-height: 3em; }
+    .cartas, .premios-huecos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .acad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .expapp, .exp-plegable, .cinta, .cifras, .cal, .curva, .rep, .verifica, .premios { max-width: 100%; }
+  }
+
   /* ═══ LA VISTA IMPRESA (ola 2, 2026-08-31) ════════════════════════════
      UN CV SE IMPRIME, Y ESTE NO SE PODÍA. Hasta hoy `@media print` eran seis
      parches sueltos —desmontar la tapa, devolverle la tinta negra, esconder
