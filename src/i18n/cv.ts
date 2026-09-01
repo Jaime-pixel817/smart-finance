@@ -131,15 +131,20 @@ const en = {
   //       adivinar el nombre de una persona.
   // Su hueco se queda y lo dice en pantalla. Necesita respuesta de Jaime.
   //
-  // NO HAY NINGUNA FOTO «1 · el CEO Andy Toh». Este mapa asignaba la foto 1 a
-  // DOS huecos —el de Lloyd y el de Andy Toh— y el lote no trae ninguna de
-  // Jaime con Andy Toh: son 13 archivos y ninguno es esa. El MAPA.md de Jaime
-  // dice que «la foto con Andy Toh ya está en el repo (breakdown-andy-toh)»,
-  // pero esa es el cuadro de la entrevista que YA sale en el carrusel del
-  // capítulo 4, y la regla del CV es que ninguna imagen se repite. Así que
-  // `cartaAndy` sigue siendo hueco y lo seguirá siendo hasta que exista la
-  // foto; el hueco es honesto, pero conviene saber que nadie ha dicho que esa
-  // foto exista.
+  // LA FOTO DE ANDY TOH: RESUELTA EL 2026-08-31, Y CON SU FUENTE.
+  // El lote del 2026-08-30 no trae ninguna de Jaime con Andy Toh (son 13
+  // archivos y ninguno es esa), y por eso aquí vivía un hueco. Pero el
+  // MAPA.md que escribió Jaime lo dice sin ambigüedad: «la foto con Andy Toh
+  // (el CEO) ya está en el repo (breakdown-andy-toh): va debajo de SU carta
+  // de recomendación, igual que la de Lloyd debajo de la suya». O sea que la
+  // instrucción es usar el cuadro de la entrevista, que YA sale en el
+  // carrusel del capítulo 4.
+  // SE REPITE UNA IMAGEN, Y ES LA PRIMERA VEZ. La regla del CV es que ninguna
+  // se repite, y aquí la excepción está pedida por él y tiene sentido: las
+  // dos cosas que esta página afirma de Andy Toh son la conversación y la
+  // carta, y la foto es la prueba de la primera y el rostro de la segunda.
+  // `cartaAndy` deja de usarse; se queda escrito por si algún día llega una
+  // foto propia con él.
   fotosPend: {
     // `origen` se fue el 2026-08-31: no lo usaba nadie desde que se
     // colocaron las 12 fotos del lote. Texto muerto en las dos tablas.
@@ -150,10 +155,15 @@ const en = {
     // razones que van cada una por su lado: el cartel enseña un teléfono
     // legible, y en la foto hay dos mujeres sin que ninguna fuente diga cuál
     // es Sol. Las dos están escritas arriba, sobre el mapa del lote.
-    sol: 'A portrait of Sol — or a frame from the march videos. The one I sent from the stand is not published here: a phone number is legible on the sign, and this page does not publish phone numbers.',
-    // NO EXISTE una foto de Jaime con Andy Toh: el lote del 2026-08-30 son 13
-    // archivos y ninguno es esa (ver el mapa, arriba). El hueco se queda
-    // porque es honesto, pero nadie ha dicho que esa foto exista.
+    /* OJO CON LA ÚLTIMA FRASE: decía «this page does not publish phone
+       numbers», y desde que las dos cartas se publican enteras eso dejó de
+       ser cierto (la de Lloyd George trae el suyo). La razón de fondo no
+       cambia y es la que se escribe ahora: el del cartel es de un tercero que
+       no me lo dio para publicarlo; el de la carta lo escribió quien la firma
+       en un documento que me dio para entregarlo. */
+    sol: 'A portrait of Sol — or a frame from the march videos. The one I sent from the stand is not published here: a phone number is legible on the sign and nobody gave it to me to publish.',
+    // YA NO SE USA (2026-08-31): la ficha de su carta enseña el cuadro de la
+    // entrevista, que es lo que pidió el MAPA.md. Ver la nota de arriba.
     cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
   },
   // ── EL LOTE DEL 2026-08-30, YA COLOCADO ────────────────────────────────
@@ -166,6 +176,11 @@ const en = {
   lote: {
     cartaLloydAlt: 'Me holding a Singapore flag on its wooden pole, next to Lloyd George, in a white shirt, holding another pole, in a function room',
     cartaLloydPie: 'With Lloyd George in Singapore (2026).',
+    // La MISMA foto del carrusel, con su `alt` reescrito en primera persona
+    // (el del carrusel lo escribe ui.ts en tercera, porque ahí lo comparte
+    // con el resto del sitio).
+    cartaAndyAlt: 'Me interviewing Andy Toh, the two of us seated across a low table, during the programme in Singapore',
+    cartaAndyPie: 'With Andy Toh in Singapore (2026).',
     torontoAlt: 'Me and a classmate in winter coats in front of the red TORONTO letters at Nathan Phillips Square, City Hall behind us',
     torontoPie: 'The day I visited Toronto (2026).',
     playa1Alt: 'Me picking up litter with a grabber and a red bucket at the edge of a path, a rubbish truck behind me and the sea past the trees',
@@ -1216,7 +1231,20 @@ const en = {
   // una carta cuando llega. No se inventa ninguna carta y no se disimula que
   // faltan: el rótulo en ámbar sigue ahí, como en todos los huecos.
   cartas: {
-    lede: 'Two have arrived. The letters themselves are not published here — they are documents for admissions committees. What is on this page is the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. One of the letters also gives a personal phone number; that one is not published.',
+    /* ── EL LEDE CAMBIÓ EL 2026-08-31, Y EL CAMBIO ES DE JAIME ────────────
+       Decía «las cartas no se publican aquí». Jaime pidió lo contrario con
+       estas palabras: «sube en cada carta de recomendación el archivo de la
+       carta». Los PDF van ENTEROS y SIN TOCAR (public/assets/cv/): son
+       documentos firmados, y recortarle el teléfono a uno lo volvería un
+       documento manipulado, que es exactamente lo que un comité no puede
+       aceptar. Jaime asume que quien tenga la dirección de esta página verá
+       el teléfono personal que trae la carta de Lloyd George. La dirección
+       de esta página ES la credencial (CV_SLUG, noindex, fuera del sitemap y
+       del buscador), así que «quien tenga el enlace» es quien él se lo dé.
+       El aviso de docs/../cv-material/cartas/CARTAS.md (2026-08-29), que
+       decía que los PDF NO se publican, queda revocado por esto y allí está
+       anotado con su fecha. */
+    lede: 'Two have arrived, and both are here in full: the record, the two lines that carry the most weight in each one, the contact each signatory gave for enquiries about me, and the signed letter itself as its own file. I publish them whole and untouched: I cannot cut a line out of a signed letter without turning it into a different document.',
     entregadasH: 'Delivered',
     faltanH: 'Room for more',
     citaTag: 'The two lines that carry the most weight',
@@ -1224,6 +1252,15 @@ const en = {
     // haya buscado, es el que el propio firmante escribió en su carta
     // ofreciéndose a contestar preguntas sobre él.
     contactoTag: 'Contact he gave for enquiries about me',
+    /* EL ENLACE AL PDF. `pdfTag` es el rótulo de la fila y `pdfVer` el texto
+       del enlace; `{n}` es el nombre de quien firma y `{kb}` el peso REAL del
+       archivo, que no se escribe aquí: lo lee del disco `cartas.test.mjs` y
+       falla si el número de `pdfKb` deja de cuadrar (mismo trato que las
+       cifras contadas del capítulo 5 — una cifra a mano en un CV que presume
+       verificabilidad se desincroniza en silencio). */
+    pdfTag: 'The letter itself',
+    pdfVer: 'Download {n}’s signed letter',
+    pdfMeta: 'PDF · {kb} KB',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -1239,12 +1276,15 @@ const en = {
           'What he has already achieved without institutional support indicates clearly what he will achieve with it.'
         ],
         correo: 'Enquiries.TAQ@outlook.com',
+        // EL PDF, ENTERO. Es el que trae el teléfono personal; ver la nota
+        // del `lede`. No se recorta.
+        pdf: 'carta-lloyd-george-taq.pdf',
+        pdfKb: 366,
         // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
         // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
-        // dice que hay imagen. La de Andy Toh va al revés: esa foto NO existe
-        // en el lote, así que ahí sigue el hueco.
+        // dice qué imagen es.
         foto: null,
-        lote: true
+        lote: 'lloyd' as const
       },
       {
         nombre: 'Andy Toh',
@@ -1257,8 +1297,18 @@ const en = {
           'His willingness to seek opportunities to learn and continually improve himself reflects a level of maturity and self-motivation that I believe will serve him extremely well at university.'
         ],
         correo: 'Andy.toh@bluesky-education.com',
-        foto: 'cartaAndy' as const,
-        lote: false
+        pdf: 'carta-andy-toh-bluesky.pdf',
+        pdfKb: 196,
+        // SU FOTO YA ESTABA EN EL REPO Y EL HUECO SOBRABA. El MAPA.md del
+        // lote lo dice con esas palabras: «la foto con Andy Toh (el CEO) ya
+        // está en el repo (breakdown-andy-toh): va debajo de SU carta de
+        // recomendación, igual que la de Lloyd debajo de la suya». Es la
+        // misma foto de la entrevista que ya sale en el carrusel, y sale dos
+        // veces a propósito: son las dos cosas que este CV afirma de esa
+        // persona —la conversación y la carta— y la foto es la prueba de la
+        // primera. El hueco `cartaAndy` deja de usarse.
+        foto: null,
+        lote: 'andy' as const
       }
     ],
     tag: 'Letter to come',
@@ -1684,13 +1734,15 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
-    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha. La que mandé del puesto no se publica aquí: en el cartel se lee un número de teléfono, y esta página no publica teléfonos.',
+    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha. La que mandé del puesto no se publica aquí: en el cartel se lee un número de teléfono y nadie me lo dio para publicarlo.',
     cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
   },
   // Ver la nota de la tabla inglesa.
   lote: {
     cartaLloydAlt: 'Yo sosteniendo una bandera de Singapur en su asta de madera, junto a Lloyd George, de camisa blanca, que sostiene otra asta, en un salón',
     cartaLloydPie: 'Con Lloyd George en Singapur (2026).',
+    cartaAndyAlt: 'Yo entrevistando a Andy Toh, los dos sentados frente a frente en una mesa baja, durante el programa en Singapur',
+    cartaAndyPie: 'Con Andy Toh en Singapur (2026).',
     torontoAlt: 'Yo y una compañera, con abrigos de invierno, frente a las letras rojas de TORONTO en Nathan Phillips Square, con el ayuntamiento detrás',
     torontoPie: 'El día que visité Toronto (2026).',
     playa1Alt: 'Yo recogiendo basura con una pinza y una cubeta roja en la orilla de un sendero, con un camión de basura detrás y el mar pasando los árboles',
@@ -2141,13 +2193,16 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Ya llegaron dos. Las cartas no se publican aquí: son documentos para comités de admisión. En esta página va la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. Una de las cartas trae además un teléfono personal; ese no se publica.',
+    lede: 'Ya llegaron dos, y las dos están aquí completas: la ficha, las dos frases que más pesan de cada una, el contacto que cada quien dio para preguntar por mí y la carta firmada como archivo. Las publico enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
     entregadasH: 'Entregadas',
     faltanH: 'Espacio para más',
     // Las dos cartas están escritas en inglés: en este panel las citas van
     // TRADUCIDAS, y la marca lo dice, como con las frases de `voz.*`.
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
     contactoTag: 'Contacto que dio para preguntar por mí',
+    pdfTag: 'La carta, tal cual',
+    pdfVer: 'Descargar la carta firmada de {n}',
+    pdfMeta: 'PDF · {kb} KB',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -2160,12 +2215,15 @@ const es: typeof en = {
           'Lo que ya ha logrado sin apoyo institucional indica con claridad lo que logrará con él.'
         ],
         correo: 'Enquiries.TAQ@outlook.com',
+        // EL PDF, ENTERO. Es el que trae el teléfono personal; ver la nota
+        // del `lede`. No se recorta.
+        pdf: 'carta-lloyd-george-taq.pdf',
+        pdfKb: 366,
         // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
         // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
-        // dice que hay imagen. La de Andy Toh va al revés: esa foto NO existe
-        // en el lote, así que ahí sigue el hueco.
+        // dice qué imagen es.
         foto: null,
-        lote: true
+        lote: 'lloyd' as const
       },
       {
         nombre: 'Andy Toh',
@@ -2178,8 +2236,18 @@ const es: typeof en = {
           'Su disposición a buscar oportunidades para aprender y mejorar continuamente refleja un grado de madurez y automotivación que, en mi opinión, le servirá extremadamente bien en la universidad.'
         ],
         correo: 'Andy.toh@bluesky-education.com',
-        foto: 'cartaAndy' as const,
-        lote: false
+        pdf: 'carta-andy-toh-bluesky.pdf',
+        pdfKb: 196,
+        // SU FOTO YA ESTABA EN EL REPO Y EL HUECO SOBRABA. El MAPA.md del
+        // lote lo dice con esas palabras: «la foto con Andy Toh (el CEO) ya
+        // está en el repo (breakdown-andy-toh): va debajo de SU carta de
+        // recomendación, igual que la de Lloyd debajo de la suya». Es la
+        // misma foto de la entrevista que ya sale en el carrusel, y sale dos
+        // veces a propósito: son las dos cosas que este CV afirma de esa
+        // persona —la conversación y la carta— y la foto es la prueba de la
+        // primera. El hueco `cartaAndy` deja de usarse.
+        foto: null,
+        lote: 'andy' as const
       }
     ],
     tag: 'Carta por llegar',

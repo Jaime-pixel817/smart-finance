@@ -1952,14 +1952,65 @@ const cifrasFranja = c.franja.sitioQ
                hueco diciendo a quién espera (`k.foto` es la clave del texto
                del hueco, no un archivo). Este comentario decía que la carpeta
                del lote «aún no existe» y era falso. */}
-          {k.lote ? (
+          {/* ══ LA CARTA FIRMADA, COMO ARCHIVO (Jaime, 2026-08-31) ══════════
+               Textual: «sube en cada carta de recomendación el archivo de la
+               carta». Los dos PDF viajan ENTEROS y byte a byte iguales a los
+               que él recibió (comprobado con sha256 contra
+               cv-material/cartas/): un documento firmado al que se le recorta
+               un renglón deja de ser el documento que se firmó, y un comité
+               que note el recorte tiene razón en desconfiar. La carta de
+               Lloyd George trae su teléfono personal y NO se toca; Jaime
+               asume que quien tenga la dirección de esta página lo verá, y la
+               dirección de esta página es su credencial (CV_SLUG, noindex,
+               fuera del sitemap y del buscador). La nota que decía lo
+               contrario (cv-material/cartas/CARTAS.md, 2026-08-29) queda
+               revocada y allí está anotado.
+
+               NO SE DESCARGA AL ABRIR LA PÁGINA: es un `<a>` normal, sin
+               `preload` ni `prefetch`, y el navegador no pide nada hasta que
+               alguien lo pulsa (comprobado leyendo las peticiones de red de
+               una carga completa: 0 bytes de PDF).
+               VIVE EN public/assets/cv/, que es la carpeta que ya sirven los
+               clips: `/assets/(.*)` va con caché de UN DÍA y no `immutable`
+               —el único `immutable` del sitio es /assets/fotos/, donde TODO
+               lleva huella de contenido por construcción—. Estos dos no
+               llevan huella, así que una carta corregida llega en 24 h y no
+               en un año. Y `.vercelignore` no los excluye (excluye
+               /public/assets/portada y cv-fotos, no /public/assets/cv).
+
+               EL PESO NO SE ESCRIBE A OJO: `pdfKb` está en cv.ts y
+               `src/lib/cv/cartas.test.mjs` lo compara con el tamaño real del
+               archivo en disco, en los dos idiomas. Si alguien sustituye un
+               PDF, `npm test` se cae en vez de publicar un peso falso. */}
+          <p class="carta-pdf">
+            <span class="meta-mono carta-contacto-tag">{c.cartas.pdfTag}</span>
+            <a class="hist-link" href={`/assets/cv/${k.pdf}`}
+              download={k.pdf} type="application/pdf"
+              hreflang="en"
+              aria-label={`${c.cartas.pdfVer.replace('{n}', k.nombre)} — ${c.cartas.pdfMeta.replace('{kb}', String(k.pdfKb))}`}>
+              {c.cartas.pdfVer.replace('{n}', k.nombre)}
+            </a>
+            <span class="meta-mono carta-pdf-peso" aria-hidden="true">{c.cartas.pdfMeta.replace('{kb}', String(k.pdfKb))}</span>
+          </p>
+          {k.lote === 'lloyd' ? (
             <figure class="lote-fig">
               <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" height="996" loading="lazy" decoding="async" /></span>
               <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
             </figure>
-          ) : k.foto ? (
-            <FotoHueco c={c} que={c.fotosPend[k.foto]} ratio="4 / 3" />
+          ) : k.lote === 'andy' ? (
+            <figure class="lote-fig">
+              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
+            </figure>
           ) : null}
+          {/* LA RAMA DEL HUECO DE FOTO SE FUE, Y NO POR GUSTO: desde que las
+               DOS cartas tienen foto, `foto` vale `null` en las dos y
+               TypeScript estrecha el tipo a `never` — `astro check` daba tres
+               errores sobre una rama que ya no se podía alcanzar. Si algún
+               día llega una tercera carta sin foto, se vuelve a poner
+               `foto: 'clave'` en cv.ts y aquí el `: k.foto ? <FotoHueco … />`
+               que había. El texto del hueco (`fotosPend.cartaAndy`) sigue
+               escrito para eso. */}
         </article>
       ))}
     </div>
@@ -3467,6 +3518,12 @@ const cifrasFranja = c.franja.sitioQ
     overflow-wrap: anywhere;
   }
   .carta-contacto-tag { color: var(--cvh-tinta-2); }
+  /* La fila del PDF se lee como la del contacto: rótulo mono arriba, enlace
+     debajo y el peso pegado al enlace. El peso va `aria-hidden` porque el
+     nombre accesible del enlace ya lo lleva dentro — si no, un lector de
+     pantalla diría «PDF 366 KB» dos veces seguidas. */
+  .carta-pdf { display: flex; flex-direction: column; gap: 2px; }
+  .carta-pdf-peso { color: var(--cvh-tinta-3); }
 
   /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
      `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse
@@ -4548,6 +4605,20 @@ const cifrasFranja = c.franja.sitioQ
     .certs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .cert-nombre { min-height: 3em; }
     .cartas, .premios-huecos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* ── LAS FICHAS DEJAN DE ESTIRARSE, Y CON ELLAS SE VA EL HUECO GRANDE ──
+       Es el mismo defecto que las tarjetas del carrusel, y en el marco ancho
+       se hizo enorme. Una rejilla estira sus items al alto de la fila, y
+       dentro de la ficha `.carta-cita` llevaba `margin: auto 0 0` para pegar
+       las citas abajo. Con la foto de Lloyd George midiendo 1 102 px y la de
+       Andy Toh 480, la ficha corta abría **648 px de blanco** entre «He
+       observed me…» y sus dos frases — medido en el DOM: `carta-relacion`
+       acababa en y=32 166 y `carta-cita` empezaba en y=32 814.
+       Con `align-items: start` cada ficha mide lo que mide, y entonces el
+       `margin: auto` ya no tiene nada que repartir: se pone a cero para que
+       la ficha se lea seguida. Vale igual para los certificados y para los
+       huecos de carta, que traen el mismo `margin-top: auto`. */
+    .cartas, .certs, .premios-huecos, .acad-huecos { align-items: start; }
+    .carta-cita { margin-block-start: var(--cv-v1); }
     .acad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .expapp, .exp-plegable, .cinta, .cifras, .cal, .curva, .rep, .verifica, .premios { max-width: 100%; }
   }
