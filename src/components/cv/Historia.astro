@@ -4057,11 +4057,13 @@ const cifrasFranja = c.franja.sitioQ
        comprobarlas. Solo esas — el resto de los enlaces de la página son
        navegación, y ponerles la URL a los cuarenta llenaría el documento de
        paréntesis. */
-    /* `display: block` y no en línea: en línea, la dirección se metía en la
-       misma caja que el texto del enlace y a dos columnas se quedaba en una
-       tira de cuatro letras de ancho pegada al borde de la hoja (se vio en el
-       PDF, no en el HTML). En bloque ocupa la columna entera y parte donde
-       toca. */
+    /* LA DIRECCIÓN, DEBAJO DEL ENLACE Y A ANCHO DE COLUMNA. Y hacen falta
+       LAS DOS reglas: con `display: block` solo en el `::after`, el `<a>`
+       sigue siendo inline y Chromium parte el bloque dentro de la línea — la
+       dirección salía en una tira de cuatro letras pegada al borde de la
+       hoja. Se vio en el PDF de verdad; en el HTML no se ve, porque en
+       pantalla el `::after` no existe. */
+    .acad-fuentes a[href] { display: block; }
     .acad-fuentes a[href]::after {
       content: attr(href); display: block;
       font-size: .85em; word-break: break-all; color: var(--cvh-tinta-2);
