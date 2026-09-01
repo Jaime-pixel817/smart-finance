@@ -4514,6 +4514,22 @@ const cifrasFranja = c.franja.sitioQ
        SU PROPIO TAMAÑO —el mismo número que ya usa `.cap-h`, ~28 caracteres
        por renglón a cualquier escala— y son sus párrafos, no sus
        `<blockquote>`, quienes lo llevan. */
+    /* ── Y EL TOPE DEL PADRE HAY QUE QUITARLO DONDE PUEDA GANAR ──────────
+       Nombrar `.abre, .frase` en la lista de excepciones de arriba NO
+       bastaba, y esto es aritmética de especificidad, no un descuido: la
+       regla de prosa es `.cap :global(:is(p, …, blockquote, …))`, que con el
+       atributo de ámbito que Astro le pega a `.cap` pesa (0,2,1); la
+       excepción, escrita como `.abre`, pesa (0,2,0). Ganaba la de prosa y el
+       `<blockquote>` seguía en 528 px, así que el `max-width: 14em` del
+       párrafo era letra muerta: un hijo no puede ser más ancho que su padre.
+       Medido sobre `dist` DESPUÉS de aquel arreglo: `.abre` en 528 px con el
+       párrafo a 68 px → **12 renglones de 14 caracteres**; `.frase` en 528
+       con el párrafo a 88 px → **18 renglones de 10 caracteres**, y entre
+       694 px (1280) y 1 092 px (1920) de blanco al lado. Las dos citas
+       grandes del documento —la que lo abre y la que lo cierra— eran la
+       «tira estrecha en un mar de blanco» que esta ola vino a quitar.
+       Escrito como descendiente de `.cap` pesa (0,3,0) y gana. */
+    .cap .abre, .cap .frase { max-width: none; }
     .abre p { max-width: 14em; }
     .frase p { max-width: 14em; }
     figure .pie, .lote-fig .pie { max-width: min(100%, 33em); }
