@@ -1032,11 +1032,21 @@ const en = {
         // poner sello: es la unica fila de la pagina que dispara una accion con
         // fecha limite. Y a PTE y a Duolingo les faltaban sus submininimos por
         // apartado, que es justo donde se cae una solicitud.
-        que: 'University of Toronto — “Results from the B2 First exam are not accepted (regardless of the result achieved).” C1 Advanced or C2 Proficiency: 180 overall, at least 170 in each component. TOEFL iBT, for tests taken on or after 21 January 2026 — which is any test I sit now — 4.5 overall with 4.5 in Writing and 4.0 in Speaking; the old 89 with 22 in Speaking and Writing only counts for tests taken before that date. IELTS Academic 6.5 with no band below 6.0; Duolingo 120 overall with 120 in Production; PTE Academic 65 with no part below 60.',
+        // TROCEADO POR LO MISMO QUE `nota`: en el panel espanol la cita
+        // verbatim de U of T es INGLES dentro de prosa espanola y necesita
+        // `lang="en"`. Los nombres de examen y de apartado (TOEFL iBT, IELTS
+        // Academic, Writing, Speaking, Production) NO se marcan ni se
+        // traducen: son nombres propios de la prueba, y traducirlos dejaria
+        // al lector buscando un apartado que no existe en su boleta.
+        que: [
+          'University of Toronto — ',
+          { en: '“Results from the B2 First exam are not accepted (regardless of the result achieved).”' },
+          ' C1 Advanced or C2 Proficiency: 180 overall, at least 170 in each component. TOEFL iBT, for tests taken on or after 21 January 2026 — which is any test I sit now — 4.5 overall with 4.5 in Writing and 4.0 in Speaking; the old 89 with 22 in Speaking and Writing only counts for tests taken before that date. IELTS Academic 6.5 with no band below 6.0; Duolingo 120 overall with 120 in Production; PTE Academic 65 with no part below 60.'
+        ],
         url: 'https://future.utoronto.ca/apply/english-language-requirements/'
       },
       {
-        que: 'UBC Vancouver — Cambridge English Qualifications (B2 First, C1 Advanced, C2 Proficiency): 180 for undergraduate admission.',
+        que: ['UBC Vancouver — Cambridge English Qualifications (B2 First, C1 Advanced, C2 Proficiency): 180 for undergraduate admission.'],
         url: 'https://vancouver.calendar.ubc.ca/admissions/english-language-admission-standard/english-language-proficiency-tests'
       }
     ],
@@ -2236,11 +2246,15 @@ const es: typeof en = {
     fuentesH: 'Consultadas el 1 de septiembre de 2026',
     inglesFuentes: [
       {
-        que: 'University of Toronto — «Results from the B2 First exam are not accepted (regardless of the result achieved).» C1 Advanced o C2 Proficiency: 180 global y mínimo 170 por componente. TOEFL iBT, para exámenes presentados desde el 21 de enero de 2026 —que es cualquiera que yo presente ahora—: 4.5 global con 4.5 en Writing y 4.0 en Speaking; el 89 con 22 en Speaking y Writing solo vale para exámenes anteriores a esa fecha. IELTS Academic 6.5 sin banda bajo 6.0; Duolingo 120 global con 120 en Production; PTE Academic 65 sin apartado bajo 60.',
+        que: [
+          'University of Toronto — ',
+          { en: '«Results from the B2 First exam are not accepted (regardless of the result achieved).»' },
+          ' C1 Advanced o C2 Proficiency: 180 global y mínimo 170 por componente. TOEFL iBT, para exámenes presentados desde el 21 de enero de 2026 —que es cualquiera que yo presente ahora—: 4.5 global con 4.5 en Writing y 4.0 en Speaking; el 89 con 22 en Speaking y Writing solo vale para exámenes anteriores a esa fecha. IELTS Academic 6.5 sin banda bajo 6.0; Duolingo 120 global con 120 en Production; PTE Academic 65 sin apartado bajo 60.'
+        ],
         url: 'https://future.utoronto.ca/apply/english-language-requirements/'
       },
       {
-        que: 'UBC Vancouver — Cambridge English Qualifications (B2 First, C1 Advanced, C2 Proficiency): 180 para admisión de licenciatura.',
+        que: ['UBC Vancouver — Cambridge English Qualifications (B2 First, C1 Advanced, C2 Proficiency): 180 para admisión de licenciatura.'],
         url: 'https://vancouver.calendar.ubc.ca/admissions/english-language-admission-standard/english-language-proficiency-tests'
       }
     ],

@@ -1034,8 +1034,13 @@ const cifrasFranja = c.franja.sitioQ
         <p class="acad-falta">{c.acad.inglesFalta}</p>
         <p class="meta-mono acad-fuentes-h">{c.acad.fuentesH}</p>
         <ul class="acad-fuentes">
+          {/* `que` va en trozos por lo mismo que `acad.nota`: en el panel
+               español la cita verbatim de U of T es inglés dentro de una
+               etiqueta española y necesita `lang="en"`. */}
           {c.acad.inglesFuentes.map((f) => (
-            <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que} ↗</a></li>
+            <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que.map((t) => (typeof t === 'string'
+              ? t
+              : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))} ↗</a></li>
           ))}
         </ul>
       </div>
