@@ -1094,17 +1094,33 @@ const cifrasFranja = c.franja.sitioQ
     <div class="servir">
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
-             sin sonar solo (`controls` + `preload="none"`). */}
-        <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-          data-poster="/assets/cv/cv-poster-animales.jpg"></video>
-        <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-          poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
-        <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
-        {/* La donación al stand de adopción: hecho de su publicación en
-             LinkedIn (2026). Las fotos no se pudieron guardar en esta
-             cosecha; el hecho entra igual, sin foto. */}
-        <p class="cap-frases">{c.servir.donacion}</p>
+        {/* ── EL CLIP VA AL LADO DE SU TEXTO, NO ENCIMA (escritorio) ───────
+             El clip es 9:16 y su tope son 300 px de ancho, así que apilado
+             ocupaba el 20.8 % del marco a 1440 y dejaba 1075 px de blanco a
+             su derecha: era el medio más huérfano del documento. Y NO se
+             arregla ensanchándolo — a ancho de prosa un 9:16 mide 1223 px de
+             alto, más de una pantalla para un clip.
+             Lo que necesitaba era compañía, no anchura: `.clip-par` lo empareja
+             con el párrafo que ya venía justo debajo. En escritorio son dos
+             columnas (el clip a la izquierda, el texto a la derecha) y la
+             banda se llena; en el teléfono el envoltorio es la MISMA columna
+             flex con el MISMO hueco que `.servir-bloque`, así que no mueve un
+             píxel. Es el mismo bento de `.grupo`. */}
+        <div class="clip-par">
+          <div class="clip-par-media">
+            {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
+                 sin sonar solo (`controls` + `preload="none"`). */}
+            <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+              data-poster="/assets/cv/cv-poster-animales.jpg"></video>
+            <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+              poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
+            <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
+          </div>
+          {/* La donación al stand de adopción: hecho de su publicación en
+               LinkedIn (2026). Las fotos no se pudieron guardar en esta
+               cosecha; el hecho entra igual, sin foto. */}
+          <p class="cap-frases">{c.servir.donacion}</p>
+        </div>
         {/* Fotos 5, 6 y 13 del lote del 2026-08-30, YA COLOCADAS: él
              entregando el alimento, los perritos del stand y la marcha. La
              cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
@@ -3625,6 +3641,11 @@ const cifrasFranja = c.franja.sitioQ
      dejaría a las tres del tamaño de un sello dentro de media columna. */
   .playa-fotos { display: flex; flex-direction: column; gap: var(--sp-3); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+  /* EN EL TELÉFONO NO EXISTE: la misma columna y el mismo hueco que su padre,
+     así que envolver el clip y su párrafo no mueve nada. La segunda columna
+     solo aparece en escritorio (bloque de `min-aspect-ratio`, más abajo). */
+  .clip-par { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+  .clip-par-media { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
   /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
      Tres tarjetas una debajo de la otra: el grupo, el sitio (con la cinta y
@@ -4893,7 +4914,25 @@ const cifrasFranja = c.franja.sitioQ
        520 es además el tamaño al que su archivo (800 px) no se amplía. */
     .grupo { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: var(--cv-v2); align-items: start; }
     .grupo .recuerdo img { width: 100%; }
-    .grupo-tec { max-width: 592px; }
+    /* ERA `max-width: 592px` Y GANABA A `.fig-sola` POR ORDEN: las dos reglas
+       pesan (0,1,0) y esta se escribe después, así que la foto de la
+       entrevista se quedaba en 572 px mientras sus cuatro hermanas —Marg, la
+       del NUS, la otra del grupo y la de Jasa— pasaban a los 688 de la
+       columna de prosa. Una sola de las cinco a otra anchura es justo lo que
+       se lee como «las imágenes no están puestas». Ahora las cinco miden lo
+       mismo, y el número sale de la misma variable que la prosa. */
+    .grupo-tec { max-width: 43rem; }
+
+    /* ── EL CLIP DE 9:16 AL LADO DE SU PÁRRAFO ────────────────────────────
+       300 px es el tope del clip (`.clip-video`) y no se toca: ensancharlo
+       lo estiraría a 1223 px de alto. Lo que se llena es la BANDA — el clip
+       a la izquierda y el texto que ya venía debajo, a su derecha. */
+    .clip-par {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: var(--cv-v2) var(--cv-h2, var(--sp-4));
+      align-items: start;
+    }
     .arco-fig, .premio-doc { max-width: 100%; margin-top: 0; }
     .carta .lote-fig { max-width: 100%; }
     .carta .lote-fig img { width: 100%; }

@@ -38,3 +38,4 @@ tmp/
 
 # Andamio local de la vista previa del navegador: no es del proyecto.
 .claude/launch.json
+.medir/
