@@ -1431,7 +1431,13 @@ const en = {
        así que la alternativa nunca fue publicarla censurada.
        PENDIENTE DE JAIME, con el alcance real delante: repo privado,
        alojarla detrás de algo que sí autentique, o asumir que es pública. */
-    lede: 'Two have arrived, and everything they say is here: the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. The signed file itself is not on this page — it is addressed to an admissions committee and it carries contact details that are not mine to publish. I quote them whole and untouched: I cannot cut a line out of a signed letter without turning it into a different document.',
+    /* RECORTADO EL 2026-09-01. Decía tres cosas y dos de ellas ya las dice
+       cada ficha, debajo del rótulo «The letter itself»: dónde no está el
+       archivo y por qué. Repetido arriba en 83 palabras, el capítulo abría
+       explicando una ausencia en vez de presentando dos cartas. Lo que se
+       queda es lo que sólo puede ir aquí: qué trae cada ficha, y la regla de
+       que las citas van enteras. */
+    lede: 'Two have arrived, and everything they say is here: the record, the two lines that carry the most weight in each one, and the contact each signatory gave. I quote them whole and untouched — I cannot cut a line out of a signed letter without turning it into a different document.',
     entregadasH: 'Delivered',
     faltanH: 'Room for more',
     citaTag: 'The two lines that carry the most weight',
@@ -1464,7 +1470,24 @@ const en = {
        por qué— en primera persona y sin prometer nada que Jaime no haya
        dicho. Cuando él decida (repo privado, alojarlo detrás de otra cosa, o
        asumir que es público), vuelve el enlace y esta cadena se va. */
-    pdfNo: 'Not on this page while I decide where to keep it: the file carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
+    /* ── Y AHORA DICE QUE SE MANDA A QUIEN LA PIDA (2026-09-01) ─────────
+       La frase decía que el archivo no está y por qué, y se paraba ahí. Un
+       comité que lee eso no tiene ninguna vía: sabe que la carta existe,
+       sabe que no la va a ver, y no sabe que puede pedirla.
+       LO QUE HACE UN CANDIDATO SERIO es exactamente lo que dice esta línea:
+       el documento firmado no se cuelga en abierto —lleva datos de sus
+       firmantes— y se manda al que lo pida. Las dos mitades juntas, en una
+       frase, en primera persona y sin dramatismo.
+       EL CANAL NO SE INVENTA NINGUNO NUEVO: es el LinkedIn que esta misma
+       página ya publica en su cierre («Where to find me»). No se añade un
+       correo de Jaime, que no está en ninguna parte del CV y que él no ha
+       dado para esto.
+       ESTO ES UN COMPROMISO SUYO, no una regla del sitio: al publicar esta
+       línea Jaime se compromete a mandar el PDF a quien se lo pida. Se
+       escribe porque la decisión de esta ola es que se escriba; si él
+       prefiere no comprometerse, se borra la segunda oración y la ficha
+       vuelve a decir sólo dónde no está. */
+    pdfNo: 'Not on this page: the file carries {n}’s own contact details, and everything this page serves is public. I send the signed letter to anyone who asks me for it — my LinkedIn is at the end of this page.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -2432,7 +2455,7 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Ya llegaron dos, y todo lo que dicen está aquí: la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. El archivo firmado no está en esta página: va dirigido a un comité de admisiones y trae datos de contacto que no son míos para publicarlos. Las cito enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
+    lede: 'Ya llegaron dos, y todo lo que dicen está aquí: la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio. Las cito enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
     entregadasH: 'Entregadas',
     faltanH: 'Espacio para más',
     // Las dos cartas están escritas en inglés: en este panel las citas van
@@ -2440,7 +2463,7 @@ const es: typeof en = {
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
     contactoTag: 'Contacto que dio para preguntar por mí',
     pdfTag: 'La carta, tal cual',
-    pdfNo: 'No está en esta página mientras decido dónde guardarla: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
+    pdfNo: 'No está en esta página: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. La carta firmada se la mando a quien me la pida — mi LinkedIn está al final de esta página.',
     entregadas: [
       {
         nombre: 'Lloyd George',
