@@ -213,6 +213,50 @@ async function varas(con, sin, colorTexto) {
   return { caja: ratio(Lt, Lcaja), trazo: ratio(Lt, Ltrazo) };
 }
 
+/**
+ * LA VARA DE LO QUE SE VE PINTADO, para los fotogramas en los que el texto
+ * NO está opaco. `varas()` compara el color DECLARADO del texto contra el
+ * fondo, que es lo correcto mientras la pieza está asentada y lo que sostiene
+ * las 168 mediciones de la matriz — pero es ciego a la alfa: una tinta negra
+ * pintada al 22 % sobre un cielo azul sigue declarándose negra, así que
+ * `varas()` devolvía ~10:1 para el borrón gris que motivó todo esto. Por eso
+ * el presupuesto de borrón NO usa `varas()`: usa esta.
+ *   · el color de la tinta es el MEDIDO en los píxeles de trazo de la captura
+ *     CON texto, no el que dice el CSS;
+ *   · el fondo es el de la captura SIN texto, píxel a píxel;
+ *   · y el resultado es el PEOR píxel (percentil 10, para no medir ruido de
+ *     un solo píxel), que vale para tinta clara y para tinta oscura sin tener
+ *     que saber cuál es: la vara `trazo` toma el fondo más CLARO, que es el
+ *     peor caso de un texto blanco y el MEJOR de uno negro.
+ * Devuelve null cuando no hay nada pintado que medir.
+ */
+async function varaPintada(con, sin) {
+  const A = await sharp(con).raw().toBuffer({ resolveWithObject: true });
+  const B = await sharp(sin).raw().toBuffer({ resolveWithObject: true });
+  const ch = A.info.channels, n = A.info.width * A.info.height;
+  const d = new Float32Array(n), Lb = new Float32Array(n);
+  let dmax = 0;
+  for (let i = 0; i < n; i++) {
+    const o = i * ch;
+    Lb[i] = lum(B.data[o], B.data[o + 1], B.data[o + 2]);
+    d[i] = Math.abs((A.data[o] + A.data[o + 1] + A.data[o + 2]) - (B.data[o] + B.data[o + 1] + B.data[o + 2])) / 3;
+    if (d[i] > dmax) dmax = d[i];
+  }
+  if (dmax <= 4) return null; // no hay texto pintado: nada que medir
+  let sr = 0, sg = 0, sb = 0, nT = 0;
+  const idx = [];
+  for (let i = 0; i < n; i++) {
+    if (d[i] >= 0.85 * dmax) {
+      const o = i * ch;
+      sr += A.data[o]; sg += A.data[o + 1]; sb += A.data[o + 2]; nT++; idx.push(i);
+    }
+  }
+  if (!nT) return null;
+  const Lt = lum(sr / nT, sg / nT, sb / nT);
+  const rr = idx.map((i) => ratio(Lt, Lb[i])).sort((a, b) => a - b);
+  return rr[Math.floor(rr.length * 0.10)];
+}
+
 const nav = await chromium.launch();
 const fallos = [];
 const filas = [];
@@ -372,8 +416,22 @@ for (const [w, h, esc] of [[390, 844, 200], [1280, 800, 100], [375, 812, 200], [
 // 233–305 px en las cuatro ventanas de escritorio, así que el paso real entre
 // fotograma y fotograma es de ~58 a ~76 px, no 287. 287 era el recorrido
 // COMPLETO de una de las ventanas, contado como si fuera el paso.
-const PROGRESOS = [0, 0.25, 0.5, 0.75, 1];
-console.log('\nLOS FOTOGRAMAS DEL EFECTO (0/25/50/75/100 % del clavado)');
+//
+// Y AHORA VAN CADA 5 %, NO CADA 25 %. Con cuatro pasos, el peor fotograma de
+// la tapa de escritorio caía justo entre dos muestras: la ola 2b alargó la
+// vida de la tapa y el 50 % fue el único que lo vio. Cada 5 % son ~15 px en
+// 1440x900, que es la escala a la que se mueven estas cosas.
+const PROGRESOS = [];
+for (let i = 0; i <= 20; i++) PROGRESOS.push(i / 20);
+// Presupuesto de BORRÓN: cuántos píxeles de scroll se tolera que el nombre en
+// tinta esté PINTADO y a la vez por debajo de 3:1. Un fundido de entrada pasa
+// por ahí necesariamente y no es un defecto; lo que no puede haber es una
+// MESETA. Ver el comentario grande de `intro-tinta-ancho` en Historia.astro:
+// hasta la ola 2b la tinta se quedaba en α=.22 durante 120 px de los 306 de
+// 1440x900, y este guardián no lo veía porque solo medía la tinta ASENTADA
+// (`st.alfa < 0.95 → continue`), o sea exactamente la fase que fallaba.
+const BORRON_MAX_PX = 45;
+console.log('\nLOS FOTOGRAMAS DEL EFECTO (cada 5 % del clavado)');
 for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [1440, 900, 100], [1920, 1080, 100]]) {
   console.log(`\n${w}x${h}, texto ${esc} %`);
   const ctx = await nav.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
@@ -405,6 +463,7 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [
     Math.max(0, document.querySelector('.cv-en .intro-pista').offsetHeight - window.innerHeight));
   console.log(`  (clavado: ${clavado} px de scroll)`);
 
+  const borron = {};
   for (const prog of PROGRESOS) {
     await p.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), Math.round(clavado * prog));
     await p.waitForTimeout(160);
@@ -417,6 +476,22 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [
       for (const [nombre, sel, min] of PIEZAS) {
         const el = p.locator('.cv-en ' + sel).first();
         if (!(await el.count())) continue;
+        // LA ALFA EFECTIVA DE LA PIEZA, no la del grupo. Desde la ola 2b las
+        // piezas de la tapa ya no se apagan todas a la vez: la banda de
+        // arriba (rótulo y pastillas) se va en `contain 30 %` y el nombre
+        // aguanta hasta el 46 %. Midiendo solo la alfa del grupo, una pieza
+        // ya invisible se seguía midiendo y salía «1.00:1» — un fallo que no
+        // existe, porque ahí no hay nada pintado.
+        const alfaPieza = await el.evaluate((e) => {
+          let a = 1;
+          for (let n = e; n; n = n.parentElement) {
+            a *= parseFloat(getComputedStyle(n).opacity) || 0;
+            if (getComputedStyle(n).visibility === 'hidden') return 0;
+            if (n.classList.contains('portada-uno')) break;
+          }
+          return a;
+        });
+        if (alfaPieza <= 0.05) continue;
         const caja = await el.evaluate(CAJA_CONTENIDO);
         const clip = { x: Math.max(0, caja.x), y: Math.max(0, caja.y),
                        width: Math.min(caja.width, w - Math.max(0, caja.x)),
@@ -428,8 +503,19 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [
         const sin = await p.screenshot({ clip });
         await el.evaluate((e) => e.removeAttribute('data-sin-texto'));
         const { caja: rc } = await varas(con, sin, color);
-        if (rc < min && alfa > 0.5) {
-          fallos.push(`efecto: ${nombre} cae a ${rc.toFixed(2)}:1 con la tapa a α=${alfa.toFixed(2)} (> .5) en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}%`);
+        // LA MISMA REGLA QUE PARA LA TINTA, y por el mismo motivo: mientras
+        // la pieza está ASENTADA (α ≥ .95) el mínimo es duro; mientras se
+        // DISUELVE, el contraste cae necesariamente hacia 1:1 —es lo que
+        // significa disolverse— y lo que se vigila es cuánto scroll dura,
+        // no el valor instantáneo. El umbral viejo (`α > .5`) partía ese
+        // tramo por un punto arbitrario: con un fundido lineal caía fuera
+        // por poco y con una meseta caía dentro, sin que ninguna de las dos
+        // cosas dijera nada sobre si el lector puede leer el nombre.
+        if (alfaPieza >= 0.95 && rc < min) {
+          fallos.push(`efecto: ${nombre} asentada cae a ${rc.toFixed(2)}:1 en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}% (mínimo ${min})`);
+        } else if (alfaPieza < 0.95) {
+          const vp = await varaPintada(con, sin);
+          if (vp !== null && vp < 3) borron[nombre] = (borron[nombre] || 0) + clavado / (PROGRESOS.length - 1);
         }
       }
     }
@@ -442,7 +528,13 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [
         const cs = getComputedStyle(e.parentElement); // la escena lleva la alfa
         return { alfa: parseFloat(cs.opacity), display: cs.display };
       }, sel);
-      if (!st || st.display === 'none' || st.alfa < 0.95) continue;
+      // ANTES: `st.alfa < 0.95 → continue`, o sea solo se medía la tinta YA
+      // ASENTADA. Justo la fase que fallaba —la meseta a α=.22 sobre la
+      // foto— quedaba fuera del guardián por construcción. Ahora se mide
+      // SIEMPRE que haya algo pintado, y lo que se vigila es el presupuesto
+      // de borrón de abajo: un fundido puede cruzar el mal contraste, una
+      // meseta no.
+      if (!st || st.display === 'none' || st.alfa <= 0.05) continue;
       const el = p.locator('.cv-en ' + sel).first();
       const caja = await el.evaluate(CAJA_CONTENIDO);
       const clip = { x: Math.max(0, caja.x), y: Math.max(0, caja.y),
@@ -455,8 +547,19 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [
       const sin = await p.screenshot({ clip });
       await el.evaluate((e) => e.removeAttribute('data-sin-texto'));
       const { caja: rc, trazo: rt } = await varas(con, sin, color);
-      detalle.push(`${sel} ${rc.toFixed(2)}/${rt.toFixed(2)}`);
-      if (rc < 3 || rt < 3) fallos.push(`efecto: ${sel} asentada da caja ${rc.toFixed(2)}:1 / trazo ${rt.toFixed(2)}:1 en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}% (mínimo 3)`);
+      // Asentada (α ≥ .95): el mínimo de siempre, con la vara de siempre.
+      if (st.alfa >= 0.95) {
+        detalle.push(`${sel} ${rc.toFixed(2)}/${rt.toFixed(2)}`);
+        if (rc < 3 || rt < 3) {
+          fallos.push(`efecto: ${sel} asentada da caja ${rc.toFixed(2)}:1 / trazo ${rt.toFixed(2)}:1 en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}% (mínimo 3)`);
+        }
+      } else {
+        // A media alfa la vara declarativa miente (ver `varaPintada`): la
+        // meseta de .22 daba ~10:1 en `varas()` y 1.1:1 en lo que se ve.
+        const vp = await varaPintada(con, sin);
+        detalle.push(`${sel} α=${st.alfa.toFixed(2)} pintada ${vp === null ? '—' : vp.toFixed(2)}`);
+        if (vp !== null && vp < 3) borron[sel] = (borron[sel] || 0) + clavado / (PROGRESOS.length - 1);
+      }
     }
 
     // c) nunca dos fotos: cada FILA entera clasificada por su fracción de
@@ -499,6 +602,12 @@ for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [
     if (segmentos > 1) fallos.push(`efecto: la foto sale PARTIDA EN ${segmentos} por una banda de papel en ${w}x${h} al ${esc}%, ${Math.round(prog * 100)}% — el fallo de la grabación`);
     detalle.push(`foto en ${segmentos} segmento${segmentos === 1 ? '' : 's'}`);
     console.log(detalle.join(' · '));
+  }
+  // EL PRESUPUESTO DE BORRÓN, por ventana. Ver `BORRON_MAX_PX`.
+  for (const [sel, px] of Object.entries(borron)) {
+    const txt = `${sel} pintada y por debajo de 3:1 durante ${Math.round(px)} px de los ${clavado} en ${w}x${h} al ${esc}%`;
+    if (px > BORRON_MAX_PX) fallos.push(`efecto: ${txt} (presupuesto ${BORRON_MAX_PX} px: un fundido puede cruzarlo, una meseta no)`);
+    else console.log(`  (borrón) ${txt} — dentro del presupuesto`);
   }
   await ctx.close();
 }

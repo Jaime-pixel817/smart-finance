@@ -2917,7 +2917,22 @@ const cifrasFranja = c.franja.sitioQ
       @keyframes intro-senuelo { from { opacity: 1; } to { opacity: 0; } }
       @keyframes intro-n1 { from { transform: none; } to { transform: translateY(-.4em); } }
       @keyframes intro-n2 { from { transform: none; } to { transform: translateY(.4em); } }
-      @keyframes intro-tinta { from { opacity: 0; } 12%, 62% { opacity: .22; } to { opacity: 1; } }
+      /* LA MESETA DE .22 SE VA TAMBIÉN AQUÍ, y el número es EL MISMO 81 % que
+         en apaisado porque la relación que lo fija es la misma: el tramo va
+         de `contain 26 %` a `contain 78 %` y el recorte acaba de descubrir el
+         renglón en `contain 68.4 %` en 390×844 (medido: la tinta salta de
+         2.21:1 a 5.61:1 entre y=200 e y=208 de los 304), o sea 26 + 0.815×52.
+         En apaisado el mismo fotograma cae en 68.6 %. No es casualidad: los
+         dos cuelgan de `--carta-top` y del mismo `animation-range`.
+         POR QUÉ SE TOCA EL MÓVIL EN UNA OLA DE ESCRITORIO: porque es el mismo
+         defecto y quitarlo no puede empeorar nada — antes se pintaban 144 px
+         de nombre entre 1.11:1 y 2.21:1 (medido con la vara de lo PINTADO, no
+         la declarativa), y ahora en ese tramo no se pinta nada. La regla es
+         una sola para toda la página: el nombre está ausente o está legible.
+         Lo que NO se toca del móvil es la tapa: allí el nombre va partido en
+         dos mitades colgadas de la ventana y el velo mide lo que mide el
+         texto, así que alargarle la vida es otro problema y otra medición. */
+      @keyframes intro-tinta { from { opacity: 0; } 81% { opacity: 0; } to { opacity: 1; } }
       @keyframes intro-aro {
         0% { opacity: 0; transform: scale(.7); }
         15% { opacity: .9; }
@@ -3003,6 +3018,10 @@ const cifrasFranja = c.franja.sitioQ
     .portada-marco, .portada-zoom { position: static; animation: none; clip-path: none; transform: none; background: none; overflow: visible; }
     .portada-foto { position: static; height: auto; max-height: 40vh; animation: none; }
     .portada-sombra, .portada-tapa { background: none; }
+    /* El velo de escritorio es ahora una capa propia (`.portada-uno::before`);
+       al imprimir la tapa se desmonta y su tinta vuelve a negra, así que un
+       rectángulo negro al 58 % sobre el papel sería una plancha de tóner. */
+    .portada-uno::before { display: none; }
     .portada-tapa { padding-bottom: 0; }
     .portada-uno { margin-top: 0; position: static; animation: none; }
     .portada-capa, .portada-tarjeta, .portada-papel-cierre { min-height: 0; }
@@ -4133,9 +4152,35 @@ const cifrasFranja = c.franja.sitioQ
        puro pide el fondo en 118 → a ≥ 0.522. 0.58 es ese borde con margen.
        Y NO SE RAZONA, SE MIDE: `npm run check-contraste-cv`, que en esta ola
        añade 1440×900 y 1920×1080 a su matriz justo por esto. */
+
+    /* EL VELO YA NO ES EL FONDO DE `.portada-tapa`, ES UNA CAPA PROPIA, y el
+       motivo es de la transición, no de la tapa quieta: con la tapa aguantando
+       hasta `contain 46 %` (ver `intro-tapa-ancho`), un velo A SANGRE se queda
+       puesto mientras el recorte ya ha convertido la foto en una tarjeta — o
+       sea negro al 58 % sobre el PAPEL de alrededor. Medido: a y=140 el marco
+       deja 65 px de papel arriba y 60 a los lados y la pantalla entera se ve
+       gris medio; a y=155 el gris es la mitad de la imagen. El velo tiene que
+       encogerse CON la foto, y para eso necesita ser un elemento al que se le
+       pueda poner el mismo `clip-path` sin arrastrar el texto ni las pastillas
+       — que viven dentro de `.portada-tapa` y no se pueden recortar.
+       `z-index: -1` sobre el contexto de apilamiento que ya crea
+       `.portada-capa` (`position: relative; z-index: 1`): el velo cae al fondo
+       de ESA capa —debajo del rótulo, de las pastillas y del nombre— y sigue
+       por encima de la foto, que está en el lienzo de abajo.
+       Y EL ALTO SE ESCRIBE, no se hereda (`height: 100svh` en vez de
+       `inset: 0`): los keyframes `intro-marco` están escritos en `100svh` y en
+       `100 %` del propio elemento, así que el recorte solo cae sobre la
+       tarjeta si la caja del velo ES la ventana. Con `inset: 0`, una tapa que
+       creciera por contenido movería el borde de abajo del recorte. */
     .portada-tapa {
       min-height: 100svh;
       padding-bottom: 0;
+      background: none;
+    }
+    .portada-uno::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 100svh;
+      z-index: -1;
       background: rgba(0, 0, 0, .58);
     }
 
@@ -4299,6 +4344,49 @@ const cifrasFranja = c.franja.sitioQ
          fotogramas): la tarjeta crece detrás del texto. Aquí igual — el
          titular se queda quieto y se disuelve con su velo. */
       .portada-n1, .portada-n2 { animation: none; }
+      /* LA TAPA AGUANTA. Ver `intro-tapa-ancho`: sostiene la opacidad hasta
+         `contain 46 %` y cae en los diez puntos siguientes, en vez de
+         disolverse linealmente entre el 4 % y el 30 %. Con esto el nombre
+         BLANCO se lee (≥ 4.5:1, vara del peor píxel) hasta y≈122 en vez de
+         hasta y≈45, y el hueco sin nombre de la transición baja de 155 px a
+         ~86 px — los que la geometría obliga, porque el recorte tiene que
+         acabar de pasar por debajo del renglón antes de que la tinta pueda
+         pintarse sobre papel.
+         Y NO ROMPE LAS PASTILLAS: viven en esta capa, así que aguantan
+         pulsables MÁS tiempo, no menos; el fotograma final sigue apagando
+         `visibility`. */
+      .portada-uno {
+        animation-name: intro-tapa-ancho;
+        animation-range: contain 4% contain 56%;
+      }
+      /* EL VELO SE ENCOGE CON LA FOTO. Mismo `clip-path`, misma línea de
+         tiempo y MISMO tramo que `.portada-marco`, así que por construcción
+         no puede desincronizarse: el negro del velo termina exactamente donde
+         termina la foto, y el papel de alrededor nunca se ve gris. */
+      .portada-uno::before {
+        animation: intro-marco linear both;
+        animation-timeline: --pista;
+        animation-range: contain 22% contain 84%;
+      }
+      /* LA BANDA DE ARRIBA SE VA CUANDO SE IBA, y esto NO es una regresión:
+         es exactamente el tramo que tenía la tapa entera hasta esta ola
+         (`contain 4 %` → `30 %`). Lo que se alarga es el NOMBRE, que vive
+         dentro de la tarjeta y por tanto sigue teniendo velo debajo; el
+         rótulo y las pastillas viven ARRIBA, fuera de la tarjeta, y con el
+         velo ya recortado se quedarían en tinta clara sobre papel blanco
+         (medido: el rótulo mono en 1.06:1 y la pastilla inactiva ilegible a
+         y=155). Un texto que no se puede leer no se deja puesto.
+         Y LLEVA SU PROPIO FOTOGRAMA DE `visibility`, no el del grupo: las
+         pastillas son ENLACES, y a opacidad 0 sin `visibility: hidden`
+         seguirían recibiendo el ratón y el tabulador durante los 26 puntos
+         que ahora vive la tapa de más — un destino invisible que se puede
+         pulsar es peor que uno que no está. Con esto desaparecen del
+         tabulado en el mismo fotograma que antes. */
+      .portada-barra {
+        animation: intro-tapa linear both;
+        animation-timeline: --pista;
+        animation-range: contain 4% contain 30%;
+      }
       /* EL ARO NO SE PINTA EN APAISADO. Medido: a `sy=210` en 1440 el aro
          mide 346×381 mientras la ventana del recorte todavía mide ≈1134×571
          — se dibuja DENTRO de la foto, descentrado y con una esquina fuera
@@ -4323,10 +4411,54 @@ const cifrasFranja = c.franja.sitioQ
      que el relevo se ve como un mismo nombre que cambia de tinta— hasta la
      franja de encima de la tarjeta. Los keyframes intermedios no declaran
      `transform`, así que el ascenso interpola de un extremo al otro. */
+  /* ⚠️ LA MESETA DE .22 NO EXISTE EN APAISADO, Y ESA ES LA CORRECCIÓN.
+     En el teléfono la meseta es defendible: el nombre en tinta cruza la foto
+     durante 60 px y se lee como un doble-expuesto. En escritorio el mismo
+     .22 dura MEDIA TRANSICIÓN y mide 845×61 px en el centro de la pantalla.
+     Medido sobre `dist` a 1440×900 (306 px de recorrido, `scroll-behavior:
+     auto` forzado y `scrollY` verificado en cada salto), con la vara honesta
+     —el PEOR píxel de trazo, percentil 10; la vara `trazo` de
+     check-contraste-cv toma el fondo más CLARO, que es el peor caso de un
+     texto BLANCO y el mejor de una tinta oscura—:
+         y= 50 … y=205   ninguna versión del nombre llega a 4.5:1  (155 px)
+         y= 85 … y=205   hay nombre PINTADO entre 1.02:1 y 2.39:1  (120 px)
+     O sea: durante 120 px no había un nombre ilegible, había un borrón gris
+     con la forma de su nombre. El blanco ya había caído (la tapa muere en
+     `contain 30 %`) y la tinta no llega a papel hasta `contain 68.6 %`
+     (y=210, donde salta a 5.61:1 de golpe porque el recorte termina de pasar
+     por debajo del renglón).
+     LA REGLA QUE SE IMPONE AQUÍ, y que ahora vigila `check-contraste-cv`:
+     **el nombre está ausente o está legible; nunca a medias.** La tinta se
+     queda a opacidad 0 hasta que el papel está debajo y entonces entra.
+     EL 81 % NO ES UN NÚMERO ELEGIDO: el tramo va de `contain 26 %` a
+     `contain 78 %` (52 puntos), y 26 + 0.81 × 52 = 68.1 %, que es el
+     fotograma medido en que el recorte acaba de descubrir el renglón. El
+     ascenso NO se toca: `transform` sigue interpolando de extremo a extremo,
+     así que lo que se ve entrar es el último 19 % del recorrido (69 px), un
+     asentamiento corto en vez de una deriva de media pantalla. */
   @keyframes intro-tinta-ancho {
     from { opacity: 0; transform: translateY(calc(50svh - var(--carta-top) / 2)); }
-    12%, 62% { opacity: .22; }
+    81% { opacity: 0; }
     to { opacity: 1; transform: none; }
+  }
+  /* LA OTRA MITAD DEL RELEVO: la tapa aguanta hasta que la foto YA es una
+     tarjeta, en vez de morir en `contain 30 %` y dejar la pantalla sin
+     nombre. El blanco se apaga por composición —al bajar la alfa, la letra
+     se acerca al cielo que tiene debajo—, así que lo que alarga su vida útil
+     no es estirar el fundido sino SOSTENER la opacidad y luego soltarla de
+     golpe: con un fundido lineal más largo, el tramo legible solo crece lo
+     que crece la α, y con la meseta crece entero.
+     El techo de la meseta es dónde el velo empezaría a verse sobre papel: el
+     velo va a sangre y la tapa lo lleva pegado. Medido a 1440×900, en
+     `contain 46 %` (y=140) el recorte todavía deja la foto ocupando la
+     pantalla con un borde de papel de ~65 px arriba y ~60 a los lados, y el
+     velo —que arranca en el bloque de texto, muy por debajo— cae entero
+     sobre la foto. En `contain 56 %` ya no, así que la meseta acaba en 46 %
+     y la caída ocupa los diez puntos siguientes. */
+  @keyframes intro-tapa-ancho {
+    from { opacity: 1; visibility: visible; }
+    81% { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
   }
 
   /* ── 3 · LA REJILLA DEL CUERPO: CUATRO PISTAS Y NADA MÁS ───────────────
