@@ -1205,14 +1205,14 @@ const cifrasFranja = c.franja.sitioQ
              la foto sale de ahí. El vídeo de promo no se pierde — sigue en el
              carrusel de clips del capítulo 6. NO lleva FotoHueco al lado a
              propósito: este sitio tiene foto. */}
-        <figure class="grupo-tec lote-fig">
+        <figure class="grupo-tec lote-fig fig-sola">
           <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" height="810" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
         </figure>
         {/* Foto 9 del lote del 2026-08-30: él narrando algo sobre su grupo
              estudiantil. Esa sí es nueva y no sustituye a nada, así que va
              con su hueco. */}
-        <div class="fila-fotos grupo-narra-fila">
+        <div class="fila-fotos grupo-narra-fila fig-sola">
           <figure class="lote-fig">
             <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" height="786" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
@@ -1400,7 +1400,7 @@ const cifrasFranja = c.franja.sitioQ
              en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
              clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
              corrigió Jaime — 2025, no 2026. */}
-        <figure class="jasa-fig">
+        <figure class="jasa-fig fig-sola">
           <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
             width="640" height="800" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
@@ -1514,7 +1514,7 @@ const cifrasFranja = c.franja.sitioQ
          su fila de experiencia. Ponerla como una tarjeta más del carrusel
          insinuaría una entrevista que no existe. Fuera del carrusel, en el
          mismo capítulo, es la gente que conoció. */}
-    <div class="fila-fotos marg-fila">
+    <div class="fila-fotos marg-fila fig-sola">
       <figure class="lote-fig">
             <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.margPie}</figcaption>
@@ -1585,7 +1585,7 @@ const cifrasFranja = c.franja.sitioQ
          LLEGUE: original a cv-fotos/, línea en build-photos.mjs, y aquí el
          nombre nuevo — y entonces el recorte raro de build-photos.mjs se
          puede borrar entero. */}
-    <figure class="arco-fig">
+    <figure class="arco-fig fig-sola">
       <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
       <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
     </figure>
@@ -4817,13 +4817,42 @@ const cifrasFranja = c.franja.sitioQ
     }
     .playa-fotos .lote-fig, .fila-fotos .lote-fig { max-width: 100%; }
     .lote-fig img { width: 100%; }
-    /* Las dos filas de UNA sola foto no son rejillas de tres: son figuras
-       de margen. */
-    .marg-fila, .grupo-narra-fila {
-      grid-template-columns: minmax(0, 1fr);
-      max-width: 592px;
-    }
+    /* Las filas de UNA sola foto no son rejillas de tres. */
+    .marg-fila, .grupo-narra-fila { grid-template-columns: minmax(0, 1fr); }
     .grupo-narra-fila .lote-fig { max-width: 100%; }
+
+    /* ── `.fig-sola`: UNA FIGURA QUE NO TIENE NADA AL LADO ────────────────
+       Medido sobre `dist` a 1440×900, listando cada `<img>`/`<video>` del
+       panel EN con su fracción del marco y con cuántos bloques de contenido
+       le acompañan en su misma franja vertical, salen SIETE medios con cero
+       acompañantes y por debajo del 60 % del marco:
+         21 %  clip de los animales      300×533   1075 px de blanco al lado
+         27 %  certificado B2            382×286    971
+         34 %  Marg Franklin             494×659    841 (a la IZQUIERDA)
+         34 %  la del NUS                494×356    841 (a la izquierda)
+         35 %  el grupo, entrevista      509×573    800
+         35 %  el grupo, narrando        509×715    800
+         41 %  la tienda de Jasa         592×740    710
+       Y llama la atención porque las filas de TRES de esta misma página sí
+       llenan el marco (tres de 362 + huecos = los 1310).
+       LA OLA ANTERIOR YA LO HABÍA INTENTADO y por eso existía
+       `.marg-fila, .grupo-narra-fila { max-width: 592px }`: la respuesta de
+       entonces fue «una foto sola es una figura de margen». Pero la pista de
+       margen mide 574 px y vive a la DERECHA, así que la de Marg Franklin
+       salía pegada al borde derecho con la mitad izquierda de la pantalla en
+       blanco — una pantalla entera para una foto y un pie.
+       LA REGLA NUEVA: una figura sola vive en la pista de PROSA y la ocupa
+       entera. No es una anchura elegida, es la que ya tiene cada párrafo del
+       documento: mismo borde izquierdo, mismo margen a la derecha. Una foto
+       con exactamente la silueta de un párrafo no flota — está en la columna,
+       como el texto. Y el blanco que le queda a la derecha deja de ser un
+       agujero para ser el margen que la página tiene en todas sus líneas.
+       (`max-width` en `rem` y no en px por lo de siempre: con el texto del
+       navegador al 200 % la prosa crece y la figura tiene que crecer con
+       ella, o se queda de sello dentro de su propia columna.) */
+    .cap:not(.cap-portada) > .fig-sola { grid-column: texto-i / texto-f; }
+    .fig-sola { max-width: 43rem; }
+    .fig-sola .lote-fig, .fig-sola .recuerdo, .fig-sola .recuerdo img { max-width: 100%; width: 100%; }
 
     /* La captura del sitio es LA PRUEBA del proyecto insignia y se servía a
        media escala: a 560 px su texto no se lee. Va al marco. El tope de
