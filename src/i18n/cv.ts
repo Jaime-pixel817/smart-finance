@@ -1172,13 +1172,38 @@ const en = {
   // AÑOS: solo el año, que es la regla de Jaime para fechas biográficas. Seis
   // son de 2026 y el B2 de Cambridge de 2024.
   certs: {
-    lede: 'The receipts. Exact name, issuer, year and credential ID, as my LinkedIn publishes them.',
+    // ── EL LEDE DICE LA CUENTA EXACTA, Y ESO ES LO QUE LO HACE UN RECIBO ──
+    // Decía «nombre exacto, emisor, año e ID de credencial» en plural, para
+    // los siete. Seis llevan ID; el séptimo no, y prometer siete y entregar
+    // seis es la forma más barata de que un comité deje de creerse el resto.
+    // Se dice la cuenta y se dice QUÉ trae el que no lo lleva, que resulta
+    // ser más comprobable que un identificador: sede y fechas impresas.
+    lede: 'The receipts, as my LinkedIn publishes them. Six of the seven carry a credential ID; the seventh prints its venue and its dates on the certificate itself.',
     verLinkedIn: 'See it on LinkedIn',
     credencial: 'Credential ID',
-    // El único de los siete que LinkedIn publica sin ID. Se dice, no se
-    // esconde: una tarjeta a la que le falta un campo y se calla parece una
-    // tarjeta completa.
-    sinCred: 'No credential ID published',
+    // ═══════════════════════════════════════════════════════════════════
+    // EL GREEN TECHNOLOGY PROGRAMME: SIN ID, PERO NO SIN RECIBO
+    // ═══════════════════════════════════════════════════════════════════
+    // Es el único de los siete que LinkedIn publica sin ID de credencial, y
+    // Jaime no puede conseguir uno: Bluesky Education no lo emite. Esta
+    // línea decía sólo «No credential ID published» — verdad, y nada más
+    // que una carencia enseñada en la misma tipografía en la que las otras
+    // seis enseñan su identificador.
+    //
+    // LO QUE SÍ HAY, Y ESTÁ TRANSCRITO DEL PROPIO CERTIFICADO
+    // (cv-material/MATERIAL.md, bloque C1, detalle nº 4): el documento
+    // imprime «2026 GREEN TECHNOLOGY PROGRAMME hosted at Shaw Foundation
+    // Alumni House, from June 22 to July 11, 2026», y lo firma Zhang
+    // Jinming, Academic Manager. La Shaw Foundation Alumni House está en el
+    // campus de la National University of Singapore.
+    // NO SE INVENTA UN ID. Y estos datos no son un premio de consolación:
+    // una sede con nombre y un rango de fechas de 20 días se comprueban
+    // preguntando a la institución, que es más de lo que permite una cadena
+    // de 24 caracteres que sólo su emisor sabe resolver.
+    // `sinCred` ya no dice lo que falta, dice lo que hay; `dondeCuando` es
+    // el campo que lo lleva, y se pinta EN EL SITIO DEL ID para que la
+    // tarjeta no tenga un renglón menos que las otras seis.
+    sinCred: 'Printed on the certificate instead of an ID',
     // Solo el DELF A2 llega hasta aquí: es el único sin imagen en ninguna
     // parte (ni certificado ni logotipo en su LinkedIn). Desde el 2026-08-30
     // su marco ya NO está vacío —lleva una insignia tipográfica—, así que
@@ -1206,41 +1231,55 @@ const en = {
       {
         que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        dondeCuando: '',
         img: 'cv-cert-vista.webp', w: 700, h: 495,
         alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Vista Equity Partners Demystifying Private Equity job simulation, with the Vista and Forage logos.'
       },
       {
         que: 'Bank of America - Investment Banking Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        dondeCuando: '',
         img: 'cv-cert-bofa.webp', w: 700, h: 495,
         alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Bank of America investment banking job simulation, with the Bank of America and Forage logos.'
       },
       {
         que: 'Investment Foundations® Certificate',
         de: 'CFA Institute', anio: '2026', cred: '191463283',
+        dondeCuando: '',
         img: 'cv-cert-cfa.webp', w: 700, h: 541,
         alt: 'CFA Institute certificate awarding the Investment Foundations Certificate to Jaime Sandoval Ricano, with its date, certificate number and verification QR code.'
       },
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
         de: 'Bluesky Education', anio: '2026', cred: '',
+        // LO QUE ESTE CERTIFICADO TRAE EN VEZ DE UN ID, transcrito de su
+        // propia imagen (cv-material/MATERIAL.md, bloque C1, nº 4): «hosted
+        // at Shaw Foundation Alumni House, from June 22 to July 11, 2026»,
+        // firmado por Zhang Jinming, Academic Manager. La Shaw Foundation
+        // Alumni House está en el campus de la National University of
+        // Singapore, y eso es lo único que se añade a lo impreso — es
+        // geografía comprobable, no una afirmación sobre el programa.
+        dondeCuando: 'Shaw Foundation Alumni House, National University of Singapore · 22 June – 11 July 2026',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
         alt: 'Bluesky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
         de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        dondeCuando: '',
         img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
         alt: 'Bloomberg for Education certificate of completion for the Bloomberg Finance Fundamentals course, on a black background with candlestick charts.'
       },
       {
         que: 'DELF A2',
         de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        dondeCuando: '',
         img: '', w: 0, h: 0, alt: ''
       },
       {
         que: 'B2 First Certificate',
         de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        dondeCuando: '',
         img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
         alt: 'Cambridge English certificate stating that Jaime Sandoval Ricaño was awarded Grade C in the First Certificate in English, Council of Europe level B2, with an overall score of 163.'
       }
@@ -2308,10 +2347,10 @@ const es: typeof en = {
   },
 
   certs: {
-    lede: 'Los recibos. Nombre exacto, emisor, año e ID de la credencial, tal como los publica mi LinkedIn.',
+    lede: 'Los recibos, tal como los publica mi LinkedIn. Seis de los siete llevan ID de credencial; el séptimo trae impresas en el propio certificado la sede y las fechas.',
     verLinkedIn: 'Verlo en LinkedIn',
     credencial: 'ID de la credencial',
-    sinCred: 'Sin ID de credencial publicado',
+    sinCred: 'Impreso en el certificado en vez de un ID',
     fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
     insigniaNivel: 'Nivel A2 del marco europeo',
     insigniaTag: 'Diseñada por esta página — no es el diploma',
@@ -2321,41 +2360,48 @@ const es: typeof en = {
       {
         que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        dondeCuando: '',
         img: 'cv-cert-vista.webp', w: 700, h: 495,
         alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de private equity de Vista Equity Partners, con los logotipos de Vista y de Forage.'
       },
       {
         que: 'Bank of America - Investment Banking Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        dondeCuando: '',
         img: 'cv-cert-bofa.webp', w: 700, h: 495,
         alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de banca de inversión de Bank of America, con los logotipos de Bank of America y de Forage.'
       },
       {
         que: 'Investment Foundations® Certificate',
         de: 'CFA Institute', anio: '2026', cred: '191463283',
+        dondeCuando: '',
         img: 'cv-cert-cfa.webp', w: 700, h: 541,
         alt: 'Certificado del CFA Institute que otorga el Investment Foundations Certificate a Jaime Sandoval Ricano, con su fecha, su número de certificado y un código QR de verificación.'
       },
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
         de: 'Bluesky Education', anio: '2026', cred: '',
+        dondeCuando: 'Shaw Foundation Alumni House, National University of Singapore · 22 de junio – 11 de julio de 2026',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
         alt: 'Certificado de Bluesky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
         de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        dondeCuando: '',
         img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
         alt: 'Certificado de Bloomberg for Education por el curso Bloomberg Finance Fundamentals, sobre fondo negro con gráficas de velas.'
       },
       {
         que: 'DELF A2',
         de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        dondeCuando: '',
         img: '', w: 0, h: 0, alt: ''
       },
       {
         que: 'B2 First Certificate',
         de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        dondeCuando: '',
         img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
         alt: 'Certificado de Cambridge English que acredita que Jaime Sandoval Ricaño obtuvo Grade C en el First Certificate in English, nivel B2 del Consejo de Europa, con una puntuación global de 163.'
       }

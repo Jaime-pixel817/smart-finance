@@ -1874,9 +1874,21 @@ const cifrasFranja = c.franja.sitioQ
                 <p class="pie cert-insignia-pie">{c.certs.fotoPend}</p>
               </>
             )}
+          {/* EL RENGLÓN DEL RECIBO. Seis tarjetas lo llenan con su ID de
+               credencial. La séptima —el Green Technology Programme— no
+               tiene: Bluesky Education no emite identificador y Jaime no
+               puede conseguir uno, así que aquí NO SE INVENTA NINGUNO.
+               Lo que sí trae el certificado, transcrito de su propia imagen,
+               es la sede y el rango de fechas, y eso ocupa el MISMO renglón:
+               una tarjeta con un campo menos que las otras seis se lee como
+               una tarjeta incompleta, y esta no lo está — trae otra cosa.
+               El rótulo (`sinCred`) dice cuál de las dos se está enseñando,
+               así que nadie puede confundir una sede con un ID. */}
           {f.cred
             ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
-            : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
+            : f.dondeCuando
+              ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.sinCred}</span> {f.dondeCuando}</p>
+              : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
           <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
         </li>
       ))}
