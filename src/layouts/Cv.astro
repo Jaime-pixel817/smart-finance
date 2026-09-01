@@ -367,7 +367,13 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
       var RED = matchMedia('(prefers-reduced-motion: reduce)');
       var vuelo = 0;
       document.addEventListener('click', function (ev) {
-        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"]') : null;
+        // `.cv-salto` entró con la franja de pruebas de la portada (ola 2):
+        // son enlaces a capítulos igual que los del índice, así que tienen
+        // que viajar por el MISMO camino. Dejarlos como anclas nativas los
+        // metía en el bug de arriba — dos clics seguidos y el segundo no
+        // desplaza —, y ahí el segundo clic es lo normal: la franja invita a
+        // mirar los certificados y volver por las cartas.
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"]') : null;
         if (!a) return;
         var h = a.getAttribute('href');
         var destino = document.getElementById(h.slice(1));
@@ -386,6 +392,31 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
           }
         }, 90);
       }, true);
+
+      // ═══ AL IMPRIMIR, LAS FOTOS DIFERIDAS TIENEN QUE ESTAR ═══════════════
+      // MEDIDO SOBRE `dist`, Y ES UN FALLO QUE YA SE IMPRIMÍA: en el PDF de
+      // la vista impresa, las dos fotos de las cartas salían como un hueco
+      // en blanco con su pie debajo. La causa es `loading="lazy"`: en el
+      // momento de imprimir esas dos <img> siguen sin cargar
+      // (`complete: false`, `naturalWidth: 0`, comprobado en la página
+      // pintada), así que el navegador dibuja su caja vacía. Y no lo arregla
+      // ninguna hoja de estilos: `@media print` puede cambiar cómo se pinta
+      // una imagen, no hacer que se pida.
+      // El destinatario del papel es el NOMINADOR de Prepa Tec CEM, que
+      // adjunta el documento: un CV que imprime rectángulos blancos donde
+      // van las fotos con quien firma sus cartas está roto para él.
+      // Son tres líneas, corren SOLO al imprimir y no cuestan nada en
+      // pantalla. Sin JavaScript queda como está hoy — el pie sin su foto —,
+      // que es la misma degradación de siempre y no una nueva.
+      // `beforeprint` Y ADEMÁS la media query: Safari no dispara
+      // `beforeprint` y sí `matchMedia('print')`.
+      function cargarTodo() {
+        var n = document.querySelectorAll('img[loading="lazy"]');
+        for (var i = 0; i < n.length; i++) n[i].loading = 'eager';
+      }
+      addEventListener('beforeprint', cargarTodo);
+      var mp = matchMedia('print');
+      (mp.addEventListener || mp.addListener).call(mp, 'change', function (e) { if (e.matches) cargarTodo(); });
     })();
   </script>
 

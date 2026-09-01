@@ -674,7 +674,15 @@ console.log('Jaime');
       continue;
     }
     const m2 = await sharp(src).metadata();
-    for (const ancho of [640, 1120]) {
+    /* 1600 SE AÑADIÓ EN LA OLA 2b, Y NO ES UN ANCHO DE MÁS. En el CV de
+     * escritorio esta captura pasa de 560 px a la pista `marco` (hasta
+     * 1320 px): es LA PRUEBA del proyecto insignia y a media escala su
+     * texto no se lee. Con tope en 1120 el navegador la estiraba un 18 %
+     * justo donde hay letra de 12 px. El original mide 2560 px, así que
+     * 1600 sale de reducir, no de inventar. Sigue sin costarle nada al
+     * teléfono: los `sizes` del <img> piden 100vw abajo de 768 px y el
+     * navegador se queda con el de 640. */
+    for (const ancho of [640, 1120, 1600]) {
       const buf = await sharp(src).resize(ancho).webp({ quality: 78 }).toBuffer();
       const archivo = publicar('cv-sf-header' + id + '-' + ancho + '.webp', buf);
       console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + ancho + 'x' +
@@ -726,7 +734,11 @@ console.log('Jaime');
     ['cv-cert-b2-cambridge', 'cert-b2-first-cambridge-recortado.png', 700],
     // La portada de la tienda que construyó él. 1280x1600 es 4:5 clavado, o
     // sea la misma proporción del marco donde se pinta: entra sin letterbox.
-    ['cv-jasa-tienda', 'jasa-tienda.png', 800]
+    // 1000 Y NO 800 DESDE LA OLA 2b: en escritorio esta captura se pinta a
+    // ancho de la pista `texto` (688 px) y con 640 px de origen el navegador
+    // la estiraba. Es una captura de una tienda —lo que hay que poder leer
+    // son sus rótulos—, así que se sirve reduciendo y nunca ampliando.
+    ['cv-jasa-tienda', 'jasa-tienda.png', 1000]
   ];
   for (const [id, src, largo] of DOCS) {
     const m2 = await sharp(CVF(src)).metadata();

@@ -363,9 +363,17 @@ const citas = [
 // fuente del índice Y de la numeración: el total se CUENTA de aquí en vez de
 // escribirse, que es como "01 / 11" sobrevivió a un capítulo de menos en la
 // versión anterior de este archivo hasta que alguien lo vio.
+// ── ONCE, Y UNO SE MOVIÓ (ola 2, 2026-08-31) ────────────────────────────
+// Entran «School, grades and English» (3) y «Awards» (9) —los dos porque una
+// solicitud los pide y este CV no los tenía— y «Everyone brings something»
+// baja del 4 al 6, detrás de los proyectos: es el capítulo con DIEZ de los
+// quince huecos de texto de la página y era la quinta pantalla. El porqué
+// entero, con la cita del mensaje de Jaime que sostiene el orden, está en
+// `caps` de src/i18n/cv.ts. ESTE ARRAY Y EL ORDEN DE LOS BLOQUES DE ABAJO
+// SON LAS DOS ÚNICAS COSAS QUE HAY QUE TOCAR PARA DESHACERLO.
 const capitulos = [
-  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4,
-  c.caps.c5, c.caps.c6, c.caps.c7, c.caps.c8, c.caps.c9
+  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4, c.caps.c5, c.caps.c6,
+  c.caps.c7, c.caps.c8, c.caps.c9, c.caps.c10, c.caps.c11
 ];
 // Los DOS lados van con dos dígitos («01 / 09», no «01 / 9»): con el índice
 // relleno y el total a pelo, el rótulo cambiaba de forma según el lado
@@ -382,29 +390,51 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capit
 // deja muerta a la siguiente, que es el bug del índice que ya costó una
 // tarde (ver la cabecera de Cv.astro).
 const fuenteCarta = (quien: string) =>
-  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.c8);
+  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.c10);
 
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
-// pantallas — y «{min} minutos» de contar las palabras de la copia real del
-// panel (`c` es de donde sale toda la PROSA pintada). A 200 palabras por
-// minuto, lectura adulta en silencio; las lecciones no tienen una constante
-// que reutilizar (su readingMinutes va escrito a mano en el frontmatter).
-// Contrastado contra la página pintada (2026-08-29, innerText del panel EN
-// en Chromium): 2 722 palabras visibles contra ~2 400 de esta cuenta — el
-// resto son fichas de la interfaz («01 / 09», los años sueltos, cifras
-// calculadas), que se miran, no se leen, así que quedarse con la prosa da
-// el estimado más honesto. Antes decía «about 7 minutes» a mano: una cifra
-// inventada al lado de una numeración contada.
-const palabras = (o: unknown): number =>
-  typeof o === 'string' ? (o.match(/\S+/g) || []).length
-  : Array.isArray(o) ? o.reduce((n: number, x) => n + palabras(x), 0)
-  : o && typeof o === 'object' ? Object.values(o).reduce((n: number, x) => n + palabras(x), 0)
-  : 0;
-const minutosLectura = Math.round(palabras(c) / 200);
-const resumenIndice = c.indice.resumen
-  .replace('{n}', String(capitulos.length))
-  .replace('{min}', String(minutosLectura));
+// pantallas. Es lo único que queda: una cuenta, de una lista, que no puede
+// desincronizarse.
+//
+// ── SE FUE EL RÓTULO DE MINUTOS (2026-08-31) ────────────────────────────
+// Decía «9 chapters · about 18 minutes» / «9 capítulos · unos 19 minutos»
+// (medido sobre `dist` en 0776bae; la propuesta de la ola 2 lo citaba como
+// 17 y ya había subido). Es la PRIMERA cifra que ve el lector y le dice
+// «esto te va a costar 18 minutos» a alguien que dedica entre 4 y 9 por
+// perfil — el rol de lector voluntario de UBC pide 10-15 solicitudes por
+// semana en 1-1.5 horas. Un número así no informa: cierra la pestaña.
+// Y ESTABA CONTANDO LO QUE NADIE LEE. La cuenta recorría el objeto `c`
+// entero, así que sumaba los `alt` de las fotos, los rótulos ARIA y las
+// pistas de los huecos: de las 3 611 palabras que sumaba en inglés, 816
+// (22.6 %) eran de esas tres cosas; en español, 872 de 3 721 (23.4 %).
+// Que el total se pareciera al de la página pintada (3 384 palabras de
+// `innerText` en inglés con el plegable de experiencia abierto) era una
+// casualidad: le sobraba casi un cuarto por un lado y le faltaba por el
+// otro todo lo que no vive en este objeto.
+// SE QUITA EN VEZ DE ARREGLARSE. Recontar solo lo visible daría 17, que
+// sigue siendo el doble de lo que ese lector tiene; y un CV no se lee de
+// corrido, se escanea. Los nueve capítulos con su índice ya dicen cuánto
+// hay. Si algún día vuelve, que salga de las palabras PINTADAS y no de este
+// objeto: `{min}` ya no existe en `indice.resumen`.
+const resumenIndice = c.indice.resumen.replace('{n}', String(capitulos.length));
+
+// ── LA LÍNEA DE CIFRAS DE LA FRANJA DE PRUEBAS ──────────────────────────
+// Las CUATRO salen de las mismas cuentas que pinta el capítulo de los
+// proyectos (`contarPruebas` y `contarCifras`, arriba), no de una constante:
+// una franja de resumen con números escritos a mano es justo donde un CV se
+// desincroniza de sí mismo. Si mañana hay 11 lecciones, aquí dice 11.
+// Las certificaciones que de verdad publican un ID de credencial. El total
+// (7) sale de `certs.filas.length` y este de las que tienen `cred`: 6. Los
+// dos números se cuentan, ninguno se escribe — ver el comentario de
+// `franja.certsQ` en cv.ts.
+const nCertsConId = c.certs.filas.filter((f) => f.cred).length;
+const certsFranja = c.franja.certsQ.replace('{n}', String(nCertsConId));
+const cifrasFranja = c.franja.sitioQ
+  .replace('{p}', String(nPruebas))
+  .replace('{l}', String(nLecciones))
+  .replace('{f}', String(nFuentes))
+  .replace('{g}', String(nGlosario));
 ---
 <div class="historia">
 
@@ -625,7 +655,7 @@ const resumenIndice = c.indice.resumen
          Sin el efecto (Firefox estable, «menos movimiento»), este bloque es
          una pantalla de papel normal después de la tapa: el manifiesto y el
          índice, sin tarjeta y sin nombre repetido. */}
-    <div class="portada-tarjeta">
+    <div class="portada-tarjeta sin-imprimir">
      <div class="portada-col">
       {/* Palabras de Jaime, con la ortografía y la puntuación pulidas y
            nada más (src/i18n/cv.ts, `voz.apertura`, pendiente de su revisión
@@ -639,6 +669,65 @@ const resumenIndice = c.indice.resumen
         {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
         <p>{c.voz.apertura}</p>
       </blockquote>
+
+      {/* ══ LA FRANJA DE PRUEBAS (ola 2, 2026-08-31) ═══════════════════════
+           Cuatro piezas, sin una frase de prosa, debajo de la cita de
+           apertura y ARRIBA del índice. Un lector voluntario de UBC dedica
+           entre 4 y 9 minutos por perfil, y hasta hoy los siete certificados
+           con número de credencial, las dos cartas firmadas por CEOs, las
+           cifras del sitio y el premio vivían en el tercio final. Con cuatro
+           minutos, ese tercio final no existe — y para el nominador es peor:
+           esa persona no va a recorrer once capítulos para encontrar qué
+           puede afirmar.
+
+           LAS CUATRO CIFRAS SE CUENTAN, NINGUNA SE ESCRIBE: los certificados
+           y las cartas salen de sus propias listas de cv.ts y las cuatro del
+           sitio de `contarCifras`/`contarPruebas`, o sea los MISMOS números
+           que pinta el capítulo de los proyectos. Una franja de resumen con
+           números a mano es justo donde un CV se desincroniza de sí mismo.
+
+           ES UNA LISTA DE ENLACES, y cada uno lleva a su capítulo. Llevan
+           `cv-salto` para que el guion de Cv.astro los mueva con
+           `scrollIntoView` igual que los del índice: una navegación de ancla
+           con `scroll-behavior: smooth` EN VUELO deja muerta a la siguiente,
+           que es el bug que ya costó una tarde (ver la cabecera de Cv.astro).
+           Sin JavaScript siguen siendo anclas normales y funcionan.
+
+           EL NOMBRE ACCESIBLE LO LLEVA EL ENLACE ENTERO («7 certifications…
+           — Go to “Certifications”»): «7» a secas no dice a dónde lleva. Por
+           eso los dos `<span>` de dentro van `aria-hidden`, como en los
+           huecos: si no, cada pieza se anunciaría dos veces. */}
+      <ul class="franja" aria-label={c.franja.tag}>
+        <li>
+          <a class="franja-item cv-salto" href={`#${p}-cap-8`}
+            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.c8)}`}>
+            <span class="franja-n" aria-hidden="true">{c.certs.filas.length}</span>
+            <span class="franja-q" aria-hidden="true">{certsFranja}</span>
+          </a>
+        </li>
+        <li>
+          <a class="franja-item cv-salto" href={`#${p}-cap-10`}
+            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.ir.replace('{s}', c.caps.c10)}`}>
+            <span class="franja-n" aria-hidden="true">{c.cartas.entregadas.length}</span>
+            <span class="franja-q" aria-hidden="true">{c.franja.cartasQ}</span>
+          </a>
+        </li>
+        <li>
+          <a class="franja-item cv-salto" href={`#${p}-cap-5`}
+            aria-label={`${c.franja.sitioN} — ${cifrasFranja} — ${c.franja.ir.replace('{s}', c.caps.c5)}`}>
+            <span class="franja-n franja-n-txt" aria-hidden="true">{c.franja.sitioN}</span>
+            <span class="franja-q" aria-hidden="true">{cifrasFranja}</span>
+          </a>
+        </li>
+        <li>
+          <a class="franja-item cv-salto" href={`#${p}-cap-9`}
+            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.ir.replace('{s}', c.caps.c9)}`}>
+            <span class="franja-n" aria-hidden="true">{c.premios.entregados.length}</span>
+            <span class="franja-q" aria-hidden="true">{c.franja.premiosQ}</span>
+          </a>
+        </li>
+      </ul>
+
       {/* EL ÍNDICE SIGUE PEGADO A LA FRASE, Y POR LA MISMA RAZÓN MEDIDA
            QUE ANTES: es la salida de emergencia del lector con prisa y tiene
            que verse sin bajar más. */}
@@ -669,6 +758,13 @@ const resumenIndice = c.indice.resumen
          a esta altura ya se hizo scroll. */}
     <div class="portada-papel-cierre">
      <div class="portada-col">
+      {/* LA LÍNEA QUE SOLO SE VE EN PAPEL. `display: none` de base y
+           `display: block` dentro de `@media print`: la vista impresa es un
+           subconjunto (seis capítulos de once) y esto es lo que impide que el
+           recorte sea un disimulo — la hoja dice en su primera línea que hay
+           más y dónde está. No nombra la dirección del CV: esa dirección es
+           la credencial de esta página y no se escribe en ninguna parte. */}
+      <p class="impresion-nota meta-mono">{c.head.impresionNota}</p>
       <div class="cap-1-cuerpo">
         <div class="cap-1-texto">
           {/* texto de Jaime (su meta), pendiente de su revisión final */}
@@ -684,7 +780,7 @@ const resumenIndice = c.indice.resumen
           </blockquote>
           {/* Foto 2 del lote del 2026-08-30: la visita a Toronto. Va PEGADA a
                su cita sobre la U of T, que es de esa visita. */}
-          <figure class="lote-fig lote-toronto">
+          <figure class="lote-fig lote-toronto sin-imprimir">
             <span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.torontoPie}</figcaption>
           </figure>
@@ -694,10 +790,10 @@ const resumenIndice = c.indice.resumen
              micrófono en Singapur. Pasa por build-photos.mjs con huella,
              como todas; el retrato de /about (jaime-320) deja de usarse aquí
              para no repetir a la misma persona dos veces en una pantalla. */}
-        <figure class="cap-1-retrato">
+        <figure class="cap-1-retrato sin-imprimir">
           <img class="cap-1-foto" src={foto('cv-retrato-480.webp')}
             srcset={`${foto('cv-retrato-480.webp')} 480w, ${foto('cv-retrato-800.webp')} 800w`}
-            sizes="(max-width: 767px) 100vw, 320px"
+            sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 592px, 320px"
             alt={c.head.fotoAlt} width="480" height="600" decoding="async" loading="lazy" />
           <figcaption class="pie">{c.head.retratoPie}</figcaption>
         </figure>
@@ -713,7 +809,7 @@ const resumenIndice = c.indice.resumen
            la tapa antes de que empiece la foto suya, y dice de qué habla.
            El rótulo va en un `<span>` dentro del mismo párrafo: para un lector
            de pantalla sigue siendo una sola frase. */}
-      <p class="pie portada-alt"><span class="portada-alt-rotulo">{c.head.portadaAltRotulo}:</span> {c.head.portadaAlt}</p>
+      <p class="pie portada-alt sin-imprimir"><span class="portada-alt-rotulo">{c.head.portadaAltRotulo}:</span> {c.head.portadaAlt}</p>
       {/* LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
            portada pasó a copiar el encuadre de Ondo (la ciudad desde el agua,
            a lo ancho), que es un plano que él no tiene. No se tira: baja aquí,
@@ -727,10 +823,10 @@ const resumenIndice = c.indice.resumen
            caja de la figura — con los viejos, la foto llegaba y empujaba
            95 px de página (CLS gratuito). El recorte y su porqué están en
            scripts/build-photos.mjs. */}
-      <figure class="cap-1-figura">
+      <figure class="cap-1-figura sin-imprimir">
         <img src={foto('cv-torre-520.webp')}
           srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
-          sizes="(max-width: 767px) 100vw, 520px"
+          sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 592px, 520px"
           alt={c.head.torreAlt} width="520" height="650"
           decoding="async" loading="lazy" />
         {/* EL PIE ES SUYO (mensaje del 2026-08-29), pulido en ortografía y
@@ -776,13 +872,30 @@ const resumenIndice = c.indice.resumen
        el pseudo de WebKit, que no tocan el `display`.
 
        AL IMPRIMIR SE DESPLIEGA SIEMPRE (regla en el bloque de estilo): un
-       CV que se imprime con el capítulo de experiencia vacío no es un CV. */}
+       CV que se imprime con el capítulo de experiencia vacío no es un CV.
+
+       ── Y NACE ABIERTO DESDE EL 2026-08-31 (ola 2) ──────────────────────
+       El `<details>` se queda; lo que cambia es que arranca con `open`. El
+       plegable lo pidió Jaime porque «consume mucho», y eso era cierto: doce
+       renglones entre la frase de apertura y los voluntariados. Pero el
+       remedio se comió el diagnóstico — la propia página dice, dos renglones
+       más arriba, «este capítulo y el siguiente son los que un comité
+       escanea», y a continuación los escondía detrás de un botón. Con 4 a 9
+       minutos por perfil, un botón cerrado es un capítulo que no existe, y
+       para el NOMINADOR es peor todavía: lo que esa persona necesita para
+       poder firmar es exactamente esta lista.
+       LO QUE «CONSUME MUCHO» SE RESUELVE CON DENSIDAD, NO ESCONDIENDO: las
+       filas van en una rejilla apretada y el capítulo ocupa lo que ocupa.
+       JAIME PUEDE REVERTIRLO BORRANDO UNA PALABRA: quitar `open` de la línea
+       de abajo devuelve el plegable cerrado, sin tocar nada más. El plegado
+       sigue siendo la herramienta buena para secciones que de verdad sobran;
+       esta no sobra. */}
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
     <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.c2}</h2>
     <p class="cap-lede">{c.exp.lede}</p>
-    <details class="exp-plegable">
+    <details class="exp-plegable" open>
       {/* La cuenta sale de la lista, no está escrita: una fila nueva la
            actualiza sola. Y va DENTRO del rótulo accesible (no
            `aria-hidden`) porque «12 renglones» es justo lo que le falta a
@@ -802,42 +915,217 @@ const resumenIndice = c.indice.resumen
           </li>
         ))}
       </ol>
-      {/* EL RECIBO DEL AÑO EN DISPUTA. Dos de estas filas dicen 2025 —el
-           grupo estudiantil y smartfinance.lat— y el LinkedIn público de
-           Jaime dice ene. 2026 y feb. 2026. Va DENTRO del plegable, pegado
-           a las filas que afecta y no en la cabecera, y en mono como
-           `cifra-suya-marca`: es un recibo, no una frase del CV. */}
+      {/* EL RECIBO DE LOS AÑOS QUE SOSTIENE SU PALABRA. CINCO de estas
+           filas dicen 2025 —Jon Maier, el grupo estudiantil, la AEM, Jasa
+           Motor y smartfinance.lat— y ninguna otra fila de la tabla lo dice,
+           así que el recibo las señala POR SU AÑO y la lista no lleva
+           ninguna marca encima: en el capítulo que un comité escanea
+           primero, cinco marcas serían cinco tropiezos. Va DENTRO del
+           plegable, pegado a las filas que afecta y no en la cabecera, y en
+           mono como `cifra-suya-marca`: es un recibo, no una frase del CV.
+           Hasta el 2026-08-31 nombraba solo dos de las cinco. */}
       <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
     </details>
+
+    {/* ══ LA MISMA EXPERIENCIA, EN FORMATO DE SOLICITUD (ola 2) ══════════
+         La lista de arriba es año + título, que es lo que un comité escanea.
+         Esto es lo que hay que RELLENAR, y las cuatro cosas que importan
+         piden lo mismo por actividad: rol · organización · periodo · qué
+         hizo él · resultado con número · quién lo confirma.
+          · Schulich: «Leadership Profiles with fewer than 3 experiences will
+            not be evaluated» y «…with missing or incomplete references will
+            not be evaluated».
+          · Ivey (su propio método STAR): «provide quantifiable evidence with
+            numbers».
+          · UBC: hasta 5 actividades y dos referees, uno funcionario de la
+            escuela; NINGUNO puede ser familiar.
+          · Y el nominador de Prepa Tec CEM: es exactamente lo que necesita
+            para poder firmar.
+         Son CINCO porque cinco es el máximo de Schulich y de UBC.
+
+         UN HUECO POR FILA, NO UNO POR CAMPO. Cuatro de las cinco filas no
+         tienen resultado con número ni referee —los tiene que dar Jaime, no
+         los puede sacar este repositorio de ningún lado—, y marcarlos campo
+         por campo serían ocho recuadros en el capítulo que un comité escanea
+         primero. Va uno, y su rótulo dice QUÉ campo falta. La quinta
+         (Singapur) está completa a propósito: es el patrón de cómo se ve una
+         fila terminada.
+
+         LAS PREGUNTAS EXACTAS PARA JAIME están en `expApp.filas[].pide` de
+         cv.ts y NO se pintan, igual que las pistas de los huecos: son notas
+         de trabajo dirigidas a él, y enseñarle el guion editorial a un
+         lector que no es él convierte un hueco honesto en un formulario a
+         medio llenar. Ahí están también los dos avisos que él necesita ver:
+         que el referee de Jasa Motor NO puede ser su papá, y que 497
+         impresiones y 473 contactos son cifras de vanidad y no sirven como
+         resultado. */}
+    <h3 class="t-h3 expapp-h">{c.expApp.h}</h3>
+    <p class="cap-lede">{c.expApp.lede}</p>
+    <ol class="expapp">
+      {c.expApp.filas.map((f) => (
+          <li class="expapp-fila">
+            <p class="expapp-rol">{f.rol}</p>
+            <p class="expapp-org">{f.org}</p>
+            <p class="meta-mono expapp-cuando">{f.cuando}</p>
+            <p class="expapp-campo"><span class="meta-mono expapp-et">{c.expApp.campos.accion}</span> {f.accion}</p>
+            {f.resultado && (
+              <p class="expapp-campo"><span class="meta-mono expapp-et">{c.expApp.campos.resultado}</span> {f.resultado}</p>
+            )}
+            {f.quien && (
+              <p class="expapp-campo"><span class="meta-mono expapp-et">{c.expApp.campos.quien}</span> {f.quien}</p>
+            )}
+            {f.hueco && <Hueco c={c} id={f.hueco} class="expapp-hueco" />}
+          </li>
+      ))}
+    </ol>
+
+    <Hueco c={c} id="contraExp" class="contra" />
   </section>
 
-  {/* ════ 03 · Servir — los voluntariados ════════════════════════════════
+  {/* ════ 03 · Escuela, calificaciones e inglés — EL RENGLÓN ACADÉMICO ═══
+       CAPÍTULO NUEVO (ola 2, 2026-08-31). Hasta hoy este CV no tenía UN SOLO
+       dato académico —ni promedio, ni cálculo, ni idioma en pantalla— y es lo
+       primero que pregunta cualquier solicitud. Un silencio en ese renglón no
+       se lee como discreción: se lee como que no lo tiene.
+
+       LO QUE SE PUBLICA AQUÍ EXISTE Y ESTÁ COMPROBADO:
+        · La escuela y el plan salen de la misma fila que ya pinta el capítulo
+          anterior.
+        · El B2 con su 163 sale de SU PROPIO CERTIFICADO (transcrito en
+          cv-material/MATERIAL.md, bloque C1 nº 7). Hasta hoy ese 163 vivía
+          SOLO en el `alt` de la imagen del certificado: en pantalla el
+          renglón del inglés parecía cerrado y no lo está.
+        · Que le falta otro examen no es una opinión — las dos universidades
+          lo publican, y las dos citas se comprobaron el 2026-08-31 en sus
+          páginas oficiales, que van enlazadas.
+
+       NO SE INVENTA NI UNA CIFRA: promedio, cálculo y el examen que falta son
+       huecos marcados, cada uno con su pregunta exacta en cv.ts.
+
+       EL BLOQUE VA EN CASTA 3 (no se mueve), como la lista seca y los
+       certificados: son los renglones que un comité escanea. */}
+  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
+    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(2)}</p>
+    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
+    <p class="cap-lede">{c.acad.lede}</p>
+
+    <div class="acad">
+      <div class="acad-bloque">
+        <h3 class="t-h3">{c.acad.escuelaH}</h3>
+        <p class="meta-mono acad-cuando">{c.acad.escuelaCuando}</p>
+        <p>{c.acad.escuela}</p>
+      </div>
+
+      <div class="acad-bloque">
+        <h3 class="t-h3">{c.acad.inglesH}</h3>
+        <p class="meta-mono acad-cuando">{c.acad.inglesTag}</p>
+        {/* Los nombres de los componentes del examen van tal cual los imprime
+             el certificado, o sea en inglés en los dos paneles: es el nombre
+             propio de cada parte, no una frase traducible. En el panel
+             español eso son cinco trozos de inglés dentro de un párrafo en
+             español, así que llevan `lang="en"` por el mismo motivo que las
+             citas de las cartas: sin la marca, un lector de pantalla los
+             pronuncia con fonemas españoles. */}
+        <p><span lang="en">{c.acad.ingles}</span></p>
+        {/* EL HECHO INCÓMODO, EN PRIMERA PERSONA Y SIN DRAMATISMO. Es un paso
+             pendiente, no un fracaso — y decirlo aquí es más creíble que
+             dejar el renglón como si estuviera cerrado. */}
+        <p class="acad-falta">{c.acad.inglesFalta}</p>
+        <p class="meta-mono acad-fuentes-h">{c.acad.fuentesH}</p>
+        <ul class="acad-fuentes">
+          {/* `que` va en trozos por lo mismo que `acad.nota`: en el panel
+               español la cita verbatim de U of T es inglés dentro de una
+               etiqueta española y necesita `lang="en"`. */}
+          {c.acad.inglesFuentes.map((f) => (
+            <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que.map((t) => (typeof t === 'string'
+              ? t
+              : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))} ↗</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    {/* POR QUÉ LOS TRES RECUADROS DE ABAJO ESTÁN VACÍOS EN VEZ DE NO ESTAR.
+         Sin esta línea, tres huecos seguidos en el capítulo académico se leen
+         como una ausencia; con ella se leen como lo que son, tres datos que
+         solo puede dar él. La cita de Rotman va verbatim y en inglés, con su
+         enlace: es de su página oficial. */}
+    <div class="acad-nota">
+      <h3 class="t-h4">{c.acad.notaH}</h3>
+      {/* EL PARRAFO VA EN TROZOS. En el panel espanol lleva dentro tres
+           pedazos de ingles —la cita de Rotman y las dos maneras inglesas de
+           decir un promedio— y sin `lang="en"` un lector de pantalla los
+           pronuncia con fonemas espanoles, que es la misma razon por la que
+           las citas de las cartas van marcadas. La marca SOLO se pinta en el
+           panel espanol: en el ingles el idioma del trozo es el de la pagina
+           y un `lang` redundante no aporta nada. */}
+      <p>{c.acad.nota.map((t) => (typeof t === 'string'
+        ? t
+        : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))}</p>
+      {/* UNA FUENTE POR ESCUELA. Antes iba UN solo enlace —la página de
+           Rotman Commerce— debajo de un párrafo que habla de Rotman, de Ivey
+           y de Schulich, y esa página no menciona a las otras dos: el enlace
+           visible decía que un dato salía de un sitio donde no está. */}
+      <ul class="acad-fuentes pie">
+        {c.acad.notaFuentes.map((f) => (
+          <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que} ↗</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="acad-huecos">
+      <Hueco c={c} id="acadPromedio" />
+      <Hueco c={c} id="acadCalculo" />
+      <Hueco c={c} id="acadIngles" />
+    </div>
+
+    <Hueco c={c} id="contraAcad" class="contra" />
+  </section>
+
+  {/* ════ 04 · Servir — los voluntariados ════════════════════════════════
        "Experiencias, voluntariados": van pegados, en ese orden.
        EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
        (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
        voluntariados de su frase: los animalitos y las playas. La comunidad
        sigue nombrada en su cita, que es verbatim y no se toca. */}
-  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
-    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(2)}</p>
-    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-4-h`}>
+    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(3)}</p>
+    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
     {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
 
     <div class="servir">
       <div class="servir-bloque">
         <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
-             sin sonar solo (`controls` + `preload="none"`). */}
-        <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-          data-poster="/assets/cv/cv-poster-animales.jpg"></video>
-        <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-          poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
-        <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
-        {/* La donación al stand de adopción: hecho de su publicación en
-             LinkedIn (2026). Las fotos no se pudieron guardar en esta
-             cosecha; el hecho entra igual, sin foto. */}
-        <p class="cap-frases">{c.servir.donacion}</p>
+        {/* ── EL CLIP VA AL LADO DE SU TEXTO, NO ENCIMA (escritorio) ───────
+             El clip es 9:16 y su tope son 300 px de ancho, así que apilado
+             ocupaba el 20.8 % del marco a 1440 y dejaba 1075 px de blanco a
+             su derecha: era el medio más huérfano del documento. Y NO se
+             arregla ensanchándolo — a ancho de prosa un 9:16 mide 1223 px de
+             alto, más de una pantalla para un clip.
+             Lo que necesitaba era compañía, no anchura: `.clip-par` lo empareja
+             con el párrafo que ya venía justo debajo. En escritorio son dos
+             columnas (el clip a la izquierda, el texto a la derecha) y la
+             banda se llena; en el teléfono el envoltorio es la MISMA columna
+             flex con el MISMO hueco que `.servir-bloque`, así que no mueve un
+             píxel. Es el mismo bento de `.grupo`. */}
+        <div class="clip-par">
+          <div class="clip-par-media">
+            {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
+                 sin sonar solo (`controls` + `preload="none"`). */}
+            <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+              data-poster="/assets/cv/cv-poster-animales.jpg"></video>
+            <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+              poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
+            <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
+          </div>
+          {/* La donación al stand de adopción: hecho de su publicación en
+               LinkedIn (2026). Las fotos no se pudieron guardar en esta
+               cosecha; el hecho entra igual, sin foto. */}
+          <p class="cap-frases">{c.servir.donacion}</p>
+        </div>
         {/* Fotos 5, 6 y 13 del lote del 2026-08-30, YA COLOCADAS: él
              entregando el alimento, los perritos del stand y la marcha. La
              cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
@@ -906,192 +1194,8 @@ const resumenIndice = c.indice.resumen
         </div>
       </div>
     </div>
-  </section>
+    <Hueco c={c} id="contraServir" class="contra" />
 
-  {/* ════ 04 · Cada quien trae algo — las conversaciones ═════════════════
-       El "etc" de "experiencias, voluntariados, etc": la gente con la que
-       habló es una experiencia más, y va con ellas, antes de los proyectos.
-
-       ── AQUÍ ES DONDE HAY QUE TENER CUIDADO CON ONDO ──────────────────────
-       Ondo cierra su home con cinco citas: retrato, NOMBRE, cargo y una frase
-       grande elogiando a Ondo. Larry Fink, Franklin Templeton, ABN Amro. Es el
-       bloque más eficaz de su página y es exactamente el que aquí NO se puede
-       copiar tal cual: Jaime no tiene el aval de nadie. Andy Toh, Moris Dieck,
-       el profesor Lloyd y Raúl Irabién no lo están respaldando — él los
-       entrevistó. Poner sus nombres y cargos encima de una frase grande
-       insinuaría un aval que no existe, y es justo el tipo de cosa que un
-       comité de admisiones va a comprobar.
-
-       Lo que SÍ se copia, desde el brief del 2026-08-28, es LA FORMA ENTERA:
-       el carrusel horizontal de tarjetas negras redondeadas — retrato, nombre,
-       cargo y la frase grande abajo, con las flechas ‹ › debajo. La
-       diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
-       Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
-       esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
-       porque unas comillas debajo del nombre de otra persona la convierten en
-       una cita suya. Y encima del bloque va escrito, en una frase, que nadie
-       de aquí lo está respaldando.
-
-       La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
-  <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
-    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(3)}</p>
-    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
-    {/* La frase que impide que este capítulo se lea como una lista de avales.
-         Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
-         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
-    <p class="pie">{c.entrevistas.aviso}</p>
-    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
-         organizó por su cuenta («entirely on his own steam») lo firma la
-         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
-         nadie: lo que la carta respalda es que las conversaciones son suyas,
-         no lo que dijeron los entrevistados. */}
-    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-
-    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
-         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
-         (el imán vertical de la página se quitó; ESTE es otro gesto: una
-         lista de tarjetas que pagina de lado, que es justo para lo que
-         scroll-snap x existe). Las flechas son <button> de verdad: con
-         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
-         sin JavaScript se esconden (la regla vive en el <noscript> de
-         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
-         flechas del teclado (tabindex="0" en la lista, que es lo que exige
-         una región desplazable alcanzable).
-         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
-         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
-         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
-         todas las letras. Eso no se negocia con la estética. */}
-    <div class="citas-marco" data-citas>
-      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
-        {citas.map((rt) => {
-          const per = c.entrevistas.personas[rt.key];
-          // `rol` vacío = no había fuente para el rol y no se inventa uno.
-          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
-          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
-          return (
-          <li class="cita">
-            <div class="cita-media">
-              {rt.img && (
-                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
-              )}
-              {rt.video && (
-                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
-                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
-              )}
-              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
-            </div>
-            <p class="cita-nombre">{per.nombre}</p>
-            {per.rol && <p class="cita-rol">{per.rol}</p>}
-            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
-            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
-                 no: en cuanto Jaime escriba la frase este renglón es lo único
-                 que separa «lo que me llevé» de «lo que me dijeron». */}
-            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
-            <Hueco c={c} id={rt.hueco} grande />
-            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
-          </li>
-          );
-        })}
-      </ul>
-      <div class="citas-nav">
-        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
-        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
-      </div>
-    </div>
-    {/* Foto 7 del lote del 2026-08-30: él con Marg Franklin en la firma del
-         acuerdo con el Tec. SIN CARGO, a propósito: ver la nota junto a
-         `fotosPend.marg` en src/i18n/cv.ts. Va AQUÍ y no en el
-         carrusel: el carrusel es de conversaciones que él grabó y de las que
-         se llevó una frase, y de esta no hay ni clip ni frase — lo que hay
-         es que le pidió consejo sobre estudiar en Canadá, que es lo que dice
-         su fila de experiencia. Ponerla como una tarjeta más del carrusel
-         insinuaría una entrevista que no existe. Fuera del carrusel, en el
-         mismo capítulo, es la gente que conoció. */}
-    <div class="fila-fotos marg-fila">
-      <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.margPie}</figcaption>
-          </figure>
-    </div>
-
-    {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
-         Primero las conversaciones, después lo que él enseña SOLO: es el
-         orden que pidió. Aquí van únicamente los vídeos donde él da la
-         información (consejos, datos, noticias) — reclasificados con el
-         material: la entrevista de «skills» que vivía aquí subió al carrusel.
-         Jamás un embed de TikTok; el clip de Singapur se sirve desde este
-         dominio y el resto va como cuadro del vídeo + enlace al original. */}
-    <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
-    <Hueco c={c} id="tiktokNota" />
-    <p class="pie">{c.tiktok.ensenaLede}</p>
-
-    {/* Los CUATRO vídeos van servidos por NOSOTROS, CON su sonido: son él
-         hablando, así que los arranca una persona (`controls`, WCAG 2.2.2) y
-         autoplay NUNCA — aquí no hay bucles mudos. El póster viaja en
-         `data-poster` con su gemelo <noscript> (patrón del PR #53): cero
-         bytes de vídeo y cero de póster hasta acercarse.
-         OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
-         de la expresión un {/* *\/} no es un comentario de plantilla sino JS
-         crudo, y rompe el compilado. */}
-    <ul class="clips">
-      {ensena.map((v) => (
-        <li class:list={['clip', v.ancha && 'clip-ancho']}>
-          {v.clip && (
-            <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
-            <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
-          )}
-          {v.img && (
-            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
-          )}
-          <p class="clip-titulo">{v.titulo}</p>
-          <p class="clip-anio meta-mono">2026</p>
-          {v.carrusel && (
-            <p class="clip-tag" role="note">{c.clip.carrusel}</p>
-          )}
-          {v.nota && <p class="pie">{v.nota}</p>}
-          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
-        </li>
-      ))}
-    </ul>
-
-    {/* ── AQUÍ DEBAJO HABÍA SIETE RENGLONES CON AÑO. YA NO ────────────────
-         Jaime (2026-08-30): «abajo de eso hay más fechas con títulos,
-         quítalos y pon de link a mi perfil de TikTok para ver todo mi
-         contenido, con un botón ese, y nos ahorramos todos los textos con
-         fechas». Se fueron los tres consejos sin imagen y el bloque entero
-         de «El arco de Singapur» (encabezado, cuatro renglones y su línea de
-         fuente), que decía «2026» siete veces seguidas. En su sitio va UN
-         botón al perfil, que es donde vive todo eso.
-         LA FOTO DEL ARCO SE QUEDA. Vivía dentro de ese bloque, pero lo que
-         Jaime pidió quitar son TEXTOS CON FECHAS, no fotos — y su brief del
-         2026-08-28 pide lo contrario con las imágenes («usar todas las
-         posibles»). Así que el cuadro de la presentación en la NUS sigue
-         aquí, ahora suelto; lo único que perdió es el «(2026)» del pie. */}
-    {/* ⚠️ ESTA FOTO LA SUSTITUYE LA 12 DEL LOTE DEL 2026-08-30 — «él
-         explicándole a alguien de la NUS», y Jaime pidió esa versión porque
-         es de MEJOR CALIDAD que esta. Esta es un fotograma rescatado: venía
-         girado 90° y con el subtítulo del vídeo quemado, y el recorte que
-         deja el rótulo fuera está explicado en build-photos.mjs. Sin hueco
-         al lado, por lo mismo que la del grupo: hoy la foto está. CUANDO
-         LLEGUE: original a cv-fotos/, línea en build-photos.mjs, y aquí el
-         nombre nuevo — y entonces el recorte raro de build-photos.mjs se
-         puede borrar entero. */}
-    <figure class="arco-fig">
-      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
-      <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
-    </figure>
-    <p class="cap-frases">{c.tiktok.nota}</p>
-    <p class="tt-cta">
-      <a class="cv-boton" href={TIKTOK} target="_blank" rel="noopener">
-        {c.tiktok.verTodo} <span aria-hidden="true">↗</span>
-      </a>
-      <span class="pie">{c.tiktok.perfil}</span>
-    </p>
   </section>
 
   {/* ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
@@ -1105,7 +1209,7 @@ const resumenIndice = c.indice.resumen
        MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
        cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
        está mirando y no pide el ojo —, así que no compiten. */}
-  <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(4)}</p>
     <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.c5}</h2>
@@ -1118,6 +1222,22 @@ const resumenIndice = c.indice.resumen
           <div class="grupo-texto">
             {/* Hecho publicado en /community, en primera persona de Jaime. */}
             <p class="cap-frases">{c.proyectos.grupo}</p>
+            {/* ── LA MARCA DE TERCERO VA PEGADA A LO QUE LA CARTA SÍ DICE ───
+                 Estaba DESPUÉS de la cifra y de su recibo, o sea en este
+                 orden: «somos casi 200» → «es mi afirmación» → «fuente de
+                 tercero: la carta de Lloyd George». Leído de corrido —y un
+                 lector de cuatro minutos lee de corrido— eso dice que el
+                 tercero respalda el número, y de paso anula el recibo que la
+                 página acababa de poner. La carta dice «He founded the Smart
+                 Finance student organisation at his campus» y NI UNA PALABRA
+                 sobre cuánta gente hay.
+                 Ahora la marca queda debajo de la frase que la carta firma
+                 —la fundación— y la cifra viene después con su recibo, que
+                 es lo último que se lee y lo que queda. Es el único de los
+                 cuatro `fuente-carta` del documento que estaba mal colocado;
+                 los otros tres (playa cap. 4, aviso cap. 6, lista del cap.
+                 10) ya iban junto a lo suyo. */}
+            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
             {/* SU CIFRA, MARCADA. «Casi 200 en la comunidad» (2026-08-29) no
                  la puede contar el build —la gente de una comunidad no vive
                  en ningún archivo del repo—, así que va como afirmación suya
@@ -1125,10 +1245,6 @@ const resumenIndice = c.indice.resumen
                  va DEBAJO y en mono: es el recibo, no la frase. */}
             <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
             <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
-            {/* Que FUNDÓ el grupo era palabra suya hasta el 2026-08-29: hoy
-                 lo firma la carta de Lloyd George. La cifra de arriba NO —
-                 esa sigue siendo suya y su marca lo sigue diciendo. */}
-            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
@@ -1145,14 +1261,14 @@ const resumenIndice = c.indice.resumen
              la foto sale de ahí. El vídeo de promo no se pierde — sigue en el
              carrusel de clips del capítulo 6. NO lleva FotoHueco al lado a
              propósito: este sitio tiene foto. */}
-        <figure class="grupo-tec lote-fig">
+        <figure class="grupo-tec lote-fig fig-sola">
           <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" height="810" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
         </figure>
         {/* Foto 9 del lote del 2026-08-30: él narrando algo sobre su grupo
              estudiantil. Esa sí es nueva y no sustituye a nada, así que va
              con su hueco. */}
-        <div class="fila-fotos grupo-narra-fila">
+        <div class="fila-fotos grupo-narra-fila fig-sola">
           <figure class="lote-fig">
             <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" height="786" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
@@ -1166,9 +1282,10 @@ const resumenIndice = c.indice.resumen
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
-        {/* El lede de aquí arriba es el OTRO sitio donde el 2025 se lee en
-             pantalla, así que lleva el mismo recibo que la tabla del
-             capítulo 2. Las dos tienen que decir lo mismo. */}
+        {/* El lede de aquí arriba es otro de los tres sitios donde un 2025 se
+             lee en pantalla (los otros: la tabla del capítulo 2 y el bloque
+             de Jasa Motor, más abajo), así que lleva el mismo recibo. Los
+             tres pintan LA MISMA cadena: no pueden decir cosas distintas. */}
         <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
 
         {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
@@ -1189,14 +1306,27 @@ const resumenIndice = c.indice.resumen
                idioma. Un certificado en inglés sí se queda como está en el
                panel español, porque un certificado es un documento emitido y
                no existe en otra versión; la portada de su sitio sí existe. */}
+          {/* LOS `sizes` SUBEN CON LA PISTA (ola 2b). En escritorio esta
+               captura vive en `marco` y se pinta hasta 1320 px, no 560:
+               con el valor viejo el navegador se llevaba el archivo de 640
+               y lo estiraba a más del doble, que es exactamente por lo que
+               «su texto no se lee». El tramo de teléfono no cambia. */}
           <img class="sf-header-img" src={foto(`cv-sf-header${sufHeader}-640.webp`)}
-            srcset={`${foto(`cv-sf-header${sufHeader}-640.webp`)} 640w, ${foto(`cv-sf-header${sufHeader}-1120.webp`)} 1120w`}
-            sizes="(max-width: 767px) 100vw, 560px"
+            srcset={`${foto(`cv-sf-header${sufHeader}-640.webp`)} 640w, ${foto(`cv-sf-header${sufHeader}-1120.webp`)} 1120w, ${foto(`cv-sf-header${sufHeader}-1600.webp`)} 1600w`}
+            sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 1320px, 560px"
             alt={c.prueba.headerAlt} width="1120" height="644"
             loading="lazy" decoding="async" />
           <figcaption class="pie">{c.prueba.headerPie}</figcaption>
         </figure>
 
+        {/* LA CINTA VIVA, ENVUELTA (ola 2). El envoltorio no cambia nada en
+             pantalla —no tiene estilo propio— y existe para que la VISTA
+             IMPRESA pueda quitar la cinta entera de una regla: el chip de
+             fuente, las tres filas y la nota que las explica son una sola
+             cosa y en papel no son ninguna. Sin JavaScript o sin `/api` las
+             filas salen con guiones, que es honesto en pantalla y es ruido
+             en una hoja que alguien va a adjuntar. */}
+        <div class="cinta-bloque">
         <div class="sec-head">
           <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
         </div>
@@ -1223,6 +1353,7 @@ const resumenIndice = c.indice.resumen
           ))}
         </ul>
         <p class="pie">{c.tape.note} {c.tape.fail}</p>
+        </div>
 
         {/* ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
              El otro ritmo que se copia de Ondo: tres cifras al tamaño de un
@@ -1311,13 +1442,21 @@ const resumenIndice = c.indice.resumen
           <p>{c.voz.jasa}</p>
         </blockquote>
         <p class="cap-frases">{c.proyectos.jasa}</p>
+        {/* EL TERCER SITIO DONDE SE LEE UN 2025 (2026-08-31). Este párrafo y
+             el pie de la captura dicen 2025, y ese año es de los cinco que
+             solo sostiene la palabra de Jaime — Jasa Motor ni siquiera
+             aparece en su LinkedIn. La tabla del capítulo 2 y el lede del
+             sitio ya llevaban el recibo; este no, y era el único año de la
+             página que salía en seco. Es LA MISMA cadena en los tres sitios:
+             si cambia, cambia en los tres a la vez. */}
+        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
         {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
              o la tienda en línea: una foto real o una captura» y ya hay
              captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
              en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
              clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
              corrigió Jaime — 2025, no 2026. */}
-        <figure class="jasa-fig">
+        <figure class="jasa-fig fig-sola">
           <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
             width="640" height="800" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
@@ -1325,9 +1464,199 @@ const resumenIndice = c.indice.resumen
         <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
       </div>
     </div>
+    <Hueco c={c} id="contraProyectos" class="contra" />
+
   </section>
 
-  {/* ════ 06 · Reto Actinver y private equity — A LA PAR ═════════════════
+  {/* ════ 06 · Cada quien trae algo — las conversaciones ═════════════════
+       El "etc" de "experiencias, voluntariados, etc": la gente con la que
+       habló es una experiencia más, y va con ellas, antes de los proyectos.
+
+       ── AQUÍ ES DONDE HAY QUE TENER CUIDADO CON ONDO ──────────────────────
+       Ondo cierra su home con cinco citas: retrato, NOMBRE, cargo y una frase
+       grande elogiando a Ondo. Larry Fink, Franklin Templeton, ABN Amro. Es el
+       bloque más eficaz de su página y es exactamente el que aquí NO se puede
+       copiar tal cual: Jaime no tiene el aval de nadie. Andy Toh, Moris Dieck,
+       el profesor Lloyd y Raúl Irabién no lo están respaldando — él los
+       entrevistó. Poner sus nombres y cargos encima de una frase grande
+       insinuaría un aval que no existe, y es justo el tipo de cosa que un
+       comité de admisiones va a comprobar.
+
+       Lo que SÍ se copia, desde el brief del 2026-08-28, es LA FORMA ENTERA:
+       el carrusel horizontal de tarjetas negras redondeadas — retrato, nombre,
+       cargo y la frase grande abajo, con las flechas ‹ › debajo. La
+       diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
+       Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
+       esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
+       porque unas comillas debajo del nombre de otra persona la convierten en
+       una cita suya. Y encima del bloque va escrito, en una frase, que nadie
+       de aquí lo está respaldando.
+
+       La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
+    {/* texto de Jaime, pendiente de su revisión final */}
+    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
+    {/* La frase que impide que este capítulo se lea como una lista de avales.
+         Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
+         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
+    <p class="pie">{c.entrevistas.aviso}</p>
+    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
+         organizó por su cuenta («entirely on his own steam») lo firma la
+         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
+         nadie: lo que la carta respalda es que las conversaciones son suyas,
+         no lo que dijeron los entrevistados. */}
+    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
+
+    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
+         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
+         (el imán vertical de la página se quitó; ESTE es otro gesto: una
+         lista de tarjetas que pagina de lado, que es justo para lo que
+         scroll-snap x existe). Las flechas son <button> de verdad: con
+         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
+         sin JavaScript se esconden (la regla vive en el <noscript> de
+         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
+         flechas del teclado (tabindex="0" en la lista, que es lo que exige
+         una región desplazable alcanzable).
+         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
+         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
+         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
+         todas las letras. Eso no se negocia con la estética. */}
+    <div class="citas-marco" data-citas>
+      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
+        {citas.map((rt) => {
+          const per = c.entrevistas.personas[rt.key];
+          // `rol` vacío = no había fuente para el rol y no se inventa uno.
+          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
+          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+          return (
+          <li class="cita">
+            <div class="cita-media">
+              {rt.img && (
+                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
+              )}
+              {rt.video && (
+                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
+                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
+              )}
+              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
+            </div>
+            <p class="cita-nombre">{per.nombre}</p>
+            {per.rol && <p class="cita-rol">{per.rol}</p>}
+            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
+            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
+                 no: en cuanto Jaime escriba la frase este renglón es lo único
+                 que separa «lo que me llevé» de «lo que me dijeron». */}
+            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
+            <Hueco c={c} id={rt.hueco} grande />
+            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+          </li>
+          );
+        })}
+      </ul>
+      <div class="citas-nav">
+        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
+        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
+      </div>
+    </div>
+    {/* Foto 7 del lote del 2026-08-30: él con Marg Franklin en la firma del
+         acuerdo con el Tec. SIN CARGO, a propósito: ver la nota junto a
+         `fotosPend.marg` en src/i18n/cv.ts. Va AQUÍ y no en el
+         carrusel: el carrusel es de conversaciones que él grabó y de las que
+         se llevó una frase, y de esta no hay ni clip ni frase — lo que hay
+         es que le pidió consejo sobre estudiar en Canadá, que es lo que dice
+         su fila de experiencia. Ponerla como una tarjeta más del carrusel
+         insinuaría una entrevista que no existe. Fuera del carrusel, en el
+         mismo capítulo, es la gente que conoció. */}
+    <div class="fila-fotos marg-fila fig-sola">
+      <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.margPie}</figcaption>
+          </figure>
+    </div>
+
+    {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
+         Primero las conversaciones, después lo que él enseña SOLO: es el
+         orden que pidió. Aquí van únicamente los vídeos donde él da la
+         información (consejos, datos, noticias) — reclasificados con el
+         material: la entrevista de «skills» que vivía aquí subió al carrusel.
+         Jamás un embed de TikTok; el clip de Singapur se sirve desde este
+         dominio y el resto va como cuadro del vídeo + enlace al original. */}
+    <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
+    {/* texto de Jaime, pendiente de su revisión final */}
+    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
+    <Hueco c={c} id="tiktokNota" />
+    <p class="pie">{c.tiktok.ensenaLede}</p>
+
+    {/* Los CUATRO vídeos van servidos por NOSOTROS, CON su sonido: son él
+         hablando, así que los arranca una persona (`controls`, WCAG 2.2.2) y
+         autoplay NUNCA — aquí no hay bucles mudos. El póster viaja en
+         `data-poster` con su gemelo <noscript> (patrón del PR #53): cero
+         bytes de vídeo y cero de póster hasta acercarse.
+         OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
+         de la expresión un {/* *\/} no es un comentario de plantilla sino JS
+         crudo, y rompe el compilado. */}
+    <ul class="clips">
+      {ensena.map((v) => (
+        <li class:list={['clip', v.ancha && 'clip-ancho']}>
+          {v.clip && (
+            <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
+          )}
+          {v.img && (
+            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
+          )}
+          <p class="clip-titulo">{v.titulo}</p>
+          <p class="clip-anio meta-mono">2026</p>
+          {v.carrusel && (
+            <p class="clip-tag" role="note">{c.clip.carrusel}</p>
+          )}
+          {v.nota && <p class="pie">{v.nota}</p>}
+          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
+        </li>
+      ))}
+    </ul>
+
+    {/* ── AQUÍ DEBAJO HABÍA SIETE RENGLONES CON AÑO. YA NO ────────────────
+         Jaime (2026-08-30): «abajo de eso hay más fechas con títulos,
+         quítalos y pon de link a mi perfil de TikTok para ver todo mi
+         contenido, con un botón ese, y nos ahorramos todos los textos con
+         fechas». Se fueron los tres consejos sin imagen y el bloque entero
+         de «El arco de Singapur» (encabezado, cuatro renglones y su línea de
+         fuente), que decía «2026» siete veces seguidas. En su sitio va UN
+         botón al perfil, que es donde vive todo eso.
+         LA FOTO DEL ARCO SE QUEDA. Vivía dentro de ese bloque, pero lo que
+         Jaime pidió quitar son TEXTOS CON FECHAS, no fotos — y su brief del
+         2026-08-28 pide lo contrario con las imágenes («usar todas las
+         posibles»). Así que el cuadro de la presentación en la NUS sigue
+         aquí, ahora suelto; lo único que perdió es el «(2026)» del pie. */}
+    {/* ⚠️ ESTA FOTO LA SUSTITUYE LA 12 DEL LOTE DEL 2026-08-30 — «él
+         explicándole a alguien de la NUS», y Jaime pidió esa versión porque
+         es de MEJOR CALIDAD que esta. Esta es un fotograma rescatado: venía
+         girado 90° y con el subtítulo del vídeo quemado, y el recorte que
+         deja el rótulo fuera está explicado en build-photos.mjs. Sin hueco
+         al lado, por lo mismo que la del grupo: hoy la foto está. CUANDO
+         LLEGUE: original a cv-fotos/, línea en build-photos.mjs, y aquí el
+         nombre nuevo — y entonces el recorte raro de build-photos.mjs se
+         puede borrar entero. */}
+    <figure class="arco-fig fig-sola">
+      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
+      <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+    </figure>
+    <p class="cap-frases">{c.tiktok.nota}</p>
+    <p class="tt-cta">
+      <a class="cv-boton" href={TIKTOK} target="_blank" rel="noopener">
+        {c.tiktok.verTodo} <span aria-hidden="true">↗</span>
+      </a>
+      <span class="pie">{c.tiktok.perfil}</span>
+    </p>
+    <Hueco c={c} id="contraGente" class="contra" />
+
+  </section>
+
+  {/* ════ 07 · Reto Actinver y private equity — A LA PAR ═════════════════
        Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
        par del de private equity». A la par NO es uno detrás de otro, así que
        no son dos capítulos: es uno con dos mitades que se leen juntas —
@@ -1340,10 +1669,10 @@ const resumenIndice = c.indice.resumen
        cartera del concurso del mismo archivo que lee la página pública, y la
        tarjeta del reporte de loadReport. El logo va con las reglas del repo:
        pequeño, placa oscura, y la línea de no afiliación. */}
-  <section class="cap" aria-labelledby={`${p}-cap-6-h`}>
-    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(5)}</p>
-    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
+    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
 
     <div class="par">
       {/* ── Mitad 1: el reto ── */}
@@ -1394,8 +1723,11 @@ const resumenIndice = c.indice.resumen
           <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
           <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
         </p>
+        {/* UN hueco, no dos. Aquí había dos `FotoHueco` seguidos con el
+             MISMO texto: en pantalla, dos recuadros punteados idénticos, uno
+             debajo del otro, pidiendo la misma foto (2026-08-31). El de
+             research, dos bloques más abajo, siempre fue uno. */}
         <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.actinver} />
           <FotoHueco c={c} que={c.fotosPend.actinver} />
         </div>
       </div>
@@ -1460,13 +1792,15 @@ const resumenIndice = c.indice.resumen
         </div>
       </div>
     </div>
+    <Hueco c={c} id="contraReto" class="contra" />
+
   </section>
 
-  {/* ════ 07 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
-  <section class="cap" aria-labelledby={`${p}-cap-7-h`}>
-    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(6)}</p>
-    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
+  {/* ════ 08 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
+  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
+    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
     {/* ══ LAS SIETE TARJETAS, CON SU IMAGEN Y SU ID (cosecha 2026-08-29) ══
          La tarjeta sigue siendo una tarjeta diseñada —emisor arriba, nombre,
@@ -1547,9 +1881,64 @@ const resumenIndice = c.indice.resumen
         </li>
       ))}
     </ul>
+
+    <Hueco c={c} id="contraCerts" class="contra" />
   </section>
 
-  {/* ════ 08 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
+  {/* ════ 09 · Premios — SECCIÓN PROPIA ══════════════════════════════════
+       CAPÍTULO NUEVO (ola 2, 2026-08-31). Ivey evalúa los premios en una
+       sección aparte y admite explícitamente premios no académicos, y en
+       este CV esa sección no existía: había siete certificados —que son
+       CURSOS COMPLETADOS, no competencias ganadas— y el único premio estaba
+       enterrado al final del capítulo de las cartas, en un recuadro que
+       gastaba 44 palabras en el descargo y 19 en el hecho.
+
+       LA PROPORCIÓN SE INVIERTE, EL DESCARGO SE QUEDA. Que la única fuente
+       sea una carta ajena es verdad y se dice — una vez, en mono, como todos
+       los recibos de esta página — pero deja de pesar el doble que el premio.
+       El hecho manda; la marca lo acompaña, y además enlaza a la carta POR
+       SU TÍTULO y no por su número, como `fuenteCarta`.
+
+       NO SE INVENTA NINGÚN PREMIO. Hay uno. El hueco de abajo dice que hay
+       sitio para más sin nombrar a nadie que no lo haya dado: es la misma
+       regla que dejó las cartas con un solo recuadro (2026-08-31). */}
+  <section class="cap" aria-labelledby={`${p}-cap-9-h`}>
+    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(8)}</p>
+    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
+    <p class="cap-lede">{c.premios.lede}</p>
+
+    <h3 class="t-h3">{c.premios.entregadosH}</h3>
+    <ul class="premios">
+      {c.premios.entregados.map((x) => (
+        <li class="premio">
+          <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
+          <p class="premio-que">{x.que}</p>
+          <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.c10)}</p>
+          <p class="pie">{x.nota}</p>
+        </li>
+      ))}
+    </ul>
+    {/* El documento del premio no existe todavía: la única fuente es la
+         carta. Se dice dónde falta con el mismo hueco de foto que usan los
+         certificados, no con una frase escondida. */}
+    <FotoHueco c={c} que={c.premios.docPend} ratio="4 / 3" class="premio-doc" />
+
+    <h3 class="t-h3">{c.premios.faltanH}</h3>
+    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe en las cartas) y este recuadro es una nota. */}
+    <div class="premios-huecos">
+      <div class="carta-hueco" role="note" aria-label={`${c.premios.tag}: ${c.premios.slot}`}>
+        <p class="carta-tag" aria-hidden="true">{c.premios.tag}</p>
+        <p class="carta-pista" aria-hidden="true">{c.premios.slot}</p>
+        <p class="carta-campos meta-mono">{c.premios.campos}</p>
+      </div>
+    </div>
+
+    <Hueco c={c} id="contraPremios" class="contra" />
+  </section>
+
+  {/* ════ 10 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
        La sección nació vacía (brief del 2026-08-28) con tres recuadros
        marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
        dos mitades: las entregadas, con su ficha y una cita corta de la
@@ -1578,10 +1967,10 @@ const resumenIndice = c.indice.resumen
 
        Las citas son de un TERCERO, no de Jaime, así que no llevan la marca
        de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
-  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
-    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(7)}</p>
-    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
+  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
+    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(9)}</p>
+    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
 
     <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
@@ -1619,14 +2008,73 @@ const resumenIndice = c.indice.resumen
                hueco diciendo a quién espera (`k.foto` es la clave del texto
                del hueco, no un archivo). Este comentario decía que la carpeta
                del lote «aún no existe» y era falso. */}
-          {k.lote ? (
+          {/* ══ LA CARTA FIRMADA, COMO ARCHIVO (Jaime, 2026-08-31) ══════════
+               Textual: «sube en cada carta de recomendación el archivo de la
+               carta». Los dos PDF viajan ENTEROS y byte a byte iguales a los
+               que él recibió (comprobado con sha256 contra
+               cv-material/cartas/): un documento firmado al que se le recorta
+               un renglón deja de ser el documento que se firmó, y un comité
+               que note el recorte tiene razón en desconfiar. La carta de
+               Lloyd George trae su teléfono personal y NO se toca; Jaime
+               asume que quien tenga la dirección de esta página lo verá, y la
+               dirección de esta página es su credencial (CV_SLUG, noindex,
+               fuera del sitemap y del buscador). La nota que decía lo
+               contrario (cv-material/cartas/CARTAS.md, 2026-08-29) queda
+               revocada y allí está anotado.
+
+               ── EL ENLACE SE RETIRÓ EL 2026-09-01, Y EL MOTIVO IMPORTA ────
+               Los dos PDF se servían en `/assets/cv/carta-*.pdf`. Esa ruta es
+               FIJA y NO pasa por `CV_SLUG`: el `noindex`/`no-referrer` del
+               `<head>` protege la PÁGINA, no un archivo estático que se pide
+               directo. Y peor: `public/` se commitea, este repositorio es
+               PÚBLICO, y los dos archivos estaban empujados en él —
+               comprobado con una descarga anónima a raw.githubusercontent.com
+               que devolvía 200 y los 374 826 bytes.
+
+               Jaime SÍ autorizó publicarlos («sube en cada carta de
+               recomendación el archivo de la carta»), pero con un alcance
+               escrito: «quien tenga el enlace del CV ve el teléfono de Lloyd
+               George» (NOTAS-DEL-BRIEF.md, 2026-08-31). Ese alcance no se
+               puede construir con un repositorio público: el sitio es
+               estático y Vercel sirve lo que hay en el repo, así que
+               cualquier archivo que esta página entregue lo puede bajar
+               cualquiera, no solo quien reciba la dirección. El permiso se
+               dio sobre una protección que no existe, y son datos de
+               TERCEROS: las dos cartas van dirigidas «To the Admissions
+               Committee» y llevan el móvil personal de un firmante, los dos
+               correos y la dirección registrada de una empresa.
+
+               Así que el archivo sale de la página y del repo hasta que Jaime
+               decida con el alcance real delante (las tres opciones y la
+               pregunta exacta están en el informe de esta ola). Lo demás de
+               la carta se queda: la ficha entera, las dos citas verbatim, el
+               contacto que el propio firmante escribió y su foto. Los
+               originales siguen en cv-material/cartas/, fuera del repo.
+               PARA VOLVER A PONERLO hacen falta las dos cosas a la vez: el
+               archivo y una forma de servirlo que no sea pública. */}
+          <p class="carta-pdf">
+            <span class="meta-mono carta-contacto-tag">{c.cartas.pdfTag}</span>
+            <span class="carta-pdf-no">{c.cartas.pdfNo.replace('{n}', k.nombre)}</span>
+          </p>
+          {k.lote === 'lloyd' ? (
             <figure class="lote-fig">
               <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" height="996" loading="lazy" decoding="async" /></span>
               <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
             </figure>
-          ) : k.foto ? (
-            <FotoHueco c={c} que={c.fotosPend[k.foto]} ratio="4 / 3" />
+          ) : k.lote === 'andy' ? (
+            <figure class="lote-fig">
+              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
+            </figure>
           ) : null}
+          {/* LA RAMA DEL HUECO DE FOTO SE FUE, Y NO POR GUSTO: desde que las
+               DOS cartas tienen foto, `foto` vale `null` en las dos y
+               TypeScript estrecha el tipo a `never` — `astro check` daba tres
+               errores sobre una rama que ya no se podía alcanzar. Si algún
+               día llega una tercera carta sin foto, se vuelve a poner
+               `foto: 'clave'` en cv.ts y aquí el `: k.foto ? <FotoHueco … />`
+               que había. El texto del hueco (`fotosPend.cartaAndy`) sigue
+               escrito para eso. */}
         </article>
       ))}
     </div>
@@ -1637,12 +2085,12 @@ const resumenIndice = c.indice.resumen
          tercero» a secas no es una fuente. En los sitios del CV donde esos
          hechos ya estaban dichos con su voz hay una línea apuntando aquí.
 
-         Y APARTE, EL PREMIO. La carta de Lloyd George dice que Jaime y su
-         equipo ganaron en el GreenTech Summit 2026 contra estudiantes de
-         Taiwán y Rusia. Se revisaron sus 21 publicaciones con imagen y los
-         tres posts de Singapur uno por uno: NO está publicado en ninguna
-         parte. Por eso no va en la lista de arriba sino en su propio
-         recuadro, marcado con que su ÚNICA fuente es la carta. */}
+         EL PREMIO YA NO ESTÁ AQUÍ (2026-08-31): tiene capítulo propio
+         («Premios»), porque Ivey los evalúa en sección aparte y porque
+         enterrado al final de este capítulo no lo veía nadie. Lo que se
+         queda es la última línea de la lista de arriba, que es otra cosa: no
+         es el premio, es lo que Andy Toh firma sobre su trabajo en el Green
+         Tech Youth Summit. */}
     <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
     <p class="cap-lede">{c.cartas.verificaLede}</p>
     {/* EL RÓTULO SOLO SALE EN ESPAÑOL (en inglés la cadena va vacía): en ese
@@ -1668,13 +2116,6 @@ const resumenIndice = c.indice.resumen
         </li>
       ))}
     </ul>
-    <div class="premio" role="note" aria-label={`${c.cartas.premio.h}: ${c.cartas.premio.tag}`}>
-      <p class="etiqueta premio-tag">{c.cartas.premio.tag}</p>
-      <h4 class="t-h4">{c.cartas.premio.h}</h4>
-      <p>{c.cartas.premio.que}</p>
-      <p class="pie">{c.cartas.premio.nota}</p>
-    </div>
-
     <h3 class="t-h3 cartas-h">{c.cartas.faltanH}</h3>
     {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
          atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
@@ -1689,13 +2130,13 @@ const resumenIndice = c.indice.resumen
     </div>
   </section>
 
-  {/* ════ 09 · La frase — sus palabras exactas, VERBATIM ═════════════════
+  {/* ════ 11 · La frase — sus palabras exactas, VERBATIM ═════════════════
        La que ya estaba, sin tocar. En español en los dos paneles: es su voz.
        El panel inglés lleva debajo la traducción, pequeña y marcada como
        traducción. La página abre con una frase suya y cierra con otra. */}
-  <section class="cap cap-frase" aria-labelledby={`${p}-cap-9-h`}>
-    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
-    <h2 class="visually-hidden" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
+  <section class="cap cap-frase" aria-labelledby={`${p}-cap-11-h`}>
+    <span id={`${p}-cap-11`} class="cap-ancla" aria-hidden="true"></span>
+    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.c11}</h2>
     <blockquote class="frase" lang="es">
       <p>{c.frase.texto}</p>
     </blockquote>
@@ -2461,11 +2902,31 @@ const resumenIndice = c.indice.resumen
          POR QUÉ NO LO VE NINGÚN GUARDIÁN: `check-reflow` mide desbordamiento
          HORIZONTAL (WCAG 1.4.10) y esto se sale por ARRIBA; `check-contraste-cv`
          mide tinta sobre foto, no si la caja cabe. */
+      /* ── LA TINTA NEGRA NO PUEDE LLEGAR ANTES QUE EL PAPEL ─────────────
+         Este es el nombre en NEGRO, el de la escena de papel. Iba de
+         `contain 26%` a `contain 58%` y llegaba a opacidad 1 mucho antes de
+         que el recorte hubiera convertido en papel la franja donde vive:
+         medido sobre `dist` a 390x844, la tinta asomaba en y=80, estaba al
+         100 % en y=180 y hasta y=248 seguía habiendo **68 px de letra negra
+         sobre la foto nocturna** (34 px de «Jaime Sandoval» arriba y 34 de
+         «Ricaño» abajo, de 34 que miden). Con opacidad ≥ 0.5 sobre foto:
+         264 px de scroll, casi un tercio de una pantalla de teléfono. En la
+         referencia de Ondo ese texto es blanco; aquí era negro sobre un
+         cielo azul oscuro y sobre los edificios encendidos.
+         EL 78 % NO ES UN NÚMERO ELEGIDO: es donde el recorte termina de
+         pasar por debajo del renglón de arriba. `recorteTop` va de 11.6 px
+         (contain 26.3 %) a 165.7 px (contain 84 %) de forma lineal, y el
+         borde de abajo de `.intro-n1` está en 150 px → contain 78.1 %. Antes
+         de ahí, pintar tinta negra a opacidad 1 es pintarla sobre la foto.
+         Y LA MESETA HACE LO OTRO MEDIO: la tinta sube a .22 enseguida (para
+         que el nombre no aparezca de golpe al final, que sería un salto) y
+         se queda ahí mientras el recorte trabaja; el tramo de .22 a 1 cae
+         entero en la cola, ya con papel debajo. */
       .intro-escena {
         display: block; position: absolute; inset: 0;
         animation: intro-tinta linear both;
         animation-timeline: --pista;
-        animation-range: contain 26% contain 58%;
+        animation-range: contain 26% contain 78%;
       }
       .intro-n1 {
         position: absolute; left: 0; right: 0;
@@ -2520,7 +2981,22 @@ const resumenIndice = c.indice.resumen
       @keyframes intro-senuelo { from { opacity: 1; } to { opacity: 0; } }
       @keyframes intro-n1 { from { transform: none; } to { transform: translateY(-.4em); } }
       @keyframes intro-n2 { from { transform: none; } to { transform: translateY(.4em); } }
-      @keyframes intro-tinta { from { opacity: 0; } to { opacity: 1; } }
+      /* LA MESETA DE .22 SE VA TAMBIÉN AQUÍ, y el número es EL MISMO 81 % que
+         en apaisado porque la relación que lo fija es la misma: el tramo va
+         de `contain 26 %` a `contain 78 %` y el recorte acaba de descubrir el
+         renglón en `contain 68.4 %` en 390×844 (medido: la tinta salta de
+         2.21:1 a 5.61:1 entre y=200 e y=208 de los 304), o sea 26 + 0.815×52.
+         En apaisado el mismo fotograma cae en 68.6 %. No es casualidad: los
+         dos cuelgan de `--carta-top` y del mismo `animation-range`.
+         POR QUÉ SE TOCA EL MÓVIL EN UNA OLA DE ESCRITORIO: porque es el mismo
+         defecto y quitarlo no puede empeorar nada — antes se pintaban 144 px
+         de nombre entre 1.11:1 y 2.21:1 (medido con la vara de lo PINTADO, no
+         la declarativa), y ahora en ese tramo no se pinta nada. La regla es
+         una sola para toda la página: el nombre está ausente o está legible.
+         Lo que NO se toca del móvil es la tapa: allí el nombre va partido en
+         dos mitades colgadas de la ventana y el velo mide lo que mide el
+         texto, así que alargarle la vida es otro problema y otra medición. */
+      @keyframes intro-tinta { from { opacity: 0; } 81% { opacity: 0; } to { opacity: 1; } }
       @keyframes intro-aro {
         0% { opacity: 0; transform: scale(.7); }
         15% { opacity: .9; }
@@ -2606,6 +3082,10 @@ const resumenIndice = c.indice.resumen
     .portada-marco, .portada-zoom { position: static; animation: none; clip-path: none; transform: none; background: none; overflow: visible; }
     .portada-foto { position: static; height: auto; max-height: 40vh; animation: none; }
     .portada-sombra, .portada-tapa { background: none; }
+    /* El velo de escritorio es ahora una capa propia (`.portada-uno::before`);
+       al imprimir la tapa se desmonta y su tinta vuelve a negra, así que un
+       rectángulo negro al 58 % sobre el papel sería una plancha de tóner. */
+    .portada-uno::before { display: none; }
     .portada-tapa { padding-bottom: 0; }
     .portada-uno { margin-top: 0; position: static; animation: none; }
     .portada-capa, .portada-tarjeta, .portada-papel-cierre { min-height: 0; }
@@ -2618,6 +3098,22 @@ const resumenIndice = c.indice.resumen
     /* La escena de tinta y el aro no se imprimen: la foto ya salió una vez
        arriba y el nombre ya lo dio el <h1>. */
     .intro-escena, .intro-aro { display: none; }
+
+    /* ── LAS DOS MITADES DEL NOMBRE VOLVÍAN A SU SITIO Y NADIE LO MIRÓ ──
+       `intro-n1`/`intro-n2` separan las dos mitades del titular ±0.4em con
+       `animation-timeline: view()`. Al imprimir no hay scroll, así que el
+       `both` las deja CONGELADAS en su último fotograma: medido sobre el
+       PDF real, «Ricaño» salía 12 px por debajo de su propio `<h1>` y el
+       bloque de papel siguiente se lo comía por arriba — el apellido cortado
+       por la mitad en la primera hoja. `prefers-reduced-motion` no lo tapaba:
+       se evalúa igual al imprimir y esta página se imprime con movimiento
+       permitido. Van a mano, aquí, como el resto de la tapa.
+       Y EL SEÑUELO NO SE IMPRIME: «Baja para leer ↓» en una hoja de papel no
+       es una instrucción, es un error. Además su fundido lo dejaba a opacidad
+       0 pero OCUPANDO SITIO, o sea un renglón en blanco entre las dos mitades
+       del nombre. */
+    .portada-n1, .portada-n2 { animation: none; transform: none; }
+    .portada-senuelo { display: none; }
   }
 
   /* ---- Selector de idioma ----
@@ -2699,6 +3195,51 @@ const resumenIndice = c.indice.resumen
     font-size: var(--cvh-h-abre); line-height: 1.1; letter-spacing: -0.02em;
     overflow-wrap: break-word;
   }
+  /* ---- La franja de pruebas (ola 2) ----
+     Cuatro piezas debajo de la cita de apertura. `auto-fit` con `minmax`:
+     una columna en el teléfono, dos o cuatro en cuanto caben, y a 320 px con
+     el texto al 200 % nunca menos de una — el `min(…, 100%)` es lo que
+     impide que la pista de la rejilla sea más ancha que la columna, que es
+     el desborde que `check-reflow` mide.
+     ES UNA LISTA DE ENLACES y cada pieza es el enlace ENTERO: el área de
+     toque es la tarjeta, no la cifra. Altura mínima de 44 px por la regla de
+     tamaño de objetivo, y aquí sobra de largo.
+     SIN VIÑETAS Y SIN NÚMEROS: es un `<ul>` porque son cuatro cosas de la
+     misma clase y un lector de pantalla las cuenta, pero visualmente son
+     tarjetas. */
+  .franja {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(13em, 100%), 1fr));
+    gap: var(--sp-3);
+    max-width: 960px;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .franja-item {
+    display: flex; flex-direction: column; gap: 4px;
+    min-height: 44px; min-width: 0; height: 100%;
+    padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--cvh-raya); border-radius: 14px;
+    background: var(--cvh-papel); color: var(--cvh-tinta);
+    transition: background var(--dur-2) var(--ease-std);
+  }
+  .franja-item:hover { background: var(--bg-2); }
+  /* La cifra en la serif del CV, al tamaño de un subtítulo: es lo que se lee
+     de un vistazo. `--num-tab` no existe aquí, así que se pide la variante
+     tabular por si el navegador la tiene — cuatro cifras alineadas leen como
+     una tabla y no como cuatro decisiones. */
+  .franja-n {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: clamp(1.5rem, 3.4vw, 2rem); line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  /* La tercera pieza no lleva cifra sino el dominio: en mono y más chico,
+     porque «smartfinance.lat» a 2rem de serif no cabe en 13em. */
+  .franja-n-txt {
+    font-family: var(--font-mono); font-size: var(--fs-caption);
+    letter-spacing: .02em; overflow-wrap: anywhere;
+  }
+  .franja-q { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+
   .indice-linea { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: baseline; }
   .indice-ver { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   .indice-ver:hover { color: var(--cvh-tinta); }
@@ -2710,6 +3251,13 @@ const resumenIndice = c.indice.resumen
           los `em` está contada en el commit que las escribió: las consultas
           miden el ancho EN LETRAS para disparar también con el texto grande) ---- */
   .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+  /* `display: contents` a propósito: el envoltorio de la cinta existe SOLO
+     para que la vista impresa pueda quitarla de una regla, y no puede mover
+     ni un píxel en pantalla — con un `<div>` normal, sus tres hijos dejarían
+     de ser hijos de la rejilla del bloque y el `gap` cambiaría. */
+  /* Solo en papel. Ver el marcado en el capítulo 1. */
+  .impresion-nota { display: none; }
+  .cinta-bloque { display: contents; }
   .cinta { display: flex; flex-direction: column; border: 1px solid var(--cvh-raya); background: var(--cvh-papel); max-width: 720px; }
   .cinta-fila { border-bottom: 1px solid var(--cvh-raya); }
   .cinta-fila:last-child { border-bottom: 0; }
@@ -2917,7 +3465,10 @@ const resumenIndice = c.indice.resumen
   .cita :global(.hueco) { border-color: rgba(255, 255, 255, .5); background: transparent; }
   .cita :global(.hueco-tag) { color: #FFB84D; }
   .cita :global(.hueco-que) { color: var(--cvh-tapa-tinta); }
-  .cita :global(.hueco-pista) { color: var(--cvh-tapa-tinta-2); }
+  /* `.hueco-pista` YA NO EXISTE en el DOM (Hueco.astro dejó de pintar la
+     pista el 2026-08-31), así que su regla para tarjeta oscura se va con
+     ella: una regla huérfana no se ve fallar, se lee como que el elemento
+     sigue ahí. Si la pista vuelve a pintarse algún día, vuelve esta línea. */
   .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
   .cita :global(.foto-hueco) { border-color: rgba(255, 255, 255, .5); }
   .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
@@ -3050,6 +3601,15 @@ const resumenIndice = c.indice.resumen
     overflow-wrap: anywhere;
   }
   .carta-contacto-tag { color: var(--cvh-tinta-2); }
+  /* La fila del PDF se lee como la del contacto: rótulo mono arriba, enlace
+     debajo y el peso pegado al enlace. El peso va `aria-hidden` porque el
+     nombre accesible del enlace ya lo lleva dentro — si no, un lector de
+     pantalla diría «PDF 366 KB» dos veces seguidas. */
+  .carta-pdf { display: flex; flex-direction: column; gap: 2px; }
+  /* `.carta-pdf-peso` se fue con el enlace (ya no hay archivo que pesar).
+     Lo que queda debajo del rótulo es la explicación de por qué no está,
+     en el gris de los pies: es una nota, no el contenido de la ficha. */
+  .carta-pdf-no { color: var(--cvh-tinta-2); font-size: var(--fs-caption); }
 
   /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
      `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse
@@ -3061,16 +3621,33 @@ const resumenIndice = c.indice.resumen
      lo firma debajo. No es una tabla: son seis frases sueltas. */
   .verifica { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 720px; }
   .verifica-fila { display: flex; flex-direction: column; gap: 4px; }
-  /* El premio: recuadro aparte, discontinuo y con la marca en ámbar — el
-     color con el que este sitio dice «ojo con esto». No es un hueco (el
-     hecho está), es un hecho con UNA sola fuente, y la forma lo dice antes
-     de que nadie lea la letra chica. */
+  /* ---- Premios (capítulo propio desde la ola 2) ----
+     LA TARJETA ES LLENA, NO DISCONTINUA, y eso cambió con el capítulo. En su
+     versión anterior —enterrada al final de las cartas— el premio iba en un
+     recuadro de borde discontinuo, o sea con la forma de un HUECO, y en esta
+     página un borde discontinuo significa «esto falta». El premio no falta:
+     falta su DOCUMENTO, que ahora tiene su propio FotoHueco debajo, con el
+     borde discontinuo que le corresponde. Que la única fuente sea una carta
+     ajena lo dice la marca en ámbar, que es como esta página dice «ojo con
+     esto» sin fingir que el hecho no está. */
+  .premios { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 720px; }
   .premio {
-    display: flex; flex-direction: column; gap: var(--sp-2);
-    border: 1px dashed var(--cvh-tinta-3); border-radius: 24px;
-    padding: var(--sp-5); max-width: 720px; margin-top: var(--sp-5);
+    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
+    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    padding: var(--sp-5); background: var(--cvh-papel);
   }
+  .premio-cuando { color: var(--cvh-tinta-2); }
+  /* El HECHO manda: al tamaño de un subtítulo, arriba, antes que su marca.
+     Hasta el 2026-08-31 el orden era el contrario y la proporción también
+     (44 palabras de descargo contra 19 de hecho). */
+  .premio-que { font-size: var(--fs-h4, 1.05rem); font-weight: 600; }
   .premio-tag { color: var(--warn); }
+  .premio-doc { max-width: 360px; margin-top: var(--sp-4); }
+  .premios-huecos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
+    gap: var(--sp-4); max-width: 960px;
+  }
   .carta-hueco {
     display: flex; flex-direction: column; gap: var(--sp-2);
     padding: var(--sp-5);
@@ -3092,6 +3669,11 @@ const resumenIndice = c.indice.resumen
      dejaría a las tres del tamaño de un sello dentro de media columna. */
   .playa-fotos { display: flex; flex-direction: column; gap: var(--sp-3); }
   .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+  /* EN EL TELÉFONO NO EXISTE: la misma columna y el mismo hueco que su padre,
+     así que envolver el clip y su párrafo no mueve nada. La segunda columna
+     solo aparece en escritorio (bloque de `min-aspect-ratio`, más abajo). */
+  .clip-par { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+  .clip-par-media { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
   /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
      Tres tarjetas una debajo de la otra: el grupo, el sitio (con la cinta y
@@ -3232,6 +3814,73 @@ const resumenIndice = c.indice.resumen
     }
   }
 
+  /* ---- El renglón académico (capítulo 3, ola 2) ----
+     Dos bloques de tinta sobre papel, sin tarjeta: es un renglón de datos,
+     no una galería. `auto-fit` para que a partir de ~640 px vayan a la par y
+     debajo de eso uno tras otro. */
+  .acad {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(20em, 100%), 1fr));
+    gap: var(--sp-5) var(--sp-6); max-width: 960px;
+  }
+  .acad-bloque { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .acad-cuando { color: var(--cvh-tinta-2); }
+  /* La frase que dice que el B2 todavía no alcanza. Filete a la izquierda,
+     como las citas: es lo que separa un dato de una advertencia sobre ese
+     dato. NO va en ámbar — no es un hueco ni un aviso, es un hecho de su
+     expediente contado por él. */
+  .acad-falta {
+    padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya);
+    color: var(--cvh-tinta);
+  }
+  .acad-fuentes-h { color: var(--cvh-tinta-2); margin-top: var(--sp-2); }
+  .acad-fuentes { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .acad-fuentes li { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+  .acad-fuentes a { overflow-wrap: anywhere; }
+  .acad-nota {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    max-width: 720px; margin-top: var(--sp-5);
+    padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya);
+  }
+  .acad-huecos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
+    gap: var(--sp-4); max-width: 960px; margin-top: var(--sp-4);
+  }
+  /* Un hueco dentro de una rejilla tiene que poder encogerse: sin esto, el
+     `max-width: var(--measure)` del componente gana y la pista de la rejilla
+     se queda con su ancho mínimo. */
+  .acad-huecos :global(.hueco) { max-width: none; }
+
+  /* ---- La experiencia en formato de solicitud (capítulo 2, ola 2) ----
+     Una ficha por actividad, en la MISMA rejilla de dos columnas que la
+     lista seca de arriba: rótulo mono a la izquierda, contenido a la
+     derecha, y a menos de 34em todo en columna. Sin tarjeta y sin fondo — es
+     la continuación de la lista, no una galería nueva. */
+  .expapp-h { margin-top: var(--sp-6); }
+  .expapp { display: flex; flex-direction: column; gap: var(--sp-5); max-width: 720px; }
+  .expapp-fila {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-top: var(--sp-4); border-top: 1px solid var(--cvh-raya);
+  }
+  .expapp-rol { font-weight: 600; color: var(--cvh-tinta); }
+  .expapp-org { color: var(--cvh-tinta); }
+  .expapp-cuando { color: var(--cvh-tinta-2); }
+  .expapp-campo { margin-top: var(--sp-2); color: var(--cvh-tinta); overflow-wrap: break-word; }
+  /* El rótulo del campo va EN LÍNEA con su contenido y no encima: seis
+     rótulos apilados por ficha convertían cinco fichas en treinta renglones
+     de etiqueta. En mono y en tinta-2, como todos los rótulos de recibo. */
+  .expapp-et { color: var(--cvh-tinta-2); }
+  .expapp-et::after { content: ' · '; }
+  .expapp-hueco { margin-top: var(--sp-3); }
+
+  /* ---- El hueco del contratiempo (uno por capítulo, ola 2) ----
+     Va al final de su capítulo y con aire por encima: es una nota al pie del
+     capítulo, no una sección más. No cambia de forma respecto de los otros
+     huecos a propósito — es el mismo trato para lo mismo, algo que falta por
+     escribir. */
+  .contra { margin-top: var(--sp-6); }
+
   /* ---- Listas secas (experiencias, certificaciones): sin movimiento ---- */
   .lista-seca { display: flex; flex-direction: column; max-width: 720px; }
   .lista-seca li { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); padding: var(--sp-3) 0; border-top: 1px solid var(--cvh-raya); }
@@ -3322,37 +3971,1240 @@ const resumenIndice = c.indice.resumen
      con animation-timeline: view(): cero JS, +149 B medidos, y sin soporte
      (Firefox estable) la foto se ve entera y quieta. Casta 3: titulares,
      listas secas y recibos NO se mueven.  */
-  /* Radio de tarjeta también en los marcos de foto (el lenguaje del brief). */
-  .recuerdo { display: block; overflow: hidden; border-radius: 14px; }
+  /* Radio de tarjeta también en los marcos de foto (el lenguaje del brief).
+     ── `clip` Y NO `hidden`, Y NO ES UN GUSTO (2026-08-31) ───────────────
+     `overflow: hidden` convierte a este `<span>` en CONTENEDOR DE SCROLL, y
+     un contenedor de scroll es lo que busca el `animation-timeline: view()`
+     ANÓNIMO de la imagen de dentro para resolverse. Lo encontraba: su propio
+     padre, que no scrollea nunca — así que la animación se quedaba clavada
+     en `progress: 0.5` y las fotos no se movían jamás.
+     LO PEOR ES QUE FALLABA PARECIENDO CORRECTA: 0.5 cae justo en la meseta
+     de estos keyframes (`45%, 55% { opacity: 1 }`), o sea foto entera y
+     quieta, que es exactamente el aspecto que tiene una degradación bien
+     hecha. Medido sobre `dist` a 390x844: las 15 `.recuerdo img` visibles
+     del panel daban progress 0.5 en las 26 muestras de un pase completo de
+     31 514 px. `overflow: clip` recorta igual, respeta el `border-radius` y
+     NO crea contenedor de scroll, así que el timeline sube hasta el
+     documento, que es el que se mueve. */
+  .recuerdo { display: block; overflow: clip; border-radius: 14px; }
   .recuerdo img { display: block; width: 100%; height: auto; }
 
   @supports (animation-timeline: view()) {
+    /* ── SOLO ENTRADA DESDE EL 2026-08-31 (ola 2) ──────────────────────
+       Los keyframes iban `.86 → 1 → .86` a lo largo de `entry 0% exit
+       100%`, o sea del pase entero: la foto solo estaba entera en el punto
+       medio EXACTO de su recorrido y se degradaba al llegar y al irse.
+       Arreglado el bug de `overflow`, eso dejó de ser teórico y se pudo
+       medir: cada una de las 15 `.recuerdo img` visibles del panel bajaba a
+       opacidad 0.70–0.94 (mediana 0.87) en algún momento MIENTRAS ESTABA
+       ENTERA EN PANTALLA.
+       UNA FOTO DE UN CV ES UNA PRUEBA, NO UNA DIAPOSITIVA: la prueba se
+       degradaba justo al conocerla y otra vez al dejarla. Ahora entra y se
+       queda: `animation-range: entry` (que es `entry 0% entry 100%`) y unos
+       keyframes de dos pasos. Devuelve bytes en vez de gastarlos. */
     .recuerdo img {
       animation: recuerdo linear both;
       animation-timeline: view();
-      animation-range: entry 0% exit 100%;
+      animation-range: entry;
     }
     .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre {
       animation: frase-entra var(--dur-3) var(--ease-out) both;
       animation-timeline: view();
-      /* El tramo termina pronto a propósito: al llegar la sección al imán
-         (arriba de la pantalla) la entrada YA acabó, también con el texto al
-         200 % — `entry` se completa cuando la sección cubre el viewport. */
-      animation-range: entry 0% entry 30%;
+      /* ── EL TRAMO ERA TAN CORTO QUE NADIE LO VEÍA (2026-08-31) ────────
+         Ponía `entry 0% entry 30%` con este argumento: al llegar la sección
+         al imán, la entrada ya acabó. El imán se quitó, y medido sobre
+         `dist` a 390x844 ese 30 % se consume en **68 px de scroll** — de
+         y=30 748 a y=30 816. El bloque asoma por el borde inferior de la
+         pantalla en y=30 756, cuando la opacidad ya va por 0.47, y para
+         cuando se lee su primer renglón (y=30 792) va por 0.97. O sea: la
+         entrada corría entera antes de que hubiera nada que ver, y lo único
+         que llegaba a los ojos era el último 3 %.
+         `entry 100%` es el tramo completo: la animación termina cuando la
+         sección acaba de entrar, no en su primer sexto. Sigue cumpliendo lo
+         de arriba (con el texto al 200 % `entry` se completa igual, porque
+         se mide contra el viewport, no contra el largo del texto). */
+      animation-range: entry 0% entry 100%;
     }
   }
   @keyframes recuerdo {
     from { transform: scale(.86) translateY(14px); opacity: .4; }
-    45%, 55% { transform: none; opacity: 1; }
-    to { transform: scale(.86) translateY(-14px); opacity: .4; }
+    to { transform: none; opacity: 1; }
   }
   @keyframes frase-entra {
     from { transform: translateY(var(--rise)); opacity: 0; }
     to { transform: none; opacity: 1; }
   }
+
+  /* ═══ LA ENTRADA DE CAPÍTULO (ola 2, 2026-08-31) ══════════════════════
+     EL CV MIDE 34 PANTALLAS A 390×844 Y NO TENÍA NINGUNA SEÑAL DE QUE
+     CRUZASTE A OTRO CAPÍTULO salvo el tamaño de la letra. Es la única
+     página del proyecto sin la entrada por scroll de `Base.astro`, y no por
+     decisión: es que no pasa por `Base.astro`. Esto se la devuelve — y en
+     una versión MÁS SEGURA que aquella, porque allí el estado escondido lo
+     pone un guion (un JavaScript que no llegue deja media página en
+     opacidad 0) y aquí no hay guion: sin `view()` no se aplica nada y todo
+     se ve, que es lo que pasa hoy en Firefox estable.
+
+     TRES ELEMENTOS POR CAPÍTULO Y NADA MÁS: el número, el titular y la
+     entradilla — y la entradilla solo si va PEGADA al titular (`.cap-h +
+     .cap-lede`). Esa parte del selector no es cosmética: hay dos `.cap-lede`
+     que son hijos directos de su `<section>` pero viven a media altura del
+     capítulo (la del bloque de experiencia en formato de solicitud y la de
+     «lo que las cartas confirman»), y sin el `+` entrarían solas, en medio
+     de una lectura, que es exactamente la segunda animación por pantalla que
+     `motion.css` prohíbe. NO TOCA NI UNA FILA de `.lista-seca`, de `.certs li`, de
+     `.expapp` ni de `.acad` — son justo los renglones que un comité escanea,
+     y `motion.css` lo prohíbe por escrito («veinte filas apareciendo de una
+     en una no es un sitio vivo, es una lista que tarda en cargar»).
+
+     Y NO ROMPE «UNA ANIMACIÓN LLAMANDO LA ATENCIÓN POR PANTALLA»: los tres
+     son el MISMO gesto, escalonado con `--stagger`, o sea una sola cosa
+     entrando — la cabecera del capítulo. No hay ningún capítulo cuya
+     cabecera comparta pantalla con la cinta, con el trazado de la curva o
+     con la entrada de la frase final, que son las otras tres de casta 1.
+
+     `entry 0% entry 60%`: termina cuando la cabecera lleva algo más de
+     medio viewport dentro, o sea con el titular ya leído y quieto. Con el
+     tramo completo (`entry`) el titular seguía moviéndose mientras se leía.
+
+     LA PORTADA NO ENTRA (`.cap` empieza en el capítulo 2): la primera
+     pantalla es la que mide el LCP y ahí no se toca nada. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .cap > .cap-num, .cap > .cap-h, .cap > .cap-h + .cap-lede {
+        animation: cap-entra var(--dur-3) var(--ease-out) both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+      .cap > .cap-h { animation-delay: var(--stagger); }
+      .cap > .cap-h + .cap-lede { animation-delay: calc(var(--stagger) * 2); }
+    }
+  }
+  @keyframes cap-entra {
+    from { transform: translateY(var(--rise)); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+
   /* Con «menos movimiento», TODO quieto y TODO visible. Los tokens ya apagan
-     las duraciones; view() no es una duración, así que se apaga aquí. */
+     las duraciones; view() no es una duración, así que se apaga aquí. La
+     entrada de capítulo no hace falta apagarla —vive dentro de
+     `no-preference`, que es más robusto que apagarla después— pero se apaga
+     igual por si alguien saca esas reglas de su gate. */
   @media (prefers-reduced-motion: reduce) {
-    .recuerdo img, .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre { animation: none; }
+    .recuerdo img, .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre,
+    .cap > .cap-num, .cap > .cap-h, .cap > .cap-h + .cap-lede { animation: none; }
+  }
+  /* Impreso: nada se anima y nada nace a opacidad 0. Un `both` con la página
+     sin scroll dejaría el primer fotograma congelado en el papel. */
+  @media print {
+    .recuerdo img, .cap-frase .frase, .cap-frase .frase-trad, .cap-frase .cierre,
+    .cap > .cap-num, .cap > .cap-h, .cap > .cap-h + .cap-lede {
+      animation: none; opacity: 1; transform: none;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     EL CV EN ESCRITORIO — LA OLA 2b (2026-08-31)
+     ══════════════════════════════════════════════════════════════════════
+     Jaime, textual: «la mayoría de inspectores lo verá en computadora, de
+     hecho todas… la transición del header se rompió en computadora… y en
+     general reestructurar absolutamente todo para que queden las imágenes
+     perfectamente puestas y que se vea con armonía».
+
+     LO QUE HABÍA, MEDIDO (Playwright sobre `dist`, cuatro anchuras, EN y ES):
+     el CV NO TENÍA DISEÑO DE ESCRITORIO. Tenía un diseño de teléfono con un
+     `max-width`. Los cuatro `@media (min-width: …)` de esta hoja topan en
+     56em = 896 px, así que a 1280, 1440, 1536 y 1920 llegaba EL MISMO CSS
+     que a una ventana de 900 px. Consecuencias medidas:
+       · el documento mide 29 006 px a 1280 y 29 194 a 1920 — 188 px de
+         diferencia en 640 px de ventana: no refluye nada, solo crece el
+         blanco de los lados (88 px → 408 px por lado);
+       · la columna se queda clavada en 1104 px, o sea el 86 % del viewport
+         a 1280 y el 58 % a 1920;
+       · la tarjeta de la intro (`min(88vw, 420px, 46svh)`) mide el 87.9 %
+         del ancho en 390×844 y el 21.9 % en 1920×1080 — la misma línea de
+         CSS. Y su forma es 0.909 (vertical) dentro de una ventana 1.60;
+       · 39 imágenes con ancho medio de 280 px = el 25 % de la columna,
+         TODAS pintadas a su tamaño intrínseco;
+       · 21 párrafos por encima de 75 caracteres por renglón, el peor a 110.
+
+     ── POR QUÉ EL CORTE ES POR FORMA DE VENTANA Y NO POR PÍXELES ──────────
+     `min-aspect-ratio: 1/1`, y hay tres razones en orden de peso:
+     (1) LO QUE SE ROMPE ES LA FORMA, NO EL TAMAÑO. El fallo es una tarjeta
+         0.909 viviendo en una ventana 1.60. Un iPad de pie (1024×1366) mide
+         1024 px de ancho y necesita la composición MÓVIL; una ventana de
+         900×600 mide 900 y necesita la de ESCRITORIO. Un corte en px acierta
+         en uno y falla en el otro.
+     (2) CIERRA UN FALLO QUE YA EXISTÍA. El `<picture>` de la portada elige
+         el recorte por `max-aspect-ratio: 1/1` y la composición no tenía
+         ningún corte por forma: en una ventana apaisada pequeña se servía el
+         recorte PANORÁMICO dentro de la maqueta VERTICAL. Ahora foto y
+         maqueta cambian a la vez, por la misma consulta.
+     (3) DOS COMPOSICIONES SERÍAN DOS JUEGOS DE BUGS. El efecto ya tiene
+         cuatro caminos de degradación probados y una matriz de contraste
+         medida sobre la página pintada. Aquí no se duplica el mecanismo: se
+         cambian sus NÚMEROS y una suposición de apilado.
+
+     ── Y ES `screen and (…)`, TAMBIÉN A PROPÓSITO ────────────────────────
+     El papel de una hoja Carta es 8.5×11, o sea relación 0.77: `min-aspect-
+     ratio: 1/1` ya sería falso ahí. Pero una impresión APAISADA sí lo
+     cumpliría y se llevaría esta rejilla a una hoja. Con `screen` el bloque
+     entero es invisible para `@media print` en cualquier orientación, y la
+     vista impresa —que es un subconjunto de seis capítulos y ya está medida
+     en 11 hojas— no depende del orden de las reglas para seguir siendo la
+     que es.
+
+     ── EL MÓVIL NO LEE NI UNA REGLA DE AQUÍ ──────────────────────────────
+     Todo lo nuevo vive detrás de `min-aspect-ratio: 1/1`. Los `--carta-*`
+     del teléfono, su `clamp(250px, 36svh, 330px)` y el nombre partido en dos
+     se quedan EXACTAMENTE donde estaban. Los 276 px de recorrido medidos en
+     390×844 siguen siendo los mismos y no hay que volver a medirlos (se
+     midieron igual: 275 px antes y después).
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── 1 · LA TAPA EN APAISADO ───────────────────────────────────────────
+     La referencia manda, y en escritorio hace OTRA COSA. Medido en Ondo con
+     Chromium real: en el teléfono su titular son dos mitades APILADAS —y ahí,
+     entre ellas, cabe una tarjeta—; en escritorio las mismas dos mitades van
+     UNA AL LADO DE LA OTRA, en una sola línea (x=394 w=334 y x=729 w=317 a
+     1440), su centro vertical al 50.1 % del alto y el deck anclado al 95 %.
+     En escritorio NO HAY HUECO VERTICAL donde anidar nada, y Ondo no lo
+     inventa: cambia la composición. El CV copió la composición móvil y la
+     dejó también aquí. Eso es la raíz, y esto es el arreglo. */
+  @media screen and (min-aspect-ratio: 1/1) {
+    .historia {
+      /* El gutter del documento en escritorio: 1280→58 · 1440→65 · 1920→86 */
+      --cv-gutter: clamp(40px, 4.5vw, 112px);
+      /* El titular de capítulo. Era `clamp(2.5rem, 11vw, 7rem)`, o sea
+         112 px CLAVADOS desde 1018 px de ventana, y en una columna de
+         1104 px se partía en dos líneas de ~130 px: un tercio de pantalla,
+         once veces seguidas. Ondo pone 48–56 px. Los dos extremos siguen en
+         rem (WCAG 1.4.4). 1280→72 · 1440→81 · 1920→88. */
+      --cvh-h: clamp(3.5rem, 5.6vw, 5.5rem);
+      /* Los cuatro pasos del ritmo vertical, y ninguno más. Hoy había 14
+         valores de hueco distintos medidos (7, 8, 9, 19, 20, 21, 24, 29, 31,
+         36, 37, 39, 40, 43, 44 px) y `gap: var(--sp-5)` = 20 px entre bloques
+         de primer nivel: a 21 px de cuerpo, medio interlineado — todo se leía
+         como un bloque continuo. Ondo pone 130–170 px entre bloques. */
+      --cv-v1: 24px;    /* dentro de un grupo: una figura y su pie */
+      --cv-v2: 48px;    /* entre bloques de la misma idea */
+      --cv-v3: 96px;    /* entre ideas dentro de un capítulo */
+      --cv-v4: 160px;   /* entre capítulos */
+    }
+
+    /* La columna de la tapa se alinea con el MARCO del documento (≤1320) en
+       vez de con el contenedor de 1152: la barra de arriba (etiqueta a la
+       izquierda, pastillas de idioma a la derecha) queda en los mismos
+       bordes que todo lo de abajo. */
+    .portada-uno .portada-col {
+      position: relative;
+      display: block;
+      max-width: min(100% - 2 * var(--cv-gutter), 1320px);
+      padding-inline: 0;
+      padding-block: var(--sp-6) 0;
+      min-height: 100svh;
+    }
+
+    /* ── EL VELO PASA A SER PLANO Y A CUBRIR LA PANTALLA ENTERA ──────────
+       Y ESO NO ROMPE LA LECCIÓN DE LOS `em`, LA CUMPLE MEJOR. El velo de la
+       composición móvil mide lo que mide el TEXTO (paradas en `em` desde el
+       final de su caja) porque ahí el texto vive en una banda: el titular
+       está donde lo deje su propia letra, y con el texto del navegador al
+       200 % el degradado en % de pantalla dejaba «Ricaño» en 1.91:1.
+       En apaisado el texto ya no vive en una banda: la etiqueta va arriba,
+       el nombre en el CENTRO y el señuelo al 92 %. O sea que la banda es la
+       pantalla. Un velo plano de pantalla completa cubre las tres a
+       cualquier tamaño de letra, POR CONSTRUCCIÓN, sin depender de dónde
+       caiga el texto — que es lo que el bug del 200 % vino a enseñar.
+       DE DÓNDE SALE 0.58. Con un velo negro de opacidad `a` sobre un píxel
+       `v` se ve `v(1 − a)`. El texto más exigente de la tapa en apaisado ya
+       no son las etiquetas mono de la banda de cielo (peor píxel 141, piden
+       el fondo en 102 → a ≥ 0.28) sino el NOMBRE BLANCO, que ahora cruza la
+       franja del skyline, donde el peor píxel de la foto es 247 y el blanco
+       puro pide el fondo en 118 → a ≥ 0.522. 0.58 es ese borde con margen.
+       Y NO SE RAZONA, SE MIDE: `npm run check-contraste-cv`, que en esta ola
+       añade 1440×900 y 1920×1080 a su matriz justo por esto. */
+
+    /* EL VELO YA NO ES EL FONDO DE `.portada-tapa`, ES UNA CAPA PROPIA, y el
+       motivo es de la transición, no de la tapa quieta: con la tapa aguantando
+       hasta `contain 46 %` (ver `intro-tapa-ancho`), un velo A SANGRE se queda
+       puesto mientras el recorte ya ha convertido la foto en una tarjeta — o
+       sea negro al 58 % sobre el PAPEL de alrededor. Medido: a y=140 el marco
+       deja 65 px de papel arriba y 60 a los lados y la pantalla entera se ve
+       gris medio; a y=155 el gris es la mitad de la imagen. El velo tiene que
+       encogerse CON la foto, y para eso necesita ser un elemento al que se le
+       pueda poner el mismo `clip-path` sin arrastrar el texto ni las pastillas
+       — que viven dentro de `.portada-tapa` y no se pueden recortar.
+       `z-index: -1` sobre el contexto de apilamiento que ya crea
+       `.portada-capa` (`position: relative; z-index: 1`): el velo cae al fondo
+       de ESA capa —debajo del rótulo, de las pastillas y del nombre— y sigue
+       por encima de la foto, que está en el lienzo de abajo.
+       Y EL ALTO SE ESCRIBE, no se hereda (`height: 100svh` en vez de
+       `inset: 0`): los keyframes `intro-marco` están escritos en `100svh` y en
+       `100 %` del propio elemento, así que el recorte solo cae sobre la
+       tarjeta si la caja del velo ES la ventana. Con `inset: 0`, una tapa que
+       creciera por contenido movería el borde de abajo del recorte. */
+    .portada-tapa {
+      min-height: 100svh;
+      padding-bottom: 0;
+      background: none;
+    }
+    .portada-uno::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 100svh;
+      z-index: -1;
+      background: rgba(0, 0, 0, .58);
+    }
+
+    /* EL NOMBRE, EN UNA LÍNEA, CENTRADO, CON SU CENTRO VERTICAL AL 50 %.
+       Es la composición de Ondo en escritorio, y de paso es la que MATA la
+       causa única del recorte del nombre: partido en dos y colgado de
+       `--carta-top`, «Jaime Sandoval» se salía por arriba en cuanto el hueco
+       sobre la tarjeta no daba (medido: 19.3 px cortados en 844×390 a texto
+       normal y 42.7 px en 320×568 al 200 %). En una línea centrada no hay
+       nada de qué colgarlo.
+       El `<h1>` se posiciona sobre la pantalla entera y sus dos mitades se
+       centran con `align-content`, así que si la letra crece y el nombre
+       pasa a dos renglones, los dos siguen centrados y nada se recorta. */
+    .portada-h1 {
+      position: absolute; inset-inline: 0; top: 0; height: 100svh;
+      font-size: var(--cvh-h);
+      flex-direction: row; flex-wrap: wrap;
+      align-items: baseline; align-content: center; justify-content: center;
+      /* ── EL HUECO ENTRE LAS DOS MITADES ES UN ESPACIO, NO UN CRITERIO ────
+         En apilado, `.28em` es la separación entre dos RENGLONES y no se
+         compara con nada. Puestas en una línea, las dos mitades vuelven a
+         ser palabras de la misma frase, y ahí el hueco sí tiene con qué
+         compararse: el espacio real que hay entre «Jaime» y «Sandoval».
+         Medido en los cuatro anchos y en los dos idiomas, `.28em` daba
+         20.1 · 22.6 · 24.1 · 24.6 px contra un espacio real de 13.5 · 15.1 ·
+         16.1 · 16.5 — **1.49 a 1.50 veces**, clavado. O sea que el nombre se
+         leía «Jaime Sandoval · Ricaño», con una junta a la vista justo
+         donde no hay ninguna.
+         `.1875em` es el AVANCE DEL ESPACIO de esta fuente, sacado de esas
+         mismas cuatro medidas (13.5/71.7 · 15.1/80.6 · 16.1/86 · 16.5/88 =
+         .1883 · .1873 · .1872 · .1875). Con él, las tres palabras del nombre
+         se separan igual. Y va en `em`, así que sigue el zoom de texto. */
+      gap: 0 .1875em;
+      text-align: center;
+      /* ── Y NO PUEDE RECIBIR EL PUNTERO, O SE COME LAS PASTILLAS ─────────
+         Estirar el `<h1>` a `100svh` para poder centrar el nombre lo
+         convierte en una lámina de pantalla completa por encima de la barra
+         de la portada, y ahí viven los DOS ENLACES DE IDIOMA. Medido en
+         Chromium sobre `dist`, con `document.elementFromPoint` en el centro
+         de cada pastilla: a 1280, 1440 y 1920 el elemento que contesta es
+         `H1.portada-h1` y no el enlace — «English» y «Español» dejaban de
+         ser alcanzables con el ratón en las tres ventanas de escritorio.
+         Para el lector que más importa (quien nomina en Prepa Tec CEM, que
+         lee en español) eso es el CV entero atascado en inglés.
+         La caja del titular es un MECANISMO DE CENTRADO, no contenido: no
+         tiene nada dentro que se pueda tocar —el señuelo es un `<span>`
+         `aria-hidden`, no un enlace—, así que renunciar al puntero no le
+         quita ninguna función. Y no se apaga en bloque: las mitades del
+         nombre lo recuperan, para que las LETRAS se sigan pudiendo
+         seleccionar y copiar (un nombre propio es justo lo que alguien
+         copia de un CV). El apagado es de la lámina vacía, no del texto.
+         No choca con la regla 4 de `motion.css` («ninguna animación bloquea
+         un toque»): eso prohíbe tapar algo tocable mientras entra; esto es
+         justo lo contrario — destapa dos enlaces que estaban tapados. */
+      pointer-events: none;
+    }
+    .portada-h1 > span { pointer-events: auto; }
+    /* El señuelo baja al 92 % del alto, que es donde Ondo ancla su deck
+       (94–96 %). Metido entre las dos mitades del nombre, en el 26 % del
+       alto, no anclaba nada: la portada dejaba el peso arriba y 545 px de
+       foto sin nada debajo. Sale del flujo del titular, así que el nombre
+       queda de una pieza; el `<h1>` sigue leyéndose entero. */
+    .portada-senuelo {
+      position: absolute; inset-inline: 0; top: 92svh;
+      translate: 0 -50%;
+      justify-content: center;
+      padding-block: 0;
+      /* Y su tope de 62ch se levanta ABAJO, en la propia regla mono, no aquí:
+         `.cap :global(.meta-mono)` pesa (0,3,0) y esta regla (0,2,0), así que
+         un `max-width: none` escrito en este bloque no gana. Ver «EL SEÑUELO
+         NO ES PROSA» en §4. */
+    }
+  }
+
+  /* ── 2 · LA MECÁNICA DE LA INTRO EN APAISADO ───────────────────────────
+     Mismo mecanismo, otros números. `clip-path: inset()` sobre la foto
+     pegada, `animation-timeline: view()`, el radio escrito y no animado, el
+     `overflow: clip` de la pantalla y los cuatro caminos de degradación se
+     quedan tal cual: es la parte buena.
+
+     LA TARJETA PASA A SER UNA COPIA A ESCALA DEL VIEWPORT, que es el
+     movimiento de Ondo medido: al cargar, su vídeo entra como tarjeta de
+     725×453 en (358, 224) a 1440×900 — 50.3 % × 50.3 %, centrada al píxel
+     (358 izq / 357 der, 224 arr / 223 ab) y con la RELACIÓN DE ASPECTO DE LA
+     PROPIA VENTANA (725/453 = 1.601 contra 1440/900 = 1.600).
+     AQUÍ ES 62 % Y NO 50.3 %, y la razón es que allí la tarjeta dura un
+     segundo y aquí es el ESTADO FINAL PERMANENTE que se queda mientras se
+     lee el manifiesto. Y sobre todo: la ventana del recorte es lo que decide
+     cuánta ciudad se ve. Medido en captura, a 28.8 % el fotograma final de
+     1440 deja la Torre CN pegada al borde izquierdo y corta el resto del
+     skyline; a 21.9 % (1920) la deja FUERA y enseña cielo vacío con dos
+     torres anónimas. Al 62 % la ventana recupera la relación 1.60 del
+     recorte panorámico que ya se genera y vuelve a caber el skyline, que es
+     el tema de la portada. */
+  @supports (animation-timeline: view()) {
+    @media screen and (prefers-reduced-motion: no-preference) and (min-aspect-ratio: 1/1) {
+      .cap-portada {
+        --carta-w: min(62vw, 1180px);
+        --carta-h: 62svh;                                  /* la tarjeta hereda la forma de la ventana */
+        --carta-top: calc((100svh - var(--carta-h)) / 2);  /* CENTRADA, no al 42 % */
+        --carta-r: clamp(24px, 1.8vw, 40px);
+      }
+      /* EL RECORRIDO. En el teléfono los 276 px salen de un flick del
+         pulgar. En escritorio el gesto es otro: una muesca de rueda en
+         Chrome/macOS son ~100–120 px y un deslizamiento de trackpad
+         300–800 px. `clamp(280px, 34svh, 380px)` son dos o tres muescas o
+         UN gesto de trackpad, y escala con la ventana sin pasar nunca de
+         uno: 800→280 · 864→294 · 900→306 · 1080→367. Ondo gasta 225 px
+         (25 % del alto) en su hero de escritorio; aquí es algo más porque
+         aquí sí hay una transformación que leer. */
+      .intro-pista { height: calc(100svh + clamp(280px, 34svh, 380px)); }
+
+      /* LA ESCENA DE TINTA: UNA SOLA LÍNEA, EN EL HUECO DE ENCIMA DE LA
+         TARJETA, Y SUBE CON UN SOLO `translateY`.
+         Las dos mitades dejan de ser dos posiciones absolutas colgadas de
+         `--carta-top` (que es de donde salía el recorte del nombre) y pasan
+         a ser dos palabras de la misma línea, centradas en la franja que
+         hay sobre la tarjeta. La franja mide `--carta-top` exacto, así que
+         el nombre no puede pisar la ventana del recorte. */
+      .intro-escena {
+        inset: 0 0 auto;
+        height: var(--carta-top);
+        display: flex; flex-wrap: wrap;
+        align-items: baseline; align-content: center; justify-content: center;
+        /* EL HUECO ENTRE LAS DOS MITADES SE MIDE EN LA LETRA DEL NOMBRE, y
+           por eso el tamaño se declara AQUÍ y los dos `<p>` lo heredan: en
+           el contenedor, un `em` valdría 16 px (el del documento) y el
+           nombre saldría pegado — «SandovalRicaño».
+           Y el valor es `.1875em` —el avance del espacio de esta fuente— por
+           lo mismo que en la tapa: en una sola línea, el hueco entre las
+           mitades se compara con el espacio de «Jaime Sandoval», y `.28em`
+           era 1.5 veces más ancho en los cuatro anchos medidos. El nombre en
+           tinta y el nombre en blanco son EL MISMO NOMBRE y se relevan uno a
+           otro en el mismo sitio: separados distinto, el relevo se vería. */
+        font-size: min(var(--cvh-h), calc(var(--carta-top) * .62));
+        gap: 0 .1875em;
+        animation-name: intro-tinta-ancho;
+      }
+      .intro-n1, .intro-n2 {
+        position: static; inset: auto;
+        text-align: center;
+        /* EL TECHO POR LA FRANJA CIERRA EL RECORTE DEL NOMBRE POR
+           CONSTRUCCIÓN, y no es un recorte de accesibilidad: este nombre es
+           un DUPLICADO DECORATIVO dentro de un `aria-hidden` — el nombre de
+           verdad lo da el `<h1>` de la tapa, que sí crece entero con el
+           zoom de texto. Aquí, crecer más que la franja no es «texto
+           grande», es texto que el `overflow: clip` del lienzo se come.
+           0.62 de `--carta-top` deja siempre el interlineado dentro:
+           1280×800 → franja 152, letra 71.7 (tope 94) · 1440×900 → 171 y
+           80.6 (106) · 1920×1080 → 205 y 88 (127); y al 200 % de texto el
+           tope muerde y da 94 / 106 / 127, todos por debajo de su franja. */
+        font-size: inherit;
+      }
+      /* LAS DOS MITADES DEL NOMBRE BLANCO YA NO SE SEPARAN. `intro-n1` y
+         `intro-n2` mueven una mitad −0.4em y la otra +0.4em: apiladas eso
+         es el gesto de la referencia (se abren para dejar sitio a la
+         tarjeta), pero UNA AL LADO DE LA OTRA lo que se ve es «Ricaño»
+         cayéndose en diagonal respecto a «Jaime Sandoval» — el nombre se
+         rompe en dos a media pantalla. En escritorio Ondo no mueve su
+         titular ni un píxel (medido: `head@y=422` constante en los 40
+         fotogramas): la tarjeta crece detrás del texto. Aquí igual — el
+         titular se queda quieto y se disuelve con su velo. */
+      .portada-n1, .portada-n2 { animation: none; }
+      /* LA TAPA AGUANTA. Ver `intro-tapa-ancho`: sostiene la opacidad hasta
+         `contain 46 %` y cae en los diez puntos siguientes, en vez de
+         disolverse linealmente entre el 4 % y el 30 %. Con esto el nombre
+         BLANCO se lee (≥ 4.5:1, vara del peor píxel) hasta y≈122 en vez de
+         hasta y≈45, y el hueco sin nombre de la transición baja de 155 px a
+         ~86 px — los que la geometría obliga, porque el recorte tiene que
+         acabar de pasar por debajo del renglón antes de que la tinta pueda
+         pintarse sobre papel.
+         Y NO ROMPE LAS PASTILLAS: viven en esta capa, así que aguantan
+         pulsables MÁS tiempo, no menos; el fotograma final sigue apagando
+         `visibility`. */
+      .portada-uno {
+        animation-name: intro-tapa-ancho;
+        animation-range: contain 4% contain 56%;
+      }
+      /* EL VELO SE ENCOGE CON LA FOTO. Mismo `clip-path`, misma línea de
+         tiempo y MISMO tramo que `.portada-marco`, así que por construcción
+         no puede desincronizarse: el negro del velo termina exactamente donde
+         termina la foto, y el papel de alrededor nunca se ve gris. */
+      .portada-uno::before {
+        animation: intro-marco linear both;
+        animation-timeline: --pista;
+        animation-range: contain 22% contain 84%;
+      }
+      /* LA BANDA DE ARRIBA SE VA CUANDO SE IBA, y esto NO es una regresión:
+         es exactamente el tramo que tenía la tapa entera hasta esta ola
+         (`contain 4 %` → `30 %`). Lo que se alarga es el NOMBRE, que vive
+         dentro de la tarjeta y por tanto sigue teniendo velo debajo; el
+         rótulo y las pastillas viven ARRIBA, fuera de la tarjeta, y con el
+         velo ya recortado se quedarían en tinta clara sobre papel blanco
+         (medido: el rótulo mono en 1.06:1 y la pastilla inactiva ilegible a
+         y=155). Un texto que no se puede leer no se deja puesto.
+         Y LLEVA SU PROPIO FOTOGRAMA DE `visibility`, no el del grupo: las
+         pastillas son ENLACES, y a opacidad 0 sin `visibility: hidden`
+         seguirían recibiendo el ratón y el tabulador durante los 26 puntos
+         que ahora vive la tapa de más — un destino invisible que se puede
+         pulsar es peor que uno que no está. Con esto desaparecen del
+         tabulado en el mismo fotograma que antes. */
+      .portada-barra {
+        animation: intro-tapa linear both;
+        animation-timeline: --pista;
+        animation-range: contain 4% contain 30%;
+      }
+      /* EL ARO NO SE PINTA EN APAISADO. Medido: a `sy=210` en 1440 el aro
+         mide 346×381 mientras la ventana del recorte todavía mide ≈1134×571
+         — se dibuja DENTRO de la foto, descentrado y con una esquina fuera
+         de cuadro, y se lee como un fallo de render, no como un gesto. Su
+         `animation-range` (contain 48–92 %) nunca estuvo sincronizado con
+         el del recorte en la relación apaisada. Y de paso: `motion.css`
+         pide una sola animación llamando la atención por pantalla. */
+      .intro-aro { display: none; }
+      /* ── LA ANTENA DE LA TORRE CN SE CORTABA EN PLANO, EN LAS CUATRO ─────
+         Medido sobre `dist` en el fotograma final, buscando el píxel más alto
+         que sea ≥ 26 niveles más oscuro que la mediana de su fila (el cielo
+         es liso; la antena es lo único que hay ahí arriba) y acotando la
+         búsqueda a la ventana de la tarjeta: la punta sale en la PRIMERA fila
+         de la tarjeta en 1280×800, 1440×900, 1536×864 y 1920×1080. No es «se
+         come la mitad del cielo» en unas y se corta en otras: se corta en las
+         cuatro, y encima del mástil no queda ni un píxel de cielo.
+         LA CAUSA NO ES EL ZUM, ES LA VENTANA. La foto va `cover` sobre el
+         viewport y mide 2.2523:1 contra 1.6, así que recorta por los LADOS y
+         de alto se ve entera: la antena vive en el 10.2 % de la altura. La
+         ventana de la tarjeta empieza en `--carta-top` = 19svh, o sea que se
+         lleva por delante el 19 % de arriba. Sin zum ya cortaba 79 px; el zum
+         (scale 1.16 con origen en el 42 %, por debajo de la antena) la empuja
+         hacia arriba y lo deja en 125 px.
+         POR QUÉ NO SE ARREGLA CON `object-position` NI BAJANDO EL ZUM: de
+         alto no hay holgura que mover —`cover` ya enseña la foto entera— y
+         escalando hacia abajo, con el origen por debajo de la antena, harían
+         falta 0.566 de escala para bajarla, y a 0.566 la foto ya no llena la
+         tarjeta. Lo único que la baja es una TRASLACIÓN.
+         SE PROBÓ BAJAR LA FOTO Y NO VALE: trasladarla `--carta-top` deja la
+         antena entera con un 8 % de cielo encima, sí, pero empuja el skyline
+         contra el borde de abajo y la tarjeta se queda en cielo con una tira
+         de edificios cortados por la base. Se cambia un recorte feo por otro,
+         porque con `scale(1.16)` el tramo de la foto que va de la punta de la
+         antena a la línea del agua mide 825 px y la tarjeta mide 670: no
+         caben. Con el zum puesto hay que cortar por arriba o por abajo.
+         ASÍ QUE SE QUITA EL ZUM Y LA FOTO CONTRA-ESCALA, que además es lo que
+         esta transición dice que hace desde el principio («la foto
+         encogiéndose en una tarjeta», y en el móvil «la foto de dentro
+         contra-escala»). Escalando 0.64 alrededor del CENTRO, la tarjeta
+         enseña exactamente el mismo encuadre que la tapa a sangre, sin
+         recortar nada: no hay que elegir qué se corta porque no se corta. El
+         encuadre final deja de ser una decisión nueva y pasa a ser el que
+         Jaime ya aprobó, el de la primera pantalla.
+         POR QUÉ 0.64 Y NO 0.62: la tarjeta mide `62svh` de alto y
+         `min(62vw, 1180px)` de ancho, y ese `min` muerde desde 1904 px — a
+         1920 la tarjeta es el 61.46 % del ancho y no el 62 %. Con 0.62 clavado
+         la foto y la ventana medirían LO MISMO de alto y cualquier redondeo
+         abriría una tira de papel dentro de la tarjeta. 0.64 deja ~3 % de
+         desbordamiento por los cuatro lados en las cuatro anchuras.
+         Y EL ORIGEN PASA A SER EL CENTRO: la ventana está centrada en la
+         pantalla, así que escalar alrededor del centro la mantiene centrada
+         sin ninguna traslación que calcular.
+         NO ABRE HUECOS EN NINGÚN FOTOGRAMA: a 1440, el ancho de la foto va a
+         1440 − 518.4·t y el de la ventana a 1440 − 547.2·t (mismo
+         `animation-range`, así que la t es la misma), y la foto le saca
+         28.8·t; de alto, 18·t. Las dos diferencias son ≥ 0 para toda t y
+         crecen, así que la foto desborda la ventana durante todo el
+         recorrido. */
+      .portada-zoom { transform-origin: 50% 50%; animation-name: intro-zoom-ancho; }
+      /* El manifiesto sube por debajo, pegado al borde de abajo de la
+         tarjeta. La reserva de 9em de la composición móvil era el hueco de
+         la MITAD DE ABAJO del nombre; en apaisado no hay mitad de abajo,
+         así que la reserva es un respiro y nada más. */
+      .portada-tarjeta {
+        margin-top: calc(var(--carta-top) + var(--carta-h) - 100svh + var(--sp-10));
+      }
+    }
+  }
+  /* La misma meseta de `intro-tinta` (la tinta negra no puede llegar antes
+     que el papel: sube a .22 enseguida y el tramo de .22 a 1 cae entero en
+     la cola, ya con papel debajo) MÁS el ascenso. Un solo `translateY`, de
+     su centro al 50 % del alto —donde está el nombre blanco de la tapa, así
+     que el relevo se ve como un mismo nombre que cambia de tinta— hasta la
+     franja de encima de la tarjeta. Los keyframes intermedios no declaran
+     `transform`, así que el ascenso interpola de un extremo al otro. */
+  /* ⚠️ LA MESETA DE .22 NO EXISTE EN APAISADO, Y ESA ES LA CORRECCIÓN.
+     En el teléfono la meseta es defendible: el nombre en tinta cruza la foto
+     durante 60 px y se lee como un doble-expuesto. En escritorio el mismo
+     .22 dura MEDIA TRANSICIÓN y mide 845×61 px en el centro de la pantalla.
+     Medido sobre `dist` a 1440×900 (306 px de recorrido, `scroll-behavior:
+     auto` forzado y `scrollY` verificado en cada salto), con la vara honesta
+     —el PEOR píxel de trazo, percentil 10; la vara `trazo` de
+     check-contraste-cv toma el fondo más CLARO, que es el peor caso de un
+     texto BLANCO y el mejor de una tinta oscura—:
+         y= 50 … y=205   ninguna versión del nombre llega a 4.5:1  (155 px)
+         y= 85 … y=205   hay nombre PINTADO entre 1.02:1 y 2.39:1  (120 px)
+     O sea: durante 120 px no había un nombre ilegible, había un borrón gris
+     con la forma de su nombre. El blanco ya había caído (la tapa muere en
+     `contain 30 %`) y la tinta no llega a papel hasta `contain 68.6 %`
+     (y=210, donde salta a 5.61:1 de golpe porque el recorte termina de pasar
+     por debajo del renglón).
+     LA REGLA QUE SE IMPONE AQUÍ, y que ahora vigila `check-contraste-cv`:
+     **el nombre está ausente o está legible; nunca a medias.** La tinta se
+     queda a opacidad 0 hasta que el papel está debajo y entonces entra.
+     EL 81 % NO ES UN NÚMERO ELEGIDO: el tramo va de `contain 26 %` a
+     `contain 78 %` (52 puntos), y 26 + 0.81 × 52 = 68.1 %, que es el
+     fotograma medido en que el recorte acaba de descubrir el renglón. El
+     ascenso NO se toca: `transform` sigue interpolando de extremo a extremo,
+     así que lo que se ve entrar es el último 19 % del recorrido (69 px), un
+     asentamiento corto en vez de una deriva de media pantalla. */
+  /* La contra-escala de escritorio, en vez del zum. Ver el bloque grande de
+     `.portada-zoom` en el tramo apaisado: la tarjeta acaba enseñando el mismo
+     encuadre que la tapa a sangre, sin recortar nada. */
+  @keyframes intro-zoom-ancho {
+    from { transform: none; }
+    to { transform: scale(.64); }
+  }
+  @keyframes intro-tinta-ancho {
+    from { opacity: 0; transform: translateY(calc(50svh - var(--carta-top) / 2)); }
+    81% { opacity: 0; }
+    to { opacity: 1; transform: none; }
+  }
+  /* LA OTRA MITAD DEL RELEVO: la tapa aguanta hasta que la foto YA es una
+     tarjeta, en vez de morir en `contain 30 %` y dejar la pantalla sin
+     nombre. El blanco se apaga por composición —al bajar la alfa, la letra
+     se acerca al cielo que tiene debajo—, así que lo que alarga su vida útil
+     no es estirar el fundido sino SOSTENER la opacidad y luego soltarla de
+     golpe: con un fundido lineal más largo, el tramo legible solo crece lo
+     que crece la α, y con la meseta crece entero.
+     El techo de la meseta es dónde el velo empezaría a verse sobre papel: el
+     velo va a sangre y la tapa lo lleva pegado. Medido a 1440×900, en
+     `contain 46 %` (y=140) el recorte todavía deja la foto ocupando la
+     pantalla con un borde de papel de ~65 px arriba y ~60 a los lados, y el
+     velo —que arranca en el bloque de texto, muy por debajo— cae entero
+     sobre la foto. En `contain 56 %` ya no, así que la meseta acaba en 46 %
+     y la caída ocupa los diez puntos siguientes. */
+  @keyframes intro-tapa-ancho {
+    from { opacity: 1; visibility: visible; }
+    81% { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+  }
+
+  /* ── 3 · LA REJILLA DEL CUERPO: CUATRO PISTAS Y NADA MÁS ───────────────
+     Había 60 posiciones x distintas y 8 anchos de bloque hijos de `.cap`
+     (1104, 960, 875, 720, 680, 500, 440, 320) más otros ~36 anchos de
+     nietos: cada bloque inventaba su ancho. Ahora cada bloque DECLARA en
+     qué pista vive y la ocupa entera.
+
+       pista      ancho          qué va aquí
+       texto      ~688 px        toda la prosa
+       margen     280–592 px     figuras que acompañan, pies, huecos de foto
+       marco      ≤1320 px       rejillas de tarjetas, carruseles, tablas
+       sangre     ≤1680 px       como mucho dos por documento
+
+     LAS CUENTAS SON DETERMINISTAS Y SUMAN EL MARCO EXACTO, que es lo que
+     impide que la rejilla se desborde nunca (una pista `minmax(280px,
+     592px)` entre dos `1fr` se dimensiona por CONTENIDO, y eso no es una
+     rejilla, es una lotería):
+       marco  = min(100% − 2·gutter, 1320)
+       prosa  = min(43rem, marco − canal − 280)
+       margen = marco − canal − prosa
+     1280 → gutter 58, marco 1164, prosa 688, margen 428, aire 58/lado
+     1440 → gutter 65, marco 1310, prosa 688, margen 574, aire 65/lado
+     1536 → gutter 69, marco 1320, prosa 688, margen 584, aire 108/lado
+     1920 → gutter 86, marco 1320, prosa 688, margen 584, aire 300/lado
+     O sea el marco pasa del 58 % del viewport a 1920 al 69 %, y a 1280 del
+     86 % al 91 %.
+
+     LA PROSA EN `rem` Y NO EN PX ES LO QUE HACE QUE ESTO AGUANTE EL ZOOM DE
+     TEXTO: 43rem son 688 px al 100 % y 1376 al 200 %, y el `min(…)` con lo
+     que quede del marco impide que la suma de las pistas pase del marco —
+     así que al 200 % la prosa se come el margen hasta su suelo de 280 px y
+     la rejilla sigue midiendo exactamente el marco. Nada se sale de lado. */
+  @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
+    .cap:not(.cap-portada) {
+      /* OJO CON ESTAS TRES: llevan `100%` dentro, y un `100%` metido en
+         una variable NO se resuelve donde se declara sino DONDE SE USA.
+         Solo valen para dimensionar las pistas de `.cap`; en un
+         descendiente vuelven a medirse contra SU caja y dan otra cosa
+         (medido: `.marg-fila` dentro de la pista de margen calculaba
+         `--cv-margen` = 280 px en vez de 574 y se quedaba a la mitad). Un
+         hijo que quiera el ancho de su pista pide `100%`, que es lo que
+         ya hace por omisión; y el que quiera un tope escribe el número. */
+      --cv-frame: min(100% - 2 * var(--cv-gutter), 1320px);
+      --cv-canal: 48px;
+      --cv-prosa: min(43rem, calc(var(--cv-frame) - var(--cv-canal) - 280px));
+      --cv-margen: calc(var(--cv-frame) - var(--cv-canal) - var(--cv-prosa));
+
+      max-width: none;
+      padding-inline: 0;
+      /* FUERA `min-height: 100svh` + `justify-content: center`. Los
+         capítulos miden entre 1.2 y 4.9 pantallas, así que esa regla solo
+         actuaba sobre los dos cortos y les metía aire arbitrario mientras
+         los largos iban sin respiración. El ritmo lo pone la escala. */
+      min-height: 0;
+      padding-block: var(--cv-v4) 0;
+      display: grid;
+      grid-template-columns:
+        [sangre-i] minmax(0, 1fr)
+        [marco-i texto-i] var(--cv-prosa)
+        [texto-f] var(--cv-canal)
+        [margen-i] var(--cv-margen)
+        [margen-f marco-f] minmax(0, 1fr) [sangre-f];
+      /* El hueco lo ponen los márgenes de cada hijo y no `row-gap`: un
+         `gap` uniforme no sabe distinguir «el titular debajo de su número»
+         de «una idea nueva». */
+      gap: 0;
+      align-content: start;
+    }
+    /* Por omisión, todo vive en el MARCO. Es el valor seguro: un bloque
+       nuevo que nadie clasifique sale a ancho de documento, no metido en la
+       primera pista de aire.
+       ── `:global()` NO ES OPCIONAL AQUÍ, Y COSTÓ UNA TANDA DE CAPTURAS ──
+       Los `<style>` de Astro tienen ámbito por componente: le pegan a cada
+       parte del selector el atributo del ARCHIVO donde se escribe. Los
+       huecos («TO WRITE») y los huecos de foto los pinta otro componente
+       (Hueco.astro y FotoHueco.astro), así que ni `> *` ni `> .hueco`
+       escritos a secas alcanzan su marcado — y un hijo de rejilla sin
+       `grid-column` cae por colocación automática en la PRIMERA pista
+       libre, que aquí es el aire de la izquierda. Medido en captura: el
+       hueco del contratiempo del capítulo 2 salía como una tira de 55 px
+       pegada al borde derecho, con una letra por renglón. */
+    .cap:not(.cap-portada) > :global(*) { grid-column: marco-i / marco-f; }
+    /* LA PROSA, EN SU PISTA. */
+    .cap:not(.cap-portada) > .cap-num,
+    .cap:not(.cap-portada) > .cap-lede,
+    .cap:not(.cap-portada) > .cap-frases,
+    .cap:not(.cap-portada) > .voz,
+    .cap:not(.cap-portada) > .pie,
+    .cap:not(.cap-portada) > .meta-mono,
+    .cap:not(.cap-portada) > h3,
+    .cap:not(.cap-portada) > :global(.hueco),
+    .cap:not(.cap-portada) > :global(.cv-suyo),
+    .cap:not(.cap-portada) > .acad-nota,
+    .cap:not(.cap-portada) > .exp-plegable,
+    .cap:not(.cap-portada) > .verifica,
+    .cap:not(.cap-portada) > .premios,
+    .cap:not(.cap-portada) > .tt-cta,
+    .cap:not(.cap-portada) > .frase-trad,
+    .cap:not(.cap-portada) > .cierre { grid-column: texto-i / texto-f; }
+    /* LO QUE ACOMPAÑA, EN EL MARGEN. */
+    .cap:not(.cap-portada) > :global(.premio-doc),
+    .cap:not(.cap-portada) > .arco-fig,
+    .cap:not(.cap-portada) > .marg-fila { grid-column: margen-i / margen-f; }
+
+    /* EL RITMO, EN CUATRO PASOS Y NINGUNO MÁS. */
+    .cap:not(.cap-portada) > :global(*) { margin-block-start: var(--cv-v2); }
+    .cap:not(.cap-portada) > .cap-num { margin-block-start: 0; }
+    .cap:not(.cap-portada) > .cap-h { margin-block-start: var(--cv-v1); }
+    .cap:not(.cap-portada) > h3,
+    .cap:not(.cap-portada) > .citas-marco,
+    .cap:not(.cap-portada) > .clips,
+    .cap:not(.cap-portada) > :global(.hueco.contra) { margin-block-start: var(--cv-v3); }
+
+    /* EL TITULAR DE CAPÍTULO ocupa el marco pero con medida de titular:
+       14em de su propio tamaño son ~28 caracteres por renglón a cualquier
+       escala. En una columna de 688 px, 81 px de Fraunces darían ocho. */
+    .cap:not(.cap-portada) > .cap-h { max-width: 14em; }
+
+    /* La frase final SÍ se queda con su pantalla entera: es lo único que
+       cierra el documento y está solo a propósito. */
+    .cap-frase { min-height: 100svh; justify-content: center; align-content: center; }
+
+    /* ── 4 · LA LONGITUD DE RENGLÓN: UN CAMBIO DE UNIDAD, NO DE GUSTO ────
+       Medido: 21 párrafos por encima de 75 caracteres por renglón en
+       inglés (18 en español), el peor a 110. Y la causa es UNA y está al
+       revés. `.cap-lede`, `.cap-frases`, `.pie` y `.voz p` llevaban
+       `max-width: 62ch` SOBRE FUENTES PROPORCIONALES: `ch` es el ancho del
+       glifo `0`, más estrecho que el avance medio de la minúscula, así que
+       62ch entregan ~82 caracteres reales (medido: 62ch = 875 px a 21 px, y
+       ese renglón trae 82). Y los bloques mono NO llevaban `max-width`
+       ninguno: corrían hasta la columna entera y llegaban a 110.
+       O sea: la unidad correcta estaba puesta en el sitio equivocado.
+       · PROPORCIONAL → `33em`. Un solo número para todos los tamaños,
+         porque el avance medio medido en esta pila es 0.508 em a cualquier
+         tamaño (a 21 px: 875 px → 82 car. = 10.67 px/car.; a 16 px: 706 px
+         → 87 car. = 8.11). 33em dan 65 caracteres a 21 px y 65 a 16 px.
+       · MONO → `62ch`, Y HAY QUE PONÉRSELO. Ahí `ch` sí es el avance real,
+         así que 62ch son 62 caracteres clavados. */
+    /* LA REGLA VA POR TIPO DE ELEMENTO Y NO POR LISTA DE CLASES, y eso es
+       deliberado: una lista de clases deja fuera la que nadie recordó. La
+       primera versión de este bloque las nombraba una a una y se le
+       escaparon seis — medido: `.expapp-org` a 103 caracteres, el pie de la
+       captura del sitio a 146 (158 en español), `.clip-titulo` a 100, las
+       fuentes académicas a 103, `.cita-tipo` a 84 y las citas de las cartas
+       a 76. Con la regla por elemento, un párrafo nuevo nace con medida.
+       `:global()` porque los huecos los pinta otro componente. */
+    .cap :global(:is(p, dd, figcaption, blockquote, summary)),
+    .portada-tarjeta :global(:is(p, dd, figcaption)),
+    .portada-papel-cierre :global(:is(p, dd, figcaption)),
+    .acad-fuentes li,
+    .verifica-fila li { max-width: 33em; }
+    /* Y lo MONO a 62ch, que ahí sí es el avance real del glifo: 62ch son 62
+       caracteres clavados. Va después para ganarle a la de arriba.
+       ── EL SEÑUELO NO ES PROSA, Y POR ESO SE EXCLUYE AQUÍ ──────────────
+       `.cap-portada` lleva las dos clases, así que esta regla alcanzaba
+       también a «SCROLL TO READ ↓», que en apaisado es un elemento ABSOLUTO
+       con `inset-inline: 0` centrando su contenido. Un `max-width` sobre eso
+       no lo estrecha centrado: lo deja pegado al borde de inicio. Medido a
+       1440×900: caja de 446 px en x=65 con el texto en x=215, o sea el
+       señuelo en el tercio izquierdo mientras el nombre estaba centrado en
+       720 (y a 1920, texto en x=450 contra un centro de 960). Se excluye
+       aquí y no se contra-escribe arriba porque esta regla pesa (0,3,0) y la
+       del señuelo (0,2,0): un `max-width: none` en el bloque de la tapa no
+       gana. Son dos palabras: 62 caracteres no le sirven de nada. */
+    .cap :global(.meta-mono:not(.portada-senuelo)), .cap :global(.etiqueta),
+    .portada-tarjeta :global(.meta-mono) { max-width: 62ch; }
+    /* Y las excepciones, que son cajas cuya anchura ES su función y no su
+       renglón: una cifra de 80 px, el titular de una tarjeta, la frase que
+       cierra el documento, el nombre de la tapa y los pies que se miden
+       contra su propia figura. Van al final para ganar por orden. */
+    .cifra, .franja-n, .franja-n-txt, .tarjeta-n,
+    .abre, .frase, .abre p, .frase p, .cita-nombre, .carta-nombre, .premio-que,
+    .cert-insignia-que, .cap-frases.cifra-suya, .cifra-suya { max-width: none; }
+    /* ── LAS DOS CITAS GRANDES SE MIDEN EN SU PROPIA LETRA ───────────────
+       `.abre` y `.frase` son `<blockquote>`, o sea que la regla de prosa de
+       arriba les daba 33em DE SU FONT-SIZE, que es el 16 px del documento:
+       528 px. Dentro, el párrafo va a 68 px (la apertura) y 88 px (el
+       cierre), así que el tope del PADRE los estrangulaba aunque el hijo
+       tuviera `max-width: none` — medido a 1440: caja de 528 px en un marco
+       de 1 310, con «I opened my eyes and saw every possible opportunity»
+       partida en ocho renglones de tres palabras y 780 px de blanco al lado.
+       En un texto de 68 px, 33em serían 2 244 px: la unidad estaba bien, la
+       caja donde se aplicaba no. Las dos citas se miden ahora con `14em` DE
+       SU PROPIO TAMAÑO —el mismo número que ya usa `.cap-h`, ~28 caracteres
+       por renglón a cualquier escala— y son sus párrafos, no sus
+       `<blockquote>`, quienes lo llevan. */
+    /* ── Y EL TOPE DEL PADRE HAY QUE QUITARLO DONDE PUEDA GANAR ──────────
+       Nombrar `.abre, .frase` en la lista de excepciones de arriba NO
+       bastaba, y esto es aritmética de especificidad, no un descuido: la
+       regla de prosa es `.cap :global(:is(p, …, blockquote, …))`, que con el
+       atributo de ámbito que Astro le pega a `.cap` pesa (0,2,1); la
+       excepción, escrita como `.abre`, pesa (0,2,0). Ganaba la de prosa y el
+       `<blockquote>` seguía en 528 px, así que el `max-width: 14em` del
+       párrafo era letra muerta: un hijo no puede ser más ancho que su padre.
+       Medido sobre `dist` DESPUÉS de aquel arreglo: `.abre` en 528 px con el
+       párrafo a 68 px → **12 renglones de 14 caracteres**; `.frase` en 528
+       con el párrafo a 88 px → **18 renglones de 10 caracteres**, y entre
+       694 px (1280) y 1 092 px (1920) de blanco al lado. Las dos citas
+       grandes del documento —la que lo abre y la que lo cierra— eran la
+       «tira estrecha en un mar de blanco» que esta ola vino a quitar.
+       Escrito como descendiente de `.cap` pesa (0,3,0) y gana. */
+    .cap .abre, .cap .frase { max-width: none; }
+    .abre p { max-width: 14em; }
+    .frase p { max-width: 14em; }
+    figure .pie, .lote-fig .pie { max-width: min(100%, 33em); }
+    /* El hueco de foto de los premios ocupa su pista entera, como cualquier
+       otra figura del margen. */
+    :global(.premio-doc), :global(.hueco-toronto) { max-width: 100%; }
+
+    /* ── 5 · CAPÍTULO 1: EL RAÍL DEJA DE MORIRSE A LOS 145 PX ────────────
+       Medido: la rejilla `minmax(0,1fr) 320px` se acaba a los 145 px y a
+       partir de ahí el 44 % derecho de la página queda VACÍO mientras la
+       columna izquierda sigue durante casi pantalla y media — dos maquetas
+       distintas dentro del mismo capítulo. Con la foto pegada, el raíl
+       acompaña al capítulo entero. */
+    .portada-papel-cierre .portada-col,
+    .portada-tarjeta .portada-col {
+      max-width: min(100% - 2 * var(--cv-gutter), 1320px);
+      padding-inline: 0;
+    }
+    /* El capítulo 1 no cuelga de `.cap` sino de `.portada-papel-cierre`
+       (vive dentro de la portada), así que su rejilla se escribe aquí con
+       las MISMAS tres pistas: prosa · canal · margen. Las declara una
+       variable para que `.cap-1-cuerpo` repita EXACTAMENTE las mismas y no
+       una copia que se pueda desincronizar. */
+    .portada-papel-cierre .portada-col,
+    .cap-1-cuerpo {
+      --c1-cols:
+        min(43rem, calc(100% - 48px - 280px))
+        48px
+        minmax(280px, 1fr);
+      display: grid;
+      grid-template-columns: var(--c1-cols);
+      column-gap: 0;
+      row-gap: var(--cv-v2);
+      align-items: start;
+    }
+    /* ── `display: contents` AQUÍ NO ES GRATIS: SUELTA AL PEGAJOSO ────────
+       La versión anterior ponía `.cap-1-cuerpo { display: contents }` para
+       que el texto y el retrato fueran items de la rejilla de fuera. Coloca
+       bien —y por eso se escribió así—, pero un elemento con `display:
+       contents` NO GENERA CAJA, y el bloque contenedor de un `position:
+       sticky` sale de la caja del padre. Sin caja, Chromium le da al retrato
+       el contenedor de la rejilla ENTERA en vez de su celda, y el pegajoso
+       deja de tener techo: se lleva por delante la fila siguiente.
+       Medido en un recorrido secuencial de 900 en 900 px a 1440×900, que es
+       como se lee la página: la foto del panel en Singapur se imprimía
+       ENCIMA de la Torre CN, 574×164 px a scroll 3 600 y 574×632 px a 4 500,
+       y su pie sobre el pie de la Torre. Con `.cap-1-cuerpo` como rejilla de
+       verdad —las mismas tres pistas, ocupando el ancho entero— el retrato
+       vuelve a tener celda y su recorrido acaba donde acaba el texto que
+       acompaña. La colocación no cambia: la Torre CN sigue en la pista de
+       margen, al lado del párrafo «The cover:». */
+    .cap-1-cuerpo { grid-column: 1 / -1; }
+    .cap-1-texto, .portada-alt { grid-column: 1; }
+    .cap-1-texto { gap: var(--cv-v2); }
+    /* El raíl deja de morirse a los 145 px: la primera foto de Jaime
+       acompaña el capítulo entero en vez de dejar 490 px vacíos durante
+       750 px de scroll. `align-items: start` es lo que le deja alto que
+       recorrer — estirada a la fila no habría nada que pegar. */
+    .cap-1-retrato {
+      grid-column: 3;
+      position: sticky; top: var(--sp-16);
+      gap: var(--cv-v1);
+    }
+    .cap-1-foto { width: 100%; }
+    /* La Torre CN de Jaime: era la huérfana más visible del documento —la
+       imagen más alta, con 584 px de blanco al lado— porque llevaba
+       `max-width: 520px` dentro de una columna de 1104. Pasa al margen y lo
+       ocupa entero, emparejada con el párrafo que la explica. */
+    .cap-1-figura {
+      grid-column: 3;
+      max-width: 100%;
+      gap: var(--cv-v1);
+    }
+    .cap-1-figura img { width: 100%; }
+    /* La foto de Toronto se queda PEGADA a su cita sobre la U of T (es de
+       esa visita), o sea en la columna de texto y no en el margen, que aquí
+       lo ocupa el retrato pegajoso. Lo que cambia es que deja de pintarse a
+       su tamaño intrínseco. */
+    .lote-toronto { max-width: min(100%, 420px); }
+
+    /* ── 6 · DÓNDE VA CADA IMAGEN ───────────────────────────────────────
+       La regla que arregla «flotan»: NINGUNA imagen se pinta a su tamaño
+       intrínseco. Cada figura declara su pista y la ocupa. Suelo 280 px. */
+
+    /* El refugio y la playa: tres columnas en el marco, no dos de 350 px
+       dentro de un tope de 720. `.servir` deja de repartir sus dos bloques
+       en columnas para que las filas de fotos puedan usar el marco entero. */
+    .servir { grid-template-columns: minmax(0, 1fr); gap: var(--cv-v3); }
+    .servir-bloque { gap: var(--cv-v2); }
+    .fila-fotos, .playa-fotos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--sp-6);
+      max-width: none;
+    }
+    .playa-fotos .lote-fig, .fila-fotos .lote-fig { max-width: 100%; }
+    .lote-fig img { width: 100%; }
+    /* Las filas de UNA sola foto no son rejillas de tres. */
+    .marg-fila, .grupo-narra-fila { grid-template-columns: minmax(0, 1fr); }
+    .grupo-narra-fila .lote-fig { max-width: 100%; }
+
+    /* ── `.fig-sola`: UNA FIGURA QUE NO TIENE NADA AL LADO ────────────────
+       Medido sobre `dist` a 1440×900, listando cada `<img>`/`<video>` del
+       panel EN con su fracción del marco y con cuántos bloques de contenido
+       le acompañan en su misma franja vertical, salen SIETE medios con cero
+       acompañantes y por debajo del 60 % del marco:
+         21 %  clip de los animales      300×533   1075 px de blanco al lado
+         27 %  certificado B2            382×286    971
+         34 %  Marg Franklin             494×659    841 (a la IZQUIERDA)
+         34 %  la del NUS                494×356    841 (a la izquierda)
+         35 %  el grupo, entrevista      509×573    800
+         35 %  el grupo, narrando        509×715    800
+         41 %  la tienda de Jasa         592×740    710
+       Y llama la atención porque las filas de TRES de esta misma página sí
+       llenan el marco (tres de 362 + huecos = los 1310).
+       LA OLA ANTERIOR YA LO HABÍA INTENTADO y por eso existía
+       `.marg-fila, .grupo-narra-fila { max-width: 592px }`: la respuesta de
+       entonces fue «una foto sola es una figura de margen». Pero la pista de
+       margen mide 574 px y vive a la DERECHA, así que la de Marg Franklin
+       salía pegada al borde derecho con la mitad izquierda de la pantalla en
+       blanco — una pantalla entera para una foto y un pie.
+       LA REGLA NUEVA: una figura sola vive en la pista de PROSA y la ocupa
+       entera. No es una anchura elegida, es la que ya tiene cada párrafo del
+       documento: mismo borde izquierdo, mismo margen a la derecha. Una foto
+       con exactamente la silueta de un párrafo no flota — está en la columna,
+       como el texto. Y el blanco que le queda a la derecha deja de ser un
+       agujero para ser el margen que la página tiene en todas sus líneas.
+       (`max-width` en `rem` y no en px por lo de siempre: con el texto del
+       navegador al 200 % la prosa crece y la figura tiene que crecer con
+       ella, o se queda de sello dentro de su propia columna.) */
+    .cap:not(.cap-portada) > .fig-sola { grid-column: texto-i / texto-f; }
+    .fig-sola { max-width: 43rem; }
+    .fig-sola .lote-fig, .fig-sola .recuerdo, .fig-sola .recuerdo img { max-width: 100%; width: 100%; }
+
+    /* La captura del sitio es LA PRUEBA del proyecto insignia y se servía a
+       media escala: a 560 px su texto no se lee. Va al marco. El tope de
+       1600 px es el archivo, no un gusto: por encima de ahí se estaría
+       ampliando una captura, que es justo lo que la deja ilegible. */
+    .bloques { max-width: none; gap: var(--cv-v3); }
+    .bloque { gap: var(--cv-v2); }
+    .sf-header-fig { max-width: min(100%, 1600px); margin-top: 0; }
+    /* La captura de la tienda de Jasa Motor, por lo mismo: 275 px es una
+       miniatura de una página web. A ancho de prosa se leen sus rótulos. */
+    .jasa-fig { max-width: 43rem; margin-top: 0; }
+    .jasa-fig img { width: 100%; }
+    /* La foto del grupo va AL LADO de su texto y no debajo: es el bento de
+       Ondo en escritorio. A 305 px no se distinguía a nadie; a 520 sí, y
+       520 es además el tamaño al que su archivo (800 px) no se amplía. */
+    .grupo { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: var(--cv-v2); align-items: start; }
+    .grupo .recuerdo img { width: 100%; }
+    /* ERA `max-width: 592px` Y GANABA A `.fig-sola` POR ORDEN: las dos reglas
+       pesan (0,1,0) y esta se escribe después, así que la foto de la
+       entrevista se quedaba en 572 px mientras sus cuatro hermanas —Marg, la
+       del NUS, la otra del grupo y la de Jasa— pasaban a los 688 de la
+       columna de prosa. Una sola de las cinco a otra anchura es justo lo que
+       se lee como «las imágenes no están puestas». Ahora las cinco miden lo
+       mismo, y el número sale de la misma variable que la prosa. */
+    .grupo-tec { max-width: 43rem; }
+
+    /* ── EL CLIP DE 9:16 AL LADO DE SU PÁRRAFO ────────────────────────────
+       300 px es el tope del clip (`.clip-video`) y no se toca: ensancharlo
+       lo estiraría a 1223 px de alto. Lo que se llena es la BANDA — el clip
+       a la izquierda y el texto que ya venía debajo, a su derecha. */
+    .clip-par {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: var(--cv-v2) var(--cv-h2, var(--sp-4));
+      align-items: start;
+    }
+    .arco-fig, .premio-doc { max-width: 100%; margin-top: 0; }
+    .carta .lote-fig { max-width: 100%; }
+    .carta .lote-fig img { width: 100%; }
+
+    /* ── 7 · LAS FILAS DE TARJETAS: UNA LÍNEA DE BASE DE VERDAD ──────────
+       El defecto medido: en el carrusel, «Andy Toh» salía en y=162 y «A
+       student at NUS» en y=315, porque las fotos son 4:3 (150 px de alto) y
+       los clips 9:16 (302 px). La fila no tenía línea de base.
+       LA CAJA DE MEDIA PASA A TENER ALTO FIJO, y el media se centra dentro
+       a su proporción en vez de estirarse al 100 % del ancho: un clip 9:16
+       y una foto 4:3 NO pueden llenar la misma caja apaisada sin destrozar
+       uno de los dos — el clip saldría como una rebanada horizontal de un
+       vídeo vertical. Alto fijo + ancho por proporción alinea los títulos,
+       que es lo que había que arreglar, sin romper ningún encuadre. */
+    /* LA TARJETA PASA A SER UN BENTO: media a la izquierda, todo el texto a
+       la derecha. Es lo que arregla las dos cosas de una vez.
+       (a) LA LÍNEA DE BASE. Apiladas, la foto (4:3, 150 px de alto) y el
+           clip (9:16, 302 px) empujaban el título a alturas distintas —
+           medido: «Andy Toh» en y=162 y «A student at NUS» en y=315. Con el
+           media en su propia COLUMNA, los títulos arrancan todos en la
+           primera fila de la columna de texto y la proporción del media deja
+           de decidir nada.
+       (b) LOS HUECOS NEGROS. La tarjeta corta se estiraba a la más alta y
+           dejaba ~300 px de negro entre el cargo y «WHAT I TOOK FROM IT».
+           Ahora la altura la pone el contenido (`align-items: start`) y el
+           media se estira a lo que mida su tarjeta, no al revés.
+       Y de paso la tarjeta pasa de 340 px a 880: es la medida de Ondo en
+       escritorio (1128 px = 78 % del viewport, con la vecina asomando). */
+    .citas { scroll-padding-inline: 0; align-items: start; }
+    .cita {
+      flex: 0 0 min(72%, 880px);
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      column-gap: var(--sp-5); row-gap: var(--sp-2);
+      align-content: start;
+    }
+    .cita > :global(*) { grid-column: 2; }
+    /* `span 10` Y NO `1 / -1`: sin filas explícitas declaradas, la línea
+       `-1` es la última del grid EXPLÍCITO — o sea la 1 — y el media se
+       quedaba en la primera fila, empujando el cargo 230 px hacia abajo.
+       Con un span mayor que el número de renglones de cualquier tarjeta, el
+       media llega hasta abajo y la columna de texto arranca pegada arriba. */
+    .cita-media {
+      grid-column: 1; grid-row: 1 / span 10;
+      align-self: stretch;
+      min-height: 220px;
+    }
+    .cita-foto, .cita .clip-video {
+      width: 100%; height: 100%; max-width: none;
+      object-fit: cover;
+    }
+    .cita-nombre { margin-top: 0; }
+
+    /* La rejilla de clips: tres columnas IGUALES (eran 250/528/250 porque
+       el clip apaisado mandaba) y el clip ancho ocupa dos. Cinco tarjetas
+       llenan exactamente dos filas de tres. `align-items: start` evita que
+       la corta se estire y deje blanco debajo de su texto. */
+    .clips { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-6); align-items: start; }
+    .clip-ancho { grid-column: span 2; }
+    .clip .clip-video { max-width: 100%; width: 100%; }
+    .clip .recuerdo img { max-width: 100%; }
+
+    /* Los certificados: tres columnas en el marco y una ZONA DE TÍTULO DE
+       ALTO FIJO, que es lo que hace que los seis escaneos arranquen a la
+       misma y (medido: el 3.º empezaba 22 px más abajo porque su título
+       ocupa una línea menos). */
+    .certs, .cartas, .premios-huecos, .acad-huecos, .acad, .franja { max-width: none; }
+    .certs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cert-nombre { min-height: 3em; }
+    .cartas, .premios-huecos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* ── LAS FICHAS DEJAN DE ESTIRARSE, Y CON ELLAS SE VA EL HUECO GRANDE ──
+       Es el mismo defecto que las tarjetas del carrusel, y en el marco ancho
+       se hizo enorme. Una rejilla estira sus items al alto de la fila, y
+       dentro de la ficha `.carta-cita` llevaba `margin: auto 0 0` para pegar
+       las citas abajo. Con la foto de Lloyd George midiendo 1 102 px y la de
+       Andy Toh 480, la ficha corta abría **648 px de blanco** entre «He
+       observed me…» y sus dos frases — medido en el DOM: `carta-relacion`
+       acababa en y=32 166 y `carta-cita` empezaba en y=32 814.
+       Con `align-items: start` cada ficha mide lo que mide, y entonces el
+       `margin: auto` ya no tiene nada que repartir: se pone a cero para que
+       la ficha se lea seguida. Vale igual para los certificados y para los
+       huecos de carta, que traen el mismo `margin-top: auto`. */
+    .cartas, .certs, .premios-huecos, .acad-huecos { align-items: start; }
+    .carta-cita { margin-block-start: var(--cv-v1); }
+    .acad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .expapp, .exp-plegable, .cinta, .cifras, .cal, .curva, .rep, .verifica, .premios { max-width: 100%; }
+
+    /* ── LA EXPERIENCIA EN FORMATO DE SOLICITUD, EN DOS COLUMNAS ─────────
+       Es el bloque que un comité escanea, y es el que peor aprovechaba el
+       marco: los cinco campos iban apilados en una sola columna, así que la
+       raya de separación llegaba a 1 310 px y el texto moría en 980 (medido
+       a 1920). En dos columnas se lee como lo que es —una ficha de
+       solicitud—: a la izquierda quién y cuándo (rol · organización ·
+       periodo), a la derecha qué hizo, el resultado, quién lo confirma y su
+       hueco. Es el mismo orden de lectura de arriba abajo para un lector de
+       pantalla: no se reordena nada, solo se reparte en dos pistas.
+       `.expapp-rol/org/cuando` van a la izquierda por nombre y todo lo demás
+       cae a la derecha por omisión, incluido el hueco, que lo pinta otro
+       componente y por eso lleva `:global()`. */
+    .expapp-fila {
+      display: grid;
+      /* La segunda pista lleva tope: con `1fr` el hueco «TO WRITE» se
+         estiraba a 910 px mientras su texto paraba en 528 (los 33em de
+         medida), y la ficha se leía descuadrada. La raya de separación sí
+         cruza el marco entero — es la que ordena la lista. */
+      grid-template-columns: minmax(220px, 22rem) minmax(0, 36rem);
+      justify-content: start;
+      column-gap: var(--cv-canal);
+      row-gap: 4px;
+      align-items: start;
+      padding-top: var(--cv-v1);
+    }
+    .expapp-fila > :global(*) { grid-column: 2; }
+    .expapp-rol, .expapp-org, .expapp-cuando { grid-column: 1; }
+    .expapp-campo:first-of-type, .expapp-fila > .expapp-campo { margin-top: 0; }
+    .expapp-campo + .expapp-campo { margin-top: var(--sp-2); }
+  }
+
+  /* ═══ LA VISTA IMPRESA (ola 2, 2026-08-31) ════════════════════════════
+     UN CV SE IMPRIME, Y ESTE NO SE PODÍA. Hasta hoy `@media print` eran seis
+     parches sueltos —desmontar la tapa, devolverle la tinta negra, esconder
+     el selector de idioma, abrir el plegable— y el resto salía tal cual:
+     cada capítulo con `min-height: 100svh` y `justify-content: center`, o
+     sea una hoja casi vacía por capítulo, con la cinta imprimiendo guiones y
+     los vídeos como rectángulos negros. El destinatario de esto es el
+     NOMINADOR de Prepa Tec CEM, que necesita adjuntar un documento; que
+     tenga que hacer scroll en una pantalla para leerlo es justo el problema
+     que este bloque quita.
+
+     SE IMPRIME UN SOLO IDIOMA porque el panel escondido sigue escondido
+     (`display: none` en Cv.astro): sale el que se esté viendo.
+
+     LO QUE NO SE IMPRIME, y cada cosa por su motivo:
+      · la cinta de precios — en papel son tres guiones y una nota
+        explicando por qué son guiones;
+      · los vídeos y sus controles — un rectángulo negro por clip;
+      · las flechas del carrusel de citas — son controles, no contenido, y
+        la lista se imprime entera debajo;
+      · la franja de pruebas de la portada — son cuatro enlaces a capítulos
+        que en papel están tres centímetros más abajo.
+     TODO LO DEMÁS SÍ SE IMPRIME, huecos incluidos: un CV impreso que
+     disimula lo que le falta miente igual que uno en pantalla. */
+  @media print {
+    /* ── LA ESCALA DE TIPO DEL PAPEL ────────────────────────────────────
+       Los tamaños del CV están hechos para una pantalla que se recorre con
+       el pulgar: el titular de capítulo llega a 7rem y el cuerpo a 1.31rem.
+       En papel eso son once hojas de titular. Aquí se redefinen los cinco
+       tokens y TODO lo que cuelga de ellos baja con una sola regla — que es
+       justo para lo que existen los tokens. 10pt de cuerpo es el tamaño de
+       un documento, no un capricho: por debajo deja de leerse cómodo y por
+       encima este CV no cabe en ninguna cantidad razonable de hojas. */
+    .historia {
+      --cvh-h: 15pt;
+      --cvh-h-name: 22pt;
+      --cvh-h-frase: 14pt;
+      --cvh-h-abre: 13pt;
+      --cvh-cuerpo: 10pt;
+      --cvh-etiqueta: 7.5pt;
+      font-size: 10pt; line-height: 1.45;
+    }
+
+    /* ── QUÉ SE IMPRIME, Y POR QUÉ NO ES TODO ───────────────────────────
+       El destinatario del papel es UNO: quien firma la nominación en Prepa
+       Tec CEM, que necesita adjuntar un documento y poder afirmar rol,
+       periodo, organización, resultado y quién lo confirma. Medido sobre
+       `dist` con `emulateMedia('print')`, el documento entero salían 25 232
+       px a ancho de carta — veinticuatro hojas. Nadie adjunta eso.
+       ASÍ QUE EL PAPEL ES UN SUBCONJUNTO, Y LA HOJA LO DICE en su primera
+       línea (`.impresion-nota`, que solo existe al imprimir): el CV completo
+       —las fotos, los clips, las conversaciones, el sitio— está en la página
+       de la que se imprimió. No se disimula nada: se dice que hay más.
+       Se van los cuatro capítulos narrativos (servir, proyectos, las
+       conversaciones y el Reto), que son los que viven de imagen y de vídeo;
+       se quedan los seis que un nominador tiene que poder leer: experiencia,
+       el renglón académico, certificaciones, premios, cartas y la frase.
+       LOS HUECOS SE IMPRIMEN. Un CV impreso que disimula lo que le falta
+       miente igual que uno en pantalla. */
+    .sin-imprimir { display: none; }
+    .impresion-nota { display: block; }
+
+    /* El capítulo deja de ser una pantalla y pasa a ser un bloque. Es la
+       regla que convierte once hojas casi vacías en un documento. */
+    .cap {
+      min-height: 0; justify-content: flex-start;
+      padding-block: 0; padding-inline: 0;
+      max-width: none;
+      margin-block: 0 var(--sp-6);
+      break-inside: auto;
+    }
+    /* Un titular no se queda solo al final de una hoja. */
+    .cap-num, .cap-h { break-after: avoid; }
+    .cap-h { margin-top: var(--sp-4); }
+    /* Ni una tarjeta ni una ficha partida entre dos hojas. Las listas largas
+       sí pueden partirse: doce renglones de experiencia caben mal en una
+       hoja y forzarlos empujaría el capítulo entero a la siguiente. */
+    .carta, .cert, .premio, .expapp-fila, .acad-bloque,
+    .hueco, .foto-hueco, .carta-hueco, .verifica-fila, .cita {
+      break-inside: avoid;
+    }
+    /* Fuera. Ver la lista de arriba, con el motivo de cada una. */
+    /* Y EL ENLACE DE DESCARGA DE LAS CARTAS. En papel un «Descargar la
+       carta firmada» no lleva a ninguna parte, y no se puede imprimir su
+       dirección al lado como se hace con las fuentes académicas: esa
+       dirección empieza por la del CV, que es la credencial de esta página y
+       no se escribe en ninguna parte. Así que se va, y lo cubre la primera
+       línea de la hoja (`impresionNota`), que desde hoy nombra «las dos
+       cartas firmadas como archivo» entre lo que está en la página de la que
+       se imprimió. La ficha entera de cada carta —quién, cargo, relación,
+       las dos frases y el contacto— sí se imprime. */
+    .cinta-bloque, .citas-nav, .clip-video, .clip-video-ancho, video, .franja, .carta-pdf { display: none; }
+    /* EL CARRUSEL SE DESENROLLA. En pantalla son diez tarjetas en una pista
+       horizontal con `overflow-x: auto`; en papel eso imprime la primera y
+       media y recorta ocho. Pasa a rejilla de dos columnas, que es la misma
+       lista sin pista y sin imán. `grid` ignora las propiedades flex de
+       `.cita`, así que no hay que deshacerlas una por una. */
+    .citas {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4);
+      overflow: visible; scroll-snap-type: none; padding: 0;
+    }
+    .citas-marco { overflow: visible; }
+    /* Las fotos no se comen una hoja cada una. */
+    img { max-height: 6cm; width: auto; }
+    /* Y LOS ESCANEOS DE LOS CERTIFICADOS NO SE IMPRIMEN. Lo que un comité
+       comprueba de un certificado es el nombre exacto, el emisor, el año y
+       el ID de la credencial — cuatro renglones que sí van—, no una foto del
+       diploma reducida a seis centímetros. Eran 973 px de las nueve hojas.
+       La insignia tipográfica del DELF A2 se va con ellos: existe para que su
+       marco no esté vacío en pantalla, y en papel no hay marco. */
+    .cert-marco { display: none; }
+    /* Los enlaces de las FUENTES ACADÉMICAS llevan su dirección escrita: son
+       citas de páginas oficiales y quien lea el papel tiene que poder
+       comprobarlas. Solo esas — el resto de los enlaces de la página son
+       navegación, y ponerles la URL a los cuarenta llenaría el documento de
+       paréntesis. */
+    /* LA DIRECCIÓN, DEBAJO DEL ENLACE Y A ANCHO DE COLUMNA. Y hacen falta
+       LAS DOS reglas: con `display: block` solo en el `::after`, el `<a>`
+       sigue siendo inline y Chromium parte el bloque dentro de la línea — la
+       dirección salía en una tira de cuatro letras pegada al borde de la
+       hoja. Se vio en el PDF de verdad; en el HTML no se ve, porque en
+       pantalla el `::after` no existe. */
+    .acad-fuentes a[href] { display: block; }
+    .acad-fuentes a[href]::after {
+      content: attr(href); display: block;
+      font-size: .85em; word-break: break-all; color: var(--cvh-tinta-2);
+    }
   }
 </style>

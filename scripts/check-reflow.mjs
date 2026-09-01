@@ -63,13 +63,27 @@ const ESCALAS = arg('escalas', '100,175,200,225').split(',').map(Number);
 // esta página no se estaría midiendo — y el español es el idioma con las
 // palabras largas («oportunidades», «Certificaciones»), que son las que
 // arrastran la página de lado.
-const RUTAS = [
+const TODAS = [
   '/', '/market', '/market/spy', '/research', '/news', '/lessons/etfs',
   '/challenge', '/about', '/portfolio', '/actinver', '/tools', '/newsletter',
   '/cv/vista-previa', '/cv/vista-previa#es',
   '/es/', '/es/mercado', '/es/mercado/spy', '/es/research', '/es/noticias',
   '/es/lecciones/etfs', '/es/reto', '/es/acerca', '/es/portafolio', '/es/actinver',
 ];
+// `--rutas=` filtra por subcadena. Existe por UNA razón concreta, y es la que
+// abre `check-reflow-cv` en package.json: los anchos de arriba son los de WCAG
+// 1.4.10 (320 px equivalentes) y NINGUNO toca la rejilla de escritorio del CV,
+// que vive por encima de 960 px y en apaisado. Desde la ola 2b el escritorio es
+// el objetivo principal de esa página —«la mayoría de inspectores la verá por
+// ahí, de hecho, todas»—, así que el sitio donde más se lee es justo el que
+// ninguna guardia miraba. Con el filtro, la rejilla nueva se mide en sus cuatro
+// anchos sin arrastrar a las otras 22 rutas, que comparten la TopBar de
+// Base.astro y hoy sí desbordan en escritorio con el texto ampliado (191 de 384
+// combinaciones, todas por `topbar-actions`; el CV, cero). Ese es un fallo
+// distinto, de otra plantilla, y se arregla en su propio cambio.
+const filtro = arg('rutas', '');
+const RUTAS = filtro ? TODAS.filter((r) => filtro.split(',').some((f) => r.includes(f))) : TODAS;
+if (!RUTAS.length) { console.error(`[reflow] ninguna ruta casa con --rutas=${filtro}`); process.exit(1); }
 
 if (!fs.existsSync(DIST)) {
   console.error(`[reflow] no encuentro ${DIST}. Corre antes: npm run build`);
