@@ -4154,7 +4154,21 @@ const cifrasFranja = c.franja.sitioQ
       font-size: var(--cvh-h);
       flex-direction: row; flex-wrap: wrap;
       align-items: baseline; align-content: center; justify-content: center;
-      gap: 0 .28em;
+      /* ── EL HUECO ENTRE LAS DOS MITADES ES UN ESPACIO, NO UN CRITERIO ────
+         En apilado, `.28em` es la separación entre dos RENGLONES y no se
+         compara con nada. Puestas en una línea, las dos mitades vuelven a
+         ser palabras de la misma frase, y ahí el hueco sí tiene con qué
+         compararse: el espacio real que hay entre «Jaime» y «Sandoval».
+         Medido en los cuatro anchos y en los dos idiomas, `.28em` daba
+         20.1 · 22.6 · 24.1 · 24.6 px contra un espacio real de 13.5 · 15.1 ·
+         16.1 · 16.5 — **1.49 a 1.50 veces**, clavado. O sea que el nombre se
+         leía «Jaime Sandoval · Ricaño», con una junta a la vista justo
+         donde no hay ninguna.
+         `.1875em` es el AVANCE DEL ESPACIO de esta fuente, sacado de esas
+         mismas cuatro medidas (13.5/71.7 · 15.1/80.6 · 16.1/86 · 16.5/88 =
+         .1883 · .1873 · .1872 · .1875). Con él, las tres palabras del nombre
+         se separan igual. Y va en `em`, así que sigue el zoom de texto. */
+      gap: 0 .1875em;
       text-align: center;
       /* ── Y NO PUEDE RECIBIR EL PUNTERO, O SE COME LAS PASTILLAS ─────────
          Estirar el `<h1>` a `100svh` para poder centrar el nombre lo
@@ -4248,10 +4262,16 @@ const cifrasFranja = c.franja.sitioQ
         align-items: baseline; align-content: center; justify-content: center;
         /* EL HUECO ENTRE LAS DOS MITADES SE MIDE EN LA LETRA DEL NOMBRE, y
            por eso el tamaño se declara AQUÍ y los dos `<p>` lo heredan: en
-           el contenedor, `.28em` valdría 4.5 px (el 16 px del documento) y
-           el nombre saldría pegado — «SandovalRicaño». */
+           el contenedor, un `em` valdría 16 px (el del documento) y el
+           nombre saldría pegado — «SandovalRicaño».
+           Y el valor es `.1875em` —el avance del espacio de esta fuente— por
+           lo mismo que en la tapa: en una sola línea, el hueco entre las
+           mitades se compara con el espacio de «Jaime Sandoval», y `.28em`
+           era 1.5 veces más ancho en los cuatro anchos medidos. El nombre en
+           tinta y el nombre en blanco son EL MISMO NOMBRE y se relevan uno a
+           otro en el mismo sitio: separados distinto, el relevo se vería. */
         font-size: min(var(--cvh-h), calc(var(--carta-top) * .62));
-        gap: 0 .28em;
+        gap: 0 .1875em;
         animation-name: intro-tinta-ancho;
       }
       .intro-n1, .intro-n2 {
