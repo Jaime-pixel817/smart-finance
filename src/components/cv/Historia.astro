@@ -439,6 +439,14 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capit
 const fuenteCarta = (quien: string) =>
   c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.cartas);
 
+// ── LA MARCA CORTA DEL AÑO EN DISPUTA ───────────────────────────────────
+// El recibo entero (`c.anioDisputa`) se pinta UNA vez, dentro de la tabla de
+// experiencia, que es donde viven las cinco fechas que cubre. En los otros
+// dos sitios donde se lee un 2025 —el lede del sitio y el bloque de Jasa
+// Motor— va esta versión, que dice lo mismo que importa allí y manda al
+// recibo por el TÍTULO del capítulo, como `fuenteCarta`.
+const anioCorto = c.anioDisputaCorto.replace('{s}', c.caps.experiencias);
+
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
 // pantallas. Es lo único que queda: una cuenta, de una lista, que no puede
@@ -1068,7 +1076,33 @@ const cifrasFranja = c.franja.sitioQ
          que el referee de Jasa Motor NO puede ser su papá, y que 497
          impresiones y 473 contactos son cifras de vanidad y no sirven como
          resultado. */}
-    <h3 class="t-h3 expapp-h">{c.expApp.h}</h3>
+    {/* ── Y SE PLIEGA (2026-09-01) ─────────────────────────────────────
+         SON LAS MISMAS EXPERIENCIAS DOS VECES. La lista de arriba son doce
+         renglones de año + título, que es lo que un comité escanea, y esto
+         son cinco de esos doce otra vez, con los campos que pide un
+         formulario: rol · organización · periodo · qué hizo · resultado con
+         número · quién lo confirma. Medido sobre la página pintada, entre
+         las dos sumaban 651 palabras en el capítulo que se lee segundo, y el
+         lector con 4-9 minutos leía la misma experiencia dos veces antes de
+         llegar a nada nuevo.
+         LA LISTA SECA SE QUEDA ABIERTA, que es lo que decidió la ola
+         anterior y por la razón correcta: «un botón cerrado es un capítulo
+         que no existe». Ese argumento habla del CAPÍTULO, y el capítulo
+         sigue entero y a la vista. Lo que se pliega es su SEGUNDA COPIA.
+         Y NO SE PIERDE NADA DE LO QUE PIDEN LAS SOLICITUDES: los cinco
+         bloques con sus campos, sus huecos marcados y el patrón de la fila
+         terminada están a un clic, y al imprimir salen abiertos — que es
+         además el formato en el que sirven, porque un CV impreso es lo que
+         acaba adjunto a una nominación.
+         EL RÓTULO DEL RESUMEN ES EL MISMO `expApp.h` de siempre: dice qué
+         hay dentro, y el lede pasa a ser la pista de al lado. */}
+    <details class="expapp-plegable ref-plegable">
+      <summary class="ref-ver">
+        <span class="ref-ver-fila">
+          <span class="ref-ver-txt t-h3">{c.expApp.h}</span>
+          <span class="ref-flecha" aria-hidden="true">↓</span>
+        </span>
+      </summary>
     <p class="cap-lede">{c.expApp.lede}</p>
     <ol class="expapp">
       {c.expApp.filas.map((f) => (
@@ -1087,6 +1121,7 @@ const cifrasFranja = c.franja.sitioQ
           </li>
       ))}
     </ol>
+    </details>
 
   </section>
 
@@ -1384,17 +1419,38 @@ const cifrasFranja = c.franja.sitioQ
              pendiente, no un fracaso — y decirlo aquí es más creíble que
              dejar el renglón como si estuviera cerrado. */}
         <p class="acad-falta">{c.acad.inglesFalta}</p>
-        <p class="meta-mono acad-fuentes-h">{c.acad.fuentesH}</p>
-        <ul class="acad-fuentes">
-          {/* `que` va en trozos por lo mismo que `acad.nota`: en el panel
-               español la cita verbatim de U of T es inglés dentro de una
-               etiqueta española y necesita `lang="en"`. */}
-          {c.acad.inglesFuentes.map((f) => (
-            <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que.map((t) => (typeof t === 'string'
-              ? t
-              : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))} ↗</a></li>
-          ))}
-        </ul>
+        {/* ── LOS UMBRALES, PLEGADOS (2026-09-01) ───────────────────────
+             Dentro van 119 palabras de requisitos de OTRAS universidades:
+             el 180 de Cambridge, los submínimos del TOEFL nuevo, el IELTS,
+             el Duolingo y el PTE. Es verdad, tiene su enlace y su fecha de
+             consulta — y no dice ni una palabra sobre Jaime. Lo que sí dice
+             algo sobre él es el renglón de arriba, que se queda a la vista:
+             tiene 163 y le falta un examen.
+             SE PLIEGA, NO SE BORRA. Un comité que quiera comprobar el
+             umbral lo abre en un clic, y al imprimir sale abierto (misma
+             receta que el plegable de experiencia, abajo en el estilo).
+             El mecanismo es un `<details>` nativo, sin JavaScript, y el
+             `<summary>` NO cambia su `display` — es el hallazgo del repo:
+             con `display` cambiado, Safari deja de tratarlo como resumen. */}
+        <details class="ref-plegable">
+          <summary class="ref-ver">
+            <span class="ref-ver-fila">
+              <span class="ref-ver-txt">{c.acad.fuentesVer}</span>
+              <span class="ref-ver-pista meta-mono">{c.acad.fuentesH}</span>
+              <span class="ref-flecha" aria-hidden="true">↓</span>
+            </span>
+          </summary>
+          <ul class="acad-fuentes">
+            {/* `que` va en trozos por lo mismo que `acad.nota`: en el panel
+                 español la cita verbatim de U of T es inglés dentro de una
+                 etiqueta española y necesita `lang="en"`. */}
+            {c.acad.inglesFuentes.map((f) => (
+              <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que.map((t) => (typeof t === 'string'
+                ? t
+                : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))} ↗</a></li>
+            ))}
+          </ul>
+        </details>
       </div>
     </div>
 
@@ -1403,8 +1459,22 @@ const cifrasFranja = c.franja.sitioQ
          como una ausencia; con ella se leen como lo que son, tres datos que
          solo puede dar él. La cita de Rotman va verbatim y en inglés, con su
          enlace: es de su página oficial. */}
-    <div class="acad-nota">
-      <h3 class="t-h4">{c.acad.notaH}</h3>
+    {/* ── Y ESTA NOTA TAMBIÉN SE PLIEGA (2026-09-01) ──────────────────────
+         Su encabezado ES la respuesta —«por qué los recuadros de abajo están
+         vacíos y no callados»— y eso se queda a la vista, que es lo que
+         impide que tres huecos seguidos se lean como una ausencia. Lo que se
+         pliega son las 136 palabras de detrás: los promedios que pide
+         Rotman, el 90 % de Ivey, los códigos de curso de Schulich y sus
+         cortes históricos. Son requisitos de terceros, no datos de Jaime, y
+         a 4-9 minutos por perfil cuestan media pantalla de lectura para
+         decir lo que su encabezado ya dijo. Abierto al imprimir. */}
+    <details class="acad-nota ref-plegable">
+      <summary class="ref-ver">
+        <span class="ref-ver-fila">
+          <span class="ref-ver-txt t-h4">{c.acad.notaH}</span>
+          <span class="ref-flecha" aria-hidden="true">↓</span>
+        </span>
+      </summary>
       {/* EL PARRAFO VA EN TROZOS. En el panel espanol lleva dentro tres
            pedazos de ingles —la cita de Rotman y las dos maneras inglesas de
            decir un promedio— y sin `lang="en"` un lector de pantalla los
@@ -1424,7 +1494,7 @@ const cifrasFranja = c.franja.sitioQ
           <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que} ↗</a></li>
         ))}
       </ul>
-    </div>
+    </details>
 
     <div class="acad-huecos">
       <Hueco c={c} id="acadPromedio" />
@@ -1632,11 +1702,15 @@ const cifrasFranja = c.franja.sitioQ
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
-        {/* El lede de aquí arriba es otro de los tres sitios donde un 2025 se
-             lee en pantalla (los otros: la tabla del capítulo 2 y el bloque
-             de Jasa Motor, más abajo), así que lleva el mismo recibo. Los
-             tres pintan LA MISMA cadena: no pueden decir cosas distintas. */}
-        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
+        {/* Aquí se lee un 2025, así que lleva su marca — pero la CORTA. El
+             recibo entero (las cinco fechas, qué publica LinkedIn de cada
+             una, y dónde no hay con qué comparar) vive UNA vez, en la tabla
+             de experiencia, que es donde están las cinco. Repetirlo aquí y
+             en Jasa Motor eran 234 palabras diciendo tres veces lo mismo, y
+             dos de las tres listaban cinco fechas donde sólo se lee una.
+             La marca corta manda al recibo POR EL TÍTULO del capítulo, no
+             por su número, igual que `fuenteCarta`. */}
+        <p class="meta-mono cifra-suya-marca">{anioCorto}</p>
 
         {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
              header padre») ─────────────────────────────────────────────
@@ -1840,14 +1914,12 @@ const cifrasFranja = c.franja.sitioQ
           <p>{c.voz.jasa}</p>
         </blockquote>
         <p class="cap-frases">{c.proyectos.jasa}</p>
-        {/* EL TERCER SITIO DONDE SE LEE UN 2025 (2026-08-31). Este párrafo y
-             el pie de la captura dicen 2025, y ese año es de los cinco que
-             solo sostiene la palabra de Jaime — Jasa Motor ni siquiera
-             aparece en su LinkedIn. La tabla del capítulo 2 y el lede del
-             sitio ya llevaban el recibo; este no, y era el único año de la
-             página que salía en seco. Es LA MISMA cadena en los tres sitios:
-             si cambia, cambia en los tres a la vez. */}
-        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
+        {/* EL TERCER SITIO DONDE SE LEE UN 2025. Este párrafo y el pie de la
+             captura dicen 2025, y ese año es de los cinco que sólo sostiene
+             la palabra de Jaime — Jasa Motor ni siquiera aparece en su
+             LinkedIn, así que aquí el recibo no es opcional. Va el corto,
+             por lo mismo que en el bloque del sitio. */}
+        <p class="meta-mono cifra-suya-marca">{anioCorto}</p>
         {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
              o la tienda en línea: una foto real o una captura» y ya hay
              captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
@@ -4009,9 +4081,54 @@ const cifrasFranja = c.franja.sitioQ
   .acad-fuentes li { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
   .acad-fuentes a { overflow-wrap: anywhere; }
   .acad-nota {
-    display: flex; flex-direction: column; gap: var(--sp-2);
     max-width: 720px; margin-top: var(--sp-5);
     padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya);
+  }
+  /* El contenido del plegable, separado de su resumen. Antes esto era el
+     `display: flex` del propio `.acad-nota`; con el `<details>` no puede
+     serlo — un `<details>` en flex deja de plegar en varios motores, que es
+     el primo del hallazgo del `<summary>` con `display` cambiado. */
+  .acad-nota > :not(summary) { margin-top: var(--sp-2); }
+
+  /* ---- EL PLEGABLE DE MATERIAL DE REFERENCIA ---------------------------
+     Para los bloques que son VERDAD y NO SON DE JAIME: los umbrales de
+     examen de dos universidades y los promedios que piden otras tres. Sigue
+     la receta del plegable de experiencia, que ya está probada, y hereda sus
+     dos reglas duras: el `<summary>` NO cambia su `display` (con
+     `inline-flex` encima, Safari deja de tratarlo como resumen y no abre),
+     y al imprimir sale ABIERTO — un CV impreso no tiene dónde hacer clic.
+     Se diferencia del de experiencia en el peso: aquel es el índice de un
+     capítulo entero y va entre filetes; este es una nota al pie y va sin
+     borde, para que no compita con lo que sí habla de él. */
+  .ref-plegable { max-width: 720px; }
+  /* El de la experiencia en formato de solicitud es más ancho que una nota
+     al pie: dentro va una rejilla de cinco bloques, no dos párrafos. */
+  .expapp-plegable { max-width: none; margin-top: var(--sp-5); }
+  .ref-ver { list-style: none; cursor: pointer; padding: var(--sp-2) 0; }
+  .ref-ver::-webkit-details-marker { display: none; }
+  .ref-ver-fila { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3); }
+  .ref-ver-txt { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
+  .ref-ver:hover .ref-ver-txt { color: var(--cvh-tinta-2); }
+  .ref-ver-pista { color: var(--cvh-tinta-2); }
+  .ref-flecha {
+    margin-left: auto; color: var(--cvh-tinta-2);
+    transition: transform var(--dur-2) var(--ease-std);
+  }
+  .ref-plegable[open] .ref-flecha { transform: rotate(180deg); }
+  /* AL IMPRIMIR, ABIERTO SIEMPRE. Dos reglas porque hay dos mecanismos según
+     el motor (el viejo esconde los hijos que no son el resumen; el nuevo
+     pone `content-visibility: hidden` en `::details-content`), y la segunda
+     va en su propio bloque con `@supports selector()`: un pseudo desconocido
+     dentro de una lista de selectores invalidaría la regla entera. Es
+     exactamente lo que hace `.exp-plegable`. */
+  @media print {
+    .ref-ver { display: none; }
+    .ref-plegable > :not(summary) { display: block !important; }
+  }
+  @supports selector(::details-content) {
+    @media print {
+      .ref-plegable::details-content { content-visibility: visible !important; }
+    }
   }
   .acad-huecos {
     display: grid;

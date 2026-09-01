@@ -90,6 +90,17 @@ const en = {
   // pública (Jasa Motor) el recibo dice que no hay con qué comparar, y no se
   // le pone un año de adorno ni se le quita el suyo.
   anioDisputa: 'The five 2025 dates on this page are my word: the student group, smartfinance.lat, Jasa Motor, the AEM assembly and the session with Jon Maier. My LinkedIn publishes the group as January 2026 and smartfinance.lat as February 2026; my posts about the AEM and about that session are from 2026; Jasa Motor has no published date to compare against. This page writes what I say and shows you the difference; it does not decide which one is right.',
+  // ── Y SE IMPRIME UNA VEZ, NO TRES (2026-09-01) ─────────────────────────
+  // El recibo de arriba salía ENTERO en los tres sitios donde se lee un
+  // 2025: la tabla de experiencia, el lede del sitio y el bloque de Jasa
+  // Motor. Son 78 palabras × 3 = 234, el 5 % de todo el texto del documento,
+  // diciendo tres veces lo mismo — y las tres veces la lista completa de las
+  // cinco fechas, aunque en dos de esos sitios sólo se lee UNA.
+  // Se queda entero DONDE ESTÁN LAS CINCO, que es la tabla de experiencia;
+  // en los otros dos va este renglón, que dice lo mismo que importa ahí —
+  // este año es palabra mía— y manda al recibo POR EL TÍTULO del capítulo,
+  // no por su número. Nada se esconde: lo que se quita es la repetición.
+  anioDisputaCorto: 'This 2025 is my word, not a published date. The receipt is in “{s}”.',
 
   // ---- Marca de hueco ----
   hueco: {
@@ -161,7 +172,7 @@ const en = {
        cambia y es la que se escribe ahora: el del cartel es de un tercero que
        no me lo dio para publicarlo; el de la carta lo escribió quien la firma
        en un documento que me dio para entregarlo. */
-    sol: 'A portrait of Sol — or a frame from the march videos. The one I sent from the stand is not published here: a phone number is legible on the sign and nobody gave it to me to publish.',
+    sol: 'A portrait of Sol, or a frame from the march videos. The one from the stand is not published here: a phone number is legible on the sign.',
     // YA NO SE USA (2026-08-31): la ficha de su carta enseña el cuadro de la
     // entrevista, que es lo que pidió el MAPA.md. Ver la nota de arriba.
     cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
@@ -569,7 +580,7 @@ const en = {
     h: 'I published a figure I had not measured',
     // Las dos cifras son las del documento, no redondeadas ni adornadas.
     que: 'Cleaning unused photos out of the build, I wrote that it saved 1.2 MB. Then I measured the files: 320,692 bytes — four times less. It was an estimate published as if it were a measurement.',
-    regla: 'Since then this project has a rule it did not have: a figure that gets published is measured, and it is published saying what baseline it was measured against. The three numbers above are counted by the build from the repository’s own files. That is what the rule looks like once it is code.',
+    regla: 'Since then the project has a rule: a figure that gets published is measured, and it says what baseline it was measured against. The three numbers above are counted by the build from the repository’s own files.',
     fuente: 'Written down the day it happened, in docs/context/lessons.md of this repository.'
   },
 
@@ -581,8 +592,12 @@ const en = {
     // como un dato en vivo: de dónde viene, que va con retraso, que se pide
     // al abrir y no continuamente, y que si el endpoint falla salen guiones.
     // Todo eso sigue; lo que se fue es la explicación de la caché.
-    note: 'From the site’s own endpoint, delayed — the chip says by how much — and asked for when you open this page, not continuously.',
-    fail: 'If it does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
+    // RECORTADO EL 2026-09-01: las dos frases decían tres veces «de dónde
+    // salen». El chip que va justo encima ya nombra la fuente y el retraso,
+    // así que aquí sólo queda lo que el chip no dice: cuándo se piden y qué
+    // pasa si no contestan.
+    note: 'Asked for when you open this page, not continuously.',
+    fail: 'If the endpoint does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
     price: 'Price',
     change: 'Change today',
     pending: '—',
@@ -649,7 +664,11 @@ const en = {
     // Su mandato fue «solo los siguientes», y estos son, en su orden. Los
     // clips de consejos que vivían aquí salieron de la sección; los tres que
     // ya eran enlaces de texto (`sinImagen`) se quedan como estaban.
-    ensenaLede: 'Six pieces I recorded myself, in the order I would show them. Four are videos served from this domain — with sound, and they only start when you press play. The last two are photo carousels on TikTok, so they link out.',
+    // RECORTADO EL 2026-09-01. Que los clips arranquen sólo al pulsar se ve
+    // en el propio control del vídeo, y que los dos últimos enlacen fuera lo
+    // dice su enlace. Se queda lo que no se ve: que los grabó él y en qué
+    // orden los enseñaría.
+    ensenaLede: 'Six pieces I recorded myself, in the order I would show them. The last two are photo carousels on TikTok, so they link out.',
     // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
     // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
     // ── LO ENTRECOMILLADO ES EL ORIGINAL, EN SU IDIOMA (2026-08-29) ──────
@@ -1115,8 +1134,20 @@ const en = {
     ingles: 'B2 First Certificate, Cambridge English. Grade C, overall score 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examination 19 November 2024.',
     inglesTag: 'From my own certificate',
     // El hecho, en primera persona y sin dramatismo: es un paso pendiente.
-    inglesFalta: 'It is not enough yet, and this page says so instead of leaving the row looking closed. The University of Toronto does not accept B2 First at any score; UBC does accept it, but from 180, and I have 163. So I have one more exam to sit.',
+    // RECORTADO EL 2026-09-01: sobraba la frase que explicaba que la página
+    // lo dice, que es una frase sobre la página y no sobre el examen. Los
+    // dos hechos y las dos cifras se quedan enteros.
+    inglesFalta: 'It is not enough yet. The University of Toronto does not accept B2 First at any score; UBC does, but from 180, and I have 163. So I have one more exam to sit.',
     fuentesH: 'Checked on 1 September 2026',
+    // ── EL RÓTULO DEL PLEGABLE DE REQUISITOS (2026-09-01) ────────────────
+    // Debajo de esto van 119 palabras de UMBRALES DE OTRAS UNIVERSIDADES:
+    // el 180 de Cambridge, los submínimos del TOEFL nuevo, el IELTS, el
+    // Duolingo, el PTE. Es material de trabajo para Jaime, verdadero y con
+    // su enlace, y no dice nada sobre él: lo que dice sobre él es el
+    // renglón de arriba («me falta un examen»), que se queda a la vista.
+    // Se pliega, no se borra: un comité que quiera comprobar el umbral lo
+    // abre. Al imprimir sale abierto, como el de experiencia.
+    fuentesVer: 'What the two universities publish',
     inglesFuentes: [
       {
         // EL TOEFL QUE ESTABA PUBLICADO AQUI ERA EL DEROGADO. U of T condiciona
@@ -1500,7 +1531,7 @@ const en = {
        explicando una ausencia en vez de presentando dos cartas. Lo que se
        queda es lo que sólo puede ir aquí: qué trae cada ficha, y la regla de
        que las citas van enteras. */
-    lede: 'Two have arrived, and everything they say is here: the record, the two lines that carry the most weight in each one, and the contact each signatory gave. I quote them whole and untouched — I cannot cut a line out of a signed letter without turning it into a different document.',
+    lede: 'Two have arrived. The record, the two lines that carry the most weight in each one, and the contact each signatory gave. I quote them untouched: a line cut out of a signed letter makes it a different document.',
     entregadasH: 'Delivered',
     faltanH: 'Room for more',
     citaTag: 'The two lines that carry the most weight',
@@ -1550,7 +1581,7 @@ const en = {
        escribe porque la decisión de esta ola es que se escriba; si él
        prefiere no comprometerse, se borra la segunda oración y la ficha
        vuelve a decir sólo dónde no está. */
-    pdfNo: 'Not on this page: the file carries {n}’s own contact details, and everything this page serves is public. I send the signed letter to anyone who asks me for it — my LinkedIn is at the end of this page.',
+    pdfNo: 'Not on this page: it carries {n}’s own contact details and everything this page serves is public. I send the signed letter to anyone who asks; my LinkedIn is at the end.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -1993,6 +2024,7 @@ const es: typeof en = {
   // Ver la nota de la tabla inglesa.
   // Ver la nota de la tabla inglesa: son las CINCO filas de 2025.
   anioDisputa: 'Las cinco fechas de 2025 de esta página son palabra mía: el grupo estudiantil, smartfinance.lat, Jasa Motor, la asamblea de la AEM y la sesión con Jon Maier. Mi LinkedIn publica el grupo como ene. 2026 y smartfinance.lat como feb. 2026; mis publicaciones sobre la AEM y sobre esa sesión son de 2026; Jasa Motor no tiene fecha publicada con la que comparar. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
+  anioDisputaCorto: 'Este 2025 es palabra mía, no una fecha publicada. El recibo está en «{s}».',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 
@@ -2005,7 +2037,7 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
-    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha. La que mandé del puesto no se publica aquí: en el cartel se lee un número de teléfono y nadie me lo dio para publicarlo.',
+    sol: 'Un retrato de Sol, o un cuadro de los vídeos de la marcha. La del puesto no se publica aquí: en el cartel se lee un número de teléfono.',
     cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
   },
   // Ver la nota de la tabla inglesa.
@@ -2144,14 +2176,14 @@ const es: typeof en = {
     tag: 'Lo que salió mal',
     h: 'Publiqué una cifra que no había medido',
     que: 'Limpiando del build las fotos que no se usaban, escribí que se ahorraban 1.2 MB. Después medí los archivos: 320 692 bytes, cuatro veces menos. Era una estimación publicada como si fuera una medición.',
-    regla: 'Desde entonces este proyecto tiene una regla que no tenía: una cifra que se publica se mide, y se publica diciendo contra qué línea base se midió. Las tres cifras de arriba las cuenta el build de los archivos del propio repositorio. Eso es la regla convertida en código.',
+    regla: 'Desde entonces el proyecto tiene una regla: una cifra que se publica se mide, y dice contra qué línea base se midió. Las tres cifras de arriba las cuenta el build de los archivos del propio repositorio.',
     fuente: 'Anotado el mismo día en docs/context/lessons.md de este repositorio.'
   },
 
   tape: {
     lede: 'Tres de los activos que sigue el sitio, pedidos al abrir esta página.',
-    note: 'Salen del endpoint del propio sitio, con retraso —el chip dice cuánto— y se piden al abrir esta página, no continuamente.',
-    fail: 'Si no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
+    note: 'Se piden al abrir esta página, no continuamente.',
+    fail: 'Si el endpoint no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
     price: 'Precio',
     change: 'Cambio de hoy',
     pending: '—',
@@ -2197,7 +2229,7 @@ const es: typeof en = {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
     ensenaH: 'Por qué grabo',
-    ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Cuatro son vídeos servidos desde este dominio — con sonido, y solo arrancan si le das a reproducir. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
+    ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
     videos: {
       jpmvisit: '«📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…» (en español: visitando J.P. Morgan en Singapur y aprendiendo más sobre las fin…) — la visita, contada a cámara',
       nus: '«Tuve la oportunidad de presentar sobre México a estudiantes de la National University of Singapore»',
@@ -2377,8 +2409,9 @@ const es: typeof en = {
     inglesH: 'Inglés',
     ingles: 'B2 First Certificate, Cambridge English. Grade C, puntaje global 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examen del 19 de noviembre de 2024.',
     inglesTag: 'De mi propio certificado',
-    inglesFalta: 'Todavía no alcanza, y esta página lo dice en vez de dejar el renglón como si estuviera cerrado. La University of Toronto no acepta el B2 First con ningún puntaje; UBC sí lo acepta, pero desde 180, y yo tengo 163. O sea que me falta presentar otro examen.',
+    inglesFalta: 'Todavía no alcanza. La University of Toronto no acepta el B2 First con ningún puntaje; UBC sí, pero desde 180, y yo tengo 163. O sea que me falta presentar otro examen.',
     fuentesH: 'Consultadas el 1 de septiembre de 2026',
+    fuentesVer: 'Lo que publican las dos universidades',
     inglesFuentes: [
       {
         que: [
@@ -2496,7 +2529,7 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Ya llegaron dos, y todo lo que dicen está aquí: la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio. Las cito enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
+    lede: 'Ya llegaron dos. La ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio. Las cito sin tocar: a una carta firmada, un renglón recortado la convierte en otro documento.',
     entregadasH: 'Entregadas',
     faltanH: 'Espacio para más',
     // Las dos cartas están escritas en inglés: en este panel las citas van
@@ -2504,7 +2537,7 @@ const es: typeof en = {
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
     contactoTag: 'Contacto que dio para preguntar por mí',
     pdfTag: 'La carta, tal cual',
-    pdfNo: 'No está en esta página: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. La carta firmada se la mando a quien me la pida — mi LinkedIn está al final de esta página.',
+    pdfNo: 'No está en esta página: trae los datos de contacto de {n} y todo lo que esta página sirve es público. La carta firmada se la mando a quien me la pida; mi LinkedIn está al final.',
     entregadas: [
       {
         nombre: 'Lloyd George',

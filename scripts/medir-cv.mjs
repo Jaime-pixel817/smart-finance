@@ -27,6 +27,15 @@
 // la misma con la que está escrito el objetivo de esta ola. Se dan las dos
 // porque un comité de admisiones hace las dos cosas: ojea el documento entero
 // y lee de verdad dos o tres bloques.
+//
+// PALABRAS «A LA VISTA» Y PALABRAS «PLEGADAS», Y SE DAN LAS DOS. Lo que vive
+// dentro de un `<details>` cerrado sigue en el DOM y con caja —no basta con
+// mirar `display`, hay que preguntar por el `open` del ancestro—, pero un
+// lector que ojea no lo abre. Contarlo como si se leyera infla el minutaje;
+// no contarlo y callarlo convierte plegar en un truco para que baje una
+// cifra. Así que la cuenta que manda es la de A LA VISTA, y al lado va
+// siempre cuánto hay detrás de un clic. El `<summary>` cuenta como visible,
+// porque se lee siempre.
 import { chromium } from 'playwright';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -94,8 +103,20 @@ for (const [w, h] of ANCHOS) {
         if (cs.display === 'none' || cs.visibility === 'hidden') return false;
         return el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0;
       };
+      // ¿Está este texto dentro de un `<details>` CERRADO? Un `<details>`
+      // plegado sigue teniendo su contenido en el DOM y con caja: no vale
+      // preguntar por `display`. Se pregunta por el `open` del ancestro.
+      // NO se descarta el `<summary>`, que sí se lee siempre.
+      const plegado = (el) => {
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+          const d = n.parentElement;
+          if (d && d.tagName === 'DETAILS' && !d.open && n.tagName !== 'SUMMARY') return true;
+        }
+        return false;
+      };
+      // Devuelve [palabras a la vista, palabras plegadas].
       const palabras = (nodo) => {
-        let n = 0;
+        let vistas = 0, dobladas = 0;
         const it = document.createTreeWalker(nodo, NodeFilter.SHOW_TEXT);
         let x;
         while ((x = it.nextNode())) {
@@ -104,9 +125,11 @@ for (const [w, h] of ANCHOS) {
           if (p.closest('script,style,noscript,template,[hidden],.visually-hidden')) continue;
           if (!seVe(p)) continue;
           const t = x.textContent.trim();
-          if (t) n += t.split(/\s+/).filter(Boolean).length;
+          if (!t) continue;
+          const n = t.split(/\s+/).filter(Boolean).length;
+          if (plegado(p)) dobladas += n; else vistas += n;
         }
-        return n;
+        return [vistas, dobladas];
       };
 
       const hitos = {};
@@ -125,13 +148,15 @@ for (const [w, h] of ANCHOS) {
       pon('· certificaciones', panel.querySelector('.certs'));
       pon('· contratiempo', panel.querySelector('.leccion-medida'));
 
-      return { alto, palabras: palabras(panel), hitos };
+      const [vistas, plegadas] = palabras(panel);
+      return { alto, palabras: vistas, plegadas, hitos };
     }, idioma);
 
     salida.medidas[`${w}x${h} ${idioma}`] = {
       altoPx: m.alto,
       pantallas: +(m.alto / h).toFixed(1),
       palabras: m.palabras,
+      plegadas: m.plegadas,
       minLectura: +(m.palabras / PPM_LECTURA).toFixed(1),
       minOjeada: +(m.palabras / PPM_OJEADA).toFixed(1),
       hitos: m.hitos
@@ -149,7 +174,8 @@ if (process.argv.includes('--json')) {
   console.log(`CV ${RUTA} — ${PPM_LECTURA} ppm leyendo · ${PPM_OJEADA} ppm ojeando\n`);
   for (const [k, v] of Object.entries(salida.medidas)) {
     console.log(`${k.padEnd(14)} ${String(v.altoPx).padStart(6)} px = ${String(v.pantallas).padStart(5)} pantallas · ` +
-      `${String(v.palabras).padStart(5)} palabras · ${v.minLectura} min leyendo · ${v.minOjeada} min ojeando`);
+      `${String(v.palabras).padStart(5)} palabras a la vista (+${String(v.plegadas).padStart(4)} plegadas) · ` +
+      `${v.minLectura} min leyendo · ${v.minOjeada} min ojeando`);
   }
   const ref = salida.medidas['1440x900 en'];
   console.log('\nDónde cae cada cosa (1440x900, inglés):');
