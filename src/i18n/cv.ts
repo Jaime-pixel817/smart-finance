@@ -286,12 +286,20 @@ const en = {
   // después las certificaciones, y al final la frase. Ver la cabecera de
   // Historia.astro para qué se movió de dónde.
   //
-  // El 1 lleva su nombre como titular (el título de aquí solo sale en el
-  // índice) y el 9 es la frase final.
+  // El PRIMERO lleva su nombre como titular (el título de aquí solo sale en
+  // el índice) y el ÚLTIMO es la frase final.
   // JAIME PIDIÓ FUSIONAR (brief del 2026-08-28) los capítulos de las
   // conversaciones y del canal: primero las conversaciones, después el
-  // teaching, en UN capítulo (c4). El hueco que deja lo ocupa la sección
-  // nueva de cartas de recomendación (c8), después de las certificaciones.
+  // teaching, en UN capítulo.
+  //
+  // ── LAS CLAVES SON NOMBRES, NO NÚMEROS (2026-09-01) ───────────────────
+  // Eran `c1`…`c11`, o sea la POSICIÓN. Con eso, mover un capítulo dejaba
+  // `c10` significando otra cosa en cinco sitios —el índice, la marca de
+  // «esto lo firma un tercero», tres rótulos accesibles de la franja y la
+  // fuente del premio— y ninguno se quejaba, porque `c10` seguía existiendo.
+  // El orden vive AHORA en un solo sitio: la lista `capitulos` de
+  // Historia.astro, con los bloques JSX en ese mismo orden. Aquí sólo viven
+  // los títulos.
   // ── DE NUEVE A ONCE, Y UN CAPÍTULO SE MOVIÓ (ola 2, 2026-08-31) ────────
   // Entran DOS capítulos nuevos y ninguno inventa nada:
   //  · c3 «School, grades and English» — el CV no tenía UN SOLO dato
@@ -302,7 +310,14 @@ const en = {
   //    certificados (que son cursos) y cero competencias, y el único premio
   //    estaba enterrado en el capítulo de las cartas.
   //
-  // Y «Everyone brings something» BAJA del 4 al 6, detrás de los proyectos.
+  // ── Y LAS CARTAS Y LOS PREMIOS SUBEN AL 3 Y AL 4 (2026-09-01) ─────────
+  // Estaban en el 10 y el 9: medido sobre la página pintada, la primera
+  // carta firmada por un CEO empezaba en el 88.7 % del documento. Las cuatro
+  // razones de por qué van justo ahí —y no antes de experiencia, ni después
+  // de los proyectos— están en la cabecera de `capitulos` en Historia.astro,
+  // con los números.
+  //
+  // Y «Everyone brings something» BAJA detrás de los proyectos.
   // Es el capítulo con DIEZ de los quince huecos de texto de la página, y
   // era la quinta pantalla. El orden que pidió Jaime el 2026-08-27 ponía su
   // canal DESPUÉS de los proyectos («luego mis proyectos y arrancas con el
@@ -313,17 +328,17 @@ const en = {
   // Historia.astro y el orden de los bloques JSX. Si Jaime lo quiere arriba,
   // vuelve arriba.
   caps: {
-    c1: 'I opened my eyes',
-    c2: 'Experience',
-    c3: 'School, grades and English',
-    c4: 'Serving',
-    c5: 'My projects',
-    c6: 'Everyone brings something',
-    c7: 'Reto Actinver and private equity',
-    c8: 'Certifications',
-    c9: 'Awards',
-    c10: 'Recommendation letters',
-    c11: 'The sentence'
+    abro: 'I opened my eyes',
+    experiencias: 'Experience',
+    academico: 'School, grades and English',
+    voluntariados: 'Serving',
+    proyectos: 'My projects',
+    conversaciones: 'Everyone brings something',
+    retoPe: 'Reto Actinver and private equity',
+    certificaciones: 'Certifications',
+    premios: 'Awards',
+    cartas: 'Recommendation letters',
+    frase: 'The sentence'
   },
 
   // ---- Capítulo 1: portada ----
@@ -2049,17 +2064,17 @@ const es: typeof en = {
   // Ver la nota larga de la tabla inglesa: dos capítulos nuevos (c3 y c9) y
   // «Cada quien trae algo» baja del 4 al 6.
   caps: {
-    c1: 'Abrí los ojos',
-    c2: 'Experiencias',
-    c3: 'Escuela, calificaciones e inglés',
-    c4: 'Servir',
-    c5: 'Mis proyectos',
-    c6: 'Cada quien trae algo',
-    c7: 'Reto Actinver y private equity',
-    c8: 'Certificaciones',
-    c9: 'Premios',
-    c10: 'Cartas de recomendación',
-    c11: 'La frase'
+    abro: 'Abrí los ojos',
+    experiencias: 'Experiencias',
+    academico: 'Escuela, calificaciones e inglés',
+    voluntariados: 'Servir',
+    proyectos: 'Mis proyectos',
+    conversaciones: 'Cada quien trae algo',
+    retoPe: 'Reto Actinver y private equity',
+    certificaciones: 'Certificaciones',
+    premios: 'Premios',
+    cartas: 'Cartas de recomendación',
+    frase: 'La frase'
   },
 
   head: {

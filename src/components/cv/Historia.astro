@@ -364,16 +364,63 @@ const citas = [
 // escribirse, que es como "01 / 11" sobrevivió a un capítulo de menos en la
 // versión anterior de este archivo hasta que alguien lo vio.
 // ── ONCE, Y UNO SE MOVIÓ (ola 2, 2026-08-31) ────────────────────────────
-// Entran «School, grades and English» (3) y «Awards» (9) —los dos porque una
+// Entran «School, grades and English» y «Awards» —los dos porque una
 // solicitud los pide y este CV no los tenía— y «Everyone brings something»
-// baja del 4 al 6, detrás de los proyectos: es el capítulo con DIEZ de los
-// quince huecos de texto de la página y era la quinta pantalla. El porqué
-// entero, con la cita del mensaje de Jaime que sostiene el orden, está en
-// `caps` de src/i18n/cv.ts. ESTE ARRAY Y EL ORDEN DE LOS BLOQUES DE ABAJO
-// SON LAS DOS ÚNICAS COSAS QUE HAY QUE TOCAR PARA DESHACERLO.
+// baja detrás de los proyectos: es el capítulo con DIEZ de los quince huecos
+// de texto de la página y era la quinta pantalla.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LAS CARTAS Y LOS PREMIOS SUBEN AL 3 Y AL 4 (2026-09-01), Y ESTÁ MEDIDO
+// ═══════════════════════════════════════════════════════════════════════════
+// Estaban en el 10 y el 9. Medido sobre la página pintada a 1440×900 con
+// `node scripts/medir-cv.mjs`: la PRIMERA carta firmada por un CEO empezaba
+// en el 88.7 % del documento y el premio en el 84.1 %. Con 4 a 9 minutos por
+// perfil, eso no es «al final», es «no existe»: nadie llega.
+//
+// POR QUÉ JUSTO AHÍ, Y NO EN OTRO SITIO. Cuatro razones, de más a menos peso:
+//
+//  1. SON LOS DOS ÚNICOS CAPÍTULOS QUE NO ESCRIBIÓ ÉL. Todo lo demás de esta
+//     página es palabra de Jaime más recibos que el build cuenta. Dos CEOs
+//     firmando es lo más escaso que hay aquí, y lo escaso no va al final.
+//  2. VAN PEGADOS A LO QUE CONFIRMAN. Las cartas verifican seis hechos que
+//     el capítulo 2 acaba de listar (que fundó el grupo, que organizó él las
+//     entrevistas de Singapur, la limpieza de playa, los tres idiomas). Una
+//     confirmación impresa ocho capítulos después de su afirmación no
+//     confirma nada que el lector siga recordando. Por eso van DESPUÉS de
+//     experiencia y no antes: sin la lista delante, «Lloyd George, CEO de
+//     TAQ» no tiene de qué responder.
+//  3. LAS CARTAS ANTES QUE LOS PREMIOS. La única fuente del premio del
+//     GreenTech Summit es la carta de Lloyd George, y su tarjeta lo dice
+//     citando este capítulo por su título. Con las cartas delante, esa cita
+//     apunta hacia atrás, que es como se cita; al revés, el lector leía la
+//     referencia a un documento que todavía no había visto.
+//  4. Y VAN ANTES DE LA FRANJA DE CIFRAS del capítulo de los proyectos, que
+//     es la otra prueba de la página: así las dos clases de prueba llegan en
+//     orden creciente de facilidad para falsificarlas — primero la firma de
+//     otro, después lo que cuenta un build, y sólo entonces la palabra de
+//     Jaime. La franja de arriba ya enlazaba las dos piezas antes de bajar;
+//     ahora el enlace cae a tres pantallas, no a treinta.
+//
+// DE MAQUETACIÓN NO CUESTA NADA, y eso lo decide la especificación de
+// escritorio: sus dos capítulos son rejillas de tarjetas, o sea contenido de
+// la pista `marco` (≤ 1320 px), igual que sus vecinos nuevos —la tabla de
+// experiencia y la del expediente académico—. Cambian de sitio dentro de la
+// misma pista y el ojo no cambia de ritmo.
+//
+// LA REFERENCIA HACE LO MISMO, UN NIVEL MÁS ARRIBA: en ondo.finance la banda
+// de logos —su prueba de terceros— va a 136 px del BORDE INFERIOR de la
+// primera pantalla, al 94-96 % de su alto. Su primera pantalla se cierra con
+// nombres ajenos. Aquí el equivalente de esa banda son dos cartas firmadas.
+//
+// ESTE ARRAY Y EL ORDEN DE LOS BLOQUES DE ABAJO SON LAS DOS ÚNICAS COSAS QUE
+// HAY QUE TOCAR PARA DESHACERLO. Las claves de `caps` son NOMBRES y no
+// números desde hoy (`c.caps.cartas`, no `c.caps.c10`) justo por esto: con
+// claves posicionales, mover un capítulo dejaba `c10` significando otra cosa
+// en cinco sitios y ninguno se quejaba.
 const capitulos = [
-  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4, c.caps.c5, c.caps.c6,
-  c.caps.c7, c.caps.c8, c.caps.c9, c.caps.c10, c.caps.c11
+  c.caps.abro, c.caps.experiencias, c.caps.cartas, c.caps.premios, c.caps.academico,
+  c.caps.voluntariados, c.caps.proyectos, c.caps.conversaciones, c.caps.retoPe,
+  c.caps.certificaciones, c.caps.frase
 ];
 // Los DOS lados van con dos dígitos («01 / 09», no «01 / 9»): con el índice
 // relleno y el total a pelo, el rótulo cambiaba de forma según el lado
@@ -390,7 +437,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capit
 // deja muerta a la siguiente, que es el bug del índice que ya costó una
 // tarde (ver la cabecera de Cv.astro).
 const fuenteCarta = (quien: string) =>
-  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.c10);
+  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.cartas);
 
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
@@ -761,29 +808,29 @@ const cifrasFranja = c.franja.sitioQ
            huecos: si no, cada pieza se anunciaría dos veces. */}
       <ul class="franja" aria-label={c.franja.tag}>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-8`}
-            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.c8)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-10`}
+            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.certificaciones)}`}>
             <span class="franja-n" aria-hidden="true">{c.certs.filas.length}</span>
             <span class="franja-q" aria-hidden="true">{certsFranja}</span>
           </a>
         </li>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-10`}
-            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.ir.replace('{s}', c.caps.c10)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-3`}
+            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.ir.replace('{s}', c.caps.cartas)}`}>
             <span class="franja-n" aria-hidden="true">{c.cartas.entregadas.length}</span>
             <span class="franja-q" aria-hidden="true">{c.franja.cartasQ}</span>
           </a>
         </li>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-5`}
-            aria-label={`${c.franja.sitioN} — ${cifrasFranja} — ${c.franja.ir.replace('{s}', c.caps.c5)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-7`}
+            aria-label={`${c.franja.sitioN} — ${cifrasFranja} — ${c.franja.ir.replace('{s}', c.caps.proyectos)}`}>
             <span class="franja-n franja-n-txt" aria-hidden="true">{c.franja.sitioN}</span>
             <span class="franja-q" aria-hidden="true">{cifrasFranja}</span>
           </a>
         </li>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-9`}
-            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.ir.replace('{s}', c.caps.c9)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-4`}
+            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.ir.replace('{s}', c.caps.premios)}`}>
             <span class="franja-n" aria-hidden="true">{c.premios.entregados.length}</span>
             <span class="franja-q" aria-hidden="true">{c.franja.premiosQ}</span>
           </a>
@@ -955,7 +1002,7 @@ const cifrasFranja = c.franja.sitioQ
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
-    <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.c2}</h2>
+    <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.experiencias}</h2>
     <p class="cap-lede">{c.exp.lede}</p>
     <details class="exp-plegable" open>
       {/* La cuenta sale de la lista, no está escrita: una fila nueva la
@@ -1043,7 +1090,251 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 03 · Escuela, calificaciones e inglés — EL RENGLÓN ACADÉMICO ═══
+  {/* ════ 03 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
+       La sección nació vacía (brief del 2026-08-28) con tres recuadros
+       marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
+       dos mitades: las entregadas, con su ficha y una cita corta de la
+       carta, y los recuadros de las que faltan, que se quedan porque Jaime
+       dijo «todavía faltan varias, ahí vamos».
+
+       LOS PDF SIGUEN SIN PUBLICARSE. Va la ficha —quién, cargo, empresa,
+       relación, año—, DOS frases verbatim y el contacto que el propio
+       firmante ofreció. El hueco del programa de Singapur ya no está: las
+       dos cartas que llegaron son justo de ahí.
+
+       CAMBIO DEL 2026-08-30 (Jaime): «en recommendation no pongas las de "to
+       comey", solo pon las 2 frases más importantes de cada una y sus
+       contactos directos también que proporcionaron». Lo de «to comey» es el
+       encabezado «To the Admissions Committee» con el que ABREN las dos
+       cartas — y NUNCA estuvo en esta página: se buscó la cadena en el CV
+       entero y solo vive dentro de los PDF, que no se publican. O sea que no
+       había nada que quitar, y lo que sí cambia es lo otro: de UNA cita se
+       pasa a DOS por carta, y aparece el correo.
+
+       EL CORREO SÍ, EL TELÉFONO NO. Los dos correos son de trabajo (el buzón
+       de consultas de TAQ y el dominio de Bluesky Education); el teléfono
+       personal que trae la carta de Lloyd George se queda fuera. Por qué, y
+       cómo revertirlo si Jaime quiere, está escrito en src/i18n/cv.ts sobre
+       `cartas` — junto con la razón de que el `mailto:` vaya a pelo.
+
+       Las citas son de un TERCERO, no de Jaime, así que no llevan la marca
+       de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
+  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
+    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(2)}</p>
+    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.cartas}</h2>
+    <p class="cap-lede">{c.cartas.lede}</p>
+
+    <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
+    <div class="cartas">
+      {c.cartas.entregadas.map((k) => (
+        <article class="carta">
+          <p class="carta-nombre">{k.nombre}</p>
+          <p class="etiqueta">{k.cargo}</p>
+          <p class="carta-donde pie">{k.donde}</p>
+          <p class="carta-anio num">{k.anio}</p>
+          <p class="carta-relacion">{k.relacion}</p>
+          {/* DOS FRASES por carta, verbatim (Jaime, 2026-08-30: «solo pon las
+               2 frases más importantes de cada una»). Un solo <figure> con
+               las dos citas dentro y UN solo <figcaption>: son dos frases de
+               la MISMA carta y de la misma persona, así que repetir la
+               atribución debajo de cada una sería leerlo dos veces. */}
+          <figure class="carta-cita">
+            <p class="meta-mono carta-cita-tag">{c.cartas.citaTag}</p>
+            {k.citas.map((cita) => (
+              <blockquote><p>{'“' + cita + '”'}</p></blockquote>
+            ))}
+            <figcaption class="pie">— <cite>{k.nombre}</cite></figcaption>
+          </figure>
+          {/* EL CONTACTO QUE DIO ÉL MISMO. `mailto:` a pelo y sin truco
+               anti-scraping: la razón entera está en src/i18n/cv.ts, sobre
+               `cartas`. El teléfono que trae una de las cartas NO se publica,
+               y también está escrito allí por qué. */}
+          <p class="carta-contacto">
+            <span class="meta-mono carta-contacto-tag">{c.cartas.contactoTag}</span>
+            <a class="hist-link" href={`mailto:${k.correo}`}>{k.correo}</a>
+          </p>
+          {/* LA FOTO CON QUIEN FIRMA. La de Lloyd George es la 1 del lote del
+               2026-08-30 y ya está puesta. La de Andy Toh NO EXISTE: el lote
+               son 13 archivos y ninguno es Jaime con él, así que ahí sigue el
+               hueco diciendo a quién espera (`k.foto` es la clave del texto
+               del hueco, no un archivo). Este comentario decía que la carpeta
+               del lote «aún no existe» y era falso. */}
+          {/* ══ LA CARTA FIRMADA, COMO ARCHIVO (Jaime, 2026-08-31) ══════════
+               Textual: «sube en cada carta de recomendación el archivo de la
+               carta». Los dos PDF viajan ENTEROS y byte a byte iguales a los
+               que él recibió (comprobado con sha256 contra
+               cv-material/cartas/): un documento firmado al que se le recorta
+               un renglón deja de ser el documento que se firmó, y un comité
+               que note el recorte tiene razón en desconfiar. La carta de
+               Lloyd George trae su teléfono personal y NO se toca; Jaime
+               asume que quien tenga la dirección de esta página lo verá, y la
+               dirección de esta página es su credencial (CV_SLUG, noindex,
+               fuera del sitemap y del buscador). La nota que decía lo
+               contrario (cv-material/cartas/CARTAS.md, 2026-08-29) queda
+               revocada y allí está anotado.
+
+               ── EL ENLACE SE RETIRÓ EL 2026-09-01, Y EL MOTIVO IMPORTA ────
+               Los dos PDF se servían en `/assets/cv/carta-*.pdf`. Esa ruta es
+               FIJA y NO pasa por `CV_SLUG`: el `noindex`/`no-referrer` del
+               `<head>` protege la PÁGINA, no un archivo estático que se pide
+               directo. Y peor: `public/` se commitea, este repositorio es
+               PÚBLICO, y los dos archivos estaban empujados en él —
+               comprobado con una descarga anónima a raw.githubusercontent.com
+               que devolvía 200 y los 374 826 bytes.
+
+               Jaime SÍ autorizó publicarlos («sube en cada carta de
+               recomendación el archivo de la carta»), pero con un alcance
+               escrito: «quien tenga el enlace del CV ve el teléfono de Lloyd
+               George» (NOTAS-DEL-BRIEF.md, 2026-08-31). Ese alcance no se
+               puede construir con un repositorio público: el sitio es
+               estático y Vercel sirve lo que hay en el repo, así que
+               cualquier archivo que esta página entregue lo puede bajar
+               cualquiera, no solo quien reciba la dirección. El permiso se
+               dio sobre una protección que no existe, y son datos de
+               TERCEROS: las dos cartas van dirigidas «To the Admissions
+               Committee» y llevan el móvil personal de un firmante, los dos
+               correos y la dirección registrada de una empresa.
+
+               Así que el archivo sale de la página y del repo hasta que Jaime
+               decida con el alcance real delante (las tres opciones y la
+               pregunta exacta están en el informe de esta ola). Lo demás de
+               la carta se queda: la ficha entera, las dos citas verbatim, el
+               contacto que el propio firmante escribió y su foto. Los
+               originales siguen en cv-material/cartas/, fuera del repo.
+               PARA VOLVER A PONERLO hacen falta las dos cosas a la vez: el
+               archivo y una forma de servirlo que no sea pública. */}
+          <p class="carta-pdf">
+            <span class="meta-mono carta-contacto-tag">{c.cartas.pdfTag}</span>
+            <span class="carta-pdf-no">{c.cartas.pdfNo.replace('{n}', k.nombre)}</span>
+          </p>
+          {k.lote === 'lloyd' ? (
+            <figure class="lote-fig">
+              <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" height="996" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
+            </figure>
+          ) : k.lote === 'andy' ? (
+            <figure class="lote-fig">
+              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
+            </figure>
+          ) : null}
+          {/* LA RAMA DEL HUECO DE FOTO SE FUE, Y NO POR GUSTO: desde que las
+               DOS cartas tienen foto, `foto` vale `null` en las dos y
+               TypeScript estrecha el tipo a `never` — `astro check` daba tres
+               errores sobre una rama que ya no se podía alcanzar. Si algún
+               día llega una tercera carta sin foto, se vuelve a poner
+               `foto: 'clave'` en cv.ts y aquí el `: k.foto ? <FotoHueco … />`
+               que había. El texto del hueco (`fotosPend.cartaAndy`) sigue
+               escrito para eso. */}
+        </article>
+      ))}
+    </div>
+
+    {/* ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
+         Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime y que
+         ahora firma un tercero. Cada renglón dice QUIÉN lo firma: «un
+         tercero» a secas no es una fuente. En los sitios del CV donde esos
+         hechos ya estaban dichos con su voz hay una línea apuntando aquí.
+
+         EL PREMIO YA NO ESTÁ AQUÍ (2026-08-31): tiene capítulo propio
+         («Premios»), porque Ivey los evalúa en sección aparte y porque
+         enterrado al final de este capítulo no lo veía nadie. Lo que se
+         queda es la última línea de la lista de arriba, que es otra cosa: no
+         es el premio, es lo que Andy Toh firma sobre su trabajo en el Green
+         Tech Youth Summit. */}
+    <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
+    <p class="cap-lede">{c.cartas.verificaLede}</p>
+    {/* EL RÓTULO SOLO SALE EN ESPAÑOL (en inglés la cadena va vacía): en ese
+         panel las tres citas son inglés dentro de un párrafo español, y las
+         cuatro citas largas de las cartas sí avisan de que están traducidas.
+         Sin este renglón, el mismo capítulo traduce unas frases y deja otras
+         en inglés sin decir por qué. */}
+    {c.cartas.verificaCitaTag && <p class="meta-mono">{c.cartas.verificaCitaTag}</p>}
+    <ul class="verifica">
+      {c.cartas.verifica.map((v) => (
+        <li class="verifica-fila">
+          {/* LA CITA VA EN `lang="en"`. Es la frase literal de la carta, y en
+               el panel español es inglés metido en un párrafo en español: sin
+               la marca, un lector de pantalla la pronuncia con fonemas
+               españoles («entirely on his own steam» leído en español no se
+               entiende). Las comillas las pone el panel, no la cadena, porque
+               son puntuación del idioma que las rodea: « » en español y “ ”
+               en inglés. */}
+          <p>{v.que}{v.cita && (
+            <>{' '}{locale === 'es' ? '«' : '“'}<span lang="en">{v.cita}</span>{locale === 'es' ? '»' : '”'}.</>
+          )}</p>
+          <p class="meta-mono fuente-carta">{v.quien}</p>
+        </li>
+      ))}
+    </ul>
+    <h3 class="t-h3 cartas-h">{c.cartas.faltanH}</h3>
+    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
+    <div class="cartas">
+      {c.cartas.slots.map((pista) => (
+        <div class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
+          <p class="carta-tag" aria-hidden="true">{c.cartas.tag}</p>
+          <p class="carta-pista" aria-hidden="true">{pista}</p>
+          <p class="carta-campos meta-mono">{c.cartas.campos}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {/* ════ 04 · Premios — SECCIÓN PROPIA ══════════════════════════════════
+       CAPÍTULO NUEVO (ola 2, 2026-08-31). Ivey evalúa los premios en una
+       sección aparte y admite explícitamente premios no académicos, y en
+       este CV esa sección no existía: había siete certificados —que son
+       CURSOS COMPLETADOS, no competencias ganadas— y el único premio estaba
+       enterrado al final del capítulo de las cartas, en un recuadro que
+       gastaba 44 palabras en el descargo y 19 en el hecho.
+
+       LA PROPORCIÓN SE INVIERTE, EL DESCARGO SE QUEDA. Que la única fuente
+       sea una carta ajena es verdad y se dice — una vez, en mono, como todos
+       los recibos de esta página — pero deja de pesar el doble que el premio.
+       El hecho manda; la marca lo acompaña, y además enlaza a la carta POR
+       SU TÍTULO y no por su número, como `fuenteCarta`.
+
+       NO SE INVENTA NINGÚN PREMIO. Hay uno. El hueco de abajo dice que hay
+       sitio para más sin nombrar a nadie que no lo haya dado: es la misma
+       regla que dejó las cartas con un solo recuadro (2026-08-31). */}
+  <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
+    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(3)}</p>
+    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.premios}</h2>
+    <p class="cap-lede">{c.premios.lede}</p>
+
+    <h3 class="t-h3">{c.premios.entregadosH}</h3>
+    <ul class="premios">
+      {c.premios.entregados.map((x) => (
+        <li class="premio">
+          <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
+          <p class="premio-que">{x.que}</p>
+          <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.cartas)}</p>
+          <p class="pie">{x.nota}</p>
+        </li>
+      ))}
+    </ul>
+    {/* El documento del premio no existe todavía: la única fuente es la
+         carta. Se dice dónde falta con el mismo hueco de foto que usan los
+         certificados, no con una frase escondida. */}
+    <FotoHueco c={c} que={c.premios.docPend} ratio="4 / 3" class="premio-doc" />
+
+    <h3 class="t-h3">{c.premios.faltanH}</h3>
+    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe en las cartas) y este recuadro es una nota. */}
+    <div class="premios-huecos">
+      <div class="carta-hueco" role="note" aria-label={`${c.premios.tag}: ${c.premios.slot}`}>
+        <p class="carta-tag" aria-hidden="true">{c.premios.tag}</p>
+        <p class="carta-pista" aria-hidden="true">{c.premios.slot}</p>
+        <p class="carta-campos meta-mono">{c.premios.campos}</p>
+      </div>
+    </div>
+
+  </section>
+
+  {/* ════ 05 · Escuela, calificaciones e inglés — EL RENGLÓN ACADÉMICO ═══
        CAPÍTULO NUEVO (ola 2, 2026-08-31). Hasta hoy este CV no tenía UN SOLO
        dato académico —ni promedio, ni cálculo, ni idioma en pantalla— y es lo
        primero que pregunta cualquier solicitud. Un silencio en ese renglón no
@@ -1065,10 +1356,10 @@ const cifrasFranja = c.franja.sitioQ
 
        EL BLOQUE VA EN CASTA 3 (no se mueve), como la lista seca y los
        certificados: son los renglones que un comité escanea. */}
-  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
-    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(2)}</p>
-    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
+  <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
+    <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(4)}</p>
+    <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.academico}</h2>
     <p class="cap-lede">{c.acad.lede}</p>
 
     <div class="acad">
@@ -1143,16 +1434,16 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 04 · Servir — los voluntariados ════════════════════════════════
+  {/* ════ 06 · Servir — los voluntariados ════════════════════════════════
        "Experiencias, voluntariados": van pegados, en ese orden.
        EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
        (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
        voluntariados de su frase: los animalitos y las playas. La comunidad
        sigue nombrada en su cita, que es verbatim y no se toca. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-4-h`}>
-    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(3)}</p>
-    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.voluntariados}</h2>
     {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
 
@@ -1257,7 +1548,7 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
+  {/* ════ 07 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
        "luego mis proyectos y arrancas con el grupo estudiantil": el orden de
        dentro del capítulo lo pidió él, y el grupo abre porque es lo que
        fundó y preside. Después, smartfinance.lat con la prueba viva.
@@ -1268,10 +1559,10 @@ const cifrasFranja = c.franja.sitioQ
        MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
        cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
        está mirando y no pide el ojo —, así que no compiten. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
-    <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(4)}</p>
-    <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.c5}</h2>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
+    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.proyectos}</h2>
 
     <div class="bloques">
       <div class="bloque">
@@ -1574,7 +1865,7 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 06 · Cada quien trae algo — las conversaciones ═════════════════
+  {/* ════ 08 · Cada quien trae algo — las conversaciones ═════════════════
        El "etc" de "experiencias, voluntariados, etc": la gente con la que
        habló es una experiencia más, y va con ellas, antes de los proyectos.
 
@@ -1599,10 +1890,10 @@ const cifrasFranja = c.franja.sitioQ
        de aquí lo está respaldando.
 
        La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
-    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(5)}</p>
-    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-8-h`}>
+    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.conversaciones}</h2>
     {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
     {/* La frase que impide que este capítulo se lea como una lista de avales.
@@ -1761,7 +2052,7 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 07 · Reto Actinver y private equity — A LA PAR ═════════════════
+  {/* ════ 09 · Reto Actinver y private equity — A LA PAR ═════════════════
        Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
        par del de private equity». A la par NO es uno detrás de otro, así que
        no son dos capítulos: es uno con dos mitades que se leen juntas —
@@ -1774,10 +2065,10 @@ const cifrasFranja = c.franja.sitioQ
        cartera del concurso del mismo archivo que lee la página pública, y la
        tarjeta del reporte de loadReport. El logo va con las reglas del repo:
        pequeño, placa oscura, y la línea de no afiliación. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
-    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(6)}</p>
-    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-9-h`}>
+    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(8)}</p>
+    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.retoPe}</h2>
 
     <div class="par">
       {/* ── Mitad 1: el reto ── */}
@@ -1900,11 +2191,11 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 08 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
-  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
-    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(7)}</p>
-    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
+  {/* ════ 10 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
+  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
+    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(9)}</p>
+    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.certificaciones}</h2>
     <p class="cap-lede">{c.certs.lede}</p>
     {/* ══ LAS SIETE TARJETAS, CON SU IMAGEN Y SU ID (cosecha 2026-08-29) ══
          La tarjeta sigue siendo una tarjeta diseñada —emisor arriba, nombre,
@@ -2000,257 +2291,13 @@ const cifrasFranja = c.franja.sitioQ
 
   </section>
 
-  {/* ════ 09 · Premios — SECCIÓN PROPIA ══════════════════════════════════
-       CAPÍTULO NUEVO (ola 2, 2026-08-31). Ivey evalúa los premios en una
-       sección aparte y admite explícitamente premios no académicos, y en
-       este CV esa sección no existía: había siete certificados —que son
-       CURSOS COMPLETADOS, no competencias ganadas— y el único premio estaba
-       enterrado al final del capítulo de las cartas, en un recuadro que
-       gastaba 44 palabras en el descargo y 19 en el hecho.
-
-       LA PROPORCIÓN SE INVIERTE, EL DESCARGO SE QUEDA. Que la única fuente
-       sea una carta ajena es verdad y se dice — una vez, en mono, como todos
-       los recibos de esta página — pero deja de pesar el doble que el premio.
-       El hecho manda; la marca lo acompaña, y además enlaza a la carta POR
-       SU TÍTULO y no por su número, como `fuenteCarta`.
-
-       NO SE INVENTA NINGÚN PREMIO. Hay uno. El hueco de abajo dice que hay
-       sitio para más sin nombrar a nadie que no lo haya dado: es la misma
-       regla que dejó las cartas con un solo recuadro (2026-08-31). */}
-  <section class="cap" aria-labelledby={`${p}-cap-9-h`}>
-    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(8)}</p>
-    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
-    <p class="cap-lede">{c.premios.lede}</p>
-
-    <h3 class="t-h3">{c.premios.entregadosH}</h3>
-    <ul class="premios">
-      {c.premios.entregados.map((x) => (
-        <li class="premio">
-          <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
-          <p class="premio-que">{x.que}</p>
-          <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.c10)}</p>
-          <p class="pie">{x.nota}</p>
-        </li>
-      ))}
-    </ul>
-    {/* El documento del premio no existe todavía: la única fuente es la
-         carta. Se dice dónde falta con el mismo hueco de foto que usan los
-         certificados, no con una frase escondida. */}
-    <FotoHueco c={c} que={c.premios.docPend} ratio="4 / 3" class="premio-doc" />
-
-    <h3 class="t-h3">{c.premios.faltanH}</h3>
-    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
-         atrapó axe en las cartas) y este recuadro es una nota. */}
-    <div class="premios-huecos">
-      <div class="carta-hueco" role="note" aria-label={`${c.premios.tag}: ${c.premios.slot}`}>
-        <p class="carta-tag" aria-hidden="true">{c.premios.tag}</p>
-        <p class="carta-pista" aria-hidden="true">{c.premios.slot}</p>
-        <p class="carta-campos meta-mono">{c.premios.campos}</p>
-      </div>
-    </div>
-
-  </section>
-
-  {/* ════ 10 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
-       La sección nació vacía (brief del 2026-08-28) con tres recuadros
-       marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
-       dos mitades: las entregadas, con su ficha y una cita corta de la
-       carta, y los recuadros de las que faltan, que se quedan porque Jaime
-       dijo «todavía faltan varias, ahí vamos».
-
-       LOS PDF SIGUEN SIN PUBLICARSE. Va la ficha —quién, cargo, empresa,
-       relación, año—, DOS frases verbatim y el contacto que el propio
-       firmante ofreció. El hueco del programa de Singapur ya no está: las
-       dos cartas que llegaron son justo de ahí.
-
-       CAMBIO DEL 2026-08-30 (Jaime): «en recommendation no pongas las de "to
-       comey", solo pon las 2 frases más importantes de cada una y sus
-       contactos directos también que proporcionaron». Lo de «to comey» es el
-       encabezado «To the Admissions Committee» con el que ABREN las dos
-       cartas — y NUNCA estuvo en esta página: se buscó la cadena en el CV
-       entero y solo vive dentro de los PDF, que no se publican. O sea que no
-       había nada que quitar, y lo que sí cambia es lo otro: de UNA cita se
-       pasa a DOS por carta, y aparece el correo.
-
-       EL CORREO SÍ, EL TELÉFONO NO. Los dos correos son de trabajo (el buzón
-       de consultas de TAQ y el dominio de Bluesky Education); el teléfono
-       personal que trae la carta de Lloyd George se queda fuera. Por qué, y
-       cómo revertirlo si Jaime quiere, está escrito en src/i18n/cv.ts sobre
-       `cartas` — junto con la razón de que el `mailto:` vaya a pelo.
-
-       Las citas son de un TERCERO, no de Jaime, así que no llevan la marca
-       de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
-  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
-    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(9)}</p>
-    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
-    <p class="cap-lede">{c.cartas.lede}</p>
-
-    <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
-    <div class="cartas">
-      {c.cartas.entregadas.map((k) => (
-        <article class="carta">
-          <p class="carta-nombre">{k.nombre}</p>
-          <p class="etiqueta">{k.cargo}</p>
-          <p class="carta-donde pie">{k.donde}</p>
-          <p class="carta-anio num">{k.anio}</p>
-          <p class="carta-relacion">{k.relacion}</p>
-          {/* DOS FRASES por carta, verbatim (Jaime, 2026-08-30: «solo pon las
-               2 frases más importantes de cada una»). Un solo <figure> con
-               las dos citas dentro y UN solo <figcaption>: son dos frases de
-               la MISMA carta y de la misma persona, así que repetir la
-               atribución debajo de cada una sería leerlo dos veces. */}
-          <figure class="carta-cita">
-            <p class="meta-mono carta-cita-tag">{c.cartas.citaTag}</p>
-            {k.citas.map((cita) => (
-              <blockquote><p>{'“' + cita + '”'}</p></blockquote>
-            ))}
-            <figcaption class="pie">— <cite>{k.nombre}</cite></figcaption>
-          </figure>
-          {/* EL CONTACTO QUE DIO ÉL MISMO. `mailto:` a pelo y sin truco
-               anti-scraping: la razón entera está en src/i18n/cv.ts, sobre
-               `cartas`. El teléfono que trae una de las cartas NO se publica,
-               y también está escrito allí por qué. */}
-          <p class="carta-contacto">
-            <span class="meta-mono carta-contacto-tag">{c.cartas.contactoTag}</span>
-            <a class="hist-link" href={`mailto:${k.correo}`}>{k.correo}</a>
-          </p>
-          {/* LA FOTO CON QUIEN FIRMA. La de Lloyd George es la 1 del lote del
-               2026-08-30 y ya está puesta. La de Andy Toh NO EXISTE: el lote
-               son 13 archivos y ninguno es Jaime con él, así que ahí sigue el
-               hueco diciendo a quién espera (`k.foto` es la clave del texto
-               del hueco, no un archivo). Este comentario decía que la carpeta
-               del lote «aún no existe» y era falso. */}
-          {/* ══ LA CARTA FIRMADA, COMO ARCHIVO (Jaime, 2026-08-31) ══════════
-               Textual: «sube en cada carta de recomendación el archivo de la
-               carta». Los dos PDF viajan ENTEROS y byte a byte iguales a los
-               que él recibió (comprobado con sha256 contra
-               cv-material/cartas/): un documento firmado al que se le recorta
-               un renglón deja de ser el documento que se firmó, y un comité
-               que note el recorte tiene razón en desconfiar. La carta de
-               Lloyd George trae su teléfono personal y NO se toca; Jaime
-               asume que quien tenga la dirección de esta página lo verá, y la
-               dirección de esta página es su credencial (CV_SLUG, noindex,
-               fuera del sitemap y del buscador). La nota que decía lo
-               contrario (cv-material/cartas/CARTAS.md, 2026-08-29) queda
-               revocada y allí está anotado.
-
-               ── EL ENLACE SE RETIRÓ EL 2026-09-01, Y EL MOTIVO IMPORTA ────
-               Los dos PDF se servían en `/assets/cv/carta-*.pdf`. Esa ruta es
-               FIJA y NO pasa por `CV_SLUG`: el `noindex`/`no-referrer` del
-               `<head>` protege la PÁGINA, no un archivo estático que se pide
-               directo. Y peor: `public/` se commitea, este repositorio es
-               PÚBLICO, y los dos archivos estaban empujados en él —
-               comprobado con una descarga anónima a raw.githubusercontent.com
-               que devolvía 200 y los 374 826 bytes.
-
-               Jaime SÍ autorizó publicarlos («sube en cada carta de
-               recomendación el archivo de la carta»), pero con un alcance
-               escrito: «quien tenga el enlace del CV ve el teléfono de Lloyd
-               George» (NOTAS-DEL-BRIEF.md, 2026-08-31). Ese alcance no se
-               puede construir con un repositorio público: el sitio es
-               estático y Vercel sirve lo que hay en el repo, así que
-               cualquier archivo que esta página entregue lo puede bajar
-               cualquiera, no solo quien reciba la dirección. El permiso se
-               dio sobre una protección que no existe, y son datos de
-               TERCEROS: las dos cartas van dirigidas «To the Admissions
-               Committee» y llevan el móvil personal de un firmante, los dos
-               correos y la dirección registrada de una empresa.
-
-               Así que el archivo sale de la página y del repo hasta que Jaime
-               decida con el alcance real delante (las tres opciones y la
-               pregunta exacta están en el informe de esta ola). Lo demás de
-               la carta se queda: la ficha entera, las dos citas verbatim, el
-               contacto que el propio firmante escribió y su foto. Los
-               originales siguen en cv-material/cartas/, fuera del repo.
-               PARA VOLVER A PONERLO hacen falta las dos cosas a la vez: el
-               archivo y una forma de servirlo que no sea pública. */}
-          <p class="carta-pdf">
-            <span class="meta-mono carta-contacto-tag">{c.cartas.pdfTag}</span>
-            <span class="carta-pdf-no">{c.cartas.pdfNo.replace('{n}', k.nombre)}</span>
-          </p>
-          {k.lote === 'lloyd' ? (
-            <figure class="lote-fig">
-              <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" height="996" loading="lazy" decoding="async" /></span>
-              <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
-            </figure>
-          ) : k.lote === 'andy' ? (
-            <figure class="lote-fig">
-              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
-              <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
-            </figure>
-          ) : null}
-          {/* LA RAMA DEL HUECO DE FOTO SE FUE, Y NO POR GUSTO: desde que las
-               DOS cartas tienen foto, `foto` vale `null` en las dos y
-               TypeScript estrecha el tipo a `never` — `astro check` daba tres
-               errores sobre una rama que ya no se podía alcanzar. Si algún
-               día llega una tercera carta sin foto, se vuelve a poner
-               `foto: 'clave'` en cv.ts y aquí el `: k.foto ? <FotoHueco … />`
-               que había. El texto del hueco (`fotosPend.cartaAndy`) sigue
-               escrito para eso. */}
-        </article>
-      ))}
-    </div>
-
-    {/* ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
-         Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime y que
-         ahora firma un tercero. Cada renglón dice QUIÉN lo firma: «un
-         tercero» a secas no es una fuente. En los sitios del CV donde esos
-         hechos ya estaban dichos con su voz hay una línea apuntando aquí.
-
-         EL PREMIO YA NO ESTÁ AQUÍ (2026-08-31): tiene capítulo propio
-         («Premios»), porque Ivey los evalúa en sección aparte y porque
-         enterrado al final de este capítulo no lo veía nadie. Lo que se
-         queda es la última línea de la lista de arriba, que es otra cosa: no
-         es el premio, es lo que Andy Toh firma sobre su trabajo en el Green
-         Tech Youth Summit. */}
-    <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
-    <p class="cap-lede">{c.cartas.verificaLede}</p>
-    {/* EL RÓTULO SOLO SALE EN ESPAÑOL (en inglés la cadena va vacía): en ese
-         panel las tres citas son inglés dentro de un párrafo español, y las
-         cuatro citas largas de las cartas sí avisan de que están traducidas.
-         Sin este renglón, el mismo capítulo traduce unas frases y deja otras
-         en inglés sin decir por qué. */}
-    {c.cartas.verificaCitaTag && <p class="meta-mono">{c.cartas.verificaCitaTag}</p>}
-    <ul class="verifica">
-      {c.cartas.verifica.map((v) => (
-        <li class="verifica-fila">
-          {/* LA CITA VA EN `lang="en"`. Es la frase literal de la carta, y en
-               el panel español es inglés metido en un párrafo en español: sin
-               la marca, un lector de pantalla la pronuncia con fonemas
-               españoles («entirely on his own steam» leído en español no se
-               entiende). Las comillas las pone el panel, no la cadena, porque
-               son puntuación del idioma que las rodea: « » en español y “ ”
-               en inglés. */}
-          <p>{v.que}{v.cita && (
-            <>{' '}{locale === 'es' ? '«' : '“'}<span lang="en">{v.cita}</span>{locale === 'es' ? '»' : '”'}.</>
-          )}</p>
-          <p class="meta-mono fuente-carta">{v.quien}</p>
-        </li>
-      ))}
-    </ul>
-    <h3 class="t-h3 cartas-h">{c.cartas.faltanH}</h3>
-    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
-         atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
-    <div class="cartas">
-      {c.cartas.slots.map((pista) => (
-        <div class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
-          <p class="carta-tag" aria-hidden="true">{c.cartas.tag}</p>
-          <p class="carta-pista" aria-hidden="true">{pista}</p>
-          <p class="carta-campos meta-mono">{c.cartas.campos}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
   {/* ════ 11 · La frase — sus palabras exactas, VERBATIM ═════════════════
        La que ya estaba, sin tocar. En español en los dos paneles: es su voz.
        El panel inglés lleva debajo la traducción, pequeña y marcada como
        traducción. La página abre con una frase suya y cierra con otra. */}
   <section class="cap cap-frase" aria-labelledby={`${p}-cap-11-h`}>
     <span id={`${p}-cap-11`} class="cap-ancla" aria-hidden="true"></span>
-    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.c11}</h2>
+    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.frase}</h2>
     <blockquote class="frase" lang="es">
       <p>{c.frase.texto}</p>
     </blockquote>
