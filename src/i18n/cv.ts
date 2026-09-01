@@ -247,7 +247,19 @@ const en = {
   // con números a mano es justo donde un CV se desincroniza de sí mismo.
   franja: {
     tag: 'Checkable, before you scroll',
-    certsQ: 'certifications, each with its credential ID',
+    // 7 CERTIFICACIONES, 6 CON ID. El calificativo estaba escrito a mano y
+    // decía «each with its credential ID»; la fila 4 (GREEN TECHNOLOGY
+    // PROGRAMME, BlueSky Education) lleva `cred: ''` y su propia tarjeta
+    // imprime «No credential ID published». O sea que la franja rotulada
+    // «Checkable, before you scroll» — lo primero que ve un lector de cuatro
+    // minutos — quedaba desmentida dos capítulos más abajo por la propia
+    // página. Venía heredado del encargo (docs/cv-ola2/propuesta.md:65 dice
+    // «7 certificaciones verificables con su ID») y se copió tal cual.
+    // Ahora el segundo número TAMBIÉN se cuenta, como los otros cuatro de
+    // esta franja: `{n}` lo rellena Historia.astro con las filas que de
+    // verdad tienen `cred`. Si mañana llega el ID que falta, la frase pasa
+    // sola a decir 7 de 7.
+    certsQ: 'certifications, {n} of them with a credential ID',
     cartasQ: 'letters signed by CEOs in Singapore, with the contact each of them gave',
     sitioN: 'smartfinance.lat',
     sitioQ: 'a site I built: {p} automated tests · {l} bilingual lessons · {f} cited sources · {g} glossary terms',
@@ -1000,10 +1012,18 @@ const en = {
     inglesTag: 'From my own certificate',
     // El hecho, en primera persona y sin dramatismo: es un paso pendiente.
     inglesFalta: 'It is not enough yet, and this page says so instead of leaving the row looking closed. The University of Toronto does not accept B2 First at any score; UBC does accept it, but from 180, and I have 163. So I have one more exam to sit.',
-    fuentesH: 'Checked on 31 August 2026',
+    fuentesH: 'Checked on 1 September 2026',
     inglesFuentes: [
       {
-        que: 'University of Toronto — “Results from the B2 First exam are not accepted (regardless of the result achieved).” C1 Advanced or C2 Proficiency: 180 overall, at least 170 in each component. TOEFL iBT 89 with 22 in Speaking and Writing; IELTS Academic 6.5 with no band below 6.0; Duolingo 120; PTE Academic 65.',
+        // EL TOEFL QUE ESTABA PUBLICADO AQUI ERA EL DEROGADO. U of T condiciona
+        // el 89/22/22 a examenes ANTERIORES al 21 de enero de 2026, y Jaime
+        // todavia no lo ha presentado (lo dice esta misma pagina: «So I have
+        // one more exam to sit»), asi que el que le aplica es el nuevo. Bajo un
+        // sello de «consultadas el…», un requisito caducado es peor que no
+        // poner sello: es la unica fila de la pagina que dispara una accion con
+        // fecha limite. Y a PTE y a Duolingo les faltaban sus submininimos por
+        // apartado, que es justo donde se cae una solicitud.
+        que: 'University of Toronto — “Results from the B2 First exam are not accepted (regardless of the result achieved).” C1 Advanced or C2 Proficiency: 180 overall, at least 170 in each component. TOEFL iBT, for tests taken on or after 21 January 2026 — which is any test I sit now — 4.5 overall with 4.5 in Writing and 4.0 in Speaking; the old 89 with 22 in Speaking and Writing only counts for tests taken before that date. IELTS Academic 6.5 with no band below 6.0; Duolingo 120 overall with 120 in Production; PTE Academic 65 with no part below 60.',
         url: 'https://future.utoronto.ca/apply/english-language-requirements/'
       },
       {
@@ -1015,9 +1035,54 @@ const en = {
     // esto, tres recuadros vacíos en el capítulo académico se leen como una
     // ausencia y no como un dato que falta por llegar.
     notaH: 'Why the boxes below are empty and not quietly missing',
-    nota: 'Rotman Commerce publishes that “our students are generally in the top 5% of their class”, and asks for a mid-high 80s average with close attention to English and Calculus. Ivey asks for a low 90% average including English; Schulich, Calculus with at least 70%. Those are numbers only I can supply, so they are marked as missing rather than left out.',
-    notaFuente: 'rotmancommerce.utoronto.ca — What we look for',
-    notaUrl: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/'
+    // TRES ESCUELAS, TRES FUENTES. Aqui habia UNA sola fuente pintada
+    // —la pagina de Rotman Commerce— debajo de un parrafo que mete tambien a
+    // Ivey y a Schulich. Comprobado en vivo el 2026-09-01: esa pagina NO
+    // menciona ni a Ivey ni a Schulich. En un documento cuya tesis entera es
+    // «cada cifra con su fuente», el enlace visible decia que un dato salia de
+    // un sitio donde no esta, y un referee que lo abriera para comprobar el
+    // 90 % de Ivey no lo encontraba.
+    // Y AL VERIFICARLAS APARECIO UN ERROR QUE NADIE HABIA VISTO: «Schulich,
+    // Calculus with at least 70%» es falso. El minimo del 70 % que publica
+    // Schulich es de ENG4U y MHF4U (ingles y funciones avanzadas); el calculo
+    // (MCV4U) entra como curso requerido entre los seis, o Data Management,
+    // pero sin ese minimo. De paso se recuperan las dos acotaciones que el
+    // encargo traia y el CV habia perdido: el «in your best Grade 12 courses»
+    // de Ivey y el promedio competitivo de Schulich.
+    // Y UN TERCER ERROR, ESTE TAMBIEN HEREDADO DEL ENCARGO: Ivey pide «a
+    // mathematics course for university-bound students», que en Ontario es una
+    // materia de ULTIMO ANO DE PREPA de nivel «U» (MHF4U, MCV4U o MDM4U) — o
+    // sea, un curso PARA quien va a la universidad, no un curso UNIVERSITARIO.
+    // propuesta.md:103 lo tradujo como «un curso de matematicas de nivel
+    // universitario» y el CV lo copio como «a university-level maths course»:
+    // eso convierte un requisito que Jaime puede cumplir en la prepa en uno que
+    // parece exigirle creditos universitarios antes de aplicar.
+    //
+    // EL PARRAFO VA EN TROZOS Y NO EN UNA CADENA porque en el panel espanol
+    // lleva dentro tres pedazos de INGLES —la cita de Rotman y las dos formas
+    // de decir un promedio, «mid-high 80s» y «low 90%»— y sin `lang="en"` un
+    // lector de pantalla los pronuncia con fonemas espanoles. Es la misma regla
+    // que ya cumplian las citas de las cartas (cv.ts:1330) y que este capitulo,
+    // nuevo en esta ola, se habia saltado.
+    // Y OJO CON LA TENTACION DE TRADUCIRLOS: «mid-high 80s» NO es «entre 85 y
+    // 89». La fuente publica un rango vago a proposito; ponerle numeros exactos
+    // en el panel espanol inventa una precision que la universidad no da, que
+    // es justo lo que este CV promete no hacer. Van marcados en ingles y
+    // glosados en espanol, sin cifras que nadie publico.
+    nota: [
+      'Rotman Commerce publishes that ',
+      { en: '“our students are generally in the top 5% of their class”' },
+      ', asks Ontario applicants for a minimum overall average in the ',
+      { en: 'mid-high 80s' },
+      ', and pays close attention to two prerequisites: English and Calculus. Ivey asks for a ',
+      { en: 'low 90%' },
+      ' average in my best Grade 12 courses, including English, plus a mathematics course for university-bound students — a Grade 12 course, not a university one. Schulich requires ENG4U, MHF4U and either Calculus (MCV4U) or Data Management among my top six Grade 12 courses, with a minimum of 70% in ENG4U and MHF4U, and says a competitive average runs from the high 80s to the low 90s, with the cutoff in past years between 91% and 92%. Those are numbers only I can supply, so they are marked as missing rather than left out.'
+    ],
+    notaFuentes: [
+      { que: 'rotmancommerce.utoronto.ca — What we look for', url: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/' },
+      { que: 'ivey.uwo.ca — AEO, secondary school students', url: 'https://www.ivey.uwo.ca/hba/admissions/secondary-school-students/' },
+      { que: 'schulich.yorku.ca — BBA admission requirements', url: 'https://schulich.yorku.ca/admissions/admissions-requirements/bba/' }
+    ]
   },
 
   // ---- Capítulo 10: certificaciones ----
@@ -1782,7 +1847,7 @@ const es: typeof en = {
   // escribe, las cuatro se cuentan en el build.
   franja: {
     tag: 'Comprobable, antes de bajar',
-    certsQ: 'certificaciones, cada una con su ID de credencial',
+    certsQ: 'certificaciones, {n} de ellas con su ID de credencial',
     cartasQ: 'cartas firmadas por CEOs en Singapur, con el contacto que dio cada uno',
     sitioN: 'smartfinance.lat',
     sitioQ: 'un sitio que construí: {p} pruebas automáticas · {l} lecciones bilingües · {f} fuentes citadas · {g} términos de glosario',
@@ -2097,10 +2162,10 @@ const es: typeof en = {
     ingles: 'B2 First Certificate, Cambridge English. Grade C, puntaje global 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examen del 19 de noviembre de 2024.',
     inglesTag: 'De mi propio certificado',
     inglesFalta: 'Todavía no alcanza, y esta página lo dice en vez de dejar el renglón como si estuviera cerrado. La University of Toronto no acepta el B2 First con ningún puntaje; UBC sí lo acepta, pero desde 180, y yo tengo 163. O sea que me falta presentar otro examen.',
-    fuentesH: 'Consultadas el 31 de agosto de 2026',
+    fuentesH: 'Consultadas el 1 de septiembre de 2026',
     inglesFuentes: [
       {
-        que: 'University of Toronto — «Results from the B2 First exam are not accepted (regardless of the result achieved).» C1 Advanced o C2 Proficiency: 180 global y mínimo 170 por componente. TOEFL iBT 89 con 22 en Speaking y Writing; IELTS Academic 6.5 sin banda bajo 6.0; Duolingo 120; PTE Academic 65.',
+        que: 'University of Toronto — «Results from the B2 First exam are not accepted (regardless of the result achieved).» C1 Advanced o C2 Proficiency: 180 global y mínimo 170 por componente. TOEFL iBT, para exámenes presentados desde el 21 de enero de 2026 —que es cualquiera que yo presente ahora—: 4.5 global con 4.5 en Writing y 4.0 en Speaking; el 89 con 22 en Speaking y Writing solo vale para exámenes anteriores a esa fecha. IELTS Academic 6.5 sin banda bajo 6.0; Duolingo 120 global con 120 en Production; PTE Academic 65 sin apartado bajo 60.',
         url: 'https://future.utoronto.ca/apply/english-language-requirements/'
       },
       {
@@ -2109,9 +2174,20 @@ const es: typeof en = {
       }
     ],
     notaH: 'Por qué los recuadros de abajo están vacíos en vez de no estar',
-    nota: 'Rotman Commerce publica que «our students are generally in the top 5% of their class», y pide un promedio de mid-high 80s con atención especial a inglés y cálculo. Ivey pide un promedio de low 90% incluyendo inglés; Schulich, cálculo con al menos 70 %. Son números que solo puedo dar yo, así que están marcados como que faltan en vez de no aparecer.',
-    notaFuente: 'rotmancommerce.utoronto.ca — What we look for',
-    notaUrl: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/'
+    nota: [
+      'Rotman Commerce publica que ',
+      { en: '«our students are generally in the top 5% of their class»' },
+      ', pide a quien aplica desde Ontario un promedio general mínimo que llama ',
+      { en: 'mid-high 80s' },
+      ' —de mediados a altos ochentas— y mira con lupa dos requisitos: inglés y cálculo. Ivey pide un promedio ',
+      { en: 'low 90%' },
+      ' —noventas bajos— en mis mejores materias de último año, incluida la de inglés, más un curso de matemáticas para estudiantes que van a la universidad: una materia de último año de prepa, no una universitaria. Schulich exige ENG4U, MHF4U y cálculo (MCV4U) o manejo de datos entre mis seis mejores materias de último año, con un mínimo de 70 % en ENG4U y MHF4U, y dice que un promedio competitivo va de los ochentas altos a los noventas bajos, con el corte de años anteriores entre 91 % y 92 %. Son números que solo puedo dar yo, así que están marcados como que faltan en vez de no aparecer.'
+    ],
+    notaFuentes: [
+      { que: 'rotmancommerce.utoronto.ca — What we look for', url: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/' },
+      { que: 'ivey.uwo.ca — AEO, secondary school students', url: 'https://www.ivey.uwo.ca/hba/admissions/secondary-school-students/' },
+      { que: 'schulich.yorku.ca — BBA admission requirements', url: 'https://schulich.yorku.ca/admissions/admissions-requirements/bba/' }
+    ]
   },
 
   certs: {

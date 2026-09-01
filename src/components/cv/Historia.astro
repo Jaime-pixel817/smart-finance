@@ -424,6 +424,12 @@ const resumenIndice = c.indice.resumen.replace('{n}', String(capitulos.length));
 // proyectos (`contarPruebas` y `contarCifras`, arriba), no de una constante:
 // una franja de resumen con números escritos a mano es justo donde un CV se
 // desincroniza de sí mismo. Si mañana hay 11 lecciones, aquí dice 11.
+// Las certificaciones que de verdad publican un ID de credencial. El total
+// (7) sale de `certs.filas.length` y este de las que tienen `cred`: 6. Los
+// dos números se cuentan, ninguno se escribe — ver el comentario de
+// `franja.certsQ` en cv.ts.
+const nCertsConId = c.certs.filas.filter((f) => f.cred).length;
+const certsFranja = c.franja.certsQ.replace('{n}', String(nCertsConId));
 const cifrasFranja = c.franja.sitioQ
   .replace('{p}', String(nPruebas))
   .replace('{l}', String(nLecciones))
@@ -694,9 +700,9 @@ const cifrasFranja = c.franja.sitioQ
       <ul class="franja" aria-label={c.franja.tag}>
         <li>
           <a class="franja-item cv-salto" href={`#${p}-cap-8`}
-            aria-label={`${c.certs.filas.length} ${c.franja.certsQ} — ${c.franja.ir.replace('{s}', c.caps.c8)}`}>
+            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.c8)}`}>
             <span class="franja-n" aria-hidden="true">{c.certs.filas.length}</span>
-            <span class="franja-q" aria-hidden="true">{c.franja.certsQ}</span>
+            <span class="franja-q" aria-hidden="true">{certsFranja}</span>
           </a>
         </li>
         <li>
@@ -1042,8 +1048,25 @@ const cifrasFranja = c.franja.sitioQ
          enlace: es de su página oficial. */}
     <div class="acad-nota">
       <h3 class="t-h4">{c.acad.notaH}</h3>
-      <p>{c.acad.nota}</p>
-      <p class="pie"><a class="hist-link" href={c.acad.notaUrl} target="_blank" rel="noopener">{c.acad.notaFuente} ↗</a></p>
+      {/* EL PARRAFO VA EN TROZOS. En el panel espanol lleva dentro tres
+           pedazos de ingles —la cita de Rotman y las dos maneras inglesas de
+           decir un promedio— y sin `lang="en"` un lector de pantalla los
+           pronuncia con fonemas espanoles, que es la misma razon por la que
+           las citas de las cartas van marcadas. La marca SOLO se pinta en el
+           panel espanol: en el ingles el idioma del trozo es el de la pagina
+           y un `lang` redundante no aporta nada. */}
+      <p>{c.acad.nota.map((t) => (typeof t === 'string'
+        ? t
+        : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))}</p>
+      {/* UNA FUENTE POR ESCUELA. Antes iba UN solo enlace —la página de
+           Rotman Commerce— debajo de un párrafo que habla de Rotman, de Ivey
+           y de Schulich, y esa página no menciona a las otras dos: el enlace
+           visible decía que un dato salía de un sitio donde no está. */}
+      <ul class="acad-fuentes pie">
+        {c.acad.notaFuentes.map((f) => (
+          <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que} ↗</a></li>
+        ))}
+      </ul>
     </div>
 
     <div class="acad-huecos">
