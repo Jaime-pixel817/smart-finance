@@ -379,7 +379,7 @@ const en = {
     // (ver la regla de CV_SLUG en CLAUDE.md); quien tiene el papel lo
     // imprimió desde la página, y el pie del navegador ya la escribe si
     // quien imprime lo deja puesto.
-    impresionNota: 'Printed summary: experience, school record, certifications, awards, letters and the closing sentence. The full CV — the photographs, the clips, the conversations and the site — is on the page this was printed from.'
+    impresionNota: 'Printed summary: experience, school record, certifications, awards, letters and the closing sentence. The full CV — the photographs, the clips, the conversations, the site, and the two signed letters as files — is on the page this was printed from.'
   },
 
   // ---- Capítulo 5: los proyectos ────────────────────────────────────────
@@ -1831,7 +1831,7 @@ const es: typeof en = {
     torrePieTag: '',
     torrePie: 'Toronto · foto mía (2026)',
     // Ver la nota de la tabla inglesa: solo se pinta al imprimir.
-    impresionNota: 'Resumen impreso: experiencia, expediente, certificaciones, premios, cartas y la frase final. El CV completo —las fotografías, los clips, las conversaciones y el sitio— está en la página desde la que se imprimió.'
+    impresionNota: 'Resumen impreso: experiencia, expediente, certificaciones, premios, cartas y la frase final. El CV completo —las fotografías, los clips, las conversaciones, el sitio y las dos cartas firmadas como archivo— está en la página desde la que se imprimió.'
   },
 
   proyectos: {

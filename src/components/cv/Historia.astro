@@ -4719,7 +4719,16 @@ const cifrasFranja = c.franja.sitioQ
       break-inside: avoid;
     }
     /* Fuera. Ver la lista de arriba, con el motivo de cada una. */
-    .cinta-bloque, .citas-nav, .clip-video, .clip-video-ancho, video, .franja { display: none; }
+    /* Y EL ENLACE DE DESCARGA DE LAS CARTAS. En papel un «Descargar la
+       carta firmada» no lleva a ninguna parte, y no se puede imprimir su
+       dirección al lado como se hace con las fuentes académicas: esa
+       dirección empieza por la del CV, que es la credencial de esta página y
+       no se escribe en ninguna parte. Así que se va, y lo cubre la primera
+       línea de la hoja (`impresionNota`), que desde hoy nombra «las dos
+       cartas firmadas como archivo» entre lo que está en la página de la que
+       se imprimió. La ficha entera de cada carta —quién, cargo, relación,
+       las dos frases y el contacto— sí se imprime. */
+    .cinta-bloque, .citas-nav, .clip-video, .clip-video-ancho, video, .franja, .carta-pdf { display: none; }
     /* EL CARRUSEL SE DESENROLLA. En pantalla son diez tarjetas en una pista
        horizontal con `overflow-x: auto`; en papel eso imprime la primera y
        media y recorta ocho. Pasa a rejilla de dos columnas, que es la misma
