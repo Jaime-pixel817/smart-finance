@@ -1597,36 +1597,53 @@ const en = {
     // LO QUE PIDE CADA UNO SON DOS COSAS, no una: el hecho, y qué cambiaste
     // después. Sin la segunda mitad es una disculpa, y la rúbrica pide
     // exactamente la segunda.
+    //
+    // ── Y VAN EN CONDICIONAL, QUE NO ES UN MATIZ (2026-09-01) ─────────────
+    // Los ocho rótulos empezaban por artículo definido: «El curso o el examen
+    // que dejé o reprobé», «La operación o el análisis que me salió al revés».
+    // Eso no reserva sitio: AFIRMA, en primera persona de Jaime, que los ocho
+    // fracasos existen. Ninguno tiene fuente, y dos son comprobablemente
+    // falsos hoy — la operación presupone posiciones que el propio sitio dice
+    // que no hay («Faltan las posiciones de verdad», CLAUDE.md) y el Reto no
+    // arranca hasta el 5 de octubre; el curso abandonado no aparece en ningún
+    // material. Las pistas de aquí abajo lo admitían dos veces: «Si no hay
+    // ninguna, este hueco se quita».
+    // Es la misma regla que la ola aplicó bien en las cartas —«un hueco puede
+    // reservar sitio; no puede decir quién no lo ha llenado»— rota en la otra
+    // dirección: no nombra a nadie, pero da un hecho por cierto. En
+    // condicional el hueco pide exactamente lo mismo y no afirma nada; y si
+    // resulta que no hay ninguno, la frase ya no hay que desmentirla, basta
+    // con quitar el hueco.
     contraExp: {
-      que: 'The experience that did not work, and what I changed',
+      que: 'If an experience did not work — what it was, and what I changed',
       pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen\'s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
     },
     contraAcad: {
-      que: 'The subject or the exam that went badly, and what I changed',
+      que: 'If a subject or an exam went badly — what it was, and what I changed',
       pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English en el B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
     },
     contraServir: {
-      que: 'The day volunteering did not go as planned, and what I changed',
+      que: 'If a day volunteering did not go as planned — what happened, and what I changed',
       pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
     },
     contraProyectos: {
-      que: 'What broke in the group or in the store, and what I changed',
+      que: 'If something broke in the group or in the store — what it was, and what I changed',
       pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
     },
     contraGente: {
-      que: 'The interview or the video that went wrong, and what I changed',
+      que: 'If an interview or a video went wrong — what happened, and what I changed',
       pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
     },
     contraReto: {
-      que: 'The trade or the analysis I got wrong, and what I changed',
+      que: 'If a trade or an analysis went wrong — what it was, and what I changed',
       pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
     },
     contraCerts: {
-      que: 'The course or the exam I dropped or failed, and what I changed',
+      que: 'If I dropped or failed a course or an exam — what it was, and what I changed',
       pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
     },
     contraPremios: {
-      que: 'A competition I did not win, and what I changed',
+      que: 'If I entered a competition without winning — what it was, and what I changed',
       pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
     },
 
@@ -2478,35 +2495,35 @@ const es: typeof en = {
     // Ver la nota larga de la tabla inglesa: la rúbrica de Queen's pide el
     // hecho Y la corrección de rumbo. No hay uno en las cartas a propósito.
     contraExp: {
-      que: 'La experiencia que no funcionó, y qué cambié',
+      que: 'Si una experiencia no funcionó: cuál fue y qué cambié',
       pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen’s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
     },
     contraAcad: {
-      que: 'La materia o el examen que salió mal, y qué cambié',
+      que: 'Si una materia o un examen salió mal: cuál fue y qué cambié',
       pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English del B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
     },
     contraServir: {
-      que: 'El día que el voluntariado no salió como estaba planeado, y qué cambié',
+      que: 'Si un día de voluntariado no salió como estaba planeado: qué pasó y qué cambié',
       pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
     },
     contraProyectos: {
-      que: 'Qué se rompió en el grupo o en la tienda, y qué cambié',
+      que: 'Si algo se rompió en el grupo o en la tienda: qué fue y qué cambié',
       pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
     },
     contraGente: {
-      que: 'La entrevista o el video que salió mal, y qué cambié',
+      que: 'Si una entrevista o un video salió mal: qué pasó y qué cambié',
       pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
     },
     contraReto: {
-      que: 'La operación o el análisis que me salió al revés, y qué cambié',
+      que: 'Si una operación o un análisis me salió al revés: cuál fue y qué cambié',
       pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
     },
     contraCerts: {
-      que: 'El curso o el examen que dejé o reprobé, y qué cambié',
+      que: 'Si dejé o reprobé un curso o un examen: cuál fue y qué cambié',
       pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
     },
     contraPremios: {
-      que: 'Un concurso que no gané, y qué cambié',
+      que: 'Si entré a un concurso sin ganar: cuál fue y qué cambié',
       pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
     },
 

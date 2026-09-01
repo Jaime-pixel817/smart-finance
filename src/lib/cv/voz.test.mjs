@@ -120,12 +120,18 @@ const SUJETO_AJENO = new Map([
   // persona de cada frase («y qué cambié») está ahí y es la que la rúbrica de
   // Queen's pide. Los otros dos (`contraCerts`, `contraPremios`) no aparecen
   // aquí porque su verbo español ya va en primera persona.
-  ['que|funcionó|La experiencia que no funcionó', 'el sujeto es la experiencia, no Jaime'],
-  ['que|salió|el examen que salió mal', 'el sujeto es la materia o el examen'],
-  ['que|salió|el voluntariado no salió', 'el sujeto es el voluntariado'],
-  ['que|rompió|Qué se rompió en el grupo', 'el sujeto es lo que se rompió, no Jaime'],
-  ['que|salió|el video que salió mal', 'el sujeto es la entrevista o el video'],
-  ['que|salió|el análisis que me salió al revés', 'el sujeto es la operación o el análisis']
+  // LOS FRAGMENTOS SE ACTUALIZARON EL 2026-09-01 con los rótulos nuevos: los
+  // ocho pasaron a condicional («Si una materia o un examen salió mal…»)
+  // porque en indicativo AFIRMABAN ocho fracasos sin fuente. El sujeto sigue
+  // siendo la cosa, no Jaime, así que la exención sigue valiendo — pero el
+  // fragmento tenía que seguir al texto, que es justo lo que comprueba la
+  // prueba de exenciones huérfanas de más abajo.
+  ['que|funcionó|una experiencia no funcionó', 'el sujeto es la experiencia, no Jaime'],
+  ['que|salió|un examen salió mal', 'el sujeto es la materia o el examen'],
+  ['que|salió|de voluntariado no salió', 'el sujeto es el día de voluntariado'],
+  ['que|rompió|algo se rompió en el grupo', 'el sujeto es lo que se rompió, no Jaime'],
+  ['que|salió|un video salió mal', 'el sujeto es la entrevista o el video'],
+  ['que|salió|un análisis me salió al revés', 'el sujeto es la operación o el análisis']
 ]);
 
 /** ¿Está exento este (clave, verbo, cadena española)? */
