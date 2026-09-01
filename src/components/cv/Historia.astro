@@ -2017,31 +2017,39 @@ const cifrasFranja = c.franja.sitioQ
                contrario (cv-material/cartas/CARTAS.md, 2026-08-29) queda
                revocada y allí está anotado.
 
-               NO SE DESCARGA AL ABRIR LA PÁGINA: es un `<a>` normal, sin
-               `preload` ni `prefetch`, y el navegador no pide nada hasta que
-               alguien lo pulsa (comprobado leyendo las peticiones de red de
-               una carga completa: 0 bytes de PDF).
-               VIVE EN public/assets/cv/, que es la carpeta que ya sirven los
-               clips: `/assets/(.*)` va con caché de UN DÍA y no `immutable`
-               —el único `immutable` del sitio es /assets/fotos/, donde TODO
-               lleva huella de contenido por construcción—. Estos dos no
-               llevan huella, así que una carta corregida llega en 24 h y no
-               en un año. Y `.vercelignore` no los excluye (excluye
-               /public/assets/portada y cv-fotos, no /public/assets/cv).
+               ── EL ENLACE SE RETIRÓ EL 2026-09-01, Y EL MOTIVO IMPORTA ────
+               Los dos PDF se servían en `/assets/cv/carta-*.pdf`. Esa ruta es
+               FIJA y NO pasa por `CV_SLUG`: el `noindex`/`no-referrer` del
+               `<head>` protege la PÁGINA, no un archivo estático que se pide
+               directo. Y peor: `public/` se commitea, este repositorio es
+               PÚBLICO, y los dos archivos estaban empujados en él —
+               comprobado con una descarga anónima a raw.githubusercontent.com
+               que devolvía 200 y los 374 826 bytes.
 
-               EL PESO NO SE ESCRIBE A OJO: `pdfKb` está en cv.ts y
-               `src/lib/cv/cartas.test.mjs` lo compara con el tamaño real del
-               archivo en disco, en los dos idiomas. Si alguien sustituye un
-               PDF, `npm test` se cae en vez de publicar un peso falso. */}
+               Jaime SÍ autorizó publicarlos («sube en cada carta de
+               recomendación el archivo de la carta»), pero con un alcance
+               escrito: «quien tenga el enlace del CV ve el teléfono de Lloyd
+               George» (NOTAS-DEL-BRIEF.md, 2026-08-31). Ese alcance no se
+               puede construir con un repositorio público: el sitio es
+               estático y Vercel sirve lo que hay en el repo, así que
+               cualquier archivo que esta página entregue lo puede bajar
+               cualquiera, no solo quien reciba la dirección. El permiso se
+               dio sobre una protección que no existe, y son datos de
+               TERCEROS: las dos cartas van dirigidas «To the Admissions
+               Committee» y llevan el móvil personal de un firmante, los dos
+               correos y la dirección registrada de una empresa.
+
+               Así que el archivo sale de la página y del repo hasta que Jaime
+               decida con el alcance real delante (las tres opciones y la
+               pregunta exacta están en el informe de esta ola). Lo demás de
+               la carta se queda: la ficha entera, las dos citas verbatim, el
+               contacto que el propio firmante escribió y su foto. Los
+               originales siguen en cv-material/cartas/, fuera del repo.
+               PARA VOLVER A PONERLO hacen falta las dos cosas a la vez: el
+               archivo y una forma de servirlo que no sea pública. */}
           <p class="carta-pdf">
             <span class="meta-mono carta-contacto-tag">{c.cartas.pdfTag}</span>
-            <a class="hist-link" href={`/assets/cv/${k.pdf}`}
-              download={k.pdf} type="application/pdf"
-              hreflang="en"
-              aria-label={`${c.cartas.pdfVer.replace('{n}', k.nombre)} — ${c.cartas.pdfMeta.replace('{kb}', String(k.pdfKb))}`}>
-              {c.cartas.pdfVer.replace('{n}', k.nombre)}
-            </a>
-            <span class="meta-mono carta-pdf-peso" aria-hidden="true">{c.cartas.pdfMeta.replace('{kb}', String(k.pdfKb))}</span>
+            <span class="carta-pdf-no">{c.cartas.pdfNo.replace('{n}', k.nombre)}</span>
           </p>
           {k.lote === 'lloyd' ? (
             <figure class="lote-fig">
@@ -3593,7 +3601,10 @@ const cifrasFranja = c.franja.sitioQ
      nombre accesible del enlace ya lo lleva dentro — si no, un lector de
      pantalla diría «PDF 366 KB» dos veces seguidas. */
   .carta-pdf { display: flex; flex-direction: column; gap: 2px; }
-  .carta-pdf-peso { color: var(--cvh-tinta-3); }
+  /* `.carta-pdf-peso` se fue con el enlace (ya no hay archivo que pesar).
+     Lo que queda debajo del rótulo es la explicación de por qué no está,
+     en el gris de los pies: es una nota, no el contenido de la ficha. */
+  .carta-pdf-no { color: var(--cvh-tinta-2); font-size: var(--fs-caption); }
 
   /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
      `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse

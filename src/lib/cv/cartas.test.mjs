@@ -1,42 +1,50 @@
-// Las cartas de recomendación: que el ARCHIVO exista y que su PESO ESCRITO
-// sea el peso de verdad.
+// Las cartas de recomendación: que NINGÚN PDF firmado se sirva desde el sitio,
+// y que los dos paneles digan lo mismo sobre ello.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// POR QUÉ ESTA PRUEBA EXISTE
+// POR QUÉ ESTA PRUEBA CAMBIÓ DE SENTIDO EL 2026-09-01
 // ═══════════════════════════════════════════════════════════════════════════
-// Desde el 2026-08-31 el CV publica los dos PDF firmados enteros (Jaime:
-// «sube en cada carta de recomendación el archivo de la carta»), y la ficha
-// de cada carta enseña su peso al lado del enlace: «PDF · 366 KB». Ese
-// número es la única cifra del capítulo que NO se puede contar en el momento
-// de pintar la página: el componente no puede leer el disco —el repo no
-// declara @types/node y `astro check` se cae en cuanto un componente ve
-// `node:fs`, que es la misma razón por la que las og:image van por un
-// manifiesto—, así que está escrito a mano en `src/i18n/cv.ts`.
+// Hasta hoy comprobaba lo contrario: que los dos PDF EXISTIERAN en
+// public/assets/cv/ y que el peso escrito («PDF · 366 KB») fuera el real. Eso
+// venía de la instrucción de Jaime del 2026-08-31 («sube en cada carta de
+// recomendación el archivo de la carta»), que él dio asumiendo un alcance
+// escrito: «quien tenga el enlace del CV ve el teléfono de Lloyd George».
 //
-// Una cifra a mano en un CV que le presume verificabilidad a un comité de
-// admisiones se desincroniza en silencio: alguien sustituye una carta por su
-// versión firmada de verdad, el archivo pasa de 366 a 402 KB, la página sigue
-// diciendo 366 y no se cae nada. Esto lo convierte en un fallo ruidoso.
+// ESE ALCANCE NO SE PODÍA CONSTRUIR, y por eso el archivo salió:
+//  · Los PDF se servían en `/assets/cv/carta-*.pdf`. Esa ruta es FIJA y no
+//    pasa por `CV_SLUG`: el `noindex`/`no-referrer` del `<head>` protege la
+//    PÁGINA, no un archivo estático que se pide directo.
+//  · `public/` se commitea y este repositorio es PÚBLICO, así que los dos
+//    archivos se bajaban con una petición anónima a raw.githubusercontent.com
+//    (comprobado: 200 y 374 826 bytes).
+//  · El sitio es estático y Vercel sirve el repo. NO HAY forma de que esta
+//    página entregue un archivo solo a quien reciba la dirección.
+// Y lo expuesto son datos de TERCEROS: las dos cartas van dirigidas «To the
+// Admissions Committee» y llevan el móvil personal de un firmante, los correos
+// de los dos y la dirección registrada de una empresa.
 //
-// LO QUE COMPRUEBA, y por qué cada cosa:
-//  1. Que el archivo que nombra `pdf` EXISTE en public/assets/cv/. Un enlace
-//     roto en un CV privado no lo descubre nadie hasta que un referee lo
-//     pulsa.
-//  2. Que `pdfKb` es Math.round(bytes / 1024) del archivo real.
-//  3. Que los DOS paneles (inglés y español) nombran el mismo archivo y el
-//     mismo peso para la misma carta. La regla del CV es paridad exacta
-//     EN/ES, y aquí un descuadre publicaría dos pesos distintos del mismo
-//     documento.
-//  4. Que el archivo servido es BYTE A BYTE el que Jaime entregó, si su
-//     carpeta original está a mano. No lo está en CI (vive fuera del repo, en
-//     cv-material/), así que esa comprobación se salta con un aviso en vez de
-//     fallar: lo que no se puede comprobar no se da por bueno ni se da por
-//     malo, se dice.
+// LO QUE COMPRUEBA AHORA, y por qué cada cosa:
+//  1. Que no hay NINGÚN PDF en public/assets/cv/. Es la comprobación que
+//     importa: el fallo no fue una decisión, fue que un archivo cayó en una
+//     carpeta que se publica entera y nadie lo volvió a mirar. Copiar un PDF
+//     ahí vuelve a exponerlo sin que nada avise — salvo esto.
+//  2. Que cv.ts no vuelve a nombrar un `pdf:` ni un `pdfKb:` en las fichas, o
+//     sea que el enlace no vuelve por la puerta de atrás.
+//  3. Que los DOS paneles traen su `pdfNo`. La regla del CV es paridad exacta
+//     EN/ES: un panel que explique por qué no está el archivo y otro que se lo
+//     calle son dos documentos distintos.
+//  4. Que los originales siguen enteros en la carpeta de Jaime, fuera del
+//     repo, para que retirarlos de la web no sea perderlos. No está en CI, así
+//     que ahí se salta con un aviso en vez de fallar: lo que no se puede
+//     comprobar no se da por bueno ni por malo, se dice.
+//
+// SI JAIME DECIDE VOLVER A PUBLICARLOS (repo privado, o alojarlos detrás de
+// algo que sí autentique), esta prueba hay que reescribirla A PROPÓSITO, con
+// el alcance nuevo delante. Que cueste un cambio deliberado es la idea.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, statSync, existsSync } from 'node:fs';
-import { createHash } from 'node:crypto';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -44,58 +52,54 @@ const raiz = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const SERVIDO = join(raiz, 'public', 'assets', 'cv');
 // La carpeta de trabajo de Jaime, fuera del repo. Puede no estar.
 const ORIGINAL = join(raiz, '..', 'cv-material', 'cartas');
+const CV_TS = join(raiz, 'src', 'i18n', 'cv.ts');
 
-/** Saca las fichas de `cartas.entregadas` de los dos paneles de cv.ts. */
-function cartasDe(panel) {
-  const fuente = readFileSync(join(raiz, 'src', 'i18n', 'cv.ts'), 'utf8');
-  // Los dos paneles van en orden: el inglés primero, el español después.
+/** El cuerpo del bloque `cartas:` de un panel de cv.ts. */
+function bloqueCartas(panel) {
+  const fuente = readFileSync(CV_TS, 'utf8');
   const trozos = fuente.split(/^  cartas: \{$/m);
   assert.equal(trozos.length, 3, 'cv.ts tiene que traer exactamente dos bloques `cartas:`');
-  const cuerpo = trozos[panel === 'en' ? 1 : 2];
-  const fichas = [];
-  const re = /nombre: '([^']+)',[\s\S]*?pdf: '([^']+)',\s*\n\s*pdfKb: (\d+),/g;
-  let m;
-  while ((m = re.exec(cuerpo)) !== null) fichas.push({ nombre: m[1], pdf: m[2], kb: Number(m[3]) });
-  return fichas;
+  return trozos[panel === 'en' ? 1 : 2];
 }
 
-test('las dos cartas nombran un PDF que existe y su peso escrito es el real', () => {
+test('no se sirve ningún PDF desde public/assets/cv/', () => {
+  const pdfs = readdirSync(SERVIDO).filter((f) => f.toLowerCase().endsWith('.pdf'));
+  assert.deepEqual(
+    pdfs, [],
+    'hay PDF en public/assets/cv/. Esa carpeta se publica ENTERA en una ruta fija que no pasa por CV_SLUG, ' +
+    'y este repositorio es público: un PDF ahí es un documento firmado descargable por cualquiera. ' +
+    'Las cartas llevan el móvil personal de un firmante y van dirigidas a un comité de admisiones.\n' +
+    'Encontrados: ' + pdfs.join(', ')
+  );
+});
+
+test('las fichas de las cartas no vuelven a nombrar un archivo ni un peso', () => {
   for (const panel of ['en', 'es']) {
-    const fichas = cartasDe(panel);
-    assert.equal(fichas.length, 2, `el panel ${panel} tiene que traer dos cartas con PDF`);
-    for (const f of fichas) {
-      const ruta = join(SERVIDO, f.pdf);
-      assert.ok(existsSync(ruta), `falta ${f.pdf} en public/assets/cv/ (lo nombra la carta de ${f.nombre}, panel ${panel})`);
-      const kb = Math.round(statSync(ruta).size / 1024);
-      assert.equal(f.kb, kb,
-        `la carta de ${f.nombre} (panel ${panel}) dice ${f.kb} KB y el archivo mide ${kb} KB`);
-    }
+    const cuerpo = bloqueCartas(panel);
+    assert.equal(/\n\s*pdf: '/.test(cuerpo), false,
+      `el panel ${panel} vuelve a nombrar un archivo de carta (\`pdf:\`). Si es a propósito, hay que reescribir esta prueba con el alcance nuevo.`);
+    assert.equal(/\n\s*pdfKb: /.test(cuerpo), false,
+      `el panel ${panel} vuelve a publicar un peso de archivo (\`pdfKb:\`), que solo tiene sentido si el archivo se sirve.`);
   }
 });
 
-test('los dos paneles publican el mismo archivo y el mismo peso', () => {
-  const en = cartasDe('en');
-  const es = cartasDe('es');
-  assert.equal(en.length, es.length);
-  for (let i = 0; i < en.length; i++) {
-    assert.equal(en[i].pdf, es[i].pdf, 'los dos paneles tienen que enlazar el mismo archivo');
-    assert.equal(en[i].kb, es[i].kb, 'los dos paneles tienen que decir el mismo peso');
+test('los dos paneles explican por qué no está el archivo', () => {
+  for (const panel of ['en', 'es']) {
+    const cuerpo = bloqueCartas(panel);
+    assert.ok(/\n\s*pdfNo: '/.test(cuerpo),
+      `el panel ${panel} no trae \`pdfNo\`: una ficha que enseña el rótulo «la carta, tal cual» y no dice nada debajo se lee como un enlace roto.`);
   }
 });
 
-test('el PDF servido es byte a byte el que entregó Jaime (si su carpeta está)', () => {
+test('los originales siguen enteros fuera del repo (si su carpeta está)', () => {
   if (!existsSync(ORIGINAL)) {
-    console.log('  (cv-material/cartas/ no está aquí — no se compara el hash; en CI es lo normal)');
+    console.log('  (cv-material/cartas/ no está aquí — no se comprueba; en CI es lo normal)');
     return;
   }
-  for (const f of cartasDe('en')) {
-    const a = join(ORIGINAL, f.pdf);
-    if (!existsSync(a)) {
-      console.log('  (no está el original de ' + f.pdf + ' — no se compara)');
-      continue;
-    }
-    const h = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
-    assert.equal(h(join(SERVIDO, f.pdf)), h(a),
-      `${f.pdf} NO es el archivo original. Estas cartas se publican SIN ALTERAR: recortarle un renglón a un documento firmado lo convierte en otro documento.`);
-  }
+  const pdfs = readdirSync(ORIGINAL).filter((f) => f.toLowerCase().endsWith('.pdf'));
+  assert.equal(
+    pdfs.length, 2,
+    'en cv-material/cartas/ tienen que seguir los dos PDF originales: retirarlos de la web no puede ser perderlos. ' +
+    'Encontrados: ' + (pdfs.join(', ') || 'ninguno')
+  );
 });

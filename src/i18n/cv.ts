@@ -1287,6 +1287,16 @@ const en = {
   // si quiere el teléfono, se añade un campo `tel` junto a `correo` y se
   // pinta igual. El número está en el PDF de la carta, en cv-material/cartas.
   //
+  // ── ESTE COMENTARIO ESTUVO OBSOLETO Y HOY VUELVE A SER CIERTO ──────────
+  // Entre el 2026-08-31 y el 2026-09-01 decía la verdad de la ficha y mentía
+  // sobre la página: la fila de contacto enseñaba solo el correo —o sea, se
+  // leía como «el resto se retuvo»— y dos renglones más abajo un enlace
+  // entregaba el PDF entero con el móvil dentro. Retirado ese enlace, el
+  // teléfono vuelve a estar retenido de verdad y la ficha vuelve a decir lo
+  // que hace. Si el archivo vuelve, ESTE PÁRRAFO HAY QUE VOLVER A ESCRIBIRLO:
+  // es la clase de nota que hace que el siguiente constructor crea que algo
+  // sigue protegido cuando ya no lo está.
+  //
   // ── POR QUÉ EL CORREO VA A PELO, SIN TRUCO ANTI-SCRAPING ────────────────
   // El repo no tiene ningún patrón de ofuscación de correos (se buscó), y
   // meter uno aquí sería peor que no tenerlo: cualquier truco que sirva de
@@ -1319,20 +1329,28 @@ const en = {
   // una carta cuando llega. No se inventa ninguna carta y no se disimula que
   // faltan: el rótulo en ámbar sigue ahí, como en todos los huecos.
   cartas: {
-    /* ── EL LEDE CAMBIÓ EL 2026-08-31, Y EL CAMBIO ES DE JAIME ────────────
-       Decía «las cartas no se publican aquí». Jaime pidió lo contrario con
-       estas palabras: «sube en cada carta de recomendación el archivo de la
-       carta». Los PDF van ENTEROS y SIN TOCAR (public/assets/cv/): son
-       documentos firmados, y recortarle el teléfono a uno lo volvería un
-       documento manipulado, que es exactamente lo que un comité no puede
-       aceptar. Jaime asume que quien tenga la dirección de esta página verá
-       el teléfono personal que trae la carta de Lloyd George. La dirección
-       de esta página ES la credencial (CV_SLUG, noindex, fuera del sitemap y
-       del buscador), así que «quien tenga el enlace» es quien él se lo dé.
-       El aviso de docs/../cv-material/cartas/CARTAS.md (2026-08-29), que
-       decía que los PDF NO se publican, queda revocado por esto y allí está
-       anotado con su fecha. */
-    lede: 'Two have arrived, and both are here in full: the record, the two lines that carry the most weight in each one, the contact each signatory gave for enquiries about me, and the signed letter itself as its own file. I publish them whole and untouched: I cannot cut a line out of a signed letter without turning it into a different document.',
+    /* ── EL LEDE, Y LA PREMISA QUE RESULTÓ SER FALSA (2026-09-01) ────────
+       El 2026-08-31 Jaime pidió «sube en cada carta de recomendación el
+       archivo de la carta» y el lede pasó a anunciar el PDF. Asumió una
+       consecuencia concreta, escrita en NOTAS-DEL-BRIEF.md: «quien tenga el
+       enlace del CV ve el teléfono de Lloyd George» — y el lede se apoyaba en
+       que la dirección del CV es la credencial (`CV_SLUG`, `noindex`, fuera
+       del sitemap).
+       ESA PREMISA NO ERA CIERTA PARA LOS ARCHIVOS. El `noindex` protege la
+       PÁGINA; los PDF se servían en `/assets/cv/…`, ruta fija que no pasa por
+       `CV_SLUG`, y estaban commiteados en un repositorio PÚBLICO (descarga
+       anónima comprobada: 200 y 374 826 bytes). Con un sitio estático servido
+       desde el repo no hay manera de entregar un archivo solo a quien reciba
+       la dirección: el permiso se dio sobre una protección que no existe, y
+       lo expuesto son datos de terceros.
+       Así que el archivo sale y el lede vuelve a decir la verdad: las cartas
+       están aquí ENTERAS EN LO QUE DICEN —ficha, las dos citas verbatim, el
+       contacto que cada firmante escribió y su foto— y el PDF no. Sigue en
+       pie lo que no cambió: a una carta firmada no se le recorta un renglón,
+       así que la alternativa nunca fue publicarla censurada.
+       PENDIENTE DE JAIME, con el alcance real delante: repo privado,
+       alojarla detrás de algo que sí autentique, o asumir que es pública. */
+    lede: 'Two have arrived, and everything they say is here: the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. The signed file itself is not on this page — it is addressed to an admissions committee and it carries contact details that are not mine to publish. I quote them whole and untouched: I cannot cut a line out of a signed letter without turning it into a different document.',
     entregadasH: 'Delivered',
     faltanH: 'Room for more',
     citaTag: 'The two lines that carry the most weight',
@@ -1340,15 +1358,32 @@ const en = {
     // haya buscado, es el que el propio firmante escribió en su carta
     // ofreciéndose a contestar preguntas sobre él.
     contactoTag: 'Contact he gave for enquiries about me',
-    /* EL ENLACE AL PDF. `pdfTag` es el rótulo de la fila y `pdfVer` el texto
-       del enlace; `{n}` es el nombre de quien firma y `{kb}` el peso REAL del
-       archivo, que no se escribe aquí: lo lee del disco `cartas.test.mjs` y
-       falla si el número de `pdfKb` deja de cuadrar (mismo trato que las
-       cifras contadas del capítulo 5 — una cifra a mano en un CV que presume
-       verificabilidad se desincroniza en silencio). */
+    /* LA FILA DE LA CARTA. `pdfTag` es el rótulo y `pdfNo` lo que va debajo;
+       `{n}` es el nombre de quien firma. Aquí había además `pdfVer`, `pdfMeta`
+       y un `pdfKb` por ficha con el peso del archivo, que `cartas.test.mjs`
+       comparaba con el disco. Se fueron con el enlace: sin archivo servido no
+       hay peso que publicar ni que comprobar. */
     pdfTag: 'The letter itself',
-    pdfVer: 'Download {n}’s signed letter',
-    pdfMeta: 'PDF · {kb} KB',
+    /* ── EL ARCHIVO SALIÓ DE LA PÁGINA EL 2026-09-01 ────────────────────
+       No es un cambio de opinión sobre lo que Jaime pidió, es que lo que
+       pidió no se puede construir tal y como está el sitio. Él autorizó
+       publicar los PDF asumiendo que «quien tenga el enlace del CV» los
+       vería, y el enlace del CV es la credencial. Pero los archivos se
+       servían en `/assets/cv/…`, una ruta fija que no pasa por `CV_SLUG`, y
+       vivían commiteados en un repositorio PÚBLICO: se bajaban con una
+       petición anónima. El sitio es estático y Vercel sirve el repo, así que
+       NO HAY forma de que esta página entregue un archivo solo a quien
+       reciba la dirección.
+       Y no son datos suyos: las dos cartas van dirigidas a un comité de
+       admisiones y llevan el móvil personal de un firmante, los correos de
+       los dos y la dirección registrada de una empresa. La propia página
+       retiene una foto por menos que esto («en el cartel se lee un número de
+       teléfono y nadie me lo dio para publicarlo»).
+       LA FRASE NO INVENTA UNA POLÍTICA NUEVA: dice el hecho —no está aquí, y
+       por qué— en primera persona y sin prometer nada que Jaime no haya
+       dicho. Cuando él decida (repo privado, alojarlo detrás de otra cosa, o
+       asumir que es público), vuelve el enlace y esta cadena se va. */
+    pdfNo: 'Not on this page while I decide where to keep it: the file carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -1366,8 +1401,6 @@ const en = {
         correo: 'Enquiries.TAQ@outlook.com',
         // EL PDF, ENTERO. Es el que trae el teléfono personal; ver la nota
         // del `lede`. No se recorta.
-        pdf: 'carta-lloyd-george-taq.pdf',
-        pdfKb: 366,
         // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
         // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
         // dice qué imagen es.
@@ -1385,8 +1418,6 @@ const en = {
           'His willingness to seek opportunities to learn and continually improve himself reflects a level of maturity and self-motivation that I believe will serve him extremely well at university.'
         ],
         correo: 'Andy.toh@bluesky-education.com',
-        pdf: 'carta-andy-toh-bluesky.pdf',
-        pdfKb: 196,
         // SU FOTO YA ESTABA EN EL REPO Y EL HUECO SOBRABA. El MAPA.md del
         // lote lo dice con esas palabras: «la foto con Andy Toh (el CEO) ya
         // está en el repo (breakdown-andy-toh): va debajo de SU carta de
@@ -2309,7 +2340,7 @@ const es: typeof en = {
   },
 
   cartas: {
-    lede: 'Ya llegaron dos, y las dos están aquí completas: la ficha, las dos frases que más pesan de cada una, el contacto que cada quien dio para preguntar por mí y la carta firmada como archivo. Las publico enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
+    lede: 'Ya llegaron dos, y todo lo que dicen está aquí: la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. El archivo firmado no está en esta página: va dirigido a un comité de admisiones y trae datos de contacto que no son míos para publicarlos. Las cito enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
     entregadasH: 'Entregadas',
     faltanH: 'Espacio para más',
     // Las dos cartas están escritas en inglés: en este panel las citas van
@@ -2317,8 +2348,7 @@ const es: typeof en = {
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
     contactoTag: 'Contacto que dio para preguntar por mí',
     pdfTag: 'La carta, tal cual',
-    pdfVer: 'Descargar la carta firmada de {n}',
-    pdfMeta: 'PDF · {kb} KB',
+    pdfNo: 'No está en esta página mientras decido dónde guardarla: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -2333,8 +2363,6 @@ const es: typeof en = {
         correo: 'Enquiries.TAQ@outlook.com',
         // EL PDF, ENTERO. Es el que trae el teléfono personal; ver la nota
         // del `lede`. No se recorta.
-        pdf: 'carta-lloyd-george-taq.pdf',
-        pdfKb: 366,
         // YA TIENE FOTO: la 1 del lote del 2026-08-30 —él con Lloyd George y
         // las banderas—. `foto` (la clave del hueco) queda en null y `lote`
         // dice qué imagen es.
@@ -2352,8 +2380,6 @@ const es: typeof en = {
           'Su disposición a buscar oportunidades para aprender y mejorar continuamente refleja un grado de madurez y automotivación que, en mi opinión, le servirá extremadamente bien en la universidad.'
         ],
         correo: 'Andy.toh@bluesky-education.com',
-        pdf: 'carta-andy-toh-bluesky.pdf',
-        pdfKb: 196,
         // SU FOTO YA ESTABA EN EL REPO Y EL HUECO SOBRABA. El MAPA.md del
         // lote lo dice con esas palabras: «la foto con Andy Toh (el CEO) ya
         // está en el repo (breakdown-andy-toh): va debajo de SU carta de
