@@ -101,10 +101,22 @@ const arg = (n, d) => {
 const RAIZ = arg('dist', 'dist');
 const RUTA = '/cv/vista-previa.html';
 
-/* Las cinco anchuras que pidió Jaime, con el alto de un aparato real de cada
-   una. La forma importa tanto como el ancho: el recorte de la portada se elige
-   por proporción de pantalla. */
-const VENTANAS = [[375, 812], [390, 844], [414, 896], [768, 1024], [1280, 800]];
+/* Las anchuras, con el alto de un aparato real de cada una. La forma importa
+   tanto como el ancho: el recorte de la portada se elige por proporción de
+   pantalla — y desde la ola 2b la COMPOSICIÓN también (`min-aspect-ratio:
+   1/1`), así que una ventana apaisada y una vertical del mismo ancho ya no
+   miden lo mismo.
+   ── 1440x900 Y 1920x1080 SE AÑADIERON EN LA OLA 2b, Y NO ES UN EXTRA ──────
+   De las cinco que pidió Jaime solo UNA era apaisada (1280x800), y desde que
+   el escritorio es el objetivo principal —«la mayoría de inspectores lo verá
+   en computadora, de hecho todas»— la tapa apaisada cambió de geometría
+   entera: el nombre pasó de dos mitades a una línea centrada al 50 % del
+   alto, el señuelo bajó al 92 % y el velo pasó de un degradado medido desde
+   el final del texto a una capa plana de pantalla completa. Cada una de esas
+   tres cosas mueve QUÉ PÍXEL DE LA FOTO cae debajo de cada letra, y eso aquí
+   no se razona: se mide. Con estas dos, las apaisadas pasan de una de cinco
+   a tres de siete. */
+const VENTANAS = [[375, 812], [390, 844], [414, 896], [768, 1024], [1280, 800], [1440, 900], [1920, 1080]];
 const IDIOMAS = ['en', 'es'];
 /* 100 y 200 % del tamaño de texto del navegador. El 200 no es un extra: es lo
    que rompió la portada anterior, porque el titular no está en el 40 % de la
@@ -288,7 +300,7 @@ for (const [w, h] of VENTANAS) {
 const TIEMPOS = [0, 600, 1200, 1800, 2400];
 const PIEZAS_APERTURA = PIEZAS.filter(([n]) => n.startsWith('1 · '));
 console.log('\nLOS FOTOGRAMAS DE LA APERTURA (el peor tiene que ser el último)');
-for (const [w, h, esc] of [[390, 844, 200], [1280, 800, 100], [375, 812, 200]]) {
+for (const [w, h, esc] of [[390, 844, 200], [1280, 800, 100], [375, 812, 200], [1440, 900, 100], [1920, 1080, 200]]) {
   console.log(`\n${w}x${h}, texto ${esc} %`);
   console.log('pieza            ' + TIEMPOS.map((t) => ('t' + t).padStart(8)).join(''));
   const ctx = await nav.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
@@ -353,9 +365,16 @@ for (const [w, h, esc] of [[390, 844, 200], [1280, 800, 100], [375, 812, 200]]) 
 // alto de la ventana, que es exactamente el tramo `contain` de la línea de
 // tiempo), así que «100 % del clavado» quiere decir eso mida lo que mida la
 // pista. Ver la cabecera, punto 4.
+// ── QUÉ MIDEN DE VERDAD ESTOS CINCO, PORQUE UN PR LO CONTÓ MAL ────────────
+// El cuerpo del PR f12765c decía que esto «muestrea el recorrido cada ~287
+// px». Es falso: son CINCO fotogramas repartidos por el clavado ENTERO, o sea
+// uno cada 25 % de él. Medido, el clavado útil vale 276 px en 390x844 y
+// 233–305 px en las cuatro ventanas de escritorio, así que el paso real entre
+// fotograma y fotograma es de ~58 a ~76 px, no 287. 287 era el recorrido
+// COMPLETO de una de las ventanas, contado como si fuera el paso.
 const PROGRESOS = [0, 0.25, 0.5, 0.75, 1];
 console.log('\nLOS FOTOGRAMAS DEL EFECTO (0/25/50/75/100 % del clavado)');
-for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100]]) {
+for (const [w, h, esc] of [[390, 844, 100], [390, 844, 200], [1280, 800, 100], [1440, 900, 100], [1920, 1080, 100]]) {
   console.log(`\n${w}x${h}, texto ${esc} %`);
   const ctx = await nav.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
   const p = await ctx.newPage();

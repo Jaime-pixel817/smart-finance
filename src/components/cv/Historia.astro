@@ -4403,7 +4403,6 @@ const cifrasFranja = c.franja.sitioQ
     /* La frase final SÍ se queda con su pantalla entera: es lo único que
        cierra el documento y está solo a propósito. */
     .cap-frase { min-height: 100svh; justify-content: center; align-content: center; }
-    .frase p { max-width: 14em; }
 
     /* ── 4 · LA LONGITUD DE RENGLÓN: UN CAMBIO DE UNIDAD, NO DE GUSTO ────
        Medido: 21 párrafos por encima de 75 caracteres por renglón en
@@ -4421,20 +4420,35 @@ const cifrasFranja = c.franja.sitioQ
          → 87 car. = 8.11). 33em dan 65 caracteres a 21 px y 65 a 16 px.
        · MONO → `62ch`, Y HAY QUE PONÉRSELO. Ahí `ch` sí es el avance real,
          así que 62ch son 62 caracteres clavados. */
-    .cap-lede, .cap-frases, .voz p, .pie, .abre p, .frase-trad,
-    .servir-bloque p, .bloque p, .par-col p, .grupo-texto p,
-    .acad-bloque p, .acad-nota p, .expapp-campo, .verifica-fila p {
-      max-width: 33em;
-    }
-    .meta-mono, .cifra-suya-marca, .cita-tipo,
-    :global(.foto-hueco-que), :global(.hueco-que) { max-width: 62ch; }
+    /* LA REGLA VA POR TIPO DE ELEMENTO Y NO POR LISTA DE CLASES, y eso es
+       deliberado: una lista de clases deja fuera la que nadie recordó. La
+       primera versión de este bloque las nombraba una a una y se le
+       escaparon seis — medido: `.expapp-org` a 103 caracteres, el pie de la
+       captura del sitio a 146 (158 en español), `.clip-titulo` a 100, las
+       fuentes académicas a 103, `.cita-tipo` a 84 y las citas de las cartas
+       a 76. Con la regla por elemento, un párrafo nuevo nace con medida.
+       `:global()` porque los huecos los pinta otro componente. */
+    .cap :global(:is(p, dd, figcaption, blockquote, summary)),
+    .portada-tarjeta :global(:is(p, dd, figcaption)),
+    .portada-papel-cierre :global(:is(p, dd, figcaption)),
+    .acad-fuentes li,
+    .verifica-fila li { max-width: 33em; }
+    /* Y lo MONO a 62ch, que ahí sí es el avance real del glifo: 62ch son 62
+       caracteres clavados. Va después para ganarle a la de arriba. */
+    .cap :global(.meta-mono), .cap :global(.etiqueta),
+    .portada-tarjeta :global(.meta-mono) { max-width: 62ch; }
+    /* Y las excepciones, que son cajas cuya anchura ES su función y no su
+       renglón: una cifra de 80 px, el titular de una tarjeta, la frase que
+       cierra el documento, el nombre de la tapa y los pies que se miden
+       contra su propia figura. Van al final para ganar por orden. */
+    .cifra, .franja-n, .franja-n-txt, .tarjeta-n,
+    .abre p, .frase p, .cita-nombre, .carta-nombre, .premio-que,
+    .cert-insignia-que, .cap-frases.cifra-suya, .cifra-suya { max-width: none; }
+    .frase p { max-width: 14em; }
+    figure .pie, .lote-fig .pie { max-width: min(100%, 33em); }
     /* El hueco de foto de los premios ocupa su pista entera, como cualquier
        otra figura del margen. */
     :global(.premio-doc), :global(.hueco-toronto) { max-width: 100%; }
-    /* El pie de una figura se mide contra SU figura, no contra la prosa:
-       una foto de 592 px con un pie de 33em (693) sería un pie más ancho
-       que su foto. */
-    figure .pie, .lote-fig .pie, .clip-titulo { max-width: 100%; }
 
     /* ── 5 · CAPÍTULO 1: EL RAÍL DEJA DE MORIRSE A LOS 145 PX ────────────
        Medido: la rejilla `minmax(0,1fr) 320px` se acaba a los 145 px y a
