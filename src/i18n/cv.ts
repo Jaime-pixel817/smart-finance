@@ -259,7 +259,16 @@ const en = {
     // esta franja: `{n}` lo rellena Historia.astro con las filas que de
     // verdad tienen `cred`. Si mañana llega el ID que falta, la frase pasa
     // sola a decir 7 de 7.
-    certsQ: 'certifications, {n} of them with a credential ID',
+    // ── Y AHORA DICE QUÉ TRAE LA SÉPTIMA, NO SOLO QUE LE FALTA (2026-09-01)
+    // Con «{n} of them with a credential ID» la franja era exacta y se leía
+    // como una carencia: seis de siete, y la séptima ahí sin decir qué es.
+    // Desde que su tarjeta publica lo que el certificado SÍ imprime —Shaw
+    // Foundation Alumni House y el rango de fechas—, la franja lo dice
+    // también, y las dos cifras suman las siete. NINGUNA de las dos está
+    // escrita: `{n}` son las filas con `cred` y `{d}` las que tienen
+    // `dondeCuando`, y Historia.astro tumba el build si entre las dos no
+    // cubren todas las filas.
+    certsQ: 'certifications: {n} with a credential ID, {d} with the venue and dates printed on the certificate',
     cartasQ: 'letters signed by CEOs in Singapore, with the contact each of them gave',
     sitioN: 'smartfinance.lat',
     sitioQ: 'a site I built: {p} automated tests · {l} bilingual lessons · {f} cited sources · {g} glossary terms',
@@ -2029,7 +2038,7 @@ const es: typeof en = {
   // escribe, las cuatro se cuentan en el build.
   franja: {
     tag: 'Comprobable, antes de bajar',
-    certsQ: 'certificaciones, {n} de ellas con su ID de credencial',
+    certsQ: 'certificaciones: {n} con ID de credencial, {d} con la sede y las fechas impresas en el certificado',
     cartasQ: 'cartas firmadas por CEOs en Singapur, con el contacto que dio cada uno',
     sitioN: 'smartfinance.lat',
     sitioQ: 'un sitio que construí: {p} pruebas automáticas · {l} lecciones bilingües · {f} fuentes citadas · {g} términos de glosario',

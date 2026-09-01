@@ -429,7 +429,29 @@ const resumenIndice = c.indice.resumen.replace('{n}', String(capitulos.length));
 // dos números se cuentan, ninguno se escribe — ver el comentario de
 // `franja.certsQ` en cv.ts.
 const nCertsConId = c.certs.filas.filter((f) => f.cred).length;
-const certsFranja = c.franja.certsQ.replace('{n}', String(nCertsConId));
+// Las que NO tienen ID pero sí traen impresos sede y fechas en el propio
+// certificado (hoy solo el Green Technology Programme). La franja las cuenta
+// aparte para poder decir qué trae cada una en vez de enseñar una carencia.
+const nCertsConDonde = c.certs.filas.filter((f) => !f.cred && f.dondeCuando).length;
+// ── LA SUMA TIENE QUE DAR EL TOTAL, Y SI NO, EL BUILD SE CAE ────────────
+// La franja se lee ANTES de bajar y dice de qué se responde cada
+// certificación. Una fila sin `cred` y sin `dondeCuando` quedaría fuera de
+// las dos cifras: la franja seguiría siendo aritméticamente cierta («6 con
+// ID, 1 con sede») mientras el capítulo enseña siete, y nadie se enteraría
+// hasta que un comité contara. Es el mismo trato que el esquema Zod de las
+// carteras le da a una posición sin precio: se tumba el build en vez de
+// publicar una cifra a medias.
+if (nCertsConId + nCertsConDonde !== c.certs.filas.length) {
+  throw new Error(
+    `[cv] La franja de pruebas no cubre las ${c.certs.filas.length} certificaciones: ` +
+    `${nCertsConId} con ID + ${nCertsConDonde} con sede y fechas. ` +
+    'Toda fila de `certs.filas` necesita `cred` o `dondeCuando` (src/i18n/cv.ts), ' +
+    'o la franja dice menos certificaciones de las que el capítulo enseña.'
+  );
+}
+const certsFranja = c.franja.certsQ
+  .replace('{n}', String(nCertsConId))
+  .replace('{d}', String(nCertsConDonde));
 const cifrasFranja = c.franja.sitioQ
   .replace('{p}', String(nPruebas))
   .replace('{l}', String(nLecciones))
@@ -449,6 +471,46 @@ const cifrasFranja = c.franja.sitioQ
              redondeadas entre las dos mitades del titular, ya sobre papel,
              y el manifiesto y el índice suben desde abajo
          3ª  el papel: su meta, el hueco y su retrato
+
+       ═══════════════════════════════════════════════════════════════════════
+       ESTE ORDEN NO SE INVIERTE, Y LA DECISIÓN ESTÁ TOMADA (2026-09-01)
+       ═══════════════════════════════════════════════════════════════════════
+       En ondo.finance la tarjeta es LA APERTURA: al cargar, el vídeo entra
+       ya como tarjeta —725×453 en (358, 224) a 1440×900, o sea el 50.3 % del
+       viewport, centrada al píxel— y crece a sangre en ~1.1 s DE TIEMPO
+       (t=834 ms → t=1967 ms), sin que nadie haga scroll. Aquí es al revés: a
+       sangre primero, y la tarjeta se forma al bajar. Es una diferencia de
+       fondo con la referencia y se queda como está, por dos razones que hay
+       que poder leer aquí y no en el informe de una ola:
+
+       (a) EL PRIMER FOTOGRAMA TIENE QUE SER LA IMAGEN MÁS FUERTE. El lector
+           de este documento dedica 4–9 minutos a un perfil, y algunos menos.
+           Lo primero que ve tiene que ser Toronto a sangre con su nombre
+           encima —la ciudad a la que va la solicitud, y de quién es el
+           documento—, no una tarjeta pequeña creciendo en medio de una
+           pantalla vacía. Ondo puede permitírselo porque su tarjeta es un
+           anuncio y su primer fotograma no tiene que identificar a nadie.
+
+       (b) INVERTIRLA DEJARÍA EL SCROLL DE LA PRIMERA PANTALLA SIN NADA QUE
+           HACER, y convertiría la apertura en una animación POR TIEMPO que
+           un lector rápido se pierde ENTERA. Hoy el efecto lo conduce el
+           scroll (`animation-timeline: view()` sobre `.intro-pista`): quien
+           baja despacio lo ve completo, quien baja rápido lo ve acelerado, y
+           quien no baja no se pierde nada porque el estado de partida es la
+           portada entera. Una apertura por tiempo se le escapa al que llega
+           y hace scroll en el primer segundo — que es exactamente el lector
+           con prisa que este CV tiene que servir. Ondo además la sostiene
+           bloqueando el scroll (`body{overflow:hidden;position:fixed}`)
+           mientras dura, y eso aquí no entra: es hostil y no pasa ninguna
+           guardia de accesibilidad.
+
+       LA MECÁNICA NO SE TOCA. Se documenta la decisión, no se cambia el
+       efecto: `clip-path: inset()` sobre la foto pegada, la pista que se
+       mide a sí misma, los keyframes que degradan a su estado estable, y los
+       cuatro caminos de degradación ya probados (`@supports`,
+       `prefers-reduced-motion`, sin JS, impresión). Si algún día se
+       reabre, se reabre con estas dos razones delante y midiendo lo que
+       pierde el lector rápido, no comparando capturas con Ondo.
 
        ── LA CORRECCIÓN DEL 2026-08-29 (la grabación de Jaime) ──────────────
        La primera versión de este efecto tenía DOS fotos: la de la tapa,
@@ -2804,6 +2866,16 @@ const cifrasFranja = c.franja.sitioQ
      `linear` a propósito: el easing lo pone el dedo. */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
+      /* ── `view()` Y NO UNA APERTURA POR TIEMPO: ESTÁ DECIDIDO ──────────
+         La línea de tiempo de todo lo de aquí dentro es el SCROLL. En Ondo
+         la misma tarjeta es la apertura y crece a sangre en ~1.1 s de
+         TIEMPO, sin que nadie toque nada; aquí va al revés a propósito, y
+         las dos razones —el primer fotograma tiene que ser la imagen más
+         fuerte, y una apertura por tiempo se le pierde entera al lector
+         rápido— están escritas enteras arriba, en la cabecera del capítulo 1
+         («ESTE ORDEN NO SE INVIERTE»). Antes de cambiar `animation-timeline`
+         por una animación con `duration`, léelas: no es una preferencia
+         estética, es a quién sirve la primera pantalla. */
       /* La geometría de la ventana de la tarjeta: UNOS MISMOS NÚMEROS para
          el recorte, el aro y las dos mitades de tinta. El tope en svh es
          para las pantallas apaisadas: sin él, la tarjeta de 420px no cabe
