@@ -4167,6 +4167,10 @@ const cifrasFranja = c.franja.sitioQ
       translate: 0 -50%;
       justify-content: center;
       padding-block: 0;
+      /* Y su tope de 62ch se levanta ABAJO, en la propia regla mono, no aquí:
+         `.cap :global(.meta-mono)` pesa (0,3,0) y esta regla (0,2,0), así que
+         un `max-width: none` escrito en este bloque no gana. Ver «EL SEÑUELO
+         NO ES PROSA» en §4. */
     }
   }
 
@@ -4434,8 +4438,19 @@ const cifrasFranja = c.franja.sitioQ
     .acad-fuentes li,
     .verifica-fila li { max-width: 33em; }
     /* Y lo MONO a 62ch, que ahí sí es el avance real del glifo: 62ch son 62
-       caracteres clavados. Va después para ganarle a la de arriba. */
-    .cap :global(.meta-mono), .cap :global(.etiqueta),
+       caracteres clavados. Va después para ganarle a la de arriba.
+       ── EL SEÑUELO NO ES PROSA, Y POR ESO SE EXCLUYE AQUÍ ──────────────
+       `.cap-portada` lleva las dos clases, así que esta regla alcanzaba
+       también a «SCROLL TO READ ↓», que en apaisado es un elemento ABSOLUTO
+       con `inset-inline: 0` centrando su contenido. Un `max-width` sobre eso
+       no lo estrecha centrado: lo deja pegado al borde de inicio. Medido a
+       1440×900: caja de 446 px en x=65 con el texto en x=215, o sea el
+       señuelo en el tercio izquierdo mientras el nombre estaba centrado en
+       720 (y a 1920, texto en x=450 contra un centro de 960). Se excluye
+       aquí y no se contra-escribe arriba porque esta regla pesa (0,3,0) y la
+       del señuelo (0,2,0): un `max-width: none` en el bloque de la tapa no
+       gana. Son dos palabras: 62 caracteres no le sirven de nada. */
+    .cap :global(.meta-mono:not(.portada-senuelo)), .cap :global(.etiqueta),
     .portada-tarjeta :global(.meta-mono) { max-width: 62ch; }
     /* Y las excepciones, que son cajas cuya anchura ES su función y no su
        renglón: una cifra de 80 px, el titular de una tarjeta, la frase que
