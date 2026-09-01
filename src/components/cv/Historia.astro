@@ -4156,7 +4156,29 @@ const cifrasFranja = c.franja.sitioQ
       align-items: baseline; align-content: center; justify-content: center;
       gap: 0 .28em;
       text-align: center;
+      /* ── Y NO PUEDE RECIBIR EL PUNTERO, O SE COME LAS PASTILLAS ─────────
+         Estirar el `<h1>` a `100svh` para poder centrar el nombre lo
+         convierte en una lámina de pantalla completa por encima de la barra
+         de la portada, y ahí viven los DOS ENLACES DE IDIOMA. Medido en
+         Chromium sobre `dist`, con `document.elementFromPoint` en el centro
+         de cada pastilla: a 1280, 1440 y 1920 el elemento que contesta es
+         `H1.portada-h1` y no el enlace — «English» y «Español» dejaban de
+         ser alcanzables con el ratón en las tres ventanas de escritorio.
+         Para el lector que más importa (quien nomina en Prepa Tec CEM, que
+         lee en español) eso es el CV entero atascado en inglés.
+         La caja del titular es un MECANISMO DE CENTRADO, no contenido: no
+         tiene nada dentro que se pueda tocar —el señuelo es un `<span>`
+         `aria-hidden`, no un enlace—, así que renunciar al puntero no le
+         quita ninguna función. Y no se apaga en bloque: las mitades del
+         nombre lo recuperan, para que las LETRAS se sigan pudiendo
+         seleccionar y copiar (un nombre propio es justo lo que alguien
+         copia de un CV). El apagado es de la lámina vacía, no del texto.
+         No choca con la regla 4 de `motion.css` («ninguna animación bloquea
+         un toque»): eso prohíbe tapar algo tocable mientras entra; esto es
+         justo lo contrario — destapa dos enlaces que estaban tapados. */
+      pointer-events: none;
     }
+    .portada-h1 > span { pointer-events: auto; }
     /* El señuelo baja al 92 % del alto, que es donde Ondo ancla su deck
        (94–96 %). Metido entre las dos mitades del nombre, en el 26 % del
        alto, no anclaba nada: la portada dejaba el peso arriba y 545 px de
