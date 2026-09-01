@@ -979,7 +979,6 @@ const cifrasFranja = c.franja.sitioQ
       ))}
     </ol>
 
-    <Hueco c={c} id="contraExp" class="contra" />
   </section>
 
   {/* ════ 03 · Escuela, calificaciones e inglés — EL RENGLÓN ACADÉMICO ═══
@@ -1080,7 +1079,6 @@ const cifrasFranja = c.franja.sitioQ
       <Hueco c={c} id="acadIngles" />
     </div>
 
-    <Hueco c={c} id="contraAcad" class="contra" />
   </section>
 
   {/* ════ 04 · Servir — los voluntariados ════════════════════════════════
@@ -1194,7 +1192,6 @@ const cifrasFranja = c.franja.sitioQ
         </div>
       </div>
     </div>
-    <Hueco c={c} id="contraServir" class="contra" />
 
   </section>
 
@@ -1423,6 +1420,54 @@ const cifrasFranja = c.franja.sitioQ
         </div>
 
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
+
+        {/* ══ EL CONTRATIEMPO. UNO, REAL, Y AQUÍ ═══════════════════════════
+             Sustituye a los OCHO huecos «si algo salió mal» que había uno
+             por capítulo. La razón entera de por qué se fueron está en
+             src/i18n/cv.ts, junto a `contraOtro`; el resumen es que ocho
+             recuadros vacíos reservados para ocho fracasos distintos no se
+             leen como ocho preguntas abiertas, se leen como un documento sin
+             terminar — y presuponen por su forma aunque cada frase suelta
+             vaya en condicional.
+
+             ESTE SÍ PASÓ, Y ESTÁ ESCRITO EN EL REPOSITORIO. Sale de
+             docs/context/lessons.md, entrada «Una cifra que se publica se
+             MIDE, y se dice contra qué línea base»: se publicó un ahorro de
+             1.2 MB, se midió después y eran 320 692 B. La página lo cita
+             como lo que es, con el archivo delante.
+
+             VA AQUÍ Y NO EN UN CAPÍTULO PROPIO, y ese es el argumento
+             entero: se pinta A CONTINUACIÓN de las tres cifras que el build
+             CUENTA de los archivos del repo. Ahí la regla no es una
+             moraleja, es la razón por la que esas tres se cuentan en vez de
+             escribirse — el error y su consecuencia caben en la misma
+             pantalla, y el lector puede ver la segunda sin creerse la
+             primera de palabra.
+
+             SIN ÉPICA: ni un adjetivo sobre lo aprendido. Qué escribió, qué
+             midió, qué regla dejó, y dónde está anotado. La conclusión la
+             saca quien lee.
+
+             `<aside>` y no `<section>`: es material relacionado dentro del
+             bloque del sitio, no un apartado del documento — y así no entra
+             en la cuenta de capítulos ni en el índice. Lleva su propio
+             `aria-labelledby` para que un lector de pantalla lo anuncie por
+             su encabezado y no como «complementario» a secas. */}
+        <aside class="leccion-medida" aria-labelledby={`${p}-leccion-medida-h`}>
+          <p class="meta-mono leccion-medida-tag">{c.leccionMedida.tag}</p>
+          <h4 class="t-h4" id={`${p}-leccion-medida-h`}>{c.leccionMedida.h}</h4>
+          <p>{c.leccionMedida.que}</p>
+          <p>{c.leccionMedida.regla}</p>
+          {/* LA FUENTE, EN MONO Y COMO TODOS LOS RECIBOS DE ESTA PÁGINA. Sin
+               ella esto sería una anécdota de humildad escrita para una
+               rúbrica; con ella es un renglón que cualquiera puede abrir. */}
+          <p class="meta-mono leccion-medida-fuente">{c.leccionMedida.fuente}</p>
+          {/* EL ÚNICO HUECO DE CONTRATIEMPO QUE QUEDA, por si Jaime quiere
+               añadir el suyo. En condicional y sin decir de qué capítulo es:
+               reserva sitio, no afirma que exista. */}
+          <Hueco c={c} id="contraOtro" class="contra" />
+        </aside>
+
         <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
       </div>
 
@@ -1464,7 +1509,6 @@ const cifrasFranja = c.franja.sitioQ
         <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
       </div>
     </div>
-    <Hueco c={c} id="contraProyectos" class="contra" />
 
   </section>
 
@@ -1652,7 +1696,6 @@ const cifrasFranja = c.franja.sitioQ
       </a>
       <span class="pie">{c.tiktok.perfil}</span>
     </p>
-    <Hueco c={c} id="contraGente" class="contra" />
 
   </section>
 
@@ -1792,7 +1835,6 @@ const cifrasFranja = c.franja.sitioQ
         </div>
       </div>
     </div>
-    <Hueco c={c} id="contraReto" class="contra" />
 
   </section>
 
@@ -1894,7 +1936,6 @@ const cifrasFranja = c.franja.sitioQ
       ))}
     </ul>
 
-    <Hueco c={c} id="contraCerts" class="contra" />
   </section>
 
   {/* ════ 09 · Premios — SECCIÓN PROPIA ══════════════════════════════════
@@ -1947,7 +1988,6 @@ const cifrasFranja = c.franja.sitioQ
       </div>
     </div>
 
-    <Hueco c={c} id="contraPremios" class="contra" />
   </section>
 
   {/* ════ 10 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
@@ -3886,12 +3926,29 @@ const cifrasFranja = c.franja.sitioQ
   .expapp-et::after { content: ' · '; }
   .expapp-hueco { margin-top: var(--sp-3); }
 
-  /* ---- El hueco del contratiempo (uno por capítulo, ola 2) ----
-     Va al final de su capítulo y con aire por encima: es una nota al pie del
-     capítulo, no una sección más. No cambia de forma respecto de los otros
-     huecos a propósito — es el mismo trato para lo mismo, algo que falta por
-     escribir. */
+  /* ---- El hueco del contratiempo ----
+     Queda UNO, dentro del bloque del contratiempo medido. Con aire por
+     encima y sin forma propia: es el mismo trato que cualquier otro hueco,
+     porque es lo mismo — algo que falta por escribir. */
   .contra { margin-top: var(--sp-6); }
+
+  /* ---- EL CONTRATIEMPO MEDIDO ------------------------------------------
+     Mismo filete a la izquierda que `.sf-destaca`, sus dos vecinos en este
+     bloque: es un apartado del bloque del sitio, no una tarjeta nueva, y
+     dentro de una tarjeta que ya tiene borde y radio una segunda caja sería
+     una caja dentro de una caja (la misma razón escrita arriba).
+     LO ÚNICO QUE LO DISTINGUE ES EL COLOR DEL FILETE, en `--warn`, que es el
+     color con el que este sitio dice «ojo con esto» — el de los huecos, el
+     del estado borrador del research, el del aviso de las carteras. No lleva
+     fondo ni borde completo: esto no es una advertencia al lector, es una
+     cosa que salió mal contada en su sitio. */
+  .leccion-medida {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding-left: var(--sp-4); border-left: 2px solid var(--warn);
+    max-width: 620px;
+  }
+  .leccion-medida-tag { color: var(--warn); }
+  .leccion-medida-fuente { color: var(--cvh-tinta-2); }
 
   /* ---- Listas secas (experiencias, certificaciones): sin movimiento ---- */
   .lista-seca { display: flex; flex-direction: column; max-width: 720px; }

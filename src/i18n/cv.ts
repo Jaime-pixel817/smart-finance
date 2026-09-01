@@ -510,6 +510,45 @@ const en = {
     abrir: 'Open the site'
   },
 
+  // ═════════════════════════════════════════════════════════════════════════
+  // EL CONTRATIEMPO. UNO, REAL, Y CON LA FUENTE ESCRITA EN LA PANTALLA
+  // ═════════════════════════════════════════════════════════════════════════
+  // Sustituye a los ocho huecos «si algo salió mal» que había uno por
+  // capítulo (ver la nota de `huecos`, junto a `contraOtro`).
+  //
+  // DE DÓNDE SALE, PALABRA POR PALABRA. De `docs/context/lessons.md` de este
+  // mismo repositorio, entrada «Una cifra que se publica se MIDE, y se dice
+  // contra qué línea base»: el commit que limpió las fotos sin usar presumía
+  // de borrar «1.2 MB desplegados» y el PR repetía la cifra; sumados pesaban
+  // **320 692 B**, cuatro veces menos. Era una estimación a ojo publicada
+  // como si fuera una medición, de algo que `git ls-tree -r -l` da exacto en
+  // un segundo. De ahí salió la regla del proyecto.
+  //
+  // POR QUÉ ESTE Y NO OTRO. Cumple las dos mitades que exige el nivel 5 de
+  // Queen's —el hecho Y qué cambió después— y cumple además la regla de esta
+  // página, que es la más dura de las dos: TIENE FUENTE, y la fuente es
+  // comprobable por cualquiera que abra el repositorio. Un contratiempo
+  // inventado para rellenar una rúbrica es exactamente lo que este CV no
+  // hace.
+  //
+  // POR QUÉ VA EN EL CAPÍTULO DE LOS PROYECTOS Y NO EN UNO PROPIO. Se pinta
+  // pegado a las tres cifras que el build CUENTA de los archivos del repo.
+  // Ahí la regla no es una moraleja: es la razón por la que esas tres cifras
+  // se cuentan en vez de escribirse. El contratiempo y su consecuencia se
+  // leen en la misma pantalla.
+  //
+  // SIN ÉPICA, y por eso el texto es corto y no lleva ni un adjetivo sobre
+  // lo que se aprendió. Dice qué escribió, qué midió después, y qué regla
+  // dejó. Quien lo lea saca su conclusión.
+  leccionMedida: {
+    tag: 'What went wrong',
+    h: 'I published a figure I had not measured',
+    // Las dos cifras son las del documento, no redondeadas ni adornadas.
+    que: 'Cleaning unused photos out of the build, I wrote that it saved 1.2 MB. Then I measured the files: 320,692 bytes — four times less. It was an estimate published as if it were a measurement.',
+    regla: 'Since then this project has a rule it did not have: a figure that gets published is measured, and it is published saying what baseline it was measured against. The three numbers above are counted by the build from the repository’s own files. That is what the rule looks like once it is code.',
+    fuente: 'Written down the day it happened, in docs/context/lessons.md of this repository.'
+  },
+
   // ---- La cinta (dentro del capítulo 2; mismo mecanismo que siempre) ----
   tape: {
     lede: 'Three of the assets the site follows, asked for when this page opens.',
@@ -1708,78 +1747,48 @@ const en = {
     },
 
     // ═══════════════════════════════════════════════════════════════════════
-    // UN CONTRATIEMPO POR CAPÍTULO (ola 2) — EL NIVEL 5 DE LA ÚNICA RÚBRICA
-    // PUBLICADA
+    // UN CONTRATIEMPO, Y TIENE QUE SER REAL — POR QUÉ AQUÍ QUEDA UN SOLO HUECO
     // ═══════════════════════════════════════════════════════════════════════
     // Queen's publica su rúbrica de 5 niveles
     // (queensu.ca/admission/applying/supplementary-application-rubric,
-    // consultada el 2026-08-31). El nivel 5 exige, verbatim: «Handles
+    // consultada el 2026-08-31) y su nivel 5 exige, verbatim: «Handles
     // setbacks or complexity with clarity and purpose» y «Reflects
     // meaningfully on what they learned and how it shaped their perspective
-    // or behavior going forward». El nivel 3 se conforma con «a clear and
-    // relevant example».
+    // or behavior going forward». Sauder pide «un problema o situación
+    // desconocida — acciones, resultado, aprendizaje» y UBC evalúa «Personal
+    // growth and resilience». Eso sigue siendo cierto y sigue mandando.
     //
-    // ESTE CV NO REGISTRABA UN SOLO FRACASO, así que con esa rúbrica en la
-    // mano no podía puntuar 5. Y no es solo Queen's: Sauder pide «un problema
-    // o situación desconocida — acciones, resultado, aprendizaje» y UBC
-    // evalúa «Personal growth and resilience».
+    // ── LO QUE HABÍA AQUÍ, Y POR QUÉ SE FUE (2026-09-01) ─────────────────
+    // Ocho huecos, uno por capítulo, uno para cada clase de fracaso. La ola
+    // anterior ya los había corregido una vez, pasándolos de artículo
+    // definido («El curso que dejé o reprobé») a condicional («Si dejé o
+    // reprobé un curso»), porque en definido AFIRMABAN ocho fracasos sin una
+    // sola fuente.
+    // El condicional arregla la afirmación y no arregla lo otro: OCHO
+    // recuadros vacíos seguidos, uno en cada capítulo, no se leen como ocho
+    // preguntas abiertas — se leen como un documento sin terminar. Y el
+    // conjunto sigue presuponiendo POR SU FORMA: ocho sitios reservados para
+    // ocho fracasos distintos dicen que los ocho existen, aunque cada frase
+    // suelta esté en condicional. Dos eran además comprobablemente vacíos
+    // hoy: el del Reto presuponía operaciones y el Reto no arranca hasta el
+    // 5 de octubre; el de las certificaciones presuponía un curso abandonado
+    // que no aparece en ningún material.
     //
-    // NO SE INVENTA NI UN CONTRATIEMPO. Son huecos, uno por capítulo con
-    // cuerpo, cada uno con su pregunta concreta. NO HAY UNO EN LAS CARTAS:
-    // ahí el contratiempo sería «alguien que no me escribió», y la regla del
-    // 2026-08-31 dice que un hueco puede reservar sitio pero no puede decir
-    // quién no lo ha llenado. Tampoco en la portada ni en la frase final.
-    // LO QUE PIDE CADA UNO SON DOS COSAS, no una: el hecho, y qué cambiaste
-    // después. Sin la segunda mitad es una disculpa, y la rúbrica pide
-    // exactamente la segunda.
+    // ── LO QUE HAY EN SU LUGAR: UNO SOLO, Y ESTÁ DOCUMENTADO ─────────────
+    // El bloque `leccionMedida` de esta misma tabla. No es un hueco: es un
+    // contratiempo REAL de este proyecto, con fuente escrita en el propio
+    // repositorio (docs/context/lessons.md), y trae las dos mitades que pide
+    // la rúbrica — qué salió mal y qué regla dejó. Se pinta en el capítulo
+    // de los proyectos, pegado a las tres cifras que el build cuenta, que es
+    // lo que esa regla parece una vez convertida en código.
+    // Uno verdadero puntúa más que ocho reservados: la rúbrica pide
+    // reflexión sobre algo que PASÓ, no una lista de casillas.
     //
-    // ── Y VAN EN CONDICIONAL, QUE NO ES UN MATIZ (2026-09-01) ─────────────
-    // Los ocho rótulos empezaban por artículo definido: «El curso o el examen
-    // que dejé o reprobé», «La operación o el análisis que me salió al revés».
-    // Eso no reserva sitio: AFIRMA, en primera persona de Jaime, que los ocho
-    // fracasos existen. Ninguno tiene fuente, y dos son comprobablemente
-    // falsos hoy — la operación presupone posiciones que el propio sitio dice
-    // que no hay («Faltan las posiciones de verdad», CLAUDE.md) y el Reto no
-    // arranca hasta el 5 de octubre; el curso abandonado no aparece en ningún
-    // material. Las pistas de aquí abajo lo admitían dos veces: «Si no hay
-    // ninguna, este hueco se quita».
-    // Es la misma regla que la ola aplicó bien en las cartas —«un hueco puede
-    // reservar sitio; no puede decir quién no lo ha llenado»— rota en la otra
-    // dirección: no nombra a nadie, pero da un hecho por cierto. En
-    // condicional el hueco pide exactamente lo mismo y no afirma nada; y si
-    // resulta que no hay ninguno, la frase ya no hay que desmentirla, basta
-    // con quitar el hueco.
-    contraExp: {
-      que: 'If an experience did not work — what it was, and what I changed',
-      pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen\'s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
-    },
-    contraAcad: {
-      que: 'If a subject or an exam went badly — what it was, and what I changed',
-      pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English en el B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
-    },
-    contraServir: {
-      que: 'If a day volunteering did not go as planned — what happened, and what I changed',
-      pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraProyectos: {
-      que: 'If something broke in the group or in the store — what it was, and what I changed',
-      pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
-    },
-    contraGente: {
-      que: 'If an interview or a video went wrong — what happened, and what I changed',
-      pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraReto: {
-      que: 'If a trade or an analysis went wrong — what it was, and what I changed',
-      pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
-    },
-    contraCerts: {
-      que: 'If I dropped or failed a course or an exam — what it was, and what I changed',
-      pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
-    },
-    contraPremios: {
-      que: 'If I entered a competition without winning — what it was, and what I changed',
-      pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
+    // Y QUEDA ESTE HUECO, UNO, por si Jaime quiere añadir el suyo. En
+    // condicional, sin decir de qué capítulo es y sin presuponer que existe.
+    contraOtro: {
+      que: 'If there is another setback I want to tell — what it was, and what I changed',
+      pista: 'Uno solo, y solo si de verdad lo hay: qué pasó y qué haces distinto desde entonces. Las dos mitades, que es lo que pide la rúbrica de Queen\'s — sin la segunda es una disculpa. Si no hay ninguno, este hueco se quita y la página se queda con el contratiempo medido de los proyectos, que ya cumple.'
     },
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1831,14 +1840,12 @@ const en = {
     expSitio: '',
     expJasa: '',
     expTiktok: '',
-    contraExp: '',
-    contraAcad: '',
-    contraServir: '',
-    contraProyectos: '',
-    contraGente: '',
-    contraReto: '',
-    contraCerts: '',
-    contraPremios: ''
+    // ── UN SOLO CONTRATIEMPO, Y ES EL DE VERDAD (2026-09-01) ──────────
+    // Aquí vivían OCHO (`contraExp`, `contraAcad`, `contraServir`,
+    // `contraProyectos`, `contraGente`, `contraReto`, `contraCerts`,
+    // `contraPremios`), uno por capítulo. La razón entera de por qué se
+    // fueron está en `huecos`, junto a `contraOtro`.
+    contraOtro: ''
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -2105,6 +2112,16 @@ const es: typeof en = {
       promesa: 'Una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe — pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
     },
     abrir: 'Abrir el sitio'
+  },
+
+  // Ver la nota larga de la tabla inglesa: uno solo, real, con su fuente en
+  // pantalla, y pegado a las tres cifras que el build cuenta.
+  leccionMedida: {
+    tag: 'Lo que salió mal',
+    h: 'Publiqué una cifra que no había medido',
+    que: 'Limpiando del build las fotos que no se usaban, escribí que se ahorraban 1.2 MB. Después medí los archivos: 320 692 bytes, cuatro veces menos. Era una estimación publicada como si fuera una medición.',
+    regla: 'Desde entonces este proyecto tiene una regla que no tenía: una cifra que se publica se mide, y se publica diciendo contra qué línea base se midió. Las tres cifras de arriba las cuenta el build de los archivos del propio repositorio. Eso es la regla convertida en código.',
+    fuente: 'Anotado el mismo día en docs/context/lessons.md de este repositorio.'
   },
 
   tape: {
@@ -2632,40 +2649,14 @@ const es: typeof en = {
       pista: '¿Cuál vas a presentar y qué fecha tienes agendada? Los objetivos, de las páginas oficiales: C1 Advanced 180 con mínimo 170 por componente · TOEFL iBT 89 con 22 en Speaking y Writing · IELTS Academic 6.5 sin banda bajo 6.0 · Duolingo 120 · PTE Academic 65. El propio Road to College del Tec ofrece certificaciones de idiomas: es la vía institucional y es por donde conviene preguntarlo.'
     },
 
-    // ── UN CONTRATIEMPO POR CAPÍTULO (ola 2) ──────────────────────────────
-    // Ver la nota larga de la tabla inglesa: la rúbrica de Queen's pide el
-    // hecho Y la corrección de rumbo. No hay uno en las cartas a propósito.
-    contraExp: {
-      que: 'Si una experiencia no funcionó: cuál fue y qué cambié',
-      pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen’s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
-    },
-    contraAcad: {
-      que: 'Si una materia o un examen salió mal: cuál fue y qué cambié',
-      pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English del B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
-    },
-    contraServir: {
-      que: 'Si un día de voluntariado no salió como estaba planeado: qué pasó y qué cambié',
-      pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraProyectos: {
-      que: 'Si algo se rompió en el grupo o en la tienda: qué fue y qué cambié',
-      pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
-    },
-    contraGente: {
-      que: 'Si una entrevista o un video salió mal: qué pasó y qué cambié',
-      pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraReto: {
-      que: 'Si una operación o un análisis me salió al revés: cuál fue y qué cambié',
-      pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
-    },
-    contraCerts: {
-      que: 'Si dejé o reprobé un curso o un examen: cuál fue y qué cambié',
-      pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
-    },
-    contraPremios: {
-      que: 'Si entré a un concurso sin ganar: cuál fue y qué cambié',
-      pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
+    // ── UN SOLO CONTRATIEMPO, Y ES REAL ──────────────────────────────────
+    // Ver la nota larga de la tabla inglesa: los ocho huecos por capítulo se
+    // fueron el 2026-09-01 y en su lugar está `leccionMedida`, que es un
+    // contratiempo documentado en docs/context/lessons.md. Este hueco es el
+    // único que queda, por si Jaime quiere añadir el suyo.
+    contraOtro: {
+      que: 'Si hay otro contratiempo que quiera contar: cuál fue y qué cambié',
+      pista: 'Uno solo, y solo si de verdad lo hay: qué pasó y qué haces distinto desde entonces. Las dos mitades, que es lo que pide la rúbrica de Queen’s — sin la segunda es una disculpa. Si no hay ninguno, este hueco se quita y la página se queda con el contratiempo medido de los proyectos, que ya cumple.'
     },
 
     // ── LOS CUATRO DEL BLOQUE DE EXPERIENCIA EN FORMATO DE SOLICITUD ──────
@@ -2700,14 +2691,12 @@ const es: typeof en = {
     expSitio: '',
     expJasa: '',
     expTiktok: '',
-    contraExp: '',
-    contraAcad: '',
-    contraServir: '',
-    contraProyectos: '',
-    contraGente: '',
-    contraReto: '',
-    contraCerts: '',
-    contraPremios: ''
+    // ── UN SOLO CONTRATIEMPO, Y ES EL DE VERDAD (2026-09-01) ──────────
+    // Aquí vivían OCHO (`contraExp`, `contraAcad`, `contraServir`,
+    // `contraProyectos`, `contraGente`, `contraReto`, `contraCerts`,
+    // `contraPremios`), uno por capítulo. La razón entera de por qué se
+    // fueron está en `huecos`, junto a `contraOtro`.
+    contraOtro: ''
   },
 
   voz: {
