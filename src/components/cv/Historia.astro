@@ -1217,6 +1217,22 @@ const cifrasFranja = c.franja.sitioQ
           <div class="grupo-texto">
             {/* Hecho publicado en /community, en primera persona de Jaime. */}
             <p class="cap-frases">{c.proyectos.grupo}</p>
+            {/* ── LA MARCA DE TERCERO VA PEGADA A LO QUE LA CARTA SÍ DICE ───
+                 Estaba DESPUÉS de la cifra y de su recibo, o sea en este
+                 orden: «somos casi 200» → «es mi afirmación» → «fuente de
+                 tercero: la carta de Lloyd George». Leído de corrido —y un
+                 lector de cuatro minutos lee de corrido— eso dice que el
+                 tercero respalda el número, y de paso anula el recibo que la
+                 página acababa de poner. La carta dice «He founded the Smart
+                 Finance student organisation at his campus» y NI UNA PALABRA
+                 sobre cuánta gente hay.
+                 Ahora la marca queda debajo de la frase que la carta firma
+                 —la fundación— y la cifra viene después con su recibo, que
+                 es lo último que se lee y lo que queda. Es el único de los
+                 cuatro `fuente-carta` del documento que estaba mal colocado;
+                 los otros tres (playa cap. 4, aviso cap. 6, lista del cap.
+                 10) ya iban junto a lo suyo. */}
+            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
             {/* SU CIFRA, MARCADA. «Casi 200 en la comunidad» (2026-08-29) no
                  la puede contar el build —la gente de una comunidad no vive
                  en ningún archivo del repo—, así que va como afirmación suya
@@ -1224,10 +1240,6 @@ const cifrasFranja = c.franja.sitioQ
                  va DEBAJO y en mono: es el recibo, no la frase. */}
             <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
             <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
-            {/* Que FUNDÓ el grupo era palabra suya hasta el 2026-08-29: hoy
-                 lo firma la carta de Lloyd George. La cifra de arriba NO —
-                 esa sigue siendo suya y su marca lo sigue diciendo. */}
-            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>

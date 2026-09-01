@@ -972,7 +972,16 @@ const en = {
         rol: 'Participant, and speaker at NUS',
         org: 'Green Technology Programme, BlueSky Education — Singapore',
         cuando: '2026',
-        accion: 'Two weeks of programme; I presented about Mexico to students at the National University of Singapore, I joined the beach clean-up and I arranged and conducted the interviews myself.',
+        // DECÍA «Two weeks of programme» Y ESA FILA HABLA DEL PROGRAMA DE
+        // BLUESKY, que su propio CEO fecha en TRES semanas en el PDF que esta
+        // misma página deja descargar («my three-week programme in Singapore»,
+        // Andy Toh). Las dos semanas son las del CURSO de Lloyd George, que es
+        // una parte del total — las dos cartas no se contradicen, pero la fila
+        // atribuía la duración de una al programa de la otra. Un lector que
+        // comprobara encontraba el CV diciendo dos y la carta descargable
+        // diciendo tres para lo mismo: subestima, pero invita a la duda justo
+        // en la única fila con resultado y con quién lo confirma.
+        accion: 'Three weeks of programme, two of them in Lloyd George’s course; I presented about Mexico to students at the National University of Singapore, I joined the beach clean-up and I arranged and conducted the interviews myself.',
         resultado: 'An award at the GreenTech Summit 2026 with my teammates, competing against students from Taiwan and Russia (chapter “Awards”).',
         quien: 'Lloyd George, CEO of TAQ Pte Ltd, and Andy Toh, of BlueSky Education. Both letters are in “Recommendation letters”, each with the contact its signatory gave.',
         pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
@@ -1218,7 +1227,13 @@ const en = {
     lede: 'Awards are evaluated separately from courses, so they are separate here. Courses I have completed are in “Certifications”; this is what someone gave me for competing.',
     entregadosH: 'What I have',
     faltanH: 'Room for more',
-    campos: 'Award · who gives it · year · what for',
+    // DECÍA «who gives it» / «quién lo da» Y LA FICHA RELLENABA ESE CAMPO CON
+    // EL NOMBRE DEL PROPIO EVENTO. La única fuente declarada —la carta de
+    // Lloyd George— nombra el certamen y a los rivales, y NO dice quién
+    // entregó el premio. Un rótulo que promete el otorgante y enseña el
+    // evento es una cifra sin fuente disfrazada de ficha. El rótulo pasa a
+    // decir lo que de verdad hay debajo.
+    campos: 'Award · event · year · what for',
     slot: 'Space reserved for the next award.',
     tag: 'Award to come',
     // {s} es el título del capítulo de las cartas: se enlaza por TÍTULO y no
@@ -1226,7 +1241,15 @@ const en = {
     fuenteTag: 'Only source: Lloyd George’s letter, in “{s}”',
     entregados: [
       {
-        que: 'An award at the GreenTech Summit 2026, in Singapore, with my teammates, competing against students from Taiwan and Russia.',
+        // SIN «in Singapore»: la carta de Lloyd George —la ÚNICA fuente que
+        // esta ficha declara— dice «an award at the GreenTech Summit 2026, in
+        // competition against students from Taiwan and Russia» y no dice
+        // dónde fue. La sede era una inferencia razonable desde la carta de
+        // Andy Toh, que sitúa un «Green Tech Youth Summit» dentro del
+        // programa en Singapur; pero esa carta no es la que se cita aquí, y
+        // una ficha que promete una sola fuente no puede traer un dato de
+        // otra sin decirlo.
+        que: 'An award at the GreenTech Summit 2026, with my teammates, competing against students from Taiwan and Russia.',
         // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
         // salía «GreenTech Summit 2026 · 2026».
         de: 'GreenTech Summit',
@@ -2142,7 +2165,7 @@ const es: typeof en = {
         rol: 'Participante, y ponente en la NUS',
         org: 'Green Technology Programme, BlueSky Education — Singapur',
         cuando: '2026',
-        accion: 'Dos semanas de programa; presenté sobre México a estudiantes de la National University of Singapore, participé en la limpieza de playa y conseguí y conduje yo mismo las entrevistas.',
+        accion: 'Tres semanas de programa, dos de ellas en el curso de Lloyd George; presenté sobre México a estudiantes de la National University of Singapore, participé en la limpieza de playa y conseguí y conduje yo mismo las entrevistas.',
         resultado: 'Un premio en el GreenTech Summit 2026 con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia (capítulo «Premios»).',
         quien: 'Lloyd George, CEO de TAQ Pte Ltd, y Andy Toh, de BlueSky Education. Las dos cartas están en «Cartas de recomendación», cada una con el contacto que dio quien la firma.',
         pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
@@ -2251,13 +2274,13 @@ const es: typeof en = {
     lede: 'Un premio no es un curso, así que va aparte. Los cursos que terminé están en «Certificaciones»; esto es lo que alguien me dio por competir.',
     entregadosH: 'Lo que tengo',
     faltanH: 'Espacio para más',
-    campos: 'Premio · quién lo da · año · por qué',
+    campos: 'Premio · evento · año · por qué',
     slot: 'Espacio reservado para el siguiente premio.',
     tag: 'Premio por llegar',
     fuenteTag: 'Única fuente: la carta de Lloyd George, en «{s}»',
     entregados: [
       {
-        que: 'Un premio en el GreenTech Summit 2026, en Singapur, con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
+        que: 'Un premio en el GreenTech Summit 2026, con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
         // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
         // salía «GreenTech Summit 2026 · 2026».
         de: 'GreenTech Summit',
