@@ -154,9 +154,20 @@ test('sanityChecks: probabilidades que no suman 1 y margen sobre el record sin r
   assert.equal(sanityChecks(bad).find((a) => a.code === 'MARGIN_ABOVE_RECORD').level, 'warn');
 });
 
-test('sanityChecks: plantilla vacia (model.json de LULU) reporta supuestos faltantes y no explota', async () => {
+test('sanityChecks: plantilla vacia (forma real de LULU) reporta supuestos faltantes y no explota', async () => {
+  // Lee el fichero real para heredar su FORMA (histórico, escenarios, claves)
+  // y lo VACÍA antes de comprobar. Antes afirmaba sobre el fichero tal cual, o
+  // sea que la prueba solo pasaba mientras Jaime no hubiera escrito su tesis:
+  // el día que la escribiera, el CI se caía y el build con él. Lo que esta
+  // prueba quiere comprobar es el comportamiento ante una plantilla vacía, y
+  // eso no depende de en qué punto vaya su trabajo.
   const { readFile } = await import('node:fs/promises');
   const model = JSON.parse(await readFile(new URL('../../../content/research/lululemon/model.json', import.meta.url), 'utf8'));
+  const a = model.dcf.assumptions;
+  a.revenueGrowthPct = a.revenueGrowthPct.map(() => null);
+  a.ebitdaMarginPct = a.ebitdaMarginPct.map(() => null);
+  a.wacc.wacc = null;
+  for (const k of Object.keys(model.dcf.rationale)) model.dcf.rationale[k] = 'ESCRIBE AQUÍ POR QUÉ (Jaime)';
   const alerts = sanityChecks(model);
   const codes = alerts.map((a) => a.code);
   assert.ok(codes.includes('MISSING_ASSUMPTIONS'));
