@@ -4395,6 +4395,57 @@ const cifrasFranja = c.franja.sitioQ
          el del recorte en la relación apaisada. Y de paso: `motion.css`
          pide una sola animación llamando la atención por pantalla. */
       .intro-aro { display: none; }
+      /* ── LA ANTENA DE LA TORRE CN SE CORTABA EN PLANO, EN LAS CUATRO ─────
+         Medido sobre `dist` en el fotograma final, buscando el píxel más alto
+         que sea ≥ 26 niveles más oscuro que la mediana de su fila (el cielo
+         es liso; la antena es lo único que hay ahí arriba) y acotando la
+         búsqueda a la ventana de la tarjeta: la punta sale en la PRIMERA fila
+         de la tarjeta en 1280×800, 1440×900, 1536×864 y 1920×1080. No es «se
+         come la mitad del cielo» en unas y se corta en otras: se corta en las
+         cuatro, y encima del mástil no queda ni un píxel de cielo.
+         LA CAUSA NO ES EL ZUM, ES LA VENTANA. La foto va `cover` sobre el
+         viewport y mide 2.2523:1 contra 1.6, así que recorta por los LADOS y
+         de alto se ve entera: la antena vive en el 10.2 % de la altura. La
+         ventana de la tarjeta empieza en `--carta-top` = 19svh, o sea que se
+         lleva por delante el 19 % de arriba. Sin zum ya cortaba 79 px; el zum
+         (scale 1.16 con origen en el 42 %, por debajo de la antena) la empuja
+         hacia arriba y lo deja en 125 px.
+         POR QUÉ NO SE ARREGLA CON `object-position` NI BAJANDO EL ZUM: de
+         alto no hay holgura que mover —`cover` ya enseña la foto entera— y
+         escalando hacia abajo, con el origen por debajo de la antena, harían
+         falta 0.566 de escala para bajarla, y a 0.566 la foto ya no llena la
+         tarjeta. Lo único que la baja es una TRASLACIÓN.
+         SE PROBÓ BAJAR LA FOTO Y NO VALE: trasladarla `--carta-top` deja la
+         antena entera con un 8 % de cielo encima, sí, pero empuja el skyline
+         contra el borde de abajo y la tarjeta se queda en cielo con una tira
+         de edificios cortados por la base. Se cambia un recorte feo por otro,
+         porque con `scale(1.16)` el tramo de la foto que va de la punta de la
+         antena a la línea del agua mide 825 px y la tarjeta mide 670: no
+         caben. Con el zum puesto hay que cortar por arriba o por abajo.
+         ASÍ QUE SE QUITA EL ZUM Y LA FOTO CONTRA-ESCALA, que además es lo que
+         esta transición dice que hace desde el principio («la foto
+         encogiéndose en una tarjeta», y en el móvil «la foto de dentro
+         contra-escala»). Escalando 0.64 alrededor del CENTRO, la tarjeta
+         enseña exactamente el mismo encuadre que la tapa a sangre, sin
+         recortar nada: no hay que elegir qué se corta porque no se corta. El
+         encuadre final deja de ser una decisión nueva y pasa a ser el que
+         Jaime ya aprobó, el de la primera pantalla.
+         POR QUÉ 0.64 Y NO 0.62: la tarjeta mide `62svh` de alto y
+         `min(62vw, 1180px)` de ancho, y ese `min` muerde desde 1904 px — a
+         1920 la tarjeta es el 61.46 % del ancho y no el 62 %. Con 0.62 clavado
+         la foto y la ventana medirían LO MISMO de alto y cualquier redondeo
+         abriría una tira de papel dentro de la tarjeta. 0.64 deja ~3 % de
+         desbordamiento por los cuatro lados en las cuatro anchuras.
+         Y EL ORIGEN PASA A SER EL CENTRO: la ventana está centrada en la
+         pantalla, así que escalar alrededor del centro la mantiene centrada
+         sin ninguna traslación que calcular.
+         NO ABRE HUECOS EN NINGÚN FOTOGRAMA: a 1440, el ancho de la foto va a
+         1440 − 518.4·t y el de la ventana a 1440 − 547.2·t (mismo
+         `animation-range`, así que la t es la misma), y la foto le saca
+         28.8·t; de alto, 18·t. Las dos diferencias son ≥ 0 para toda t y
+         crecen, así que la foto desborda la ventana durante todo el
+         recorrido. */
+      .portada-zoom { transform-origin: 50% 50%; animation-name: intro-zoom-ancho; }
       /* El manifiesto sube por debajo, pegado al borde de abajo de la
          tarjeta. La reserva de 9em de la composición móvil era el hueco de
          la MITAD DE ABAJO del nombre; en apaisado no hay mitad de abajo,
@@ -4436,6 +4487,13 @@ const cifrasFranja = c.franja.sitioQ
      ascenso NO se toca: `transform` sigue interpolando de extremo a extremo,
      así que lo que se ve entrar es el último 19 % del recorrido (69 px), un
      asentamiento corto en vez de una deriva de media pantalla. */
+  /* La contra-escala de escritorio, en vez del zum. Ver el bloque grande de
+     `.portada-zoom` en el tramo apaisado: la tarjeta acaba enseñando el mismo
+     encuadre que la tapa a sangre, sin recortar nada. */
+  @keyframes intro-zoom-ancho {
+    from { transform: none; }
+    to { transform: scale(.64); }
+  }
   @keyframes intro-tinta-ancho {
     from { opacity: 0; transform: translateY(calc(50svh - var(--carta-top) / 2)); }
     81% { opacity: 0; }
