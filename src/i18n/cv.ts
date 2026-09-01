@@ -249,7 +249,7 @@ const en = {
     tag: 'Checkable, before you scroll',
     // 7 CERTIFICACIONES, 6 CON ID. El calificativo estaba escrito a mano y
     // decía «each with its credential ID»; la fila 4 (GREEN TECHNOLOGY
-    // PROGRAMME, BlueSky Education) lleva `cred: ''` y su propia tarjeta
+    // PROGRAMME, Bluesky Education) lleva `cred: ''` y su propia tarjeta
     // imprime «No credential ID published». O sea que la franja rotulada
     // «Checkable, before you scroll» — lo primero que ve un lector de cuatro
     // minutos — quedaba desmentida dos capítulos más abajo por la propia
@@ -635,7 +635,7 @@ const en = {
   // CADA ROL LLEVA FUENTE Y EL QUE NO LA TIENE SE QUEDA VACÍO. `tipo` dice qué
   // fue el encuentro cuando llamarlo "entrevista" sería falso; vacío = una
   // conversación suya, que es lo que dice el material.
-  // · Andy Toh, «CEO, BlueSky Education» — el título de su propia entrevista
+  // · Andy Toh, «CEO, Bluesky Education» — el título de su propia entrevista
   //   (`post.andytoh.title` en src/i18n/ui.ts) y /about (About.astro).
   // · Jon Maier — NO es una entrevista suya. Lo único que el sitio publica es
   //   «Takeaways from JPMorgan's Chief ETF Strategist» con la foto descrita
@@ -654,13 +654,40 @@ const en = {
   //   of Singapore», que la carta desmiente; la nota completa está junto a
   //   su entrada, abajo. ESTA LISTA ES LA QUE MANDA: un `rol` que no aparezca
   //   aquí con su fuente no debería estar lleno.
-  // LA GRAFÍA ES «BlueSky Education», UNA PALABRA, Y LA DECIDIÓ JAIME
-  // (2026-08-27). El sitio la escribía de tres maneras a la vez —«Blue Sky»
-  // aquí, «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, o sea tres
-  // grafías para el nombre de una empresa ajena, en las tres páginas donde
-  // aparece. Ya están las tres unificadas. Si vuelve a aparecer una cuarta,
-  // el sitio que manda es este comentario: BlueSky, con la S mayúscula y sin
-  // espacio.
+  // ═══════════════════════════════════════════════════════════════════════
+  // LA GRAFÍA DE LA EMPRESA: «Bluesky Education», UNA PALABRA Y UNA SOLA
+  // MAYÚSCULA. Cambiada el 2026-09-01, y el cambio tiene fuente.
+  // ═══════════════════════════════════════════════════════════════════════
+  // El sitio llegó a escribirla de tres maneras a la vez —«Blue Sky» aquí,
+  // «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, y el 2026-08-27
+  // Jaime pidió unificarlas en «BlueSky». Así estuvo hasta hoy.
+  //
+  // LO QUE CAMBIÓ ES QUE APARECIÓ LA FUENTE. Las dos cartas firmadas (los
+  // PDF, en cv-material/cartas/, transcritos en su CARTAS.md) escriben el
+  // nombre de la empresa en el mismo documento y NINGUNA de las dos lo
+  // escribe como lo pidió él:
+  //   · Lloyd George firma «Bluesky Education», y su correo va al dominio
+  //     bluesky-education.com.
+  //   · Andy Toh lleva membrete «BLUE SKY EDUCATION PTE. LTD.» —el nombre
+  //     LEGAL registrado— pero firma «Bluesky Education», y su correo es
+  //     Andy.toh@bluesky-education.com, que esta misma página publica.
+  // O sea: el nombre legal es «Blue Sky Education Pte. Ltd.» y la marca de
+  // uso corriente, la que usan sus dos CEOs y la que está en el dominio, es
+  // «Bluesky Education». «BlueSky» no es ninguna de las dos.
+  //
+  // POR QUÉ MANDA LA FUENTE Y NO LA PREFERENCIA. Es el nombre de una empresa
+  // AJENA, no de Jaime, y este CV ya tiene escrita su regla para marcas de
+  // terceros (el logo del Reto Actinver: se usa como lo publica su dueño,
+  // sin recolorear ni reencuadrar). Una grafía inventada para una empresa
+  // que aparece cinco veces en la página, junto a un correo de su dominio
+  // real escrito al lado, es la clase de detalle que un comité comprueba en
+  // diez segundos y que hace dudar del resto.
+  // Si Jaime prefiere volver a «BlueSky», es una decisión suya y se cambia
+  // aquí y en los otros tres archivos (src/i18n/ui.ts, About.astro,
+  // Historia.astro) — pero entonces esta nota tiene que decir que la grafía
+  // NO coincide con la de sus firmantes.
+  // EL DOMINIO Y LOS CORREOS NO SE TOCAN NUNCA: van tal cual los escribió
+  // cada firmante.
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
     // ── LO QUE IMPIDE QUE ESTE CAPÍTULO SE LEA COMO UNA LISTA DE AVALES ──
@@ -713,7 +740,7 @@ const en = {
     // su `alt` AQUÍ y no en ui.ts: son fotos que solo existen en el CV. El
     // alt describe la imagen real (verificada mirándola), no la ficha.
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Bluesky Education', tipo: '' },
       // ⚠️ EL ROL NO ES «National University of Singapore», y la fuente que
       // lo desmiente ya está PUBLICADA EN ESTA MISMA PÁGINA. Su carta
       // (capítulo 8) abre diciendo «I am the Chief Executive Officer of TAQ
@@ -784,13 +811,13 @@ const en = {
     // ── Y ES EL MISMO PROGRAMA DEL CERTIFICADO ───────────────────────────
     // La publicación de la playa (LI-16) y el certificado 4 del capítulo de
     // certificaciones son LA MISMA COSA: el 2026 GREEN TECHNOLOGY PROGRAMME
-    // de BlueSky Education, del 22 de junio al 11 de julio de 2026 en la
+    // de Bluesky Education, del 22 de junio al 11 de julio de 2026 en la
     // Shaw Foundation Alumni House (que está dentro de la NUS). Estaban
     // escritos como dos actividades sueltas, y no lo son: la limpieza es la
     // parte de servicio del programa que certifica el diploma. Decirlo hace
     // que el voluntariado deje de parecer un día suelto y el certificado
     // deje de parecer un curso sin práctica.
-    playaPrograma: 'That day was part of the programme whose certificate is in “Certifications”: the 2026 Green Technology Programme, BlueSky Education, in Singapore. The clean-up is the service part of the same programme.',
+    playaPrograma: 'That day was part of the programme whose certificate is in “Certifications”: the 2026 Green Technology Programme, Bluesky Education, in Singapore. The clean-up is the service part of the same programme.',
     bloques: {
       animales: 'The animals',
       playas: 'Beach clean-up'
@@ -975,7 +1002,7 @@ const en = {
         id: 'singapur',
         hueco: null,
         rol: 'Participant, and speaker at NUS',
-        org: 'Green Technology Programme, BlueSky Education — Singapore',
+        org: 'Green Technology Programme, Bluesky Education — Singapore',
         cuando: '2026',
         // DECÍA «Two weeks of programme» Y ESA FILA HABLA DEL PROGRAMA DE
         // BLUESKY, que su propio CEO fecha en TRES semanas en el PDF que esta
@@ -988,8 +1015,8 @@ const en = {
         // en la única fila con resultado y con quién lo confirma.
         accion: 'Three weeks of programme, two of them in Lloyd George’s course; I presented about Mexico to students at the National University of Singapore, I joined the beach clean-up and I arranged and conducted the interviews myself.',
         resultado: 'An award at the GreenTech Summit 2026 with my teammates, competing against students from Taiwan and Russia (chapter “Awards”).',
-        quien: 'Lloyd George, CEO of TAQ Pte Ltd, and Andy Toh, of BlueSky Education. Both letters are in “Recommendation letters”, each with the contact its signatory gave.',
-        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
+        quien: 'Lloyd George, CEO of TAQ Pte Ltd, and Andy Toh, of Bluesky Education. Both letters are in “Recommendation letters”, each with the contact its signatory gave.',
+        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a Bluesky Education.'
       }
     ]
   },
@@ -1196,9 +1223,9 @@ const en = {
       },
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
-        de: 'BlueSky Education', anio: '2026', cred: '',
+        de: 'Bluesky Education', anio: '2026', cred: '',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
-        alt: 'BlueSky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
+        alt: 'Bluesky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
@@ -1274,7 +1301,7 @@ const en = {
     ],
     // El documento no existe todavía: la única fuente es la carta. Se dice
     // dónde falta, sin adornarlo.
-    docPend: 'The certificate or diploma itself, when BlueSky Education or Lloyd George sends it to me.'
+    docPend: 'The certificate or diploma itself, when Bluesky Education or Lloyd George sends it to me.'
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
@@ -1404,7 +1431,7 @@ const en = {
         nombre: 'Lloyd George',
         cargo: 'CEO, TAQ Pte Ltd',
         donde: 'Singapore — biotechnology, healthcare management and green technologies',
-        relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy BlueSky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
+        relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy Bluesky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
         anio: '2026',
         // LAS DOS FRASES, VERBATIM del PDF. La primera es UNA sola idea que la
         // carta escribe en dos oraciones: cortarla por la mitad deja un
@@ -1424,7 +1451,7 @@ const en = {
       },
       {
         nombre: 'Andy Toh',
-        cargo: 'CEO, BlueSky Education',
+        cargo: 'CEO, Bluesky Education',
         donde: 'Singapore — the educational consultancy that runs the programme',
         relacion: 'He observed me during my three-week programme in Singapore. He is the same Andy Toh I interviewed, and who is already on this site.',
         anio: '2026',
@@ -2092,7 +2119,7 @@ const es: typeof en = {
     next: 'Conversación siguiente',
     llevo: 'Lo que me llevé',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Bluesky Education', tipo: '' },
       // Rol corregido: ver la nota larga en la tabla inglesa.
       lloyd: { nombre: 'Profesor Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'Le digo «profesor Lloyd» porque me dio clase dos semanas en el programa de Green Technology en Singapur. Su carta —en «Cartas de recomendación»— la firma como CEO de TAQ Pte Ltd.', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
       nus: {
@@ -2136,7 +2163,7 @@ const es: typeof en = {
     animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevisté a Sol, su fundadora (2026).',
     donacion: 'También doné alimento a un stand de adopción local y pasé el día con los voluntarios y los animalitos (2026).',
     playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de mi curso de Green Technology and Sustainable Ecology (2026).',
-    playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de BlueSky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
+    playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de Bluesky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
     bloques: {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
@@ -2226,12 +2253,12 @@ const es: typeof en = {
         id: 'singapur',
         hueco: null,
         rol: 'Participante, y ponente en la NUS',
-        org: 'Green Technology Programme, BlueSky Education — Singapur',
+        org: 'Green Technology Programme, Bluesky Education — Singapur',
         cuando: '2026',
         accion: 'Tres semanas de programa, dos de ellas en el curso de Lloyd George; presenté sobre México a estudiantes de la National University of Singapore, participé en la limpieza de playa y conseguí y conduje yo mismo las entrevistas.',
         resultado: 'Un premio en el GreenTech Summit 2026 con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia (capítulo «Premios»).',
-        quien: 'Lloyd George, CEO de TAQ Pte Ltd, y Andy Toh, de BlueSky Education. Las dos cartas están en «Cartas de recomendación», cada una con el contacto que dio quien la firma.',
-        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
+        quien: 'Lloyd George, CEO de TAQ Pte Ltd, y Andy Toh, de Bluesky Education. Las dos cartas están en «Cartas de recomendación», cada una con el contacto que dio quien la firma.',
+        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a Bluesky Education.'
       }
     ]
   },
@@ -2311,9 +2338,9 @@ const es: typeof en = {
       },
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
-        de: 'BlueSky Education', anio: '2026', cred: '',
+        de: 'Bluesky Education', anio: '2026', cred: '',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
-        alt: 'Certificado de BlueSky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
+        alt: 'Certificado de Bluesky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
@@ -2355,7 +2382,7 @@ const es: typeof en = {
         nota: 'Nunca lo publiqué — ni en mi LinkedIn ni en mi TikTok. Está aquí porque alguien más lo escribió y lo firmó.'
       }
     ],
-    docPend: 'El certificado o diploma, cuando me lo manden BlueSky Education o Lloyd George.'
+    docPend: 'El certificado o diploma, cuando me lo manden Bluesky Education o Lloyd George.'
   },
 
   cartas: {
@@ -2373,7 +2400,7 @@ const es: typeof en = {
         nombre: 'Lloyd George',
         cargo: 'CEO, TAQ Pte Ltd',
         donde: 'Singapur — biotecnología, gestión sanitaria y tecnologías verdes',
-        relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa BlueSky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
+        relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa Bluesky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
         anio: '2026',
         citas: [
           'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.',
@@ -2390,7 +2417,7 @@ const es: typeof en = {
       },
       {
         nombre: 'Andy Toh',
-        cargo: 'CEO, BlueSky Education',
+        cargo: 'CEO, Bluesky Education',
         donde: 'Singapur — la consultoría educativa que organiza el programa',
         relacion: 'Me observó durante mi programa de tres semanas en Singapur. Es el mismo Andy Toh que entrevisté y que ya aparece en este sitio.',
         anio: '2026',
