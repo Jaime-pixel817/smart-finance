@@ -108,13 +108,45 @@ test('labStart: todos los valores caen en la rejilla de su slider', () => {
   }
 });
 
-test('el laboratorio NO inventa supuestos: model.json sigue vacío', () => {
-  assert.equal(hasAuthorAssumptions(model), false);
-  assert.equal(authorControls(model), null);
-  for (const v of model.dcf.assumptions.revenueGrowthPct) assert.equal(v, null);
-  for (const v of model.dcf.assumptions.ebitdaMarginPct) assert.equal(v, null);
-  assert.equal(model.dcf.assumptions.wacc.wacc, null);
-  for (const v of Object.values(model.dcf.rationale)) assert.match(String(v), /ESCRIBE AQUÍ POR QUÉ \(Jaime\)/);
+test('el laboratorio NO inventa supuestos: o están TODOS escritos por Jaime, o no hay ninguno', () => {
+  // OJO: la versión anterior de esta prueba exigía que `model.json` siguiera
+  // VACÍO. Eso convertía el CI en un candado contra su propio autor: el día que
+  // Jaime escribiera su tesis, la prueba se caía y el build con ella. La regla
+  // que de verdad importa no es "no hay supuestos" sino "ningún supuesto
+  // aparece sin que Jaime lo haya escrito", y eso se comprueba con un
+  // invariante CONDICIONAL: los tres campos van juntos o no van.
+  const g = model.dcf.assumptions.revenueGrowthPct;
+  const m = model.dcf.assumptions.ebitdaMarginPct;
+  const w = model.dcf.assumptions.wacc.wacc;
+  const razones = Object.values(model.dcf.rationale).map(String);
+  const plantilla = (v) => /ESCRIBE AQUÍ POR QUÉ \(Jaime\)/.test(v);
+
+  const hayCifras = g.some((v) => v !== null) || m.some((v) => v !== null) || w !== null;
+  const hayRazones = razones.some((v) => v && !plantilla(v));
+
+  if (!hayCifras) {
+    // Estado inicial: nada escrito. Entonces NADA puede estar a medias.
+    assert.equal(hasAuthorAssumptions(model), false);
+    assert.equal(authorControls(model), null);
+    for (const v of g) assert.equal(v, null);
+    for (const v of m) assert.equal(v, null);
+    assert.equal(w, null);
+    for (const v of razones) assert.ok(plantilla(v), 'hay una razón escrita sin sus cifras');
+    return;
+  }
+
+  // Jaime empezó a escribir: entonces el modelo tiene que estar COMPLETO.
+  // Un DCF a medias publica un precio objetivo que nadie sostuvo.
+  for (const v of g) assert.notEqual(v, null, 'falta un año de crecimiento');
+  for (const v of m) assert.notEqual(v, null, 'falta un año de margen');
+  assert.notEqual(w, null, 'falta el WACC');
+  assert.ok(hayRazones, 'hay cifras sin una sola razón escrita');
+  for (const v of razones) {
+    assert.ok(!plantilla(v), 'quedó una razón con el texto de plantilla');
+    assert.ok(v.trim().length > 0, 'quedó una razón vacía');
+  }
+  assert.equal(hasAuthorAssumptions(model), true);
+  assert.notEqual(authorControls(model), null);
 });
 
 test('toAssumptions: fase 1 son los años 1–2 y fase 2 los años 3–5', () => {
@@ -151,8 +183,14 @@ test('modelWith: la caja y la deuda salen del cierre fiscal verificado', () => {
 });
 
 test('sanityChecks con el arranque: solo avisa de lo que falta escribir', () => {
-  const { controls } = labStart(model);
-  const live = modelWith(model, controls);
+  // Se vacían las razones a propósito: la prueba comprueba QUÉ avisa el
+  // arranque cuando falta texto por escribir, no en qué punto va la tesis de
+  // Jaime. Con el fichero tal cual, esta prueba se caía el día que él
+  // escribiera sus porqués — un candado del CI contra su propio autor.
+  const vacio = structuredClone(model);
+  for (const k of Object.keys(vacio.dcf.rationale)) vacio.dcf.rationale[k] = 'ESCRIBE AQUÍ POR QUÉ (Jaime)';
+  const { controls } = labStart(vacio);
+  const live = modelWith(vacio, controls);
   const codes = sanityChecks(live, runDCF(live)).map((a) => a.code).sort();
   assert.deepEqual(codes, ['RATIONALE_PENDING', 'SCENARIO_PROB_MISSING']);
 });
