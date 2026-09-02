@@ -106,6 +106,7 @@ import Hueco from './Hueco.astro';
 import FotoHueco from './FotoHueco.astro';
 import Microfono from './Microfono.astro';
 import HuecoMaterial from './HuecoMaterial.astro';
+import { ancla, NODOS } from '../../lib/cv/microfono.mjs';
 import SitioVivo from './SitioVivo.astro';
 import Rail from './Rail.astro';
 import { SYMBOLS } from '../../data/symbols';
@@ -309,12 +310,12 @@ const estado = (rep.meta.status || 'draft') as string;
 // las de la lámina: sin ellas nada reserva su caja y cada llegada empuja la
 // página — CLS gratuito.
 const ensena = [
-  { id: '7678749901433474324', titulo: c.tiktok.videos.jpmvisit, poster: '/assets/cv/cv-poster-jpmvisit.jpg', clip: '/assets/cv/cv-clip-jpmvisit.mp4' as string | null, w: 360, h: 640, img: null as string | null, iw: 0, ih: 0, carrusel: false, nota: null as string | null, ancha: false },
-  { id: '7658163945479408917', titulo: c.tiktok.videos.nus, poster: '/assets/cv/cv-poster-nus.jpg', clip: '/assets/cv/cv-clip-nus.mp4', w: 640, h: 360, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: true },
-  { id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
-  { id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: '/assets/cv/cv-poster-japon.jpg', clip: '/assets/cv/cv-clip-japon.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
-  { id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, w: 0, h: 0, img: foto('cv-tt-tokio.webp'), iw: 720, ih: 960, carrusel: true, nota: null, ancha: false },
-  { id: '7664460671727258900', titulo: c.tiktok.videos.canada, poster: null, clip: null, w: 0, h: 0, img: null, iw: 0, ih: 0, carrusel: true, nota: c.tiktok.canadaNota, ancha: false }
+  { pieza: null as string | null, id: '7678749901433474324', titulo: c.tiktok.videos.jpmvisit, poster: '/assets/cv/cv-poster-jpmvisit.jpg', clip: '/assets/cv/cv-clip-jpmvisit.mp4' as string | null, w: 360, h: 640, img: null as string | null, iw: 0, ih: 0, carrusel: false, nota: null as string | null, ancha: false },
+  { pieza: 'mexico', id: '7658163945479408917', titulo: c.tiktok.videos.nus, poster: '/assets/cv/cv-poster-nus.jpg', clip: '/assets/cv/cv-clip-nus.mp4', w: 640, h: 360, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: true },
+  { pieza: 'singapur', id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { pieza: 'japon', id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: '/assets/cv/cv-poster-japon.jpg', clip: '/assets/cv/cv-clip-japon.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { pieza: null, id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, w: 0, h: 0, img: foto('cv-tt-tokio.webp'), iw: 720, ih: 960, carrusel: true, nota: null, ancha: false },
+  { pieza: 'canada', id: '7664460671727258900', titulo: c.tiktok.videos.canada, poster: null, clip: null, w: 0, h: 0, img: null, iw: 0, ih: 0, carrusel: true, nota: c.tiktok.canadaNota, ancha: false }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
@@ -349,17 +350,29 @@ const attrsClip = (src: string, etiqueta: string, bucle = false, w = 360, h = 64
 // imagen real — iban con `alt=""` mientras este comentario juraba lo
 // contrario, y una cara con nombre al lado no es decorativa (2026-08-29).
 const pers = c.entrevistas.personas;
+// ── EL ENLACE DEL PODCAST DEL FTR SALE DE `microfono.mjs` ────────────────
+// Es el ÚNICO enlace nuevo que resolvió esta ola —`lnkd.in/emKzcux3` →
+// `youtube.com/live/Y2Qmay5XdOg`, la emisión de ExprésaTec del 16 de abril de
+// 2026— y vivía SOLO dentro del micrófono: la ficha de este capítulo, que es
+// «donde vive su historia entera», se quedaba sin él. Quien navegue por
+// capítulos en vez de por el índice no lo encontraba en ninguna parte.
+// Se lee del mismo sitio que lo enlaza arriba para que no puedan separarse.
+// Si el nodo desaparece, el build SE CAE en vez de publicar una ficha sin
+// enlace: un enlace que falta en un CV no avisa de nada al mirarlo.
+const nodoPodcast = NODOS.find((n) => n.id === 'podcast');
+if (!nodoPodcast) throw new Error('cv: falta el nodo `podcast` en microfono.mjs');
+const urlPodcast = nodoPodcast.href;
 const citas = [
-  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null as null | { src: string; poster: string; bucle: boolean }, tiktokId: '7662781308988411156' },
-  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: pers.lloyd.alt, hueco: 'entrevistaLloyd' as const, video: null, tiktokId: '7666916220049870100' },
-  { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, tiktokId: '7657190267245563156' },
-  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: pers.jesus.alt, hueco: 'entrevistaJesus' as const, video: null, tiktokId: '7656095688484211988' },
-  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, tiktokId: null },
-  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, tiktokId: null },
-  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: pers.mauricio.alt, hueco: 'entrevistaMauricio' as const, video: null, tiktokId: '7671351658227469588' },
-  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null },
-  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, tiktokId: '7673350797958155541' },
-  { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, tiktokId: '7677118351327431956' }
+  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null as null | { src: string; poster: string; bucle: boolean }, url: null as string | null, verLabel: null as string | null, tiktokId: '7662781308988411156' },
+  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: pers.lloyd.alt, hueco: 'entrevistaLloyd' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7666916220049870100' },
+  { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, url: null as string | null, verLabel: null as string | null, tiktokId: '7657190267245563156' },
+  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: pers.jesus.alt, hueco: 'entrevistaJesus' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7656095688484211988' },
+  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, url: null, verLabel: null, tiktokId: null },
+  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, url: null, verLabel: null, tiktokId: null },
+  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: pers.mauricio.alt, hueco: 'entrevistaMauricio' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7671351658227469588' },
+  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null, url: urlPodcast, verLabel: c.mic.ver.episodio },
+  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, url: null as string | null, verLabel: null as string | null, tiktokId: '7673350797958155541' },
+  { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7677118351327431956' }
 ];
 
 // ------------------------------------------------------------- el índice
@@ -2112,7 +2125,7 @@ const cifrasFranja = c.franja.sitioQ
           // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
           const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
           return (
-          <li class="cita">
+          <li class="cita" id={ancla(p, rt.key)}>
             <div class="cita-media">
               {rt.img && (
                 <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
@@ -2131,7 +2144,7 @@ const cifrasFranja = c.franja.sitioQ
                  que separa «lo que me llevé» de «lo que me dijeron». */}
             <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
             <Hueco c={c} id={rt.hueco} grande />
-            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+            {(rt.url || rt.tiktokId) && <a class="hist-link t-small cita-link" href={rt.url || urlVideo(rt.tiktokId as string)} target="_blank" rel="noopener">{rt.verLabel || c.entrevistas.verVideo} ↗</a>}
           </li>
           );
         })}
@@ -2202,7 +2215,7 @@ const cifrasFranja = c.franja.sitioQ
          crudo, y rompe el compilado. */}
     <ul class="clips">
       {ensena.map((v) => (
-        <li class:list={['clip', v.ancha && 'clip-ancho']}>
+        <li class:list={['clip', v.ancha && 'clip-ancho']} id={v.pieza ? ancla(p, v.pieza) : undefined}>
           {v.clip && (
             <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
             <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>

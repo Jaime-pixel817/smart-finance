@@ -52,7 +52,7 @@
 // decide el guion con `(hover: hover) and (pointer: fine)`.
 import type { CvCopy } from '../../i18n/cv';
 import type { Locale } from '../../i18n/routes';
-import { NODOS } from '../../lib/cv/microfono.mjs';
+import { NODOS, ancla } from '../../lib/cv/microfono.mjs';
 import HuecoMaterial from './HuecoMaterial.astro';
 
 interface Props { c: CvCopy; p: Locale }
@@ -64,7 +64,7 @@ const { c, p } = Astro.props;
 // dos sitios donde corregir un cargo es como se publica un cargo mal.
 type Fila = {
   id: string; tipo: string; cap: number; href: string; externo: string;
-  nombre: string; rol: string; que: string; ver: string;
+  nombre: string; rol: string; que: string; ver: string; ancla: string;
 };
 const filas: Fila[] = NODOS.map((n) => {
   const per = n.tipo === 'persona'
@@ -75,6 +75,7 @@ const filas: Fila[] = NODOS.map((n) => {
     : n.tipo === 'pais' ? c.mic.ver.video : c.mic.ver.conversacion;
   return {
     id: n.id, tipo: n.tipo, cap: n.cap, href: n.href, externo: n.externo,
+    ancla: ancla(p, n.id),
     nombre, rol: per ? per.rol : '',
     que: (c.mic.abre as Record<string, string>)[n.id],
     ver
@@ -133,7 +134,7 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
             <p class="mic-fila-que">{f.que}</p>
             <p class="mic-fila-pie">
               <span class="mic-fuente">{f.externo}</span>
-              <a class="mic-baja" href={`#${p}-cap-${f.cap}`}>{c.mic.bajar} ↓</a>
+              <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
             </p>
           </li>
         ))}
@@ -151,7 +152,7 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
             <p class="mic-fila-que">{f.que}</p>
             <p class="mic-fila-pie">
               <span class="mic-fuente">{f.externo}</span>
-              <a class="mic-baja" href={`#${p}-cap-${f.cap}`}>{c.mic.bajar} ↓</a>
+              <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
             </p>
           </li>
         ))}

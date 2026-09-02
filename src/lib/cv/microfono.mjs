@@ -64,8 +64,11 @@ export const TIKTOK = 'https://www.tiktok.com/@smart.financee/video/';
 //                      atrás, donde no se puede pinchar porque el micrófono no
 //                      gira. La geografía de verdad no reparte nodos: los
 //                      apelotona donde hay ciudades.
-// `cap`    a qué capítulo BAJA. El micrófono es índice y obertura: cada nodo
-//          tiene que aterrizar en el capítulo donde vive su historia entera.
+// `cap`    en qué capítulo VIVE la historia entera de ese nodo. Hoy los once
+//          están en el 8; el campo se queda porque el día que una pieza se
+//          mueva de capítulo, el rótulo lo tiene que saber.
+//          ⚠️ NO ES EL DESTINO DEL ENLACE. El destino es la PIEZA, no el
+//          capítulo: ver `ancla()` aquí abajo.
 // `href`   la pieza que abre. SIEMPRE es una URL que existe y se comprobó.
 // `verificado` false = palabra de Jaime sin recibo público (hoy: ninguno de
 //          los once; los dos que lo tendrían, Rendón y Durán, no tienen punto).
@@ -198,3 +201,23 @@ export const SIN_PUNTO = {
 
 export const PERSONAS = NODOS.filter((n) => n.tipo === 'persona');
 export const PAISES = NODOS.filter((n) => n.tipo === 'pais');
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EL DESTINO DE «EN EL CAPÍTULO ↓» ES LA PIEZA, NO EL CAPÍTULO
+// ═══════════════════════════════════════════════════════════════════════════
+// Los once enlaces apuntaban todos a `#<lang>-cap-8`. Medido sobre `dist` a
+// 1440×900 con el scroll instantáneo: el ancla del capítulo 8 cae en y = 23 232
+// y las piezas NO están ahí. Las siete fichas de persona quedan 757 px por
+// debajo, y los cuatro vídeos de país entre 3 165 y 4 620 px por debajo — de
+// 3.5 a 5.1 pantallas. Un índice cuyas once entradas llevan al mismo sitio y
+// aterrizan cinco pantallas antes de lo que prometen no ataca «se me hizo
+// infinito»: lo confirma.
+//
+// Y las siete personas viven en un carrusel horizontal, así que además del
+// alto importa el ANCHO: sin ancla propia, el enlace de Raúl Irabién deja al
+// lector delante de la ficha de Andy Toh.
+//
+// El ancla la pinta el capítulo (`Historia.astro`) y la enlaza el micrófono
+// (`Microfono.astro`), las dos con ESTA función, para que no puedan separarse.
+// Hay un guardián que comprueba que los once ids tienen dónde aterrizar.
+export const ancla = (lang, id) => `${lang}-pieza-${id}`;

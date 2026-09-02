@@ -157,3 +157,43 @@ test('mic: el enlace de TikTok se arma con la constante, no a mano', () => {
     assert.ok(n.href.startsWith(TIKTOK), `${n.id} no usa la constante TIKTOK`);
   }
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 5 · LOS ONCE ENLACES TIENEN QUE ATERRIZAR EN SU PIEZA, NO EN EL CAPÍTULO
+// ═══════════════════════════════════════════════════════════════════════════
+// Los once «En el capítulo ↓» apuntaban todos a `#<lang>-cap-8`. Medido sobre
+// `dist` a 1440×900: el ancla del capítulo cae en y = 23 232 y las piezas no
+// están ahí — las siete fichas de persona 757 px por debajo y los cuatro
+// vídeos de país entre 3 165 y 4 620 px, o sea de 3.5 a 5.1 pantallas. Ahora
+// cada nodo baja a SU pieza, y esto vigila que cada uno tenga dónde caer: un
+// ancla que no existe no da error en ninguna parte, solo no desplaza.
+const HIST = fs.readFileSync(path.join(RAIZ, 'src/components/cv/Historia.astro'), 'utf8');
+const MIC = fs.readFileSync(path.join(RAIZ, 'src/components/cv/Microfono.astro'), 'utf8');
+
+test('mic: los once nodos tienen ancla propia en el capítulo', () => {
+  // Las fichas de persona anclan por la clave de `citas`; los vídeos de país
+  // por el campo `pieza` que se les escribió al lado del id de TikTok.
+  const claves = new Set();
+  const arr = HIST.slice(HIST.indexOf('const citas = ['), HIST.indexOf('];', HIST.indexOf('const citas = [')));
+  for (const m of arr.matchAll(/key:\s*'([^']+)'/g)) claves.add(m[1]);
+  for (const m of HIST.matchAll(/pieza:\s*'([^']+)'/g)) claves.add(m[1]);
+
+  const sinAncla = NODOS.filter((n) => !claves.has(n.id)).map((n) => n.id);
+  assert.deepEqual(sinAncla, [], `nodos sin dónde aterrizar: ${sinAncla.join(', ')}`);
+});
+
+test('mic: el enlace de bajada usa el ancla de la pieza y no el del capítulo', () => {
+  assert.ok(!/mic-baja"\s+href=\{`#\$\{p\}-cap-/.test(MIC),
+    'el micrófono volvió a apuntar al capítulo en vez de a la pieza');
+  assert.ok(MIC.includes('href={`#${f.ancla}`}'), 'el enlace de bajada no usa `f.ancla`');
+});
+
+test('mic: los once enlaces viajan por el arreglo del índice, no como ancla nativa', () => {
+  // Una navegación de ancla con `scroll-behavior: smooth` EN VUELO no
+  // desplaza, y el micrófono es un índice en la segunda pantalla: el sitio
+  // donde más se pulsan dos destinos seguidos. Tiene que estar en el selector
+  // que intercepta el clic (ver la cabecera de Cv.astro).
+  const CV_LAYOUT = fs.readFileSync(path.join(RAIZ, 'src/layouts/Cv.astro'), 'utf8');
+  assert.ok(CV_LAYOUT.includes('a.mic-baja[href^="#"]'),
+    'los enlaces del micrófono no pasan por el interceptor de `Cv.astro`');
+});
