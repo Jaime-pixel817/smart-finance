@@ -1520,6 +1520,24 @@ const cifrasFranja = c.franja.sitioQ
          cortes históricos. Son requisitos de terceros, no datos de Jaime, y
          a 4-9 minutos por perfil cuestan media pantalla de lectura para
          decir lo que su encabezado ya dijo. Abierto al imprimir. */}
+    {/* ══ DOCUMENTOS ACADÉMICOS — Y VAN APARTE (Jaime, 2026-09-02) ══════
+         «no hagas solo una sección». No son la misma clase de cosa que las
+         siete certificaciones del capítulo 9: una certificación es un curso
+         que él eligió hacer y aprobó, con su folio; un documento académico es
+         lo que la escuela o el examinador emiten sobre él, y lo que un comité
+         pide de oficio.
+         Los dos que faltan son los dos que más pesan: la constancia de
+         promedio CIERRA el hueco académico que este capítulo declara abierto
+         tres párrafos más arriba, y el Duolingo es el segundo examen de
+         inglés que la propia página dice que le falta. Por eso van con el
+         hueco a la vista y con la carpeta donde dejarlos. */}
+    <h3 class="t-h3">{c.acadDocs.h}</h3>
+    <p class="cap-lede">{c.acadDocs.lede}</p>
+    <HuecoMaterial c={c} que={c.acadDocs.promedioQue} pregunta={c.acadDocs.promedioPide}
+                   carpeta="cv-material/pendiente/promedio/" />
+    <HuecoMaterial c={c} que={c.acadDocs.duolingoQue} pregunta={c.acadDocs.duolingoPide}
+                   carpeta="cv-material/pendiente/duolingo/" />
+
     <details class="acad-nota ref-plegable">
       <summary class="ref-ver">
         <span class="ref-ver-fila">
@@ -1668,6 +1686,15 @@ const cifrasFranja = c.franja.sitioQ
       </div>
     </div>
 
+    {/* ══ LO QUE VIENE, Y VA EN FUTURO PORQUE NO HA PASADO ════════════════
+         La colecta de ropa y el otro voluntariado son lo ÚNICO de esta ola que
+         se escribe en futuro. La diferencia con el taller y con el podcast de
+         Rendón y Durán —que van en pasado— es que aquellos YA OCURRIERON y
+         estos no. Sin fecha: no hay ninguna, y una inventada se leería como un
+         compromiso adquirido. */}
+    <h3 class="t-h3">{c.servir.proximoH}</h3>
+    <p class="cap-frases">{c.servir.proximo}</p>
+  </section>
   </section>
 
   {/* ════ 07 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════

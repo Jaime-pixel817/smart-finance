@@ -1040,6 +1040,29 @@ const en = {
     pie: 'This is {s} itself, loaded live inside the page — not a screenshot. It only loads when you scroll this far.'
   },
 
+  // ══════════════════════════════════════════════════════════════════════
+  // DOCUMENTOS ACADÉMICOS — SEPARADOS DE LAS CERTIFICACIONES A PROPÓSITO
+  // ══════════════════════════════════════════════════════════════════════
+  // Jaime, 2026-09-02: «no hagas solo una sección». Y tiene razón, porque no
+  // son la misma clase de cosa: una CERTIFICACIÓN es un curso que él eligió
+  // hacer y aprobó (los siete de la tabla, con su folio); un DOCUMENTO
+  // ACADÉMICO es lo que la escuela o el examinador emiten sobre él y que un
+  // comité pide de oficio. Mezclarlos hace que un curso de Bloomberg y una
+  // constancia de promedio se lean con el mismo peso, y no lo tienen.
+  //
+  // LOS DOS QUE FALTAN SON LOS DOS QUE MÁS PESAN, y por eso van con el hueco
+  // a la vista: la constancia de promedio CIERRA el hueco académico que este
+  // capítulo ya declara abierto, y el Duolingo es el segundo examen de inglés
+  // que la propia página dice que le falta.
+  acadDocs: {
+    h: 'Academic documents',
+    lede: 'These are not certifications: they are what my school and the examiner issue about me, and what a committee asks for as a matter of course. Neither is here yet.',
+    promedioQue: 'Cumulative grade-point certificate',
+    promedioPide: 'The PDF or the photo of the certificate from Prepa Tec. This closes the academic gap this chapter already declares open, and it is the one that weighs most: right now the page says my grades are missing and cannot show them.',
+    duolingoQue: 'Duolingo English Test',
+    duolingoPide: 'The certificate or the score. It goes here and not with the certifications, as you asked. This is the second English exam this chapter says is missing.'
+  },
+
   // ---- Capítulo 3: servir (los voluntariados) ----
   // El grupo estudiantil se fue al capítulo de proyectos: aquí se quedan los
   // voluntariados, que es lo que Jaime pidió junto a las experiencias.
@@ -1066,7 +1089,14 @@ const en = {
     bloques: {
       animales: 'The animals',
       playas: 'Beach clean-up'
-    }
+    },
+    // ── LO QUE VIENE, Y VA EN FUTURO PORQUE NO HA PASADO ────────────────
+    // Es la diferencia con el taller y con el podcast de Rendón y Durán, que
+    // SÍ ocurrieron y por eso van en pasado. Estos dos no, y escribirlos como
+    // hechos sería exactamente lo que este documento no hace. Sin fecha: no
+    // hay ninguna, y una inventada se leería como un compromiso.
+    proximoH: 'What comes next',
+    proximo: 'Two more with the student group: a clothing drive, and one more volunteering day. Neither has happened yet; when they do, they will be here with whatever actually came of them.'
   },
 
   // ---- Capítulo 2: experiencias (en seco) ----
@@ -1093,6 +1123,14 @@ const en = {
     pista: '{n} entries',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      // ── JIUJITSU: EDAD, NO FECHA (Jaime, 2026-09-02) ──────────────────
+      // Su regla de fechas dice que se omite lo que solo dice cuándo empezó.
+      // «Desde los 13» no es una fecha de arranque: es cuántos años lleva, y
+      // eso sí dice algo — cinco años de una disciplina que nadie le pidió.
+      // Es la única línea del CV que no es de finanzas, y por eso está: un
+      // comité que lee nueve capítulos de mercados agradece saber que hay una
+      // persona. ⚠️ SIN FUENTE PÚBLICA: es palabra suya.
+      { cuando: 'Since I was 13', que: 'Jiu-jitsu — five years training' },
       // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
       // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
       // él: es 2025, no 2026.
@@ -2565,6 +2603,15 @@ const es: typeof en = {
     pie: 'Esto es {s} de verdad, cargado en vivo dentro de la página — no una captura. Solo se carga si bajas hasta aquí.'
   },
 
+  acadDocs: {
+    h: 'Documentos académicos',
+    lede: 'Esto no son certificaciones: es lo que mi escuela y el examinador emiten sobre mí, y lo que un comité pide de oficio. Ninguno de los dos está todavía.',
+    promedioQue: 'Constancia de promedio acumulado',
+    promedioPide: 'El PDF o la foto de la constancia de Prepa Tec. Con esto se cierra el hueco académico que este capítulo ya declara abierto, y es el que más pesa: hoy la página dice que faltan tus calificaciones y no las puede enseñar.',
+    duolingoQue: 'Duolingo English Test',
+    duolingoPide: 'El certificado o el puntaje. Va aquí y no con las certificaciones, como pediste. Es el segundo examen de inglés que este capítulo dice que falta.'
+  },
+
   servir: {
     animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevisté a Sol, su fundadora (2026).',
     donacion: 'También doné alimento a un stand de adopción local y pasé el día con los voluntarios y los animalitos (2026).',
@@ -2573,7 +2620,9 @@ const es: typeof en = {
     bloques: {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
-    }
+    },
+    proximoH: 'Lo que viene',
+    proximo: 'Dos más con el grupo estudiantil: una colecta de ropa y otro voluntariado. Ninguno ha pasado todavía; cuando pasen, van a estar aquí con lo que salió de ellos.'
   },
 
   exp: {
@@ -2583,6 +2632,7 @@ const es: typeof en = {
     pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      { cuando: 'Desde los 13', que: 'Jiujitsu — cinco años entrenando' },
       { cuando: '', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
       { cuando: '', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
