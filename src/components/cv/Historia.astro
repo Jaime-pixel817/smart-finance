@@ -2018,19 +2018,29 @@ const cifrasFranja = c.franja.sitioQ
              o la tienda en línea: una foto real o una captura» y ya hay
              captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
              en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
-             clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
-             corrigió Jaime — 2025, no 2026. */}
+             clavado: entra sin recorte y sin aire.
+             (Aquí decía que el pie lleva el año 2025 y ya no lo lleva: las
+             fechas de arranque se retiraron en esta misma ola.) */}
         <figure class="jasa-fig fig-sola">
           <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
             width="640" height="800" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
         </figure>
-        {/* EL SITIO DE LA REFACCIONARIA, EN VIVO. Sin respaldo de captura
-             porque no hay ninguna en el repo, así que detrás va la dirección
-             escrita: si el marco no carga, lo que se lee es dónde está el
-             sitio, que es lo que sirve. Comprobado el 2026-09-02: contesta
-             `HTTP/2 200` y no manda `X-Frame-Options` ni CSP. */}
-        <SitioVivo c={c} url="https://jasamotor.com.mx" id={`jasa-${p}`}
+        {/* EL SITIO EN VIVO ES LA TIENDA, NO EL CORPORATIVO (2026-09-02).
+             Estaba apuntando a `jasamotor.com.mx`, el sitio de la empresa —o
+             sea el que Jaime NO construyó—, a pantalla completa, en el
+             capítulo de sus proyectos, entre la línea que dice «I built its
+             online store» y el pie que dice «The store I built». Y su propio
+             figcaption remataba: «This is jasamotor.com.mx itself, loaded live
+             inside the page». Ni una línea decía que ESE no es suyo.
+             Lo que prueba lo que él afirma es la TIENDA, y es la que se
+             enmarca. Comprobado el 2026-09-02 con `curl -sSI -L`:
+             `tienda.jasamotor.com.mx` contesta `HTTP/2 200` sin
+             `X-Frame-Options` y sin CSP, igual que el corporativo.
+             Sin respaldo de captura porque no hay ninguna en el repo, así que
+             detrás va la dirección escrita: si el marco no carga, lo que se
+             lee es dónde está la tienda, que es lo que sirve. */}
+        <SitioVivo c={c} url="https://tienda.jasamotor.com.mx" id={`jasa-${p}`}
           titulo={c.proyectos.jasaH} />
         <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
 
@@ -2196,7 +2206,11 @@ const cifrasFranja = c.franja.sitioQ
          grabación y no dos. */}
     <h3 class="t-h3 ens-h">{c.yaOcurrio.podcastH}</h3>
     <p class="cap-frases">{c.yaOcurrio.podcast}</p>
-    <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+    {/* `dichoSuyo` y NO `cifraSuya`: esto no es una cifra y no es del 29 de
+         agosto. `cifraSuya` se escribió para las dos cifras de ese día, y aquí
+         publicaba una fecha de procedencia falsa —la afirmación es del
+         2026-09-02— y llamaba «cifra» a una frase sin números. */}
+    <p class="meta-mono cifra-suya-marca">{c.dichoSuyo}</p>
     <HuecoMaterial c={c} que={c.yaOcurrio.podcastQue} />
 
     <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>

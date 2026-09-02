@@ -25,13 +25,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // LA COLUMNA DE LA DERECHA NO ES UNA LEYENDA: ES LA PIEZA
 // ═══════════════════════════════════════════════════════════════════════════
-// El índice de texto vive FUERA del contenedor del lienzo, a propósito y por
-// dos motivos que costaron medirlos en el prototipo:
-//  · La regla de impresión esconde el LIENZO. Con el índice dentro, escondía
-//    también los once enlaces, o sea la pieza entera al imprimir.
+// El índice de texto vive FUERA del contenedor del lienzo, a propósito:
 //  · Es la degradación real. Sin JavaScript, sin WebGL, con «menos
 //    movimiento» o con la GPU ahogada, esta lista es idéntica y completa. No
 //    se pierde una sola pieza: se pierde el dibujo.
+// (Aquí había un segundo motivo —que la lista sobreviviera a la impresión— y
+//  ya no aplica: el módulo entero no se imprime, y por qué está escrito abajo,
+//  en el `@media print`. El motivo de arriba se sostiene solo.)
 // Y va AL LADO y no debajo porque un micrófono es alto y estrecho —al revés
 // que el globo—: puesto a lo ancho del marco dejaba un hueco muerto enorme
 // entre el dibujo y la lista, que es justo lo que Jaime señaló.
@@ -318,15 +318,23 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
     .mic-nodos :global(.nodo-et), .mic-fila { transition: none; }
   }
 
-  /* ═══ AL IMPRIMIR ═══════════════════════════════════════════════════════
-     Se va el LIENZO; la lista se queda entera. Es la razón por la que el
-     índice vive fuera del contenedor del lienzo: dentro, esta regla se habría
-     llevado por delante los once enlaces. */
+  /* ═══ AL IMPRIMIR NO VA ═══════════════════════════════════════════════
+     Antes se iba solo el LIENZO y la lista se quedaba. Eso contradecía la
+     primera línea de la hoja impresa (`impresionNota`), que le promete al
+     lector, con estas palabras: «El CV completo —las fotografías, LOS CLIPS,
+     LAS CONVERSACIONES y el sitio— está en la página desde la que se
+     imprimió». El papel arrancaba con un índice de once conversaciones y
+     clips justo debajo de esa promesa.
+     Y los once «En el capítulo ↓» apuntan a piezas del capítulo 8, que es
+     `sin-imprimir`: en papel eran once enlaces a algo que no está en la hoja.
+     El impreso es un SUBCONJUNTO declarado y esto es la obertura de lo que
+     vive en pantalla, así que se va con su capítulo. Una regla, dicha una
+     vez, obedecida en los dos sitios.
+     EL ÍNDICE SIGUE VIVIENDO FUERA DEL CONTENEDOR DEL LIENZO. Esa decisión
+     nunca fue solo por la impresión: su motivo fuerte es la DEGRADACIÓN —sin
+     JavaScript, sin WebGL o con la GPU ahogada, esa lista es la pieza entera—
+     y ese motivo sigue en pie. */
   @media print {
-    .mic-stage { display: none; }
-    .mic-cuerpo { display: block; }
-    .mic-lista { grid-template-columns: repeat(2, 1fr); }
-    .mic-fila { break-inside: avoid; }
-    .mic { padding-block: var(--sp-4); }
+    .mic { display: none; }
   }
 </style>

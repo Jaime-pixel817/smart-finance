@@ -2,8 +2,13 @@
 //
 // Aquí vive lo que NO cambia con el idioma: qué nodo es, de qué tipo, a qué
 // pieza abre y a qué capítulo baja. Los nombres, los cargos y la línea de qué
-// pasó viven en `src/i18n/cv.ts` (`mic.nodos.<id>`), porque son texto y el CV
-// es bilingüe exacto.
+// pasó viven en `src/i18n/cv.ts`, porque son texto y el CV es bilingüe exacto.
+// Con precisión, porque este archivo es al que vendrá quien añada el nodo 12
+// (Rendón y Durán) y mandarlo a una clave que no existe es peor que no decir
+// nada: la línea de QUÉ ABRE está en `mic.abre.<id>`; el nombre y el cargo NO
+// están ahí, están en `entrevistas.personas.<id>` (personas) y en
+// `mic.paises.<id>` (países). Es lo que hace `Microfono.astro`, y ahí está
+// bien escrito. Aquí decía `mic.nodos.<id>`, que no existe.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LA REGLA QUE DECIDE QUIÉN TIENE PUNTO — Y ES DE JAIME
@@ -47,7 +52,8 @@
 // LI-15 dicen «I was selected to represent Mexico» — no se auto-asignó.
 // Si el micrófono no dice esa diferencia en una línea, se lee como si
 // grabar un video de datos de Japón fuera lo mismo que conseguir a un
-// ejecutivo de FX. El rótulo `mic.dosMitades` lo dice.
+// ejecutivo de FX. Lo dice el rótulo `mic.lede` — aquí ponía
+// `mic.dosMitades`, que tampoco existe.
 
 /** Vídeo de TikTok de Jaime, por id. Es la misma forma que usa Historia.astro. */
 export const TIKTOK = 'https://www.tiktok.com/@smart.financee/video/';
@@ -94,7 +100,9 @@ export const NODOS = [
     // ⚠️ LO QUE NO SE AFIRMA: que los 30 minutos sean suyos. Ese vídeo es la
     // emisión del día de un programa del Tec, y el podcast de Jaime es un
     // segmento dentro. No hay fuente para el minuto en el que empieza, así que
-    // no se escribe (el hueco `micMinuto` se lo pregunta).
+    // no se escribe: va como hueco en pantalla (`mic.minutoQue`) y la pregunta
+    // entera está en `cv-material/PENDIENTE.md`, punto 5. La clave `micMinuto`
+    // que ponía aquí no existe.
     href: 'https://www.youtube.com/live/Y2Qmay5XdOg',
     externo: 'YouTube · ExprésaTEC', verificado: true
   },

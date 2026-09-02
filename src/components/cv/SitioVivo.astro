@@ -33,9 +33,10 @@
 // smartfinance.lat en la cabecera `Referer`. Es la misma regla que ya lleva el
 // `<head>` de la página, aplicada al sitio incrustado.
 //
-// ⚠️ COMPROBADO EL 2026-09-02 con `curl -sI`: los dos dominios contestan
-// `HTTP/2 200` sin `X-Frame-Options` y sin `Content-Security-Policy`, o sea
-// sin `frame-ancestors`. Si algún día uno de los dos empieza a mandarlos, el
+// ⚠️ COMPROBADO EL 2026-09-02 con `curl -sSI -L`: los dominios que se enmarcan
+// —`smartfinance.lat` y `tienda.jasamotor.com.mx`— contestan `HTTP/2 200` sin
+// `X-Frame-Options` y sin `Content-Security-Policy`, o sea sin
+// `frame-ancestors`. Si algún día uno de los dos empieza a mandarlos, el
 // marco se queda en blanco y lo que se verá es el respaldo — que es
 // exactamente para lo que está.
 import type { CvCopy } from '../../i18n/cv';

@@ -59,6 +59,16 @@ const en = {
   // «mi cifra de 2026» no dice si tiene una semana o diez meses.
   cifraSuya: 'My figure, 29 August 2026. This page does not count it: it is my claim.',
 
+  // ── Y ESTE ES EL MISMO RECIBO PARA LO QUE NO ES UNA CIFRA ────────────
+  // `cifraSuya` se escribió para las DOS cifras del 29 de agosto (≈200 en la
+  // comunidad, +100 en el boletín) y se estaba usando también debajo del
+  // podcast de Rendón y Durán, que no es una cifra y no es del 29 de agosto:
+  // esa afirmación es del 2026-09-02 (lo dice la cabecera de su propio bloque
+  // aquí abajo y lo fecha ESTADO-NOCTURNO.md). O sea que el recibo mentía dos
+  // veces —la fecha y la palabra «cifra»— en un documento cuya tesis es que
+  // cada afirmación lleva el suyo.
+  dichoSuyo: 'My word, 2 September 2026. This page does not verify it: it is my claim.',
+
   // EL AÑO EN DISPUTA, EN PANTALLA. Mismo recibo que `cifraSuya` y por el
   // mismo motivo: 2025 es lo que dice Jaime («que la creé desde 2025 empecé»,
   // 2026-08-30; «el grupo estudiantil lo creó a finales de 2025», 2026-08-29)
@@ -376,7 +386,13 @@ const en = {
     // `{n}` lo rellena el componente con NODOS.length: escrito a mano, el
     // número mentiría en cuanto entre el punto 12 (Rendón y Durán).
     piezas: '{n} pieces',
-    lede: 'Every point opens something that exists. The seven people are the leadership — who I got to sit down with me. The four countries are the voice — what I say when nobody is asking. They are not the same thing and this page does not pretend they are.',
+    // ── ERA UN CALCO DEL ESPAÑOL Y NO ERA UNA ORACIÓN (2026-09-02) ──────
+    // Decía «The seven people are the leadership — who I got to sit down with
+    // me», traducido palabra por palabra de «a quién conseguí sentar conmigo».
+    // En español ese «a quién» abre una interrogativa indirecta y funciona; en
+    // inglés queda una relativa sin antecedente, o sea media frase. Y es la
+    // SEGUNDA que lee quien lo nomine para la Pearson.
+    lede: 'Every point opens something that exists. The seven people are the leadership — the ones I got to sit down with me. The four countries are the voice — what I say when nobody is asking. They are not the same thing and this page does not pretend they are.',
     // El pie del micrófono: es a la vez la entrega al documento y la promesa
     // de que arriba no se cuenta nada que abajo no esté entero.
     sigue: 'Everything below is the long version. Nothing up here replaces a chapter.',
@@ -1122,7 +1138,15 @@ const en = {
   // Las publicaciones nuevas que suman (visita a U of T/Rotman, Concordia,
   // AEM, la firma CFA×Tec con Marg Franklin) entran con su año.
   exp: {
-    lede: 'What, where, when — years only. This chapter and the next are the ones a committee scans.',
+    // ── PROMETÍA UNA COLUMNA QUE LA TABLA NO TIENE (2026-09-02) ────────
+    // Decía «What, where, when — years only». Contado sobre el HTML
+    // construido: de los doce renglones, CINCO no llevan ninguna fecha (Jon
+    // Maier, la comunidad estudiantil, la AEM, Jasa Motor y smartfinance.lat)
+    // y siete llevan «2026». El commit 67302d9 quitó los años de arranque
+    // —con razón, es la regla de fechas de Jaime— y no tocó la frase que los
+    // anuncia, así que el capítulo que «un comité escanea» abría prometiendo
+    // una columna que no cumple, y se ve sin desplegar nada.
+    lede: 'What, where, and the year where the year says something. This chapter and the next are the ones a committee scans.',
     // ── PLEGADO DESDE EL 2026-08-30 ─────────────────────────────────────
     // Jaime: «experience consume mucho, mejor que sea una cosa que diga view
     // y ya se deslice toda mi experience». El rótulo es el suyo. `pista`
@@ -2292,6 +2316,8 @@ const es: typeof en = {
   docTitle: 'Jaime Sandoval Ricaño — Smart Finance',
 
   cifraSuya: 'Mi cifra, del 29 de agosto de 2026. Esta página no la cuenta: es mi afirmación.',
+  // Ver la nota del bloque inglés: el podcast no es una cifra ni es del 29.
+  dichoSuyo: 'Palabra mía, del 2 de septiembre de 2026. Esta página no lo verifica: es mi afirmación.',
 
   // Ver la nota de la tabla inglesa.
   // Ver la nota de la tabla inglesa: son las CINCO filas de 2025.
@@ -2647,7 +2673,9 @@ const es: typeof en = {
   },
 
   exp: {
-    lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
+    // Ver la nota del bloque inglés: cinco de los doce renglones no llevan
+    // fecha, así que «solo el año» prometía una columna que no está.
+    lede: 'Qué, dónde, y el año donde el año dice algo. Este capítulo y el siguiente son los que un comité escanea.',
     // Ver la nota de la tabla inglesa: el plegable nace abierto.
     ver: 'Mi experiencia',
     pista: '{n} renglones',
