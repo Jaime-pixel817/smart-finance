@@ -83,19 +83,54 @@ import { NODOS } from '../lib/cv/microfono.mjs';
 // fondo de la bola en y = -0.079, o sea el collar iba ENTERRADO DENTRO de la
 // canasta. Aquí va justo por debajo, y es más ancho que el cuerpo y más
 // estrecho que la bola, que es lo que dibuja el escalón.
-const HEAD_Y = 0.46, HEAD_R = 0.42, HEAD_SY = 1.06;   // bola: fondo en y = 0.015
+// ── LA BOLA BAJA HASTA MORDER EL COLLAR (2026-09-02) ───────────────────
+// Con `HEAD_Y = 0.46` el corte de la bola caía en y = 0.104 y el primer aro
+// del collar en y = 0.020: 0.084 de papel en blanco entre las dos piezas. Con
+// la rejilla puesta el hueco no se veía —los meridianos bajaban hasta el corte
+// y llenaban la zona—, y al quitarla quedó a la vista: una cúpula flotando
+// sobre un vaso. Es, palabra por palabra, lo que advierte el comentario de
+// arriba («con hueco entre los dos, el cuerpo se lee como un objeto aparte
+// flotando debajo de una bola»). Con 0.38 el corte de la bola cae en 0.024 y
+// el primer aro del collar en 0.035, o sea el collar MUERDE la bola por 0.011.
+// Morder no es enterrar: el fallo del primer intento que cuenta el comentario
+// de arriba era un collar 0.177 por encima del fondo de la bola, o sea dentro.
+const HEAD_Y = 0.38, HEAD_R = 0.42, HEAD_SY = 1.06;
 const HEAD_CUT = -0.80;              // se queda con el 90 % de la esfera
-const RING_R = 0.235;                // > cuerpo (0.205) y < bola (0.42)
-const RING_Y0 = 0.020, RING_DY = 0.030, RING_N = 4;   // el collar, 4 anillos
+// El corte de la bola mide 0.252 de radio (0.42 · sen del corte). El collar va
+// por debajo de esa medida y por encima del cuerpo: ese es el ESCALÓN.
+const RING_R = 0.235;                // < corte de la bola (0.252) y > cuerpo (0.180)
+const RING_Y0 = 0.035, RING_DY = 0.030, RING_N = 4;   // el collar, 4 anillos
+// El collar baja hasta 0.035 − 3·0.030 = −0.055, y ahí ARRANCA el cuerpo: sin
+// ese encaje quedaba otro milímetro de papel entre el aro y el tubo.
 // EL CUERPO SE ESTRECHA DE VERDAD (0.212 → 0.132, un 38 %). Con la conicidad
 // del primer intento (0.205 → 0.175, un 15 %) la silueta era casi un tubo
 // recto y, con el fondo abierto en elipse por la perspectiva, se leía como un
 // VASO. Un SM58 se estrecha claramente hacia la mano; ese estrechamiento es lo
 // que dice «esto se agarra».
-const BODY_TOP = -0.085, BODY_BOT = -0.90, BODY_RT = 0.212, BODY_RB = 0.132;
+// ── Y SE ESTRECHA MENOS, PORQUE UN CONO ES UN VASO ─────────────────────
+// 0.212 → 0.132 es un 38 % de estrechamiento, y con el cuerpo tan ancho como
+// medio la bola lo que se leía era un vaso cónico. Un SM58 es casi un tubo:
+// se estrecha, pero poco, y es CLARAMENTE más fino que la bola. 0.180 → 0.132
+// es un 27 % y deja el cuerpo en el 43 % del ancho de la bola (antes 50 %).
+const BODY_TOP = -0.055, BODY_BOT = -0.96, BODY_RT = 0.180, BODY_RB = 0.132;
 // El objeto no es simétrico en Y (la bola arriba, el remate abajo): se centra
-// a mano para que no quede colgando en su caja.
-const CENTRO_Y = -0.06;
+// para que no quede colgando en su caja.
+// ── NO SE ESCRIBE A MANO: SE CALCULA DE LA FORMA (2026-09-02) ───────────
+// Aquí había un `-0.06` escrito, y estaba CON EL SIGNO AL REVÉS. El alto crudo
+// iba de −1.0254 (la punta del remate) a +0.9052 (lo alto de la bola), o sea
+// su centro estaba en −0.0601; `put` hace `y + CENTRO_Y`, así que centrar
+// pedía SUMAR +0.0601 y lo que hacía era empujar el objeto otro tanto hacia
+// abajo. Medido en píxeles pintados sobre `dist` (1280, 1440 y 1920, lienzo
+// 354×559): 15 px de tinta EN LA ÚLTIMA FILA del lienzo y 31 px de papel
+// muerto arriba. El remate —la pieza que CIERRA el micrófono y lo separa de un
+// vaso abierto— no llegaba a dibujarse.
+// Escrito a mano vuelve a mentir en cuanto alguien mueva una proporción, y no
+// avisa. Estas dos líneas son la misma cuenta que el error de arriba, hecha
+// por la máquina: lo más alto que llega la bola y lo más bajo que llega el
+// remate, y el punto medio de los dos.
+const ALTO_MAX = HEAD_Y + HEAD_R * HEAD_SY;          // la cima de la bola
+const BAJO_MIN = BODY_BOT - BODY_RB * 0.95;          // la punta del remate
+const CENTRO_Y = -(ALTO_MAX + BAJO_MIN) / 2;
 // ── POR QUÉ EL CUERPO VA MÁS OSCURO QUE LA CANASTA ─────────────────────
 // Porque lo es. La canasta de un micrófono es una MALLA: se ve a través. El
 // cuerpo es un tubo de metal macizo. Dibujados con la misma tinta, la canasta
@@ -121,14 +156,20 @@ export function construir(N: number): Geometria {
   const GA = Math.PI * (3 - Math.sqrt(5));
   let i = 0;
 
-  // Reparto: canasta 27 % · rejilla 15 % · collar 10 % · cuerpo 36 % · remate 12 %.
-  // El cuerpo se lleva MÁS que la canasta a propósito. Con el reparto de la
-  // primera versión (32/19 arriba contra 32/10 abajo) la bola salía cargada de
-  // tinta y el cuerpo translúcido, y entonces sí se leía como un champiñón:
-  // una cabeza sólida sobre un tallo. La proporción estaba bien; lo que estaba
-  // mal era el CONTRASTE entre las dos mitades.
-  const nHead = (N * 0.27) | 0, nGrid = (N * 0.15) | 0, nRing = (N * 0.10) | 0;
-  const nBody = (N * 0.36) | 0, nCap = N - nHead - nGrid - nRing - nBody;
+  // Reparto: canasta 38 % · collar 10 % · cuerpo 38 % · remate 14 %.
+  // ── LA REJILLA DE LAT/LON SE FUE, Y ES LA CONDICIÓN 1 DE JAIME ─────────
+  // Se llevaba el 15 % de los puntos dibujando seis paralelos y dieciocho
+  // meridianos sobre la bola. Eso no es la malla de un micrófono: es, punto
+  // por punto, un globo de alambre — y la frase de Jaime (2026-09-02) es
+  // «que EN VEZ DE UN MUNDO sea un micrófono». Mirado en la captura, lo que
+  // había era una esfera de alambre flotando sobre un vaso.
+  // La malla de un micro de verdad no se lee como retícula sino como TEXTURA
+  // FINA Y PAREJA, que es exactamente lo que da la espiral de Fibonacci. Así
+  // que el 15 % no se sustituye por otro dibujo: se reparte entre la canasta
+  // (que gana densidad de malla) y el cuerpo y el remate, que es donde
+  // faltaba tinta.
+  const nHead = (N * 0.38) | 0, nRing = (N * 0.10) | 0;
+  const nBody = (N * 0.38) | 0, nCap = N - nHead - nRing - nBody;
 
   const put = (x: number, y: number, z: number, nx: number, ny: number, nz: number, kind: number) => {
     pos[i * 3] = x; pos[i * 3 + 1] = y + CENTRO_Y; pos[i * 3 + 2] = z;
@@ -149,44 +190,35 @@ export function construir(N: number): Geometria {
   }
   for (let j = 0; j < nHead; j++) { const d = hd[j % hd.length]; head(d[0], d[1], d[2], 0); }
 
-  // 2 · REJILLA — paralelos y meridianos. Esto es lo que lo vuelve un
-  //     MICRÓFONO y no una paleta: la canasta de un micro de verdad ES una
-  //     malla de lat/lon. Y es, punto por punto, un globo de alambre — que es
-  //     exactamente lo que Jaime pidió («como el globo… que en vez de un mundo
-  //     sea un micrófono»).
-  const LAT = 6, LON = 18, per = (nGrid / (LAT + LON)) | 0;
-  for (let k = 0; k < LAT; k++) {
-    const la = HEAD_CUT + (k + 0.55) / LAT * (0.97 - HEAD_CUT);
-    const r = Math.sqrt(Math.max(0, 1 - la * la));
-    for (let j = 0; j < per; j++) { const th = j / per * Math.PI * 2; head(Math.cos(th) * r, la, Math.sin(th) * r, 1); }
-  }
-  for (let k = 0; k < LON; k++) {
-    const a = k / LON * Math.PI * 2;
-    for (let j = 0; j < per; j++) {
-      const t = HEAD_CUT + j / per * (0.995 - HEAD_CUT), r = Math.sqrt(Math.max(0, 1 - t * t));
-      head(Math.cos(a) * r, t, Math.sin(a) * r, 1);
-    }
-  }
-
-  // 3 · EL COLLAR — cuatro anillos apretados justo DEBAJO de la bola. Es la
+  // 2 · EL COLLAR — cuatro anillos apretados justo DEBAJO de la bola. Es la
   //     pieza que separa «micrófono» de «champiñón», y por eso se lleva el
   //     10 % de los puntos con solo el 4 % de la altura: tiene que verse.
-  //     Van con `kind = 1` (tinta plena), como la rejilla.
+  //     Van con `kind = 1` (tinta plena): con la rejilla fuera, el collar es
+  //     la ÚNICA línea de dibujo que queda, y es la que dice «dos piezas
+  //     ensambladas» en vez de «una bola encima de un tubo».
   for (let j = 0; j < nRing; j++) {
     const th = (j * GA) % (Math.PI * 2), k = j % RING_N;
     put(Math.cos(th) * RING_R, RING_Y0 - k * RING_DY, Math.sin(th) * RING_R,
       Math.cos(th), 0.10, Math.sin(th), 1);
   }
 
-  // 4 · CUERPO — cono truncado hueco. La pendiente entra en la normal.
+  // 3 · CUERPO — cono truncado hueco. La pendiente entra en la normal.
+  //     ── IBA ETIQUETADO COMO MALLA, Y ES UN TUBO (2026-09-02) ───────────
+  //     La leyenda de `kind` de este mismo archivo dice «0 = malla · METAL =
+  //     tubo», y el cuerpo se pasaba con 0: el tubo de metal macizo se pintaba
+  //     con la tinta translúcida de la rejilla de la canasta. De ahí salía la
+  //     inversión que se ve en la captura —la bola cargada y el cuerpo casi
+  //     transparente—, o sea justo el «champiñón» que el comentario de arriba
+  //     dice haber arreglado. Medido en píxeles pintados: 20.8 % de tinta en
+  //     la mitad de la bola contra 8.1 % en la del cuerpo.
   const slope = (BODY_RT - BODY_RB) / (BODY_TOP - BODY_BOT);
   for (let j = 0; j < nBody; j++) {
     const u = j / nBody, th = (j * GA) % (Math.PI * 2);
     const y = BODY_TOP + u * (BODY_BOT - BODY_TOP), r = BODY_RT + u * (BODY_RB - BODY_RT);
-    put(Math.cos(th) * r, y, Math.sin(th) * r, Math.cos(th), slope, Math.sin(th), 0);
+    put(Math.cos(th) * r, y, Math.sin(th) * r, Math.cos(th), slope, Math.sin(th), METAL);
   }
 
-  // 5 · REMATE — casquete redondeado que CIERRA el cuerpo. Con una falda que se
+  // 4 · REMATE — casquete redondeado que CIERRA el cuerpo. Con una falda que se
   //     abre, el micrófono parece estar de pie sobre un platillo.
   for (let j = 0; j < nCap; j++) {
     const u = j / nCap, th = (j * GA) % (Math.PI * 2);
@@ -357,6 +389,10 @@ export function crearMotor(canvas: HTMLCanvasElement, n: number): Motor {
     gl.vertexAttribPointer(l, size, gl.FLOAT, false, 0, 0);
   };
   buf(g.pos, 'aP', 3); buf(g.nrm, 'aN', 3); buf(g.meta, 'aI', 2);
+  // Se guarda la referencia porque `resize()` mide el encuadre sobre los
+  // puntos de verdad; los buffers ya están subidos, esto no cuesta memoria
+  // nueva.
+  const pos = g.pos;
 
   const U: Record<string, WebGLUniformLocation | null> = {};
   ['uIn', 'uCz', 'uFo', 'uPx', 'uRy', 'uRx', 'uSc', 'uTinta', 'uTinta2', 'uA']
@@ -387,16 +423,37 @@ export function crearMotor(canvas: HTMLCanvasElement, n: number): Motor {
       // ── QUE EL MICRÓFONO LLENE SU CAJA, SEA CUAL SEA LA CAJA ────────────
       // Sin esto el dibujo salía al 55 % de una caja de 420×620 y el resto era
       // papel en blanco — que es exactamente el «hueco muerto» que hay que
-      // quitar. La escala no se pone a ojo: se calcula de la caja envolvente
-      // del objeto (medio alto 0.92, medio ancho 0.44 en unidades de mundo) y
-      // del factor de perspectiva a media profundidad, y se queda con el eje
-      // que se agote antes. `MARGEN` es cuánto del lienzo se le deja, y no
-      // llega a 1 a propósito: un objeto tocando el borde de su caja se lee
-      // como recortado.
-      const MARGEN = 0.94, MEDIO_ALTO = 0.92, MEDIO_ANCHO = 0.44, K_MEDIA = 2.85 / 3.4;
+      // quitar. `MARGEN` es cuánto del lienzo se le deja, y no llega a 1 a
+      // propósito: un objeto tocando el borde de su caja se lee como recortado.
+      //
+      // ── LA CAJA NO SE ESCRIBE A MANO: SE PROYECTA (2026-09-02) ──────────
+      // Aquí había tres constantes escritas —medio alto 0.92, medio ancho 0.44
+      // y el factor de perspectiva a media profundidad— y la primera MENTÍA:
+      // el medio alto real de la geometría era 1.0854, un 18 % más, así que el
+      // margen del 0.94 que este comentario prometía no existía y el remate se
+      // salía del lienzo (15 px de tinta en la última fila, medidos en píxeles
+      // pintados a 1280, 1440 y 1920). Una constante escrita a mano caduca en
+      // cuanto alguien toca una proporción, y no avisa.
+      // Se proyectan los PUNTOS DE VERDAD con `fit = 1` —la proyección es
+      // lineal en `fit`, así que basta una pasada— y se toma el que más lejos
+      // llega. Sale exacto, incluye la perspectiva de cada punto en vez de
+      // aproximarla con una media, y se recalcula solo si cambia la forma.
+      const MARGEN = 0.94;
       const asp = cssW / cssH;
-      const sxB = asp > 1 ? 1 / asp : 1, syB = asp > 1 ? 1 : asp;
-      m.fit = Math.min(MARGEN / (MEDIO_ALTO * K_MEDIA * syB), MARGEN / (MEDIO_ANCHO * K_MEDIA * sxB));
+      const sc0 = asp > 1 ? 1 / asp : 1, sc1 = asp > 1 ? 1 : asp;
+      const cy = Math.cos(m.rotY), sy = Math.sin(m.rotY);
+      const cx = Math.cos(m.rotX), sx = Math.sin(m.rotX);
+      let ext = 1e-6;
+      for (let k = 0; k < n; k++) {
+        const px = pos[k * 3], py = pos[k * 3 + 1], pz = pos[k * 3 + 2];
+        const qx = px * cy + pz * sy, qz = -px * sy + pz * cy;
+        const ry = py * cx - qz * sx, rz = py * sx + qz * cx;
+        const kk = 2.85 / (3.4 - rz);
+        const nx = Math.abs(qx * kk * sc0), ny = Math.abs(ry * kk * sc1);
+        if (nx > ext) ext = nx;
+        if (ny > ext) ext = ny;
+      }
+      m.fit = MARGEN / ext;
     },
 
     // Proyección a mano — sin mat4, sin librería. Es la MISMA cuenta que el
