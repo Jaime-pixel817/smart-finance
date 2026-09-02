@@ -90,6 +90,17 @@ const en = {
   // pública (Jasa Motor) el recibo dice que no hay con qué comparar, y no se
   // le pone un año de adorno ni se le quita el suyo.
   anioDisputa: 'The five 2025 dates on this page are my word: the student group, smartfinance.lat, Jasa Motor, the AEM assembly and the session with Jon Maier. My LinkedIn publishes the group as January 2026 and smartfinance.lat as February 2026; my posts about the AEM and about that session are from 2026; Jasa Motor has no published date to compare against. This page writes what I say and shows you the difference; it does not decide which one is right.',
+  // ── Y SE IMPRIME UNA VEZ, NO TRES (2026-09-01) ─────────────────────────
+  // El recibo de arriba salía ENTERO en los tres sitios donde se lee un
+  // 2025: la tabla de experiencia, el lede del sitio y el bloque de Jasa
+  // Motor. Son 78 palabras × 3 = 234, el 5 % de todo el texto del documento,
+  // diciendo tres veces lo mismo — y las tres veces la lista completa de las
+  // cinco fechas, aunque en dos de esos sitios sólo se lee UNA.
+  // Se queda entero DONDE ESTÁN LAS CINCO, que es la tabla de experiencia;
+  // en los otros dos va este renglón, que dice lo mismo que importa ahí —
+  // este año es palabra mía— y manda al recibo POR EL TÍTULO del capítulo,
+  // no por su número. Nada se esconde: lo que se quita es la repetición.
+  anioDisputaCorto: 'This 2025 is my word, not a published date. The receipt is in “{s}”.',
 
   // ---- Marca de hueco ----
   hueco: {
@@ -161,7 +172,7 @@ const en = {
        cambia y es la que se escribe ahora: el del cartel es de un tercero que
        no me lo dio para publicarlo; el de la carta lo escribió quien la firma
        en un documento que me dio para entregarlo. */
-    sol: 'A portrait of Sol — or a frame from the march videos. The one I sent from the stand is not published here: a phone number is legible on the sign and nobody gave it to me to publish.',
+    sol: 'A portrait of Sol, or a frame from the march videos. The one from the stand is not published here: a phone number is legible on the sign.',
     // YA NO SE USA (2026-08-31): la ficha de su carta enseña el cuadro de la
     // entrevista, que es lo que pidió el MAPA.md. Ver la nota de arriba.
     cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
@@ -249,7 +260,7 @@ const en = {
     tag: 'Checkable, before you scroll',
     // 7 CERTIFICACIONES, 6 CON ID. El calificativo estaba escrito a mano y
     // decía «each with its credential ID»; la fila 4 (GREEN TECHNOLOGY
-    // PROGRAMME, BlueSky Education) lleva `cred: ''` y su propia tarjeta
+    // PROGRAMME, Bluesky Education) lleva `cred: ''` y su propia tarjeta
     // imprime «No credential ID published». O sea que la franja rotulada
     // «Checkable, before you scroll» — lo primero que ve un lector de cuatro
     // minutos — quedaba desmentida dos capítulos más abajo por la propia
@@ -259,7 +270,16 @@ const en = {
     // esta franja: `{n}` lo rellena Historia.astro con las filas que de
     // verdad tienen `cred`. Si mañana llega el ID que falta, la frase pasa
     // sola a decir 7 de 7.
-    certsQ: 'certifications, {n} of them with a credential ID',
+    // ── Y AHORA DICE QUÉ TRAE LA SÉPTIMA, NO SOLO QUE LE FALTA (2026-09-01)
+    // Con «{n} of them with a credential ID» la franja era exacta y se leía
+    // como una carencia: seis de siete, y la séptima ahí sin decir qué es.
+    // Desde que su tarjeta publica lo que el certificado SÍ imprime —Shaw
+    // Foundation Alumni House y el rango de fechas—, la franja lo dice
+    // también, y las dos cifras suman las siete. NINGUNA de las dos está
+    // escrita: `{n}` son las filas con `cred` y `{d}` las que tienen
+    // `dondeCuando`, y Historia.astro tumba el build si entre las dos no
+    // cubren todas las filas.
+    certsQ: 'certifications: {n} with a credential ID, {d} with the venue and dates printed on the certificate',
     cartasQ: 'letters signed by CEOs in Singapore, with the contact each of them gave',
     sitioN: 'smartfinance.lat',
     sitioQ: 'a site I built: {p} automated tests · {l} bilingual lessons · {f} cited sources · {g} glossary terms',
@@ -277,12 +297,20 @@ const en = {
   // después las certificaciones, y al final la frase. Ver la cabecera de
   // Historia.astro para qué se movió de dónde.
   //
-  // El 1 lleva su nombre como titular (el título de aquí solo sale en el
-  // índice) y el 9 es la frase final.
+  // El PRIMERO lleva su nombre como titular (el título de aquí solo sale en
+  // el índice) y el ÚLTIMO es la frase final.
   // JAIME PIDIÓ FUSIONAR (brief del 2026-08-28) los capítulos de las
   // conversaciones y del canal: primero las conversaciones, después el
-  // teaching, en UN capítulo (c4). El hueco que deja lo ocupa la sección
-  // nueva de cartas de recomendación (c8), después de las certificaciones.
+  // teaching, en UN capítulo.
+  //
+  // ── LAS CLAVES SON NOMBRES, NO NÚMEROS (2026-09-01) ───────────────────
+  // Eran `c1`…`c11`, o sea la POSICIÓN. Con eso, mover un capítulo dejaba
+  // `c10` significando otra cosa en cinco sitios —el índice, la marca de
+  // «esto lo firma un tercero», tres rótulos accesibles de la franja y la
+  // fuente del premio— y ninguno se quejaba, porque `c10` seguía existiendo.
+  // El orden vive AHORA en un solo sitio: la lista `capitulos` de
+  // Historia.astro, con los bloques JSX en ese mismo orden. Aquí sólo viven
+  // los títulos.
   // ── DE NUEVE A ONCE, Y UN CAPÍTULO SE MOVIÓ (ola 2, 2026-08-31) ────────
   // Entran DOS capítulos nuevos y ninguno inventa nada:
   //  · c3 «School, grades and English» — el CV no tenía UN SOLO dato
@@ -293,7 +321,14 @@ const en = {
   //    certificados (que son cursos) y cero competencias, y el único premio
   //    estaba enterrado en el capítulo de las cartas.
   //
-  // Y «Everyone brings something» BAJA del 4 al 6, detrás de los proyectos.
+  // ── Y LAS CARTAS Y LOS PREMIOS SUBEN AL 3 Y AL 4 (2026-09-01) ─────────
+  // Estaban en el 10 y el 9: medido sobre la página pintada, la primera
+  // carta firmada por un CEO empezaba en el 88.7 % del documento. Las cuatro
+  // razones de por qué van justo ahí —y no antes de experiencia, ni después
+  // de los proyectos— están en la cabecera de `capitulos` en Historia.astro,
+  // con los números.
+  //
+  // Y «Everyone brings something» BAJA detrás de los proyectos.
   // Es el capítulo con DIEZ de los quince huecos de texto de la página, y
   // era la quinta pantalla. El orden que pidió Jaime el 2026-08-27 ponía su
   // canal DESPUÉS de los proyectos («luego mis proyectos y arrancas con el
@@ -304,17 +339,17 @@ const en = {
   // Historia.astro y el orden de los bloques JSX. Si Jaime lo quiere arriba,
   // vuelve arriba.
   caps: {
-    c1: 'I opened my eyes',
-    c2: 'Experience',
-    c3: 'School, grades and English',
-    c4: 'Serving',
-    c5: 'My projects',
-    c6: 'Everyone brings something',
-    c7: 'Reto Actinver and private equity',
-    c8: 'Certifications',
-    c9: 'Awards',
-    c10: 'Recommendation letters',
-    c11: 'The sentence'
+    abro: 'I opened my eyes',
+    experiencias: 'Experience',
+    academico: 'School, grades and English',
+    voluntariados: 'Serving',
+    proyectos: 'My projects',
+    conversaciones: 'Everyone brings something',
+    retoPe: 'Reto Actinver and private equity',
+    certificaciones: 'Certifications',
+    premios: 'Awards',
+    cartas: 'Recommendation letters',
+    frase: 'The sentence'
   },
 
   // ---- Capítulo 1: portada ----
@@ -510,6 +545,45 @@ const en = {
     abrir: 'Open the site'
   },
 
+  // ═════════════════════════════════════════════════════════════════════════
+  // EL CONTRATIEMPO. UNO, REAL, Y CON LA FUENTE ESCRITA EN LA PANTALLA
+  // ═════════════════════════════════════════════════════════════════════════
+  // Sustituye a los ocho huecos «si algo salió mal» que había uno por
+  // capítulo (ver la nota de `huecos`, junto a `contraOtro`).
+  //
+  // DE DÓNDE SALE, PALABRA POR PALABRA. De `docs/context/lessons.md` de este
+  // mismo repositorio, entrada «Una cifra que se publica se MIDE, y se dice
+  // contra qué línea base»: el commit que limpió las fotos sin usar presumía
+  // de borrar «1.2 MB desplegados» y el PR repetía la cifra; sumados pesaban
+  // **320 692 B**, cuatro veces menos. Era una estimación a ojo publicada
+  // como si fuera una medición, de algo que `git ls-tree -r -l` da exacto en
+  // un segundo. De ahí salió la regla del proyecto.
+  //
+  // POR QUÉ ESTE Y NO OTRO. Cumple las dos mitades que exige el nivel 5 de
+  // Queen's —el hecho Y qué cambió después— y cumple además la regla de esta
+  // página, que es la más dura de las dos: TIENE FUENTE, y la fuente es
+  // comprobable por cualquiera que abra el repositorio. Un contratiempo
+  // inventado para rellenar una rúbrica es exactamente lo que este CV no
+  // hace.
+  //
+  // POR QUÉ VA EN EL CAPÍTULO DE LOS PROYECTOS Y NO EN UNO PROPIO. Se pinta
+  // pegado a las tres cifras que el build CUENTA de los archivos del repo.
+  // Ahí la regla no es una moraleja: es la razón por la que esas tres cifras
+  // se cuentan en vez de escribirse. El contratiempo y su consecuencia se
+  // leen en la misma pantalla.
+  //
+  // SIN ÉPICA, y por eso el texto es corto y no lleva ni un adjetivo sobre
+  // lo que se aprendió. Dice qué escribió, qué midió después, y qué regla
+  // dejó. Quien lo lea saca su conclusión.
+  leccionMedida: {
+    tag: 'What went wrong',
+    h: 'I published a figure I had not measured',
+    // Las dos cifras son las del documento, no redondeadas ni adornadas.
+    que: 'Cleaning unused photos out of the build, I wrote that it saved 1.2 MB. Then I measured the files: 320,692 bytes — four times less. It was an estimate published as if it were a measurement.',
+    regla: 'Since then the project has a rule: a figure that gets published is measured, and it says what baseline it was measured against. The three numbers above are counted by the build from the repository’s own files.',
+    fuente: 'Written down the day it happened, in docs/context/lessons.md of this repository.'
+  },
+
   // ---- La cinta (dentro del capítulo 2; mismo mecanismo que siempre) ----
   tape: {
     lede: 'Three of the assets the site follows, asked for when this page opens.',
@@ -518,8 +592,12 @@ const en = {
     // como un dato en vivo: de dónde viene, que va con retraso, que se pide
     // al abrir y no continuamente, y que si el endpoint falla salen guiones.
     // Todo eso sigue; lo que se fue es la explicación de la caché.
-    note: 'From the site’s own endpoint, delayed — the chip says by how much — and asked for when you open this page, not continuously.',
-    fail: 'If it does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
+    // RECORTADO EL 2026-09-01: las dos frases decían tres veces «de dónde
+    // salen». El chip que va justo encima ya nombra la fuente y el retraso,
+    // así que aquí sólo queda lo que el chip no dice: cuándo se piden y qué
+    // pasa si no contestan.
+    note: 'Asked for when you open this page, not continuously.',
+    fail: 'If the endpoint does not answer, the prices stay as dashes and the chip says so. No figure on this page is typed in by hand.',
     price: 'Price',
     change: 'Change today',
     pending: '—',
@@ -586,6 +664,21 @@ const en = {
     // Su mandato fue «solo los siguientes», y estos son, en su orden. Los
     // clips de consejos que vivían aquí salieron de la sección; los tres que
     // ya eran enlaces de texto (`sinImagen`) se quedan como estaban.
+    // ── SE RECORTÓ Y SE DESHIZO EL RECORTE (2026-09-01) ─────────────────
+    // Durante unas horas esta línea perdió su oración de en medio —«Four are
+    // videos served from this domain — with sound, and they only start when
+    // you press play»— con el argumento de que eso se ve en el propio
+    // control del vídeo. Se devuelve, y por dos cosas que el recorte rompía:
+    //  · LA FRASE QUEDABA COJA. Lo que sobrevivía era «The last two are photo
+    //    carousels on TikTok, SO THEY LINK OUT»: un «así que» sin premisa.
+    //    Sin la mitad que dice que las otras cuatro se sirven DESDE AQUÍ, el
+    //    lector no tiene contra qué contrastar «enlazan fuera» — de hecho las
+    //    seis enlazan a TikTok, así que la frase suelta no distingue nada.
+    //  · SE PERDÍA EL ÚNICO AVISO DE QUE CUATRO LLEVAN SONIDO. Eso NO lo dice
+    //    el control del vídeo: se descubre reproduciendo. Es la advertencia
+    //    que un lector con audio abierto necesita ANTES de pulsar.
+    // Cuesta 17 palabras de 3 608. La regla del recorte era quitar
+    // repetición, no quitar avisos.
     ensenaLede: 'Six pieces I recorded myself, in the order I would show them. Four are videos served from this domain — with sound, and they only start when you press play. The last two are photo carousels on TikTok, so they link out.',
     // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
     // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
@@ -635,7 +728,7 @@ const en = {
   // CADA ROL LLEVA FUENTE Y EL QUE NO LA TIENE SE QUEDA VACÍO. `tipo` dice qué
   // fue el encuentro cuando llamarlo "entrevista" sería falso; vacío = una
   // conversación suya, que es lo que dice el material.
-  // · Andy Toh, «CEO, BlueSky Education» — el título de su propia entrevista
+  // · Andy Toh, «CEO, Bluesky Education» — el título de su propia entrevista
   //   (`post.andytoh.title` en src/i18n/ui.ts) y /about (About.astro).
   // · Jon Maier — NO es una entrevista suya. Lo único que el sitio publica es
   //   «Takeaways from JPMorgan's Chief ETF Strategist» con la foto descrita
@@ -654,13 +747,63 @@ const en = {
   //   of Singapore», que la carta desmiente; la nota completa está junto a
   //   su entrada, abajo. ESTA LISTA ES LA QUE MANDA: un `rol` que no aparezca
   //   aquí con su fuente no debería estar lleno.
-  // LA GRAFÍA ES «BlueSky Education», UNA PALABRA, Y LA DECIDIÓ JAIME
-  // (2026-08-27). El sitio la escribía de tres maneras a la vez —«Blue Sky»
-  // aquí, «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, o sea tres
-  // grafías para el nombre de una empresa ajena, en las tres páginas donde
-  // aparece. Ya están las tres unificadas. Si vuelve a aparecer una cuarta,
-  // el sitio que manda es este comentario: BlueSky, con la S mayúscula y sin
-  // espacio.
+  // ═══════════════════════════════════════════════════════════════════════
+  // LA GRAFÍA DE LA EMPRESA: «Bluesky Education», UNA PALABRA Y UNA SOLA
+  // MAYÚSCULA. Cambiada el 2026-09-01 — CON FUENTE, Y PENDIENTE DE QUE JAIME
+  // LA CONFIRME. Lo segundo es tan parte de esta nota como lo primero.
+  // ═══════════════════════════════════════════════════════════════════════
+  // ── ESTO REVIERTE UNA PETICIÓN EXPLÍCITA SUYA, Y SIGUE SIN SU SÍ ───────
+  // El sitio llegó a escribirla de tres maneras a la vez —«Blue Sky» aquí,
+  // «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, y el 2026-08-27
+  // Jaime pidió unificarlas en «BlueSky»; el 2026-08-28 lo repitió. Así
+  // estuvo hasta hoy. Las dos notas del material lo dejan por escrito y las
+  // dos dicen lo mismo sobre el estado de la decisión:
+  //   · cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md: «El sitio usa BlueSky, que es
+  //     lo que Jaime decidió el 2026-08-27 […] Sigue pendiente de que él
+  //     confirme si prefiere la del dominio.»
+  //   · cv-material/cartas/CARTAS.md: «Recomendación: usar “Bluesky
+  //     Education” […] Requiere que Jaime lo confirme.»
+  // O sea que esta rama ADELANTA una decisión que el propio material marca
+  // como suya. Se escribe así, y no callado, por dos razones: porque la
+  // regla de esta página es que sin fuente no hay frase —y aquí la fuente de
+  // la preferencia era él—, y porque el cambio NO se queda en el CV: sale a
+  // cuatro páginas públicas e indexadas (`/about`, `/es/acerca` y las dos
+  // portadas, que llevan el rótulo de una publicación suya en `ui.ts`
+  // `post.andytoh.title`). Una ola del CV que reescribe el sitio público
+  // tiene que decirlo en voz alta. SI ÉL DICE QUE NO, se revierte en los
+  // cuatro archivos y esta nota pasa a decir que la grafía publicada no
+  // coincide con la de sus firmantes.
+  //
+  // LO QUE CAMBIÓ ES QUE APARECIÓ LA FUENTE. Las dos cartas firmadas (los
+  // PDF, en cv-material/cartas/, transcritos en su CARTAS.md) escriben el
+  // nombre de la empresa en el mismo documento y NINGUNA de las dos lo
+  // escribe como lo pidió él:
+  //   · Lloyd George firma «Bluesky Education», y su correo va al dominio
+  //     bluesky-education.com.
+  //   · Andy Toh lleva membrete «BLUE SKY EDUCATION PTE. LTD.» —el nombre
+  //     LEGAL registrado— pero firma «Bluesky Education», y su correo es
+  //     Andy.toh@bluesky-education.com, que esta misma página publica.
+  //   · Y el CERTIFICADO del Green Technology Programme, que esta página
+  //     también enseña, imprime «BLUESKY EDUCATION» (MATERIAL.md, bloque C1,
+  //     nº 4): en versales, pero UNA palabra.
+  // O sea: el nombre legal es «Blue Sky Education Pte. Ltd.» y la marca de
+  // uso corriente, la que usan sus dos CEOs, la del certificado y la del
+  // dominio, es «Bluesky Education». «BlueSky» no es ninguna de las dos.
+  //
+  // POR QUÉ MANDA LA FUENTE Y NO LA PREFERENCIA. Es el nombre de una empresa
+  // AJENA, no de Jaime, y este CV ya tiene escrita su regla para marcas de
+  // terceros (el logo del Reto Actinver: se usa como lo publica su dueño,
+  // sin recolorear ni reencuadrar). Una grafía inventada para una empresa
+  // que aparece cinco veces en la página, junto a un correo de su dominio
+  // real escrito al lado, es la clase de detalle que un comité comprueba en
+  // diez segundos y que hace dudar del resto.
+  // Si Jaime prefiere volver a «BlueSky», es una decisión suya y se cambia
+  // aquí y en los otros tres archivos (src/i18n/ui.ts, About.astro,
+  // Historia.astro) — pero entonces esta nota tiene que decir que la grafía
+  // NO coincide con la de sus firmantes, y hay que acordarse de que el
+  // cambio vuelve a salir del CV a las cuatro páginas públicas de arriba.
+  // EL DOMINIO Y LOS CORREOS NO SE TOCAN NUNCA: van tal cual los escribió
+  // cada firmante.
   entrevistas: {
     verVideo: 'Watch the conversation on TikTok',
     // ── LO QUE IMPIDE QUE ESTE CAPÍTULO SE LEA COMO UNA LISTA DE AVALES ──
@@ -713,7 +856,7 @@ const en = {
     // su `alt` AQUÍ y no en ui.ts: son fotos que solo existen en el CV. El
     // alt describe la imagen real (verificada mirándola), no la ficha.
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Bluesky Education', tipo: '' },
       // ⚠️ EL ROL NO ES «National University of Singapore», y la fuente que
       // lo desmiente ya está PUBLICADA EN ESTA MISMA PÁGINA. Su carta
       // (capítulo 8) abre diciendo «I am the Chief Executive Officer of TAQ
@@ -784,13 +927,13 @@ const en = {
     // ── Y ES EL MISMO PROGRAMA DEL CERTIFICADO ───────────────────────────
     // La publicación de la playa (LI-16) y el certificado 4 del capítulo de
     // certificaciones son LA MISMA COSA: el 2026 GREEN TECHNOLOGY PROGRAMME
-    // de BlueSky Education, del 22 de junio al 11 de julio de 2026 en la
+    // de Bluesky Education, del 22 de junio al 11 de julio de 2026 en la
     // Shaw Foundation Alumni House (que está dentro de la NUS). Estaban
     // escritos como dos actividades sueltas, y no lo son: la limpieza es la
     // parte de servicio del programa que certifica el diploma. Decirlo hace
     // que el voluntariado deje de parecer un día suelto y el certificado
     // deje de parecer un curso sin práctica.
-    playaPrograma: 'That day was part of the programme whose certificate is in “Certifications”: the 2026 Green Technology Programme, BlueSky Education, in Singapore. The clean-up is the service part of the same programme.',
+    playaPrograma: 'That day was part of the programme whose certificate is in “Certifications”: the 2026 Green Technology Programme, Bluesky Education, in Singapore. The clean-up is the service part of the same programme.',
     bloques: {
       animales: 'The animals',
       playas: 'Beach clean-up'
@@ -975,7 +1118,7 @@ const en = {
         id: 'singapur',
         hueco: null,
         rol: 'Participant, and speaker at NUS',
-        org: 'Green Technology Programme, BlueSky Education — Singapore',
+        org: 'Green Technology Programme, Bluesky Education — Singapore',
         cuando: '2026',
         // DECÍA «Two weeks of programme» Y ESA FILA HABLA DEL PROGRAMA DE
         // BLUESKY, que su propio CEO fecha en TRES semanas en el PDF que esta
@@ -988,8 +1131,8 @@ const en = {
         // en la única fila con resultado y con quién lo confirma.
         accion: 'Three weeks of programme, two of them in Lloyd George’s course; I presented about Mexico to students at the National University of Singapore, I joined the beach clean-up and I arranged and conducted the interviews myself.',
         resultado: 'An award at the GreenTech Summit 2026 with my teammates, competing against students from Taiwan and Russia (chapter “Awards”).',
-        quien: 'Lloyd George, CEO of TAQ Pte Ltd, and Andy Toh, of BlueSky Education. Both letters are in “Recommendation letters”, each with the contact its signatory gave.',
-        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
+        quien: 'Lloyd George, CEO of TAQ Pte Ltd, and Andy Toh, of Bluesky Education. Both letters are in “Recommendation letters”, each with the contact its signatory gave.',
+        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a Bluesky Education.'
       }
     ]
   },
@@ -1025,8 +1168,20 @@ const en = {
     ingles: 'B2 First Certificate, Cambridge English. Grade C, overall score 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examination 19 November 2024.',
     inglesTag: 'From my own certificate',
     // El hecho, en primera persona y sin dramatismo: es un paso pendiente.
-    inglesFalta: 'It is not enough yet, and this page says so instead of leaving the row looking closed. The University of Toronto does not accept B2 First at any score; UBC does accept it, but from 180, and I have 163. So I have one more exam to sit.',
+    // RECORTADO EL 2026-09-01: sobraba la frase que explicaba que la página
+    // lo dice, que es una frase sobre la página y no sobre el examen. Los
+    // dos hechos y las dos cifras se quedan enteros.
+    inglesFalta: 'It is not enough yet. The University of Toronto does not accept B2 First at any score; UBC does, but from 180, and I have 163. So I have one more exam to sit.',
     fuentesH: 'Checked on 1 September 2026',
+    // ── EL RÓTULO DEL PLEGABLE DE REQUISITOS (2026-09-01) ────────────────
+    // Debajo de esto van 119 palabras de UMBRALES DE OTRAS UNIVERSIDADES:
+    // el 180 de Cambridge, los submínimos del TOEFL nuevo, el IELTS, el
+    // Duolingo, el PTE. Es material de trabajo para Jaime, verdadero y con
+    // su enlace, y no dice nada sobre él: lo que dice sobre él es el
+    // renglón de arriba («me falta un examen»), que se queda a la vista.
+    // Se pliega, no se borra: un comité que quiera comprobar el umbral lo
+    // abre. Al imprimir sale abierto, como el de experiencia.
+    fuentesVer: 'What the two universities publish',
     inglesFuentes: [
       {
         // EL TOEFL QUE ESTABA PUBLICADO AQUI ERA EL DEROGADO. U of T condiciona
@@ -1145,13 +1300,40 @@ const en = {
   // AÑOS: solo el año, que es la regla de Jaime para fechas biográficas. Seis
   // son de 2026 y el B2 de Cambridge de 2024.
   certs: {
-    lede: 'The receipts. Exact name, issuer, year and credential ID, as my LinkedIn publishes them.',
+    // ── EL LEDE DICE LA CUENTA EXACTA, Y ESO ES LO QUE LO HACE UN RECIBO ──
+    // Decía «nombre exacto, emisor, año e ID de credencial» en plural, para
+    // los siete. Seis llevan ID; el séptimo no, y prometer siete y entregar
+    // seis es la forma más barata de que un comité deje de creerse el resto.
+    // Se dice la cuenta y se dice QUÉ trae el que no lo lleva, que resulta
+    // ser más comprobable que un identificador: sede y fechas impresas.
+    lede: 'The receipts, as my LinkedIn publishes them. Six of the seven carry a credential ID; the seventh prints its venue and its dates on the certificate itself.',
     verLinkedIn: 'See it on LinkedIn',
     credencial: 'Credential ID',
-    // El único de los siete que LinkedIn publica sin ID. Se dice, no se
-    // esconde: una tarjeta a la que le falta un campo y se calla parece una
-    // tarjeta completa.
-    sinCred: 'No credential ID published',
+    // ═══════════════════════════════════════════════════════════════════
+    // EL GREEN TECHNOLOGY PROGRAMME: SIN ID, PERO NO SIN RECIBO
+    // ═══════════════════════════════════════════════════════════════════
+    // Es el único de los siete que LinkedIn publica sin ID de credencial, y
+    // Jaime no puede conseguir uno: Bluesky Education no lo emite. Esta
+    // línea decía sólo «No credential ID published» — verdad, y nada más
+    // que una carencia enseñada en la misma tipografía en la que las otras
+    // seis enseñan su identificador.
+    //
+    // LO QUE SÍ HAY, Y ESTÁ TRANSCRITO DEL PROPIO CERTIFICADO
+    // (cv-material/MATERIAL.md, bloque C1, detalle nº 4): el documento
+    // imprime «2026 GREEN TECHNOLOGY PROGRAMME hosted at Shaw Foundation
+    // Alumni House, from June 22 to July 11, 2026», y lo firma Zhang
+    // Jinming, Academic Manager. Y NADA MÁS: el rótulo de este campo promete
+    // que lo de al lado es lo que el papel imprime, así que ni la ciudad ni
+    // la universidad del campus entran aunque sean ciertas (el porqué
+    // completo va sobre `dondeCuando`, donde estuvieron unas horas).
+    // NO SE INVENTA UN ID. Y estos datos no son un premio de consolación:
+    // una sede con nombre y un rango de fechas de 20 días se comprueban
+    // preguntando a la institución, que es más de lo que permite una cadena
+    // de 24 caracteres que sólo su emisor sabe resolver.
+    // `sinCred` ya no dice lo que falta, dice lo que hay; `dondeCuando` es
+    // el campo que lo lleva, y se pinta EN EL SITIO DEL ID para que la
+    // tarjeta no tenga un renglón menos que las otras seis.
+    sinCred: 'Printed on the certificate instead of an ID',
     // Solo el DELF A2 llega hasta aquí: es el único sin imagen en ninguna
     // parte (ni certificado ni logotipo en su LinkedIn). Desde el 2026-08-30
     // su marco ya NO está vacío —lleva una insignia tipográfica—, así que
@@ -1179,41 +1361,64 @@ const en = {
       {
         que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        dondeCuando: '',
         img: 'cv-cert-vista.webp', w: 700, h: 495,
         alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Vista Equity Partners Demystifying Private Equity job simulation, with the Vista and Forage logos.'
       },
       {
         que: 'Bank of America - Investment Banking Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        dondeCuando: '',
         img: 'cv-cert-bofa.webp', w: 700, h: 495,
         alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Bank of America investment banking job simulation, with the Bank of America and Forage logos.'
       },
       {
         que: 'Investment Foundations® Certificate',
         de: 'CFA Institute', anio: '2026', cred: '191463283',
+        dondeCuando: '',
         img: 'cv-cert-cfa.webp', w: 700, h: 541,
         alt: 'CFA Institute certificate awarding the Investment Foundations Certificate to Jaime Sandoval Ricano, with its date, certificate number and verification QR code.'
       },
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
-        de: 'BlueSky Education', anio: '2026', cred: '',
+        de: 'Bluesky Education', anio: '2026', cred: '',
+        // LO QUE ESTE CERTIFICADO TRAE EN VEZ DE UN ID, transcrito de su
+        // propia imagen (cv-material/MATERIAL.md, bloque C1, nº 4): «hosted
+        // at Shaw Foundation Alumni House, from June 22 to July 11, 2026»,
+        // firmado por Zhang Jinming, Academic Manager.
+        // ── SE QUITÓ «NATIONAL UNIVERSITY OF SINGAPORE» (2026-09-01) ─────
+        // Estuvo aquí unas horas, con el argumento de que la Shaw Foundation
+        // Alumni House está en ese campus. Es cierto (MATERIAL.md lo anota
+        // entre paréntesis, como nota de quien transcribió, no como texto
+        // del documento) y aun así no puede ir: el rótulo de este campo es
+        // «Printed on the certificate instead of an ID», o sea que promete
+        // que lo de al lado es lo que el papel imprime. En cuanto se le
+        // cuela un dato que el papel NO imprime, el rótulo deja de ser un
+        // recibo y pasa a ser una etiqueta que cubre una inferencia — y esta
+        // página tiene el nombre de una universidad grande dentro. La sede
+        // se comprueba igual: «Shaw Foundation Alumni House» es un nombre
+        // único, y quien pregunte por él llega al mismo sitio.
+        dondeCuando: 'Shaw Foundation Alumni House · 22 June – 11 July 2026',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
-        alt: 'BlueSky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
+        alt: 'Bluesky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
         de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        dondeCuando: '',
         img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
         alt: 'Bloomberg for Education certificate of completion for the Bloomberg Finance Fundamentals course, on a black background with candlestick charts.'
       },
       {
         que: 'DELF A2',
         de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        dondeCuando: '',
         img: '', w: 0, h: 0, alt: ''
       },
       {
         que: 'B2 First Certificate',
         de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        dondeCuando: '',
         img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
         alt: 'Cambridge English certificate stating that Jaime Sandoval Ricaño was awarded Grade C in the First Certificate in English, Council of Europe level B2, with an overall score of 163.'
       }
@@ -1254,6 +1459,21 @@ const en = {
     // {s} es el título del capítulo de las cartas: se enlaza por TÍTULO y no
     // por número, como `cartas.fuenteCarta`.
     fuenteTag: 'Only source: Lloyd George’s letter, in “{s}”',
+    // ── EL PREMIO TRAE SU FRAGMENTO VERBATIM (2026-09-01) ───────────────
+    // Al mudarse a su propio capítulo, el premio se quedó siendo el ÚNICO
+    // hecho verificado por una carta que no enseñaba la frase de la carta:
+    // los seis de `cartas.verifica` traen la suya y su firmante, y los tres
+    // más fuertes la traen entrecomillada en inglés. Mientras el PDF no se
+    // sirve, un lector no tenía por dónde comprobar el más fuerte de todos.
+    // Ahora lleva el mismo trato que `verifica`: la frase EXACTA de la carta
+    // de Lloyd George, en inglés, con `lang="en"` en el panel español y las
+    // comillas puestas por el panel. Es un fragmento y no la oración entera
+    // porque la oración abre con «That same excellence», que apunta al
+    // párrafo anterior y fuera de él no se entiende; el fragmento empieza
+    // donde empieza el hecho. Misma regla que «entirely on his own steam».
+    // `citaTag` sólo se pinta en español, donde la cita es inglés dentro de
+    // un párrafo español y hay que avisarlo; en inglés va vacío.
+    citaTag: '',
     entregados: [
       {
         // SIN «in Singapore»: la carta de Lloyd George —la ÚNICA fuente que
@@ -1265,6 +1485,13 @@ const en = {
         // una ficha que promete una sola fuente no puede traer un dato de
         // otra sin decirlo.
         que: 'An award at the GreenTech Summit 2026, with my teammates, competing against students from Taiwan and Russia.',
+        // VERBATIM de la carta de Lloyd George (20 de agosto de 2026, el PDF
+        // está en cv-material/cartas/). La oración entera es «That same
+        // excellence carried him and his teammates to an award at the
+        // GreenTech Summit 2026, in competition against students from Taiwan
+        // and Russia.»; se cita desde «an award» porque las cinco palabras de
+        // antes apuntan al párrafo anterior. Ni una palabra cambiada.
+        cita: 'an award at the GreenTech Summit 2026, in competition against students from Taiwan and Russia',
         // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
         // salía «GreenTech Summit 2026 · 2026».
         de: 'GreenTech Summit',
@@ -1274,7 +1501,7 @@ const en = {
     ],
     // El documento no existe todavía: la única fuente es la carta. Se dice
     // dónde falta, sin adornarlo.
-    docPend: 'The certificate or diploma itself, when BlueSky Education or Lloyd George sends it to me.'
+    docPend: 'The certificate or diploma itself, when Bluesky Education or Lloyd George sends it to me.'
   },
 
   // ---- Capítulo 8: cartas de recomendación ----
@@ -1365,7 +1592,13 @@ const en = {
        así que la alternativa nunca fue publicarla censurada.
        PENDIENTE DE JAIME, con el alcance real delante: repo privado,
        alojarla detrás de algo que sí autentique, o asumir que es pública. */
-    lede: 'Two have arrived, and everything they say is here: the record, the two lines that carry the most weight in each one, and the contact each signatory gave for enquiries about me. The signed file itself is not on this page — it is addressed to an admissions committee and it carries contact details that are not mine to publish. I quote them whole and untouched: I cannot cut a line out of a signed letter without turning it into a different document.',
+    /* RECORTADO EL 2026-09-01. Decía tres cosas y dos de ellas ya las dice
+       cada ficha, debajo del rótulo «The letter itself»: dónde no está el
+       archivo y por qué. Repetido arriba en 83 palabras, el capítulo abría
+       explicando una ausencia en vez de presentando dos cartas. Lo que se
+       queda es lo que sólo puede ir aquí: qué trae cada ficha, y la regla de
+       que las citas van enteras. */
+    lede: 'Two have arrived. The record, the two lines that carry the most weight in each one, and the contact each signatory gave. I quote them untouched: a line cut out of a signed letter makes it a different document.',
     entregadasH: 'Delivered',
     faltanH: 'Room for more',
     citaTag: 'The two lines that carry the most weight',
@@ -1398,13 +1631,40 @@ const en = {
        por qué— en primera persona y sin prometer nada que Jaime no haya
        dicho. Cuando él decida (repo privado, alojarlo detrás de otra cosa, o
        asumir que es público), vuelve el enlace y esta cadena se va. */
+    /* ── SE PROBÓ A AÑADIR «SE LA MANDO A QUIEN ME LA PIDA», Y SE RETIRÓ
+       (2026-09-01) ────────────────────────────────────────────────────────
+       Durante unas horas esta cadena llevó una segunda oración: «La carta
+       firmada se la mando a quien me la pida; mi LinkedIn está al final».
+       Se retiró, y el motivo no es de estilo:
+        · JAIME NO LA HA DICHO. En primera persona y en su CV, esa frase es
+          un COMPROMISO SUYO, no una descripción del sitio. La regla de este
+          archivo es que sin fuente no hay frase, y aquí la fuente sería él.
+        · LO QUE COMPROMETE NO ES SUYO. Lo que se mandaría es el PDF entero:
+          el móvil personal de Lloyd George, los dos correos y la dirección
+          registrada de la empresa de Andy Toh. La propia página retiene una
+          foto por menos que esto («en el cartel se lee un número de teléfono
+          y nadie me lo dio para publicarlo»), y el archivo salió de la web
+          justo por publicar datos de terceros.
+        · LA DECISIÓN ESTÁ ABIERTA, POR ESCRITO. `cv-material/cartas/
+          CARTAS.md` se encabeza con «HACE FALTA UNA DECISIÓN TUYA» y tres
+          opciones sin respuesta (repo privado · dejarlos fuera · publicarlos
+          sabiendo que los baja cualquiera). Publicar el canal por él cierra
+          esa decisión desde la página.
+       PARA PONERLA: que Jaime lo diga, y entonces vuelve la segunda oración
+       —el canal ya existe, es el LinkedIn que esta página publica en su
+       cierre— sin tocar nada más. Mientras tanto la ficha dice sólo dónde no
+       está el archivo y por qué, que es lo que se puede sostener. */
+    // Y es la cadena de `main` PALABRA POR PALABRA, incluido «the file
+    // carries»: al retirar la promesa se había quedado en «it carries», y ese
+    // «it» ya no tenía a qué apuntar más que a la propia página — o sea que
+    // se leía como que la PÁGINA trae los datos de contacto.
     pdfNo: 'Not on this page while I decide where to keep it: the file carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
     entregadas: [
       {
         nombre: 'Lloyd George',
         cargo: 'CEO, TAQ Pte Ltd',
         donde: 'Singapore — biotechnology, healthcare management and green technologies',
-        relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy BlueSky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
+        relacion: 'He taught me for two weeks on the Green Technology programme in Singapore, through the educational consultancy Bluesky Education. He is the “Prof. Lloyd” I interviewed for my TikTok.',
         anio: '2026',
         // LAS DOS FRASES, VERBATIM del PDF. La primera es UNA sola idea que la
         // carta escribe en dos oraciones: cortarla por la mitad deja un
@@ -1424,7 +1684,7 @@ const en = {
       },
       {
         nombre: 'Andy Toh',
-        cargo: 'CEO, BlueSky Education',
+        cargo: 'CEO, Bluesky Education',
         donde: 'Singapore — the educational consultancy that runs the programme',
         relacion: 'He observed me during my three-week programme in Singapore. He is the same Andy Toh I interviewed, and who is already on this site.',
         anio: '2026',
@@ -1619,78 +1879,48 @@ const en = {
     },
 
     // ═══════════════════════════════════════════════════════════════════════
-    // UN CONTRATIEMPO POR CAPÍTULO (ola 2) — EL NIVEL 5 DE LA ÚNICA RÚBRICA
-    // PUBLICADA
+    // UN CONTRATIEMPO, Y TIENE QUE SER REAL — POR QUÉ AQUÍ QUEDA UN SOLO HUECO
     // ═══════════════════════════════════════════════════════════════════════
     // Queen's publica su rúbrica de 5 niveles
     // (queensu.ca/admission/applying/supplementary-application-rubric,
-    // consultada el 2026-08-31). El nivel 5 exige, verbatim: «Handles
+    // consultada el 2026-08-31) y su nivel 5 exige, verbatim: «Handles
     // setbacks or complexity with clarity and purpose» y «Reflects
     // meaningfully on what they learned and how it shaped their perspective
-    // or behavior going forward». El nivel 3 se conforma con «a clear and
-    // relevant example».
+    // or behavior going forward». Sauder pide «un problema o situación
+    // desconocida — acciones, resultado, aprendizaje» y UBC evalúa «Personal
+    // growth and resilience». Eso sigue siendo cierto y sigue mandando.
     //
-    // ESTE CV NO REGISTRABA UN SOLO FRACASO, así que con esa rúbrica en la
-    // mano no podía puntuar 5. Y no es solo Queen's: Sauder pide «un problema
-    // o situación desconocida — acciones, resultado, aprendizaje» y UBC
-    // evalúa «Personal growth and resilience».
+    // ── LO QUE HABÍA AQUÍ, Y POR QUÉ SE FUE (2026-09-01) ─────────────────
+    // Ocho huecos, uno por capítulo, uno para cada clase de fracaso. La ola
+    // anterior ya los había corregido una vez, pasándolos de artículo
+    // definido («El curso que dejé o reprobé») a condicional («Si dejé o
+    // reprobé un curso»), porque en definido AFIRMABAN ocho fracasos sin una
+    // sola fuente.
+    // El condicional arregla la afirmación y no arregla lo otro: OCHO
+    // recuadros vacíos seguidos, uno en cada capítulo, no se leen como ocho
+    // preguntas abiertas — se leen como un documento sin terminar. Y el
+    // conjunto sigue presuponiendo POR SU FORMA: ocho sitios reservados para
+    // ocho fracasos distintos dicen que los ocho existen, aunque cada frase
+    // suelta esté en condicional. Dos eran además comprobablemente vacíos
+    // hoy: el del Reto presuponía operaciones y el Reto no arranca hasta el
+    // 5 de octubre; el de las certificaciones presuponía un curso abandonado
+    // que no aparece en ningún material.
     //
-    // NO SE INVENTA NI UN CONTRATIEMPO. Son huecos, uno por capítulo con
-    // cuerpo, cada uno con su pregunta concreta. NO HAY UNO EN LAS CARTAS:
-    // ahí el contratiempo sería «alguien que no me escribió», y la regla del
-    // 2026-08-31 dice que un hueco puede reservar sitio pero no puede decir
-    // quién no lo ha llenado. Tampoco en la portada ni en la frase final.
-    // LO QUE PIDE CADA UNO SON DOS COSAS, no una: el hecho, y qué cambiaste
-    // después. Sin la segunda mitad es una disculpa, y la rúbrica pide
-    // exactamente la segunda.
+    // ── LO QUE HAY EN SU LUGAR: UNO SOLO, Y ESTÁ DOCUMENTADO ─────────────
+    // El bloque `leccionMedida` de esta misma tabla. No es un hueco: es un
+    // contratiempo REAL de este proyecto, con fuente escrita en el propio
+    // repositorio (docs/context/lessons.md), y trae las dos mitades que pide
+    // la rúbrica — qué salió mal y qué regla dejó. Se pinta en el capítulo
+    // de los proyectos, pegado a las tres cifras que el build cuenta, que es
+    // lo que esa regla parece una vez convertida en código.
+    // Uno verdadero puntúa más que ocho reservados: la rúbrica pide
+    // reflexión sobre algo que PASÓ, no una lista de casillas.
     //
-    // ── Y VAN EN CONDICIONAL, QUE NO ES UN MATIZ (2026-09-01) ─────────────
-    // Los ocho rótulos empezaban por artículo definido: «El curso o el examen
-    // que dejé o reprobé», «La operación o el análisis que me salió al revés».
-    // Eso no reserva sitio: AFIRMA, en primera persona de Jaime, que los ocho
-    // fracasos existen. Ninguno tiene fuente, y dos son comprobablemente
-    // falsos hoy — la operación presupone posiciones que el propio sitio dice
-    // que no hay («Faltan las posiciones de verdad», CLAUDE.md) y el Reto no
-    // arranca hasta el 5 de octubre; el curso abandonado no aparece en ningún
-    // material. Las pistas de aquí abajo lo admitían dos veces: «Si no hay
-    // ninguna, este hueco se quita».
-    // Es la misma regla que la ola aplicó bien en las cartas —«un hueco puede
-    // reservar sitio; no puede decir quién no lo ha llenado»— rota en la otra
-    // dirección: no nombra a nadie, pero da un hecho por cierto. En
-    // condicional el hueco pide exactamente lo mismo y no afirma nada; y si
-    // resulta que no hay ninguno, la frase ya no hay que desmentirla, basta
-    // con quitar el hueco.
-    contraExp: {
-      que: 'If an experience did not work — what it was, and what I changed',
-      pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen\'s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
-    },
-    contraAcad: {
-      que: 'If a subject or an exam went badly — what it was, and what I changed',
-      pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English en el B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
-    },
-    contraServir: {
-      que: 'If a day volunteering did not go as planned — what happened, and what I changed',
-      pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraProyectos: {
-      que: 'If something broke in the group or in the store — what it was, and what I changed',
-      pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
-    },
-    contraGente: {
-      que: 'If an interview or a video went wrong — what happened, and what I changed',
-      pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraReto: {
-      que: 'If a trade or an analysis went wrong — what it was, and what I changed',
-      pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
-    },
-    contraCerts: {
-      que: 'If I dropped or failed a course or an exam — what it was, and what I changed',
-      pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
-    },
-    contraPremios: {
-      que: 'If I entered a competition without winning — what it was, and what I changed',
-      pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
+    // Y QUEDA ESTE HUECO, UNO, por si Jaime quiere añadir el suyo. En
+    // condicional, sin decir de qué capítulo es y sin presuponer que existe.
+    contraOtro: {
+      que: 'If there is another setback I want to tell — what it was, and what I changed',
+      pista: 'Uno solo, y solo si de verdad lo hay: qué pasó y qué haces distinto desde entonces. Las dos mitades, que es lo que pide la rúbrica de Queen\'s — sin la segunda es una disculpa. Si no hay ninguno, este hueco se quita y la página se queda con el contratiempo medido de los proyectos, que ya cumple.'
     },
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1742,14 +1972,12 @@ const en = {
     expSitio: '',
     expJasa: '',
     expTiktok: '',
-    contraExp: '',
-    contraAcad: '',
-    contraServir: '',
-    contraProyectos: '',
-    contraGente: '',
-    contraReto: '',
-    contraCerts: '',
-    contraPremios: ''
+    // ── UN SOLO CONTRATIEMPO, Y ES EL DE VERDAD (2026-09-01) ──────────
+    // Aquí vivían OCHO (`contraExp`, `contraAcad`, `contraServir`,
+    // `contraProyectos`, `contraGente`, `contraReto`, `contraCerts`,
+    // `contraPremios`), uno por capítulo. La razón entera de por qué se
+    // fueron está en `huecos`, junto a `contraOtro`.
+    contraOtro: ''
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -1873,6 +2101,7 @@ const es: typeof en = {
   // Ver la nota de la tabla inglesa.
   // Ver la nota de la tabla inglesa: son las CINCO filas de 2025.
   anioDisputa: 'Las cinco fechas de 2025 de esta página son palabra mía: el grupo estudiantil, smartfinance.lat, Jasa Motor, la asamblea de la AEM y la sesión con Jon Maier. Mi LinkedIn publica el grupo como ene. 2026 y smartfinance.lat como feb. 2026; mis publicaciones sobre la AEM y sobre esa sesión son de 2026; Jasa Motor no tiene fecha publicada con la que comparar. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
+  anioDisputaCorto: 'Este 2025 es palabra mía, no una fecha publicada. El recibo está en «{s}».',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 
@@ -1885,7 +2114,7 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
-    sol: 'Un retrato de Sol — o un cuadro de los vídeos de la marcha. La que mandé del puesto no se publica aquí: en el cartel se lee un número de teléfono y nadie me lo dio para publicarlo.',
+    sol: 'Un retrato de Sol, o un cuadro de los vídeos de la marcha. La del puesto no se publica aquí: en el cartel se lee un número de teléfono.',
     cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
   },
   // Ver la nota de la tabla inglesa.
@@ -1933,7 +2162,7 @@ const es: typeof en = {
   // escribe, las cuatro se cuentan en el build.
   franja: {
     tag: 'Comprobable, antes de bajar',
-    certsQ: 'certificaciones, {n} de ellas con su ID de credencial',
+    certsQ: 'certificaciones: {n} con ID de credencial, {d} con la sede y las fechas impresas en el certificado',
     cartasQ: 'cartas firmadas por CEOs en Singapur, con el contacto que dio cada uno',
     sitioN: 'smartfinance.lat',
     sitioQ: 'un sitio que construí: {p} pruebas automáticas · {l} lecciones bilingües · {f} fuentes citadas · {g} términos de glosario',
@@ -1944,17 +2173,17 @@ const es: typeof en = {
   // Ver la nota larga de la tabla inglesa: dos capítulos nuevos (c3 y c9) y
   // «Cada quien trae algo» baja del 4 al 6.
   caps: {
-    c1: 'Abrí los ojos',
-    c2: 'Experiencias',
-    c3: 'Escuela, calificaciones e inglés',
-    c4: 'Servir',
-    c5: 'Mis proyectos',
-    c6: 'Cada quien trae algo',
-    c7: 'Reto Actinver y private equity',
-    c8: 'Certificaciones',
-    c9: 'Premios',
-    c10: 'Cartas de recomendación',
-    c11: 'La frase'
+    abro: 'Abrí los ojos',
+    experiencias: 'Experiencias',
+    academico: 'Escuela, calificaciones e inglés',
+    voluntariados: 'Servir',
+    proyectos: 'Mis proyectos',
+    conversaciones: 'Cada quien trae algo',
+    retoPe: 'Reto Actinver y private equity',
+    certificaciones: 'Certificaciones',
+    premios: 'Premios',
+    cartas: 'Cartas de recomendación',
+    frase: 'La frase'
   },
 
   head: {
@@ -2018,10 +2247,20 @@ const es: typeof en = {
     abrir: 'Abrir el sitio'
   },
 
+  // Ver la nota larga de la tabla inglesa: uno solo, real, con su fuente en
+  // pantalla, y pegado a las tres cifras que el build cuenta.
+  leccionMedida: {
+    tag: 'Lo que salió mal',
+    h: 'Publiqué una cifra que no había medido',
+    que: 'Limpiando del build las fotos que no se usaban, escribí que se ahorraban 1.2 MB. Después medí los archivos: 320 692 bytes, cuatro veces menos. Era una estimación publicada como si fuera una medición.',
+    regla: 'Desde entonces el proyecto tiene una regla: una cifra que se publica se mide, y dice contra qué línea base se midió. Las tres cifras de arriba las cuenta el build de los archivos del propio repositorio.',
+    fuente: 'Anotado el mismo día en docs/context/lessons.md de este repositorio.'
+  },
+
   tape: {
     lede: 'Tres de los activos que sigue el sitio, pedidos al abrir esta página.',
-    note: 'Salen del endpoint del propio sitio, con retraso —el chip dice cuánto— y se piden al abrir esta página, no continuamente.',
-    fail: 'Si no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
+    note: 'Se piden al abrir esta página, no continuamente.',
+    fail: 'Si el endpoint no contesta, los precios se quedan en rayas y el chip lo dice. Ninguna cifra de esta página está escrita a mano.',
     price: 'Precio',
     change: 'Cambio de hoy',
     pending: '—',
@@ -2067,6 +2306,8 @@ const es: typeof en = {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
     ensenaH: 'Por qué grabo',
+    // La oración de en medio vuelve, igual que en el panel inglés: el porqué
+    // entero está sobre la cadena inglesa.
     ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Cuatro son vídeos servidos desde este dominio — con sonido, y solo arrancan si le das a reproducir. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
     videos: {
       jpmvisit: '«📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…» (en español: visitando J.P. Morgan en Singapur y aprendiendo más sobre las fin…) — la visita, contada a cámara',
@@ -2092,7 +2333,7 @@ const es: typeof en = {
     next: 'Conversación siguiente',
     llevo: 'Lo que me llevé',
     personas: {
-      andy: { nombre: 'Andy Toh', rol: 'CEO, BlueSky Education', tipo: '' },
+      andy: { nombre: 'Andy Toh', rol: 'CEO, Bluesky Education', tipo: '' },
       // Rol corregido: ver la nota larga en la tabla inglesa.
       lloyd: { nombre: 'Profesor Lloyd', rol: 'CEO, TAQ Pte Ltd', tipo: 'Le digo «profesor Lloyd» porque me dio clase dos semanas en el programa de Green Technology en Singapur. Su carta —en «Cartas de recomendación»— la firma como CEO de TAQ Pte Ltd.', alt: 'Yo, con la playera verde de México, entrevistando al profesor Lloyd junto a las letras grandes de la NUS' },
       nus: {
@@ -2136,7 +2377,7 @@ const es: typeof en = {
     animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevisté a Sol, su fundadora (2026).',
     donacion: 'También doné alimento a un stand de adopción local y pasé el día con los voluntarios y los animalitos (2026).',
     playa: 'La limpieza de playa fue en Singapur, un día de voluntariado de mi curso de Green Technology and Sustainable Ecology (2026).',
-    playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de BlueSky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
+    playaPrograma: 'Ese día es parte del programa cuyo certificado está en «Certificaciones»: el 2026 Green Technology Programme, de Bluesky Education, en Singapur. La limpieza es la parte de servicio de ese mismo programa.',
     bloques: {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
@@ -2226,12 +2467,12 @@ const es: typeof en = {
         id: 'singapur',
         hueco: null,
         rol: 'Participante, y ponente en la NUS',
-        org: 'Green Technology Programme, BlueSky Education — Singapur',
+        org: 'Green Technology Programme, Bluesky Education — Singapur',
         cuando: '2026',
         accion: 'Tres semanas de programa, dos de ellas en el curso de Lloyd George; presenté sobre México a estudiantes de la National University of Singapore, participé en la limpieza de playa y conseguí y conduje yo mismo las entrevistas.',
         resultado: 'Un premio en el GreenTech Summit 2026 con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia (capítulo «Premios»).',
-        quien: 'Lloyd George, CEO de TAQ Pte Ltd, y Andy Toh, de BlueSky Education. Las dos cartas están en «Cartas de recomendación», cada una con el contacto que dio quien la firma.',
-        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a BlueSky Education.'
+        quien: 'Lloyd George, CEO de TAQ Pte Ltd, y Andy Toh, de Bluesky Education. Las dos cartas están en «Cartas de recomendación», cada una con el contacto que dio quien la firma.',
+        pide: 'Esta fila está completa: es la única con resultado y con quien lo confirma. Sirve de patrón para las otras cuatro. Lo único que le falta es el documento del premio — pídeselo a Lloyd George o a Bluesky Education.'
       }
     ]
   },
@@ -2247,8 +2488,9 @@ const es: typeof en = {
     inglesH: 'Inglés',
     ingles: 'B2 First Certificate, Cambridge English. Grade C, puntaje global 163: Reading 168 · Use of English 147 · Writing 157 · Listening 168 · Speaking 175. Examen del 19 de noviembre de 2024.',
     inglesTag: 'De mi propio certificado',
-    inglesFalta: 'Todavía no alcanza, y esta página lo dice en vez de dejar el renglón como si estuviera cerrado. La University of Toronto no acepta el B2 First con ningún puntaje; UBC sí lo acepta, pero desde 180, y yo tengo 163. O sea que me falta presentar otro examen.',
+    inglesFalta: 'Todavía no alcanza. La University of Toronto no acepta el B2 First con ningún puntaje; UBC sí, pero desde 180, y yo tengo 163. O sea que me falta presentar otro examen.',
     fuentesH: 'Consultadas el 1 de septiembre de 2026',
+    fuentesVer: 'Lo que publican las dos universidades',
     inglesFuentes: [
       {
         que: [
@@ -2281,10 +2523,10 @@ const es: typeof en = {
   },
 
   certs: {
-    lede: 'Los recibos. Nombre exacto, emisor, año e ID de la credencial, tal como los publica mi LinkedIn.',
+    lede: 'Los recibos, tal como los publica mi LinkedIn. Seis de los siete llevan ID de credencial; el séptimo trae impresas en el propio certificado la sede y las fechas.',
     verLinkedIn: 'Verlo en LinkedIn',
     credencial: 'ID de la credencial',
-    sinCred: 'Sin ID de credencial publicado',
+    sinCred: 'Impreso en el certificado en vez de un ID',
     fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
     insigniaNivel: 'Nivel A2 del marco europeo',
     insigniaTag: 'Diseñada por esta página — no es el diploma',
@@ -2294,41 +2536,50 @@ const es: typeof en = {
       {
         que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
+        dondeCuando: '',
         img: 'cv-cert-vista.webp', w: 700, h: 495,
         alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de private equity de Vista Equity Partners, con los logotipos de Vista y de Forage.'
       },
       {
         que: 'Bank of America - Investment Banking Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
+        dondeCuando: '',
         img: 'cv-cert-bofa.webp', w: 700, h: 495,
         alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de banca de inversión de Bank of America, con los logotipos de Bank of America y de Forage.'
       },
       {
         que: 'Investment Foundations® Certificate',
         de: 'CFA Institute', anio: '2026', cred: '191463283',
+        dondeCuando: '',
         img: 'cv-cert-cfa.webp', w: 700, h: 541,
         alt: 'Certificado del CFA Institute que otorga el Investment Foundations Certificate a Jaime Sandoval Ricano, con su fecha, su número de certificado y un código QR de verificación.'
       },
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
-        de: 'BlueSky Education', anio: '2026', cred: '',
+        de: 'Bluesky Education', anio: '2026', cred: '',
+        // Sin «National University of Singapore»: el certificado no la
+        // imprime. El porqué entero está sobre la cadena inglesa.
+        dondeCuando: 'Shaw Foundation Alumni House · 22 de junio – 11 de julio de 2026',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
-        alt: 'Certificado de BlueSky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
+        alt: 'Certificado de Bluesky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
         de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
+        dondeCuando: '',
         img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
         alt: 'Certificado de Bloomberg for Education por el curso Bloomberg Finance Fundamentals, sobre fondo negro con gráficas de velas.'
       },
       {
         que: 'DELF A2',
         de: 'Alliance Française de Paris', anio: '2026', cred: '052535012100',
+        dondeCuando: '',
         img: '', w: 0, h: 0, alt: ''
       },
       {
         que: 'B2 First Certificate',
         de: 'Cambridge English', anio: '2024', cred: '814072MSJ',
+        dondeCuando: '',
         img: 'cv-cert-b2-cambridge.webp', w: 700, h: 662,
         alt: 'Certificado de Cambridge English que acredita que Jaime Sandoval Ricaño obtuvo Grade C en el First Certificate in English, nivel B2 del Consejo de Europa, con una puntuación global de 163.'
       }
@@ -2345,9 +2596,15 @@ const es: typeof en = {
     slot: 'Espacio reservado para el siguiente premio.',
     tag: 'Premio por llegar',
     fuenteTag: 'Única fuente: la carta de Lloyd George, en «{s}»',
+    // Aquí sí se pinta: la cita es inglés dentro de un párrafo en español,
+    // igual que en `cartas.verificaCitaTag`.
+    citaTag: 'Lo entrecomillado es la frase exacta de la carta, en inglés.',
     entregados: [
       {
         que: 'Un premio en el GreenTech Summit 2026, con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
+        // La MISMA cadena inglesa que el panel inglés: es la frase de la
+        // carta y no se traduce, como las tres de `cartas.verifica`.
+        cita: 'an award at the GreenTech Summit 2026, in competition against students from Taiwan and Russia',
         // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
         // salía «GreenTech Summit 2026 · 2026».
         de: 'GreenTech Summit',
@@ -2355,11 +2612,11 @@ const es: typeof en = {
         nota: 'Nunca lo publiqué — ni en mi LinkedIn ni en mi TikTok. Está aquí porque alguien más lo escribió y lo firmó.'
       }
     ],
-    docPend: 'El certificado o diploma, cuando me lo manden BlueSky Education o Lloyd George.'
+    docPend: 'El certificado o diploma, cuando me lo manden Bluesky Education o Lloyd George.'
   },
 
   cartas: {
-    lede: 'Ya llegaron dos, y todo lo que dicen está aquí: la ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio para preguntar por mí. El archivo firmado no está en esta página: va dirigido a un comité de admisiones y trae datos de contacto que no son míos para publicarlos. Las cito enteras y sin tocar: a una carta firmada no le puedo recortar un renglón sin convertirla en otro documento.',
+    lede: 'Ya llegaron dos. La ficha, las dos frases que más pesan de cada una y el contacto que cada quien dio. Las cito sin tocar: a una carta firmada, un renglón recortado la convierte en otro documento.',
     entregadasH: 'Entregadas',
     faltanH: 'Espacio para más',
     // Las dos cartas están escritas en inglés: en este panel las citas van
@@ -2367,13 +2624,16 @@ const es: typeof en = {
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
     contactoTag: 'Contacto que dio para preguntar por mí',
     pdfTag: 'La carta, tal cual',
+    // La segunda oración («se la mando a quien me la pida») se retiró el
+    // 2026-09-01: el porqué entero está sobre la cadena inglesa. Y el sujeto
+    // vuelve a ser «el archivo», como en `main`.
     pdfNo: 'No está en esta página mientras decido dónde guardarla: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
     entregadas: [
       {
         nombre: 'Lloyd George',
         cargo: 'CEO, TAQ Pte Ltd',
         donde: 'Singapur — biotecnología, gestión sanitaria y tecnologías verdes',
-        relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa BlueSky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
+        relacion: 'Me dio clase dos semanas en el programa de Green Technology en Singapur, a través de la consultoría educativa Bluesky Education. Es el «Prof. Lloyd» que entrevisté en mi TikTok.',
         anio: '2026',
         citas: [
           'Dos semanas son poco tiempo, pero bastan para distinguir al estudiante que trabaja del estudiante que solo asiste. Jaime destacó desde el primer día.',
@@ -2390,7 +2650,7 @@ const es: typeof en = {
       },
       {
         nombre: 'Andy Toh',
-        cargo: 'CEO, BlueSky Education',
+        cargo: 'CEO, Bluesky Education',
         donde: 'Singapur — la consultoría educativa que organiza el programa',
         relacion: 'Me observó durante mi programa de tres semanas en Singapur. Es el mismo Andy Toh que entrevisté y que ya aparece en este sitio.',
         anio: '2026',
@@ -2536,40 +2796,14 @@ const es: typeof en = {
       pista: '¿Cuál vas a presentar y qué fecha tienes agendada? Los objetivos, de las páginas oficiales: C1 Advanced 180 con mínimo 170 por componente · TOEFL iBT 89 con 22 en Speaking y Writing · IELTS Academic 6.5 sin banda bajo 6.0 · Duolingo 120 · PTE Academic 65. El propio Road to College del Tec ofrece certificaciones de idiomas: es la vía institucional y es por donde conviene preguntarlo.'
     },
 
-    // ── UN CONTRATIEMPO POR CAPÍTULO (ola 2) ──────────────────────────────
-    // Ver la nota larga de la tabla inglesa: la rúbrica de Queen's pide el
-    // hecho Y la corrección de rumbo. No hay uno en las cartas a propósito.
-    contraExp: {
-      que: 'Si una experiencia no funcionó: cuál fue y qué cambié',
-      pista: '¿Cuál de estas líneas salió mal — un evento que no se llenó, algo a lo que llegaste tarde, algo que dejaste? Dos o tres frases: qué pasó y qué haces distinto desde entonces. La rúbrica de Queen’s pide las dos mitades; la segunda es la que sube de nivel 3 a nivel 5.'
-    },
-    contraAcad: {
-      que: 'Si una materia o un examen salió mal: cuál fue y qué cambié',
-      pista: '¿Qué materia se te complicó, o qué examen no salió como querías? El 147 de Use of English del B2 ya está en la página: si esa fue la parte dura, dilo tú y di qué estás haciendo con ella. Dos o tres frases, sin disculparte.'
-    },
-    contraServir: {
-      que: 'Si un día de voluntariado no salió como estaba planeado: qué pasó y qué cambié',
-      pista: '¿Qué día salió mal — poca gente, un permiso que no llegó, algo que no se pudo hacer? Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraProyectos: {
-      que: 'Si algo se rompió en el grupo o en la tienda: qué fue y qué cambié',
-      pista: '¿Qué se rompió: un taller sin asistentes, una junta que nadie preparó, un pedido de la tienda que salió mal, algo que publicaste y tuviste que corregir? Qué pasó y qué haces distinto desde entonces.'
-    },
-    contraGente: {
-      que: 'Si una entrevista o un video salió mal: qué pasó y qué cambié',
-      pista: '¿Qué entrevista no salió — alguien que no llegó, una grabación que se perdió, una pregunta que hiciste mal? O el video que no funcionó. Qué pasó y qué cambiaste en el siguiente.'
-    },
-    contraReto: {
-      que: 'Si una operación o un análisis me salió al revés: cuál fue y qué cambié',
-      pista: '¿Qué operación o qué tesis te salió al revés, y por qué? Qué regla te pusiste después. Escríbelo ANTES de que corra el Reto (5 de octubre): un aprendizaje escrito antes del resultado vale más que uno escrito después.'
-    },
-    contraCerts: {
-      que: 'Si dejé o reprobé un curso o un examen: cuál fue y qué cambié',
-      pista: '¿Empezaste alguna certificación que no terminaste, o presentaste algo que no aprobaste? Qué pasó y qué cambiaste en la siguiente. Si no hay ninguna, dilo y este hueco se quita.'
-    },
-    contraPremios: {
-      que: 'Si entré a un concurso sin ganar: cuál fue y qué cambié',
-      pista: '¿A qué concurso entraste sin ganar, o cuál dejaste pasar? Qué aprendiste y qué haces distinto ahora. Si no hay ninguno, este hueco se quita — pero antes mira si el Premio Contacto Banxico entra: cierra el 1 de octubre a las 14:00.'
+    // ── UN SOLO CONTRATIEMPO, Y ES REAL ──────────────────────────────────
+    // Ver la nota larga de la tabla inglesa: los ocho huecos por capítulo se
+    // fueron el 2026-09-01 y en su lugar está `leccionMedida`, que es un
+    // contratiempo documentado en docs/context/lessons.md. Este hueco es el
+    // único que queda, por si Jaime quiere añadir el suyo.
+    contraOtro: {
+      que: 'Si hay otro contratiempo que quiera contar: cuál fue y qué cambié',
+      pista: 'Uno solo, y solo si de verdad lo hay: qué pasó y qué haces distinto desde entonces. Las dos mitades, que es lo que pide la rúbrica de Queen’s — sin la segunda es una disculpa. Si no hay ninguno, este hueco se quita y la página se queda con el contratiempo medido de los proyectos, que ya cumple.'
     },
 
     // ── LOS CUATRO DEL BLOQUE DE EXPERIENCIA EN FORMATO DE SOLICITUD ──────
@@ -2604,14 +2838,12 @@ const es: typeof en = {
     expSitio: '',
     expJasa: '',
     expTiktok: '',
-    contraExp: '',
-    contraAcad: '',
-    contraServir: '',
-    contraProyectos: '',
-    contraGente: '',
-    contraReto: '',
-    contraCerts: '',
-    contraPremios: ''
+    // ── UN SOLO CONTRATIEMPO, Y ES EL DE VERDAD (2026-09-01) ──────────
+    // Aquí vivían OCHO (`contraExp`, `contraAcad`, `contraServir`,
+    // `contraProyectos`, `contraGente`, `contraReto`, `contraCerts`,
+    // `contraPremios`), uno por capítulo. La razón entera de por qué se
+    // fueron está en `huecos`, junto a `contraOtro`.
+    contraOtro: ''
   },
 
   voz: {

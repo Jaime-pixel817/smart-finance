@@ -364,16 +364,85 @@ const citas = [
 // escribirse, que es como "01 / 11" sobrevivió a un capítulo de menos en la
 // versión anterior de este archivo hasta que alguien lo vio.
 // ── ONCE, Y UNO SE MOVIÓ (ola 2, 2026-08-31) ────────────────────────────
-// Entran «School, grades and English» (3) y «Awards» (9) —los dos porque una
+// Entran «School, grades and English» y «Awards» —los dos porque una
 // solicitud los pide y este CV no los tenía— y «Everyone brings something»
-// baja del 4 al 6, detrás de los proyectos: es el capítulo con DIEZ de los
-// quince huecos de texto de la página y era la quinta pantalla. El porqué
-// entero, con la cita del mensaje de Jaime que sostiene el orden, está en
-// `caps` de src/i18n/cv.ts. ESTE ARRAY Y EL ORDEN DE LOS BLOQUES DE ABAJO
-// SON LAS DOS ÚNICAS COSAS QUE HAY QUE TOCAR PARA DESHACERLO.
+// baja detrás de los proyectos: es el capítulo con DIEZ de los quince huecos
+// de texto de la página y era la quinta pantalla.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LAS CARTAS Y LOS PREMIOS SUBEN AL 3 Y AL 4 (2026-09-01), Y ESTÁ MEDIDO
+// ═══════════════════════════════════════════════════════════════════════════
+// Estaban en el 10 y el 9. Medido sobre la página pintada a 1440×900 con
+// `node scripts/medir-cv.mjs`: la PRIMERA carta firmada por un CEO empezaba
+// en el 88.7 % del documento y el premio en el 84.1 %. Con 4 a 9 minutos por
+// perfil, eso no es «al final», es «no existe»: nadie llega.
+//
+// POR QUÉ JUSTO AHÍ, Y NO EN OTRO SITIO. Cuatro razones, de más a menos peso:
+//
+//  1. SON LO ÚNICO DE LA PÁGINA QUE UNA PERSONA FIRMA SOBRE ÉL. Ojo con cómo
+//     estuvo escrita esta razón hasta el 2026-09-01 —«son los dos únicos
+//     capítulos que no escribió él»—, porque era FALSA y la señaló una
+//     revisión: el capítulo de certificaciones tampoco lo escribió él (los
+//     siete rótulos, emisores, años e identificadores están transcritos de
+//     documentos ajenos; de Jaime es la entradilla, igual que aquí). Lo que
+//     de verdad separa a estos dos del resto es otra cosa: un certificado
+//     acredita que TERMINÓ un curso, y una carta es alguien con nombre y
+//     cargo JUZGANDO su trabajo y poniendo su firma debajo. De eso hay dos
+//     piezas en toda la página —las dos cartas— y el premio, cuya única
+//     fuente es una de ellas. Dos CEOs firmando es lo más escaso que hay
+//     aquí, y lo escaso no va al final.
+//  2. VAN PEGADOS A LO QUE CONFIRMAN. Las cartas verifican seis hechos que
+//     el capítulo 2 acaba de listar (que fundó el grupo, que organizó él las
+//     entrevistas de Singapur, la limpieza de playa, los tres idiomas). Una
+//     confirmación impresa ocho capítulos después de su afirmación no
+//     confirma nada que el lector siga recordando. Por eso van DESPUÉS de
+//     experiencia y no antes: sin la lista delante, «Lloyd George, CEO de
+//     TAQ» no tiene de qué responder.
+//  3. LAS CARTAS ANTES QUE LOS PREMIOS. La única fuente del premio del
+//     GreenTech Summit es la carta de Lloyd George, y su tarjeta lo dice
+//     citando este capítulo por su título. Con las cartas delante, esa cita
+//     apunta hacia atrás, que es como se cita; al revés, el lector leía la
+//     referencia a un documento que todavía no había visto.
+//  4. Y VAN ANTES DE LA FRANJA DE CIFRAS del capítulo de los proyectos, que
+//     es la otra prueba de la página: así las dos clases de prueba llegan en
+//     orden creciente de facilidad para falsificarlas — primero la firma de
+//     otro, después lo que cuenta un build, y sólo entonces la palabra de
+//     Jaime. La franja de arriba ya enlazaba las dos piezas antes de bajar;
+//     ahora el enlace cae a tres pantallas, no a treinta.
+//
+// DE MAQUETACIÓN NO CUESTA NADA, y eso lo decide la especificación de
+// escritorio: sus dos capítulos son rejillas de tarjetas, o sea contenido de
+// la pista `marco` (≤ 1320 px), igual que sus vecinos nuevos —la tabla de
+// experiencia y la del expediente académico—. Cambian de sitio dentro de la
+// misma pista y el ojo no cambia de ritmo.
+//
+// LO QUE SÍ CUESTA, MEDIDO Y ESCRITO AQUÍ PORQUE ES PARTE DE LA DECISIÓN:
+// subir dos capítulos hunde a los que estaban debajo, y el que más baja es
+// el de las CERTIFICACIONES. Con `medir-cv.mjs` a 1440×900: pasan del 77.5 %
+// del panel al 91.2 %, o sea más al fondo de donde estaban las cartas
+// (86.8 %). Son siete, seis con identificador de credencial comprobable, y
+// ahora hay que llegar al 91 % del documento para verlas. Se acepta a
+// sabiendas y por la razón 1: un certificado dice que terminó un curso y una
+// carta dice lo que alguien opina de su trabajo — si sólo una de las dos
+// clases de prueba cabe en los primeros cuatro minutos, es la firmada. NO SE
+// COMPENSA CALLANDO: la franja de la tapa enlaza las siete certificaciones
+// desde la primera pantalla, con su cuenta, y ese enlace es hoy el único
+// camino corto que tienen.
+//
+// LA REFERENCIA HACE LO MISMO, UN NIVEL MÁS ARRIBA: en ondo.finance la banda
+// de logos —su prueba de terceros— va a 136 px del BORDE INFERIOR de la
+// primera pantalla, al 94-96 % de su alto. Su primera pantalla se cierra con
+// nombres ajenos. Aquí el equivalente de esa banda son dos cartas firmadas.
+//
+// ESTE ARRAY Y EL ORDEN DE LOS BLOQUES DE ABAJO SON LAS DOS ÚNICAS COSAS QUE
+// HAY QUE TOCAR PARA DESHACERLO. Las claves de `caps` son NOMBRES y no
+// números desde hoy (`c.caps.cartas`, no `c.caps.c10`) justo por esto: con
+// claves posicionales, mover un capítulo dejaba `c10` significando otra cosa
+// en cinco sitios y ninguno se quejaba.
 const capitulos = [
-  c.caps.c1, c.caps.c2, c.caps.c3, c.caps.c4, c.caps.c5, c.caps.c6,
-  c.caps.c7, c.caps.c8, c.caps.c9, c.caps.c10, c.caps.c11
+  c.caps.abro, c.caps.experiencias, c.caps.cartas, c.caps.premios, c.caps.academico,
+  c.caps.voluntariados, c.caps.proyectos, c.caps.conversaciones, c.caps.retoPe,
+  c.caps.certificaciones, c.caps.frase
 ];
 // Los DOS lados van con dos dígitos («01 / 09», no «01 / 9»): con el índice
 // relleno y el total a pelo, el rótulo cambiaba de forma según el lado
@@ -390,7 +459,15 @@ const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capit
 // deja muerta a la siguiente, que es el bug del índice que ya costó una
 // tarde (ver la cabecera de Cv.astro).
 const fuenteCarta = (quien: string) =>
-  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.c10);
+  c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.cartas);
+
+// ── LA MARCA CORTA DEL AÑO EN DISPUTA ───────────────────────────────────
+// El recibo entero (`c.anioDisputa`) se pinta UNA vez, dentro de la tabla de
+// experiencia, que es donde viven las cinco fechas que cubre. En los otros
+// dos sitios donde se lee un 2025 —el lede del sitio y el bloque de Jasa
+// Motor— va esta versión, que dice lo mismo que importa allí y manda al
+// recibo por el TÍTULO del capítulo, como `fuenteCarta`.
+const anioCorto = c.anioDisputaCorto.replace('{s}', c.caps.experiencias);
 
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
@@ -429,7 +506,29 @@ const resumenIndice = c.indice.resumen.replace('{n}', String(capitulos.length));
 // dos números se cuentan, ninguno se escribe — ver el comentario de
 // `franja.certsQ` en cv.ts.
 const nCertsConId = c.certs.filas.filter((f) => f.cred).length;
-const certsFranja = c.franja.certsQ.replace('{n}', String(nCertsConId));
+// Las que NO tienen ID pero sí traen impresos sede y fechas en el propio
+// certificado (hoy solo el Green Technology Programme). La franja las cuenta
+// aparte para poder decir qué trae cada una en vez de enseñar una carencia.
+const nCertsConDonde = c.certs.filas.filter((f) => !f.cred && f.dondeCuando).length;
+// ── LA SUMA TIENE QUE DAR EL TOTAL, Y SI NO, EL BUILD SE CAE ────────────
+// La franja se lee ANTES de bajar y dice de qué se responde cada
+// certificación. Una fila sin `cred` y sin `dondeCuando` quedaría fuera de
+// las dos cifras: la franja seguiría siendo aritméticamente cierta («6 con
+// ID, 1 con sede») mientras el capítulo enseña siete, y nadie se enteraría
+// hasta que un comité contara. Es el mismo trato que el esquema Zod de las
+// carteras le da a una posición sin precio: se tumba el build en vez de
+// publicar una cifra a medias.
+if (nCertsConId + nCertsConDonde !== c.certs.filas.length) {
+  throw new Error(
+    `[cv] La franja de pruebas no cubre las ${c.certs.filas.length} certificaciones: ` +
+    `${nCertsConId} con ID + ${nCertsConDonde} con sede y fechas. ` +
+    'Toda fila de `certs.filas` necesita `cred` o `dondeCuando` (src/i18n/cv.ts), ' +
+    'o la franja dice menos certificaciones de las que el capítulo enseña.'
+  );
+}
+const certsFranja = c.franja.certsQ
+  .replace('{n}', String(nCertsConId))
+  .replace('{d}', String(nCertsConDonde));
 const cifrasFranja = c.franja.sitioQ
   .replace('{p}', String(nPruebas))
   .replace('{l}', String(nLecciones))
@@ -449,6 +548,46 @@ const cifrasFranja = c.franja.sitioQ
              redondeadas entre las dos mitades del titular, ya sobre papel,
              y el manifiesto y el índice suben desde abajo
          3ª  el papel: su meta, el hueco y su retrato
+
+       ═══════════════════════════════════════════════════════════════════════
+       ESTE ORDEN NO SE INVIERTE, Y LA DECISIÓN ESTÁ TOMADA (2026-09-01)
+       ═══════════════════════════════════════════════════════════════════════
+       En ondo.finance la tarjeta es LA APERTURA: al cargar, el vídeo entra
+       ya como tarjeta —725×453 en (358, 224) a 1440×900, o sea el 50.3 % del
+       viewport, centrada al píxel— y crece a sangre en ~1.1 s DE TIEMPO
+       (t=834 ms → t=1967 ms), sin que nadie haga scroll. Aquí es al revés: a
+       sangre primero, y la tarjeta se forma al bajar. Es una diferencia de
+       fondo con la referencia y se queda como está, por dos razones que hay
+       que poder leer aquí y no en el informe de una ola:
+
+       (a) EL PRIMER FOTOGRAMA TIENE QUE SER LA IMAGEN MÁS FUERTE. El lector
+           de este documento dedica 4–9 minutos a un perfil, y algunos menos.
+           Lo primero que ve tiene que ser Toronto a sangre con su nombre
+           encima —la ciudad a la que va la solicitud, y de quién es el
+           documento—, no una tarjeta pequeña creciendo en medio de una
+           pantalla vacía. Ondo puede permitírselo porque su tarjeta es un
+           anuncio y su primer fotograma no tiene que identificar a nadie.
+
+       (b) INVERTIRLA DEJARÍA EL SCROLL DE LA PRIMERA PANTALLA SIN NADA QUE
+           HACER, y convertiría la apertura en una animación POR TIEMPO que
+           un lector rápido se pierde ENTERA. Hoy el efecto lo conduce el
+           scroll (`animation-timeline: view()` sobre `.intro-pista`): quien
+           baja despacio lo ve completo, quien baja rápido lo ve acelerado, y
+           quien no baja no se pierde nada porque el estado de partida es la
+           portada entera. Una apertura por tiempo se le escapa al que llega
+           y hace scroll en el primer segundo — que es exactamente el lector
+           con prisa que este CV tiene que servir. Ondo además la sostiene
+           bloqueando el scroll (`body{overflow:hidden;position:fixed}`)
+           mientras dura, y eso aquí no entra: es hostil y no pasa ninguna
+           guardia de accesibilidad.
+
+       LA MECÁNICA NO SE TOCA. Se documenta la decisión, no se cambia el
+       efecto: `clip-path: inset()` sobre la foto pegada, la pista que se
+       mide a sí misma, los keyframes que degradan a su estado estable, y los
+       cuatro caminos de degradación ya probados (`@supports`,
+       `prefers-reduced-motion`, sin JS, impresión). Si algún día se
+       reabre, se reabre con estas dos razones delante y midiendo lo que
+       pierde el lector rápido, no comparando capturas con Ondo.
 
        ── LA CORRECCIÓN DEL 2026-08-29 (la grabación de Jaime) ──────────────
        La primera versión de este efecto tenía DOS fotos: la de la tapa,
@@ -699,29 +838,29 @@ const cifrasFranja = c.franja.sitioQ
            huecos: si no, cada pieza se anunciaría dos veces. */}
       <ul class="franja" aria-label={c.franja.tag}>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-8`}
-            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.c8)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-10`}
+            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.certificaciones)}`}>
             <span class="franja-n" aria-hidden="true">{c.certs.filas.length}</span>
             <span class="franja-q" aria-hidden="true">{certsFranja}</span>
           </a>
         </li>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-10`}
-            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.ir.replace('{s}', c.caps.c10)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-3`}
+            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.ir.replace('{s}', c.caps.cartas)}`}>
             <span class="franja-n" aria-hidden="true">{c.cartas.entregadas.length}</span>
             <span class="franja-q" aria-hidden="true">{c.franja.cartasQ}</span>
           </a>
         </li>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-5`}
-            aria-label={`${c.franja.sitioN} — ${cifrasFranja} — ${c.franja.ir.replace('{s}', c.caps.c5)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-7`}
+            aria-label={`${c.franja.sitioN} — ${cifrasFranja} — ${c.franja.ir.replace('{s}', c.caps.proyectos)}`}>
             <span class="franja-n franja-n-txt" aria-hidden="true">{c.franja.sitioN}</span>
             <span class="franja-q" aria-hidden="true">{cifrasFranja}</span>
           </a>
         </li>
         <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-9`}
-            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.ir.replace('{s}', c.caps.c9)}`}>
+          <a class="franja-item cv-salto" href={`#${p}-cap-4`}
+            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.ir.replace('{s}', c.caps.premios)}`}>
             <span class="franja-n" aria-hidden="true">{c.premios.entregados.length}</span>
             <span class="franja-q" aria-hidden="true">{c.franja.premiosQ}</span>
           </a>
@@ -893,7 +1032,7 @@ const cifrasFranja = c.franja.sitioQ
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
-    <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.c2}</h2>
+    <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.experiencias}</h2>
     <p class="cap-lede">{c.exp.lede}</p>
     <details class="exp-plegable" open>
       {/* La cuenta sale de la lista, no está escrita: una fila nueva la
@@ -959,7 +1098,33 @@ const cifrasFranja = c.franja.sitioQ
          que el referee de Jasa Motor NO puede ser su papá, y que 497
          impresiones y 473 contactos son cifras de vanidad y no sirven como
          resultado. */}
-    <h3 class="t-h3 expapp-h">{c.expApp.h}</h3>
+    {/* ── Y SE PLIEGA (2026-09-01) ─────────────────────────────────────
+         SON LAS MISMAS EXPERIENCIAS DOS VECES. La lista de arriba son doce
+         renglones de año + título, que es lo que un comité escanea, y esto
+         son cinco de esos doce otra vez, con los campos que pide un
+         formulario: rol · organización · periodo · qué hizo · resultado con
+         número · quién lo confirma. Medido sobre la página pintada, entre
+         las dos sumaban 651 palabras en el capítulo que se lee segundo, y el
+         lector con 4-9 minutos leía la misma experiencia dos veces antes de
+         llegar a nada nuevo.
+         LA LISTA SECA SE QUEDA ABIERTA, que es lo que decidió la ola
+         anterior y por la razón correcta: «un botón cerrado es un capítulo
+         que no existe». Ese argumento habla del CAPÍTULO, y el capítulo
+         sigue entero y a la vista. Lo que se pliega es su SEGUNDA COPIA.
+         Y NO SE PIERDE NADA DE LO QUE PIDEN LAS SOLICITUDES: los cinco
+         bloques con sus campos, sus huecos marcados y el patrón de la fila
+         terminada están a un clic, y al imprimir salen abiertos — que es
+         además el formato en el que sirven, porque un CV impreso es lo que
+         acaba adjunto a una nominación.
+         EL RÓTULO DEL RESUMEN ES EL MISMO `expApp.h` de siempre: dice qué
+         hay dentro, y el lede pasa a ser la pista de al lado. */}
+    <details class="expapp-plegable ref-plegable">
+      <summary class="ref-ver">
+        <span class="ref-ver-fila">
+          <span class="ref-ver-txt t-h3">{c.expApp.h}</span>
+          <span class="ref-flecha" aria-hidden="true">↓</span>
+        </span>
+      </summary>
     <p class="cap-lede">{c.expApp.lede}</p>
     <ol class="expapp">
       {c.expApp.filas.map((f) => (
@@ -978,967 +1143,11 @@ const cifrasFranja = c.franja.sitioQ
           </li>
       ))}
     </ol>
-
-    <Hueco c={c} id="contraExp" class="contra" />
-  </section>
-
-  {/* ════ 03 · Escuela, calificaciones e inglés — EL RENGLÓN ACADÉMICO ═══
-       CAPÍTULO NUEVO (ola 2, 2026-08-31). Hasta hoy este CV no tenía UN SOLO
-       dato académico —ni promedio, ni cálculo, ni idioma en pantalla— y es lo
-       primero que pregunta cualquier solicitud. Un silencio en ese renglón no
-       se lee como discreción: se lee como que no lo tiene.
-
-       LO QUE SE PUBLICA AQUÍ EXISTE Y ESTÁ COMPROBADO:
-        · La escuela y el plan salen de la misma fila que ya pinta el capítulo
-          anterior.
-        · El B2 con su 163 sale de SU PROPIO CERTIFICADO (transcrito en
-          cv-material/MATERIAL.md, bloque C1 nº 7). Hasta hoy ese 163 vivía
-          SOLO en el `alt` de la imagen del certificado: en pantalla el
-          renglón del inglés parecía cerrado y no lo está.
-        · Que le falta otro examen no es una opinión — las dos universidades
-          lo publican, y las dos citas se comprobaron el 2026-08-31 en sus
-          páginas oficiales, que van enlazadas.
-
-       NO SE INVENTA NI UNA CIFRA: promedio, cálculo y el examen que falta son
-       huecos marcados, cada uno con su pregunta exacta en cv.ts.
-
-       EL BLOQUE VA EN CASTA 3 (no se mueve), como la lista seca y los
-       certificados: son los renglones que un comité escanea. */}
-  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
-    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(2)}</p>
-    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.c3}</h2>
-    <p class="cap-lede">{c.acad.lede}</p>
-
-    <div class="acad">
-      <div class="acad-bloque">
-        <h3 class="t-h3">{c.acad.escuelaH}</h3>
-        <p class="meta-mono acad-cuando">{c.acad.escuelaCuando}</p>
-        <p>{c.acad.escuela}</p>
-      </div>
-
-      <div class="acad-bloque">
-        <h3 class="t-h3">{c.acad.inglesH}</h3>
-        <p class="meta-mono acad-cuando">{c.acad.inglesTag}</p>
-        {/* Los nombres de los componentes del examen van tal cual los imprime
-             el certificado, o sea en inglés en los dos paneles: es el nombre
-             propio de cada parte, no una frase traducible. En el panel
-             español eso son cinco trozos de inglés dentro de un párrafo en
-             español, así que llevan `lang="en"` por el mismo motivo que las
-             citas de las cartas: sin la marca, un lector de pantalla los
-             pronuncia con fonemas españoles. */}
-        <p><span lang="en">{c.acad.ingles}</span></p>
-        {/* EL HECHO INCÓMODO, EN PRIMERA PERSONA Y SIN DRAMATISMO. Es un paso
-             pendiente, no un fracaso — y decirlo aquí es más creíble que
-             dejar el renglón como si estuviera cerrado. */}
-        <p class="acad-falta">{c.acad.inglesFalta}</p>
-        <p class="meta-mono acad-fuentes-h">{c.acad.fuentesH}</p>
-        <ul class="acad-fuentes">
-          {/* `que` va en trozos por lo mismo que `acad.nota`: en el panel
-               español la cita verbatim de U of T es inglés dentro de una
-               etiqueta española y necesita `lang="en"`. */}
-          {c.acad.inglesFuentes.map((f) => (
-            <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que.map((t) => (typeof t === 'string'
-              ? t
-              : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))} ↗</a></li>
-          ))}
-        </ul>
-      </div>
-    </div>
-
-    {/* POR QUÉ LOS TRES RECUADROS DE ABAJO ESTÁN VACÍOS EN VEZ DE NO ESTAR.
-         Sin esta línea, tres huecos seguidos en el capítulo académico se leen
-         como una ausencia; con ella se leen como lo que son, tres datos que
-         solo puede dar él. La cita de Rotman va verbatim y en inglés, con su
-         enlace: es de su página oficial. */}
-    <div class="acad-nota">
-      <h3 class="t-h4">{c.acad.notaH}</h3>
-      {/* EL PARRAFO VA EN TROZOS. En el panel espanol lleva dentro tres
-           pedazos de ingles —la cita de Rotman y las dos maneras inglesas de
-           decir un promedio— y sin `lang="en"` un lector de pantalla los
-           pronuncia con fonemas espanoles, que es la misma razon por la que
-           las citas de las cartas van marcadas. La marca SOLO se pinta en el
-           panel espanol: en el ingles el idioma del trozo es el de la pagina
-           y un `lang` redundante no aporta nada. */}
-      <p>{c.acad.nota.map((t) => (typeof t === 'string'
-        ? t
-        : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))}</p>
-      {/* UNA FUENTE POR ESCUELA. Antes iba UN solo enlace —la página de
-           Rotman Commerce— debajo de un párrafo que habla de Rotman, de Ivey
-           y de Schulich, y esa página no menciona a las otras dos: el enlace
-           visible decía que un dato salía de un sitio donde no está. */}
-      <ul class="acad-fuentes pie">
-        {c.acad.notaFuentes.map((f) => (
-          <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que} ↗</a></li>
-        ))}
-      </ul>
-    </div>
-
-    <div class="acad-huecos">
-      <Hueco c={c} id="acadPromedio" />
-      <Hueco c={c} id="acadCalculo" />
-      <Hueco c={c} id="acadIngles" />
-    </div>
-
-    <Hueco c={c} id="contraAcad" class="contra" />
-  </section>
-
-  {/* ════ 04 · Servir — los voluntariados ════════════════════════════════
-       "Experiencias, voluntariados": van pegados, en ese orden.
-       EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
-       (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
-       voluntariados de su frase: los animalitos y las playas. La comunidad
-       sigue nombrada en su cita, que es verbatim y no se toca. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-4-h`}>
-    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(3)}</p>
-    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.c4}</h2>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
-
-    <div class="servir">
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        {/* ── EL CLIP VA AL LADO DE SU TEXTO, NO ENCIMA (escritorio) ───────
-             El clip es 9:16 y su tope son 300 px de ancho, así que apilado
-             ocupaba el 20.8 % del marco a 1440 y dejaba 1075 px de blanco a
-             su derecha: era el medio más huérfano del documento. Y NO se
-             arregla ensanchándolo — a ancho de prosa un 9:16 mide 1223 px de
-             alto, más de una pantalla para un clip.
-             Lo que necesitaba era compañía, no anchura: `.clip-par` lo empareja
-             con el párrafo que ya venía justo debajo. En escritorio son dos
-             columnas (el clip a la izquierda, el texto a la derecha) y la
-             banda se llena; en el teléfono el envoltorio es la MISMA columna
-             flex con el MISMO hueco que `.servir-bloque`, así que no mueve un
-             píxel. Es el mismo bento de `.grupo`. */}
-        <div class="clip-par">
-          <div class="clip-par-media">
-            {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
-                 sin sonar solo (`controls` + `preload="none"`). */}
-            <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-              data-poster="/assets/cv/cv-poster-animales.jpg"></video>
-            <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-              poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
-            <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
-          </div>
-          {/* La donación al stand de adopción: hecho de su publicación en
-               LinkedIn (2026). Las fotos no se pudieron guardar en esta
-               cosecha; el hecho entra igual, sin foto. */}
-          <p class="cap-frases">{c.servir.donacion}</p>
-        </div>
-        {/* Fotos 5, 6 y 13 del lote del 2026-08-30, YA COLOCADAS: él
-             entregando el alimento, los perritos del stand y la marcha. La
-             cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
-             enseña un teléfono— y su hueco, en la tarjeta de Sol del
-             capítulo 4, lo dice en pantalla. */}
-        <div class="fila-fotos">
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-donacion.webp')} alt={c.lote.donacionAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.donacionPie}</figcaption>
-          </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.perritosPie}</figcaption>
-          </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.marchaPie}</figcaption>
-          </figure>
-        </div>
-        <Hueco c={c} id="servirAnimales" />
-      </div>
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.playas}</h3>
-        {/* LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
-             línea sale de su propia publicación sobre el voluntariado del
-             curso de Green Technology. */}
-        <p class="cap-frases">{c.servir.playa}</p>
-        {/* ── ES EL MISMO PROGRAMA DEL CERTIFICADO ────────────────────────
-             La publicación de la playa y el certificado 4 del capítulo de
-             certificaciones son LA MISMA COSA: el 2026 Green Technology
-             Programme de BlueSky Education. Estaban escritos como dos
-             actividades sueltas y no lo son — la limpieza es la parte de
-             servicio del programa que certifica el diploma. */}
-        <p class="cap-frases">{c.servir.playaPrograma}</p>
-        {/* SUS PALABRAS, recuperadas el 2026-08-29. La publicación se daba
-             por perdida y este bloque iba con una sola frase escrita por la
-             página; está publicada, se encontró y se transcribió. */}
-        <blockquote class="voz">
-          {c.voz.playaTag && <p class="meta-mono">{c.voz.playaTag}</p>}
-          <p>{c.voz.playa}</p>
-        </blockquote>
-        <p class="pie">{c.voz.playaFuente}</p>
-        {/* La limpieza de playa la firma ahora un tercero: la carta de Lloyd
-             George la nombra («including a beach cleaning project during his
-             stay»). Antes solo estaba su propia publicación. */}
-        <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-        {/* TRES huecos, uno por foto: la publicación tiene tres y están
-             descritas una por una. Un hueco genérico decía «faltan fotos»;
-             tres dicen CUÁLES, que es lo que hace falta para traerlas. No
-             se pudieron bajar porque Chrome activó su bloqueo de descargas
-             automáticas para linkedin.com — es un permiso del navegador de
-             Jaime, no algo que se arregle desde aquí. */}
-        <div class="playa-fotos">
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.playa1Pie}</figcaption>
-          </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.playa2Pie}</figcaption>
-          </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" height="731" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.playa3Pie}</figcaption>
-          </figure>
-        </div>
-      </div>
-    </div>
-    <Hueco c={c} id="contraServir" class="contra" />
+    </details>
 
   </section>
 
-  {/* ════ 05 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
-       "luego mis proyectos y arrancas con el grupo estudiantil": el orden de
-       dentro del capítulo lo pidió él, y el grupo abre porque es lo que
-       fundó y preside. Después, smartfinance.lat con la prueba viva.
-
-       El texto del grupo es el hecho que ya publica /community; venía del
-       capítulo "Servir", donde se leía como un voluntariado más.
-
-       MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
-       cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
-       está mirando y no pide el ojo —, así que no compiten. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
-    <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(4)}</p>
-    <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.c5}</h2>
-
-    <div class="bloques">
-      <div class="bloque">
-        <h3 class="t-h3">{c.proyectos.grupoH}</h3>
-        <div class="grupo">
-          <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
-          <div class="grupo-texto">
-            {/* Hecho publicado en /community, en primera persona de Jaime. */}
-            <p class="cap-frases">{c.proyectos.grupo}</p>
-            {/* ── LA MARCA DE TERCERO VA PEGADA A LO QUE LA CARTA SÍ DICE ───
-                 Estaba DESPUÉS de la cifra y de su recibo, o sea en este
-                 orden: «somos casi 200» → «es mi afirmación» → «fuente de
-                 tercero: la carta de Lloyd George». Leído de corrido —y un
-                 lector de cuatro minutos lee de corrido— eso dice que el
-                 tercero respalda el número, y de paso anula el recibo que la
-                 página acababa de poner. La carta dice «He founded the Smart
-                 Finance student organisation at his campus» y NI UNA PALABRA
-                 sobre cuánta gente hay.
-                 Ahora la marca queda debajo de la frase que la carta firma
-                 —la fundación— y la cifra viene después con su recibo, que
-                 es lo último que se lee y lo que queda. Es el único de los
-                 cuatro `fuente-carta` del documento que estaba mal colocado;
-                 los otros tres (playa cap. 4, aviso cap. 6, lista del cap.
-                 10) ya iban junto a lo suyo. */}
-            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-            {/* SU CIFRA, MARCADA. «Casi 200 en la comunidad» (2026-08-29) no
-                 la puede contar el build —la gente de una comunidad no vive
-                 en ningún archivo del repo—, así que va como afirmación suya
-                 con su fecha, igual que los inscritos del boletín. La marca
-                 va DEBAJO y en mono: es el recibo, no la frase. */}
-            <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
-            <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
-            <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
-          </div>
-        </div>
-        {/* El cuadro de la promo del grupo (otro vídeo, otra imagen: la
-             regla de «ninguna imagen dos veces» habla de archivos, y este es
-             el cuadro del vídeo de promo de 2026 en el Tec).
-
-             SUSTITUCIÓN HECHA (2026-08-31): aquí estaba `cv-tt-grupo.webp`,
-             el cuadro del vídeo de promo, y Jaime pidió con esas palabras que
-             lo sustituyera la 8 del lote — «él entrevistando gente en su
-             prepa por parte de su grupo estudiantil». Se va también el enlace
-             «ver en TikTok» del pie: apuntaba al vídeo del que salía ESE
-             cuadro, y colgarlo de una foto que no es de ese vídeo diría que
-             la foto sale de ahí. El vídeo de promo no se pierde — sigue en el
-             carrusel de clips del capítulo 6. NO lleva FotoHueco al lado a
-             propósito: este sitio tiene foto. */}
-        <figure class="grupo-tec lote-fig fig-sola">
-          <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" height="810" loading="lazy" decoding="async" /></span>
-          <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
-        </figure>
-        {/* Foto 9 del lote del 2026-08-30: él narrando algo sobre su grupo
-             estudiantil. Esa sí es nueva y no sustituye a nada, así que va
-             con su hueco. */}
-        <div class="fila-fotos grupo-narra-fila fig-sola">
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" height="786" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
-          </figure>
-        </div>
-      </div>
-
-      {/* `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
-           dentro de cada raíz su chip y sus filas, así que la raíz tiene que
-           ser el trozo que las contiene. */}
-      <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
-        <h3 class="t-h3">{c.proyectos.sitioH}</h3>
-        <p class="cap-lede">{c.prueba.lede}</p>
-        {/* El lede de aquí arriba es otro de los tres sitios donde un 2025 se
-             lee en pantalla (los otros: la tabla del capítulo 2 y el bloque
-             de Jasa Motor, más abajo), así que lleva el mismo recibo. Los
-             tres pintan LA MISMA cadena: no pueden decir cosas distintas. */}
-        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
-
-        {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
-             header padre») ─────────────────────────────────────────────
-             Es una foto del sitio EN VIVO tomada a 1280 px de ancho con el
-             globo ya formado, no un render ni un mockup, y por eso el pie
-             dice de qué día es: la imagen lleva dentro precios y una hora, y
-             justo debajo hay una cinta que sí pide precios de verdad al
-             abrir esta página. Sin fecha, las dos se leerían como lo mismo.
-             `loading="lazy"`: está siete pantallas por debajo del pliegue. */}
-        <figure class="sf-header-fig">
-          {/* UNA CAPTURA POR IDIOMA. El panel español enseña la portada del
-               sitio EN ESPAÑOL, y no es un capricho: aquí la interfaz del
-               sitio ES texto —menú, titular, los nombres de las ocho
-               ciudades, y hasta el chip de fuente («Delayed 15 min» contra
-               «Retraso 15 min»)—, así que la captura inglesa dentro del panel
-               español rompería la regla de que cada panel va 100 % en su
-               idioma. Un certificado en inglés sí se queda como está en el
-               panel español, porque un certificado es un documento emitido y
-               no existe en otra versión; la portada de su sitio sí existe. */}
-          {/* LOS `sizes` SUBEN CON LA PISTA (ola 2b). En escritorio esta
-               captura vive en `marco` y se pinta hasta 1320 px, no 560:
-               con el valor viejo el navegador se llevaba el archivo de 640
-               y lo estiraba a más del doble, que es exactamente por lo que
-               «su texto no se lee». El tramo de teléfono no cambia. */}
-          <img class="sf-header-img" src={foto(`cv-sf-header${sufHeader}-640.webp`)}
-            srcset={`${foto(`cv-sf-header${sufHeader}-640.webp`)} 640w, ${foto(`cv-sf-header${sufHeader}-1120.webp`)} 1120w, ${foto(`cv-sf-header${sufHeader}-1600.webp`)} 1600w`}
-            sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 1320px, 560px"
-            alt={c.prueba.headerAlt} width="1120" height="644"
-            loading="lazy" decoding="async" />
-          <figcaption class="pie">{c.prueba.headerPie}</figcaption>
-        </figure>
-
-        {/* LA CINTA VIVA, ENVUELTA (ola 2). El envoltorio no cambia nada en
-             pantalla —no tiene estilo propio— y existe para que la VISTA
-             IMPRESA pueda quitar la cinta entera de una regla: el chip de
-             fuente, las tres filas y la nota que las explica son una sola
-             cosa y en papel no son ninguna. Sin JavaScript o sin `/api` las
-             filas salen con guiones, que es honesto en pantalla y es ruido
-             en una hoja que alguien va a adjuntar. */}
-        <div class="cinta-bloque">
-        <div class="sec-head">
-          <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
-        </div>
-        <ul class="cinta">
-          {cinta.map((s) => (
-            <li class="cinta-fila" data-cinta-fila={s.id} data-pair={s.history} data-dec={String(s.decimals)}>
-              <a class="cinta-link" href={L('asset.' + s.id)}>
-                <span class="cinta-id">
-                  <span class="cinta-sym num">{s.sym}</span>
-                  <span class="cinta-name t-caption faint">{s.name[locale]}</span>
-                </span>
-                <span class="cinta-spark" aria-hidden="true">
-                  <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
-                </span>
-                <span class="cinta-nums">
-                  <span class="visually-hidden">{c.tape.price}</span>
-                  <span class="cinta-price num" data-precio>{c.tape.pending}</span>
-                  <span class="visually-hidden">{c.tape.change}</span>
-                  <span class="cinta-chg num t-caption" data-cambio></span>
-                </span>
-                <span class="visually-hidden">{c.tape.open}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <p class="pie">{c.tape.note} {c.tape.fail}</p>
-        </div>
-
-        {/* ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
-             El otro ritmo que se copia de Ondo: tres cifras al tamaño de un
-             titular con su rótulo debajo. Lo que NO se copia es cuáles y cómo
-             se mueven, y las dos cosas están razonadas.
-
-             CUÁLES. Ondo pone «$2.19B TVL», que aguanta cualquier tamaño.
-             Aquí las candidatas eran cinco y solo tres aguantan: un «10» a
-             200 px no es un titular, es una broma tipográfica. Así que a lo
-             grande van las PRUEBAS, las FUENTES y los TÉRMINOS, y las diez
-             lecciones se quedan donde estaban, en el renglón de al lado —
-             que además es donde dicen algo, porque las 41 fuentes son
-             fuentes DE esas diez lecciones. Los commits (164 en 35 días)
-             quedan fuera a propósito: son la única cifra de la lista que el
-             build no puede contar, porque el despliegue no lleva historia de
-             git, y una cifra escrita a mano se queda vieja en silencio.
-
-             CÓMO. Ondo las rueda como un odómetro y aquí no se mueven, y no
-             es por trabajo: es que ese gesto diría lo contrario de lo que
-             dice la página. Un odómetro enseña una cifra LLEGANDO — vale para
-             un TVL que sube mientras lo miras —, y estas tres ya estaban ahí
-             antes de que nadie abriera la página: son recibos, y un recibo no
-             se anima. Además la regla de movimiento del sitio da UNA animación
-             que llame la atención por pantalla, y en esta ya se la gasta la
-             cinta, que es el único número de la pantalla que de verdad llega
-             en caliente. Lo que sí se copia es la escala. */}
-        <ul class="cifras">
-          <li>
-            <span class="cifra num">{nPruebas}</span>
-            <span class="cifra-que">{c.prueba.stats.pruebas}</span>
-          </li>
-          <li>
-            <span class="cifra num">{nFuentes}</span>
-            <span class="cifra-que">{c.prueba.stats.fuentes}</span>
-          </li>
-          <li>
-            <span class="cifra num">{nGlosario}</span>
-            <span class="cifra-que">{c.prueba.stats.glosario}</span>
-          </li>
-        </ul>
-        <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
-
-        {/* ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────
-             «promociona más lo de lessons y pon un link». Dejan de ser la
-             coletilla del renglón de las cifras y pasan a apartado propio,
-             con su botón. La cuenta (`nLecciones`) la sigue haciendo el
-             build de los MDX del repo: no hay ni un número escrito a mano.
-             El enlace es INTERNO y por eso cada panel va a su idioma —
-             /lessons en inglés y /es/lecciones en español—, que es el mismo
-             destino que https://smartfinance.lat/lessons. */}
-        <div class="sf-destaca">
-          <h4 class="t-h4">{c.prueba.leccionesH}</h4>
-          <p>{c.prueba.leccionesQue.replace('{n}', String(nLecciones))}</p>
-          <p><a class="cv-boton" href={L('lessons')}>{c.prueba.leccionesLink} →</a></p>
-        </div>
-
-        {/* EL BOLETÍN Y SU CIFRA. «Más de 100 inscritos» (2026-08-29, y
-             Jaime volvió a pedirla el 2026-08-30) es AFIRMACIÓN SUYA y no
-             una cuenta: los inscritos viven en Redis, o sea fuera del build.
-             Va marcada, y a propósito NO entra en la lista de cifras grandes
-             de arriba — esas tres las cuenta el build de los archivos del
-             repo, y meter una afirmación entre ellas le prestaría su recibo. */}
-        <div class="sf-destaca">
-          <h4 class="t-h4">{c.prueba.boletinH}</h4>
-          <p class="cifra-suya">{c.prueba.boletin}</p>
-          <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
-        </div>
-
-        <p class="cap-frases">{c.prueba.stats.promesa}</p>
-        <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
-      </div>
-
-      {/* ── Jasa Motor (bloque nuevo, brief del 2026-08-28) ──────────────
-           EL FRAMING ES EL FAMILIAR Y LO APROBÓ JAIME: la refaccionaria es
-           de su familia, y él desarrolló la tienda en línea y lleva el
-           marketing para apoyar a su papá. NO se escribe «CEO». Su frase va
-           como voz.* (pulida, pendiente de su revisión final) y el dato del
-           negocio (Cuautitlán, 20+ años) sale del propio sitio de la
-           refaccionaria, verificado el 2026-08-28. El enlace es a la tienda
-           que él construyó — la prueba de que existe. */}
-      <div class="bloque">
-        <h3 class="t-h3">{c.proyectos.jasaH}</h3>
-        {/* texto de Jaime, pendiente de su revisión final */}
-        <blockquote class="voz">
-          {c.voz.jasaTag && <p class="meta-mono">{c.voz.jasaTag}</p>}
-          <p>{c.voz.jasa}</p>
-        </blockquote>
-        <p class="cap-frases">{c.proyectos.jasa}</p>
-        {/* EL TERCER SITIO DONDE SE LEE UN 2025 (2026-08-31). Este párrafo y
-             el pie de la captura dicen 2025, y ese año es de los cinco que
-             solo sostiene la palabra de Jaime — Jasa Motor ni siquiera
-             aparece en su LinkedIn. La tabla del capítulo 2 y el lede del
-             sitio ya llevaban el recibo; este no, y era el único año de la
-             página que salía en seco. Es LA MISMA cadena en los tres sitios:
-             si cambia, cambia en los tres a la vez. */}
-        <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
-        {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
-             o la tienda en línea: una foto real o una captura» y ya hay
-             captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
-             en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
-             clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
-             corrigió Jaime — 2025, no 2026. */}
-        <figure class="jasa-fig fig-sola">
-          <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
-            width="640" height="800" loading="lazy" decoding="async" /></span>
-          <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
-        </figure>
-        <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
-      </div>
-    </div>
-    <Hueco c={c} id="contraProyectos" class="contra" />
-
-  </section>
-
-  {/* ════ 06 · Cada quien trae algo — las conversaciones ═════════════════
-       El "etc" de "experiencias, voluntariados, etc": la gente con la que
-       habló es una experiencia más, y va con ellas, antes de los proyectos.
-
-       ── AQUÍ ES DONDE HAY QUE TENER CUIDADO CON ONDO ──────────────────────
-       Ondo cierra su home con cinco citas: retrato, NOMBRE, cargo y una frase
-       grande elogiando a Ondo. Larry Fink, Franklin Templeton, ABN Amro. Es el
-       bloque más eficaz de su página y es exactamente el que aquí NO se puede
-       copiar tal cual: Jaime no tiene el aval de nadie. Andy Toh, Moris Dieck,
-       el profesor Lloyd y Raúl Irabién no lo están respaldando — él los
-       entrevistó. Poner sus nombres y cargos encima de una frase grande
-       insinuaría un aval que no existe, y es justo el tipo de cosa que un
-       comité de admisiones va a comprobar.
-
-       Lo que SÍ se copia, desde el brief del 2026-08-28, es LA FORMA ENTERA:
-       el carrusel horizontal de tarjetas negras redondeadas — retrato, nombre,
-       cargo y la frase grande abajo, con las flechas ‹ › debajo. La
-       diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
-       Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
-       esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
-       porque unas comillas debajo del nombre de otra persona la convierten en
-       una cita suya. Y encima del bloque va escrito, en una frase, que nadie
-       de aquí lo está respaldando.
-
-       La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
-    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(5)}</p>
-    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.c6}</h2>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
-    {/* La frase que impide que este capítulo se lea como una lista de avales.
-         Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
-         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
-    <p class="pie">{c.entrevistas.aviso}</p>
-    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
-         organizó por su cuenta («entirely on his own steam») lo firma la
-         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
-         nadie: lo que la carta respalda es que las conversaciones son suyas,
-         no lo que dijeron los entrevistados. */}
-    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-
-    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
-         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
-         (el imán vertical de la página se quitó; ESTE es otro gesto: una
-         lista de tarjetas que pagina de lado, que es justo para lo que
-         scroll-snap x existe). Las flechas son <button> de verdad: con
-         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
-         sin JavaScript se esconden (la regla vive en el <noscript> de
-         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
-         flechas del teclado (tabindex="0" en la lista, que es lo que exige
-         una región desplazable alcanzable).
-         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
-         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
-         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
-         todas las letras. Eso no se negocia con la estética. */}
-    <div class="citas-marco" data-citas>
-      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
-        {citas.map((rt) => {
-          const per = c.entrevistas.personas[rt.key];
-          // `rol` vacío = no había fuente para el rol y no se inventa uno.
-          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
-          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
-          return (
-          <li class="cita">
-            <div class="cita-media">
-              {rt.img && (
-                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
-              )}
-              {rt.video && (
-                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
-                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
-              )}
-              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
-            </div>
-            <p class="cita-nombre">{per.nombre}</p>
-            {per.rol && <p class="cita-rol">{per.rol}</p>}
-            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
-            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
-                 no: en cuanto Jaime escriba la frase este renglón es lo único
-                 que separa «lo que me llevé» de «lo que me dijeron». */}
-            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
-            <Hueco c={c} id={rt.hueco} grande />
-            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
-          </li>
-          );
-        })}
-      </ul>
-      <div class="citas-nav">
-        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
-        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
-      </div>
-    </div>
-    {/* Foto 7 del lote del 2026-08-30: él con Marg Franklin en la firma del
-         acuerdo con el Tec. SIN CARGO, a propósito: ver la nota junto a
-         `fotosPend.marg` en src/i18n/cv.ts. Va AQUÍ y no en el
-         carrusel: el carrusel es de conversaciones que él grabó y de las que
-         se llevó una frase, y de esta no hay ni clip ni frase — lo que hay
-         es que le pidió consejo sobre estudiar en Canadá, que es lo que dice
-         su fila de experiencia. Ponerla como una tarjeta más del carrusel
-         insinuaría una entrevista que no existe. Fuera del carrusel, en el
-         mismo capítulo, es la gente que conoció. */}
-    <div class="fila-fotos marg-fila fig-sola">
-      <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.margPie}</figcaption>
-          </figure>
-    </div>
-
-    {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
-         Primero las conversaciones, después lo que él enseña SOLO: es el
-         orden que pidió. Aquí van únicamente los vídeos donde él da la
-         información (consejos, datos, noticias) — reclasificados con el
-         material: la entrevista de «skills» que vivía aquí subió al carrusel.
-         Jamás un embed de TikTok; el clip de Singapur se sirve desde este
-         dominio y el resto va como cuadro del vídeo + enlace al original. */}
-    <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
-    <Hueco c={c} id="tiktokNota" />
-    <p class="pie">{c.tiktok.ensenaLede}</p>
-
-    {/* Los CUATRO vídeos van servidos por NOSOTROS, CON su sonido: son él
-         hablando, así que los arranca una persona (`controls`, WCAG 2.2.2) y
-         autoplay NUNCA — aquí no hay bucles mudos. El póster viaja en
-         `data-poster` con su gemelo <noscript> (patrón del PR #53): cero
-         bytes de vídeo y cero de póster hasta acercarse.
-         OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
-         de la expresión un {/* *\/} no es un comentario de plantilla sino JS
-         crudo, y rompe el compilado. */}
-    <ul class="clips">
-      {ensena.map((v) => (
-        <li class:list={['clip', v.ancha && 'clip-ancho']}>
-          {v.clip && (
-            <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
-            <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
-          )}
-          {v.img && (
-            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
-          )}
-          <p class="clip-titulo">{v.titulo}</p>
-          <p class="clip-anio meta-mono">2026</p>
-          {v.carrusel && (
-            <p class="clip-tag" role="note">{c.clip.carrusel}</p>
-          )}
-          {v.nota && <p class="pie">{v.nota}</p>}
-          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
-        </li>
-      ))}
-    </ul>
-
-    {/* ── AQUÍ DEBAJO HABÍA SIETE RENGLONES CON AÑO. YA NO ────────────────
-         Jaime (2026-08-30): «abajo de eso hay más fechas con títulos,
-         quítalos y pon de link a mi perfil de TikTok para ver todo mi
-         contenido, con un botón ese, y nos ahorramos todos los textos con
-         fechas». Se fueron los tres consejos sin imagen y el bloque entero
-         de «El arco de Singapur» (encabezado, cuatro renglones y su línea de
-         fuente), que decía «2026» siete veces seguidas. En su sitio va UN
-         botón al perfil, que es donde vive todo eso.
-         LA FOTO DEL ARCO SE QUEDA. Vivía dentro de ese bloque, pero lo que
-         Jaime pidió quitar son TEXTOS CON FECHAS, no fotos — y su brief del
-         2026-08-28 pide lo contrario con las imágenes («usar todas las
-         posibles»). Así que el cuadro de la presentación en la NUS sigue
-         aquí, ahora suelto; lo único que perdió es el «(2026)» del pie. */}
-    {/* ⚠️ ESTA FOTO LA SUSTITUYE LA 12 DEL LOTE DEL 2026-08-30 — «él
-         explicándole a alguien de la NUS», y Jaime pidió esa versión porque
-         es de MEJOR CALIDAD que esta. Esta es un fotograma rescatado: venía
-         girado 90° y con el subtítulo del vídeo quemado, y el recorte que
-         deja el rótulo fuera está explicado en build-photos.mjs. Sin hueco
-         al lado, por lo mismo que la del grupo: hoy la foto está. CUANDO
-         LLEGUE: original a cv-fotos/, línea en build-photos.mjs, y aquí el
-         nombre nuevo — y entonces el recorte raro de build-photos.mjs se
-         puede borrar entero. */}
-    <figure class="arco-fig fig-sola">
-      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
-      <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
-    </figure>
-    <p class="cap-frases">{c.tiktok.nota}</p>
-    <p class="tt-cta">
-      <a class="cv-boton" href={TIKTOK} target="_blank" rel="noopener">
-        {c.tiktok.verTodo} <span aria-hidden="true">↗</span>
-      </a>
-      <span class="pie">{c.tiktok.perfil}</span>
-    </p>
-    <Hueco c={c} id="contraGente" class="contra" />
-
-  </section>
-
-  {/* ════ 07 · Reto Actinver y private equity — A LA PAR ═════════════════
-       Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
-       par del de private equity». A la par NO es uno detrás de otro, así que
-       no son dos capítulos: es uno con dos mitades que se leen juntas —
-       dos columnas desde 56em con una raya vertical entre ellas, y apiladas
-       en el teléfono con la raya girada 90°, en el orden que él nombró
-       (Actinver primero).
-
-       Lo de dentro no cambió: el calendario sale de src/lib/reto/actinver.mjs
-       por FECHAS (la fase de hoy se calcula en /research, no aquí), la
-       cartera del concurso del mismo archivo que lee la página pública, y la
-       tarjeta del reporte de loadReport. El logo va con las reglas del repo:
-       pequeño, placa oscura, y la línea de no afiliación. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
-    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(6)}</p>
-    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.c7}</h2>
-
-    <div class="par">
-      {/* ── Mitad 1: el reto ── */}
-      <div class="par-col">
-        <h3 class="t-h3">{c.dos.actinverH}</h3>
-        {/* texto de Jaime, pendiente de su revisión final */}
-        <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
-        <p class="cap-lede">{c.reto.lede}</p>
-
-        <div class="reto-marca">
-          {/* Placa oscura FIJA: el logo lo publican blanco con el punto
-               dorado, para fondo oscuro. Recolorearlo sería deformar una
-               marca ajena. */}
-          <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
-          <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
-        </div>
-
-        <h4 class="etiqueta">{c.reto.calH}</h4>
-        <ol class="cal">
-          {filasCal.map((f) => (
-            <li>
-              <span class="cal-que">{c.reto.cal[f.id]}</span>
-              <span class="cal-cuando num">{f.cuando}</span>
-            </li>
-          ))}
-        </ol>
-
-        {hayCartera ? (
-          <>
-            {g && (
-              <figure class="curva">
-                <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
-                  aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
-                  {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
-                  <path class="curva-area" d={g.area} />
-                  <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
-                </svg>
-              </figure>
-            )}
-            {fotoNoct && <p class="pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
-          </>
-        ) : (
-          <p class="cap-frases">{c.reto.empty}</p>
-        )}
-
-        <Hueco c={c} id="retoNota" />
-        <p class="links-row">
-          <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
-          <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
-        </p>
-        {/* UN hueco, no dos. Aquí había dos `FotoHueco` seguidos con el
-             MISMO texto: en pantalla, dos recuadros punteados idénticos, uno
-             debajo del otro, pidiendo la misma foto (2026-08-31). El de
-             research, dos bloques más abajo, siempre fue uno. */}
-        <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.actinver} />
-        </div>
-      </div>
-
-      {/* ── Mitad 2: el private equity ── */}
-      <div class="par-col">
-        <h3 class="t-h3">{c.dos.peH}</h3>
-        {/* ── TRES COSAS Y NADA MÁS (Jaime, 2026-08-30) ─────────────────
-             «no lo pongas tan extenso, solo pon de lo que es y por qué lo
-             hago y que me gusta mucho lo corporativo». Ese es el orden de
-             aquí abajo, y por eso `research.lede` subió por encima de las
-             citas: antes iba detrás de ellas y el apartado empezaba con la
-             respuesta a una pregunta que nadie había hecho todavía.
-             1 · QUÉ ES — una frase, en la voz de la página.
-             2 · POR QUÉ Y QUE LE GUSTA LO CORPORATIVO — suya, verbatim, y
-                 es literalmente la frase que él pidió que estuviera.
-             3 · QUÉ HIZO — su publicación, recortada a la primera frase con
-                 su «[…]». El recibo entero (el certificado de Forage con
-                 Vista) sigue en el capítulo de certificaciones. */}
-        <p class="cap-lede">{c.research.lede}</p>
-        {/* texto de Jaime, pendiente de su revisión final. Su «es a lo que
-             me quiero dedicar» era el título del capítulo viejo; ahora lo
-             dice él y no un rótulo. */}
-        <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
-        {/* Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
-             inglés, así que el panel español enseña una traducción Y LO DICE
-             ARRIBA (`voz.peTag`, vacío en inglés): unas comillas atribuidas a
-             su post, sin marca, se leen como sus palabras exactas. Misma
-             regla que la traducción de la frase final. Lo que NO se
-             reproduce va marcado con «[…]» dentro de la propia cita. */}
-        <blockquote class="voz">
-          {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
-          <p>{c.voz.pe}</p>
-          <footer class="pie">{c.voz.peFuente}</footer>
-        </blockquote>
-
-        <a class="card card-link rep" href={L(rep.routeId)}>
-          <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
-          <p class="t-h3 rep-name">{rep.meta.name}</p>
-          <dl class="rep-meta t-caption">
-            {/* «Data as of» va con FECHA COMPLETA a propósito (decisión del
-                2026-08-29). La regla de solo-año de Jaime (brief 2026-08-28)
-                es para fechas BIOGRÁFICAS —cuándo vivió una experiencia—;
-                este asOf es el sello de frescura de una CIFRA, que la regla
-                del sitio exige con día (CLAUDE.md: asOf en cada cifra), la
-                misma clase que el calendario del Reto. Un «Data as of 2026»
-                no dice si el dato tiene una semana o diez meses. Si Jaime
-                no está de acuerdo, revertir es UNA línea: cambiar
-                `day(rep.meta.dataAsOf, locale)` por
-                `rep.meta.dataAsOf.slice(0, 4)`. */}
-            <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
-            <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
-            <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
-            <div><dt>{c.research.status}</dt><dd class={'rep-status st-' + estado}>{c.research.statusLabel[estado] ?? estado}</dd></div>
-          </dl>
-          <span class="t-small rep-cta">{c.research.link} →</span>
-        </a>
-
-        <Hueco c={c} id="researchNota" />
-        <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.research} />
-        </div>
-      </div>
-    </div>
-    <Hueco c={c} id="contraReto" class="contra" />
-
-  </section>
-
-  {/* ════ 08 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
-  <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
-    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(7)}</p>
-    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.c8}</h2>
-    <p class="cap-lede">{c.certs.lede}</p>
-    {/* ══ LAS SIETE TARJETAS, CON SU IMAGEN Y SU ID (cosecha 2026-08-29) ══
-         La tarjeta sigue siendo una tarjeta diseñada —emisor arriba, nombre,
-         año, ID de la credencial en mono— y ahora lleva DENTRO la imagen del
-         certificado que Jaime tiene publicada en su LinkedIn. Seis de siete:
-         el DELF A2 no tiene imagen en ninguna parte y se queda con su
-         FotoHueco, en el MISMO rectángulo 4:3, para que la rejilla no se
-         desordene por el que falta.
-
-         EL MARCO ES 4:3 Y LA IMAGEN VA CON `contain`, no con `cover`: cuatro
-         certificados son apaisados y dos verticales, y `cover` recortaría a
-         cuál más — un certificado al que le cortas la mitad deja de ser un
-         recibo. Con `contain` se ve entero y el aire que sobra es papel.
-
-         El ID va en TEXTO y no como enlace: los siete tienen «Mostrar
-         credencial» en LinkedIn, pero LinkedIn envuelve el destino y esa
-         dirección no se pudo leer. El enlace de la tarjeta sigue yendo a su
-         perfil, que es donde el certificado está publicado. Al de Green
-         Technology LinkedIn no le publica ID, y la tarjeta LO DICE. */}
-    <ul class="certs">
-      {c.certs.filas.map((f) => (
-        <li class="cert">
-          <p class="etiqueta">{f.de}</p>
-          <p class="cert-nombre">{f.que}</p>
-          <p class="cert-anio num">{f.anio}</p>
-          {f.img
-            ? <span class="cert-marco"><img class="cert-img" src={foto(f.img)} alt={f.alt}
-                width={f.w} height={f.h} loading="lazy" decoding="async" /></span>
-            : (
-              <>
-                {/* ══ LA INSIGNIA DEL DELF A2 ══════════════════════════════
-                     Jaime, 2026-08-30: «pon el logo de la compañía o de DELF
-                     A2 para que no esté vacío». Es el único de los siete sin
-                     imagen y su marco 4:3 se veía como un hueco al lado de
-                     seis certificados.
-
-                     ── POR QUÉ UNA INSIGNIA TIPOGRÁFICA Y NO UN LOGOTIPO ──
-                     Un logotipo aquí sería una marca AJENA (DELF es del
-                     Ministerio de Educación francés y la Alliance Française
-                     es el centro examinador), y este CV ya tiene escrita su
-                     regla para eso: el logo del Reto Actinver va pequeño,
-                     junto al nombre del concurso y sobre placa oscura fija,
-                     porque recolorear o reencuadrar una marca ajena es
-                     deformarla. Un logotipo a 4:3 dentro de un marco donde
-                     los otros seis llevan un ESCANEO DEL CERTIFICADO diría
-                     algo que no es cierto: que aquí también hay un recibo.
-                     Y la insignia gana además en coherencia — es la única
-                     de las siete que se puede dibujar con la tipografía del
-                     documento, así que en vez de un logo pegado en medio de
-                     seis fotos, la rejilla queda con seis recibos y una
-                     pieza que se ve, a la primera, hecha por esta página.
-                     SI JAIME PREFIERE EL LOGOTIPO: se baja de fuente oficial
-                     (france-education-international.fr o el sitio de la
-                     Alliance Française), va sin recolorear, con uso
-                     NOMINATIVO —identificar SU propio certificado— y pasa por
-                     build-photos.mjs como todo. Es cambiar `img` en su fila.
-
-                     El rótulo de arriba y el pie de abajo son lo que impide
-                     que esto se lea como el diploma: uno dice quién la
-                     dibujó y el otro que el diploma llegará cuando lo
-                     escanee. `role="img"` con su `aria-label`: para un lector
-                     de pantalla es UNA cosa, no cuatro renglones sueltos. */}
-                <span class="cert-marco cert-insignia" role="img"
-                  aria-label={`${f.que} — ${f.de}. ${c.certs.insigniaTag}`}>
-                  <span class="cert-insignia-tag meta-mono" aria-hidden="true">{c.certs.insigniaTag}</span>
-                  <span class="cert-insignia-que" aria-hidden="true">{f.que}</span>
-                  <span class="cert-insignia-raya" aria-hidden="true"></span>
-                  <span class="cert-insignia-de meta-mono" aria-hidden="true">{f.de}</span>
-                  <span class="cert-insignia-nivel meta-mono" aria-hidden="true">{c.certs.insigniaNivel}</span>
-                </span>
-                <p class="pie cert-insignia-pie">{c.certs.fotoPend}</p>
-              </>
-            )}
-          {f.cred
-            ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
-            : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
-          <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
-        </li>
-      ))}
-    </ul>
-
-    <Hueco c={c} id="contraCerts" class="contra" />
-  </section>
-
-  {/* ════ 09 · Premios — SECCIÓN PROPIA ══════════════════════════════════
-       CAPÍTULO NUEVO (ola 2, 2026-08-31). Ivey evalúa los premios en una
-       sección aparte y admite explícitamente premios no académicos, y en
-       este CV esa sección no existía: había siete certificados —que son
-       CURSOS COMPLETADOS, no competencias ganadas— y el único premio estaba
-       enterrado al final del capítulo de las cartas, en un recuadro que
-       gastaba 44 palabras en el descargo y 19 en el hecho.
-
-       LA PROPORCIÓN SE INVIERTE, EL DESCARGO SE QUEDA. Que la única fuente
-       sea una carta ajena es verdad y se dice — una vez, en mono, como todos
-       los recibos de esta página — pero deja de pesar el doble que el premio.
-       El hecho manda; la marca lo acompaña, y además enlaza a la carta POR
-       SU TÍTULO y no por su número, como `fuenteCarta`.
-
-       NO SE INVENTA NINGÚN PREMIO. Hay uno. El hueco de abajo dice que hay
-       sitio para más sin nombrar a nadie que no lo haya dado: es la misma
-       regla que dejó las cartas con un solo recuadro (2026-08-31). */}
-  <section class="cap" aria-labelledby={`${p}-cap-9-h`}>
-    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(8)}</p>
-    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.c9}</h2>
-    <p class="cap-lede">{c.premios.lede}</p>
-
-    <h3 class="t-h3">{c.premios.entregadosH}</h3>
-    <ul class="premios">
-      {c.premios.entregados.map((x) => (
-        <li class="premio">
-          <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
-          <p class="premio-que">{x.que}</p>
-          <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.c10)}</p>
-          <p class="pie">{x.nota}</p>
-        </li>
-      ))}
-    </ul>
-    {/* El documento del premio no existe todavía: la única fuente es la
-         carta. Se dice dónde falta con el mismo hueco de foto que usan los
-         certificados, no con una frase escondida. */}
-    <FotoHueco c={c} que={c.premios.docPend} ratio="4 / 3" class="premio-doc" />
-
-    <h3 class="t-h3">{c.premios.faltanH}</h3>
-    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
-         atrapó axe en las cartas) y este recuadro es una nota. */}
-    <div class="premios-huecos">
-      <div class="carta-hueco" role="note" aria-label={`${c.premios.tag}: ${c.premios.slot}`}>
-        <p class="carta-tag" aria-hidden="true">{c.premios.tag}</p>
-        <p class="carta-pista" aria-hidden="true">{c.premios.slot}</p>
-        <p class="carta-campos meta-mono">{c.premios.campos}</p>
-      </div>
-    </div>
-
-    <Hueco c={c} id="contraPremios" class="contra" />
-  </section>
-
-  {/* ════ 10 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
+  {/* ════ 03 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
        La sección nació vacía (brief del 2026-08-28) con tres recuadros
        marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
        dos mitades: las entregadas, con su ficha y una cita corta de la
@@ -1967,10 +1176,10 @@ const cifrasFranja = c.franja.sitioQ
 
        Las citas son de un TERCERO, no de Jaime, así que no llevan la marca
        de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
-  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
-    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(9)}</p>
-    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.c10}</h2>
+  <section class="cap" aria-labelledby={`${p}-cap-3-h`}>
+    <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(2)}</p>
+    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.cartas}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
 
     <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
@@ -2130,13 +1339,1074 @@ const cifrasFranja = c.franja.sitioQ
     </div>
   </section>
 
+  {/* ════ 04 · Premios — SECCIÓN PROPIA ══════════════════════════════════
+       CAPÍTULO NUEVO (ola 2, 2026-08-31). Ivey evalúa los premios en una
+       sección aparte y admite explícitamente premios no académicos, y en
+       este CV esa sección no existía: había siete certificados —que son
+       CURSOS COMPLETADOS, no competencias ganadas— y el único premio estaba
+       enterrado al final del capítulo de las cartas, en un recuadro que
+       gastaba 44 palabras en el descargo y 19 en el hecho.
+
+       LA PROPORCIÓN SE INVIERTE, EL DESCARGO SE QUEDA. Que la única fuente
+       sea una carta ajena es verdad y se dice — una vez, en mono, como todos
+       los recibos de esta página — pero deja de pesar el doble que el premio.
+       El hecho manda; la marca lo acompaña, y además enlaza a la carta POR
+       SU TÍTULO y no por su número, como `fuenteCarta`.
+
+       NO SE INVENTA NINGÚN PREMIO. Hay uno. El hueco de abajo dice que hay
+       sitio para más sin nombrar a nadie que no lo haya dado: es la misma
+       regla que dejó las cartas con un solo recuadro (2026-08-31). */}
+  <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
+    <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(3)}</p>
+    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.premios}</h2>
+    <p class="cap-lede">{c.premios.lede}</p>
+
+    <h3 class="t-h3">{c.premios.entregadosH}</h3>
+    {/* ── LA PRUEBA VIAJA CON EL PREMIO ───────────────────────────────────
+         Al mudarse aquí, el premio se quedó siendo el único hecho que las
+         cartas verifican SIN enseñar la frase de la carta: los seis de
+         `cartas.verifica` traen la suya, y su PDF ya no se sirve. Ahora
+         lleva su fragmento verbatim, con el mismo trato que allí — la cita
+         en `lang="en"` porque en el panel español es inglés dentro de un
+         párrafo en español, y las comillas puestas por el panel (« » en
+         español, “ ” en inglés) porque son puntuación del idioma que las
+         rodea, no de la cita. */}
+    <ul class="premios">
+      {c.premios.entregados.map((x) => (
+        <li class="premio">
+          <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
+          <p class="premio-que">{x.que}</p>
+          {x.cita && (
+            <blockquote class="premio-cita">
+              <p>{locale === 'es' ? '«' : '“'}<span lang="en">{x.cita}</span>{locale === 'es' ? '»' : '”'}</p>
+            </blockquote>
+          )}
+          <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.cartas)}</p>
+          {c.premios.citaTag && <p class="meta-mono premio-cita-tag">{c.premios.citaTag}</p>}
+          <p class="pie">{x.nota}</p>
+        </li>
+      ))}
+    </ul>
+    {/* El documento del premio no existe todavía: la única fuente es la
+         carta. Se dice dónde falta con el mismo hueco de foto que usan los
+         certificados, no con una frase escondida. */}
+    <FotoHueco c={c} que={c.premios.docPend} ratio="4 / 3" class="premio-doc" />
+
+    <h3 class="t-h3">{c.premios.faltanH}</h3>
+    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
+         atrapó axe en las cartas) y este recuadro es una nota. */}
+    <div class="premios-huecos">
+      <div class="carta-hueco" role="note" aria-label={`${c.premios.tag}: ${c.premios.slot}`}>
+        <p class="carta-tag" aria-hidden="true">{c.premios.tag}</p>
+        <p class="carta-pista" aria-hidden="true">{c.premios.slot}</p>
+        <p class="carta-campos meta-mono">{c.premios.campos}</p>
+      </div>
+    </div>
+
+  </section>
+
+  {/* ════ 05 · Escuela, calificaciones e inglés — EL RENGLÓN ACADÉMICO ═══
+       CAPÍTULO NUEVO (ola 2, 2026-08-31). Hasta hoy este CV no tenía UN SOLO
+       dato académico —ni promedio, ni cálculo, ni idioma en pantalla— y es lo
+       primero que pregunta cualquier solicitud. Un silencio en ese renglón no
+       se lee como discreción: se lee como que no lo tiene.
+
+       LO QUE SE PUBLICA AQUÍ EXISTE Y ESTÁ COMPROBADO:
+        · La escuela y el plan salen de la misma fila que ya pinta el capítulo
+          anterior.
+        · El B2 con su 163 sale de SU PROPIO CERTIFICADO (transcrito en
+          cv-material/MATERIAL.md, bloque C1 nº 7). Hasta hoy ese 163 vivía
+          SOLO en el `alt` de la imagen del certificado: en pantalla el
+          renglón del inglés parecía cerrado y no lo está.
+        · Que le falta otro examen no es una opinión — las dos universidades
+          lo publican, y las dos citas se comprobaron el 2026-08-31 en sus
+          páginas oficiales, que van enlazadas.
+
+       NO SE INVENTA NI UNA CIFRA: promedio, cálculo y el examen que falta son
+       huecos marcados, cada uno con su pregunta exacta en cv.ts.
+
+       EL BLOQUE VA EN CASTA 3 (no se mueve), como la lista seca y los
+       certificados: son los renglones que un comité escanea. */}
+  <section class="cap" aria-labelledby={`${p}-cap-5-h`}>
+    <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(4)}</p>
+    <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.academico}</h2>
+    <p class="cap-lede">{c.acad.lede}</p>
+
+    <div class="acad">
+      <div class="acad-bloque">
+        <h3 class="t-h3">{c.acad.escuelaH}</h3>
+        <p class="meta-mono acad-cuando">{c.acad.escuelaCuando}</p>
+        <p>{c.acad.escuela}</p>
+      </div>
+
+      <div class="acad-bloque">
+        <h3 class="t-h3">{c.acad.inglesH}</h3>
+        <p class="meta-mono acad-cuando">{c.acad.inglesTag}</p>
+        {/* Los nombres de los componentes del examen van tal cual los imprime
+             el certificado, o sea en inglés en los dos paneles: es el nombre
+             propio de cada parte, no una frase traducible. En el panel
+             español eso son cinco trozos de inglés dentro de un párrafo en
+             español, así que llevan `lang="en"` por el mismo motivo que las
+             citas de las cartas: sin la marca, un lector de pantalla los
+             pronuncia con fonemas españoles. */}
+        <p><span lang="en">{c.acad.ingles}</span></p>
+        {/* EL HECHO INCÓMODO, EN PRIMERA PERSONA Y SIN DRAMATISMO. Es un paso
+             pendiente, no un fracaso — y decirlo aquí es más creíble que
+             dejar el renglón como si estuviera cerrado. */}
+        <p class="acad-falta">{c.acad.inglesFalta}</p>
+        {/* ── LOS UMBRALES, PLEGADOS (2026-09-01) ───────────────────────
+             Dentro van 119 palabras de requisitos de OTRAS universidades:
+             el 180 de Cambridge, los submínimos del TOEFL nuevo, el IELTS,
+             el Duolingo y el PTE. Es verdad, tiene su enlace y su fecha de
+             consulta — y no dice ni una palabra sobre Jaime. Lo que sí dice
+             algo sobre él es el renglón de arriba, que se queda a la vista:
+             tiene 163 y le falta un examen.
+             SE PLIEGA, NO SE BORRA. Un comité que quiera comprobar el
+             umbral lo abre en un clic, y al imprimir sale abierto (misma
+             receta que el plegable de experiencia, abajo en el estilo).
+             El mecanismo es un `<details>` nativo, sin JavaScript, y el
+             `<summary>` NO cambia su `display` — es el hallazgo del repo:
+             con `display` cambiado, Safari deja de tratarlo como resumen. */}
+        <details class="ref-plegable">
+          <summary class="ref-ver">
+            <span class="ref-ver-fila">
+              <span class="ref-ver-txt">{c.acad.fuentesVer}</span>
+              <span class="ref-ver-pista meta-mono">{c.acad.fuentesH}</span>
+              <span class="ref-flecha" aria-hidden="true">↓</span>
+            </span>
+          </summary>
+          <ul class="acad-fuentes">
+            {/* `que` va en trozos por lo mismo que `acad.nota`: en el panel
+                 español la cita verbatim de U of T es inglés dentro de una
+                 etiqueta española y necesita `lang="en"`. */}
+            {c.acad.inglesFuentes.map((f) => (
+              <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que.map((t) => (typeof t === 'string'
+                ? t
+                : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))} ↗</a></li>
+            ))}
+          </ul>
+        </details>
+      </div>
+    </div>
+
+    {/* POR QUÉ LOS TRES RECUADROS DE ABAJO ESTÁN VACÍOS EN VEZ DE NO ESTAR.
+         Sin esta línea, tres huecos seguidos en el capítulo académico se leen
+         como una ausencia; con ella se leen como lo que son, tres datos que
+         solo puede dar él. La cita de Rotman va verbatim y en inglés, con su
+         enlace: es de su página oficial. */}
+    {/* ── Y ESTA NOTA TAMBIÉN SE PLIEGA (2026-09-01) ──────────────────────
+         Su encabezado ES la respuesta —«por qué los recuadros de abajo están
+         vacíos y no callados»— y eso se queda a la vista, que es lo que
+         impide que tres huecos seguidos se lean como una ausencia. Lo que se
+         pliega son las 136 palabras de detrás: los promedios que pide
+         Rotman, el 90 % de Ivey, los códigos de curso de Schulich y sus
+         cortes históricos. Son requisitos de terceros, no datos de Jaime, y
+         a 4-9 minutos por perfil cuestan media pantalla de lectura para
+         decir lo que su encabezado ya dijo. Abierto al imprimir. */}
+    <details class="acad-nota ref-plegable">
+      <summary class="ref-ver">
+        <span class="ref-ver-fila">
+          <span class="ref-ver-txt t-h4">{c.acad.notaH}</span>
+          <span class="ref-flecha" aria-hidden="true">↓</span>
+        </span>
+      </summary>
+      {/* EL PARRAFO VA EN TROZOS. En el panel espanol lleva dentro tres
+           pedazos de ingles —la cita de Rotman y las dos maneras inglesas de
+           decir un promedio— y sin `lang="en"` un lector de pantalla los
+           pronuncia con fonemas espanoles, que es la misma razon por la que
+           las citas de las cartas van marcadas. La marca SOLO se pinta en el
+           panel espanol: en el ingles el idioma del trozo es el de la pagina
+           y un `lang` redundante no aporta nada. */}
+      <p>{c.acad.nota.map((t) => (typeof t === 'string'
+        ? t
+        : (locale === 'es' ? <span lang="en">{t.en}</span> : t.en)))}</p>
+      {/* UNA FUENTE POR ESCUELA. Antes iba UN solo enlace —la página de
+           Rotman Commerce— debajo de un párrafo que habla de Rotman, de Ivey
+           y de Schulich, y esa página no menciona a las otras dos: el enlace
+           visible decía que un dato salía de un sitio donde no está. */}
+      <ul class="acad-fuentes pie">
+        {c.acad.notaFuentes.map((f) => (
+          <li><a class="hist-link" href={f.url} target="_blank" rel="noopener">{f.que} ↗</a></li>
+        ))}
+      </ul>
+    </details>
+
+    <div class="acad-huecos">
+      <Hueco c={c} id="acadPromedio" />
+      <Hueco c={c} id="acadCalculo" />
+      <Hueco c={c} id="acadIngles" />
+    </div>
+
+  </section>
+
+  {/* ════ 06 · Servir — los voluntariados ════════════════════════════════
+       "Experiencias, voluntariados": van pegados, en ese orden.
+       EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
+       (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
+       voluntariados de su frase: los animalitos y las playas. La comunidad
+       sigue nombrada en su cita, que es verbatim y no se toca. */}
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.voluntariados}</h2>
+    {/* texto de Jaime, pendiente de su revisión final */}
+    <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
+
+    <div class="servir">
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.animales}</h3>
+        {/* ── EL CLIP VA AL LADO DE SU TEXTO, NO ENCIMA (escritorio) ───────
+             El clip es 9:16 y su tope son 300 px de ancho, así que apilado
+             ocupaba el 20.8 % del marco a 1440 y dejaba 1075 px de blanco a
+             su derecha: era el medio más huérfano del documento. Y NO se
+             arregla ensanchándolo — a ancho de prosa un 9:16 mide 1223 px de
+             alto, más de una pantalla para un clip.
+             Lo que necesitaba era compañía, no anchura: `.clip-par` lo empareja
+             con el párrafo que ya venía justo debajo. En escritorio son dos
+             columnas (el clip a la izquierda, el texto a la derecha) y la
+             banda se llena; en el teléfono el envoltorio es la MISMA columna
+             flex con el MISMO hueco que `.servir-bloque`, así que no mueve un
+             píxel. Es el mismo bento de `.grupo`. */}
+        <div class="clip-par">
+          <div class="clip-par-media">
+            {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
+                 sin sonar solo (`controls` + `preload="none"`). */}
+            <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+              data-poster="/assets/cv/cv-poster-animales.jpg"></video>
+            <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
+              poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
+            <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
+          </div>
+          {/* La donación al stand de adopción: hecho de su publicación en
+               LinkedIn (2026). Las fotos no se pudieron guardar en esta
+               cosecha; el hecho entra igual, sin foto. */}
+          <p class="cap-frases">{c.servir.donacion}</p>
+        </div>
+        {/* Fotos 5, 6 y 13 del lote del 2026-08-30, YA COLOCADAS: él
+             entregando el alimento, los perritos del stand y la marcha. La
+             cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
+             enseña un teléfono— y su hueco, en la tarjeta de Sol del
+             capítulo 4, lo dice en pantalla. */}
+        <div class="fila-fotos">
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-donacion.webp')} alt={c.lote.donacionAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.donacionPie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.perritosPie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.marchaPie}</figcaption>
+          </figure>
+        </div>
+        <Hueco c={c} id="servirAnimales" />
+      </div>
+      <div class="servir-bloque">
+        <h3 class="t-h3">{c.servir.bloques.playas}</h3>
+        {/* LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
+             línea sale de su propia publicación sobre el voluntariado del
+             curso de Green Technology. */}
+        <p class="cap-frases">{c.servir.playa}</p>
+        {/* ── ES EL MISMO PROGRAMA DEL CERTIFICADO ────────────────────────
+             La publicación de la playa y el certificado 4 del capítulo de
+             certificaciones son LA MISMA COSA: el 2026 Green Technology
+             Programme de Bluesky Education. Estaban escritos como dos
+             actividades sueltas y no lo son — la limpieza es la parte de
+             servicio del programa que certifica el diploma. */}
+        <p class="cap-frases">{c.servir.playaPrograma}</p>
+        {/* SUS PALABRAS, recuperadas el 2026-08-29. La publicación se daba
+             por perdida y este bloque iba con una sola frase escrita por la
+             página; está publicada, se encontró y se transcribió. */}
+        <blockquote class="voz">
+          {c.voz.playaTag && <p class="meta-mono">{c.voz.playaTag}</p>}
+          <p>{c.voz.playa}</p>
+        </blockquote>
+        <p class="pie">{c.voz.playaFuente}</p>
+        {/* La limpieza de playa la firma ahora un tercero: la carta de Lloyd
+             George la nombra («including a beach cleaning project during his
+             stay»). Antes solo estaba su propia publicación. */}
+        <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
+        {/* TRES huecos, uno por foto: la publicación tiene tres y están
+             descritas una por una. Un hueco genérico decía «faltan fotos»;
+             tres dicen CUÁLES, que es lo que hace falta para traerlas. No
+             se pudieron bajar porque Chrome activó su bloqueo de descargas
+             automáticas para linkedin.com — es un permiso del navegador de
+             Jaime, no algo que se arregle desde aquí. */}
+        <div class="playa-fotos">
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.playa1Pie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.playa2Pie}</figcaption>
+          </figure>
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" height="731" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.playa3Pie}</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  {/* ════ 07 · Mis proyectos — EL GRUPO ESTUDIANTIL PRIMERO ══════════════
+       "luego mis proyectos y arrancas con el grupo estudiantil": el orden de
+       dentro del capítulo lo pidió él, y el grupo abre porque es lo que
+       fundó y preside. Después, smartfinance.lat con la prueba viva.
+
+       El texto del grupo es el hecho que ya publica /community; venía del
+       capítulo "Servir", donde se leía como un voluntariado más.
+
+       MOVIMIENTO: una sola cosa llamando la atención en la pantalla, la
+       cinta (casta 1). La foto del grupo es casta 2 — acompaña a quien ya
+       está mirando y no pide el ojo —, así que no compiten. */}
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
+    <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.proyectos}</h2>
+
+    <div class="bloques">
+      <div class="bloque">
+        <h3 class="t-h3">{c.proyectos.grupoH}</h3>
+        <div class="grupo">
+          <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
+          <div class="grupo-texto">
+            {/* Hecho publicado en /community, en primera persona de Jaime. */}
+            <p class="cap-frases">{c.proyectos.grupo}</p>
+            {/* ── LA MARCA DE TERCERO VA PEGADA A LO QUE LA CARTA SÍ DICE ───
+                 Estaba DESPUÉS de la cifra y de su recibo, o sea en este
+                 orden: «somos casi 200» → «es mi afirmación» → «fuente de
+                 tercero: la carta de Lloyd George». Leído de corrido —y un
+                 lector de cuatro minutos lee de corrido— eso dice que el
+                 tercero respalda el número, y de paso anula el recibo que la
+                 página acababa de poner. La carta dice «He founded the Smart
+                 Finance student organisation at his campus» y NI UNA PALABRA
+                 sobre cuánta gente hay.
+                 Ahora la marca queda debajo de la frase que la carta firma
+                 —la fundación— y la cifra viene después con su recibo, que
+                 es lo último que se lee y lo que queda. Es el único de los
+                 cuatro `fuente-carta` del documento que estaba mal colocado;
+                 los otros tres (playa cap. 4, aviso cap. 6, lista del cap.
+                 10) ya iban junto a lo suyo. */}
+            <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
+            {/* SU CIFRA, MARCADA. «Casi 200 en la comunidad» (2026-08-29) no
+                 la puede contar el build —la gente de una comunidad no vive
+                 en ningún archivo del repo—, así que va como afirmación suya
+                 con su fecha, igual que los inscritos del boletín. La marca
+                 va DEBAJO y en mono: es el recibo, no la frase. */}
+            <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
+            <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+            <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
+          </div>
+        </div>
+        {/* El cuadro de la promo del grupo (otro vídeo, otra imagen: la
+             regla de «ninguna imagen dos veces» habla de archivos, y este es
+             el cuadro del vídeo de promo de 2026 en el Tec).
+
+             SUSTITUCIÓN HECHA (2026-08-31): aquí estaba `cv-tt-grupo.webp`,
+             el cuadro del vídeo de promo, y Jaime pidió con esas palabras que
+             lo sustituyera la 8 del lote — «él entrevistando gente en su
+             prepa por parte de su grupo estudiantil». Se va también el enlace
+             «ver en TikTok» del pie: apuntaba al vídeo del que salía ESE
+             cuadro, y colgarlo de una foto que no es de ese vídeo diría que
+             la foto sale de ahí. El vídeo de promo no se pierde — sigue en el
+             carrusel de clips del capítulo 6. NO lleva FotoHueco al lado a
+             propósito: este sitio tiene foto. */}
+        <figure class="grupo-tec lote-fig fig-sola">
+          <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" height="810" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
+        </figure>
+        {/* Foto 9 del lote del 2026-08-30: él narrando algo sobre su grupo
+             estudiantil. Esa sí es nueva y no sustituye a nada, así que va
+             con su hueco. */}
+        <div class="fila-fotos grupo-narra-fila fig-sola">
+          <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" height="786" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      {/* `data-cinta` va en el bloque y no en la sección: cv-cinta.ts busca
+           dentro de cada raíz su chip y sus filas, así que la raíz tiene que
+           ser el trozo que las contiene. */}
+      <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
+        <h3 class="t-h3">{c.proyectos.sitioH}</h3>
+        <p class="cap-lede">{c.prueba.lede}</p>
+        {/* Aquí se lee un 2025, así que lleva su marca — pero la CORTA. El
+             recibo entero (las cinco fechas, qué publica LinkedIn de cada
+             una, y dónde no hay con qué comparar) vive UNA vez, en la tabla
+             de experiencia, que es donde están las cinco. Repetirlo aquí y
+             en Jasa Motor eran 234 palabras diciendo tres veces lo mismo, y
+             dos de las tres listaban cinco fechas donde sólo se lee una.
+             La marca corta manda al recibo POR EL TÍTULO del capítulo, no
+             por su número, igual que `fuenteCarta`. */}
+        <p class="meta-mono cifra-suya-marca">{anioCorto}</p>
+
+        {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
+             header padre») ─────────────────────────────────────────────
+             Es una foto del sitio EN VIVO tomada a 1280 px de ancho con el
+             globo ya formado, no un render ni un mockup, y por eso el pie
+             dice de qué día es: la imagen lleva dentro precios y una hora, y
+             justo debajo hay una cinta que sí pide precios de verdad al
+             abrir esta página. Sin fecha, las dos se leerían como lo mismo.
+             `loading="lazy"`: está siete pantallas por debajo del pliegue. */}
+        <figure class="sf-header-fig">
+          {/* UNA CAPTURA POR IDIOMA. El panel español enseña la portada del
+               sitio EN ESPAÑOL, y no es un capricho: aquí la interfaz del
+               sitio ES texto —menú, titular, los nombres de las ocho
+               ciudades, y hasta el chip de fuente («Delayed 15 min» contra
+               «Retraso 15 min»)—, así que la captura inglesa dentro del panel
+               español rompería la regla de que cada panel va 100 % en su
+               idioma. Un certificado en inglés sí se queda como está en el
+               panel español, porque un certificado es un documento emitido y
+               no existe en otra versión; la portada de su sitio sí existe. */}
+          {/* LOS `sizes` SUBEN CON LA PISTA (ola 2b). En escritorio esta
+               captura vive en `marco` y se pinta hasta 1320 px, no 560:
+               con el valor viejo el navegador se llevaba el archivo de 640
+               y lo estiraba a más del doble, que es exactamente por lo que
+               «su texto no se lee». El tramo de teléfono no cambia. */}
+          <img class="sf-header-img" src={foto(`cv-sf-header${sufHeader}-640.webp`)}
+            srcset={`${foto(`cv-sf-header${sufHeader}-640.webp`)} 640w, ${foto(`cv-sf-header${sufHeader}-1120.webp`)} 1120w, ${foto(`cv-sf-header${sufHeader}-1600.webp`)} 1600w`}
+            sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 1320px, 560px"
+            alt={c.prueba.headerAlt} width="1120" height="644"
+            loading="lazy" decoding="async" />
+          <figcaption class="pie">{c.prueba.headerPie}</figcaption>
+        </figure>
+
+        {/* LA CINTA VIVA, ENVUELTA (ola 2). El envoltorio no cambia nada en
+             pantalla —no tiene estilo propio— y existe para que la VISTA
+             IMPRESA pueda quitar la cinta entera de una regla: el chip de
+             fuente, las tres filas y la nota que las explica son una sola
+             cosa y en papel no son ninguna. Sin JavaScript o sin `/api` las
+             filas salen con guiones, que es honesto en pantalla y es ruido
+             en una hoja que alguien va a adjuntar. */}
+        <div class="cinta-bloque">
+        <div class="sec-head">
+          <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
+        </div>
+        <ul class="cinta">
+          {cinta.map((s) => (
+            <li class="cinta-fila" data-cinta-fila={s.id} data-pair={s.history} data-dec={String(s.decimals)}>
+              <a class="cinta-link" href={L('asset.' + s.id)}>
+                <span class="cinta-id">
+                  <span class="cinta-sym num">{s.sym}</span>
+                  <span class="cinta-name t-caption faint">{s.name[locale]}</span>
+                </span>
+                <span class="cinta-spark" aria-hidden="true">
+                  <svg class="spark trazo-destape" viewBox="0 0 64 24" preserveAspectRatio="none"><path class="line" d=""></path></svg>
+                </span>
+                <span class="cinta-nums">
+                  <span class="visually-hidden">{c.tape.price}</span>
+                  <span class="cinta-price num" data-precio>{c.tape.pending}</span>
+                  <span class="visually-hidden">{c.tape.change}</span>
+                  <span class="cinta-chg num t-caption" data-cambio></span>
+                </span>
+                <span class="visually-hidden">{c.tape.open}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="pie">{c.tape.note} {c.tape.fail}</p>
+        </div>
+
+        {/* ── LOS NÚMEROS QUE CUENTAN ────────────────────────────────────
+             El otro ritmo que se copia de Ondo: tres cifras al tamaño de un
+             titular con su rótulo debajo. Lo que NO se copia es cuáles y cómo
+             se mueven, y las dos cosas están razonadas.
+
+             CUÁLES. Ondo pone «$2.19B TVL», que aguanta cualquier tamaño.
+             Aquí las candidatas eran cinco y solo tres aguantan: un «10» a
+             200 px no es un titular, es una broma tipográfica. Así que a lo
+             grande van las PRUEBAS, las FUENTES y los TÉRMINOS, y las diez
+             lecciones se quedan donde estaban, en el renglón de al lado —
+             que además es donde dicen algo, porque las 41 fuentes son
+             fuentes DE esas diez lecciones. Los commits (164 en 35 días)
+             quedan fuera a propósito: son la única cifra de la lista que el
+             build no puede contar, porque el despliegue no lleva historia de
+             git, y una cifra escrita a mano se queda vieja en silencio.
+
+             CÓMO. Ondo las rueda como un odómetro y aquí no se mueven, y no
+             es por trabajo: es que ese gesto diría lo contrario de lo que
+             dice la página. Un odómetro enseña una cifra LLEGANDO — vale para
+             un TVL que sube mientras lo miras —, y estas tres ya estaban ahí
+             antes de que nadie abriera la página: son recibos, y un recibo no
+             se anima. Además la regla de movimiento del sitio da UNA animación
+             que llame la atención por pantalla, y en esta ya se la gasta la
+             cinta, que es el único número de la pantalla que de verdad llega
+             en caliente. Lo que sí se copia es la escala. */}
+        <ul class="cifras">
+          <li>
+            <span class="cifra num">{nPruebas}</span>
+            <span class="cifra-que">{c.prueba.stats.pruebas}</span>
+          </li>
+          <li>
+            <span class="cifra num">{nFuentes}</span>
+            <span class="cifra-que">{c.prueba.stats.fuentes}</span>
+          </li>
+          <li>
+            <span class="cifra num">{nGlosario}</span>
+            <span class="cifra-que">{c.prueba.stats.glosario}</span>
+          </li>
+        </ul>
+        <p class="cap-frases">{nLecciones} {c.prueba.stats.lecciones}</p>
+
+        {/* ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────
+             «promociona más lo de lessons y pon un link». Dejan de ser la
+             coletilla del renglón de las cifras y pasan a apartado propio,
+             con su botón. La cuenta (`nLecciones`) la sigue haciendo el
+             build de los MDX del repo: no hay ni un número escrito a mano.
+             El enlace es INTERNO y por eso cada panel va a su idioma —
+             /lessons en inglés y /es/lecciones en español—, que es el mismo
+             destino que https://smartfinance.lat/lessons. */}
+        <div class="sf-destaca">
+          <h4 class="t-h4">{c.prueba.leccionesH}</h4>
+          <p>{c.prueba.leccionesQue.replace('{n}', String(nLecciones))}</p>
+          <p><a class="cv-boton" href={L('lessons')}>{c.prueba.leccionesLink} →</a></p>
+        </div>
+
+        {/* EL BOLETÍN Y SU CIFRA. «Más de 100 inscritos» (2026-08-29, y
+             Jaime volvió a pedirla el 2026-08-30) es AFIRMACIÓN SUYA y no
+             una cuenta: los inscritos viven en Redis, o sea fuera del build.
+             Va marcada, y a propósito NO entra en la lista de cifras grandes
+             de arriba — esas tres las cuenta el build de los archivos del
+             repo, y meter una afirmación entre ellas le prestaría su recibo. */}
+        <div class="sf-destaca">
+          <h4 class="t-h4">{c.prueba.boletinH}</h4>
+          <p class="cifra-suya">{c.prueba.boletin}</p>
+          <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+        </div>
+
+        <p class="cap-frases">{c.prueba.stats.promesa}</p>
+
+        {/* ══ EL CONTRATIEMPO. UNO, REAL, Y AQUÍ ═══════════════════════════
+             Sustituye a los OCHO huecos «si algo salió mal» que había uno
+             por capítulo. La razón entera de por qué se fueron está en
+             src/i18n/cv.ts, junto a `contraOtro`; el resumen es que ocho
+             recuadros vacíos reservados para ocho fracasos distintos no se
+             leen como ocho preguntas abiertas, se leen como un documento sin
+             terminar — y presuponen por su forma aunque cada frase suelta
+             vaya en condicional.
+
+             ESTE SÍ PASÓ, Y ESTÁ ESCRITO EN EL REPOSITORIO. Sale de
+             docs/context/lessons.md, entrada «Una cifra que se publica se
+             MIDE, y se dice contra qué línea base»: se publicó un ahorro de
+             1.2 MB, se midió después y eran 320 692 B. La página lo cita
+             como lo que es, con el archivo delante.
+
+             VA AQUÍ Y NO EN UN CAPÍTULO PROPIO, y ese es el argumento
+             entero: se pinta A CONTINUACIÓN de las tres cifras que el build
+             CUENTA de los archivos del repo. Ahí la regla no es una
+             moraleja, es la razón por la que esas tres se cuentan en vez de
+             escribirse — el error y su consecuencia caben en la misma
+             pantalla, y el lector puede ver la segunda sin creerse la
+             primera de palabra.
+
+             SIN ÉPICA: ni un adjetivo sobre lo aprendido. Qué escribió, qué
+             midió, qué regla dejó, y dónde está anotado. La conclusión la
+             saca quien lee.
+
+             `<aside>` y no `<section>`: es material relacionado dentro del
+             bloque del sitio, no un apartado del documento — y así no entra
+             en la cuenta de capítulos ni en el índice. Lleva su propio
+             `aria-labelledby` para que un lector de pantalla lo anuncie por
+             su encabezado y no como «complementario» a secas. */}
+        <aside class="leccion-medida" aria-labelledby={`${p}-leccion-medida-h`}>
+          <p class="meta-mono leccion-medida-tag">{c.leccionMedida.tag}</p>
+          <h4 class="t-h4" id={`${p}-leccion-medida-h`}>{c.leccionMedida.h}</h4>
+          <p>{c.leccionMedida.que}</p>
+          <p>{c.leccionMedida.regla}</p>
+          {/* LA FUENTE, EN MONO Y COMO TODOS LOS RECIBOS DE ESTA PÁGINA. Sin
+               ella esto sería una anécdota de humildad escrita para una
+               rúbrica; con ella es un renglón que cualquiera puede abrir. */}
+          <p class="meta-mono leccion-medida-fuente">{c.leccionMedida.fuente}</p>
+          {/* EL ÚNICO HUECO DE CONTRATIEMPO QUE QUEDA, por si Jaime quiere
+               añadir el suyo. En condicional y sin decir de qué capítulo es:
+               reserva sitio, no afirma que exista. */}
+          <Hueco c={c} id="contraOtro" class="contra" />
+        </aside>
+
+        <p><a class="hist-link" href={L('home')}>{c.prueba.abrir} · {c.head.site} →</a></p>
+      </div>
+
+      {/* ── Jasa Motor (bloque nuevo, brief del 2026-08-28) ──────────────
+           EL FRAMING ES EL FAMILIAR Y LO APROBÓ JAIME: la refaccionaria es
+           de su familia, y él desarrolló la tienda en línea y lleva el
+           marketing para apoyar a su papá. NO se escribe «CEO». Su frase va
+           como voz.* (pulida, pendiente de su revisión final) y el dato del
+           negocio (Cuautitlán, 20+ años) sale del propio sitio de la
+           refaccionaria, verificado el 2026-08-28. El enlace es a la tienda
+           que él construyó — la prueba de que existe. */}
+      <div class="bloque">
+        <h3 class="t-h3">{c.proyectos.jasaH}</h3>
+        {/* texto de Jaime, pendiente de su revisión final */}
+        <blockquote class="voz">
+          {c.voz.jasaTag && <p class="meta-mono">{c.voz.jasaTag}</p>}
+          <p>{c.voz.jasa}</p>
+        </blockquote>
+        <p class="cap-frases">{c.proyectos.jasa}</p>
+        {/* EL TERCER SITIO DONDE SE LEE UN 2025. Este párrafo y el pie de la
+             captura dicen 2025, y ese año es de los cinco que sólo sostiene
+             la palabra de Jaime — Jasa Motor ni siquiera aparece en su
+             LinkedIn, así que aquí el recibo no es opcional. Va el corto,
+             por lo mismo que en el bloque del sitio. */}
+        <p class="meta-mono cifra-suya-marca">{anioCorto}</p>
+        {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
+             o la tienda en línea: una foto real o una captura» y ya hay
+             captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
+             en vivo. El marco es 4:5 y la captura es 1280x1600, o sea 4:5
+             clavado: entra sin recorte y sin aire. El pie lleva el AÑO que
+             corrigió Jaime — 2025, no 2026. */}
+        <figure class="jasa-fig fig-sola">
+          <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
+            width="640" height="800" loading="lazy" decoding="async" /></span>
+          <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
+        </figure>
+        <p><a class="hist-link" href="https://tienda.jasamotor.com.mx/" target="_blank" rel="noopener">{c.proyectos.jasaLink} ↗</a></p>
+      </div>
+    </div>
+
+  </section>
+
+  {/* ════ 08 · Cada quien trae algo — las conversaciones ═════════════════
+       El "etc" de "experiencias, voluntariados, etc": la gente con la que
+       habló es una experiencia más, y va con ellas, antes de los proyectos.
+
+       ── AQUÍ ES DONDE HAY QUE TENER CUIDADO CON ONDO ──────────────────────
+       Ondo cierra su home con cinco citas: retrato, NOMBRE, cargo y una frase
+       grande elogiando a Ondo. Larry Fink, Franklin Templeton, ABN Amro. Es el
+       bloque más eficaz de su página y es exactamente el que aquí NO se puede
+       copiar tal cual: Jaime no tiene el aval de nadie. Andy Toh, Moris Dieck,
+       el profesor Lloyd y Raúl Irabién no lo están respaldando — él los
+       entrevistó. Poner sus nombres y cargos encima de una frase grande
+       insinuaría un aval que no existe, y es justo el tipo de cosa que un
+       comité de admisiones va a comprobar.
+
+       Lo que SÍ se copia, desde el brief del 2026-08-28, es LA FORMA ENTERA:
+       el carrusel horizontal de tarjetas negras redondeadas — retrato, nombre,
+       cargo y la frase grande abajo, con las flechas ‹ › debajo. La
+       diferencia es de quién es la frase. En Ondo es de ellos; aquí es de
+       Jaime, con su rótulo delante («Lo que me llevé»), en Fraunces —que en
+       esta página es la letra de sus palabras y de nada más— y SIN COMILLAS,
+       porque unas comillas debajo del nombre de otra persona la convierten en
+       una cita suya. Y encima del bloque va escrito, en una frase, que nadie
+       de aquí lo está respaldando.
+
+       La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-8-h`}>
+    <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.conversaciones}</h2>
+    {/* texto de Jaime, pendiente de su revisión final */}
+    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
+    {/* La frase que impide que este capítulo se lea como una lista de avales.
+         Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
+         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
+    <p class="pie">{c.entrevistas.aviso}</p>
+    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
+         organizó por su cuenta («entirely on his own steam») lo firma la
+         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
+         nadie: lo que la carta respalda es que las conversaciones son suyas,
+         no lo que dijeron los entrevistados. */}
+    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
+
+    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
+         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
+         (el imán vertical de la página se quitó; ESTE es otro gesto: una
+         lista de tarjetas que pagina de lado, que es justo para lo que
+         scroll-snap x existe). Las flechas son <button> de verdad: con
+         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
+         sin JavaScript se esconden (la regla vive en el <noscript> de
+         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
+         flechas del teclado (tabindex="0" en la lista, que es lo que exige
+         una región desplazable alcanzable).
+         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
+         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
+         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
+         todas las letras. Eso no se negocia con la estética. */}
+    <div class="citas-marco" data-citas>
+      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
+        {citas.map((rt) => {
+          const per = c.entrevistas.personas[rt.key];
+          // `rol` vacío = no había fuente para el rol y no se inventa uno.
+          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
+          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+          return (
+          <li class="cita">
+            <div class="cita-media">
+              {rt.img && (
+                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
+              )}
+              {rt.video && (
+                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
+                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
+              )}
+              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
+            </div>
+            <p class="cita-nombre">{per.nombre}</p>
+            {per.rol && <p class="cita-rol">{per.rol}</p>}
+            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
+            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
+                 no: en cuanto Jaime escriba la frase este renglón es lo único
+                 que separa «lo que me llevé» de «lo que me dijeron». */}
+            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
+            <Hueco c={c} id={rt.hueco} grande />
+            {rt.tiktokId && <a class="hist-link t-small cita-link" href={urlVideo(rt.tiktokId)} target="_blank" rel="noopener">{c.entrevistas.verVideo} ↗</a>}
+          </li>
+          );
+        })}
+      </ul>
+      <div class="citas-nav">
+        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
+        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
+      </div>
+    </div>
+    {/* Foto 7 del lote del 2026-08-30: él con Marg Franklin en la firma del
+         acuerdo con el Tec. SIN CARGO, a propósito: ver la nota junto a
+         `fotosPend.marg` en src/i18n/cv.ts. Va AQUÍ y no en el
+         carrusel: el carrusel es de conversaciones que él grabó y de las que
+         se llevó una frase, y de esta no hay ni clip ni frase — lo que hay
+         es que le pidió consejo sobre estudiar en Canadá, que es lo que dice
+         su fila de experiencia. Ponerla como una tarjeta más del carrusel
+         insinuaría una entrevista que no existe. Fuera del carrusel, en el
+         mismo capítulo, es la gente que conoció. */}
+    <div class="fila-fotos marg-fila fig-sola">
+      <figure class="lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.lote.margPie}</figcaption>
+          </figure>
+    </div>
+
+    {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
+         Primero las conversaciones, después lo que él enseña SOLO: es el
+         orden que pidió. Aquí van únicamente los vídeos donde él da la
+         información (consejos, datos, noticias) — reclasificados con el
+         material: la entrevista de «skills» que vivía aquí subió al carrusel.
+         Jamás un embed de TikTok; el clip de Singapur se sirve desde este
+         dominio y el resto va como cuadro del vídeo + enlace al original. */}
+    <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
+    {/* texto de Jaime, pendiente de su revisión final */}
+    <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>
+    <Hueco c={c} id="tiktokNota" />
+    <p class="pie">{c.tiktok.ensenaLede}</p>
+
+    {/* Los CUATRO vídeos van servidos por NOSOTROS, CON su sonido: son él
+         hablando, así que los arranca una persona (`controls`, WCAG 2.2.2) y
+         autoplay NUNCA — aquí no hay bucles mudos. El póster viaja en
+         `data-poster` con su gemelo <noscript> (patrón del PR #53): cero
+         bytes de vídeo y cero de póster hasta acercarse.
+         OJO: este comentario vive AQUÍ y no junto al <video> porque dentro
+         de la expresión un {/* *\/} no es un comentario de plantilla sino JS
+         crudo, y rompe el compilado. */}
+    <ul class="clips">
+      {ensena.map((v) => (
+        <li class:list={['clip', v.ancha && 'clip-ancho']}>
+          {v.clip && (
+            <video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} data-poster={v.poster}></video>
+            <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
+          )}
+          {v.img && (
+            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
+          )}
+          <p class="clip-titulo">{v.titulo}</p>
+          <p class="clip-anio meta-mono">2026</p>
+          {v.carrusel && (
+            <p class="clip-tag" role="note">{c.clip.carrusel}</p>
+          )}
+          {v.nota && <p class="pie">{v.nota}</p>}
+          <a class="hist-link t-small" href={urlVideo(v.id)} target="_blank" rel="noopener">{c.clip.ver} ↗</a>
+        </li>
+      ))}
+    </ul>
+
+    {/* ── AQUÍ DEBAJO HABÍA SIETE RENGLONES CON AÑO. YA NO ────────────────
+         Jaime (2026-08-30): «abajo de eso hay más fechas con títulos,
+         quítalos y pon de link a mi perfil de TikTok para ver todo mi
+         contenido, con un botón ese, y nos ahorramos todos los textos con
+         fechas». Se fueron los tres consejos sin imagen y el bloque entero
+         de «El arco de Singapur» (encabezado, cuatro renglones y su línea de
+         fuente), que decía «2026» siete veces seguidas. En su sitio va UN
+         botón al perfil, que es donde vive todo eso.
+         LA FOTO DEL ARCO SE QUEDA. Vivía dentro de ese bloque, pero lo que
+         Jaime pidió quitar son TEXTOS CON FECHAS, no fotos — y su brief del
+         2026-08-28 pide lo contrario con las imágenes («usar todas las
+         posibles»). Así que el cuadro de la presentación en la NUS sigue
+         aquí, ahora suelto; lo único que perdió es el «(2026)» del pie. */}
+    {/* ⚠️ ESTA FOTO LA SUSTITUYE LA 12 DEL LOTE DEL 2026-08-30 — «él
+         explicándole a alguien de la NUS», y Jaime pidió esa versión porque
+         es de MEJOR CALIDAD que esta. Esta es un fotograma rescatado: venía
+         girado 90° y con el subtítulo del vídeo quemado, y el recorte que
+         deja el rótulo fuera está explicado en build-photos.mjs. Sin hueco
+         al lado, por lo mismo que la del grupo: hoy la foto está. CUANDO
+         LLEGUE: original a cv-fotos/, línea en build-photos.mjs, y aquí el
+         nombre nuevo — y entonces el recorte raro de build-photos.mjs se
+         puede borrar entero. */}
+    <figure class="arco-fig fig-sola">
+      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
+      <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
+    </figure>
+    <p class="cap-frases">{c.tiktok.nota}</p>
+    <p class="tt-cta">
+      <a class="cv-boton" href={TIKTOK} target="_blank" rel="noopener">
+        {c.tiktok.verTodo} <span aria-hidden="true">↗</span>
+      </a>
+      <span class="pie">{c.tiktok.perfil}</span>
+    </p>
+
+  </section>
+
+  {/* ════ 09 · Reto Actinver y private equity — A LA PAR ═════════════════
+       Jaime lo pidió con esas palabras: «lo del portafolio de actinver a la
+       par del de private equity». A la par NO es uno detrás de otro, así que
+       no son dos capítulos: es uno con dos mitades que se leen juntas —
+       dos columnas desde 56em con una raya vertical entre ellas, y apiladas
+       en el teléfono con la raya girada 90°, en el orden que él nombró
+       (Actinver primero).
+
+       Lo de dentro no cambió: el calendario sale de src/lib/reto/actinver.mjs
+       por FECHAS (la fase de hoy se calcula en /research, no aquí), la
+       cartera del concurso del mismo archivo que lee la página pública, y la
+       tarjeta del reporte de loadReport. El logo va con las reglas del repo:
+       pequeño, placa oscura, y la línea de no afiliación. */}
+  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-9-h`}>
+    <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(8)}</p>
+    <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.retoPe}</h2>
+
+    <div class="par">
+      {/* ── Mitad 1: el reto ── */}
+      <div class="par-col">
+        <h3 class="t-h3">{c.dos.actinverH}</h3>
+        {/* texto de Jaime, pendiente de su revisión final */}
+        <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
+        <p class="cap-lede">{c.reto.lede}</p>
+
+        <div class="reto-marca">
+          {/* Placa oscura FIJA: el logo lo publican blanco con el punto
+               dorado, para fondo oscuro. Recolorearlo sería deformar una
+               marca ajena. */}
+          <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
+          <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
+        </div>
+
+        <h4 class="etiqueta">{c.reto.calH}</h4>
+        <ol class="cal">
+          {filasCal.map((f) => (
+            <li>
+              <span class="cal-que">{c.reto.cal[f.id]}</span>
+              <span class="cal-cuando num">{f.cuando}</span>
+            </li>
+          ))}
+        </ol>
+
+        {hayCartera ? (
+          <>
+            {g && (
+              <figure class="curva">
+                <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
+                  aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
+                  {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
+                  <path class="curva-area" d={g.area} />
+                  <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
+                </svg>
+              </figure>
+            )}
+            {fotoNoct && <p class="pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
+          </>
+        ) : (
+          <p class="cap-frases">{c.reto.empty}</p>
+        )}
+
+        <Hueco c={c} id="retoNota" />
+        <p class="links-row">
+          <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
+          <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
+        </p>
+        {/* UN hueco, no dos. Aquí había dos `FotoHueco` seguidos con el
+             MISMO texto: en pantalla, dos recuadros punteados idénticos, uno
+             debajo del otro, pidiendo la misma foto (2026-08-31). El de
+             research, dos bloques más abajo, siempre fue uno. */}
+        <div class="fila-fotos">
+          <FotoHueco c={c} que={c.fotosPend.actinver} />
+        </div>
+      </div>
+
+      {/* ── Mitad 2: el private equity ── */}
+      <div class="par-col">
+        <h3 class="t-h3">{c.dos.peH}</h3>
+        {/* ── TRES COSAS Y NADA MÁS (Jaime, 2026-08-30) ─────────────────
+             «no lo pongas tan extenso, solo pon de lo que es y por qué lo
+             hago y que me gusta mucho lo corporativo». Ese es el orden de
+             aquí abajo, y por eso `research.lede` subió por encima de las
+             citas: antes iba detrás de ellas y el apartado empezaba con la
+             respuesta a una pregunta que nadie había hecho todavía.
+             1 · QUÉ ES — una frase, en la voz de la página.
+             2 · POR QUÉ Y QUE LE GUSTA LO CORPORATIVO — suya, verbatim, y
+                 es literalmente la frase que él pidió que estuviera.
+             3 · QUÉ HIZO — su publicación, recortada a la primera frase con
+                 su «[…]». El recibo entero (el certificado de Forage con
+                 Vista) sigue en el capítulo de certificaciones. */}
+        <p class="cap-lede">{c.research.lede}</p>
+        {/* texto de Jaime, pendiente de su revisión final. Su «es a lo que
+             me quiero dedicar» era el título del capítulo viejo; ahora lo
+             dice él y no un rótulo. */}
+        <blockquote class="voz"><p>{c.voz.dedicacion}</p></blockquote>
+        {/* Palabras de Jaime, VERBATIM de su LinkedIn. El post está en
+             inglés, así que el panel español enseña una traducción Y LO DICE
+             ARRIBA (`voz.peTag`, vacío en inglés): unas comillas atribuidas a
+             su post, sin marca, se leen como sus palabras exactas. Misma
+             regla que la traducción de la frase final. Lo que NO se
+             reproduce va marcado con «[…]» dentro de la propia cita. */}
+        <blockquote class="voz">
+          {c.voz.peTag && <p class="meta-mono">{c.voz.peTag}</p>}
+          <p>{c.voz.pe}</p>
+          <footer class="pie">{c.voz.peFuente}</footer>
+        </blockquote>
+
+        <a class="card card-link rep" href={L(rep.routeId)}>
+          <p class="eyebrow"><span class="visually-hidden">{c.research.ticker} — </span>{rep.meta.exchange}: {rep.meta.ticker}</p>
+          <p class="t-h3 rep-name">{rep.meta.name}</p>
+          <dl class="rep-meta t-caption">
+            {/* «Data as of» va con FECHA COMPLETA a propósito (decisión del
+                2026-08-29). La regla de solo-año de Jaime (brief 2026-08-28)
+                es para fechas BIOGRÁFICAS —cuándo vivió una experiencia—;
+                este asOf es el sello de frescura de una CIFRA, que la regla
+                del sitio exige con día (CLAUDE.md: asOf en cada cifra), la
+                misma clase que el calendario del Reto. Un «Data as of 2026»
+                no dice si el dato tiene una semana o diez meses. Si Jaime
+                no está de acuerdo, revertir es UNA línea: cambiar
+                `day(rep.meta.dataAsOf, locale)` por
+                `rep.meta.dataAsOf.slice(0, 4)`. */}
+            <div><dt>{c.research.dataAsOf}</dt><dd class="num">{day(rep.meta.dataAsOf, locale)}</dd></div>
+            <div><dt>{c.research.version}</dt><dd class="num">{rep.meta.version}</dd></div>
+            <div><dt>{c.research.years}</dt><dd class="num">{rep.annual.length}</dd></div>
+            <div><dt>{c.research.status}</dt><dd class={'rep-status st-' + estado}>{c.research.statusLabel[estado] ?? estado}</dd></div>
+          </dl>
+          <span class="t-small rep-cta">{c.research.link} →</span>
+        </a>
+
+        <Hueco c={c} id="researchNota" />
+        <div class="fila-fotos">
+          <FotoHueco c={c} que={c.fotosPend.research} />
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  {/* ════ 10 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
+  <section class="cap" aria-labelledby={`${p}-cap-10-h`}>
+    <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
+    <p class="cap-num" aria-hidden="true">{num(9)}</p>
+    <h2 class="cap-h" id={`${p}-cap-10-h`}>{c.caps.certificaciones}</h2>
+    <p class="cap-lede">{c.certs.lede}</p>
+    {/* ══ LAS SIETE TARJETAS, CON SU IMAGEN Y SU ID (cosecha 2026-08-29) ══
+         La tarjeta sigue siendo una tarjeta diseñada —emisor arriba, nombre,
+         año, ID de la credencial en mono— y ahora lleva DENTRO la imagen del
+         certificado que Jaime tiene publicada en su LinkedIn. Seis de siete:
+         el DELF A2 no tiene imagen en ninguna parte y se queda con su
+         FotoHueco, en el MISMO rectángulo 4:3, para que la rejilla no se
+         desordene por el que falta.
+
+         EL MARCO ES 4:3 Y LA IMAGEN VA CON `contain`, no con `cover`: cuatro
+         certificados son apaisados y dos verticales, y `cover` recortaría a
+         cuál más — un certificado al que le cortas la mitad deja de ser un
+         recibo. Con `contain` se ve entero y el aire que sobra es papel.
+
+         El ID va en TEXTO y no como enlace: los siete tienen «Mostrar
+         credencial» en LinkedIn, pero LinkedIn envuelve el destino y esa
+         dirección no se pudo leer. El enlace de la tarjeta sigue yendo a su
+         perfil, que es donde el certificado está publicado. Al de Green
+         Technology LinkedIn no le publica ID, y la tarjeta LO DICE. */}
+    <ul class="certs">
+      {c.certs.filas.map((f) => (
+        <li class="cert">
+          <p class="etiqueta">{f.de}</p>
+          <p class="cert-nombre">{f.que}</p>
+          <p class="cert-anio num">{f.anio}</p>
+          {f.img
+            ? <span class="cert-marco"><img class="cert-img" src={foto(f.img)} alt={f.alt}
+                width={f.w} height={f.h} loading="lazy" decoding="async" /></span>
+            : (
+              <>
+                {/* ══ LA INSIGNIA DEL DELF A2 ══════════════════════════════
+                     Jaime, 2026-08-30: «pon el logo de la compañía o de DELF
+                     A2 para que no esté vacío». Es el único de los siete sin
+                     imagen y su marco 4:3 se veía como un hueco al lado de
+                     seis certificados.
+
+                     ── POR QUÉ UNA INSIGNIA TIPOGRÁFICA Y NO UN LOGOTIPO ──
+                     Un logotipo aquí sería una marca AJENA (DELF es del
+                     Ministerio de Educación francés y la Alliance Française
+                     es el centro examinador), y este CV ya tiene escrita su
+                     regla para eso: el logo del Reto Actinver va pequeño,
+                     junto al nombre del concurso y sobre placa oscura fija,
+                     porque recolorear o reencuadrar una marca ajena es
+                     deformarla. Un logotipo a 4:3 dentro de un marco donde
+                     los otros seis llevan un ESCANEO DEL CERTIFICADO diría
+                     algo que no es cierto: que aquí también hay un recibo.
+                     Y la insignia gana además en coherencia — es la única
+                     de las siete que se puede dibujar con la tipografía del
+                     documento, así que en vez de un logo pegado en medio de
+                     seis fotos, la rejilla queda con seis recibos y una
+                     pieza que se ve, a la primera, hecha por esta página.
+                     SI JAIME PREFIERE EL LOGOTIPO: se baja de fuente oficial
+                     (france-education-international.fr o el sitio de la
+                     Alliance Française), va sin recolorear, con uso
+                     NOMINATIVO —identificar SU propio certificado— y pasa por
+                     build-photos.mjs como todo. Es cambiar `img` en su fila.
+
+                     El rótulo de arriba y el pie de abajo son lo que impide
+                     que esto se lea como el diploma: uno dice quién la
+                     dibujó y el otro que el diploma llegará cuando lo
+                     escanee. `role="img"` con su `aria-label`: para un lector
+                     de pantalla es UNA cosa, no cuatro renglones sueltos. */}
+                <span class="cert-marco cert-insignia" role="img"
+                  aria-label={`${f.que} — ${f.de}. ${c.certs.insigniaTag}`}>
+                  <span class="cert-insignia-tag meta-mono" aria-hidden="true">{c.certs.insigniaTag}</span>
+                  <span class="cert-insignia-que" aria-hidden="true">{f.que}</span>
+                  <span class="cert-insignia-raya" aria-hidden="true"></span>
+                  <span class="cert-insignia-de meta-mono" aria-hidden="true">{f.de}</span>
+                  <span class="cert-insignia-nivel meta-mono" aria-hidden="true">{c.certs.insigniaNivel}</span>
+                </span>
+                <p class="pie cert-insignia-pie">{c.certs.fotoPend}</p>
+              </>
+            )}
+          {/* EL RENGLÓN DEL RECIBO. Seis tarjetas lo llenan con su ID de
+               credencial. La séptima —el Green Technology Programme— no
+               tiene: Bluesky Education no emite identificador y Jaime no
+               puede conseguir uno, así que aquí NO SE INVENTA NINGUNO.
+               Lo que sí trae el certificado, transcrito de su propia imagen,
+               es la sede y el rango de fechas, y eso ocupa el MISMO renglón:
+               una tarjeta con un campo menos que las otras seis se lee como
+               una tarjeta incompleta, y esta no lo está — trae otra cosa.
+               El rótulo (`sinCred`) dice cuál de las dos se está enseñando,
+               así que nadie puede confundir una sede con un ID. */}
+          {f.cred
+            ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
+            : f.dondeCuando
+              ? <p class="cert-cred cert-cred-donde meta-mono"><span class="faint">{c.certs.sinCred}</span> {f.dondeCuando}</p>
+              : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
+          <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
+        </li>
+      ))}
+    </ul>
+
+  </section>
+
   {/* ════ 11 · La frase — sus palabras exactas, VERBATIM ═════════════════
        La que ya estaba, sin tocar. En español en los dos paneles: es su voz.
        El panel inglés lleva debajo la traducción, pequeña y marcada como
        traducción. La página abre con una frase suya y cierra con otra. */}
   <section class="cap cap-frase" aria-labelledby={`${p}-cap-11-h`}>
     <span id={`${p}-cap-11`} class="cap-ancla" aria-hidden="true"></span>
-    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.c11}</h2>
+    <h2 class="visually-hidden" id={`${p}-cap-11-h`}>{c.caps.frase}</h2>
     <blockquote class="frase" lang="es">
       <p>{c.frase.texto}</p>
     </blockquote>
@@ -2752,6 +3022,16 @@ const cifrasFranja = c.franja.sitioQ
      `linear` a propósito: el easing lo pone el dedo. */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
+      /* ── `view()` Y NO UNA APERTURA POR TIEMPO: ESTÁ DECIDIDO ──────────
+         La línea de tiempo de todo lo de aquí dentro es el SCROLL. En Ondo
+         la misma tarjeta es la apertura y crece a sangre en ~1.1 s de
+         TIEMPO, sin que nadie toque nada; aquí va al revés a propósito, y
+         las dos razones —el primer fotograma tiene que ser la imagen más
+         fuerte, y una apertura por tiempo se le pierde entera al lector
+         rápido— están escritas enteras arriba, en la cabecera del capítulo 1
+         («ESTE ORDEN NO SE INVIERTE»). Antes de cambiar `animation-timeline`
+         por una animación con `duration`, léelas: no es una preferencia
+         estética, es a quién sirve la primera pantalla. */
       /* La geometría de la ventana de la tarjeta: UNOS MISMOS NÚMEROS para
          el recorte, el aro y las dos mitades de tinta. El tope en svh es
          para las pantallas apaisadas: sin él, la tarjeta de 420px no cabe
@@ -3550,6 +3830,13 @@ const cifrasFranja = c.franja.sitioQ
   /* El ID de la credencial: mono, porque es un código que alguien va a
      copiar, y partible porque son 24 caracteres sin espacios. */
   .cert-cred { overflow-wrap: anywhere; }
+  /* LA VARIANTE SIN ID: el rótulo va en su propio renglón. En las otras seis
+     tarjetas el rótulo es «Credential ID» y el valor una cadena corta, así
+     que caben en la misma línea. Aquí el rótulo es una frase entera
+     («Impreso en el certificado en vez de un ID») y el valor una sede más un
+     rango de fechas: pegados se leían de corrido, como si la sede fuera
+     parte del rótulo. Se separan con el salto, no con puntuación nueva. */
+  .cert-cred-donde .faint { display: block; }
 
   /* ---- Cartas de recomendación: las entregadas y los huecos ---- */
   .cartas {
@@ -3637,6 +3924,13 @@ const cifrasFranja = c.franja.sitioQ
     padding: var(--sp-5); background: var(--cvh-papel);
   }
   .premio-cuando { color: var(--cvh-tinta-2); }
+  /* La cita de la carta, con la MISMA raya lateral que las de `.carta-cita`:
+     en esta página una barra a la izquierda significa «esto lo dijo otro».
+     No lleva `<cite>` debajo porque el renglón siguiente —`premio-tag`— ya
+     nombra la carta y a quien la firma, y decirlo dos veces seguidas es
+     leerlo dos veces. */
+  .premio-cita { margin: 0; padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya); }
+  .premio-cita-tag { color: var(--cvh-tinta-2); }
   /* El HECHO manda: al tamaño de un subtítulo, arriba, antes que su marca.
      Hasta el 2026-08-31 el orden era el contrario y la proporción también
      (44 palabras de descargo contra 19 de hecho). */
@@ -3838,9 +4132,67 @@ const cifrasFranja = c.franja.sitioQ
   .acad-fuentes li { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
   .acad-fuentes a { overflow-wrap: anywhere; }
   .acad-nota {
-    display: flex; flex-direction: column; gap: var(--sp-2);
     max-width: 720px; margin-top: var(--sp-5);
     padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya);
+  }
+  /* El contenido del plegable, separado de su resumen. Antes esto era el
+     `display: flex` del propio `.acad-nota`; con el `<details>` no puede
+     serlo — un `<details>` en flex deja de plegar en varios motores, que es
+     el primo del hallazgo del `<summary>` con `display` cambiado. */
+  .acad-nota > :not(summary) { margin-top: var(--sp-2); }
+
+  /* ---- EL PLEGABLE DE MATERIAL DE REFERENCIA ---------------------------
+     Para los bloques que son VERDAD y NO SON DE JAIME: los umbrales de
+     examen de dos universidades y los promedios que piden otras tres. Sigue
+     la receta del plegable de experiencia, que ya está probada, y hereda sus
+     dos reglas duras: el `<summary>` NO cambia su `display` (con
+     `inline-flex` encima, Safari deja de tratarlo como resumen y no abre),
+     y al imprimir sale ABIERTO — un CV impreso no tiene dónde hacer clic.
+     Se diferencia del de experiencia en el peso: aquel es el índice de un
+     capítulo entero y va entre filetes; este es una nota al pie y va sin
+     borde, para que no compita con lo que sí habla de él. */
+  .ref-plegable { max-width: 720px; }
+  /* El de la experiencia en formato de solicitud es más ancho que una nota
+     al pie: dentro va una rejilla de cinco bloques, no dos párrafos. */
+  .expapp-plegable { max-width: none; margin-top: var(--sp-5); }
+  .ref-ver { list-style: none; cursor: pointer; padding: var(--sp-2) 0; }
+  .ref-ver::-webkit-details-marker { display: none; }
+  .ref-ver-fila { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3); }
+  .ref-ver-txt { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
+  .ref-ver:hover .ref-ver-txt { color: var(--cvh-tinta-2); }
+  .ref-ver-pista { color: var(--cvh-tinta-2); }
+  .ref-flecha {
+    margin-left: auto; color: var(--cvh-tinta-2);
+    transition: transform var(--dur-2) var(--ease-std);
+  }
+  .ref-plegable[open] .ref-flecha { transform: rotate(180deg); }
+  /* AL IMPRIMIR, ABIERTO SIEMPRE. Dos reglas porque hay dos mecanismos según
+     el motor (el viejo esconde los hijos que no son el resumen; el nuevo
+     pone `content-visibility: hidden` en `::details-content`), y la segunda
+     va en su propio bloque con `@supports selector()`: un pseudo desconocido
+     dentro de una lista de selectores invalidaría la regla entera. Es
+     exactamente lo que hace `.exp-plegable`.
+
+     ── Y AQUÍ EL RESUMEN SÍ SE IMPRIME, AL REVÉS QUE EN `.exp-plegable` ──
+     Ese esconde el suyo porque su resumen es una PALANCA («Mi experiencia ·
+     12 entradas ↓») y en papel no hay nada que pulsar. Los de aquí son
+     TÍTULOS —«La misma experiencia, en el formato que piden las
+     solicitudes», «Por qué los recuadros de abajo están vacíos»— y sin
+     ellos el bloque impreso empieza de golpe, sin decir de qué es: se
+     comprobó mirando la vista de impresión y ahí estaba, un párrafo
+     arrancando en seco. Así que en papel se queda el rótulo y se van las
+     dos cosas que sólo tienen sentido en pantalla: la flecha y el subrayado
+     de «esto se pulsa». */
+  @media print {
+    .ref-ver { cursor: auto; }
+    .ref-ver-txt { text-decoration: none; }
+    .ref-flecha { display: none; }
+    .ref-plegable > :not(summary) { display: block !important; }
+  }
+  @supports selector(::details-content) {
+    @media print {
+      .ref-plegable::details-content { content-visibility: visible !important; }
+    }
   }
   .acad-huecos {
     display: grid;
@@ -3874,12 +4226,29 @@ const cifrasFranja = c.franja.sitioQ
   .expapp-et::after { content: ' · '; }
   .expapp-hueco { margin-top: var(--sp-3); }
 
-  /* ---- El hueco del contratiempo (uno por capítulo, ola 2) ----
-     Va al final de su capítulo y con aire por encima: es una nota al pie del
-     capítulo, no una sección más. No cambia de forma respecto de los otros
-     huecos a propósito — es el mismo trato para lo mismo, algo que falta por
-     escribir. */
+  /* ---- El hueco del contratiempo ----
+     Queda UNO, dentro del bloque del contratiempo medido. Con aire por
+     encima y sin forma propia: es el mismo trato que cualquier otro hueco,
+     porque es lo mismo — algo que falta por escribir. */
   .contra { margin-top: var(--sp-6); }
+
+  /* ---- EL CONTRATIEMPO MEDIDO ------------------------------------------
+     Mismo filete a la izquierda que `.sf-destaca`, sus dos vecinos en este
+     bloque: es un apartado del bloque del sitio, no una tarjeta nueva, y
+     dentro de una tarjeta que ya tiene borde y radio una segunda caja sería
+     una caja dentro de una caja (la misma razón escrita arriba).
+     LO ÚNICO QUE LO DISTINGUE ES EL COLOR DEL FILETE, en `--warn`, que es el
+     color con el que este sitio dice «ojo con esto» — el de los huecos, el
+     del estado borrador del research, el del aviso de las carteras. No lleva
+     fondo ni borde completo: esto no es una advertencia al lector, es una
+     cosa que salió mal contada en su sitio. */
+  .leccion-medida {
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    padding-left: var(--sp-4); border-left: 2px solid var(--warn);
+    max-width: 620px;
+  }
+  .leccion-medida-tag { color: var(--warn); }
+  .leccion-medida-fuente { color: var(--cvh-tinta-2); }
 
   /* ---- Listas secas (experiencias, certificaciones): sin movimiento ---- */
   .lista-seca { display: flex; flex-direction: column; max-width: 720px; }
@@ -4047,12 +4416,17 @@ const cifrasFranja = c.franja.sitioQ
 
      TRES ELEMENTOS POR CAPÍTULO Y NADA MÁS: el número, el titular y la
      entradilla — y la entradilla solo si va PEGADA al titular (`.cap-h +
-     .cap-lede`). Esa parte del selector no es cosmética: hay dos `.cap-lede`
-     que son hijos directos de su `<section>` pero viven a media altura del
-     capítulo (la del bloque de experiencia en formato de solicitud y la de
-     «lo que las cartas confirman»), y sin el `+` entrarían solas, en medio
-     de una lectura, que es exactamente la segunda animación por pantalla que
-     `motion.css` prohíbe. NO TOCA NI UNA FILA de `.lista-seca`, de `.certs li`, de
+     .cap-lede`). Esa parte del selector no es cosmética: HOY hay un
+     `.cap-lede` que es hijo directo de su `<section>` y vive a media altura
+     del capítulo (el de «lo que las cartas confirman»), y sin el `+`
+     entraría solo, en medio de una lectura, que es exactamente la segunda
+     animación por pantalla que `motion.css` prohíbe.
+     (Aquí ponía «hay dos», y el segundo era el del bloque de experiencia en
+     formato de solicitud: desde que ese bloque se pliega —2026-09-01— su
+     entradilla vive DENTRO del `<details>` y ya no es hija de la sección. Se
+     corrige el número porque un comentario que cuenta mal lo que hay es un
+     recibo falso, no porque cambie la regla: la regla vale igual con uno.)
+     NO TOCA NI UNA FILA de `.lista-seca`, de `.certs li`, de
      `.expapp` ni de `.acad` — son justo los renglones que un comité escanea,
      y `motion.css` lo prohíbe por escrito («veinte filas apareciendo de una
      en una no es un sitio vivo, es una lista que tarda en cargar»).
@@ -5161,16 +5535,21 @@ const cifrasFranja = c.franja.sitioQ
       break-inside: avoid;
     }
     /* Fuera. Ver la lista de arriba, con el motivo de cada una. */
-    /* Y EL ENLACE DE DESCARGA DE LAS CARTAS. En papel un «Descargar la
-       carta firmada» no lleva a ninguna parte, y no se puede imprimir su
-       dirección al lado como se hace con las fuentes académicas: esa
-       dirección empieza por la del CV, que es la credencial de esta página y
-       no se escribe en ninguna parte. Así que se va, y lo cubre la primera
-       línea de la hoja (`impresionNota`), que desde hoy nombra «las dos
-       cartas firmadas como archivo» entre lo que está en la página de la que
-       se imprimió. La ficha entera de cada carta —quién, cargo, relación,
-       las dos frases y el contacto— sí se imprime. */
-    .cinta-bloque, .citas-nav, .clip-video, .clip-video-ancho, video, .franja, .carta-pdf { display: none; }
+    /* ── `.carta-pdf` VUELVE AL PAPEL (2026-09-01) ─────────────────────
+       Estaba en esta lista, y con razón mientras fue un ENLACE: en papel un
+       «Descargar la carta firmada» no lleva a ninguna parte, y su dirección
+       tampoco se puede imprimir al lado porque empieza por la del CV, que es
+       la credencial de esta página.
+       Hoy ya no hay enlace: ese renglón es una FRASE —dónde no está el
+       archivo y por qué— y en papel hace más falta que en pantalla. Una hoja
+       impresa acaba adjunta a una nominación, lejos de la página; sin esta
+       línea, el lector del papel ve dos cartas citadas y no sabe si el
+       documento existe o si se le está escondiendo.
+       NO PROMETE UN CANAL. La versión con «se la mando a quien me la pida»
+       se retiró el mismo día (ver `cartas.pdfNo` en src/i18n/cv.ts): esa
+       oración es un compromiso de Jaime y él no la ha dicho. Si algún día la
+       dice, esta regla no cambia. */
+    .cinta-bloque, .citas-nav, .clip-video, .clip-video-ancho, video, .franja { display: none; }
     /* EL CARRUSEL SE DESENROLLA. En pantalla son diez tarjetas en una pista
        horizontal con `overflow-x: auto`; en papel eso imprime la primera y
        media y recorta ocho. Pasa a rejilla de dos columnas, que es la misma
