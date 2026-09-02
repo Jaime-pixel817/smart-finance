@@ -1538,10 +1538,8 @@ const cifrasFranja = c.franja.sitioQ
          hueco a la vista y con la carpeta donde dejarlos. */}
     <h3 class="t-h3">{c.acadDocs.h}</h3>
     <p class="cap-lede">{c.acadDocs.lede}</p>
-    <HuecoMaterial c={c} que={c.acadDocs.promedioQue} pregunta={c.acadDocs.promedioPide}
-                   carpeta="cv-material/pendiente/promedio/" />
-    <HuecoMaterial c={c} que={c.acadDocs.duolingoQue} pregunta={c.acadDocs.duolingoPide}
-                   carpeta="cv-material/pendiente/duolingo/" />
+    <HuecoMaterial c={c} que={c.acadDocs.promedioQue} />
+    <HuecoMaterial c={c} que={c.acadDocs.duolingoQue} />
 
     <details class="acad-nota ref-plegable">
       <summary class="ref-ver">
@@ -1771,8 +1769,7 @@ const cifrasFranja = c.franja.sitioQ
         <h3 class="t-h3">{c.yaOcurrio.tallerH}</h3>
         <p class="cap-frases">{c.yaOcurrio.taller}</p>
         <p class="meta-mono fuente-carta">{c.yaOcurrio.tallerFuente}</p>
-        <HuecoMaterial c={c} que={c.yaOcurrio.tallerQue} pregunta={c.yaOcurrio.tallerPide}
-                       carpeta="cv-material/pendiente/taller-finanzas/" />
+        <HuecoMaterial c={c} que={c.yaOcurrio.tallerQue} />
         {/* El cuadro de la promo del grupo (otro vídeo, otra imagen: la
              regla de «ninguna imagen dos veces» habla de archivos, y este es
              el cuadro del vídeo de promo de 2026 en el Tec).
@@ -2187,8 +2184,7 @@ const cifrasFranja = c.franja.sitioQ
     <h3 class="t-h3 ens-h">{c.yaOcurrio.podcastH}</h3>
     <p class="cap-frases">{c.yaOcurrio.podcast}</p>
     <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
-    <HuecoMaterial c={c} que={c.yaOcurrio.podcastQue} pregunta={c.yaOcurrio.podcastPide}
-                   carpeta="cv-material/pendiente/podcast-rendon-duran/" />
+    <HuecoMaterial c={c} que={c.yaOcurrio.podcastQue} />
 
     <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
     {/* texto de Jaime, pendiente de su revisión final */}

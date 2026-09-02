@@ -159,8 +159,7 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
 
       {/* EL ÚNICO HUECO DEL MÓDULO va AL FINAL y no dentro de su fila: metido
           en una celda de la rejilla, el recuadro empujaba media columna. */}
-      <HuecoMaterial c={c} que={c.mic.minutoQue} pregunta={c.mic.minutoHueco}
-                     carpeta="cv-material/pendiente/podcast-ftr/" class="mic-hueco" />
+      <HuecoMaterial c={c} que={c.mic.minutoQue} class="mic-hueco" />
     </nav>
   </div>
 

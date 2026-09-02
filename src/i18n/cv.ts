@@ -433,8 +433,7 @@ const en = {
     // a la emisión del día del programa ExprésaTec del 16 de abril de 2026,
     // 30 minutos. El podcast de Jaime es un SEGMENTO dentro; no hay fuente
     // para el minuto en el que empieza, así que no se escribe.
-    minutoQue: 'The minute my podcast starts',
-    minutoHueco: 'At what minute of that broadcast does your podcast start? Right now the link opens the whole 30-minute programme and the reader has to hunt for it.'
+    minutoQue: 'The minute my podcast starts'
   },
 
   // ---- Capítulo 1: portada ----
@@ -1030,12 +1029,17 @@ const en = {
     taller: 'The group runs personal-finance workshops for students. That is what my own LinkedIn lists among the group’s activities, both on my profile and in the group’s description.',
     tallerFuente: 'Published by me on LinkedIn, in two places: my profile and the group’s description.',
     tallerQue: 'The workshop: how many came and what they said',
-    tallerPide: 'How many people came? A number of yours, even approximate — it goes marked as yours. Photos of the workshop. What you taught, in your words. And you told me you interviewed the people who came: what did they say? That last one is the only thing that turns “I gave a workshop” into “I changed something”.',
+    // ── LAS PREGUNTAS DE LOS HUECOS YA NO VIVEN AQUÍ (2026-09-02) ───────
+    // Estaban escritas en 2ª persona («as you asked», «you told me», «did
+    // you organize it?») y se PINTABAN en la página, así que quien lee el
+    // CV leía la nota de trabajo dirigida a Jaime. La del podcast además
+    // publicaba dos cargos SIN CONFIRMAR de dos personas con nombre y
+    // apellido. Hoy viven solo en `cv-material/PENDIENTE.md`, que está
+    // fuera del repositorio. Ver la cabecera de HuecoMaterial.astro.
     podcastH: 'The podcast with Miguel Rendón and Manuel Durán',
     // PASADO, y ni una palabra más de las que él dijo.
     podcast: 'I recorded a podcast with Miguel Rendón and Manuel Durán. It has happened; the recording has not reached this page yet.',
-    podcastQue: 'The podcast with Rendón and Durán',
-    podcastPide: 'The link to the episode (TikTok, YouTube, LinkedIn, Spotify — whatever it is). A photo of the recording. The exact title of each of them, as they would say it — I have Miguel Rendón as regional finance director at Tec and Manuel Durán as business director, but that is an unconfirmed note of mine and a wrong title in a CV that goes to a committee is a serious problem. What you talked about, in your words. And: did you organize it or were you invited? That last one decides whether this is leadership or not.'
+    podcastQue: 'The podcast with Rendón and Durán'
   },
 
   // ══════════════════════════════════════════════════════════════════════
@@ -1067,9 +1071,7 @@ const en = {
     h: 'Academic documents',
     lede: 'These are not certifications: they are what my school and the examiner issue about me, and what a committee asks for as a matter of course. Neither is here yet.',
     promedioQue: 'Cumulative grade-point certificate',
-    promedioPide: 'The PDF or the photo of the certificate from Prepa Tec. This closes the academic gap this chapter already declares open, and it is the one that weighs most: right now the page says my grades are missing and cannot show them.',
-    duolingoQue: 'Duolingo English Test',
-    duolingoPide: 'The certificate or the score. It goes here and not with the certifications, as you asked. This is the second English exam this chapter says is missing.'
+    duolingoQue: 'Duolingo English Test'
   },
 
   // ---- Capítulo 3: servir (los voluntariados) ----
@@ -2416,8 +2418,7 @@ const es: typeof en = {
       japon: 'Japón',
       canada: 'Canadá'
     },
-    minutoQue: 'El minuto en el que empieza mi podcast',
-    minutoHueco: '¿En qué minuto de esa transmisión empieza tu podcast? Hoy el enlace abre el programa entero de 30 minutos y quien lo lea tiene que buscarlo.'
+    minutoQue: 'El minuto en el que empieza mi podcast'
   },
 
   head: {
@@ -2614,11 +2615,10 @@ const es: typeof en = {
     taller: 'El grupo da talleres de finanzas personales para estudiantes. Es lo que mi propio LinkedIn lista entre las actividades del grupo, en mi perfil y en la descripción del grupo.',
     tallerFuente: 'Publicado por mí en LinkedIn, en dos sitios: mi perfil y la descripción del grupo.',
     tallerQue: 'El taller: cuánta gente fue y qué dijeron',
-    tallerPide: '¿Cuánta gente fue? Un número tuyo, aunque sea aproximado — va marcado como tuyo. Fotos del taller. Qué enseñaste, en tus palabras. Y me dijiste que entrevistaste a los asistentes: ¿qué te dijeron? Eso último es lo único que convierte «di un taller» en «cambié algo».',
+    // Ver la nota del bloque inglés: las preguntas viven en PENDIENTE.md.
     podcastH: 'El podcast con Miguel Rendón y Manuel Durán',
     podcast: 'Grabé un podcast con Miguel Rendón y Manuel Durán. Ya ocurrió; la grabación todavía no ha llegado a esta página.',
-    podcastQue: 'El podcast con Rendón y Durán',
-    podcastPide: 'El enlace del episodio (TikTok, YouTube, LinkedIn, Spotify — lo que sea). Una foto de la grabación. El cargo exacto de cada uno, como lo dirían ellos — yo tengo apuntado a Miguel Rendón como director de finanzas regional del Tec y a Manuel Durán como director de negocios, pero es una nota mía sin confirmar y un cargo mal puesto en un CV que va a un comité es un problema serio. De qué hablaron, en tus palabras. Y: ¿tú lo organizaste o te invitaron? Eso decide si esto es liderazgo o no lo es.'
+    podcastQue: 'El podcast con Rendón y Durán'
   },
 
   vivo: {
@@ -2631,9 +2631,7 @@ const es: typeof en = {
     h: 'Documentos académicos',
     lede: 'Esto no son certificaciones: es lo que mi escuela y el examinador emiten sobre mí, y lo que un comité pide de oficio. Ninguno de los dos está todavía.',
     promedioQue: 'Constancia de promedio acumulado',
-    promedioPide: 'El PDF o la foto de la constancia de Prepa Tec. Con esto se cierra el hueco académico que este capítulo ya declara abierto, y es el que más pesa: hoy la página dice que faltan tus calificaciones y no las puede enseñar.',
-    duolingoQue: 'Duolingo English Test',
-    duolingoPide: 'El certificado o el puntaje. Va aquí y no con las certificaciones, como pediste. Es el segundo examen de inglés que este capítulo dice que falta.'
+    duolingoQue: 'Duolingo English Test'
   },
 
   servir: {
