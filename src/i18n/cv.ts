@@ -109,6 +109,11 @@ const en = {
   },
   // Marca de foto pendiente (FotoHueco.astro).
   fotoHueco: { tag: 'Photo to come' },
+  // Marca de MATERIAL pendiente (HuecoMaterial.astro). Es otra cosa que un
+  // hueco de texto: no falta una frase de Jaime, falta un archivo suyo — un
+  // enlace, una foto, un cargo, un minuto. Por eso lleva la carpeta donde
+  // dejarlo: rellenarlo tiene que ser cambiar un dato, no rehacer un capítulo.
+  materialHueco: { tag: 'Material to come' },
   // Qué foto falta en cada sitio. Instrucciones del hueco, no contenido.
   // ══ LAS 13 FOTOS QUE JAIME MANDÓ POR CHAT EL 2026-08-30: COLOCADAS ════
   // YA ESTÁN EN DISCO, en cv-material/imagenes/nuevas/ con su MAPA.md. Este
@@ -350,6 +355,79 @@ const en = {
     premios: 'Awards',
     cartas: 'Recommendation letters',
     frase: 'The sentence'
+  },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // EL MICRÓFONO DE PARTÍCULAS — la pieza que diseñó Jaime (2026-09-02)
+  // ══════════════════════════════════════════════════════════════════════
+  // Aquí van SOLO las palabras del módulo. Los nombres y los cargos NO se
+  // repiten: la ficha de cada nodo los toma de `entrevistas.personas`, que es
+  // donde ya viven con su fuente. Repetirlos sería tener dos sitios donde
+  // corregir un cargo, y un cargo mal puesto en un CV que va a un comité es
+  // un problema serio (son las palabras de PENDIENTE.md).
+  //
+  // LA LÍNEA QUE HACE HONESTO EL MÓDULO ES `lede`. De los once puntos, siete
+  // son personas y cuatro son países, y NO prueban lo mismo: conseguir que un
+  // ejecutivo de FX se siente delante de una cámara es liderazgo; grabar un
+  // vídeo con datos de Japón es constancia y audiencia. Un lector de
+  // admisiones lo nota en dos segundos. Dicho en una línea, deja de ser un
+  // problema y pasa a ser la estructura de la pieza.
+  mic: {
+    eyebrow: 'Index and overture',
+    h: 'What you can hear here',
+    // `{n}` lo rellena el componente con NODOS.length: escrito a mano, el
+    // número mentiría en cuanto entre el punto 12 (Rendón y Durán).
+    piezas: '{n} pieces',
+    lede: 'Every point opens something that exists. The seven people are the leadership — who I got to sit down with me. The four countries are the voice — what I say when nobody is asking. They are not the same thing and this page does not pretend they are.',
+    // El pie del micrófono: es a la vez la entrega al documento y la promesa
+    // de que arriba no se cuenta nada que abajo no esté entero.
+    sigue: 'Everything below is the long version. Nothing up here replaces a chapter.',
+    indiceAria: 'What the microphone opens: eleven pieces',
+    // Lo que se lee sin JavaScript, sin WebGL o con «menos movimiento»: la
+    // lista de abajo ES el micrófono. No se pierde nada salvo el dibujo.
+    sinLienzo: 'The drawing needs WebGL. The list is the same eleven pieces.',
+    // Rótulos de las dos columnas del índice.
+    grupoPersonas: 'People I recorded',
+    grupoPaises: 'Countries I explained',
+    bajar: 'In the chapter',
+    // Qué abre cada punto. Una línea, y ni una palabra que no esté ya probada
+    // más abajo. Los cargos NO se repiten aquí.
+    abre: {
+      podcast: 'The full episode I organized in the Financial Trading Room at Tec, on the school channel that broadcast it.',
+      mauricio: 'Part 4 of the podcast — four parts, and this is the one with a receipt.',
+      lloyd: 'The interview in Singapore with the man who signed one of my two letters.',
+      andy: 'The interview with the other signatory, during the programme.',
+      raul: 'The conversation with the president of Student Groups.',
+      nus: 'The interview about what it takes to be at a top-8 university.',
+      jesus: 'The interview at sunset, with the Marina Bay skyline behind us.',
+      mexico: 'I was selected to represent Mexico and presented about it at NUS.',
+      singapur: 'Why the world’s money lives there.',
+      japon: 'Financial data from Japan.',
+      canada: 'Why I chose this country for my future.'
+    },
+    // El verbo del enlace, por tipo de pieza. NO todos son «episodio»: el de
+    // Jesús Gutiérrez Parra es un programa de media hora en YouTube y los
+    // demás son clips de un minuto en TikTok. Llamarlos igual sería inflarlos.
+    ver: {
+      episodio: 'Watch the full episode',
+      conversacion: 'Watch the conversation',
+      video: 'Watch the video'
+    },
+    // Nombres de los cuatro países. Los de las siete personas salen de
+    // `entrevistas.personas`.
+    paises: {
+      mexico: 'Mexico',
+      singapur: 'Singapore',
+      japon: 'Japan',
+      canada: 'Canada'
+    },
+    // ⚠️ EL ÚNICO DATO QUE FALTA DEL MÓDULO, Y VA COMO HUECO EN PANTALLA.
+    // El enlace del podcast de la sala FTR resuelve (comprobado el 2026-09-02)
+    // a la emisión del día del programa ExprésaTec del 16 de abril de 2026,
+    // 30 minutos. El podcast de Jaime es un SEGMENTO dentro; no hay fuente
+    // para el minuto en el que empieza, así que no se escribe.
+    minutoQue: 'The minute my podcast starts',
+    minutoHueco: 'At what minute of that broadcast does your podcast start? Right now the link opens the whole 30-minute programme and the reader has to hunt for it.'
   },
 
   // ---- Capítulo 1: portada ----
@@ -2110,6 +2188,7 @@ const es: typeof en = {
     note: 'Esto lo escribo yo, con mis palabras. Nada de esta página se genera en mi lugar.'
   },
   fotoHueco: { tag: 'Falta la foto' },
+  materialHueco: { tag: 'Material pendiente' },
   fotosPend: {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
@@ -2184,6 +2263,46 @@ const es: typeof en = {
     premios: 'Premios',
     cartas: 'Cartas de recomendación',
     frase: 'La frase'
+  },
+
+  // Paridad exacta con el panel inglés. Ver la nota grande de `mic` allí.
+  mic: {
+    eyebrow: 'Índice y obertura',
+    h: 'Lo que suena aquí',
+    piezas: '{n} piezas',
+    lede: 'Cada punto abre algo que existe. Las siete personas son el liderazgo: a quién conseguí sentar conmigo. Los cuatro países son la voz: lo que digo cuando nadie me pregunta. No son lo mismo y esta página no finge que lo sean.',
+    sigue: 'Todo lo de abajo es la versión larga. Nada de aquí arriba sustituye a un capítulo.',
+    indiceAria: 'Lo que abre el micrófono: once piezas',
+    sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas once piezas.',
+    grupoPersonas: 'Personas que grabé',
+    grupoPaises: 'Países que expliqué',
+    bajar: 'En el capítulo',
+    abre: {
+      podcast: 'El episodio completo que organicé en la sala Financial Trading Room del Tec, en el canal de la escuela que lo transmitió.',
+      mauricio: 'La Parte 4 del podcast — son cuatro partes, y esta es la que tiene recibo.',
+      lloyd: 'La entrevista en Singapur al hombre que después firmó una de mis dos cartas.',
+      andy: 'La entrevista al otro firmante, durante el programa.',
+      raul: 'La conversación con el presidente de Grupos Estudiantiles.',
+      nus: 'La entrevista sobre qué hace falta para estar en una universidad top 8.',
+      jesus: 'La entrevista al atardecer, con el skyline de Marina Bay detrás.',
+      mexico: 'Fui seleccionado para representar a México y presenté sobre él en la NUS.',
+      singapur: 'Por qué aquí vive el dinero del mundo.',
+      japon: 'Datos financieros de Japón.',
+      canada: 'Por qué elegí este país para mi futuro.'
+    },
+    ver: {
+      episodio: 'Ver el episodio completo',
+      conversacion: 'Ver la conversación',
+      video: 'Ver el video'
+    },
+    paises: {
+      mexico: 'México',
+      singapur: 'Singapur',
+      japon: 'Japón',
+      canada: 'Canadá'
+    },
+    minutoQue: 'El minuto en el que empieza mi podcast',
+    minutoHueco: '¿En qué minuto de esa transmisión empieza tu podcast? Hoy el enlace abre el programa entero de 30 minutos y quien lo lea tiene que buscarlo.'
   },
 
   head: {

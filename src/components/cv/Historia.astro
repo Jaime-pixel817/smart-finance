@@ -104,6 +104,7 @@ import { useCv } from '../../i18n/cv';
 import SourceChip from '../SourceChip.astro';
 import Hueco from './Hueco.astro';
 import FotoHueco from './FotoHueco.astro';
+import Microfono from './Microfono.astro';
 import { SYMBOLS } from '../../data/symbols';
 import { CARTERAS } from '../../lib/portfolio/data';
 import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
@@ -1029,6 +1030,15 @@ const cifrasFranja = c.franja.sitioQ
        de abajo devuelve el plegable cerrado, sin tocar nada más. El plegado
        sigue siendo la herramienta buena para secciones que de verdad sobran;
        esta no sobra. */}
+  {/* ══ EL MICRÓFONO DE PARTÍCULAS ═══════════════════════════════════════
+       La pieza que diseñó Jaime (2026-09-02). Va AQUÍ: justo después de la
+       tapa y FUERA de la pista de intro — la transición de la tarjeta al 62 %
+       no se toca —, y antes del primer capítulo.
+       No es un capítulo: no lleva número, no entra en `capitulos` y no cambia
+       la numeración de nada. Es índice y obertura, y los once puntos BAJAN a
+       sus capítulos, que se quedan enteros. */}
+  <Microfono c={c} p={p} />
+
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
     <p class="cap-num" aria-hidden="true">{num(1)}</p>
