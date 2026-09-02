@@ -2354,7 +2354,7 @@ const cifrasFranja = c.franja.sitioQ
           {f.cred
             ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
             : f.dondeCuando
-              ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.sinCred}</span> {f.dondeCuando}</p>
+              ? <p class="cert-cred cert-cred-donde meta-mono"><span class="faint">{c.certs.sinCred}</span> {f.dondeCuando}</p>
               : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
           <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
         </li>
@@ -3793,6 +3793,13 @@ const cifrasFranja = c.franja.sitioQ
   /* El ID de la credencial: mono, porque es un código que alguien va a
      copiar, y partible porque son 24 caracteres sin espacios. */
   .cert-cred { overflow-wrap: anywhere; }
+  /* LA VARIANTE SIN ID: el rótulo va en su propio renglón. En las otras seis
+     tarjetas el rótulo es «Credential ID» y el valor una cadena corta, así
+     que caben en la misma línea. Aquí el rótulo es una frase entera
+     («Impreso en el certificado en vez de un ID») y el valor una sede más un
+     rango de fechas: pegados se leían de corrido, como si la sede fuera
+     parte del rótulo. Se separan con el salto, no con puntuación nueva. */
+  .cert-cred-donde .faint { display: block; }
 
   /* ---- Cartas de recomendación: las entregadas y los huecos ---- */
   .cartas {
