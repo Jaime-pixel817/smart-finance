@@ -520,13 +520,23 @@ function arrancaUno(raiz: HTMLElement): void {
   const fino = window.matchMedia('(hover: hover) and (pointer: fine)').matches
     && window.innerWidth >= 940;
 
+  // ── EL MOTOR SE CREA AL ENTRAR EN PANTALLA, NO AL CARGAR (2026-09-02) ───
+  // `crearMotor` estaba aquí, ANSIOSO, y costaba dos veces: crea el contexto
+  // WebGL, genera los 16 000 puntos, compila los dos shaders y sube tres
+  // buffers. El IntersectionObserver de más abajo solo aplazaba el DIBUJO, no
+  // esto. Y `document.querySelectorAll('[data-mic]')` casa con los DOS paneles
+  // de idioma, así que el panel español —que está en `display:none`— montaba su
+  // propio contexto de 16 000 partículas que nadie iba a ver nunca.
+  // Medido sobre `dist` a 1440×900 interceptando `getContext`: DOS contextos
+  // creados al cargar (uno de ellos sin caja de layout) y CERO stages con
+  // `data-mic-listo`, o sea que el trabajo se hacía entero y no se pintaba
+  // nada. El lienzo del panel visible empieza en y = 3 886 con una ventana de
+  // 900: ni siquiera entra en el `rootMargin` de 200 px.
+  // Todo lo que necesita el motor se mueve dentro de `arranca()`. Un elemento
+  // dentro de un ancestro `display:none` no interseca nunca, así que el panel
+  // escondido no construye nada — y si el lector cambia de idioma, su
+  // observador dispara ahí y entonces sí.
   let motor: Motor;
-  try {
-    motor = crearMotor(canvas, 16000);
-  } catch (e) {
-    fallar('webgl');
-    return;
-  }
 
   // El reparto: las personas sobre la CANASTA (espiral áurea del casquete),
   // los países en columna sobre el CUERPO.
@@ -553,6 +563,7 @@ function arrancaUno(raiz: HTMLElement): void {
     filas.set(el.dataset.micFila || '', el);
   });
   const enlaces: HTMLAnchorElement[] = [];
+  const construirNodos = () => {
   capa.hidden = false;
   NODOS.forEach((nd) => {
     const fila = filas.get(nd.id);
@@ -589,6 +600,7 @@ function arrancaUno(raiz: HTMLElement): void {
     enlaces.push(a);
   });
   if (!fino) capa.setAttribute('aria-hidden', 'true');
+  };
   const botones = enlaces;
 
   const situar = () => {
@@ -625,7 +637,6 @@ function arrancaUno(raiz: HTMLElement): void {
     motor.resize(stage.clientWidth, stage.clientHeight, 2);
     ajustarBlanco();
   };
-  medir();
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   // Con «menos movimiento» NO se cae al SVG: el motor pinta UN fotograma con el
@@ -658,6 +669,24 @@ function arrancaUno(raiz: HTMLElement): void {
   let arrancado = false;
   const arranca = () => {
     if (arrancado) return; arrancado = true;
+    try {
+      motor = crearMotor(canvas, 16000);
+    } catch (e) {
+      fallar('webgl');
+      return;
+    }
+    construirNodos();
+    medir();
+    // El observador de tamaño va aquí y no fuera: sin motor no hay nada que
+    // remedir, y montarlo antes lo dispararía sobre un motor que no existe.
+    let pend = 0;
+    new ResizeObserver(() => {
+      window.clearTimeout(pend);
+      pend = window.setTimeout(() => {
+        medir();
+        if (!raf && arrancado) { motor.dibujar(); situar(); }
+      }, 80);
+    }).observe(stage);
     if (reduce.matches) quieto(); else raf = requestAnimationFrame(bucle);
   };
   if ('IntersectionObserver' in window) {
@@ -667,14 +696,6 @@ function arrancaUno(raiz: HTMLElement): void {
     io.observe(stage);
   } else arranca();
 
-  let pend = 0;
-  new ResizeObserver(() => {
-    window.clearTimeout(pend);
-    pend = window.setTimeout(() => {
-      medir();
-      if (!raf && arrancado) { motor.dibujar(); situar(); }
-    }, 80);
-  }).observe(stage);
 }
 
 document.querySelectorAll<HTMLElement>('[data-mic]').forEach(arrancaUno);
