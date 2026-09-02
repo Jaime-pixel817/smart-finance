@@ -379,9 +379,18 @@ const citas = [
 //
 // POR QUÉ JUSTO AHÍ, Y NO EN OTRO SITIO. Cuatro razones, de más a menos peso:
 //
-//  1. SON LOS DOS ÚNICOS CAPÍTULOS QUE NO ESCRIBIÓ ÉL. Todo lo demás de esta
-//     página es palabra de Jaime más recibos que el build cuenta. Dos CEOs
-//     firmando es lo más escaso que hay aquí, y lo escaso no va al final.
+//  1. SON LO ÚNICO DE LA PÁGINA QUE UNA PERSONA FIRMA SOBRE ÉL. Ojo con cómo
+//     estuvo escrita esta razón hasta el 2026-09-01 —«son los dos únicos
+//     capítulos que no escribió él»—, porque era FALSA y la señaló una
+//     revisión: el capítulo de certificaciones tampoco lo escribió él (los
+//     siete rótulos, emisores, años e identificadores están transcritos de
+//     documentos ajenos; de Jaime es la entradilla, igual que aquí). Lo que
+//     de verdad separa a estos dos del resto es otra cosa: un certificado
+//     acredita que TERMINÓ un curso, y una carta es alguien con nombre y
+//     cargo JUZGANDO su trabajo y poniendo su firma debajo. De eso hay dos
+//     piezas en toda la página —las dos cartas— y el premio, cuya única
+//     fuente es una de ellas. Dos CEOs firmando es lo más escaso que hay
+//     aquí, y lo escaso no va al final.
 //  2. VAN PEGADOS A LO QUE CONFIRMAN. Las cartas verifican seis hechos que
 //     el capítulo 2 acaba de listar (que fundó el grupo, que organizó él las
 //     entrevistas de Singapur, la limpieza de playa, los tres idiomas). Una
@@ -406,6 +415,19 @@ const citas = [
 // la pista `marco` (≤ 1320 px), igual que sus vecinos nuevos —la tabla de
 // experiencia y la del expediente académico—. Cambian de sitio dentro de la
 // misma pista y el ojo no cambia de ritmo.
+//
+// LO QUE SÍ CUESTA, MEDIDO Y ESCRITO AQUÍ PORQUE ES PARTE DE LA DECISIÓN:
+// subir dos capítulos hunde a los que estaban debajo, y el que más baja es
+// el de las CERTIFICACIONES. Con `medir-cv.mjs` a 1440×900: pasan del 77.5 %
+// del panel al 91.2 %, o sea más al fondo de donde estaban las cartas
+// (86.8 %). Son siete, seis con identificador de credencial comprobable, y
+// ahora hay que llegar al 91 % del documento para verlas. Se acepta a
+// sabiendas y por la razón 1: un certificado dice que terminó un curso y una
+// carta dice lo que alguien opina de su trabajo — si sólo una de las dos
+// clases de prueba cabe en los primeros cuatro minutos, es la firmada. NO SE
+// COMPENSA CALLANDO: la franja de la tapa enlaza las siete certificaciones
+// desde la primera pantalla, con su cuenta, y ese enlace es hoy el único
+// camino corto que tienen.
 //
 // LA REFERENCIA HACE LO MISMO, UN NIVEL MÁS ARRIBA: en ondo.finance la banda
 // de logos —su prueba de terceros— va a 136 px del BORDE INFERIOR de la
@@ -4394,12 +4416,17 @@ const cifrasFranja = c.franja.sitioQ
 
      TRES ELEMENTOS POR CAPÍTULO Y NADA MÁS: el número, el titular y la
      entradilla — y la entradilla solo si va PEGADA al titular (`.cap-h +
-     .cap-lede`). Esa parte del selector no es cosmética: hay dos `.cap-lede`
-     que son hijos directos de su `<section>` pero viven a media altura del
-     capítulo (la del bloque de experiencia en formato de solicitud y la de
-     «lo que las cartas confirman»), y sin el `+` entrarían solas, en medio
-     de una lectura, que es exactamente la segunda animación por pantalla que
-     `motion.css` prohíbe. NO TOCA NI UNA FILA de `.lista-seca`, de `.certs li`, de
+     .cap-lede`). Esa parte del selector no es cosmética: HOY hay un
+     `.cap-lede` que es hijo directo de su `<section>` y vive a media altura
+     del capítulo (el de «lo que las cartas confirman»), y sin el `+`
+     entraría solo, en medio de una lectura, que es exactamente la segunda
+     animación por pantalla que `motion.css` prohíbe.
+     (Aquí ponía «hay dos», y el segundo era el del bloque de experiencia en
+     formato de solicitud: desde que ese bloque se pliega —2026-09-01— su
+     entradilla vive DENTRO del `<details>` y ya no es hija de la sección. Se
+     corrige el número porque un comentario que cuenta mal lo que hay es un
+     recibo falso, no porque cambie la regla: la regla vale igual con uno.)
+     NO TOCA NI UNA FILA de `.lista-seca`, de `.certs li`, de
      `.expapp` ni de `.acad` — son justo los renglones que un comité escanea,
      y `motion.css` lo prohíbe por escrito («veinte filas apareciendo de una
      en una no es un sitio vivo, es una lista que tarda en cargar»).
