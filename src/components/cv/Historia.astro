@@ -1341,12 +1341,27 @@ const cifrasFranja = c.franja.sitioQ
     <p class="cap-lede">{c.premios.lede}</p>
 
     <h3 class="t-h3">{c.premios.entregadosH}</h3>
+    {/* ── LA PRUEBA VIAJA CON EL PREMIO ───────────────────────────────────
+         Al mudarse aquí, el premio se quedó siendo el único hecho que las
+         cartas verifican SIN enseñar la frase de la carta: los seis de
+         `cartas.verifica` traen la suya, y su PDF ya no se sirve. Ahora
+         lleva su fragmento verbatim, con el mismo trato que allí — la cita
+         en `lang="en"` porque en el panel español es inglés dentro de un
+         párrafo en español, y las comillas puestas por el panel (« » en
+         español, “ ” en inglés) porque son puntuación del idioma que las
+         rodea, no de la cita. */}
     <ul class="premios">
       {c.premios.entregados.map((x) => (
         <li class="premio">
           <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
           <p class="premio-que">{x.que}</p>
+          {x.cita && (
+            <blockquote class="premio-cita">
+              <p>{locale === 'es' ? '«' : '“'}<span lang="en">{x.cita}</span>{locale === 'es' ? '»' : '”'}</p>
+            </blockquote>
+          )}
           <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.cartas)}</p>
+          {c.premios.citaTag && <p class="meta-mono premio-cita-tag">{c.premios.citaTag}</p>}
           <p class="pie">{x.nota}</p>
         </li>
       ))}
@@ -3887,6 +3902,13 @@ const cifrasFranja = c.franja.sitioQ
     padding: var(--sp-5); background: var(--cvh-papel);
   }
   .premio-cuando { color: var(--cvh-tinta-2); }
+  /* La cita de la carta, con la MISMA raya lateral que las de `.carta-cita`:
+     en esta página una barra a la izquierda significa «esto lo dijo otro».
+     No lleva `<cite>` debajo porque el renglón siguiente —`premio-tag`— ya
+     nombra la carta y a quien la firma, y decirlo dos veces seguidas es
+     leerlo dos veces. */
+  .premio-cita { margin: 0; padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya); }
+  .premio-cita-tag { color: var(--cvh-tinta-2); }
   /* El HECHO manda: al tamaño de un subtítulo, arriba, antes que su marca.
      Hasta el 2026-08-31 el orden era el contrario y la proporción también
      (44 palabras de descargo contra 19 de hecho). */
@@ -5492,12 +5514,14 @@ const cifrasFranja = c.franja.sitioQ
        tampoco se puede imprimir al lado porque empieza por la del CV, que es
        la credencial de esta página.
        Hoy ya no hay enlace: ese renglón es una FRASE —dónde no está el
-       archivo, por qué, y que se manda a quien lo pida— y es justo la que
-       más falta hace en papel. Una hoja impresa acaba adjunta a una
-       nominación, lejos de la página y de su dirección; sin esta línea, el
-       lector del papel ve dos cartas citadas y no tiene forma de saber que
-       puede pedirlas. El canal que nombra —el LinkedIn— también se imprime,
-       en el cierre. */
+       archivo y por qué— y en papel hace más falta que en pantalla. Una hoja
+       impresa acaba adjunta a una nominación, lejos de la página; sin esta
+       línea, el lector del papel ve dos cartas citadas y no sabe si el
+       documento existe o si se le está escondiendo.
+       NO PROMETE UN CANAL. La versión con «se la mando a quien me la pida»
+       se retiró el mismo día (ver `cartas.pdfNo` en src/i18n/cv.ts): esa
+       oración es un compromiso de Jaime y él no la ha dicho. Si algún día la
+       dice, esta regla no cambia. */
     .cinta-bloque, .citas-nav, .clip-video, .clip-video-ancho, video, .franja { display: none; }
     /* EL CARRUSEL SE DESENROLLA. En pantalla son diez tarjetas en una pista
        horizontal con `overflow-x: auto`; en papel eso imprime la primera y

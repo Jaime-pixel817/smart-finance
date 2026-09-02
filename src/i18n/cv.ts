@@ -1349,11 +1349,20 @@ const en = {
         // LO QUE ESTE CERTIFICADO TRAE EN VEZ DE UN ID, transcrito de su
         // propia imagen (cv-material/MATERIAL.md, bloque C1, nº 4): «hosted
         // at Shaw Foundation Alumni House, from June 22 to July 11, 2026»,
-        // firmado por Zhang Jinming, Academic Manager. La Shaw Foundation
-        // Alumni House está en el campus de la National University of
-        // Singapore, y eso es lo único que se añade a lo impreso — es
-        // geografía comprobable, no una afirmación sobre el programa.
-        dondeCuando: 'Shaw Foundation Alumni House, National University of Singapore · 22 June – 11 July 2026',
+        // firmado por Zhang Jinming, Academic Manager.
+        // ── SE QUITÓ «NATIONAL UNIVERSITY OF SINGAPORE» (2026-09-01) ─────
+        // Estuvo aquí unas horas, con el argumento de que la Shaw Foundation
+        // Alumni House está en ese campus. Es cierto (MATERIAL.md lo anota
+        // entre paréntesis, como nota de quien transcribió, no como texto
+        // del documento) y aun así no puede ir: el rótulo de este campo es
+        // «Printed on the certificate instead of an ID», o sea que promete
+        // que lo de al lado es lo que el papel imprime. En cuanto se le
+        // cuela un dato que el papel NO imprime, el rótulo deja de ser un
+        // recibo y pasa a ser una etiqueta que cubre una inferencia — y esta
+        // página tiene el nombre de una universidad grande dentro. La sede
+        // se comprueba igual: «Shaw Foundation Alumni House» es un nombre
+        // único, y quien pregunte por él llega al mismo sitio.
+        dondeCuando: 'Shaw Foundation Alumni House · 22 June – 11 July 2026',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
         alt: 'Bluesky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
       },
@@ -1414,6 +1423,21 @@ const en = {
     // {s} es el título del capítulo de las cartas: se enlaza por TÍTULO y no
     // por número, como `cartas.fuenteCarta`.
     fuenteTag: 'Only source: Lloyd George’s letter, in “{s}”',
+    // ── EL PREMIO TRAE SU FRAGMENTO VERBATIM (2026-09-01) ───────────────
+    // Al mudarse a su propio capítulo, el premio se quedó siendo el ÚNICO
+    // hecho verificado por una carta que no enseñaba la frase de la carta:
+    // los seis de `cartas.verifica` traen la suya y su firmante, y los tres
+    // más fuertes la traen entrecomillada en inglés. Mientras el PDF no se
+    // sirve, un lector no tenía por dónde comprobar el más fuerte de todos.
+    // Ahora lleva el mismo trato que `verifica`: la frase EXACTA de la carta
+    // de Lloyd George, en inglés, con `lang="en"` en el panel español y las
+    // comillas puestas por el panel. Es un fragmento y no la oración entera
+    // porque la oración abre con «That same excellence», que apunta al
+    // párrafo anterior y fuera de él no se entiende; el fragmento empieza
+    // donde empieza el hecho. Misma regla que «entirely on his own steam».
+    // `citaTag` sólo se pinta en español, donde la cita es inglés dentro de
+    // un párrafo español y hay que avisarlo; en inglés va vacío.
+    citaTag: '',
     entregados: [
       {
         // SIN «in Singapore»: la carta de Lloyd George —la ÚNICA fuente que
@@ -1425,6 +1449,13 @@ const en = {
         // una ficha que promete una sola fuente no puede traer un dato de
         // otra sin decirlo.
         que: 'An award at the GreenTech Summit 2026, with my teammates, competing against students from Taiwan and Russia.',
+        // VERBATIM de la carta de Lloyd George (20 de agosto de 2026, el PDF
+        // está en cv-material/cartas/). La oración entera es «That same
+        // excellence carried him and his teammates to an award at the
+        // GreenTech Summit 2026, in competition against students from Taiwan
+        // and Russia.»; se cita desde «an award» porque las cinco palabras de
+        // antes apuntan al párrafo anterior. Ni una palabra cambiada.
+        cita: 'an award at the GreenTech Summit 2026, in competition against students from Taiwan and Russia',
         // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
         // salía «GreenTech Summit 2026 · 2026».
         de: 'GreenTech Summit',
@@ -1564,24 +1595,30 @@ const en = {
        por qué— en primera persona y sin prometer nada que Jaime no haya
        dicho. Cuando él decida (repo privado, alojarlo detrás de otra cosa, o
        asumir que es público), vuelve el enlace y esta cadena se va. */
-    /* ── Y AHORA DICE QUE SE MANDA A QUIEN LA PIDA (2026-09-01) ─────────
-       La frase decía que el archivo no está y por qué, y se paraba ahí. Un
-       comité que lee eso no tiene ninguna vía: sabe que la carta existe,
-       sabe que no la va a ver, y no sabe que puede pedirla.
-       LO QUE HACE UN CANDIDATO SERIO es exactamente lo que dice esta línea:
-       el documento firmado no se cuelga en abierto —lleva datos de sus
-       firmantes— y se manda al que lo pida. Las dos mitades juntas, en una
-       frase, en primera persona y sin dramatismo.
-       EL CANAL NO SE INVENTA NINGUNO NUEVO: es el LinkedIn que esta misma
-       página ya publica en su cierre («Where to find me»). No se añade un
-       correo de Jaime, que no está en ninguna parte del CV y que él no ha
-       dado para esto.
-       ESTO ES UN COMPROMISO SUYO, no una regla del sitio: al publicar esta
-       línea Jaime se compromete a mandar el PDF a quien se lo pida. Se
-       escribe porque la decisión de esta ola es que se escriba; si él
-       prefiere no comprometerse, se borra la segunda oración y la ficha
-       vuelve a decir sólo dónde no está. */
-    pdfNo: 'Not on this page: it carries {n}’s own contact details and everything this page serves is public. I send the signed letter to anyone who asks; my LinkedIn is at the end.',
+    /* ── SE PROBÓ A AÑADIR «SE LA MANDO A QUIEN ME LA PIDA», Y SE RETIRÓ
+       (2026-09-01) ────────────────────────────────────────────────────────
+       Durante unas horas esta cadena llevó una segunda oración: «La carta
+       firmada se la mando a quien me la pida; mi LinkedIn está al final».
+       Se retiró, y el motivo no es de estilo:
+        · JAIME NO LA HA DICHO. En primera persona y en su CV, esa frase es
+          un COMPROMISO SUYO, no una descripción del sitio. La regla de este
+          archivo es que sin fuente no hay frase, y aquí la fuente sería él.
+        · LO QUE COMPROMETE NO ES SUYO. Lo que se mandaría es el PDF entero:
+          el móvil personal de Lloyd George, los dos correos y la dirección
+          registrada de la empresa de Andy Toh. La propia página retiene una
+          foto por menos que esto («en el cartel se lee un número de teléfono
+          y nadie me lo dio para publicarlo»), y el archivo salió de la web
+          justo por publicar datos de terceros.
+        · LA DECISIÓN ESTÁ ABIERTA, POR ESCRITO. `cv-material/cartas/
+          CARTAS.md` se encabeza con «HACE FALTA UNA DECISIÓN TUYA» y tres
+          opciones sin respuesta (repo privado · dejarlos fuera · publicarlos
+          sabiendo que los baja cualquiera). Publicar el canal por él cierra
+          esa decisión desde la página.
+       PARA PONERLA: que Jaime lo diga, y entonces vuelve la segunda oración
+       —el canal ya existe, es el LinkedIn que esta página publica en su
+       cierre— sin tocar nada más. Mientras tanto la ficha dice sólo dónde no
+       está el archivo y por qué, que es lo que se puede sostener. */
+    pdfNo: 'Not on this page while I decide where to keep it: it carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -2478,7 +2515,9 @@ const es: typeof en = {
       {
         que: 'GREEN TECHNOLOGY PROGRAMME',
         de: 'Bluesky Education', anio: '2026', cred: '',
-        dondeCuando: 'Shaw Foundation Alumni House, National University of Singapore · 22 de junio – 11 de julio de 2026',
+        // Sin «National University of Singapore»: el certificado no la
+        // imprime. El porqué entero está sobre la cadena inglesa.
+        dondeCuando: 'Shaw Foundation Alumni House · 22 de junio – 11 de julio de 2026',
         img: 'cv-cert-green-tech.webp', w: 501, h: 700,
         alt: 'Certificado de Bluesky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
       },
@@ -2515,9 +2554,15 @@ const es: typeof en = {
     slot: 'Espacio reservado para el siguiente premio.',
     tag: 'Premio por llegar',
     fuenteTag: 'Única fuente: la carta de Lloyd George, en «{s}»',
+    // Aquí sí se pinta: la cita es inglés dentro de un párrafo en español,
+    // igual que en `cartas.verificaCitaTag`.
+    citaTag: 'Lo entrecomillado es la frase exacta de la carta, en inglés.',
     entregados: [
       {
         que: 'Un premio en el GreenTech Summit 2026, con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
+        // La MISMA cadena inglesa que el panel inglés: es la frase de la
+        // carta y no se traduce, como las tres de `cartas.verifica`.
+        cita: 'an award at the GreenTech Summit 2026, in competition against students from Taiwan and Russia',
         // Sin el año dentro del nombre: la ficha ya lo pinta al lado y
         // salía «GreenTech Summit 2026 · 2026».
         de: 'GreenTech Summit',
@@ -2537,7 +2582,9 @@ const es: typeof en = {
     citaTag: 'Las dos frases que más pesan, traducidas del inglés',
     contactoTag: 'Contacto que dio para preguntar por mí',
     pdfTag: 'La carta, tal cual',
-    pdfNo: 'No está en esta página: trae los datos de contacto de {n} y todo lo que esta página sirve es público. La carta firmada se la mando a quien me la pida; mi LinkedIn está al final.',
+    // La segunda oración («se la mando a quien me la pida») se retiró el
+    // 2026-09-01: el porqué entero está sobre la cadena inglesa.
+    pdfNo: 'No está en esta página mientras decido dónde guardarla: trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
     entregadas: [
       {
         nombre: 'Lloyd George',
