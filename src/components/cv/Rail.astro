@@ -1,0 +1,145 @@
+---
+// EL RAÍL: UN ÍNDICE DE 48 px QUE NO SE MUEVE NUNCA.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// QUÉ ARREGLA, DICHO CON LA QUEJA DE JAIME
+// ═══════════════════════════════════════════════════════════════════════════
+// «se me hizo infinito» (2026-09-02). Un documento se siente infinito cuando
+// no se ve el final, y el índice de este CV vive DENTRO de la portada, dentro
+// de un `<details>` cerrado: en cuanto el lector baja una pantalla, no vuelve
+// a ver el mapa del documento en las treinta y seis restantes.
+//
+// El raíl enseña los once capítulos SIEMPRE, en 288 px de alto — o sea que el
+// documento entero cabe en una pantalla antes de leer una línea — y marca en
+// cuál estás.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// DE DÓNDE SALEN LOS NÚMEROS, Y NINGUNO ES DE GUSTO
+// ═══════════════════════════════════════════════════════════════════════════
+// · 48 px de ancho: es el ancho MEDIDO del índice de docs.stripe COLAPSADO
+//   (56 px), bajado a 48 para que quepa en el gutter de 96 con 24 px de aire
+//   a cada lado. Cuesta el 3.75 % del ancho a 1280; docs.stripe paga el
+//   19.5 % con sus 250 px expandidos. Pero sus 250 px cargan 39 enlaces en 6
+//   grupos y este CV tiene 11 capítulos: once no necesitan 250 px de texto,
+//   necesitan once marcas. Copiar sus 250 px sería copiar la respuesta a otra
+//   pregunta.
+// · NO SE MUEVE NI UN PÍXEL. Medido en docs.stripe: con `scrollTop = 1200`,
+//   su cromo sigue exactamente donde estaba. `position: fixed`.
+// · LA MARCA DEL ACTUAL: `aria-current` + color + peso, Y NADA MÁS. Ellos
+//   miden `background-color: rgba(0,0,0,0)` y `border-left-width: 0px` — sin
+//   píldora, sin fondo, sin borde. Dos señales, cero cromo.
+// · Se expande a 232 px al pasar el puntero o al recibir foco. La expansión
+//   es `width` + `opacity` sobre un elemento `fixed`: NO MUEVE UNA SOLA CAJA
+//   del documento, así que su CLS es 0 por construcción.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LO QUE PASA SIN JAVASCRIPT
+// ═══════════════════════════════════════════════════════════════════════════
+// El raíl sigue siendo once enlaces `#` que funcionan. Lo único que se pierde
+// es el resaltado del capítulo actual, que es una comodidad y no el mapa.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// DÓNDE **NO** SALE
+// ═══════════════════════════════════════════════════════════════════════════
+// · En el teléfono y en pantallas de pie: no hay gutter donde meterlo sin
+//   quitárselo al texto, y a 390 px un raíl es una columna menos.
+// · Al imprimir: en papel el mapa son las páginas.
+// · Sobre la TAPA: la portada es a sangre y oscura, y un raíl de tinta negra
+//   encima no se leería. Aparece al empezar el documento — lo enciende el
+//   guion cuando la tapa sale de pantalla.
+import type { CvCopy } from '../../i18n/cv';
+import type { Locale } from '../../i18n/routes';
+
+interface Props { c: CvCopy; p: Locale; capitulos: string[] }
+const { c, p, capitulos } = Astro.props;
+---
+<nav class="rail" data-rail aria-label={c.indice.aria} hidden>
+  <ol class="rail-lista">
+    {capitulos.map((titulo, i) => (
+      <li>
+        <a class="rail-a" href={`#${p}-cap-${i + 1}`} data-rail-a={`${p}-cap-${i + 1}`}>
+          <span class="rail-punto" aria-hidden="true"></span>
+          <span class="rail-n meta-mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="rail-t">{titulo}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  /* Nace escondido y lo enciende el guion al salir la tapa. Sin JavaScript no
+     aparece nunca, que es lo correcto: sin JavaScript tampoco sabría marcar
+     dónde está el lector, y un mapa que no dice dónde estás sobre un
+     documento que ya tiene su índice en la portada es cromo. */
+  .rail { display: none; }
+
+  @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
+    .rail[data-rail-on] {
+      display: block;
+      position: fixed;
+      /* En el gutter izquierdo, centrado con el marco del documento. */
+      left: max(24px, calc((100vw - min(100vw - 2 * var(--cv-gutter, 96px), 1320px)) / 2 - 72px));
+      top: 50%; translate: 0 -50%;
+      z-index: 5;
+      width: 48px;
+      /* La expansión NO usa `transition: width` sobre `auto`: se anima el
+         ancho entre dos valores fijos, que es lo único que el compositor
+         resuelve sin volver a medir. */
+      transition: width var(--dur-1) var(--ease-out);
+    }
+    /* ── EL FONDO SOLO EXISTE EXPANDIDO, Y ES UNA DESVIACIÓN CONSCIENTE ──
+       docs.stripe no le pone fondo a su índice y aquí se copió esa disciplina
+       para el estado colapsado: ocho puntos sobre papel blanco, cero cromo.
+       Expandido no se puede: los 232 px se meten por encima del contenido y,
+       medido en captura, los once títulos caían sobre una foto y no se leía
+       ninguno. Su índice no tiene ese problema porque ocupa una columna
+       propia todo el rato; este vive en el aire del gutter a cambio de no
+       costarle ni un píxel al documento, y ese es el precio. El fondo aparece
+       solo mientras está abierto, o sea mientras alguien lo está usando. */
+    .rail[data-rail-on]:hover, .rail[data-rail-on]:focus-within {
+      width: 232px;
+      background: var(--cvh-papel);
+      border: 1px solid var(--cvh-raya);
+      border-radius: 12px;
+      padding-block: 6px;
+    }
+
+    .rail-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .rail-a {
+      display: flex; align-items: center; gap: 10px;
+      /* 32 px de paso: once capítulos son 352 px, o sea que el documento
+         entero cabe en media pantalla. El destino táctil no aplica —esto
+         solo existe con puntero fino y ventana ancha— pero 32 px de alto con
+         44 px de ancho de blanco pasa igual el mínimo de WCAG 2.5.8. */
+      height: 32px; padding-inline: 14px;
+      color: var(--cvh-tinta-3); text-decoration: none;
+      white-space: nowrap; overflow: hidden;
+    }
+    .rail-punto {
+      flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%;
+      box-shadow: inset 0 0 0 1px currentColor;
+      transition: box-shadow var(--dur-1) linear;
+    }
+    .rail-n { flex: 0 0 auto; opacity: 0; transition: opacity var(--dur-1) linear; }
+    .rail-t {
+      font-size: var(--fs-caption); opacity: 0;
+      transition: opacity var(--dur-1) linear;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .rail:hover .rail-n, .rail:focus-within .rail-n,
+    .rail:hover .rail-t, .rail:focus-within .rail-t { opacity: 1; }
+
+    .rail-a:hover { color: var(--cvh-tinta-2); }
+    .rail-a:focus-visible { outline: 2px solid var(--cvh-tinta); outline-offset: -2px; border-radius: 6px; }
+    /* LA MARCA DEL ACTUAL: color + peso, y nada más. Sin píldora, sin fondo,
+       sin borde — es la gramática medida de docs.stripe, copiada tal cual. */
+    .rail-a[aria-current] { color: var(--cvh-tinta); font-weight: 600; }
+    .rail-a[aria-current] .rail-punto { box-shadow: inset 0 0 0 5px currentColor; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rail[data-rail-on], .rail-punto, .rail-n, .rail-t { transition: none; }
+  }
+  @media print { .rail { display: none !important; } }
+</style>

@@ -107,6 +107,7 @@ import FotoHueco from './FotoHueco.astro';
 import Microfono from './Microfono.astro';
 import HuecoMaterial from './HuecoMaterial.astro';
 import SitioVivo from './SitioVivo.astro';
+import Rail from './Rail.astro';
 import { SYMBOLS } from '../../data/symbols';
 import { CARTERAS } from '../../lib/portfolio/data';
 import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
@@ -658,6 +659,10 @@ const cifrasFranja = c.franja.sitioQ
        tenía una foto de cielo nublado y la resolvía con una tapa de PAPEL. Los
        números, la cuenta de la que salen y las 200 mediciones que la
        comprueban están en el bloque de estilo de abajo. */}
+  {/* EL RAÍL. Va el PRIMERO del panel y `position: fixed`, así que no ocupa
+       sitio en el flujo y no puede empujar nada. */}
+  <Rail c={c} p={p} capitulos={capitulos} />
+
   <header class="cap cap-portada" aria-labelledby={`${p}-h1`}>
 
     {/* ══ LA PISTA DEL EFECTO ══════════════════════════════════════════════
@@ -4637,8 +4642,20 @@ const cifrasFranja = c.franja.sitioQ
      dejó también aquí. Eso es la raíz, y esto es el arreglo. */
   @media screen and (min-aspect-ratio: 1/1) {
     .historia {
-      /* El gutter del documento en escritorio: 1280→58 · 1440→65 · 1920→86 */
-      --cv-gutter: clamp(40px, 4.5vw, 112px);
+      /* ── EL SUELO DEL GUTTER SUBE DE 40 A 96, Y ES MECÁNICO ───────────
+         El raíl del índice necesita 48 px que NO le puede quitar al marco: si
+         viviera dentro, la pista de margen se quedaría en 286 px, seis por
+         encima de su suelo de 280 — eso no es una rejilla, es una lotería. El
+         gutter es aire que ya estaba ahí; el marco es contenido.
+         Con el suelo viejo (a 1440 daba 65 px), el raíl de 48 px puesto en
+         x = 24 llegaba hasta x = 72 y el contenido empezaba en x = 64:
+         OCHO PÍXELES DE SOLAPE, medidos en captura. Con 96 el raíl tiene 24 px
+         de aire a cada lado en cualquier ventana.
+         De paso arregla otra cosa que se veía: a 1280 el marco era el 91 % de
+         la ventana y las rejillas de tarjetas se sentían apretadas contra el
+         borde. Ahora el marco a 1280 es 1088 y a 1440 es 1248.
+         1280→96 · 1440→96 · 1920→112 */
+      --cv-gutter: clamp(96px, 6.5vw, 112px);
       /* El titular de capítulo. Era `clamp(2.5rem, 11vw, 7rem)`, o sea
          112 px CLAVADOS desde 1018 px de ventana, y en una columna de
          1104 px se partía en dos líneas de ~130 px: un tercio de pantalla,
