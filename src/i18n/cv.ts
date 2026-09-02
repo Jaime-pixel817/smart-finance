@@ -1386,6 +1386,10 @@ const en = {
     // ser más comprobable que un identificador: sede y fechas impresas.
     lede: 'The receipts, as my LinkedIn publishes them. Six of the seven carry a credential ID; the seventh prints its venue and its dates on the certificate itself.',
     verLinkedIn: 'See it on LinkedIn',
+    // El escaneo se abre en una pestaña, a su tamaño natural (700 px de ancho),
+    // que es donde un folio se lee. La miniatura de la fila mide 154 px: es la
+    // señal de que el escaneo existe, no el escaneo.
+    verEscaneo: 'Open the scan',
     credencial: 'Credential ID',
     // ═══════════════════════════════════════════════════════════════════
     // EL GREEN TECHNOLOGY PROGRAMME: SIN ID, PERO NO SIN RECIBO
@@ -2644,6 +2648,7 @@ const es: typeof en = {
   certs: {
     lede: 'Los recibos, tal como los publica mi LinkedIn. Seis de los siete llevan ID de credencial; el séptimo trae impresas en el propio certificado la sede y las fechas.',
     verLinkedIn: 'Verlo en LinkedIn',
+    verEscaneo: 'Abrir el escaneo',
     credencial: 'ID de la credencial',
     sinCred: 'Impreso en el certificado en vez de un ID',
     fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',

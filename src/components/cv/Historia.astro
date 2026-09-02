@@ -2334,76 +2334,62 @@ const cifrasFranja = c.franja.sitioQ
          dirección no se pudo leer. El enlace de la tarjeta sigue yendo a su
          perfil, que es donde el certificado está publicado. Al de Green
          Technology LinkedIn no le publica ID, y la tarjeta LO DICE. */}
-    <ul class="certs">
+    {/* ══ DE SIETE MARCOS DE 382×286 A SIETE FILAS ═════════════════════════
+         EL CAMBIO ES DE FORMA Y ESTÁ MEDIDO. Los siete marcos ocupaban
+         2 156 px —2.4 pantallas— para enseñar siete folios a 382 px de ancho,
+         y UN FOLIO NO ES LEGIBLE A NINGÚN TAMAÑO QUE QUEPA EN ESTA PÁGINA.
+         Peor: el marco era 4:3 fijo con `contain`, y el certificado del Green
+         Technology Programme es VERTICAL (501×700), así que se pintaba a
+         205×286 con el 46 % del recuadro en blanco. Agrandarlo no arreglaba
+         nada; encogerlo tampoco. Lo que había que cambiar era la forma.
+
+         LA EVIDENCIA DE UNA CERTIFICACIÓN ES SU ID DE CREDENCIAL Y EL ENLACE
+         DEL EMISOR, y los dos ya estaban en texto al lado de la imagen. Una
+         lista de certificaciones ES UNA TABLA. La miniatura de 154 px queda
+         como lo que es —una señal de que el escaneo existe— y ABRE el archivo
+         a su tamaño natural (700 px de ancho), donde sí se lee.
+
+         SE ABRE EN UNA PESTAÑA Y NO EN UN `<dialog>`, A PROPÓSITO. Un
+         `<dialog>` pide `showModal()`, o sea JavaScript, más atrapar y
+         devolver el foco, más Escape; y sin JavaScript no existiría. Una
+         pestaña con la imagen la sirve el navegador con su propio visor,
+         funciona sin JavaScript, no atrapa el foco de nadie y cuesta 0 bytes.
+         Lo único que hace falta es que el enlace DIGA lo que va a pasar, y lo
+         dice.
+
+         EL DELF A2 SIGUE SIN ESCANEO y ya no necesita caja especial: su fila
+         es idéntica a las otras seis y lo que dice que no hay imagen es la
+         ausencia de miniatura. La insignia tipográfica que pidió Jaime
+         (2026-08-30, «que no esté vacío») se queda, ahora a 154 px en vez de
+         382: cumple lo que él pidió sin costar una pantalla. */}
+    <ul class="cert-tabla">
       {c.certs.filas.map((f) => (
-        <li class="cert">
-          <p class="etiqueta">{f.de}</p>
-          <p class="cert-nombre">{f.que}</p>
-          <p class="cert-anio num">{f.anio}</p>
-          {f.img
-            ? <span class="cert-marco"><img class="cert-img" src={foto(f.img)} alt={f.alt}
-                width={f.w} height={f.h} loading="lazy" decoding="async" /></span>
-            : (
-              <>
-                {/* ══ LA INSIGNIA DEL DELF A2 ══════════════════════════════
-                     Jaime, 2026-08-30: «pon el logo de la compañía o de DELF
-                     A2 para que no esté vacío». Es el único de los siete sin
-                     imagen y su marco 4:3 se veía como un hueco al lado de
-                     seis certificados.
-
-                     ── POR QUÉ UNA INSIGNIA TIPOGRÁFICA Y NO UN LOGOTIPO ──
-                     Un logotipo aquí sería una marca AJENA (DELF es del
-                     Ministerio de Educación francés y la Alliance Française
-                     es el centro examinador), y este CV ya tiene escrita su
-                     regla para eso: el logo del Reto Actinver va pequeño,
-                     junto al nombre del concurso y sobre placa oscura fija,
-                     porque recolorear o reencuadrar una marca ajena es
-                     deformarla. Un logotipo a 4:3 dentro de un marco donde
-                     los otros seis llevan un ESCANEO DEL CERTIFICADO diría
-                     algo que no es cierto: que aquí también hay un recibo.
-                     Y la insignia gana además en coherencia — es la única
-                     de las siete que se puede dibujar con la tipografía del
-                     documento, así que en vez de un logo pegado en medio de
-                     seis fotos, la rejilla queda con seis recibos y una
-                     pieza que se ve, a la primera, hecha por esta página.
-                     SI JAIME PREFIERE EL LOGOTIPO: se baja de fuente oficial
-                     (france-education-international.fr o el sitio de la
-                     Alliance Française), va sin recolorear, con uso
-                     NOMINATIVO —identificar SU propio certificado— y pasa por
-                     build-photos.mjs como todo. Es cambiar `img` en su fila.
-
-                     El rótulo de arriba y el pie de abajo son lo que impide
-                     que esto se lea como el diploma: uno dice quién la
-                     dibujó y el otro que el diploma llegará cuando lo
-                     escanee. `role="img"` con su `aria-label`: para un lector
-                     de pantalla es UNA cosa, no cuatro renglones sueltos. */}
-                <span class="cert-marco cert-insignia" role="img"
-                  aria-label={`${f.que} — ${f.de}. ${c.certs.insigniaTag}`}>
-                  <span class="cert-insignia-tag meta-mono" aria-hidden="true">{c.certs.insigniaTag}</span>
-                  <span class="cert-insignia-que" aria-hidden="true">{f.que}</span>
-                  <span class="cert-insignia-raya" aria-hidden="true"></span>
-                  <span class="cert-insignia-de meta-mono" aria-hidden="true">{f.de}</span>
-                  <span class="cert-insignia-nivel meta-mono" aria-hidden="true">{c.certs.insigniaNivel}</span>
-                </span>
-                <p class="pie cert-insignia-pie">{c.certs.fotoPend}</p>
-              </>
-            )}
-          {/* EL RENGLÓN DEL RECIBO. Seis tarjetas lo llenan con su ID de
-               credencial. La séptima —el Green Technology Programme— no
-               tiene: Bluesky Education no emite identificador y Jaime no
-               puede conseguir uno, así que aquí NO SE INVENTA NINGUNO.
-               Lo que sí trae el certificado, transcrito de su propia imagen,
-               es la sede y el rango de fechas, y eso ocupa el MISMO renglón:
-               una tarjeta con un campo menos que las otras seis se lee como
-               una tarjeta incompleta, y esta no lo está — trae otra cosa.
-               El rótulo (`sinCred`) dice cuál de las dos se está enseñando,
-               así que nadie puede confundir una sede con un ID. */}
-          {f.cred
-            ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
-            : f.dondeCuando
-              ? <p class="cert-cred cert-cred-donde meta-mono"><span class="faint">{c.certs.sinCred}</span> {f.dondeCuando}</p>
-              : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
-          <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
+        <li class="cert-fila">
+          <div class="cert-mini">
+            {f.img
+              ? <a class="cert-mini-a" href={foto(f.img)} target="_blank" rel="noopener"
+                   aria-label={`${c.certs.verEscaneo} — ${f.que}`}>
+                  <img src={foto(f.img)} alt={f.alt} width={f.w} height={f.h}
+                       loading="lazy" decoding="async" />
+                </a>
+              : <span class="cert-insignia-mini" role="img"
+                      aria-label={`${f.que} — ${f.de}. ${c.certs.insigniaTag}`}>
+                  <span aria-hidden="true">{c.certs.insigniaNivel}</span>
+                </span>}
+          </div>
+          <div class="cert-datos">
+            <p class="cert-nombre">{f.que}</p>
+            <p class="cert-de">{f.de} · <span class="num">{f.anio}</span></p>
+            {f.cred
+              ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.credencial}</span> {f.cred}</p>
+              : f.dondeCuando
+                ? <p class="cert-cred meta-mono"><span class="faint">{c.certs.sinCred}</span> {f.dondeCuando}</p>
+                : <p class="cert-cred meta-mono faint">{c.certs.sinCred}</p>}
+            <p class="cert-links">
+              <a class="hist-link t-small" href={LINKEDIN} target="_blank" rel="noopener">{c.certs.verLinkedIn} ↗</a>
+              {f.img && <a class="hist-link t-small" href={foto(f.img)} target="_blank" rel="noopener">{c.certs.verEscaneo} ↗</a>}
+            </p>
+          </div>
         </li>
       ))}
     </ul>
@@ -2555,8 +2541,10 @@ const cifrasFranja = c.franja.sitioQ
      seguido a renglón corrido de «Este programa me puso…». La marca dejaba de
      leerse como marca, que es justo lo que tiene que hacer. */
   .voz { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  /* `--cvh-voz` cae en `--cvh-cuerpo` mientras no esté definida (o sea en el
+     teléfono, donde el cuerpo no baja de 17 px y separarlos no diría nada). */
   .voz p {
-    font-size: var(--cvh-cuerpo); line-height: 1.6; max-width: 62ch;
+    font-size: var(--cvh-voz, var(--cvh-cuerpo)); line-height: 1.6; max-width: 62ch;
     color: var(--cvh-tinta);
   }
 
@@ -3778,75 +3766,51 @@ const cifrasFranja = c.franja.sitioQ
   .citas-btn[data-inerte] { opacity: .35; cursor: default; }
   .citas-btn[data-inerte]:hover { background: var(--cvh-papel); }
 
-  /* ---- Certificaciones: tarjetas diseñadas, no capturas ---- */
-  .certs {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
-    gap: var(--sp-4); max-width: 960px;
+  /* ---- Certificaciones: UNA TABLA, no siete marcos --------------------
+     La razón está escrita entera junto al marcado. En números: 7 marcos de
+     382×286 = 2 156 px de capítulo (2.4 pantallas) contra 7 filas de ~96 px.
+     La miniatura de 154 px es la señal de que el escaneo existe; el escaneo
+     se abre a su tamaño natural, donde sí se lee. */
+  .cert-tabla {
+    display: grid; gap: 0; max-width: 100%;
+    border-block-start: 1px solid var(--cvh-raya);
   }
-  .cert {
-    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 24px;
-    padding: var(--sp-5); background: var(--cvh-papel);
+  .cert-fila {
+    display: grid; grid-template-columns: 154px minmax(0, 1fr);
+    gap: var(--sp-4); align-items: start;
+    padding-block: var(--sp-3);
+    border-block-end: 1px solid var(--cvh-raya);
   }
+  .cert-mini { width: 154px; }
+  .cert-mini-a {
+    display: block; border: 1px solid var(--cvh-raya); border-radius: 8px;
+    overflow: hidden; background: var(--cvh-papel);
+  }
+  .cert-mini-a:hover { border-color: var(--cvh-tinta-3); }
+  .cert-mini-a img { display: block; width: 100%; height: auto; }
+  /* La insignia del DELF A2 (Jaime, 2026-08-30: «que no esté vacío»). Sigue
+     estando y sigue siendo tipografía del propio documento, pero ahora ocupa
+     154 px en vez de 382: cumple lo que él pidió sin costar una pantalla. */
+  .cert-insignia-mini {
+    display: grid; place-items: center; min-height: 96px;
+    border: 1px solid var(--cvh-raya); border-radius: 8px;
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-3);
+    text-align: center; padding: var(--sp-2);
+  }
+  .cert-datos { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .cert-nombre { font-weight: 600; overflow-wrap: anywhere; }
-  .cert-anio { color: var(--cvh-tinta-2); font-size: var(--fs-small); }
-  /* La imagen (o el hueco del que no la tiene) empuja el pie de la tarjeta
-     hacia abajo, así que el ID y el enlace quedan alineados entre tarjetas.
-     `:global` porque FotoHueco tiene su propio ámbito de estilos. */
-  .cert :global(.foto-hueco), .cert-marco { margin-top: auto; }
-  /* MARCO 4:3 FIJO PARA LOS SIETE, imagen `contain` dentro. El rectángulo es
-     el mismo que reserva FotoHueco, así que la fila no se descuadra por el
-     DELF A2, que no tiene imagen. `contain` y no `cover`: cuatro
-     certificados son apaisados y dos verticales, y recortarlos para que
-     encajen sería cortar el recibo. El aire que sobra es papel. */
-  .cert-marco {
-    display: block; aspect-ratio: 4 / 3; overflow: hidden;
-    border-radius: 14px; border: 1px solid var(--cvh-raya);
-    background: var(--bg-2);
-  }
-  .cert-img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  /* ---- La insignia del DELF A2 (Jaime, 2026-08-30) ----------------------
-     El séptimo marco, el único sin escaneo. Ocupa EXACTAMENTE el mismo
-     rectángulo 4:3 que los otros seis, así que la rejilla no se mueve; lo que
-     cambia es lo de dentro, que aquí es tipografía del propio documento y no
-     una imagen. El borde discontinuo que tenía cuando era FotoHueco se va: ya
-     no es un hueco. Quien dice que esto no es el diploma es el rótulo de
-     arriba, no la forma de la caja.
-     `text-align: center` es la única vez que el CV centra texto, y se lo gana:
-     son cuatro renglones de dos a cinco palabras dentro de un marco, o sea una
-     placa, no un párrafo — la regla de bandera izquierda se escribió para la
-     frase de 30 palabras de la portada. */
-  .cert-insignia {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: var(--sp-2); padding: var(--sp-4); text-align: center;
-    background: var(--cvh-papel);
-  }
-  .cert-insignia-tag { color: var(--cvh-tinta-3); }
-  /* El nombre del certificado, en la serif del documento y al tamaño de un
-     titular pequeño: es lo único que se lee de lejos. `clamp` porque el marco
-     mide 4:3 de una columna de rejilla y a 320 px es estrecho. */
-  .cert-insignia-que {
-    font-family: var(--font-serif);
-    font-size: clamp(1.25rem, 5.5vw, 1.9rem); line-height: 1.1;
-    color: var(--cvh-tinta);
-  }
-  .cert-insignia-raya { width: 40px; height: 1px; background: var(--cvh-tinta-3); }
-  .cert-insignia-de, .cert-insignia-nivel { color: var(--cvh-tinta-2); }
-  /* El pie va PEGADO a la insignia, con el mismo aire que hay entre una foto
-     y su pie en el resto del CV. No empuja el ID de la tarjeta: `margin-top:
-     auto` sigue estando en el marco, no aquí. */
-  .cert-insignia-pie { margin-top: var(--sp-2); }
+  .cert-de { color: var(--cvh-tinta-2); font-size: var(--fs-caption); }
   /* El ID de la credencial: mono, porque es un código que alguien va a
      copiar, y partible porque son 24 caracteres sin espacios. */
   .cert-cred { overflow-wrap: anywhere; }
-  /* LA VARIANTE SIN ID: el rótulo va en su propio renglón. En las otras seis
-     tarjetas el rótulo es «Credential ID» y el valor una cadena corta, así
-     que caben en la misma línea. Aquí el rótulo es una frase entera
-     («Impreso en el certificado en vez de un ID») y el valor una sede más un
-     rango de fechas: pegados se leían de corrido, como si la sede fuera
-     parte del rótulo. Se separan con el salto, no con puntuación nueva. */
-  .cert-cred-donde .faint { display: block; }
+  .cert-cred .faint { display: block; }
+  .cert-links { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); }
+  /* A 380 px la miniatura y los datos no caben lado a lado sin que el nombre
+     del certificado se parta en una letra por renglón. */
+  @media (max-width: 30em) {
+    .cert-fila { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }
+  }
 
   /* ---- Cartas de recomendación: las entregadas y los huecos ---- */
   .cartas {
@@ -4573,8 +4537,46 @@ const cifrasFranja = c.franja.sitioQ
       --cv-v1: 24px;    /* dentro de un grupo: una figura y su pie */
       --cv-v2: 48px;    /* entre bloques de la misma idea */
       --cv-v3: 96px;    /* entre ideas dentro de un capítulo */
-      --cv-v4: 160px;   /* entre capítulos */
+      /* ── 264 Y NO 160, Y LA RAZÓN ES UNA PROPORCIÓN, NO UN NÚMERO ──────
+         Dentro de un capítulo el aire es 96; entre capítulos, 264. Son
+         2.75 : 1, que es la proporción medida en Linear (96 dentro / 266
+         entre = 2.8 : 1) y es LA PROPORCIÓN —no el número— la que hace que
+         el ojo agrupe sin leer. Con 160 la razón era 1.67 : 1 y las
+         fronteras no se leían como fronteras: eran un párrafo más de aire.
+         Cuesta 8 × (264 − 160) = +832 px de documento y se recupera veinte
+         veces en lo que se recorta. */
+      --cv-v4: 264px;   /* entre capítulos */
     }
+
+    /* ══ LA FRONTERA DE CAPÍTULO: UN SURCO A SANGRE ══════════════════════
+       Medido antes de esta ola: entre dos capítulos había 172 px de aire y
+       NADA MÁS, las nueve veces. Un documento de 37 pantallas sin una sola
+       marca de «aquí termina algo» es exactamente lo que se siente infinito:
+       el lector no tiene forma de saber que ha cerrado una parte.
+
+       DOS LÍNEAS DE 1 px APILADAS —una oscura, una clara— son un surco
+       grabado, no una raya; una raya de 1 px sobre papel se lee como el
+       borde de una caja y pide que algo la contenga.
+
+       Y VA A SANGRE (100vw), que es la mitad del argumento: a 1280 mide
+       1280 y a 1920 mide 1920, mientras el contenido se queda en 1088-1320.
+       Una línea más ancha que lo que separa se lee como «aquí se corta el
+       documento»; una del ancho del contenido, como un borde.
+
+       El margen negativo consume el `padding-block` del capítulo y lo
+       reparte a los dos lados: la frontera cae en MEDIO de los 264 px, no
+       pegada al titular de abajo. */
+    .cap + .cap::before {
+      content: ""; display: block;
+      grid-column: sangre-i / sangre-f;
+      position: relative; left: 50%; translate: -50% 0;
+      width: 100vw; height: 2px;
+      margin-block: calc(var(--cv-v4) / -2) calc(var(--cv-v4) / 2);
+      background: linear-gradient(var(--cvh-tinta-3) 0 1px, var(--cvh-raya) 1px 2px);
+    }
+    /* El micrófono NO lleva filete ni por arriba ni por abajo: el surco es la
+       gramática del CAPÍTULO en este documento, y la obertura no es uno. */
+    .mic + .cap::before { content: none; }
 
     /* La columna de la tapa se alinea con el MARCO del documento (≤1320) en
        vez de con el contenedor de 1152: la barra de arriba (etiqueta a la
@@ -5006,6 +5008,45 @@ const cifrasFranja = c.franja.sitioQ
      que quede del marco impide que la suma de las pistas pase del marco —
      así que al 200 % la prosa se come el margen hasta su suelo de 280 px y
      la rejilla sigue midiendo exactamente el marco. Nada se sale de lado. */
+  /* ══ LA ESCALA TIPOGRÁFICA SE CONGELA A PARTIR DE 940 px ═══════════════
+     Es la causa MECÁNICA de «todo súper grande» (Jaime, 2026-09-02), y está
+     medida: el titular de capítulo daba 71.68 px a 1280, 80.64 a 1440 y 88 a
+     1920 contra un cuerpo de 21 — razón 3.84×. El tope que Stripe sostiene en
+     un documento largo es 2.00×, y Linear se permite 2.8× porque tiene CUATRO
+     capítulos. Este CV tiene nueve. El tamaño de un titular no es una decisión
+     de gusto: es una función de cuántas veces se repite.
+
+     38 / 19 = 2.00× exacto. La bajada del titular es del 53 %.
+
+     ── LO QUE NO SE TOCA, Y POR QUÉ ──────────────────────────────────────
+     · LA TAPA (`.portada-h1`, `.tarjeta-n`). El nombre aparece UNA vez y su
+       contraste sobre la foto está medido píxel a píxel por
+       `check-contraste-cv`; el titular de la tarjeta es parte del efecto que
+       Jaime aprobó y que este encargo dice expresamente que no se toca.
+     · LA VOZ DE JAIME se queda en 21 px (`--cvh-voz`). Es lo único del
+       documento que debe leerse POR ENCIMA del texto que la presenta: son sus
+       palabras verbatim. Si bajara con el cuerpo, dejaría de distinguirse.
+
+     Los valores van en `rem` y no en `px`: capar la letra con unidades fijas
+     frente al zoom de texto es lo que rompe WCAG 1.4.4, y esa lección ya la
+     pagó este CV una vez. Lo que se quita es la dependencia del ANCHO DE
+     VENTANA, que es otra cosa. */
+  @media screen and (min-width: 58.75em) {
+    .historia {
+      --cvh-h: 2.375rem;         /* 38 px · los 9 titulares de capítulo */
+      --cvh-cuerpo: 1.1875rem;   /* 19 px · el 60 % del texto */
+      --cvh-voz: 1.3125rem;      /* 21 px · las palabras de Jaime */
+      --cvh-h-frase: 2.75rem;    /* 44 px · la frase de cierre */
+    }
+    /* Interlínea BINARIA (regla medida sobre 469 elementos de Stripe):
+       ≥24 px → 1.03-1.15 · ≤21 px → 1.30-1.55. Nada intermedio.
+       `.cap-h` iba a 0.95 —por debajo de 1— y dos líneas de titular
+       literalmente se tocaban. */
+    .cap-h { line-height: 1.10; letter-spacing: -0.022em; }
+    .franja-n { font-size: 2rem; }
+    .cifra { font-size: 3rem; }
+  }
+
   @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
     .cap:not(.cap-portada) {
       /* OJO CON ESTAS TRES: llevan `100%` dentro, y un `100%` metido en
@@ -5146,7 +5187,7 @@ const cifrasFranja = c.franja.sitioQ
        contra su propia figura. Van al final para ganar por orden. */
     .cifra, .franja-n, .franja-n-txt, .tarjeta-n,
     .abre, .frase, .abre p, .frase p, .cita-nombre, .carta-nombre, .premio-que,
-    .cert-insignia-que, .cap-frases.cifra-suya, .cifra-suya { max-width: none; }
+    .cap-frases.cifra-suya, .cifra-suya { max-width: none; }
     /* ── LAS DOS CITAS GRANDES SE MIDEN EN SU PROPIA LETRA ───────────────
        `.abre` y `.frase` son `<blockquote>`, o sea que la regla de prosa de
        arriba les daba 33em DE SU FONT-SIZE, que es el 16 px del documento:
@@ -5411,9 +5452,7 @@ const cifrasFranja = c.franja.sitioQ
        ALTO FIJO, que es lo que hace que los seis escaneos arranquen a la
        misma y (medido: el 3.º empezaba 22 px más abajo porque su título
        ocupa una línea menos). */
-    .certs, .cartas, .premios-huecos, .acad-huecos, .acad, .franja { max-width: none; }
-    .certs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .cert-nombre { min-height: 3em; }
+    .cert-tabla, .cartas, .premios-huecos, .acad-huecos, .acad, .franja { max-width: none; }
     .cartas, .premios-huecos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     /* ── LAS FICHAS DEJAN DE ESTIRARSE, Y CON ELLAS SE VA EL HUECO GRANDE ──
        Es el mismo defecto que las tarjetas del carrusel, y en el marco ancho
@@ -5427,7 +5466,7 @@ const cifrasFranja = c.franja.sitioQ
        `margin: auto` ya no tiene nada que repartir: se pone a cero para que
        la ficha se lea seguida. Vale igual para los certificados y para los
        huecos de carta, que traen el mismo `margin-top: auto`. */
-    .cartas, .certs, .premios-huecos, .acad-huecos { align-items: start; }
+    .cartas, .premios-huecos, .acad-huecos { align-items: start; }
     .carta-cita { margin-block-start: var(--cv-v1); }
     .acad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .expapp, .exp-plegable, .cinta, .cifras, .cal, .curva, .rep, .verifica, .premios { max-width: 100%; }
@@ -5540,7 +5579,7 @@ const cifrasFranja = c.franja.sitioQ
     /* Ni una tarjeta ni una ficha partida entre dos hojas. Las listas largas
        sí pueden partirse: doce renglones de experiencia caben mal en una
        hoja y forzarlos empujaría el capítulo entero a la siguiente. */
-    .carta, .cert, .premio, .expapp-fila, .acad-bloque,
+    .carta, .cert-fila, .premio, .expapp-fila, .acad-bloque,
     .hueco, .foto-hueco, .carta-hueco, .verifica-fila, .cita {
       break-inside: avoid;
     }
@@ -5578,7 +5617,10 @@ const cifrasFranja = c.franja.sitioQ
        diploma reducida a seis centímetros. Eran 973 px de las nueve hojas.
        La insignia tipográfica del DELF A2 se va con ellos: existe para que su
        marco no esté vacío en pantalla, y en papel no hay marco. */
-    .cert-marco { display: none; }
+    /* Al imprimir se va la MINIATURA, no la fila: la prueba es el ID y el
+       enlace del emisor, y los dos son texto. */
+    .cert-mini { display: none; }
+    .cert-fila { grid-template-columns: minmax(0, 1fr); }
     /* Los enlaces de las FUENTES ACADÉMICAS llevan su dirección escrita: son
        citas de páginas oficiales y quien lea el papel tiene que poder
        comprobarlas. Solo esas — el resto de los enlaces de la página son

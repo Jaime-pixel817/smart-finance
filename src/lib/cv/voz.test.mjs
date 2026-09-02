@@ -115,6 +115,12 @@ const SUJETO_AJENO = new Map([
   ['playa|recordó', 'el sujeto es la experiencia: «una experiencia… que me recordó…»'],
   ['tipo|dejó', 'el sujeto es el Chief ETF Strategist: «lo que dejó…», título que publica el sitio'],
   ['relacion|observó', 'el sujeto es Andy Toh: «me observó durante mi programa»'],
+  // ── Las dos del micrófono (2026-09-02). Las dos son de la clave `podcast` y
+  // `lloyd` dentro de `mic.abre`, y en las dos el sujeto es OTRO. Van con la
+  // tercera parte para que la exención valga para ESTA cadena y no para toda
+  // la clave: `podcast` y `lloyd` se usan también en `entrevistas.personas`.
+  ['podcast|transmitió', 'el sujeto es el canal de la escuela: «el canal de la escuela que lo transmitió»'],
+  ['lloyd|firmó', 'el sujeto es Lloyd George: «el hombre que después firmó una de mis dos cartas»'],
   // AQUÍ VIVÍAN SEIS EXENCIONES MÁS, una por cada rótulo de los ocho huecos
   // de contratiempo de la ola 2 («Si una materia o un examen salió mal…»),
   // donde el sujeto era la cosa que salió mal y no Jaime. Los ocho huecos se
