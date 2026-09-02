@@ -664,11 +664,22 @@ const en = {
     // Su mandato fue «solo los siguientes», y estos son, en su orden. Los
     // clips de consejos que vivían aquí salieron de la sección; los tres que
     // ya eran enlaces de texto (`sinImagen`) se quedan como estaban.
-    // RECORTADO EL 2026-09-01. Que los clips arranquen sólo al pulsar se ve
-    // en el propio control del vídeo, y que los dos últimos enlacen fuera lo
-    // dice su enlace. Se queda lo que no se ve: que los grabó él y en qué
-    // orden los enseñaría.
-    ensenaLede: 'Six pieces I recorded myself, in the order I would show them. The last two are photo carousels on TikTok, so they link out.',
+    // ── SE RECORTÓ Y SE DESHIZO EL RECORTE (2026-09-01) ─────────────────
+    // Durante unas horas esta línea perdió su oración de en medio —«Four are
+    // videos served from this domain — with sound, and they only start when
+    // you press play»— con el argumento de que eso se ve en el propio
+    // control del vídeo. Se devuelve, y por dos cosas que el recorte rompía:
+    //  · LA FRASE QUEDABA COJA. Lo que sobrevivía era «The last two are photo
+    //    carousels on TikTok, SO THEY LINK OUT»: un «así que» sin premisa.
+    //    Sin la mitad que dice que las otras cuatro se sirven DESDE AQUÍ, el
+    //    lector no tiene contra qué contrastar «enlazan fuera» — de hecho las
+    //    seis enlazan a TikTok, así que la frase suelta no distingue nada.
+    //  · SE PERDÍA EL ÚNICO AVISO DE QUE CUATRO LLEVAN SONIDO. Eso NO lo dice
+    //    el control del vídeo: se descubre reproduciendo. Es la advertencia
+    //    que un lector con audio abierto necesita ANTES de pulsar.
+    // Cuesta 17 palabras de 3 608. La regla del recorte era quitar
+    // repetición, no quitar avisos.
+    ensenaLede: 'Six pieces I recorded myself, in the order I would show them. Four are videos served from this domain — with sound, and they only start when you press play. The last two are photo carousels on TikTok, so they link out.',
     // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
     // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
     // ── LO ENTRECOMILLADO ES EL ORIGINAL, EN SU IDIOMA (2026-08-29) ──────
@@ -738,11 +749,30 @@ const en = {
   //   aquí con su fuente no debería estar lleno.
   // ═══════════════════════════════════════════════════════════════════════
   // LA GRAFÍA DE LA EMPRESA: «Bluesky Education», UNA PALABRA Y UNA SOLA
-  // MAYÚSCULA. Cambiada el 2026-09-01, y el cambio tiene fuente.
+  // MAYÚSCULA. Cambiada el 2026-09-01 — CON FUENTE, Y PENDIENTE DE QUE JAIME
+  // LA CONFIRME. Lo segundo es tan parte de esta nota como lo primero.
   // ═══════════════════════════════════════════════════════════════════════
+  // ── ESTO REVIERTE UNA PETICIÓN EXPLÍCITA SUYA, Y SIGUE SIN SU SÍ ───────
   // El sitio llegó a escribirla de tres maneras a la vez —«Blue Sky» aquí,
   // «BlueSky» en src/i18n/ui.ts y «Bluesky» en About.astro—, y el 2026-08-27
-  // Jaime pidió unificarlas en «BlueSky». Así estuvo hasta hoy.
+  // Jaime pidió unificarlas en «BlueSky»; el 2026-08-28 lo repitió. Así
+  // estuvo hasta hoy. Las dos notas del material lo dejan por escrito y las
+  // dos dicen lo mismo sobre el estado de la decisión:
+  //   · cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md: «El sitio usa BlueSky, que es
+  //     lo que Jaime decidió el 2026-08-27 […] Sigue pendiente de que él
+  //     confirme si prefiere la del dominio.»
+  //   · cv-material/cartas/CARTAS.md: «Recomendación: usar “Bluesky
+  //     Education” […] Requiere que Jaime lo confirme.»
+  // O sea que esta rama ADELANTA una decisión que el propio material marca
+  // como suya. Se escribe así, y no callado, por dos razones: porque la
+  // regla de esta página es que sin fuente no hay frase —y aquí la fuente de
+  // la preferencia era él—, y porque el cambio NO se queda en el CV: sale a
+  // cuatro páginas públicas e indexadas (`/about`, `/es/acerca` y las dos
+  // portadas, que llevan el rótulo de una publicación suya en `ui.ts`
+  // `post.andytoh.title`). Una ola del CV que reescribe el sitio público
+  // tiene que decirlo en voz alta. SI ÉL DICE QUE NO, se revierte en los
+  // cuatro archivos y esta nota pasa a decir que la grafía publicada no
+  // coincide con la de sus firmantes.
   //
   // LO QUE CAMBIÓ ES QUE APARECIÓ LA FUENTE. Las dos cartas firmadas (los
   // PDF, en cv-material/cartas/, transcritos en su CARTAS.md) escriben el
@@ -753,9 +783,12 @@ const en = {
   //   · Andy Toh lleva membrete «BLUE SKY EDUCATION PTE. LTD.» —el nombre
   //     LEGAL registrado— pero firma «Bluesky Education», y su correo es
   //     Andy.toh@bluesky-education.com, que esta misma página publica.
+  //   · Y el CERTIFICADO del Green Technology Programme, que esta página
+  //     también enseña, imprime «BLUESKY EDUCATION» (MATERIAL.md, bloque C1,
+  //     nº 4): en versales, pero UNA palabra.
   // O sea: el nombre legal es «Blue Sky Education Pte. Ltd.» y la marca de
-  // uso corriente, la que usan sus dos CEOs y la que está en el dominio, es
-  // «Bluesky Education». «BlueSky» no es ninguna de las dos.
+  // uso corriente, la que usan sus dos CEOs, la del certificado y la del
+  // dominio, es «Bluesky Education». «BlueSky» no es ninguna de las dos.
   //
   // POR QUÉ MANDA LA FUENTE Y NO LA PREFERENCIA. Es el nombre de una empresa
   // AJENA, no de Jaime, y este CV ya tiene escrita su regla para marcas de
@@ -767,7 +800,8 @@ const en = {
   // Si Jaime prefiere volver a «BlueSky», es una decisión suya y se cambia
   // aquí y en los otros tres archivos (src/i18n/ui.ts, About.astro,
   // Historia.astro) — pero entonces esta nota tiene que decir que la grafía
-  // NO coincide con la de sus firmantes.
+  // NO coincide con la de sus firmantes, y hay que acordarse de que el
+  // cambio vuelve a salir del CV a las cuatro páginas públicas de arriba.
   // EL DOMINIO Y LOS CORREOS NO SE TOCAN NUNCA: van tal cual los escribió
   // cada firmante.
   entrevistas: {
@@ -1288,8 +1322,10 @@ const en = {
     // (cv-material/MATERIAL.md, bloque C1, detalle nº 4): el documento
     // imprime «2026 GREEN TECHNOLOGY PROGRAMME hosted at Shaw Foundation
     // Alumni House, from June 22 to July 11, 2026», y lo firma Zhang
-    // Jinming, Academic Manager. La Shaw Foundation Alumni House está en el
-    // campus de la National University of Singapore.
+    // Jinming, Academic Manager. Y NADA MÁS: el rótulo de este campo promete
+    // que lo de al lado es lo que el papel imprime, así que ni la ciudad ni
+    // la universidad del campus entran aunque sean ciertas (el porqué
+    // completo va sobre `dondeCuando`, donde estuvieron unas horas).
     // NO SE INVENTA UN ID. Y estos datos no son un premio de consolación:
     // una sede con nombre y un rango de fechas de 20 días se comprueban
     // preguntando a la institución, que es más de lo que permite una cadena
@@ -1618,7 +1654,11 @@ const en = {
        —el canal ya existe, es el LinkedIn que esta página publica en su
        cierre— sin tocar nada más. Mientras tanto la ficha dice sólo dónde no
        está el archivo y por qué, que es lo que se puede sostener. */
-    pdfNo: 'Not on this page while I decide where to keep it: it carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
+    // Y es la cadena de `main` PALABRA POR PALABRA, incluido «the file
+    // carries»: al retirar la promesa se había quedado en «it carries», y ese
+    // «it» ya no tenía a qué apuntar más que a la propia página — o sea que
+    // se leía como que la PÁGINA trae los datos de contacto.
+    pdfNo: 'Not on this page while I decide where to keep it: the file carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -2266,7 +2306,9 @@ const es: typeof en = {
     perfil: '@smart.financee, en TikTok',
     nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
     ensenaH: 'Por qué grabo',
-    ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
+    // La oración de en medio vuelve, igual que en el panel inglés: el porqué
+    // entero está sobre la cadena inglesa.
+    ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Cuatro son vídeos servidos desde este dominio — con sonido, y solo arrancan si le das a reproducir. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
     videos: {
       jpmvisit: '«📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…» (en español: visitando J.P. Morgan en Singapur y aprendiendo más sobre las fin…) — la visita, contada a cámara',
       nus: '«Tuve la oportunidad de presentar sobre México a estudiantes de la National University of Singapore»',
@@ -2583,8 +2625,9 @@ const es: typeof en = {
     contactoTag: 'Contacto que dio para preguntar por mí',
     pdfTag: 'La carta, tal cual',
     // La segunda oración («se la mando a quien me la pida») se retiró el
-    // 2026-09-01: el porqué entero está sobre la cadena inglesa.
-    pdfNo: 'No está en esta página mientras decido dónde guardarla: trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
+    // 2026-09-01: el porqué entero está sobre la cadena inglesa. Y el sujeto
+    // vuelve a ser «el archivo», como en `main`.
+    pdfNo: 'No está en esta página mientras decido dónde guardarla: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
     entregadas: [
       {
         nombre: 'Lloyd George',
