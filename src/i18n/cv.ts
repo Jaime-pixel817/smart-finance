@@ -392,7 +392,16 @@ const en = {
     // más abajo. Los cargos NO se repiten aquí.
     abre: {
       podcast: 'The full episode I organized in the Financial Trading Room at Tec, on the school channel that broadcast it.',
-      mauricio: 'Part 4 of the podcast — four parts, and this is the one with a receipt.',
+      // ── DECÍA «Y ESTA ES LA QUE TIENE RECIBO», Y ERA FALSO (2026-09-02) ──
+      // De las cuatro partes, TRES tienen id público: la 2
+      // (7660806476172184852, además descargada en `cv-clips/` con su
+      // `.info.json`, 69 s), la 3 (7663530569631911188, en
+      // EVIDENCIA-LINKEDIN-TIKTOK.md) y esta, la 4. La única sin recibo es la
+      // 1 — y eso es exactamente lo que dice el comentario interno del nodo en
+      // `microfono.mjs`. La ficha generalizaba al revés Y en exclusiva, o sea
+      // desmentía al fichero de evidencia del propio proyecto dentro del
+      // módulo cuyo argumento entero es que cada punto abre algo comprobable.
+      mauricio: 'Part 4 of the podcast — the last of the four I recorded with him.',
       lloyd: 'The interview in Singapore with the man who signed one of my two letters.',
       andy: 'The interview with the other signatory, during the programme.',
       raul: 'The conversation with the president of Student Groups.',
@@ -1090,13 +1099,18 @@ const en = {
       animales: 'The animals',
       playas: 'Beach clean-up'
     },
-    // ── LO QUE VIENE, Y VA EN FUTURO PORQUE NO HA PASADO ────────────────
-    // Es la diferencia con el taller y con el podcast de Rendón y Durán, que
-    // SÍ ocurrieron y por eso van en pasado. Estos dos no, y escribirlos como
-    // hechos sería exactamente lo que este documento no hace. Sin fecha: no
-    // hay ninguna, y una inventada se leería como un compromiso.
-    proximoH: 'What comes next',
-    proximo: 'Two more with the student group: a clothing drive, and one more volunteering day. Neither has happened yet; when they do, they will be here with whatever actually came of them.'
+    // ── AQUÍ VIVÍA «LO QUE VIENE», Y SE FUE POR NO TENER FUENTE (2026-09-02)
+    // Decía: «Two more with the student group: a clothing drive, and one more
+    // volunteering day.» El tiempo verbal estaba bien —futuro, porque no ha
+    // pasado—, pero eso presupone que existan como plan declarado POR ÉL, y no
+    // existen: `grep -rniE 'colecta de ropa|clothing drive'` sobre
+    // `cv-material/`, `cv-clips/` y `ESTADO-NOCTURNO.md` da CERO. Ni MATERIAL,
+    // ni NOTAS-DEL-BRIEF, ni PENDIENTE, ni CARTAS, ni EVIDENCIA, ni el registro
+    // de sus decisiones del 2026-09-02. La única justificación era el mensaje
+    // de un commit.
+    // Y anunciar un compromiso que nadie declaró es peor que omitirlo: si en
+    // octubre alguien pregunta por la colecta de ropa, no hay nada detrás.
+    // SI EXISTEN, LAS ESCRIBE ÉL. La pregunta está en PENDIENTE.md.
   },
 
   // ---- Capítulo 2: experiencias (en seco) ----
@@ -1123,14 +1137,22 @@ const en = {
     pista: '{n} entries',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
-      // ── JIUJITSU: EDAD, NO FECHA (Jaime, 2026-09-02) ──────────────────
-      // Su regla de fechas dice que se omite lo que solo dice cuándo empezó.
-      // «Desde los 13» no es una fecha de arranque: es cuántos años lleva, y
-      // eso sí dice algo — cinco años de una disciplina que nadie le pidió.
-      // Es la única línea del CV que no es de finanzas, y por eso está: un
-      // comité que lee nueve capítulos de mercados agradece saber que hay una
-      // persona. ⚠️ SIN FUENTE PÚBLICA: es palabra suya.
-      { cuando: 'Since I was 13', que: 'Jiu-jitsu — five years training' },
+      // ── AQUÍ VIVÍA EL JIUJITSU, Y SE FUE (2026-09-02) ─────────────────
+      // Decía «Since I was 13 · Jiu-jitsu — five years training», y la nota
+      // que lo acompañaba lo justificaba como «palabra suya». No lo es:
+      // `grep -rniE 'jiu ?jitsu|jiu-jitsu'` sobre `cv-material/` (MATERIAL,
+      // NOTAS-DEL-BRIEF, PENDIENTE, cartas/CARTAS), `cv-clips/` (EVIDENCIA) y
+      // `ESTADO-NOCTURNO.md` da CERO coincidencias. La única fuente era el
+      // mensaje de un commit, y el mensaje de un commit no es una fuente
+      // sobre Jaime.
+      // TRES COSAS A LA VEZ, y cualquiera bastaba: (1) es una afirmación sobre
+      // él sin origen; (2) se pintaba SIN la marca de «palabra suya» que sí
+      // lleva el podcast de Rendón, así que un comité la leía con el mismo
+      // peso que «2024–2027 Tec de Monterrey»; (3) «cinco años» no es un dato
+      // sino una resta (18 − 13) que además asume que no paró nunca.
+      // Y «Desde los 13» ES un arranque biográfico, justo lo que el commit
+      // anterior acababa de borrar de este mismo capítulo.
+      // SI ENTRENA JIUJITSU, ENTRA CUANDO ÉL LO DIGA. Está en PENDIENTE.md.
       // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
       // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
       // él: es 2025, no 2026.
@@ -2370,7 +2392,9 @@ const es: typeof en = {
     bajar: 'En el capítulo',
     abre: {
       podcast: 'El episodio completo que organicé en la sala Financial Trading Room del Tec, en el canal de la escuela que lo transmitió.',
-      mauricio: 'La Parte 4 del podcast — son cuatro partes, y esta es la que tiene recibo.',
+      // Ver la nota de la ficha inglesa: tres de las cuatro partes tienen id
+      // público, así que «esta es la que tiene recibo» era falso.
+      mauricio: 'La Parte 4 del podcast — la última de las cuatro que grabé con él.',
       lloyd: 'La entrevista en Singapur al hombre que después firmó una de mis dos cartas.',
       andy: 'La entrevista al otro firmante, durante el programa.',
       raul: 'La conversación con el presidente de Grupos Estudiantiles.',
@@ -2621,8 +2645,7 @@ const es: typeof en = {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
     },
-    proximoH: 'Lo que viene',
-    proximo: 'Dos más con el grupo estudiantil: una colecta de ropa y otro voluntariado. Ninguno ha pasado todavía; cuando pasen, van a estar aquí con lo que salió de ellos.'
+    // «Lo que viene» se fue: ver la nota larga en el bloque inglés.
   },
 
   exp: {
@@ -2632,7 +2655,7 @@ const es: typeof en = {
     pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
-      { cuando: 'Desde los 13', que: 'Jiujitsu — cinco años entrenando' },
+      // El jiujitsu se fue: ver la nota larga en la tabla inglesa.
       { cuando: '', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
       { cuando: '', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
