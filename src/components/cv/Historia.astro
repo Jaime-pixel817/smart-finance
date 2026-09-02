@@ -3733,7 +3733,10 @@ const cifrasFranja = c.franja.sitioQ
   .clip .recuerdo img { max-width: 300px; }
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
-  .clip-video { display: block; width: 100%; max-width: 300px; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
+  /* Un vertical 9:16 a 300 px de ancho mide 533 px = 0.59 vh, y a 387 px
+     mide 688 = 0.76. Los dos por encima del techo, así que el tope de los
+     clips es la ALTURA y el ancho sale de ella. */
+  .clip-video { display: block; width: auto; max-width: min(100%, 300px); max-block-size: 58vh; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
   /* El de la NUS va ENDEREZADO (TikTok lo publica girado 90°), o sea
      apaisado: su caja es 16:9 y más ancha. La proporción va aquí y no en un
      `style=` del elemento porque la reserva de caja es lo que evita el CLS, y
@@ -4383,7 +4386,40 @@ const cifrasFranja = c.franja.sitioQ
      NO crea contenedor de scroll, así que el timeline sube hasta el
      documento, que es el que se mueve. */
   .recuerdo { display: block; overflow: clip; border-radius: 14px; }
-  .recuerdo img { display: block; width: 100%; height: auto; }
+  /* ══ EL TECHO DE ALTURA: 0.58 × LA PANTALLA, Y NINGUNA MÁS ══════════════
+     Es la mitad del arreglo de «un sin fin de imágenes gigantes» (Jaime,
+     2026-09-02). Medido antes de esta regla: TRECE imágenes y clips del panel
+     pasaban de 0.58 vh, y el peor —una foto vertical— medía 926 px = 1.03
+     pantallas. Una foto que ocupa la pantalla entera obliga a hacer scroll
+     para leer el pie que la explica.
+
+     0.58 y no el 0.70 medido en Apple: allí la foto ES el argumento; en un CV
+     la foto ilustra una afirmación que ya está en el texto, y el lector de
+     admisiones tiene entre cuatro y nueve minutos. Y 0.58 tiene una
+     consecuencia comprobable que 0.62 no tiene: EXPULSA TODA FOTO VERTICAL DE
+     LA CAJA DE PROSA (688 × 4:3 = 917 px), que es justo lo que producía las
+     tres imágenes de 926, 830 y 789 px.
+
+     ── POR QUÉ `width: auto` Y NO SOLO `max-height` ──────────────────────
+     Con `width: 100%` puesto, un `max-height` recorta la altura pero deja el
+     ancho, o sea DEFORMA. Con `width: auto` + `height: auto` + los dos topes,
+     el navegador escala respetando la proporción y se para en el primero que
+     toque. Y de paso arregla otro fallo medido: una imagen ya no se pinta más
+     ancha que su tamaño natural —era el caso de tres del documento, las tres
+     sin `srcset`—, así que deja de haber fotos borrosas por ampliación.
+     La caja sigue reservada por los atributos `width`/`height`, así que esto
+     no mueve nada al cargar. */
+  .recuerdo img {
+    display: block; width: auto; height: auto;
+    max-width: 100%; max-block-size: 58vh;
+  }
+  /* Las dos fotos del capítulo 1 no van envueltas en `.recuerdo` —no tienen
+     entrada por scroll: están arriba del todo—, así que el techo se les pone
+     aquí. Medían las dos 574×718 = 0.80 vh, que es el mismo defecto. */
+  .cap-1-foto, .cap-1-figura img {
+    display: block; width: auto; height: auto;
+    max-width: 100%; max-block-size: 58vh;
+  }
 
   @supports (animation-timeline: view()) {
     /* ── SOLO ENTRADA DESDE EL 2026-08-31 (ola 2) ──────────────────────
