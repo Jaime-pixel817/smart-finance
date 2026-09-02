@@ -89,7 +89,6 @@ const en = {
   // decide esta página. LO QUE NO SE HACE ES INVENTAR: donde no hay fuente
   // pública (Jasa Motor) el recibo dice que no hay con qué comparar, y no se
   // le pone un año de adorno ni se le quita el suyo.
-  anioDisputa: 'The five 2025 dates on this page are my word: the student group, smartfinance.lat, Jasa Motor, the AEM assembly and the session with Jon Maier. My LinkedIn publishes the group as January 2026 and smartfinance.lat as February 2026; my posts about the AEM and about that session are from 2026; Jasa Motor has no published date to compare against. This page writes what I say and shows you the difference; it does not decide which one is right.',
   // ── Y SE IMPRIME UNA VEZ, NO TRES (2026-09-01) ─────────────────────────
   // El recibo de arriba salía ENTERO en los tres sitios donde se lee un
   // 2025: la tabla de experiencia, el lede del sitio y el bloque de Jasa
@@ -100,7 +99,6 @@ const en = {
   // en los otros dos va este renglón, que dice lo mismo que importa ahí —
   // este año es palabra mía— y manda al recibo POR EL TÍTULO del capítulo,
   // no por su número. Nada se esconde: lo que se quita es la repetición.
-  anioDisputaCorto: 'This 2025 is my word, not a published date. The receipt is in “{s}”.',
 
   // ---- Marca de hueco ----
   hueco: {
@@ -540,9 +538,9 @@ const en = {
     jasaH: 'Jasa Motor',
     // EL AÑO ES 2025 y lo corrigió Jaime (2026-08-29): la tienda la creó en
     // 2025, no en 2026 como decía la línea del capítulo de experiencias.
-    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store in 2025 and I run its marketing.',
+    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store and I run its marketing.',
     jasaAlt: 'Home page of the Jasa Motor online store: the logo with a piston in the A, a search by make, model, year and engine, the “Refacciones para Motor” heading and the best-sellers grid with real prices.',
-    jasaPie: 'The store I built — tienda.jasamotor.com.mx (2025)',
+    jasaPie: 'The store I built — tienda.jasamotor.com.mx',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -578,7 +576,7 @@ const en = {
     // lede va `anioDisputa`, el mismo recibo en mono que llevan sus cifras.
     // Estuvo anotada solo en este comentario —invisible para quien lee— y
     // eso era el doble criterio que este archivo no se permite.
-    lede: 'I started smartfinance.lat in 2025, to make finance easier to understand for any student. This is its home page.',
+    lede: 'I started smartfinance.lat to make finance easier to understand for any student. This is its home page.',
     // El pie de la captura del header. Dice QUÉ es y DE CUÁNDO: la imagen
     // lleva dentro precios y una hora, y sin fecha sería una lámina de
     // cifras sin edad justo encima de una cinta que sí pide precios de
@@ -989,6 +987,42 @@ const en = {
     }
   },
 
+  // ══════════════════════════════════════════════════════════════════════
+  // LO QUE YA OCURRIÓ Y CUYO MATERIAL NO HA LLEGADO (Jaime, 2026-09-02)
+  // ══════════════════════════════════════════════════════════════════════
+  // Sus palabras: «el de Mike y Manuel y el taller de finanzas ya los hice,
+  // solo te los tengo que pasar». O sea: NO SON FUTURO. Van en pasado, como
+  // AFIRMACIÓN SUYA, con el mismo aparato de honestidad que ya usan sus
+  // cifras (`cifraSuya`), y con un hueco de material que dice exactamente qué
+  // falta y en qué carpeta dejarlo.
+  //
+  // LO QUE NO SE ESCRIBE, Y ES LA MITAD DEL TRABAJO: el episodio, los temas,
+  // la asistencia y el impacto. Nadie los ha dicho. Un párrafo de relleno
+  // aquí —«hablamos de finanzas corporativas y de trayectoria profesional»—
+  // se leería exactamente igual de bien y sería inventado.
+  //
+  // LA DIFERENCIA ENTRE LOS DOS:
+  //  · EL TALLER YA TIENE FUENTE PÚBLICA. Su LinkedIn lista «personal finance
+  //    workshops» entre las actividades del grupo, EN DOS SITIOS (su perfil y
+  //    la descripción del grupo). Con eso el hecho se puede escribir sin
+  //    marca de «palabra suya»: está publicado por él, en abierto.
+  //  · EL PODCAST NO TIENE NINGUNA. Va con `cifraSuya` y sin enlace: un
+  //    enlace inventado sería peor que ninguno.
+  yaOcurrio: {
+    tallerH: 'The personal-finance workshops',
+    // El hecho, con la fuente pública delante. «Workshops» en plural es lo que
+    // dice su LinkedIn; cuántos y cuándo, no lo dice ninguna fuente.
+    taller: 'The group runs personal-finance workshops for students. That is what my own LinkedIn lists among the group’s activities, both on my profile and in the group’s description.',
+    tallerFuente: 'Published by me on LinkedIn, in two places: my profile and the group’s description.',
+    tallerQue: 'The workshop: how many came and what they said',
+    tallerPide: 'How many people came? A number of yours, even approximate — it goes marked as yours. Photos of the workshop. What you taught, in your words. And you told me you interviewed the people who came: what did they say? That last one is the only thing that turns “I gave a workshop” into “I changed something”.',
+    podcastH: 'The podcast with Miguel Rendón and Manuel Durán',
+    // PASADO, y ni una palabra más de las que él dijo.
+    podcast: 'I recorded a podcast with Miguel Rendón and Manuel Durán. It has happened; the recording has not reached this page yet.',
+    podcastQue: 'The podcast with Rendón and Durán',
+    podcastPide: 'The link to the episode (TikTok, YouTube, LinkedIn, Spotify — whatever it is). A photo of the recording. The exact title of each of them, as they would say it — I have Miguel Rendón as regional finance director at Tec and Manuel Durán as business director, but that is an unconfirmed note of mine and a wrong title in a CV that goes to a committee is a serious problem. What you talked about, in your words. And: did you organize it or were you invited? That last one decides whether this is leadership or not.'
+  },
+
   // ---- Capítulo 3: servir (los voluntariados) ----
   // El grupo estudiantil se fue al capítulo de proyectos: aquí se quedan los
   // voluntariados, que es lo que Jaime pidió junto a las experiencias.
@@ -1051,7 +1085,7 @@ const en = {
       // 2026-08-27, o sea ~abril de 2026. Publicar en 2026 un evento de 2025
       // es posible y nadie lo ha desmentido: se pone el año que él afirma y
       // el recibo `anioDisputa` lo dice. Estaba SIN anotar hasta 2026-08-31.
-      { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
+      { cuando: '', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
       // ⚠️ EL AÑO DEL GRUPO ESTUDIANTIL ESTÁ EN DISPUTA Y NO LO RESUELVE
       // ESTA PÁGINA. Jaime dijo el 2026-08-29 que lo creó «a finales de
       // 2025»; su propio LinkedIn publica el grupo como «ene. 2026» y el
@@ -1060,7 +1094,7 @@ const en = {
       // una contradicción REAL con una fuente pública suya, y hasta que él
       // la aclare (corrigiendo el LinkedIn o corrigiendo esta línea) se
       // queda anotada aquí. No la borres sin su respuesta.
-      { cuando: '2025', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
+      { cuando: '', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
       // «One of his first», no «his first»: su post dice «one of my first
       // experiences attending a business conference» (MATERIAL.md LI-17).
       // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
@@ -1069,13 +1103,13 @@ const en = {
       // está fechada «hace ~2 meses» en MATERIAL.md (cosecha del 2026-08-27),
       // o sea ~junio de 2026. Anotada desde el 2026-08-31 y recogida en
       // `anioDisputa`.
-      { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
+      { cuando: '', que: 'AEM General Assembly — one of my first business conferences and networking events' },
       // 2025 también, y también corregido por él: «esta la creé en 2025».
       // ⚠️ AQUÍ NO HAY FUENTE PÚBLICA NINGUNA: Jasa Motor no aparece en su
       // LinkedIn (MATERIAL.md, bloque C2, verbatim: «Jasa Motor no aparece en
       // ningún lado de su LinkedIn»). No es una contradicción, es un año sin
       // contraste — y el recibo lo dice con esas palabras en vez de callarlo.
-      { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (in “My projects”)' },
+      { cuando: '', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (in “My projects”)' },
       // ⚠️ 2025 Y NO 2026, y es la MISMA disputa que la del grupo estudiantil
       // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
       // empecé». Su LinkedIn publica el proyecto como «feb. 2026». Se pone
@@ -1085,7 +1119,7 @@ const en = {
       // mismo. La anotación NO se queda en este comentario: `anioDisputa` la
       // pinta al pie de estas filas, dentro del mismo plegable, para que
       // quien ve el año vea también de quién es.
-      { cuando: '2025', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      { cuando: '', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
       { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
       { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
       { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
@@ -1153,7 +1187,7 @@ const en = {
         hueco: 'expGrupo' as const,
         rol: 'Founder and president',
         org: 'Smart Finance student community, Prepa Tec CEM',
-        cuando: '2025 – today',
+        cuando: 'Ongoing',
         accion: 'I founded it and I lead it: visits to the Mexican stock exchange, finance talks and workshops, volunteering for our community and the environment, and the Student Groups Fair at Tec.',
         resultado: '',
         quien: '',
@@ -1164,7 +1198,7 @@ const en = {
         hueco: 'expSitio' as const,
         rol: 'Author and developer',
         org: 'smartfinance.lat — my own project',
-        cuando: '2025 – today',
+        cuando: 'Ongoing',
         accion: 'I write the bilingual lessons, I build the site and I send the weekly newsletter. The figures it publishes are counted from its own files on every build.',
         resultado: '',
         quien: '',
@@ -1175,7 +1209,7 @@ const en = {
         hueco: 'expJasa' as const,
         rol: 'Online store and marketing',
         org: 'Jasa Motor — my family’s auto-parts business, Cuautitlán, State of Mexico',
-        cuando: '2025 – today',
+        cuando: 'Ongoing',
         accion: 'I built its online store (tienda.jasamotor.com.mx) and I run its marketing, for a business with more than twenty years of history.',
         resultado: '',
         quien: '',
@@ -2182,8 +2216,6 @@ const es: typeof en = {
 
   // Ver la nota de la tabla inglesa.
   // Ver la nota de la tabla inglesa: son las CINCO filas de 2025.
-  anioDisputa: 'Las cinco fechas de 2025 de esta página son palabra mía: el grupo estudiantil, smartfinance.lat, Jasa Motor, la asamblea de la AEM y la sesión con Jon Maier. Mi LinkedIn publica el grupo como ene. 2026 y smartfinance.lat como feb. 2026; mis publicaciones sobre la AEM y sobre esa sesión son de 2026; Jasa Motor no tiene fecha publicada con la que comparar. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
-  anioDisputaCorto: 'Este 2025 es palabra mía, no una fecha publicada. El recibo está en «{s}».',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 
@@ -2345,14 +2377,14 @@ const es: typeof en = {
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
-    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea en 2025 y llevo su marketing.',
+    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea y llevo su marketing.',
     jasaAlt: 'Portada de la tienda en línea de Jasa Motor: el logotipo con un pistón en la A, el buscador por marca, modelo, año y motor, el título «Refacciones para Motor» y la rejilla de los más vendidos con precios reales.',
-    jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx (2025)',
+    jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   prueba: {
-    lede: 'Empecé smartfinance.lat en 2025, para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
+    lede: 'Empecé smartfinance.lat para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
     headerPie: 'La portada de smartfinance.lat, capturada el 31 de agosto de 2026. Los precios que se ven dentro de la imagen son de ese momento; los de abajo se piden ahora.',
     headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Mercados y dinero, explicados para jóvenes. Por Jaime Sandoval» y una fila de ocho chips de bolsas',
     leccionesH: 'Las lecciones',
@@ -2496,6 +2528,19 @@ const es: typeof en = {
     }
   },
 
+  // Paridad exacta con el panel inglés. Ver la nota grande de `yaOcurrio` allí.
+  yaOcurrio: {
+    tallerH: 'Los talleres de finanzas personales',
+    taller: 'El grupo da talleres de finanzas personales para estudiantes. Es lo que mi propio LinkedIn lista entre las actividades del grupo, en mi perfil y en la descripción del grupo.',
+    tallerFuente: 'Publicado por mí en LinkedIn, en dos sitios: mi perfil y la descripción del grupo.',
+    tallerQue: 'El taller: cuánta gente fue y qué dijeron',
+    tallerPide: '¿Cuánta gente fue? Un número tuyo, aunque sea aproximado — va marcado como tuyo. Fotos del taller. Qué enseñaste, en tus palabras. Y me dijiste que entrevistaste a los asistentes: ¿qué te dijeron? Eso último es lo único que convierte «di un taller» en «cambié algo».',
+    podcastH: 'El podcast con Miguel Rendón y Manuel Durán',
+    podcast: 'Grabé un podcast con Miguel Rendón y Manuel Durán. Ya ocurrió; la grabación todavía no ha llegado a esta página.',
+    podcastQue: 'El podcast con Rendón y Durán',
+    podcastPide: 'El enlace del episodio (TikTok, YouTube, LinkedIn, Spotify — lo que sea). Una foto de la grabación. El cargo exacto de cada uno, como lo dirían ellos — yo tengo apuntado a Miguel Rendón como director de finanzas regional del Tec y a Manuel Durán como director de negocios, pero es una nota mía sin confirmar y un cargo mal puesto en un CV que va a un comité es un problema serio. De qué hablaron, en tus palabras. Y: ¿tú lo organizaste o te invitaron? Eso decide si esto es liderazgo o no lo es.'
+  },
+
   servir: {
     animalesClip: 'El clip: la marcha con Callejeritos por la adopción responsable — también entrevisté a Sol, su fundadora (2026).',
     donacion: 'También doné alimento a un stand de adopción local y pasé el día con los voluntarios y los animalitos (2026).',
@@ -2514,12 +2559,12 @@ const es: typeof en = {
     pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
-      { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
+      { cuando: '', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
-      { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
-      { cuando: '2025', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
-      { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (en «Mis proyectos»)' },
-      { cuando: '2025', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
+      { cuando: '', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
+      { cuando: '', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
+      { cuando: '', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (en «Mis proyectos»)' },
+      { cuando: '', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
@@ -2547,7 +2592,7 @@ const es: typeof en = {
         hueco: 'expGrupo' as const,
         rol: 'Fundador y presidente',
         org: 'Comunidad estudiantil Smart Finance, Prepa Tec CEM',
-        cuando: '2025 – hoy',
+        cuando: 'En curso',
         accion: 'La fundé y la dirijo: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, voluntariados por la comunidad y el medio ambiente, y la Feria de Grupos Estudiantiles del Tec.',
         resultado: '',
         quien: '',
@@ -2558,7 +2603,7 @@ const es: typeof en = {
         hueco: 'expSitio' as const,
         rol: 'Autor y desarrollador',
         org: 'smartfinance.lat — proyecto propio',
-        cuando: '2025 – hoy',
+        cuando: 'En curso',
         accion: 'Escribo las lecciones bilingües, construyo el sitio y mando el boletín semanal. Las cifras que publica las cuenta él mismo de sus archivos en cada build.',
         resultado: '',
         quien: '',
@@ -2569,7 +2614,7 @@ const es: typeof en = {
         hueco: 'expJasa' as const,
         rol: 'Tienda en línea y marketing',
         org: 'Jasa Motor — refaccionaria de mi familia, Cuautitlán, Estado de México',
-        cuando: '2025 – hoy',
+        cuando: 'En curso',
         accion: 'Construí su tienda en línea (tienda.jasamotor.com.mx) y llevo su marketing, para un negocio con más de veinte años de historia.',
         resultado: '',
         quien: '',

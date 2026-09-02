@@ -105,6 +105,7 @@ import SourceChip from '../SourceChip.astro';
 import Hueco from './Hueco.astro';
 import FotoHueco from './FotoHueco.astro';
 import Microfono from './Microfono.astro';
+import HuecoMaterial from './HuecoMaterial.astro';
 import { SYMBOLS } from '../../data/symbols';
 import { CARTERAS } from '../../lib/portfolio/data';
 import { resumen, grafica, ultimoPunto } from '../../lib/portfolio/cartera.mjs';
@@ -463,12 +464,25 @@ const fuenteCarta = (quien: string) =>
   c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.cartas);
 
 // ── LA MARCA CORTA DEL AÑO EN DISPUTA ───────────────────────────────────
-// El recibo entero (`c.anioDisputa`) se pinta UNA vez, dentro de la tabla de
-// experiencia, que es donde viven las cinco fechas que cubre. En los otros
-// dos sitios donde se lee un 2025 —el lede del sitio y el bloque de Jasa
-// Motor— va esta versión, que dice lo mismo que importa allí y manda al
-// recibo por el TÍTULO del capítulo, como `fuenteCarta`.
-const anioCorto = c.anioDisputaCorto.replace('{s}', c.caps.experiencias);
+// ── AQUÍ VIVÍA `anioCorto`, Y SE FUE CON SU APARATO (2026-09-02) ────────
+// El CV publicaba cinco fechas de 2025 que eran palabra de Jaime y que su
+// propio LinkedIn desmiente (el grupo como «ene. 2026», smartfinance.lat como
+// «feb. 2026»), y para sostenerlas había construido un recibo —`anioDisputa`,
+// `anioDisputaCorto` y sus cinco filas— que ponía las dos versiones y decía de
+// quién era cada una. Era honesto y era la peor frase del documento: un
+// párrafo donde Jaime discute contra su propio perfil público, en el capítulo
+// que un comité escanea primero.
+//
+// SU REGLA DE FECHAS LO DISUELVE (2026-09-02, verbatim): «fechas muy
+// importantes sí dejarlas, pero lo que se pueda omitir sí omitirlo». Las cinco
+// fechas de 2025 decían solo CUÁNDO EMPEZÓ algo — no verifican nada y no
+// sitúan nada que el lector necesite. Sin fecha de arranque publicada NO HAY
+// DISPUTA que explicar, así que el aparato entero sobra y se retira.
+//
+// LO QUE SE QUEDA son las fechas que sirven para VERIFICAR o para SITUAR: los
+// folios y años de los siete certificados, el programa de la NUS, el
+// calendario del Reto Actinver, su bachillerato 2024–2027, la meta de entrada
+// 2027, y los chips de fuente/retraso con su `asOf`. Ninguna de esas se toca.
 
 // ── El resumen del índice se CUENTA, no se escribe ──────────────────────
 // «{n} capítulos» sale de capitulos.length — la MISMA lista que numera las
@@ -1064,16 +1078,6 @@ const cifrasFranja = c.franja.sitioQ
           </li>
         ))}
       </ol>
-      {/* EL RECIBO DE LOS AÑOS QUE SOSTIENE SU PALABRA. CINCO de estas
-           filas dicen 2025 —Jon Maier, el grupo estudiantil, la AEM, Jasa
-           Motor y smartfinance.lat— y ninguna otra fila de la tabla lo dice,
-           así que el recibo las señala POR SU AÑO y la lista no lleva
-           ninguna marca encima: en el capítulo que un comité escanea
-           primero, cinco marcas serían cinco tropiezos. Va DENTRO del
-           plegable, pegado a las filas que afecta y no en la cabecera, y en
-           mono como `cifra-suya-marca`: es un recibo, no una frase del CV.
-           Hasta el 2026-08-31 nombraba solo dos de las cinco. */}
-      <p class="meta-mono cifra-suya-marca">{c.anioDisputa}</p>
     </details>
 
     {/* ══ LA MISMA EXPERIENCIA, EN FORMATO DE SOLICITUD (ola 2) ══════════
@@ -1715,6 +1719,27 @@ const cifrasFranja = c.franja.sitioQ
             <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
           </div>
         </div>
+
+        {/* ══ LOS TALLERES DE FINANZAS — YA OCURRIERON ═════════════════════
+             Jaime, 2026-09-02: «el de Mike y Manuel y el taller de finanzas
+             ya los hice, solo te los tengo que pasar». Van en PASADO.
+
+             Y este NO lleva marca de «palabra suya», a diferencia del podcast
+             de más abajo: SU PROPIO LINKEDIN lista «personal finance
+             workshops» entre las actividades del grupo, en dos sitios —su
+             perfil y la descripción del grupo—. Eso es una fuente pública
+             suya, en abierto, y la línea de fuente lo dice.
+
+             Lo que falta no es el hecho: es el PESO. Cuántos fueron y qué
+             dijeron, que es lo único que convierte «di un taller» en «cambié
+             algo». Va como hueco de material, con la carpeta donde dejarlo.
+             El aprendizaje del taller llega con ese material: escribirlo
+             ahora sería inventárselo. */}
+        <h3 class="t-h3">{c.yaOcurrio.tallerH}</h3>
+        <p class="cap-frases">{c.yaOcurrio.taller}</p>
+        <p class="meta-mono fuente-carta">{c.yaOcurrio.tallerFuente}</p>
+        <HuecoMaterial c={c} que={c.yaOcurrio.tallerQue} pregunta={c.yaOcurrio.tallerPide}
+                       carpeta="cv-material/pendiente/taller-finanzas/" />
         {/* El cuadro de la promo del grupo (otro vídeo, otra imagen: la
              regla de «ninguna imagen dos veces» habla de archivos, y este es
              el cuadro del vídeo de promo de 2026 en el Tec).
@@ -1749,15 +1774,6 @@ const cifrasFranja = c.franja.sitioQ
       <div class="bloque" data-cinta data-loc={locale} data-strings={cintaStrings}>
         <h3 class="t-h3">{c.proyectos.sitioH}</h3>
         <p class="cap-lede">{c.prueba.lede}</p>
-        {/* Aquí se lee un 2025, así que lleva su marca — pero la CORTA. El
-             recibo entero (las cinco fechas, qué publica LinkedIn de cada
-             una, y dónde no hay con qué comparar) vive UNA vez, en la tabla
-             de experiencia, que es donde están las cinco. Repetirlo aquí y
-             en Jasa Motor eran 234 palabras diciendo tres veces lo mismo, y
-             dos de las tres listaban cinco fechas donde sólo se lee una.
-             La marca corta manda al recibo POR EL TÍTULO del capítulo, no
-             por su número, igual que `fuenteCarta`. */}
-        <p class="meta-mono cifra-suya-marca">{anioCorto}</p>
 
         {/* ── LA CAPTURA DEL HEADER (Jaime, 2026-08-30: «pon una imagen del
              header padre») ─────────────────────────────────────────────
@@ -1961,12 +1977,6 @@ const cifrasFranja = c.franja.sitioQ
           <p>{c.voz.jasa}</p>
         </blockquote>
         <p class="cap-frases">{c.proyectos.jasa}</p>
-        {/* EL TERCER SITIO DONDE SE LEE UN 2025. Este párrafo y el pie de la
-             captura dicen 2025, y ese año es de los cinco que sólo sostiene
-             la palabra de Jaime — Jasa Motor ni siquiera aparece en su
-             LinkedIn, así que aquí el recibo no es opcional. Va el corto,
-             por lo mismo que en el bloque del sitio. */}
-        <p class="meta-mono cifra-suya-marca">{anioCorto}</p>
         {/* LA TIENDA, EN PANTALLA. El hueco de foto pedía «la refaccionaria
              o la tienda en línea: una foto real o una captura» y ya hay
              captura: la portada de tienda.jasamotor.com.mx, tomada del sitio
@@ -2100,6 +2110,29 @@ const cifrasFranja = c.franja.sitioQ
          material: la entrevista de «skills» que vivía aquí subió al carrusel.
          Jamás un embed de TikTok; el clip de Singapur se sirve desde este
          dominio y el resto va como cuadro del vídeo + enlace al original. */}
+    {/* ══ EL PODCAST CON MIGUEL RENDÓN Y MANUEL DURÁN ═════════════════════
+         YA OCURRIÓ (Jaime, 2026-09-02) y el material no ha llegado. Va en
+         PASADO y como AFIRMACIÓN SUYA, con la misma marca que llevan sus
+         cifras: es la única fuente que hay.
+
+         LO QUE NO SE ESCRIBE: de qué hablaron, cuánto duró, quién lo
+         organizó y qué se llevó. Nadie lo ha dicho. Un párrafo plausible
+         aquí se leería igual de bien y sería inventado — y la pregunta que
+         más pesa («¿tú lo organizaste o te invitaron?») es exactamente la
+         que decide si esto es liderazgo, así que fingir una respuesta sería
+         fingir el liderazgo.
+
+         NO LLEVA ENLACE. Un enlace inventado sería peor que ninguno, y el
+         micrófono de arriba tampoco le da punto por lo mismo: un punto que
+         no abre nada rompe la premisa de la pieza. Cuando llegue el enlace,
+         ese punto es el 12 — Rendón y Durán comparten UNO, porque es una
+         grabación y no dos. */}
+    <h3 class="t-h3 ens-h">{c.yaOcurrio.podcastH}</h3>
+    <p class="cap-frases">{c.yaOcurrio.podcast}</p>
+    <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
+    <HuecoMaterial c={c} que={c.yaOcurrio.podcastQue} pregunta={c.yaOcurrio.podcastPide}
+                   carpeta="cv-material/pendiente/podcast-rendon-duran/" />
+
     <h3 class="t-h3 ens-h">{c.tiktok.ensenaH}</h3>
     {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.ensenar}</p></blockquote>

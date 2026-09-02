@@ -121,6 +121,7 @@ const SUJETO_AJENO = new Map([
   // la clave: `podcast` y `lloyd` se usan también en `entrevistas.personas`.
   ['podcast|transmitió', 'el sujeto es el canal de la escuela: «el canal de la escuela que lo transmitió»'],
   ['lloyd|firmó', 'el sujeto es Lloyd George: «el hombre que después firmó una de mis dos cartas»'],
+  ['podcast|ocurrió', 'el sujeto es el episodio, no Jaime: «ya ocurrió; la grabación todavía no ha llegado»'],
   // AQUÍ VIVÍAN SEIS EXENCIONES MÁS, una por cada rótulo de los ocho huecos
   // de contratiempo de la ola 2 («Si una materia o un examen salió mal…»),
   // donde el sujeto era la cosa que salió mal y no Jaime. Los ocho huecos se
