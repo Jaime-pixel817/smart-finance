@@ -541,6 +541,14 @@ const en = {
     jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store and I run its marketing.',
     jasaAlt: 'Home page of the Jasa Motor online store: the logo with a piston in the A, a search by make, model, year and engine, the “Refacciones para Motor” heading and the best-sellers grid with real prices.',
     jasaPie: 'The store I built — tienda.jasamotor.com.mx',
+    // ── MERCADO LIBRE: SOLO LO QUE ELLOS PUBLICAN ─────────────────────────
+    // Dos datos, los dos de su página de vendedor y los dos con fecha de
+    // consulta. Lo que NO entra —«0 productos», que es un artefacto de leer
+    // una página que pinta su catálogo con JavaScript, y una calificación que
+    // es de un producto y no del vendedor— está escrito junto al marcado.
+    ml: 'The business also sells on Mercado Libre. Mercado Libre publishes its seller page as REFACCIONES JASA MOTOR, with more than 3,000 followers.',
+    mlFuente: 'Mercado Libre’s own seller page, read on 2 September 2026. The store name and the follower count are theirs, not mine.',
+    mlLink: 'The store on Mercado Libre',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -581,8 +589,6 @@ const en = {
     // lleva dentro precios y una hora, y sin fecha sería una lámina de
     // cifras sin edad justo encima de una cinta que sí pide precios de
     // verdad al abrir esta página.
-    headerPie: 'The home page of smartfinance.lat, captured on 31 August 2026. The prices inside the image are from that moment; the ones below are asked for now.',
-    headerAlt: 'The smartfinance.lat home page: the Smart Finance wordmark and menu, a dark globe with markers on New York and Mexico City, the headline “Markets and money, explained for young people. By Jaime Sandoval”, and a row of eight stock-exchange chips',
     // ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────────
     // «promociona más lo de lessons y pon un link». Dejan de ser un renglón
     // suelto detrás de las cifras y pasan a bloque propio con su enlace. El
@@ -1021,6 +1027,17 @@ const en = {
     podcast: 'I recorded a podcast with Miguel Rendón and Manuel Durán. It has happened; the recording has not reached this page yet.',
     podcastQue: 'The podcast with Rendón and Durán',
     podcastPide: 'The link to the episode (TikTok, YouTube, LinkedIn, Spotify — whatever it is). A photo of the recording. The exact title of each of them, as they would say it — I have Miguel Rendón as regional finance director at Tec and Manuel Durán as business director, but that is an unconfirmed note of mine and a wrong title in a CV that goes to a committee is a serious problem. What you talked about, in your words. And: did you organize it or were you invited? That last one decides whether this is leadership or not.'
+  },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // LOS SITIOS EN VIVO (SitioVivo.astro)
+  // ══════════════════════════════════════════════════════════════════════
+  // El rótulo de la tapa dice lo que va a pasar y no «Ver más»: al pulsarlo,
+  // el teclado ENTRA en un documento ajeno. Eso se avisa.
+  vivo: {
+    abrir: 'Open {s} in a new tab',
+    interactuar: 'Use the site here',
+    pie: 'This is {s} itself, loaded live inside the page — not a screenshot. It only loads when you scroll this far.'
   },
 
   // ---- Capítulo 3: servir (los voluntariados) ----
@@ -2380,13 +2397,14 @@ const es: typeof en = {
     jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea y llevo su marketing.',
     jasaAlt: 'Portada de la tienda en línea de Jasa Motor: el logotipo con un pistón en la A, el buscador por marca, modelo, año y motor, el título «Refacciones para Motor» y la rejilla de los más vendidos con precios reales.',
     jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx',
+    ml: 'La refaccionaria también vende en Mercado Libre. Mercado Libre publica su página de vendedor como REFACCIONES JASA MOTOR, con más de 3,000 seguidores.',
+    mlFuente: 'La propia página de vendedor de Mercado Libre, consultada el 2 de septiembre de 2026. El nombre de la tienda y los seguidores son suyos, no míos.',
+    mlLink: 'La tienda en Mercado Libre',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   prueba: {
     lede: 'Empecé smartfinance.lat para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
-    headerPie: 'La portada de smartfinance.lat, capturada el 31 de agosto de 2026. Los precios que se ven dentro de la imagen son de ese momento; los de abajo se piden ahora.',
-    headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Mercados y dinero, explicados para jóvenes. Por Jaime Sandoval» y una fila de ocho chips de bolsas',
     leccionesH: 'Las lecciones',
     leccionesQue: 'Lo que enseñaría primero: {n} lecciones, cada una escrita en inglés y en español, y cada una citando sus fuentes.',
     leccionesLink: 'Leer las lecciones',
@@ -2539,6 +2557,12 @@ const es: typeof en = {
     podcast: 'Grabé un podcast con Miguel Rendón y Manuel Durán. Ya ocurrió; la grabación todavía no ha llegado a esta página.',
     podcastQue: 'El podcast con Rendón y Durán',
     podcastPide: 'El enlace del episodio (TikTok, YouTube, LinkedIn, Spotify — lo que sea). Una foto de la grabación. El cargo exacto de cada uno, como lo dirían ellos — yo tengo apuntado a Miguel Rendón como director de finanzas regional del Tec y a Manuel Durán como director de negocios, pero es una nota mía sin confirmar y un cargo mal puesto en un CV que va a un comité es un problema serio. De qué hablaron, en tus palabras. Y: ¿tú lo organizaste o te invitaron? Eso decide si esto es liderazgo o no lo es.'
+  },
+
+  vivo: {
+    abrir: 'Abrir {s} en otra pestaña',
+    interactuar: 'Usar el sitio aquí',
+    pie: 'Esto es {s} de verdad, cargado en vivo dentro de la página — no una captura. Solo se carga si bajas hasta aquí.'
   },
 
   servir: {

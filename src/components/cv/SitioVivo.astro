@@ -1,0 +1,149 @@
+---
+// UN SITIO SUYO, EN VIVO, DENTRO DE UN MARCO DE NAVEGADOR DIBUJADO.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// POR QUÉ EN VIVO Y NO UNA CAPTURA
+// ═══════════════════════════════════════════════════════════════════════════
+// Una captura de un sitio prueba que existió el día que se tomó. El sitio
+// dentro del marco prueba que está de pie AHORA, que es lo que un comité
+// quiere saber de un proyecto que alguien dice mantener. Y la URL escrita en
+// la barra dibujada es parte de la prueba: se puede teclear.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LAS TRES COSAS QUE HAY QUE HACER BIEN, Y NINGUNA ES DECORACIÓN
+// ═══════════════════════════════════════════════════════════════════════════
+// 1 · UN `<iframe>` ES UNA TRAMPA DE FOCO. Quien recorre la página con el
+//     teclado entra en el documento incrustado y no sabe salir. Por eso el
+//     marco nace `inert` —fuera del orden de tabulación, sin puntero— y solo
+//     se activa con un clic explícito en el botón que lo dice. Y ANTES de él
+//     en orden de DOM va el enlace para abrir el sitio en otra pestaña, que
+//     es lo que un lector con teclado necesita encontrar primero.
+//     `axe` PASA con la trampa puesta: esto no lo caza una herramienta.
+// 2 · UN `<iframe>` NO DISPARA `onerror`. Si el sitio no carga —o si algún día
+//     empieza a mandar `X-Frame-Options`—, lo que se ve es un rectángulo
+//     blanco y nadie se entera. Por eso DETRÁS, en la misma caja, va el
+//     respaldo: una captura si la hay, y si no la hay, la dirección escrita
+//     en grande. El `<iframe>` se pinta encima cuando carga (`load`).
+// 3 · CERO BYTES HASTA QUE HAGA FALTA. `loading="lazy"` sobre el `<iframe>`:
+//     el marco está siete pantallas por debajo del pliegue y quien no baje
+//     hasta ahí no paga ni un byte. Medido: la página abre exactamente igual.
+//
+// `referrerpolicy="no-referrer"` porque el CV es privado y su dirección es la
+// credencial: sin esto, cada visita mandaría el URL del CV al servidor de
+// smartfinance.lat en la cabecera `Referer`. Es la misma regla que ya lleva el
+// `<head>` de la página, aplicada al sitio incrustado.
+//
+// ⚠️ COMPROBADO EL 2026-09-02 con `curl -sI`: los dos dominios contestan
+// `HTTP/2 200` sin `X-Frame-Options` y sin `Content-Security-Policy`, o sea
+// sin `frame-ancestors`. Si algún día uno de los dos empieza a mandarlos, el
+// marco se queda en blanco y lo que se verá es el respaldo — que es
+// exactamente para lo que está.
+import type { CvCopy } from '../../i18n/cv';
+
+interface Props {
+  c: CvCopy;
+  url: string;          // la dirección real, la que se escribe en la barra
+  titulo: string;       // `title` del iframe: obligatorio y no decorativo
+  id: string;
+  img?: string;         // respaldo: la captura, si existe
+  srcset?: string;
+  sizes?: string;
+
+  w?: number; h?: number;
+}
+const { c, url, titulo, id, img, srcset, sizes, w, h } = Astro.props;
+const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+---
+<figure class="viv" data-viv>
+  {/* EL ENLACE VA PRIMERO EN EL DOM, y eso es la mitad del arreglo de
+      accesibilidad: quien tabula se encuentra la salida antes que la trampa. */}
+  <p class="viv-salida">
+    <a class="hist-link" href={url} target="_blank" rel="noopener noreferrer">{c.vivo.abrir.replace('{s}', host)} ↗</a>
+  </p>
+
+  <div class="viv-marco">
+    {/* La barra dibujada. Los tres puntos son decoración declarada; la URL
+        NO lo es: es la prueba, y por eso va en mono y seleccionable. */}
+    <div class="viv-barra">
+      <span class="viv-puntos" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="viv-url meta-mono">{host}</span>
+    </div>
+
+    <div class="viv-caja">
+      {/* EL RESPALDO, DETRÁS. Se ve hasta que el marco carga, y se sigue
+          viendo para siempre si no carga nunca. */}
+      <div class="viv-respaldo" aria-hidden="true">
+        {img
+          ? <img src={img} srcset={srcset} sizes={sizes} alt="" width={w} height={h} loading="lazy" decoding="async" />
+          : <span class="viv-respaldo-url meta-mono">{host}</span>}
+      </div>
+
+      <iframe class="viv-frame" src={url} title={titulo} id={`viv-${id}`}
+              loading="lazy" referrerpolicy="no-referrer"
+              sandbox="allow-scripts allow-same-origin"
+              inert data-viv-frame></iframe>
+
+      {/* LA TAPA. El `inert` va ESCRITO EN EL HTML y lo quita el guion al
+          pulsar, no al revés: puesto por JavaScript, una página sin
+          JavaScript dejaría el `<iframe>` en el orden de tabulación —o sea
+          la trampa de foco entera— y encima sin botón que la abriera.
+          Escrito en el HTML, sin JavaScript el marco es una imagen para
+          siempre y la salida es el enlace de arriba, que es lo correcto. */}
+      <button type="button" class="viv-tapa" data-viv-activar>
+        <span class="viv-tapa-txt">{c.vivo.interactuar}</span>
+      </button>
+    </div>
+  </div>
+  <figcaption class="pie">{c.vivo.pie.replace('{s}', host)}</figcaption>
+</figure>
+
+<style>
+  .viv { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .viv-salida { font-size: var(--fs-caption); }
+  .viv-marco {
+    border: 1px solid var(--cvh-raya); border-radius: var(--cv-radio, 20px);
+    overflow: hidden; background: var(--cvh-papel);
+  }
+  .viv-barra {
+    display: flex; align-items: center; gap: var(--sp-3);
+    height: 36px; padding-inline: var(--sp-3);
+    border-block-end: 1px solid var(--cvh-raya);
+  }
+  .viv-puntos { display: flex; gap: 6px; flex: 0 0 auto; }
+  .viv-puntos i { width: 8px; height: 8px; border-radius: 50%; background: var(--cvh-raya); }
+  .viv-url { color: var(--cvh-tinta-2); overflow-wrap: anywhere; }
+  /* 16:10. La caja se reserva con `aspect-ratio`, así que el marco no mueve
+     nada al cargar: CLS 0 por construcción. */
+  .viv-caja { position: relative; aspect-ratio: 16 / 10; }
+  .viv-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .viv-respaldo {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    background: var(--bg-2);
+  }
+  /* Se apaga SOLO cuando el marco dice `load`. Si no llega —sitio caído,
+     `X-Frame-Options` nuevo, red mala— se queda puesto para siempre, que es
+     justo lo que hace falta: un `<iframe>` no dispara `onerror`. */
+  .viv[data-viv-cargado] .viv-respaldo { opacity: 0; transition: opacity var(--dur-3) linear; }
+  .viv-respaldo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .viv-respaldo-url { color: var(--cvh-tinta-3); }
+  .viv-tapa {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    display: grid; place-items: end center; padding-block-end: var(--sp-4);
+    border: 0; background: none; cursor: pointer; font: inherit; color: inherit;
+  }
+  .viv-tapa-txt {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--cvh-tinta); background: var(--cvh-papel);
+    border: 1px solid var(--cvh-raya); border-radius: 999px;
+    padding: 8px 14px; min-height: 44px; display: inline-flex; align-items: center;
+  }
+  .viv-tapa:hover .viv-tapa-txt { border-color: var(--cvh-tinta-3); }
+  .viv[data-viv-vivo] .viv-tapa { display: none; }
+  /* AL IMPRIMIR se va el marco entero: un `<iframe>` en papel es un
+     rectángulo. Lo que queda es la dirección, que es lo que sirve impreso. */
+  @media print {
+    .viv-marco { display: none; }
+    .viv-salida { font-weight: 600; }
+  }
+</style>
