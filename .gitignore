@@ -12,6 +12,13 @@ reference/
 # Dependencias: se instalan desde package.json (Vercel corre npm install en cada
 # despliegue), asi que no tienen por que viajar en el repo.
 node_modules/
+# Y SIN BARRA TAMBIÉN, que no es redundante: `node_modules/` solo casa con un
+# DIRECTORIO, y en un worktree lo normal es enlazar el node_modules del repo
+# principal con un symlink. Un symlink no es un directorio para git, así que
+# `git add -A` se lo llevaba al índice y el enlace —con la ruta absoluta de una
+# máquina concreta dentro— acababa commiteado. Pasó el 2026-09-02 y hubo que
+# reescribir siete commits para sacarlo.
+node_modules
 
 # Notas de trabajo locales, no parte del sitio
 instrucciones.md
