@@ -6160,6 +6160,13 @@ const cifrasFranja = c.franja.sitioQ
        deja de estar vacío en el último cuadro del capítulo (f27: 0.0 %). */
     .cap:not(.cap-portada) > .exp-plegable { grid-column: marco-i / marco-f; max-width: none; }
     .cap .lista-seca { column-count: 3; }
+    /* LA FRASE SE QUEDA SOLA Y CENTRADA: es el cierre. Iba en la pista de
+       prosa, pegada a la izquierda con 560 px de nada al lado (f28: 0.2 %).
+       Ahora la columna de 688 va centrada en el marco —el mismo aire a los
+       dos lados— y el aire de encima es el de todos (160), no 288. */
+    .cap-frase > .frase, .cap-frase > .frase-trad, .cap-frase > .cierre {
+      grid-column: marco-i / marco-f; justify-self: center; width: min(100%, 688px);
+    }
   }
   .aparte .etiqueta { margin-top: var(--cv-v2, var(--sp-5)); }
   .aparte > .etiqueta:first-child { margin-top: 0; }
