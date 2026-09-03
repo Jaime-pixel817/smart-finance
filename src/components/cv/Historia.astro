@@ -2796,7 +2796,12 @@ const cifrasFranja = c.franja.sitioQ
   .voz { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   /* `--cvh-voz` cae en `--cvh-cuerpo` mientras no esté definida (o sea en el
      teléfono, donde el cuerpo no baja de 17 px y separarlos no diría nada). */
-  .voz p {
+  /* `:not(.meta-mono)`: la marca de traducción dentro de la cita es un
+     `<p class="meta-mono">`, y `.voz p` (0,1,1) le ganaba a `.meta-mono`
+     (0,1,0): el rótulo «Translated from Spanish» salía a 21 px, el tamaño de
+     la voz de Jaime. Excluirlo aquí deja que mande su propia regla, sin
+     `!important` y sin repetir el tamaño en dos sitios. */
+  .voz p:not(.meta-mono) {
     font-size: var(--cvh-voz, var(--cvh-cuerpo)); line-height: 1.6; max-width: 62ch;
     color: var(--cvh-tinta);
   }
