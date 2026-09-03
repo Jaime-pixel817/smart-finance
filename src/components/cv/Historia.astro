@@ -2276,6 +2276,14 @@ const cifrasFranja = c.franja.sitioQ
     <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(8).n}</span><span class="cap-de">/ {num(8).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.expediente}</h2>
     <p class="cap-lede">{c.acad.lede}</p>
+    {/* ── A DOS COLUMNAS (spec-ola4-sitios §C): escuela e inglés en la
+         prosa; los documentos académicos —un rótulo y dos plegables cortos
+         con sus huecos— en el aparte. Antes `.acad` cruzaba el marco y lo
+         demás se apilaba en 688 (f24–f25 a 1440: 1.9 % y 1.8 % de tinta en
+         el 40 % derecho). La tabla de certificaciones sigue a lo ancho del
+         marco y la lista de experiencia también, a tres columnas. */}
+    <div class="con-aparte acad-fila">
+    <div class="prosa-col">
     <h3 class="t-h3 exped-h">{c.expedienteSub.acad}</h3>
 
     <div class="acad">
@@ -2360,6 +2368,8 @@ const cifrasFranja = c.franja.sitioQ
          tres párrafos más arriba, y el Duolingo es el segundo examen de
          inglés que la propia página dice que le falta. Por eso van con el
          hueco a la vista y con la carpeta donde dejarlos. */}
+    </div>
+    <div class="aparte">
     <h3 class="t-h3">{c.acadDocs.h}</h3>
     <details class="ref-plegable">
       <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
@@ -2399,8 +2409,8 @@ const cifrasFranja = c.franja.sitioQ
         ))}
       </ul>
     </details>
-
-
+    </div>
+    </div>
 
   {/* ════ 10 · Certificaciones — los recibos, sin adjetivos ══════════════ */}
     <h3 class="t-h3 exped-h">{c.expedienteSub.certs}</h3>
@@ -5425,7 +5435,6 @@ const cifrasFranja = c.franja.sitioQ
     .cap:not(.cap-portada) > :global(.hueco),
     .cap:not(.cap-portada) > :global(.cv-suyo),
     .cap:not(.cap-portada) > .acad-nota,
-    .cap:not(.cap-portada) > .exp-plegable,
     .cap:not(.cap-portada) > .verifica,
     .cap:not(.cap-portada) > .premios,
     .cap:not(.cap-portada) > .tt-cta,
@@ -6144,6 +6153,14 @@ const cifrasFranja = c.franja.sitioQ
   /* El h3 «What I have» queda como hijo directo del capítulo, a 96 de la
      cabecera; la fila que lo sigue va pegada a él (24), no a 96. */
   .cap:not(.cap-portada) > h3 + .premios-fila { margin-block-start: var(--cv-v1); }
+  .acad-fila .acad { max-width: none; }
+  @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
+    /* La lista de experiencia cruza el marco: doce filas a tres columnas
+       de ~380 miden un tercio menos que a dos en 688, y el 40 % derecho
+       deja de estar vacío en el último cuadro del capítulo (f27: 0.0 %). */
+    .cap:not(.cap-portada) > .exp-plegable { grid-column: marco-i / marco-f; max-width: none; }
+    .cap .lista-seca { column-count: 3; }
+  }
   .aparte .etiqueta { margin-top: var(--cv-v2, var(--sp-5)); }
   .aparte > .etiqueta:first-child { margin-top: 0; }
   .prosa-col > .t-h3 + .cap-frases, .prosa-col > .t-h3 + :global(*) { margin-top: 0; }
