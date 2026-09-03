@@ -5983,8 +5983,11 @@ const cifrasFranja = c.franja.sitioQ
   /* Una `mitad` y dos `tarjeta`: 332 + 24 + 154 + 24 + 154 = 688. La foto
      que es prueba grande, las dos de contexto pequeñas, a ras por abajo. */
   .fila-mtt { display: grid; grid-template-columns: 332px 154px 154px; gap: 24px; max-width: 688px; align-items: end; }
+  /* En el teléfono las filas se apilan (visto a 390: la de tres del taller
+     salía como dos sellos y una foto). `.fila-2-mini` también, y después de
+     su regla base, que si no gana por orden. */
   @media (max-width: 47em) {
-    .fila-2 { grid-template-columns: 1fr; }
+    .fila-2, .fila-2-mini { grid-template-columns: 1fr; max-width: 332px; }
     .fila-mtt { grid-template-columns: repeat(auto-fit, minmax(154px, 1fr)); }
   }
   /* Los clips en tira de `tarjeta`: 154 × 4 + 24 × 3 = 688. El de la NUS
@@ -6013,7 +6016,6 @@ const cifrasFranja = c.franja.sitioQ
   .mini-tira { display: flex; flex-wrap: wrap; gap: 24px; align-items: end; }
   .mini { display: block; border-radius: 20px; }
   .mini:focus-visible { outline: 2px solid var(--cvh-tinta); outline-offset: 3px; }
-  .fila-2-mini { grid-template-columns: repeat(2, minmax(0, 332px)) 154px; max-width: 866px; align-items: end; }
   /* Los paneles con borde de «Mis proyectos» se van: la única tarjeta del
      documento es la de las rejillas (spec §1.4) y la de tinta de los huecos. */
   .cap .bloque { border: 0; background: transparent; padding: 0; border-radius: 0; }
@@ -6021,6 +6023,8 @@ const cifrasFranja = c.franja.sitioQ
   .cap .cifras li { display: flex; flex-direction: column-reverse; gap: 4px; padding: 12px 0; min-height: 64px; border-bottom: 1px solid color-mix(in oklab, var(--cvh-tinta) 12%, transparent); }
   .cap .cifra { font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; }
   .cap .cifra-que { font-size: 13px; color: var(--cvh-tinta-3); }
+  .fila-2-mini { grid-template-columns: repeat(2, minmax(0, 332px)) 154px; max-width: 866px; align-items: end; }
+  @media (max-width: 47em) { .fila-2-mini { grid-template-columns: 1fr; } }
   @media (min-width: 940px) {
     .con-aparte { grid-template-columns: minmax(0, 688px) 332px; column-gap: 48px; }
     .fila-2 { grid-template-columns: repeat(2, 332px); }
