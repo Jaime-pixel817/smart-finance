@@ -3132,6 +3132,13 @@ const cifrasFranja = c.franja.sitioQ
   .portada-n1, .portada-n2 { display: block; }
   .portada-senuelo {
     display: flex; align-items: center; gap: var(--sp-2);
+    /* DEBAJO DEL NOMBRE ENTERO, no en medio. En el marcado va entre las dos
+       mitades (es la forma del titular de Ondo y en escritorio vive
+       absoluto a 92svh, donde el orden no cuenta), pero en el teléfono el
+       titular es una columna y se leía «Jaime Sandoval / SCROLL TO READ /
+       Ricaño»: un apellido partido por un señuelo. `order` lo manda al
+       final de la columna sin tocar el marcado ni la tapa de escritorio. */
+    order: 1;
     /* Se separa del titular con su propio aire: pegado a las dos mitades se
        leía como un tercer renglón del nombre. */
     padding-block: .12em;
