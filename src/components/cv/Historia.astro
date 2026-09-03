@@ -732,7 +732,7 @@ const cifrasFranja = c.franja.sitioQ
              (#6E6E6E) da 1.1:1 — ilegible. La banda de arriba está garantizada
              por el velo (≥ 15.9:1 en el 22 % superior), así que ahí es donde
              puede vivir cualquier texto pequeño. */}
-        <p class="etiqueta">{c.head.eyebrow} <span class="portada-num">{num(0)}</span></p>
+        <p class="etiqueta">{c.head.eyebrow} <span class="portada-num">{num(0).n} / {num(0).t}</span></p>
         {/* ── Idioma ────────────────────────────────────────────────────
              Mismo mecanismo de siempre: :target en Cv.astro, cero
              JavaScript. El `href` que va ESCRITO es `#en`/`#es`, que
@@ -3963,6 +3963,12 @@ const cifrasFranja = c.franja.sitioQ
   .cita :global(.foto-hueco) { background: rgba(255, 255, 255, .06); }
   .cita :global(.hueco-mat) { background: rgba(255, 255, 255, .06); }
   .cita :global(.hueco-mat-marca) { color: var(--cvh-tapa-tinta-2); }
+  /* La marca «palabra mía» de la tarjeta de Durán: sobre negro, la tinta-3 del
+     papel no llega a 4.5:1 (lo atrapó axe en los ocho anchos). */
+  .cita .cifra-suya-marca { color: var(--cvh-tapa-tinta-2); }
+  /* El plegado «Lo que dijo» dentro de la tarjeta negra: tinta clara (axe). */
+  .cita .ref-ver-txt, .cita .ref-flecha, .cita .tercero, .cita .tercero cite { color: var(--cvh-tapa-tinta); }
+  .cita .tercero { border-left-color: rgba(255, 255, 255, .35); }
   .cita :global(.hueco-mat-que) { color: var(--cvh-tapa-tinta); }
   .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
   /* Las flechas: botones de verdad, 44px de blanco, con estado de extremo.
@@ -5938,7 +5944,8 @@ const cifrasFranja = c.franja.sitioQ
   .cita-dijo { margin-top: var(--sp-2); }
   .cita-dijo .tercero { margin-top: var(--sp-2); }
   .exped-h { margin-top: var(--sp-6); }
-  .cert-insignia-tag { display: block; font: 500 10px/1.2 var(--mono, ui-monospace, monospace); letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; margin-top: 4px; text-align: center; }
+  /* Visible y con contraste (axe lo pidió a 4.5:1): tinta-2, sin opacidad. */
+  .cert-insignia-tag { display: block; font: 500 11px/1.25 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--cvh-tinta-2); margin-top: 6px; text-align: center; }
   .podcasts { max-width: 688px; }
 
   /* ══ OLA 4 · LAS CINCO CAJAS (spec-ola4-sitios §A) ═══════════════════════
@@ -5961,8 +5968,14 @@ const cifrasFranja = c.franja.sitioQ
   .cap .caja-mitad { width: 100%; max-width: 332px; }
   .cap .caja-tarjeta { width: 100%; max-width: 154px; }
   .cap .caja-prosa .recuerdo, .cap .caja-mitad .recuerdo, .cap .caja-tarjeta .recuerdo { width: 100%; }
+  /* `width: 100%` y NO `auto`: con `auto`, una foto `lazy` mide 0×0 hasta que
+     llega (medido: las de Moris y Marg en blanco y el pie arriba del todo) y
+     al cargar empuja la página — CLS. Con `100%` la caja la reservan
+     `width`/`height` desde el primer pintado, y el techo por natural la
+     encoge. Sin `max-block-size`: por construcción ninguna pasa de 522
+     (mitad ≤ 332/0.636; tarjeta ≤ 274), así que no deforma nada. */
   .cap .caja-prosa img, .cap .caja-mitad img, .cap .caja-tarjeta img {
-    width: auto; height: auto; max-width: 100%; max-block-size: 58vh;
+    width: 100%; height: auto; max-width: 100%;
   }
   .cap img[style*="--nat-w"] { max-width: min(100%, calc(var(--nat-w) * 1px)); }
   /* Dos verticales en fila: 332 + 24 + 332 = 688, la pista de prosa. */

@@ -51,6 +51,9 @@ function fundido(): void {
     const listo = () => img.setAttribute('data-carga', 'si');
     img.addEventListener('load', listo, { once: true });
     img.addEventListener('error', listo, { once: true });
+    // Red de seguridad: pase lo que pase con `load`, a los 2.5 s la foto se ve.
+    // Una foto que no llega a verse es peor que una que no se funde.
+    setTimeout(listo, 2500);
   });
 }
 
