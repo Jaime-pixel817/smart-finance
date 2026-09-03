@@ -4798,15 +4798,19 @@ const cifrasFranja = c.franja.sitioQ
       --cv-v1: 24px;    /* dentro de un grupo: una figura y su pie */
       --cv-v2: 48px;    /* entre bloques de la misma idea */
       --cv-v3: 96px;    /* entre ideas dentro de un capítulo */
-      /* ── 264 Y NO 160, Y LA RAZÓN ES UNA PROPORCIÓN, NO UN NÚMERO ──────
-         Dentro de un capítulo el aire es 96; entre capítulos, 264. Son
-         2.75 : 1, que es la proporción medida en Linear (96 dentro / 266
-         entre = 2.8 : 1) y es LA PROPORCIÓN —no el número— la que hace que
-         el ojo agrupe sin leer. Con 160 la razón era 1.67 : 1 y las
-         fronteras no se leían como fronteras: eran un párrafo más de aire.
-         Cuesta 8 × (264 − 160) = +832 px de documento y se recupera veinte
-         veces en lo que se recorta. */
-      --cv-v4: 264px;   /* entre capítulos */
+      /* ── 160, Y MEDIDO DESDE EL CIERRE HASTA EL NÚMERO ─────────────────
+         Estuvo en 264 con el argumento de la proporción de Linear (96
+         dentro / 266 entre). Medido en captura a 1440 (ola 4, revisión):
+         del cierre «Proven:» al titular siguiente había 342 px —264 de
+         padding, y el filete caía PEGADO al número, no en medio, porque el
+         `::before` se autocolocaba en la fila 3, detrás del titular, y su
+         margen negativo lo subía hasta el aro—. Ocho veces: 2.6 pantallas
+         de nada, que es la queja literal («súper extenso»). El ritmo del
+         spec de estructura es 24 / 48 / 96 / 160 y 160 es el TOPE: del
+         cierre al número van 160 con el filete en medio (80 + 80), y el
+         titular 24 más abajo. La proporción con el 96 de dentro es 1.67 :
+         1 y la frontera la marca el surco a sangre, no el aire. */
+      --cv-v4: 160px;   /* entre capítulos: cierre → 80 → filete → 80 → número */
     }
 
     /* ══ LA FRONTERA DE CAPÍTULO: UN SURCO A SANGRE ══════════════════════
@@ -4825,10 +4829,15 @@ const cifrasFranja = c.franja.sitioQ
        documento»; una del ancho del contenido, como un borde.
 
        El margen negativo consume el `padding-block` del capítulo y lo
-       reparte a los dos lados: la frontera cae en MEDIO de los 264 px, no
-       pegada al titular de abajo. */
+       reparte a los dos lados: la frontera cae en MEDIO de los 160 px, no
+       pegada al titular de abajo. `grid-row: 1` NO ES DECORATIVO: sin él el
+       pseudoelemento se autocoloca en la primera fila libre, que con el
+       número en la 1 y el titular en la 2 era la 3, y desde ahí el margen
+       negativo lo subía hasta cruzar el aro del número (medido: filete a
+       5 px del número, 283 px de aire encima). */
     .cap + .cap::before {
       content: ""; display: block;
+      grid-row: 1;
       grid-column: sangre-i / sangre-f;
       position: relative; left: 50%; translate: -50% 0;
       width: 100vw; height: 2px;
@@ -5390,13 +5399,14 @@ const cifrasFranja = c.franja.sitioQ
     .cap:not(.cap-portada) > :global(*) { margin-block-start: var(--cv-v2); }
     .cap:not(.cap-portada) > .cap-num { margin-block-start: 0; }
     /* ── LA CABECERA 7 + 5 (ola 4; Vercel /enterprise, Stripe) ─────────────
-       Aro y número en la fila 1; en la fila 2, el titular en la pista de
-       prosa (≤ 544) y el resumen —cuando lo hay, y solo si va pegado al
+       La fila 1 es del filete (`.cap + .cap::before`, arriba). Aro y
+       número en la fila 2; en la fila 3, el titular en la pista de prosa
+       (≤ 544) y el resumen —cuando lo hay, y solo si va pegado al
        titular— en el margen, alineados por ABAJO. La jerarquía la hace la
-       posición, no el tamaño. Lo demás sigue en auto-colocación desde la 3. */
-    .cap:not(.cap-portada) > .cap-num { grid-row: 1; }
-    .cap:not(.cap-portada) > .cap-h { grid-row: 2; grid-column: texto-i / texto-f; max-width: 544px; }
-    .cap:not(.cap-portada) > .cap-h + .cap-lede { grid-row: 2; grid-column: margen-i / margen-f; max-width: 544px; align-self: end; margin-block-start: 0; }
+       posición, no el tamaño. Lo demás sigue en auto-colocación desde la 4. */
+    .cap:not(.cap-portada) > .cap-num { grid-row: 2; }
+    .cap:not(.cap-portada) > .cap-h { grid-row: 3; grid-column: texto-i / texto-f; max-width: 544px; }
+    .cap:not(.cap-portada) > .cap-h + .cap-lede { grid-row: 3; grid-column: margen-i / margen-f; max-width: 544px; align-self: end; margin-block-start: 0; }
     /* La línea de cierre: en la prosa, a 96 px de lo último. */
     .cap:not(.cap-portada) > .cap-cierre { grid-column: texto-i / texto-f; margin-block-start: var(--cv-v3); }
     .cap:not(.cap-portada) > .con-aparte { grid-column: marco-i / marco-f; }
