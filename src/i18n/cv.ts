@@ -614,6 +614,7 @@ const en = {
     masDijeron: 'More of what they said',
     otrosDos: 'The other two',
     reto: 'The contest calendar and my portfolio',
+    abrir: 'Open the photo at full size',
     mas: 'More'
   },
 
@@ -2743,6 +2744,7 @@ const es: typeof en = {
     masDijeron: 'Más de lo que dijeron',
     otrosDos: 'Los otros dos',
     reto: 'El calendario del reto y mi cartera',
+    abrir: 'Abrir la foto a su tamaño',
     mas: 'Más'
   },
 

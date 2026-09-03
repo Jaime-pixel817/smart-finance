@@ -104,14 +104,16 @@ const h = c.huecos[id];
     display: flex; flex-direction: column; gap: 4px;
     max-width: var(--measure);
     padding: var(--card-pad);
-    border: 1px dashed var(--ink-3);
+    /* Tarjeta de tinta al 2 % (ola 4, Vercel): un hueco es una tarjeta
+       callada, no un wireframe. Se fue la raya discontinua. */
+    border: 0;
     /* REDONDEADO desde el brief del 2026-08-28: el lenguaje del CV pasó a
        tarjetas de esquinas redondeadas (la referencia de Ondo), y un hueco
        cuadrado entre tarjetas redondeadas se leía como pieza de otra página.
        Cuando esta página iba toda a esquina recta, aquí decía 0 a propósito;
        si algún día vuelve, esta es la línea que hay que devolver. */
-    border-radius: 14px;
-    background: var(--bg-1);
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--ink, #000) 2%, var(--bg-1));
   }
   .hueco-tag {
     font-family: var(--font-mono); font-size: var(--fs-eyebrow);

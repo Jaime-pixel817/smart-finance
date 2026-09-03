@@ -56,9 +56,11 @@ const { c, que, class: cls } = Astro.props;
 
 <style>
   .hueco-mat {
-    border: 1px dashed var(--cvh-tinta-3);
-    border-radius: 10px;
-    padding: var(--sp-3);
+    /* Tarjeta de tinta al 2 % (ola 4): sin raya discontinua, radio único. */
+    border: 0;
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--cvh-tinta, #000) 2%, var(--cvh-papel, #fff));
+    padding: 20px;
     display: flex; flex-direction: column; gap: 6px;
     max-width: 34rem;
   }

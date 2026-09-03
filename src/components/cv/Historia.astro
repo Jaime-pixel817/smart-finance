@@ -423,7 +423,7 @@ const capitulos = [
 // Los DOS lados van con dos dígitos («01 / 09», no «01 / 9»): con el índice
 // relleno y el total a pelo, el rótulo cambiaba de forma según el lado
 // (2026-08-29). Si algún día hay 10+ capítulos, el formato ya está listo.
-const num = (i: number) => String(i + 1).padStart(2, '0') + ' / ' + String(capitulos.length).padStart(2, '0');
+const num = (i: number) => ({ n: String(i + 1).padStart(2, '0'), t: String(capitulos.length).padStart(2, '0') });
 
 // ── LA MARCA DE «ESTO LO FIRMA UN TERCERO» ──────────────────────────────
 // Se pinta donde una afirmación de Jaime pasó a tener fuente de fuera desde
@@ -913,7 +913,7 @@ const cifrasFranja = c.franja.sitioQ
           {/* Foto 2 del lote del 2026-08-30: la visita a Toronto. Va PEGADA a
                su cita sobre la U of T, que es de esa visita. */}
           <figure class="caja-tarjeta lote-fig lote-toronto sin-imprimir">
-            <span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" style="--nat-w:480" height="640" loading="lazy" decoding="async" /></span>
+            <a class="mini" href={foto('cv-lote-toronto.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" style="--nat-w:480" height="640" loading="lazy" decoding="async" /></span></a>
             <figcaption class="pie">{c.lote.torontoPie}</figcaption>
           </figure>
           <Hueco c={c} id="quienSoy" />
@@ -998,9 +998,9 @@ const cifrasFranja = c.franja.sitioQ
        grupo, por su TÍTULO (sale de `caps`), no por su número. */}
   <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(1)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(1).n}</span><span class="cap-de">/ {num(1).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.grupo}</h2>
-    <div class="grupo-cap">
+    <div class="grupo-cap con-aparte">
       <div class="grupo-texto">
         <p class="cap-frases">{c.proyectos.grupo}</p>
         <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
@@ -1009,23 +1009,25 @@ const cifrasFranja = c.franja.sitioQ
         <p class="cap-frases">{c.proyectos.grupoTaller.replace('{s}', c.caps.grupoHace)}</p>
         <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
       </div>
-      <figure class="caja-mitad lote-fig fig-sola grupo-fig sin-imprimir">
+      {/* EL APARTE (spec-ola4-sitios §C.2): la figura `mitad` y, debajo, las
+           otras dos como MINIATURAS de 154 que abren al natural. El plegado
+           deja de esconder fotos: las enseña pequeñas, al lado de la afirmación. */}
+      <div class="aparte sin-imprimir">
+        <figure class="caja-mitad lote-fig grupo-fig">
         <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" style="--nat-w:720" height="810" loading="lazy" decoding="async" /></span>
         <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
       </figure>
-    </div>
-    <details class="ref-plegable sin-imprimir">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masFotos}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
-      <div class="fila-fotos">
-        <figure class="caja-tarjeta lote-fig">
-          <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" style="--nat-w:800" height="600" loading="lazy" decoding="async" /></span>
+        <div class="mini-tira">
+          <figure class="caja-tarjeta lote-fig">
+          <a class="mini" href={foto('grupo-800.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" style="--nat-w:800" height="600" loading="lazy" decoding="async" /></span></a>
         </figure>
-        <figure class="caja-tarjeta lote-fig">
-          <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" style="--nat-w:560" height="786" loading="lazy" decoding="async" /></span>
+          <figure class="caja-tarjeta lote-fig">
+          <a class="mini" href={foto('cv-lote-grupo-narra.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" style="--nat-w:560" height="786" loading="lazy" decoding="async" /></span></a>
           <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
         </figure>
+        </div>
       </div>
-    </details>
+    </div>
     <p class="meta-mono cap-cierre">{c.cierre.grupo}</p>
   </section>
 
@@ -1056,7 +1058,7 @@ const cifrasFranja = c.franja.sitioQ
        La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
   <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-3-h`}>
     <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(2)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(2).n}</span><span class="cap-de">/ {num(2).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.conversaciones}</h2>
     {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
@@ -1228,7 +1230,7 @@ const cifrasFranja = c.franja.sitioQ
        de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
   <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(3)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(3).n}</span><span class="cap-de">/ {num(3).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.cartas}</h2>
     <p class="cap-lede">{c.cartas.lede}</p>
 
@@ -1317,12 +1319,12 @@ const cifrasFranja = c.franja.sitioQ
           </p>
           {k.lote === 'lloyd' ? (
             <figure class="caja-tarjeta lote-fig">
-              <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" style="--nat-w:560" height="996" loading="lazy" decoding="async" /></span>
+              <a class="mini" href={foto('cv-lote-carta-lloyd.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" style="--nat-w:560" height="996" loading="lazy" decoding="async" /></span></a>
               <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
             </figure>
           ) : k.lote === 'andy' ? (
             <figure class="caja-tarjeta lote-fig">
-              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" style="--nat-w:480" height="360" loading="lazy" decoding="async" /></span>
+              <a class="mini" href={foto('breakdown-andy-toh.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" style="--nat-w:480" height="360" loading="lazy" decoding="async" /></span></a>
               <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
             </figure>
           ) : null}
@@ -1403,7 +1405,7 @@ const cifrasFranja = c.franja.sitioQ
        Las fotos del taller entran en el paso 3 (build-photos.mjs). */}
   <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(4)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(4).n}</span><span class="cap-de">/ {num(4).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.grupoHace}</h2>
     <p class="cap-lede">{c.grupoHace.lede}</p>
 
@@ -1435,23 +1437,20 @@ const cifrasFranja = c.franja.sitioQ
         <h4 class="etiqueta">{c.taller.fotosH}</h4>
         {/* 1500×2000 → 560×747 (3:4, sin recorte: son fotos que alguien encuadró).
              Caras de compañeros MENORES: la publicación la confirma Jaime (informe). */}
-        <div class="fila-2">
+        <div class="fila-2 fila-2-mini">
           {c.taller.fotos.slice(0, 2).map((f) => (
             <figure class="lote-fig caja-mitad">
               <span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span>
               <figcaption class="pie">{f.pie}</figcaption>
             </figure>
           ))}
-        </div>
-        <details class="ref-plegable">
-          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masFotos}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
           {c.taller.fotos.slice(2).map((f) => (
             <figure class="lote-fig caja-tarjeta">
-              <span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span>
+              <a class="mini" href={foto(f.id)} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span></a>
               <figcaption class="pie">{f.pie}</figcaption>
             </figure>
           ))}
-        </details>
+        </div>
 
         <h4 class="etiqueta">{c.taller.testimoniosH}</h4>
         <p class="pie">{c.taller.testimoniosLede}</p>
@@ -1535,7 +1534,7 @@ const cifrasFranja = c.franja.sitioQ
        sigue nombrada en su cita, que es verbatim y no se toca. */}
   <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
     <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(5)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(5).n}</span><span class="cap-de">/ {num(5).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.voluntariados}</h2>
     {/* texto de Jaime, pendiente de su revisión final */}
     <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
@@ -1581,11 +1580,11 @@ const cifrasFranja = c.franja.sitioQ
             <figcaption class="pie">{c.lote.donacionPie}</figcaption>
           </figure>
           <figure class="caja-tarjeta lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
+            <a class="mini" href={foto('cv-lote-perritos.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span></a>
             <figcaption class="pie">{c.lote.perritosPie}</figcaption>
           </figure>
           <figure class="caja-tarjeta lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
+            <a class="mini" href={foto('cv-lote-marcha.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span></a>
             <figcaption class="pie">{c.lote.marchaPie}</figcaption>
           </figure>
         </div>
@@ -1628,11 +1627,11 @@ const cifrasFranja = c.franja.sitioQ
             <figcaption class="pie">{c.lote.playa1Pie}</figcaption>
           </figure>
           <figure class="caja-tarjeta lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
+            <a class="mini" href={foto('cv-lote-playa-2.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span></a>
             <figcaption class="pie">{c.lote.playa2Pie}</figcaption>
           </figure>
           <figure class="caja-tarjeta lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" style="--nat-w:560" height="731" loading="lazy" decoding="async" /></span>
+            <a class="mini" href={foto('cv-lote-playa-3.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" style="--nat-w:560" height="731" loading="lazy" decoding="async" /></span></a>
             <figcaption class="pie">{c.lote.playa3Pie}</figcaption>
           </figure>
         </div>
@@ -1660,7 +1659,7 @@ const cifrasFranja = c.franja.sitioQ
        MOVIMIENTO: una sola cosa llamando la atención por pantalla, la cinta. */}
   <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
     <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(6)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(6).n}</span><span class="cap-de">/ {num(6).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-7-h`}>{c.caps.construi}</h2>
 
     <div class="bloques">
@@ -1918,7 +1917,7 @@ const cifrasFranja = c.franja.sitioQ
          nombre nuevo — y entonces el recorte raro de build-photos.mjs se
          puede borrar entero. */}
     <figure class="caja-tarjeta arco-fig fig-sola">
-      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" style="--nat-w:960" height="691" loading="lazy" decoding="async" /></span>
+      <a class="mini" href={foto('cv-tt-nus-presentacion.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" style="--nat-w:960" height="691" loading="lazy" decoding="async" /></span></a>
       <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
     </figure>
     <p class="cap-frases">{c.tiktok.nota}</p>
@@ -2082,7 +2081,7 @@ const cifrasFranja = c.franja.sitioQ
        regla que dejó las cartas con un solo recuadro (2026-08-31). */}
   <section class="cap" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(7)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(7).n}</span><span class="cap-de">/ {num(7).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-8-h`}>{c.caps.premios}</h2>
     <p class="cap-lede">{c.premios.lede}</p>
 
@@ -2160,7 +2159,7 @@ const cifrasFranja = c.franja.sitioQ
        certificados: son los renglones que un comité escanea. */}
   <section class="cap" aria-labelledby={`${p}-cap-9-h`}>
     <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true">{num(8)}</p>
+    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(8).n}</span><span class="cap-de">/ {num(8).t}</span></p>
     <h2 class="cap-h" id={`${p}-cap-9-h`}>{c.caps.expediente}</h2>
     <p class="cap-lede">{c.acad.lede}</p>
     <h3 class="t-h3 exped-h">{c.expedienteSub.acad}</h3>
@@ -3567,7 +3566,7 @@ const cifrasFranja = c.franja.sitioQ
   @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 332px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
   .cap-1-retrato { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
-  .cap-1-foto { max-width: 100%; height: auto; display: block; border-radius: 18px; }
+  .cap-1-foto { max-width: 100%; height: auto; display: block; border-radius: 20px; }
   /* La Torre CN de Jaime. `max-width` en px y no en `ch` ni en `%`: es una
      figura y su tamaño lo manda la foto, no el texto. Ya viene en gris del
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
@@ -3624,7 +3623,7 @@ const cifrasFranja = c.franja.sitioQ
     display: flex; flex-direction: column; gap: 4px;
     min-height: 44px; min-width: 0; height: 100%;
     padding: var(--sp-3) var(--sp-4);
-    border: 1px solid var(--cvh-raya); border-radius: 14px;
+    border: 1px solid var(--cvh-raya); border-radius: 20px;
     background: var(--cvh-papel); color: var(--cvh-tinta);
     transition: background var(--dur-2) var(--ease-std);
   }
@@ -3720,7 +3719,7 @@ const cifrasFranja = c.franja.sitioQ
   .cifras li {
     display: flex; flex-direction: column-reverse; justify-content: start;
     gap: var(--sp-3); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 18px;
+    border: 1px solid var(--cvh-raya); border-radius: 20px;
     padding: var(--sp-4);
   }
   .cifra {
@@ -3755,7 +3754,7 @@ const cifrasFranja = c.franja.sitioQ
      El radio era 0 cuando toda la página iba a esquina recta; desde el brief
      del 2026-08-28 el lenguaje es el de Ondo (tarjetas redondeadas), así que
      la tarjeta del reporte va como las demás. */
-  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 18px; background: var(--cvh-papel); box-shadow: none; }
+  .rep { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 720px; border: 1px solid var(--cvh-raya); border-radius: 20px; background: var(--cvh-papel); box-shadow: none; }
   .rep-name { font-family: var(--font-sans); font-weight: 600; }
   .rep-meta { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-4); margin: 0; }
   .rep-meta div { display: flex; flex-direction: column; gap: 2px; }
@@ -3798,21 +3797,21 @@ const cifrasFranja = c.franja.sitioQ
   }
   .clip {
     display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    border: 1px solid var(--cvh-raya); border-radius: 20px;
     padding: var(--sp-4);
     background: var(--cvh-papel);
   }
   @media (min-width: 34em) {
     .clip-ancho { grid-column: span 2; }
   }
-  .clip .recuerdo, .clip .recuerdo img { border-radius: 14px; }
+  .clip .recuerdo, .clip .recuerdo img { border-radius: 20px; }
   .clip .recuerdo img { max-width: 300px; }
   /* El marco de un clip servido: 9:16 con su alto reservado (cero CLS) y
      fondo oscuro de letterbox mientras carga el póster. */
   /* Un vertical 9:16 a 300 px de ancho mide 533 px = 0.59 vh, y a 387 px
      mide 688 = 0.76. Los dos por encima del techo, así que el tope de los
      clips es la ALTURA y el ancho sale de ella. */
-  .clip-video { display: block; width: auto; max-width: min(100%, 300px); max-block-size: 58vh; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 14px; }
+  .clip-video { display: block; width: auto; max-width: min(100%, 300px); max-block-size: 58vh; height: auto; aspect-ratio: 9 / 16; background: #101014; border-radius: 20px; }
   /* El de la NUS va ENDEREZADO (TikTok lo publica girado 90°), o sea
      apaisado: su caja es 16:9 y más ancha. La proporción va aquí y no en un
      `style=` del elemento porque la reserva de caja es lo que evita el CLS, y
@@ -3859,15 +3858,15 @@ const cifrasFranja = c.franja.sitioQ
     padding: var(--sp-5);
     background: #101014;
     color: var(--cvh-tapa-tinta);
-    border-radius: 24px;
+    border-radius: 20px;
     min-width: 0;
   }
   .cita-media { min-width: 0; }
   .cita-foto {
     display: block; width: min(100%, 154px); height: auto;
-    border-radius: 14px;
+    border-radius: 20px;
   }
-  .cita .clip-video { max-width: 154px; border-radius: 14px; }
+  .cita .clip-video { max-width: 154px; border-radius: 20px; }
   .cita-nombre { font-weight: 600; margin-top: var(--sp-2); }
   .cita-rol, .cita-tipo { font-size: var(--fs-caption); color: var(--cvh-tapa-tinta-2); }
   /* El rótulo que dice de quién es la frase de abajo, pegado a ella. */
@@ -3877,7 +3876,7 @@ const cifrasFranja = c.franja.sitioQ
   .cita :focus-visible { outline-color: var(--cvh-tapa-tinta); }
   /* Los componentes de hueco, versión para tarjeta oscura. `:global` porque
      sus estilos tienen ámbito propio (la lección de `.proj` en Hub.astro). */
-  .cita :global(.hueco) { border-color: rgba(255, 255, 255, .5); background: transparent; }
+  .cita :global(.hueco) { background: rgba(255, 255, 255, .06); }
   .cita :global(.hueco-tag) { color: #FFB84D; }
   .cita :global(.hueco-que) { color: var(--cvh-tapa-tinta); }
   /* `.hueco-pista` YA NO EXISTE en el DOM (Hueco.astro dejó de pintar la
@@ -3885,8 +3884,8 @@ const cifrasFranja = c.franja.sitioQ
      ella: una regla huérfana no se ve fallar, se lee como que el elemento
      sigue ahí. Si la pista vuelve a pintarse algún día, vuelve esta línea. */
   .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
-  .cita :global(.foto-hueco) { border-color: rgba(255, 255, 255, .5); }
-  .cita :global(.hueco-mat) { border-color: rgba(255, 255, 255, .5); }
+  .cita :global(.foto-hueco) { background: rgba(255, 255, 255, .06); }
+  .cita :global(.hueco-mat) { background: rgba(255, 255, 255, .06); }
   .cita :global(.hueco-mat-marca) { color: var(--cvh-tapa-tinta-2); }
   .cita :global(.hueco-mat-que) { color: var(--cvh-tapa-tinta); }
   .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
@@ -3923,7 +3922,7 @@ const cifrasFranja = c.franja.sitioQ
   }
   .cert-mini { width: 156px; }  /* 154 de imagen + el borde del enlace */
   .cert-mini-a {
-    display: block; border: 1px solid var(--cvh-raya); border-radius: 8px;
+    display: block; border: 1px solid var(--cvh-raya); border-radius: 20px;
     overflow: hidden; background: var(--cvh-papel);
   }
   .cert-mini-a:hover { border-color: var(--cvh-tinta-3); }
@@ -3967,7 +3966,7 @@ const cifrasFranja = c.franja.sitioQ
      hueco, y confundirlos sería decir que falta algo que ya está. */
   .carta {
     display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    border: 1px solid var(--cvh-raya); border-radius: 20px;
     padding: var(--sp-5); background: var(--cvh-papel);
   }
   .carta-nombre { font-weight: 600; font-size: var(--fs-h4, 1.05rem); }
@@ -4034,7 +4033,7 @@ const cifrasFranja = c.franja.sitioQ
   .premios { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 720px; }
   .premio {
     display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    border: 1px solid var(--cvh-raya); border-radius: 20px;
     padding: var(--sp-5); background: var(--cvh-papel);
   }
   .premio-cuando { color: var(--cvh-tinta-2); }
@@ -4060,7 +4059,7 @@ const cifrasFranja = c.franja.sitioQ
     display: flex; flex-direction: column; gap: var(--sp-2);
     padding: var(--sp-5);
     border: 1px dashed var(--cvh-tinta-3);
-    border-radius: 24px;
+    border-radius: 20px;
     min-height: 11em;
   }
   .carta-tag {
@@ -4092,7 +4091,7 @@ const cifrasFranja = c.franja.sitioQ
   .bloques { display: flex; flex-direction: column; gap: var(--sp-5); max-width: 960px; }
   .bloque {
     display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 24px;
+    border: 1px solid var(--cvh-raya); border-radius: 20px;
     padding: clamp(var(--sp-4), 3vw, var(--sp-6));
     background: var(--cvh-papel);
   }
@@ -4464,7 +4463,7 @@ const cifrasFranja = c.franja.sitioQ
      31 514 px. `overflow: clip` recorta igual, respeta el `border-radius` y
      NO crea contenedor de scroll, así que el timeline sube hasta el
      documento, que es el que se mueve. */
-  .recuerdo { display: block; overflow: clip; border-radius: 14px; }
+  .recuerdo { display: block; overflow: clip; border-radius: 20px; }
   /* ══ EL TECHO DE ALTURA: 0.58 × LA PANTALLA, Y NINGUNA MÁS ══════════════
      Es la mitad del arreglo de «un sin fin de imágenes gigantes» (Jaime,
      2026-09-02). Medido antes de esta regla: TRECE imágenes y clips del panel
@@ -5308,6 +5307,17 @@ const cifrasFranja = c.franja.sitioQ
     /* EL RITMO, EN CUATRO PASOS Y NINGUNO MÁS. */
     .cap:not(.cap-portada) > :global(*) { margin-block-start: var(--cv-v2); }
     .cap:not(.cap-portada) > .cap-num { margin-block-start: 0; }
+    /* ── LA CABECERA 7 + 5 (ola 4; Vercel /enterprise, Stripe) ─────────────
+       Aro y número en la fila 1; en la fila 2, el titular en la pista de
+       prosa (≤ 544) y el resumen —cuando lo hay, y solo si va pegado al
+       titular— en el margen, alineados por ABAJO. La jerarquía la hace la
+       posición, no el tamaño. Lo demás sigue en auto-colocación desde la 3. */
+    .cap:not(.cap-portada) > .cap-num { grid-row: 1; }
+    .cap:not(.cap-portada) > .cap-h { grid-row: 2; grid-column: texto-i / texto-f; max-width: 544px; }
+    .cap:not(.cap-portada) > .cap-h + .cap-lede { grid-row: 2; grid-column: margen-i / margen-f; max-width: 544px; align-self: end; margin-block-start: 0; }
+    /* La línea de cierre: en la prosa, a 96 px de lo último. */
+    .cap:not(.cap-portada) > .cap-cierre { grid-column: texto-i / texto-f; margin-block-start: var(--cv-v3); }
+    .cap:not(.cap-portada) > .con-aparte { grid-column: marco-i / marco-f; }
     .cap:not(.cap-portada) > .cap-h { margin-block-start: var(--cv-v1); }
     .cap:not(.cap-portada) > h3,
     .cap:not(.cap-portada) > .citas-marco,
@@ -5835,7 +5845,6 @@ const cifrasFranja = c.franja.sitioQ
   .tercero cite { font-style: normal; }
   .testimonios { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); max-width: 688px; }
   .grupo-cap { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
-  @media (min-width: 940px) { .grupo-cap { grid-template-columns: minmax(0, 688px) 332px; } }
   .grupo-fig { max-width: 332px; }
   .cita-dijo { margin-top: var(--sp-2); }
   .cita-dijo .tercero { margin-top: var(--sp-2); }
@@ -5883,4 +5892,36 @@ const cifrasFranja = c.franja.sitioQ
   .clip .recuerdo img, .clip .clip-video { width: 154px; max-width: 154px; height: auto; }
   .clip-ancho { grid-column: 1 / -1; }
   .clip-ancho .clip-video { width: 688px; max-width: 100%; }
+
+  /* ══ OLA 4 · CABECERA, ARO, APARTES, MINIATURAS, FILA DE CIFRA ════════════
+     spec-ola4-sitios §B.2 y §C. El aro (G2, Ondo): 30 px, 1 px de borde, el
+     número en 13 px mono. El aparte (§C.2): ≤ 332 de ancho, en el margen, se
+     alinea por arriba con la prosa a la que acompaña, y NUNCA sticky. La
+     miniatura (G8): `tarjeta` de 154 que abre la foto al natural en un
+     <dialog> (cv-movimiento.ts); sin JS es un enlace a la foto. La fila de
+     cifra (G4, Ondo): etiqueta 13 · numeral 24 tabular · filete al 12 %. */
+  .cap-aro {
+    display: inline-grid; place-items: center; width: 30px; height: 30px;
+    border: 1px solid var(--cvh-tinta-3); border-radius: 50%;
+    font-size: 13px; line-height: 1; margin-right: 8px; vertical-align: middle;
+  }
+  .cap-de { vertical-align: middle; }
+  .con-aparte { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
+  .aparte { display: flex; flex-direction: column; gap: var(--sp-3); max-width: 332px; }
+  .mini-tira { display: flex; flex-wrap: wrap; gap: 24px; align-items: end; }
+  .mini { display: block; border-radius: 20px; }
+  .mini:focus-visible { outline: 2px solid var(--cvh-tinta); outline-offset: 3px; }
+  .fila-2-mini { grid-template-columns: repeat(2, minmax(0, 332px)) 154px; max-width: 866px; align-items: end; }
+  /* Los paneles con borde de «Mis proyectos» se van: la única tarjeta del
+     documento es la de las rejillas (spec §1.4) y la de tinta de los huecos. */
+  .cap .bloque { border: 0; background: transparent; padding: 0; border-radius: 0; }
+  .cap .cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 48px; max-width: 688px; }
+  .cap .cifras li { display: flex; flex-direction: column-reverse; gap: 4px; padding: 12px 0; min-height: 64px; border-bottom: 1px solid color-mix(in oklab, var(--cvh-tinta) 12%, transparent); }
+  .cap .cifra { font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .cap .cifra-que { font-size: 13px; color: var(--cvh-tinta-3); }
+  @media (min-width: 940px) {
+    .con-aparte { grid-template-columns: minmax(0, 688px) 332px; column-gap: 48px; }
+    .fila-2 { grid-template-columns: repeat(2, 332px); }
+    .fila-2-mini { grid-template-columns: 332px 332px 154px; }
+  }
 </style>
