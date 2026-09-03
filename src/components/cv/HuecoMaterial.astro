@@ -69,4 +69,15 @@ const { c, que, class: cls } = Astro.props;
     letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-3);
   }
   .hueco-mat-que { font-weight: 600; color: var(--cvh-tinta); }
+
+  /* AL IMPRIMIR, UNA LÍNEA (misma regla que `Hueco.astro`): en el PDF estos
+     recuadros salían como tarjetas; en papel son una nota mono de 11 px. */
+  @media print {
+    .hueco-mat {
+      display: block; padding: 0; border-radius: 0; background: none; max-width: none;
+      font-family: var(--font-mono); font-size: 11px; line-height: 1.4; letter-spacing: .04em;
+    }
+    .hueco-mat-marca, .hueco-mat-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2); }
+    .hueco-mat-marca::after { content: ' · '; }
+  }
 </style>

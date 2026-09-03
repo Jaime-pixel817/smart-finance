@@ -124,4 +124,17 @@ const h = c.huecos[id];
     color: var(--warn);
   }
   .hueco-que { color: var(--ink); font-weight: 600; }
+
+  /* AL IMPRIMIR, UNA LÍNEA. En el PDF los once huecos del CV salían como once
+     tarjetas grises de 20 px de radio compitiendo con el texto (rev. ola 4):
+     en papel un hueco es una nota al margen, no una caja. Mono de 11 px,
+     rótulo y qué falta en el mismo renglón, sin fondo y sin relleno. */
+  @media print {
+    .hueco {
+      display: block; padding: 0; border-radius: 0; background: none; max-width: none;
+      font-family: var(--font-mono); font-size: 11px; line-height: 1.4; letter-spacing: .04em;
+    }
+    .hueco-tag, .hueco-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2, var(--ink-2)); }
+    .hueco-tag::after { content: ' · '; }
+  }
 </style>
