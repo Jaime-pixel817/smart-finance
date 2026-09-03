@@ -113,9 +113,13 @@ const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
   .viv-puntos { display: flex; gap: 6px; flex: 0 0 auto; }
   .viv-puntos i { width: 8px; height: 8px; border-radius: 50%; background: var(--cvh-raya); }
   .viv-url { color: var(--cvh-tinta-2); overflow-wrap: anywhere; }
-  /* 16:10. La caja se reserva con `aspect-ratio`, así que el marco no mueve
-     nada al cargar: CLS 0 por construcción. */
-  .viv-caja { position: relative; aspect-ratio: 16 / 10; }
+  /* La caja tiene LA PROPORCIÓN DEL RESPALDO (1120 × 644 → 688 × 395 en la
+     pista de prosa), no 16:10: con 16:10 la caja medía 688 × 430 y la
+     captura, en `cover`, se ampliaba 1,09× y perdía 35 px por abajo. Es el
+     único sitio del CV donde una foto se pintaba más grande que su archivo.
+     El marco vivo se adapta a lo que haya; la imagen no. Se reserva con
+     `aspect-ratio`, así que el marco no mueve nada al cargar: CLS 0. */
+  .viv-caja { position: relative; aspect-ratio: 1120 / 644; }
   .viv-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
   .viv-respaldo {
     position: absolute; inset: 0; display: grid; place-items: center;
@@ -125,7 +129,9 @@ const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
      `X-Frame-Options` nuevo, red mala— se queda puesto para siempre, que es
      justo lo que hace falta: un `<iframe>` no dispara `onerror`. */
   .viv[data-viv-cargado] .viv-respaldo { opacity: 0; transition: opacity var(--dur-3) linear; }
-  .viv-respaldo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  /* Sin `cover`: la caja ya tiene su proporción, así que 100 % × 100 % es
+     el archivo entero, ni ampliado ni recortado. */
+  .viv-respaldo img { width: 100%; height: 100%; display: block; }
   .viv-respaldo-url { color: var(--cvh-tinta-3); }
   .viv-tapa {
     position: absolute; inset: 0; width: 100%; height: 100%;
