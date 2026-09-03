@@ -122,6 +122,9 @@ const SUJETO_AJENO = new Map([
   ['podcast|transmitió', 'el sujeto es el canal de la escuela: «el canal de la escuela que lo transmitió»'],
   ['lloyd|firmó', 'el sujeto es Lloyd George: «el hombre que después firmó una de mis dos cartas»'],
   ['podcast|ocurrió', 'el sujeto es el episodio, no Jaime: «ya ocurrió; la grabación todavía no ha llegado»'],
+  // ola 4: el nodo del FTR dejó de decir «episodio completo» y dice de qué
+  // emisión sale. El sujeto de «salió» es EL PODCAST, no Jaime.
+  ['podcast|Salió|Salió dentro del programa del canal de la escuela', 'el sujeto es el podcast: «Salió dentro del programa del canal de la escuela»'],
   // AQUÍ VIVÍAN SEIS EXENCIONES MÁS, una por cada rótulo de los ocho huecos
   // de contratiempo de la ola 2 («Si una materia o un examen salió mal…»),
   // donde el sujeto era la cosa que salió mal y no Jaime. Los ocho huecos se
@@ -146,7 +149,12 @@ function exento(k, verbo, esp) {
 // «su/sus» que son CORRECTOS porque lo poseído es de otra persona. Mismo
 // formato `clave|fragmento`, por el mismo motivo.
 const POSEE_OTRO = new Map([
-  ['tipo|su mentoría', 'lo poseído es de Mauricio Mercenario, dentro de una cita de Jaime sobre él']
+  ['tipo|su mentoría', 'lo poseído es de Mauricio Mercenario, dentro de una cita de Jaime sobre él'],
+  // ola 4: la ficha de Marg Franklin cita el post de Jaime («her story as a
+  // woman leading…») y cierra con «una pregunta y SU respuesta»: las dos
+  // cosas son de ella.
+  ['tipo|su historia como mujer', 'lo poseído es de Marg Franklin, dentro de la cita del post de Jaime («her story as a woman leading…»)'],
+  ['marg|su respuesta', 'lo poseído es de Marg Franklin: «una pregunta y su respuesta — no una entrevista»']
 ]);
 
 test('las dos tablas del CV tienen las mismas claves y el mismo número de cadenas', () => {

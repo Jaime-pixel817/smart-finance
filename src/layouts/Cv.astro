@@ -385,7 +385,11 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
         // sitio del documento donde es más probable que alguien pulse dos
         // destinos seguidos — que es exactamente el gesto que dispara el bug
         // de arriba (la segunda navegación de ancla en vuelo no desplaza).
-        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-baja[href^="#"]') : null;
+        // `a.nodo[href^="#"]` son los nodos del LIENZO que abren una ficha de
+        // dentro del CV (Rendón, Moris y Marg mientras no llegue su enlace):
+        // mismo viaje que sus «En el capítulo ↓». Los nodos externos no casan
+        // con `[href^="#"]` y siguen abriendo su pestaña.
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-baja[href^="#"], a.nodo[href^="#"]') : null;
         if (!a) return;
         var h = a.getAttribute('href');
         var destino = document.getElementById(h.slice(1));

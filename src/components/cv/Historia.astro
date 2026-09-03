@@ -368,9 +368,16 @@ const citas = [
   { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, url: null as string | null, verLabel: null as string | null, tiktokId: '7657190267245563156' },
   { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: pers.jesus.alt, hueco: 'entrevistaJesus' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7656095688484211988' },
   { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, url: null, verLabel: null, tiktokId: null },
-  { key: 'dieck' as const, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), hueco: 'entrevistaDieck' as const, video: null, url: null, verLabel: null, tiktokId: null },
   { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: pers.mauricio.alt, hueco: 'entrevistaMauricio' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7671351658227469588' },
   { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null, url: urlPodcast, verLabel: c.mic.ver.episodio },
+  // ── MIGUEL ÁNGEL RENDÓN (ola 4): el segundo episodio con verbo de
+  // organización en su propia fuente (la cinta: «gracias por la invitación»).
+  // Sin `img` ni `video` —la carpeta de fotos de la grabación está vacía— y
+  // con `tiktokId: null` mientras Jaime no mande el enlace: la tarjeta lleva
+  // el hueco de la foto (`fotosPend.rendon`) y el hueco del enlace
+  // (`materialQue.rendonLink`), y NADA dice «publicado». Cuando llegue el
+  // enlace, se escribe aquí el id y el nodo del micrófono en microfono.mjs.
+  { key: 'rendon' as const, img: null, alt: '', hueco: 'entrevistaRendon' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
   { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, url: null as string | null, verLabel: null as string | null, tiktokId: '7673350797958155541' },
   { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7677118351327431956' }
 ];
@@ -2144,7 +2151,7 @@ const cifrasFranja = c.franja.sitioQ
                 <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
                 <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
               )}
-              {!rt.img && !rt.video && <FotoHueco c={c} que={c.fotosPend.sol} class="cita-hueco-foto" />}
+              {!rt.img && !rt.video && <FotoHueco c={c} que={rt.key === 'rendon' ? c.fotosPend.rendon : c.fotosPend.sol} class="cita-hueco-foto" />}
             </div>
             <p class="cita-nombre">{per.nombre}</p>
             {per.rol && <p class="cita-rol">{per.rol}</p>}
@@ -2155,6 +2162,13 @@ const cifrasFranja = c.franja.sitioQ
             <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
             <Hueco c={c} id={rt.hueco} grande />
             {(rt.url || rt.tiktokId) && <a class="hist-link t-small cita-link" href={rt.url || urlVideo(rt.tiktokId as string)} target="_blank" rel="noopener">{rt.verLabel || c.entrevistas.verVideo} ↗</a>}
+            {/* EL MINUTO DEL FTR VIVE JUNTO A SU FICHA, no en el micrófono: es
+                 el único dato que le falta a ESTA pieza, y el enlace de
+                 arriba abre 30 minutos de emisión sin decir en cuál empieza. */}
+            {rt.key === 'podcast' && <HuecoMaterial c={c} que={c.mic.minutoQue} class="cita-hueco-mat" />}
+            {/* Y el enlace de Rendón, mientras no llegue: la tarjeta dice qué
+                 falta en vez de fingir un enlace. */}
+            {rt.key === 'rendon' && !rt.tiktokId && <HuecoMaterial c={c} que={c.materialQue.rendonLink} class="cita-hueco-mat" />}
           </li>
           );
         })}
@@ -2164,21 +2178,36 @@ const cifrasFranja = c.franja.sitioQ
         <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
       </div>
     </div>
-    {/* Foto 7 del lote del 2026-08-30: él con Marg Franklin en la firma del
-         acuerdo con el Tec. SIN CARGO, a propósito: ver la nota junto a
-         `fotosPend.marg` en src/i18n/cv.ts. Va AQUÍ y no en el
-         carrusel: el carrusel es de conversaciones que él grabó y de las que
-         se llevó una frase, y de esta no hay ni clip ni frase — lo que hay
-         es que le pidió consejo sobre estudiar en Canadá, que es lo que dice
-         su fila de experiencia. Ponerla como una tarjeta más del carrusel
-         insinuaría una entrevista que no existe. Fuera del carrusel, en el
-         mismo capítulo, es la gente que conoció. */}
-    <div class="fila-fotos marg-fila fig-sola">
-      <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.margPie}</figcaption>
+    {/* ══ GENTE A LA QUE PEDÍ CONSEJO (ola 4) ══════════════════════════════
+         Moris Dieck y Marg Franklin, FUERA del carrusel —que promete
+         «conversations I sought out and recorded»— y en su propio bloque:
+         son consejos que él pidió, no entrevistas, y el rótulo lo dice.
+         Cada figura lleva su ancla (`ancla(p, id)`): son los destinos de los
+         dos nodos de experiencia del micrófono mientras no lleguen las URL
+         de sus publicaciones. La foto de Marg deja de estar suelta al final
+         del capítulo: es esta. SIN CARGO para ella —cfainstitute.org lista
+         hoy a Tricia Rothschild como Interim CEO (ver cv.ts)— y sin él para
+         Moris, que nunca lo tuvo con fuente. */}
+    <h3 class="t-h3 ens-h" id={`${p}-consejo-h`}>{c.mic.grupoExperiencias}</h3>
+    <ul class="consejos" aria-labelledby={`${p}-consejo-h`}>
+      {([
+        { id: 'dieck', per: c.entrevistas.personas.dieck, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), w: 480, h: 360, pie: c.lote.dieckPie, hueco: 'entrevistaDieck' as const },
+        { id: 'marg', per: c.entrevistas.personas.marg, img: foto('cv-lote-marg.webp'), alt: c.lote.margAlt, w: 480, h: 640, pie: c.lote.margPie, hueco: 'consejoMarg' as const }
+      ]).map((x) => (
+        <li class="consejo" id={ancla(p, x.id)}>
+          <figure class="lote-fig consejo-fig">
+            <span class="recuerdo"><img src={x.img} alt={x.alt} width={x.w} height={x.h} loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{x.pie}</figcaption>
           </figure>
-    </div>
+          <div class="consejo-texto">
+            <p class="cita-nombre consejo-nombre">{x.per.nombre}</p>
+            {x.per.tipoTag && <p class="meta-mono">{x.per.tipoTag}</p>}
+            <p class="consejo-tipo">{x.per.tipo}</p>
+            <Hueco c={c} id={x.hueco} />
+          </div>
+        </li>
+      ))}
+    </ul>
 
     {/* ══ LA SEGUNDA MITAD: EL TEACHING (fusionado por Jaime) ═════════════
          Primero las conversaciones, después lo que él enseña SOLO: es el
@@ -3726,9 +3755,15 @@ const cifrasFranja = c.franja.sitioQ
      que ya es estrecha: capado a 320 px para que no se coma el ancho de la
      cita que tiene encima. `:global` porque FotoHueco tiene ámbito propio. */
   :global(.hueco-toronto) { max-width: 320px; }
-  /* El de Marg Franklin va solo, después del carrusel: una sola columna, no
-     una rejilla de una. */
-  .marg-fila { max-width: 320px; margin-top: var(--sp-4); }
+  /* ── GENTE A LA QUE PEDÍ CONSEJO: dos fichas, foto + texto ─────────────
+     Moris y Marg, fuera del carrusel. En el teléfono la foto va encima del
+     texto; en escritorio, al lado (bloque de escritorio, más abajo). */
+  .consejos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-5); }
+  .consejo { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+  .consejo-fig { max-width: 320px; }
+  .consejo-texto { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+  .consejo-nombre { margin-top: 0; }
+  .consejo-tipo { color: var(--cvh-tinta); }
 
   /* ---- Research (la tarjeta de la mesa, al lenguaje de tarjetas) ----
      El radio era 0 cuando toda la página iba a esquina recta; desde el brief
@@ -3865,6 +3900,9 @@ const cifrasFranja = c.franja.sitioQ
      sigue ahí. Si la pista vuelve a pintarse algún día, vuelve esta línea. */
   .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
   .cita :global(.foto-hueco) { border-color: rgba(255, 255, 255, .5); }
+  .cita :global(.hueco-mat) { border-color: rgba(255, 255, 255, .5); }
+  .cita :global(.hueco-mat-marca) { color: var(--cvh-tapa-tinta-2); }
+  .cita :global(.hueco-mat-que) { color: var(--cvh-tapa-tinta); }
   .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
   /* Las flechas: botones de verdad, 44px de blanco, con estado de extremo.
      `data-inerte` y no `disabled`: un botón deshabilitado suelta el foco del
@@ -5279,8 +5317,7 @@ const cifrasFranja = c.franja.sitioQ
     .cap:not(.cap-portada) :global(.viv) { grid-column: texto-i / texto-f; max-width: 688px; }
     /* LO QUE ACOMPAÑA, EN EL MARGEN. */
     .cap:not(.cap-portada) > :global(.premio-doc),
-    .cap:not(.cap-portada) > .arco-fig,
-    .cap:not(.cap-portada) > .marg-fila { grid-column: margen-i / margen-f; }
+    .cap:not(.cap-portada) > .arco-fig { grid-column: margen-i / margen-f; }
 
     /* EL RITMO, EN CUATRO PASOS Y NINGUNO MÁS. */
     .cap:not(.cap-portada) > :global(*) { margin-block-start: var(--cv-v2); }
@@ -5478,7 +5515,10 @@ const cifrasFranja = c.franja.sitioQ
     .playa-fotos .lote-fig, .fila-fotos .lote-fig { max-width: 100%; }
     .lote-fig img { width: 100%; }
     /* Las filas de UNA sola foto no son rejillas de tres. */
-    .marg-fila, .grupo-narra-fila { grid-template-columns: minmax(0, 1fr); }
+    .grupo-narra-fila { grid-template-columns: minmax(0, 1fr); }
+    /* Las dos fichas de consejo: foto a la izquierda, texto a la derecha. */
+    .consejo { display: grid; grid-template-columns: minmax(0, 332px) minmax(0, 1fr); gap: var(--cv-v2); align-items: start; }
+    .consejo-fig { max-width: 100%; }
     .grupo-narra-fila .lote-fig { max-width: 100%; }
 
     /* ── `.fig-sola`: UNA FIGURA QUE NO TIENE NADA AL LADO ────────────────

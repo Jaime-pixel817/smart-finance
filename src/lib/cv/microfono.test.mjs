@@ -1,13 +1,14 @@
 // LOS GUARDIANES DEL MICRÓFONO.
 //
-// Tres de los cuatro comprueban cosas que ya fallaron una vez y que NO AVISAN
-// cuando fallan: un lienzo negro sin error en la consola, un punto que promete
-// un episodio que no existe, y una fila del índice que no tiene nodo.
+// La mayoría comprueban cosas que ya fallaron una vez y que NO AVISAN cuando
+// fallan: un lienzo negro sin error en la consola, un punto que promete un
+// episodio que no existe, una fila del índice que no tiene nodo, un bucle que
+// no se para.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { NODOS, SIN_PUNTO, PERSONAS, PAISES, TIKTOK } from './microfono.mjs';
+import { NODOS, SIN_PUNTO, PERSONAS, EXPERIENCIAS, PAISES, TIKTOK } from './microfono.mjs';
 
 const RAIZ = path.resolve(import.meta.dirname, '../../..');
 const MOTOR = fs.readFileSync(path.join(RAIZ, 'src/scripts/cv-microfono.ts'), 'utf8');
@@ -21,10 +22,6 @@ const CV = fs.readFileSync(path.join(RAIZ, 'src/i18n/cv.ts'), 'utf8');
 // uniform declarado en los dos con precisiones distintas **no enlaza**, y
 // `gl.linkProgram` no lanza: devuelve un programa muerto y el lienzo se queda
 // negro. Eso costó una tarde en el prototipo.
-//
-// La cura es estructural y esto la vigila: NINGÚN uniform se declara en los dos
-// shaders. Si alguien añade uno compartido, esta prueba lo dice antes de que
-// nadie mire una pantalla negra.
 function uniformes(src) {
   const out = new Set();
   for (const m of src.matchAll(/uniform\s+(?:highp\s+|mediump\s+|lowp\s+)?\w+\s+([^;']+);/g)) {
@@ -33,8 +30,6 @@ function uniformes(src) {
   return out;
 }
 function bloque(nombre) {
-  // Los shaders viven como arrays de cadenas en el motor: se recorta el bloque
-  // por su nombre y se lee tal cual, sin ejecutar TypeScript.
   const i = MOTOR.indexOf(`export const ${nombre} = [`);
   assert.ok(i > 0, `no encuentro el shader ${nombre}`);
   const j = MOTOR.indexOf("].join('')", i);
@@ -49,8 +44,7 @@ test('mic: ningún uniform se declara en los dos shaders (el bug del lienzo negr
   const compartidos = [...enVS].filter((u) => enFS.has(u));
   assert.deepEqual(compartidos, [],
     `uniform(s) declarados en los DOS shaders: ${compartidos.join(', ')}. Un mismo uniform con dos ` +
-    'precisiones no enlaza y el lienzo se queda NEGRO sin lanzar ningún error. O se declara la misma ' +
-    'precisión a mano en los dos, o —mejor— se pasa por un varying.');
+    'precisiones no enlaza y el lienzo se queda NEGRO sin lanzar ningún error.');
 });
 
 test('mic: el fragment shader declara su precisión', () => {
@@ -67,35 +61,52 @@ test('mic: el enlace del programa se comprueba (LINK_STATUS)', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 // 2 · UN PUNTO QUE NO ABRE NADA ROMPE LA PREMISA DE JAIME
 // ═══════════════════════════════════════════════════════════════════════════
-test('mic: los once nodos abren una pieza que existe', () => {
-  assert.equal(NODOS.length, 11);
+test('mic: los catorce nodos abren una pieza que existe', () => {
+  assert.equal(NODOS.length, 14);
   for (const n of NODOS) {
-    assert.ok(n.href && /^https:\/\//.test(n.href), `${n.id} sin enlace https`);
-    assert.ok(n.externo, `${n.id} sin decir de dónde sale la pieza`);
+    // O una URL comprobada, o `null` = la ficha DENTRO del CV (Rendón, Moris,
+    // Marg mientras no llegue su enlace). Ninguna otra cosa: una cadena vacía
+    // o un acortador serían un punto que promete y no abre.
+    if (n.href === null) {
+      assert.equal(n.externo, '', `${n.id}: un nodo interno no tiene fuente externa`);
+    } else {
+      assert.ok(/^https:\/\//.test(n.href), `${n.id} sin enlace https`);
+      assert.ok(n.externo, `${n.id} sin decir de dónde sale la pieza`);
+    }
     assert.ok(Number.isInteger(n.cap), `${n.id} no baja a ningún capítulo`);
   }
   const ids = NODOS.map((n) => n.id);
   assert.equal(new Set(ids).size, ids.length, 'hay ids repetidos');
 });
 
-test('mic: siete personas y cuatro países, y la mitad se dice en pantalla', () => {
-  assert.equal(PERSONAS.length, 7);
+test('mic: ocho personas, dos experiencias y cuatro países, y la diferencia se dice en pantalla', () => {
+  assert.equal(PERSONAS.length, 8);
+  assert.equal(EXPERIENCIAS.length, 2);
   assert.equal(PAISES.length, 4);
-  // El lede tiene que seguir diciendo la diferencia. Es lo único que impide que
-  // grabar un vídeo de datos de Japón se lea como conseguir a un ejecutivo.
-  for (const clave of ['seven people are the leadership', 'siete personas son el liderazgo']) {
-    assert.ok(CV.includes(clave), `falta en cv.ts la línea que separa las dos mitades: «${clave}»`);
+  // El lede tiene que seguir diciendo las tres cosas: que las personas son el
+  // liderazgo, que dos son consejos y no entrevistas, y que México es el país
+  // con recibo. Es lo único que impide que grabar un vídeo de datos de Japón
+  // se lea como conseguir a un ejecutivo.
+  for (const clave of [
+    'The people are the leadership', 'Las personas son el liderazgo',
+    'Two are advice I asked for, not interviews', 'Dos son consejos que pedí, no entrevistas',
+    'Mexico is the one I was chosen to represent', 'México es el que me eligieron para representar'
+  ]) {
+    assert.ok(CV.includes(clave), `falta en cv.ts la línea del lede: «${clave}»`);
   }
 });
 
-test('mic: los cuatro sin pieza siguen sin punto', () => {
-  // Moris Dieck y Marg Franklin son los dos que más tientan: hay foto y hay
-  // encuentro. Lo que no hay es nada que un clic pueda abrir.
+test('mic: los tres sin pieza siguen sin punto', () => {
   for (const id of Object.keys(SIN_PUNTO)) {
     assert.ok(!NODOS.some((n) => n.id === id),
       `«${id}» tiene punto en el micrófono y no debería: ${SIN_PUNTO[id]}`);
   }
-  assert.ok(SIN_PUNTO.dieck && SIN_PUNTO.marg && SIN_PUNTO.rendon && SIN_PUNTO.duran);
+  assert.ok(SIN_PUNTO.duran && SIN_PUNTO.majo && SIN_PUNTO.sol);
+});
+
+test('mic: los tres nodos internos son exactamente Rendón, Moris y Marg', () => {
+  // El día que llegue un enlace, este test cambia: es el recibo de qué falta.
+  assert.deepEqual(NODOS.filter((n) => n.href === null).map((n) => n.id), ['rendon', 'dieck', 'marg']);
 });
 
 test('mic: el podcast de la sala FTR enlaza al destino final, no al acortador', () => {
@@ -108,11 +119,9 @@ test('mic: el podcast de la sala FTR enlaza al destino final, no al acortador', 
 // ═══════════════════════════════════════════════════════════════════════════
 // 3 · CADA NODO TIENE SU TEXTO EN LOS DOS IDIOMAS
 // ═══════════════════════════════════════════════════════════════════════════
-// La paridad EN/ES del CV es exacta. Un nodo con ficha en inglés y sin ficha en
-// español son dos documentos distintos, y el panel español pintaría `undefined`.
-test('mic: los once nodos tienen su línea «qué abre» en EN y en ES', () => {
+test('mic: los catorce nodos tienen su línea «qué abre» en EN y en ES', () => {
   const bloques = [...CV.matchAll(/abre: \{([\s\S]*?)\n {4}\},/g)].map((m) => m[1]);
-  assert.equal(bloques.length, 2, "esperaba dos bloques abre (EN y ES), encontre " + bloques.length);
+  assert.equal(bloques.length, 2, 'esperaba dos bloques abre (EN y ES), encontré ' + bloques.length);
   for (const b of bloques) {
     for (const n of NODOS) {
       assert.match(b, new RegExp(`\\b${n.id}:`), `falta \`abre.${n.id}\` en uno de los dos paneles`);
@@ -126,15 +135,34 @@ test('mic: los cuatro países tienen nombre en EN y en ES', () => {
   for (const b of bloques) for (const n of PAISES) assert.match(b, new RegExp(`\\b${n.id}:`));
 });
 
+test('mic: las personas y las experiencias tienen ficha en `entrevistas.personas` en EN y en ES', () => {
+  const bloques = [...CV.matchAll(/personas: \{([\s\S]*?)\n {4}\}\n {2}\},/g)].map((m) => m[1]);
+  assert.equal(bloques.length, 2, 'esperaba dos bloques personas (EN y ES), encontré ' + bloques.length);
+  for (const b of bloques) {
+    for (const n of [...PERSONAS, ...EXPERIENCIAS]) {
+      assert.match(b, new RegExp(`\\b${n.id}: \\{`), `falta \`entrevistas.personas.${n.id}\` en uno de los dos paneles`);
+    }
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 4 · LO QUE EL MICRÓFONO NO PUEDE HACER
 // ═══════════════════════════════════════════════════════════════════════════
-test('mic: nada en bucle infinito y la válvula existe', () => {
-  // La regla del repo: nada se mueve solo para siempre. El micrófono se arma,
-  // se asienta y PARA — el `requestAnimationFrame` solo se vuelve a pedir
-  // mientras dura la entrada.
-  assert.match(MOTOR, /if \(e < 1\) raf = requestAnimationFrame\(bucle\);/,
-    'el bucle del micrófono tiene que pararse al terminar la entrada');
+test('mic: el giro es la única animación, se para fuera de pantalla y tiene válvula', () => {
+  // La regla de motion.css («nada en bucle infinito») tiene UNA excepción
+  // declarada: una rotación lenta y continua del objeto cuenta como la única
+  // animación de esa pantalla. Jaime la pidió con estas palabras: «dé la
+  // vuelta siendo 3D». Lo que se vigila es lo que hace que sea aceptable:
+  //  · gira despacio (0.22 rad/s: la velocidad ORIGINAL del globo),
+  assert.match(MOTOR, /const GIRO = 0\.22;/, 'el giro tiene que ser el del globo (0.22 rad/s)');
+  //  · el bucle SE PARA fuera de la pantalla (lo apaga el IntersectionObserver),
+  assert.match(MOTOR, /if \(!visible\) return;/, 'el bucle tiene que pararse fuera de pantalla');
+  //  · con «menos movimiento» pinta UN fotograma y no vuelve a pedir rAF,
+  assert.match(MOTOR, /if \(reduce\.matches\) quieto\(\); else arrancaBucle\(\);/,
+    'con prefers-reduced-motion el micrófono se pinta una vez y se queda quieto');
+  //  · en reposo va a 30 fps y solo sube a 60 con la mano encima,
+  assert.match(MOTOR, /FPS_REPOSO = 30, FPS_VIVO = 60/, 'faltan las dos marchas del tope de fotogramas');
+  //  · y si la GPU no da 25 fps durante 3 s, se apaga y queda el dibujo estático.
   assert.match(MOTOR, /FPS_MIN\s*=\s*25/, 'falta el umbral de la válvula');
   assert.match(MOTOR, /VALVULA_MS\s*=\s*3000/, 'falta el tiempo de la válvula');
 });
@@ -158,25 +186,30 @@ test('mic: el enlace de TikTok se arma con la constante, no a mano', () => {
   }
 });
 
+test('mic: el arrastre no bloquea el scroll vertical ni selecciona texto', () => {
+  const comp = fs.readFileSync(path.join(RAIZ, 'src/components/cv/Microfono.astro'), 'utf8');
+  assert.match(comp, /\.mic-stage\s*\{[^}]*touch-action:\s*pan-y/, 'el lienzo tiene que dejar el scroll vertical al navegador');
+  assert.match(comp, /\.nodo\[data-atras\]\)\s*\{[^}]*pointer-events:\s*none/, 'un nodo en la cara de atrás no se puede pinchar');
+  assert.ok(!/preventDefault\(\)/.test(MOTOR.split('pointerdown')[1]?.split('\n')[0] || ''), 'nunca hay preventDefault en pointerdown');
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
-// 5 · LOS ONCE ENLACES TIENEN QUE ATERRIZAR EN SU PIEZA, NO EN EL CAPÍTULO
+// 5 · LOS CATORCE ENLACES TIENEN QUE ATERRIZAR EN SU PIEZA, NO EN EL CAPÍTULO
 // ═══════════════════════════════════════════════════════════════════════════
-// Los once «En el capítulo ↓» apuntaban todos a `#<lang>-cap-8`. Medido sobre
-// `dist` a 1440×900: el ancla del capítulo cae en y = 23 232 y las piezas no
-// están ahí — las siete fichas de persona 757 px por debajo y los cuatro
-// vídeos de país entre 3 165 y 4 620 px, o sea de 3.5 a 5.1 pantallas. Ahora
-// cada nodo baja a SU pieza, y esto vigila que cada uno tenga dónde caer: un
-// ancla que no existe no da error en ninguna parte, solo no desplaza.
 const HIST = fs.readFileSync(path.join(RAIZ, 'src/components/cv/Historia.astro'), 'utf8');
 const MIC = fs.readFileSync(path.join(RAIZ, 'src/components/cv/Microfono.astro'), 'utf8');
 
-test('mic: los once nodos tienen ancla propia en el capítulo', () => {
-  // Las fichas de persona anclan por la clave de `citas`; los vídeos de país
-  // por el campo `pieza` que se les escribió al lado del id de TikTok.
+test('mic: los catorce nodos tienen ancla propia en el capítulo', () => {
+  // Las fichas del carrusel anclan por la clave de `citas`; los vídeos de país
+  // por el campo `pieza`; las experiencias por un `ancla(p, '<id>')` escrito.
   const claves = new Set();
   const arr = HIST.slice(HIST.indexOf('const citas = ['), HIST.indexOf('];', HIST.indexOf('const citas = [')));
   for (const m of arr.matchAll(/key:\s*'([^']+)'/g)) claves.add(m[1]);
   for (const m of HIST.matchAll(/pieza:\s*'([^']+)'/g)) claves.add(m[1]);
+  for (const m of HIST.matchAll(/ancla\(p,\s*'([^']+)'\)/g)) claves.add(m[1]);
+  // Las dos fichas de consejo (Moris, Marg) se pintan desde una lista con
+  // `{ id: 'dieck', per: … }` y el ancla sale de `ancla(p, x.id)`.
+  for (const m of HIST.matchAll(/\{ id: '([a-z]+)', per:/g)) claves.add(m[1]);
 
   const sinAncla = NODOS.filter((n) => !claves.has(n.id)).map((n) => n.id);
   assert.deepEqual(sinAncla, [], `nodos sin dónde aterrizar: ${sinAncla.join(', ')}`);
@@ -188,12 +221,15 @@ test('mic: el enlace de bajada usa el ancla de la pieza y no el del capítulo', 
   assert.ok(MIC.includes('href={`#${f.ancla}`}'), 'el enlace de bajada no usa `f.ancla`');
 });
 
-test('mic: los once enlaces viajan por el arreglo del índice, no como ancla nativa', () => {
+test('mic: los enlaces internos viajan por el arreglo del índice, no como ancla nativa', () => {
   // Una navegación de ancla con `scroll-behavior: smooth` EN VUELO no
   // desplaza, y el micrófono es un índice en la segunda pantalla: el sitio
-  // donde más se pulsan dos destinos seguidos. Tiene que estar en el selector
-  // que intercepta el clic (ver la cabecera de Cv.astro).
+  // donde más se pulsan dos destinos seguidos. Tienen que estar en el
+  // selector que intercepta el clic (ver la cabecera de Cv.astro): los «En el
+  // capítulo ↓» y los NODOS internos del lienzo.
   const CV_LAYOUT = fs.readFileSync(path.join(RAIZ, 'src/layouts/Cv.astro'), 'utf8');
   assert.ok(CV_LAYOUT.includes('a.mic-baja[href^="#"]'),
     'los enlaces del micrófono no pasan por el interceptor de `Cv.astro`');
+  assert.ok(CV_LAYOUT.includes('a.nodo[href^="#"]'),
+    'los nodos internos del lienzo no pasan por el interceptor de `Cv.astro`');
 });

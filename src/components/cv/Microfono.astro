@@ -53,28 +53,41 @@
 import type { CvCopy } from '../../i18n/cv';
 import type { Locale } from '../../i18n/routes';
 import { NODOS, ancla } from '../../lib/cv/microfono.mjs';
-import HuecoMaterial from './HuecoMaterial.astro';
 
 interface Props { c: CvCopy; p: Locale }
 const { c, p } = Astro.props;
 
-// El nombre de cada nodo sale de donde YA vive con su fuente: las personas de
-// `entrevistas.personas` (donde está anotado de dónde sale cada cargo) y los
-// países de `mic.paises`. Aquí no se escribe ni un nombre ni un cargo: tener
-// dos sitios donde corregir un cargo es como se publica un cargo mal.
+// El nombre de cada nodo sale de donde YA vive con su fuente: las personas y
+// las experiencias de `entrevistas.personas` (donde está anotado de dónde sale
+// cada cargo) y los países de `mic.paises`. Aquí no se escribe ni un nombre ni
+// un cargo: tener dos sitios donde corregir un cargo es como se publica un
+// cargo mal.
+//
+// ── LOS NODOS INTERNOS (ola 4) ────────────────────────────────────────────
+// `href: null` en `microfono.mjs` significa que la pieza está DENTRO del CV:
+// la ficha del capítulo. Es el estado de Rendón (su enlace de TikTok no ha
+// llegado), Moris y Marg (sus publicaciones no están cosechadas). Aquí el
+// enlace se resuelve al ancla de la ficha EN ESTE IDIOMA, sin `target`, y el
+// verbo es «ver la ficha». El día que llegue el enlace, cambia un dato allí y
+// esta fila pasa sola a abrir la pieza fuera.
 type Fila = {
-  id: string; tipo: string; cap: number; href: string; externo: string;
+  id: string; tipo: string; cap: number; href: string; interno: boolean; externo: string;
   nombre: string; rol: string; que: string; ver: string; ancla: string;
 };
 const filas: Fila[] = NODOS.map((n) => {
-  const per = n.tipo === 'persona'
+  const per = n.tipo !== 'pais'
     ? (c.entrevistas.personas as Record<string, { nombre: string; rol: string }>)[n.id]
     : null;
   const nombre = per ? per.nombre : (c.mic.paises as Record<string, string>)[n.id];
-  const ver = n.id === 'podcast' ? c.mic.ver.episodio
-    : n.tipo === 'pais' ? c.mic.ver.video : c.mic.ver.conversacion;
+  const interno = n.href === null;
+  const ver = interno ? c.mic.ver.ficha
+    : n.id === 'podcast' ? c.mic.ver.episodio
+    : n.tipo === 'pais' ? c.mic.ver.video
+    : n.tipo === 'experiencia' ? c.mic.ver.experiencia
+    : c.mic.ver.conversacion;
   return {
-    id: n.id, tipo: n.tipo, cap: n.cap, href: n.href, externo: n.externo,
+    id: n.id, tipo: n.tipo, cap: n.cap,
+    href: n.href ?? '#' + ancla(p, n.id), interno, externo: n.externo,
     ancla: ancla(p, n.id),
     nombre, rol: per ? per.rol : '',
     que: (c.mic.abre as Record<string, string>)[n.id],
@@ -82,8 +95,20 @@ const filas: Fila[] = NODOS.map((n) => {
   };
 });
 const personas = filas.filter((f) => f.tipo === 'persona');
+const experiencias = filas.filter((f) => f.tipo === 'experiencia');
 const paises = filas.filter((f) => f.tipo === 'pais');
-const piezas = c.mic.piezas.replace('{n}', String(filas.length));
+// Los tres rótulos que dicen CUÁNTAS piezas hay se rellenan con la cuenta
+// real: escritos a mano decían «once» cuando ya eran catorce.
+const n = String(filas.length);
+const piezas = c.mic.piezas.replace('{n}', n);
+const indiceAria = c.mic.indiceAria.replace('{n}', n);
+const sinLienzo = c.mic.sinLienzo.replace('{n}', n);
+// Los tres grupos del índice, en el orden del lede: liderazgo, consejo, voz.
+const grupos = [
+  { id: 'g1', h: c.mic.grupoPersonas, filas: personas },
+  { id: 'g2', h: c.mic.grupoExperiencias, filas: experiencias },
+  { id: 'g3', h: c.mic.grupoPaises, filas: paises }
+];
 ---
 <section class="mic" data-mic aria-labelledby={`${p}-mic-h`}>
   <div class="mic-cab">
@@ -118,49 +143,39 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
     {/* EL ÍNDICE. Once filas, cada una con lo que abre y a qué capítulo baja.
         Esto es lo que se imprime, lo que lee un lector de pantalla y lo que se
         ve sin JavaScript. */}
-    <nav class="mic-indice" aria-label={c.mic.indiceAria}>
-      <p class="mic-sinlienzo" aria-hidden="true">{c.mic.sinLienzo}</p>
+    <nav class="mic-indice" aria-label={indiceAria}>
+      <p class="mic-sinlienzo" aria-hidden="true">{sinLienzo}</p>
 
-      <h3 class="etiqueta mic-grupo" id={`${p}-mic-g1`}>{c.mic.grupoPersonas}</h3>
-      <ol class="mic-lista" aria-labelledby={`${p}-mic-g1`}>
-        {personas.map((f) => (
-          <li class="mic-fila" data-mic-fila={f.id}
-              data-nombre={f.nombre}
-              data-aria={`${f.ver}: ${f.nombre}${f.rol ? ' — ' + f.rol : ''}`}>
-            <p class="mic-fila-n">
-              <a class="hist-link mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<span class="mic-ext" aria-hidden="true"> ↗</span></a>
-            </p>
-            {f.rol && <p class="mic-fila-rol">{f.rol}</p>}
-            <p class="mic-fila-que">{f.que}</p>
-            <p class="mic-fila-pie">
-              <span class="mic-fuente">{f.externo}</span>
-              <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
-            </p>
-          </li>
-        ))}
-      </ol>
-
-      <h3 class="etiqueta mic-grupo" id={`${p}-mic-g2`}>{c.mic.grupoPaises}</h3>
-      <ol class="mic-lista" aria-labelledby={`${p}-mic-g2`}>
-        {paises.map((f) => (
-          <li class="mic-fila" data-mic-fila={f.id}
-              data-nombre={f.nombre}
-              data-aria={`${f.ver}: ${f.nombre}`}>
-            <p class="mic-fila-n">
-              <a class="hist-link mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<span class="mic-ext" aria-hidden="true"> ↗</span></a>
-            </p>
-            <p class="mic-fila-que">{f.que}</p>
-            <p class="mic-fila-pie">
-              <span class="mic-fuente">{f.externo}</span>
-              <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
-            </p>
-          </li>
-        ))}
-      </ol>
-
-      {/* EL ÚNICO HUECO DEL MÓDULO va AL FINAL y no dentro de su fila: metido
-          en una celda de la rejilla, el recuadro empujaba media columna. */}
-      <HuecoMaterial c={c} que={c.mic.minutoQue} class="mic-hueco" />
+      {/* TRES GRUPOS, UN SOLO MOLDE. La fila de un nodo INTERNO enlaza a su
+          ficha de este mismo documento (sin `target`, sin ↗) y el pie no
+          lleva fuente externa: el «En el capítulo ↓» es el mismo destino, y
+          se queda porque es el gesto que ya conoce quien lee el índice.
+          (El hueco del minuto del podcast del FTR ya no vive aquí: está
+          junto a su ficha, en el capítulo de las conversaciones.) */}
+      {grupos.map((g) => (
+        <>
+          <h3 class="etiqueta mic-grupo" id={`${p}-mic-${g.id}`}>{g.h}</h3>
+          <ol class="mic-lista" aria-labelledby={`${p}-mic-${g.id}`}>
+            {g.filas.map((f) => (
+              <li class="mic-fila" data-mic-fila={f.id}
+                  data-nombre={f.nombre}
+                  data-aria={`${f.ver}: ${f.nombre}${f.rol ? ' — ' + f.rol : ''}`}>
+                <p class="mic-fila-n">
+                  {f.interno
+                    ? <a class="hist-link mic-fila-a" href={f.href}>{f.nombre}</a>
+                    : <a class="hist-link mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<span class="mic-ext" aria-hidden="true"> ↗</span></a>}
+                </p>
+                {f.rol && <p class="mic-fila-rol">{f.rol}</p>}
+                <p class="mic-fila-que">{f.que}</p>
+                <p class="mic-fila-pie">
+                  {f.externo && <span class="mic-fuente">{f.externo}</span>}
+                  <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
+                </p>
+              </li>
+            ))}
+          </ol>
+        </>
+      ))}
     </nav>
   </div>
 
@@ -202,7 +217,18 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
     position: relative; width: 100%;
     /* Alto RESERVADO en CSS: el lienzo llega tarde y no debe mover nada. */
     height: clamp(300px, 42svh, 380px);
+    /* ── EL ARRASTRE (v2): el micrófono se gira con la mano ─────────────
+       `pan-y` deja el scroll VERTICAL al navegador —aquí nunca hay
+       preventDefault— y se queda solo con el gesto horizontal, que es el
+       que gira. `user-select: none` para que arrastrar no seleccione las
+       etiquetas de los nodos. */
+    touch-action: pan-y;
+    user-select: none;
   }
+  /* El cursor dice que se puede agarrar SOLO cuando el motor ya pinta: sobre
+     el respaldo estático no hay nada que girar. */
+  .mic-stage[data-mic-listo] { cursor: grab; }
+  .mic-stage[data-mic-arrastre] { cursor: grabbing; }
   .mic-stage canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
   .mic-respaldo {
     position: absolute; inset: 0; display: grid; place-items: center;
@@ -252,6 +278,18 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
   .mic-nodos :global(.nodo:focus-visible::before) { transform: scale(1.5); }
   .mic-nodos :global(.nodo:focus-visible) { outline: 2px solid var(--cvh-tinta); outline-offset: 2px; }
   .mic-nodos :global(.nodo[hidden]) { display: none; }
+  /* Un nodo en la CARA DE ATRÁS (facing < 0.12, lo escribe el guion) se ve
+     atenuado y no se puede pinchar: pinchar «a través» del micrófono abriría
+     una pieza que no se está mirando. Sigue en el orden de tabulación —
+     enfocarlo gira el micrófono hasta traerlo al frente. */
+  .mic-nodos :global(.nodo[data-atras]) { pointer-events: none; }
+  /* Las EXPERIENCIAS se distinguen por FORMA, como los países: un aro hueco
+     (persona = punto lleno · país = cuadrado · experiencia = aro). Quien no
+     distingue tonos separa las tres clases igual. */
+  .mic-nodos :global(.nodo[data-exp]::before) {
+    background: var(--cvh-papel);
+    box-shadow: 0 0 0 2px var(--cvh-tinta), 0 0 0 4px var(--cvh-papel);
+  }
   .mic-nodos :global(.nodo-et) {
     position: absolute; left: 50%; top: calc(50% + 13px); transform: translateX(-50%);
     white-space: nowrap; font-size: 12px; line-height: 1.2; letter-spacing: .01em;
@@ -293,7 +331,6 @@ const piezas = c.mic.piezas.replace('{n}', String(filas.length));
     min-height: 24px; display: inline-flex; align-items: center;
   }
   .mic-baja:hover { color: var(--cvh-tinta); border-block-end-color: currentColor; }
-  .mic-hueco { margin-block-start: var(--sp-3); }
   .mic-sigue { font-size: var(--fs-caption); color: var(--cvh-tinta-3); max-width: 40rem; }
 
   /* ═══ DOS COLUMNAS EN ESCRITORIO ════════════════════════════════════════

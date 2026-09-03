@@ -186,6 +186,8 @@ const en = {
        no me lo dio para publicarlo; el de la carta lo escribió quien la firma
        en un documento que me dio para entregarlo. */
     sol: 'A portrait of Sol, or a frame from the march videos. The one from the stand is not published here: a phone number is legible on the sign.',
+    // La carpeta `pendiente/podcast-rendon-duran/fotos/` existe y está vacía.
+    rendon: 'A frame from the recording with Miguel Ángel Rendón.',
     // YA NO SE USA (2026-08-31): la ficha de su carta enseña el cuadro de la
     // entrevista, que es lo que pidió el MAPA.md. Ver la nota de arriba.
     cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
@@ -219,6 +221,9 @@ const en = {
     perritosPie: 'The dogs at the stand.',
     margAlt: 'Me next to Marg Franklin, who is wearing a light grey checked blazer, in front of a dark backdrop',
     margPie: 'With Marg Franklin at the signing (2026).',
+    // La foto de Moris ya estaba en el repo (breakdown-moris-dieck): ahora
+    // tiene pie propio porque sale del carrusel y va con su ficha.
+    dieckPie: 'With Moris Dieck after his talk at Tec.',
     grupoEntrevistaAlt: 'Me holding a microphone, interviewing two students in front of the Smart Finance Prepa Tec stand poster',
     grupoEntrevistaPie: 'Interviewing at my school, for the student group.',
     grupoNarraAlt: 'Me talking to camera with a clip-on microphone, next to the Smart Finance Prepa Tec poster inviting students to join',
@@ -392,22 +397,40 @@ const en = {
     // En español ese «a quién» abre una interrogativa indirecta y funciona; en
     // inglés queda una relativa sin antecedente, o sea media frase. Y es la
     // SEGUNDA que lee quien lo nomine para la Pearson.
-    lede: 'Every point opens something that exists. The seven people are the leadership — the ones I got to sit down with me. The four countries are the voice — what I say when nobody is asking. They are not the same thing and this page does not pretend they are.',
+    // ── TRES GRUPOS, Y MÉXICO YA NO SE DESMIENTE (ola 4) ──────────────────
+    // Decía «what I say when nobody is asking» de los cuatro países, y la
+    // primera fila de países decía «I was selected to represent Mexico»: la
+    // línea que existía para no inflar los países desinflaba el único que
+    // prueba liderazgo. Y entran Moris y Marg como EXPERIENCIAS (consejos que
+    // pidió, no entrevistas), que es la palabra de Jaime: «episodio de podcast
+    // o de experiencia de Moris Dieck o Marg».
+    lede: 'Every point opens something that exists. The people are the leadership: the ones I got to sit down with me. Two are advice I asked for, not interviews, and they say so. The countries are the voice: what I explain to camera — and Mexico is the one I was chosen to represent. They are not the same thing, and this page does not pretend they are.',
     // El pie del micrófono: es a la vez la entrega al documento y la promesa
     // de que arriba no se cuenta nada que abajo no esté entero.
     sigue: 'Everything below is the long version. Nothing up here replaces a chapter.',
-    indiceAria: 'What the microphone opens: eleven pieces',
+    // `{n}` lo rellena el componente, como `piezas`: escrito a mano decía
+    // «eleven» cuando ya eran catorce.
+    indiceAria: 'What the microphone opens: {n} pieces',
     // Lo que se lee sin JavaScript, sin WebGL o con «menos movimiento»: la
     // lista de abajo ES el micrófono. No se pierde nada salvo el dibujo.
-    sinLienzo: 'The drawing needs WebGL. The list is the same eleven pieces.',
-    // Rótulos de las dos columnas del índice.
+    sinLienzo: 'The drawing needs WebGL. The list is the same {n} pieces.',
+    // Rótulos de los tres grupos del índice.
     grupoPersonas: 'People I recorded',
+    grupoExperiencias: 'People I asked for advice',
     grupoPaises: 'Countries I explained',
     bajar: 'In the chapter',
     // Qué abre cada punto. Una línea, y ni una palabra que no esté ya probada
     // más abajo. Los cargos NO se repiten aquí.
     abre: {
-      podcast: 'The full episode I organized in the Financial Trading Room at Tec, on the school channel that broadcast it.',
+      // ── DECÍA «THE FULL EPISODE» Y EL ENLACE ABRE LA EMISIÓN (ola 4) ──
+      // El vídeo es la emisión de 30 min de ExprésaTec del 16 de abril de
+      // 2026 y el podcast de Jaime es un segmento dentro cuyo minuto la
+      // propia página declara desconocido. Si fuera su episodio completo no
+      // faltaría el minuto; si falta el minuto, no es su episodio completo.
+      podcast: 'The podcast I organized in the Financial Trading Room at Tec. It aired inside the school channel’s programme; the link opens that full broadcast.',
+      // La cinta lo prueba: «gracias por la invitación» (parte 1, 00:00:21).
+      // Sin enlace de TikTok todavía: el punto baja a su tarjeta.
+      rendon: 'The episode I organized and hosted; he opens by thanking me for the invitation.',
       // ── DECÍA «Y ESTA ES LA QUE TIENE RECIBO», Y ERA FALSO (2026-09-02) ──
       // De las cuatro partes, TRES tienen id público: la 2
       // (7660806476172184852, además descargada en `cv-clips/` con su
@@ -417,7 +440,9 @@ const en = {
       // `microfono.mjs`. La ficha generalizaba al revés Y en exclusiva, o sea
       // desmentía al fichero de evidencia del propio proyecto dentro del
       // módulo cuyo argumento entero es que cada punto abre algo comprobable.
-      mauricio: 'Part 4 of the podcast — the last of the four I recorded with him.',
+      // Ni «cuatro» ni «la última» tienen recibo: con id público hay tres
+      // (2, 3 y 4) y nadie ha mirado si hay una quinta. Se dice lo que hay.
+      mauricio: 'Part 4 of the podcast I recorded with him. Parts 2 and 3 are on my TikTok too.',
       lloyd: 'The interview in Singapore with the man who signed one of my two letters.',
       andy: 'The interview with the other signatory, during the programme.',
       raul: 'The conversation with the president of Student Groups.',
@@ -426,15 +451,26 @@ const en = {
       mexico: 'I was selected to represent Mexico and presented about it at NUS.',
       singapur: 'Why the world’s money lives there.',
       japon: 'Financial data from Japan.',
-      canada: 'Why I chose this country for my future.'
+      canada: 'Why I chose this country for my future.',
+      // ── LAS DOS EXPERIENCIAS: consejos que pidió, no entrevistas ───────
+      // Y lo dicen en la misma línea. Moris: LI-21 («I hope to have the
+      // opportunity to interview him in the future»). Marg: LI-20, sin cargo
+      // (cfainstitute.org lista hoy a Tricia Rothschild como Interim CEO).
+      dieck: 'His talk at Tec, organized by HSBC; I asked him for advice on my own podcast. The interview does not exist yet, and this point does not pretend it does.',
+      marg: 'The day I asked her for advice about studying in Canada: my post and my photo with her. A question and her answer — not an interview.'
     },
     // El verbo del enlace, por tipo de pieza. NO todos son «episodio»: el de
-    // Jesús Gutiérrez Parra es un programa de media hora en YouTube y los
-    // demás son clips de un minuto en TikTok. Llamarlos igual sería inflarlos.
+    // Jesús Gutiérrez Parra es una EMISIÓN de media hora en YouTube (el
+    // podcast va dentro), los demás son clips de un minuto en TikTok, y las
+    // experiencias abren una publicación. Llamarlos igual sería inflarlos.
+    // `ficha` es para los nodos que hoy abren la ficha DENTRO del CV porque
+    // su enlace no ha llegado.
     ver: {
-      episodio: 'Watch the full episode',
+      episodio: 'Watch the broadcast',
       conversacion: 'Watch the conversation',
-      video: 'Watch the video'
+      video: 'Watch the video',
+      experiencia: 'See the post',
+      ficha: 'See the card'
     },
     // Nombres de los cuatro países. Los de las siete personas salen de
     // `entrevistas.personas`.
@@ -449,7 +485,21 @@ const en = {
     // a la emisión del día del programa ExprésaTec del 16 de abril de 2026,
     // 30 minutos. El podcast de Jaime es un SEGMENTO dentro; no hay fuente
     // para el minuto en el que empieza, así que no se escribe.
-    minutoQue: 'The minute my podcast starts'
+    minutoQue: 'The minute of that broadcast where my podcast starts'
+  },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // LOS HUECOS DE MATERIAL, ESCRITOS PARA EL LECTOR (ola 4)
+  // ══════════════════════════════════════════════════════════════════════
+  // Ni preguntas ni rutas: solo QUÉ falta. La pregunta entera vive en
+  // `cv-material/PENDIENTE.md`, fuera del repo.
+  materialQue: {
+    rendonLink: 'The link to this episode on TikTok',
+    rendonFoto: 'A photo of the recording',
+    duranCargo: 'Manuel Durán’s title, as he states it himself',
+    duranVideo: 'The video of the episode with Manuel Durán',
+    majoCargo: 'María José Cortés’s role, as she states it herself',
+    majoClip: 'The clip of this conversation, when it is published'
   },
 
   // ---- Capítulo 1: portada ----
@@ -996,7 +1046,20 @@ const en = {
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'A session I attended, not an interview of mine — “Takeaways from JPMorgan’s Chief ETF Strategist”, as the site puts it.'
       },
-      dieck: { nombre: 'Moris Dieck', rol: '', tipo: '“A conversation with Moris Dieck”, in the site’s own words.' },
+      // ── MORIS DIECK ES UNA EXPERIENCIA, NO UNA ENTREVISTA (ola 4) ──────
+      // Sale del carrusel (que promete «conversations I sought out and
+      // recorded») y va al bloque «People I asked for advice» con la cita de
+      // su propio post (LI-21). `tipoTag` solo se pinta en español, donde la
+      // cita del post es traducción.
+      dieck: { nombre: 'Moris Dieck', rol: '', tipo: 'A conference at Tec, Estado de México, organized by HSBC. In my own post: “Although he had a tight schedule, I had the chance to briefly speak with him and ask for advice on my own finance podcast.” No interview yet.', tipoTag: '' },
+      // ── MARG FRANKLIN, SIN CARGO, Y ES UN HALLAZGO (2026-09-02) ────────
+      // cfainstitute.org/about/governance/leadership-team, leída ese día,
+      // lista a Tricia Rothschild como «Interim President and CEO» —y es
+      // quien firma el certificado Investment Foundations de Jaime—. Marg
+      // Franklin no aparece ahí. Que fuera CEO el día del evento es plausible
+      // y no está probado con fecha; que lo sea hoy es falso según su propia
+      // institución. Va con las palabras de Jaime (LI-20), que no caducan.
+      marg: { nombre: 'Marg Franklin', rol: '', tipo: 'At the signing of the CFA Institute × Tec de Monterrey global agreement, at Campus Estado de México. In my own post: I heard “her story as a woman leading one of the most important organizations in the financial world”, and at the end I asked her for advice about studying in Canada, since she is Canadian herself. A question and her answer — not an interview.', tipoTag: '' },
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
@@ -1007,6 +1070,32 @@ const en = {
         nombre: 'Jesús Gutiérrez Parra',
         rol: 'Finance student',
         tipo: 'The podcast I organized in the Financial Trading Room at Tec.'
+      },
+      // ── MIGUEL ÁNGEL RENDÓN, CON EL CARGO COMO LO DICE ÉL EN LA CINTA ──
+      // Parte 1 [00:00:25 → 00:00:46]: «mi nombre es Miguel Ángel Rendón,
+      // soy doctor en Ciencias Financieras por la EGA de Business School y
+      // actualmente soy el director regional del Departamento de Contabilidad
+      // y Finanzas en el TEC de Monterrey para la región Ciudad de México,
+      // Santa Fe, Ciudad de México, Toluca y el Estado de México.» ⚠️ whisper
+      // escribió «EGA de»; el LEEME lo corrige a EGADE (la escuela de negocios
+      // de posgrado del Tec). Es la única palabra del cargo que no está
+      // literal en la cinta, y va en la lista de preguntas a Jaime. El
+      // doctorado va en `tipo`, no en `rol` (el rótulo corto). `alt` vacío:
+      // no hay foto de la grabación.
+      rendon: {
+        nombre: 'Miguel Ángel Rendón',
+        rol: 'Regional director of the Department of Accounting and Finance, Tec de Monterrey',
+        tipo: 'As he introduces himself on the recording: PhD in Financial Sciences from EGADE Business School, and regional director for the Mexico City, Santa Fe, Toluca and State of Mexico region. An episode of my podcast that I organized and hosted myself; he opens by thanking me for the invitation.',
+        alt: ''
+      },
+      // ── MARÍA JOSÉ CORTÉS («Majo», «la miss»): grabada, sin cargo ─────
+      // Entrevista de 2:09 (IMG_4424.MOV, transcrita). En la cinta solo se
+      // dice su nombre; el cargo NO se inventa y va como hueco de material.
+      // Que la organizó Jaime es afirmación suya (2026-09-02).
+      majo: {
+        nombre: 'María José Cortés',
+        rol: '',
+        tipo: 'A conversation I organized and recorded — two questions, at my school. Her role is not said on the recording, so this page does not guess it.'
       },
       raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' },
       sol: {
@@ -2076,6 +2165,18 @@ const en = {
       que: 'One thing I took from Raúl Irabién',
       pista: 'One line about the student-groups conversation.'
     },
+    entrevistaRendon: {
+      que: 'One thing I took from Miguel Ángel Rendón',
+      pista: 'Una línea. Del episodio: el LinkedIn desde prepa, «el que brilla es la persona», o «por amor a tu yo futuro» — lo que más te haya servido.'
+    },
+    entrevistaMajo: {
+      que: 'One thing I took from María José Cortés',
+      pista: 'Una línea. De la cinta: «sería mucho más curiosa» o «aprovechen el tiempo» — lo que más te haya servido.'
+    },
+    consejoMarg: {
+      que: 'One thing I took from her answer',
+      pista: 'Una línea: qué te contestó sobre estudiar en Canadá y qué hiciste con eso.'
+    },
     servirAnimales: {
       que: 'The animals, in my words',
       pista: 'One or two sentences. What you did, not what you felt.'
@@ -2179,6 +2280,9 @@ const en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
+    entrevistaRendon: '',
+    entrevistaMajo: '',
+    consejoMarg: '',
     servirAnimales: '',
     // Los quince de la ola 2. Mismo mecanismo: en cuanto tienen texto, el
     // hueco desaparece solo. Si Jaime escribe solo el español, el hueco
@@ -2335,6 +2439,7 @@ const es: typeof en = {
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
     sol: 'Un retrato de Sol, o un cuadro de los vídeos de la marcha. La del puesto no se publica aquí: en el cartel se lee un número de teléfono.',
+    rendon: 'Un cuadro de la grabación con Miguel Ángel Rendón.',
     cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
   },
   // Ver la nota de la tabla inglesa.
@@ -2357,6 +2462,7 @@ const es: typeof en = {
     perritosPie: 'Los perritos del stand.',
     margAlt: 'Yo junto a Marg Franklin, que lleva un saco gris claro de cuadros, frente a un fondo oscuro',
     margPie: 'Con Marg Franklin en la firma (2026).',
+    dieckPie: 'Con Moris Dieck al terminar su conferencia en el Tec.',
     grupoEntrevistaAlt: 'Yo con un micrófono, entrevistando a dos estudiantes frente al cartel del stand de Smart Finance Prepa Tec',
     grupoEntrevistaPie: 'Entrevistando en mi prepa, para el grupo estudiantil.',
     grupoNarraAlt: 'Yo hablando a cámara con un micrófono de solapa, junto al cartel de Smart Finance Prepa Tec que invita a sumarse',
@@ -2411,32 +2517,38 @@ const es: typeof en = {
     eyebrow: 'Índice y obertura',
     h: 'Lo que suena aquí',
     piezas: '{n} piezas',
-    lede: 'Cada punto abre algo que existe. Las siete personas son el liderazgo: a quién conseguí sentar conmigo. Los cuatro países son la voz: lo que digo cuando nadie me pregunta. No son lo mismo y esta página no finge que lo sean.',
+    lede: 'Cada punto abre algo que existe. Las personas son el liderazgo: a quién conseguí sentar conmigo. Dos son consejos que pedí, no entrevistas, y lo dicen. Los países son la voz: lo que explico a cámara — y México es el que me eligieron para representar. No son lo mismo, y esta página no finge que lo sean.',
     sigue: 'Todo lo de abajo es la versión larga. Nada de aquí arriba sustituye a un capítulo.',
-    indiceAria: 'Lo que abre el micrófono: once piezas',
-    sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas once piezas.',
+    indiceAria: 'Lo que abre el micrófono: {n} piezas',
+    sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas {n} piezas.',
     grupoPersonas: 'Personas que grabé',
+    grupoExperiencias: 'Gente a la que pedí consejo',
     grupoPaises: 'Países que expliqué',
     bajar: 'En el capítulo',
     abre: {
-      podcast: 'El episodio completo que organicé en la sala Financial Trading Room del Tec, en el canal de la escuela que lo transmitió.',
-      // Ver la nota de la ficha inglesa: tres de las cuatro partes tienen id
-      // público, así que «esta es la que tiene recibo» era falso.
-      mauricio: 'La Parte 4 del podcast — la última de las cuatro que grabé con él.',
+      podcast: 'El podcast que organicé en la sala Financial Trading Room del Tec. Salió dentro del programa del canal de la escuela; el enlace abre esa emisión completa.',
+      rendon: 'El episodio que organicé y conduje; él abre dando las gracias por la invitación.',
+      mauricio: 'La Parte 4 del podcast que grabé con él. Las partes 2 y 3 también están en mi TikTok.',
       lloyd: 'La entrevista en Singapur al hombre que después firmó una de mis dos cartas.',
       andy: 'La entrevista al otro firmante, durante el programa.',
       raul: 'La conversación con el presidente de Grupos Estudiantiles.',
       nus: 'La entrevista sobre qué hace falta para estar en una universidad top 8.',
-      jesus: 'La entrevista al atardecer, con el skyline de Marina Bay detrás.',
+      // «horizonte» y no «skyline»: cada panel 100 % en su idioma, y el alt
+      // de la misma foto ya decía «horizonte».
+      jesus: 'La entrevista al atardecer, con el horizonte de Marina Bay detrás.',
       mexico: 'Fui seleccionado para representar a México y presenté sobre él en la NUS.',
       singapur: 'Por qué aquí vive el dinero del mundo.',
       japon: 'Datos financieros de Japón.',
-      canada: 'Por qué elegí este país para mi futuro.'
+      canada: 'Por qué elegí este país para mi futuro.',
+      dieck: 'Su conferencia en el Tec, organizada por HSBC; le pedí consejo para mi propio podcast. La entrevista todavía no existe, y este punto no finge que exista.',
+      marg: 'El día que le pedí consejo sobre estudiar en Canadá: mi publicación y mi foto con ella. Una pregunta y su respuesta — no una entrevista.'
     },
     ver: {
-      episodio: 'Ver el episodio completo',
+      episodio: 'Ver la emisión',
       conversacion: 'Ver la conversación',
-      video: 'Ver el video'
+      video: 'Ver el video',
+      experiencia: 'Ver la publicación',
+      ficha: 'Ver la ficha'
     },
     paises: {
       mexico: 'México',
@@ -2444,7 +2556,16 @@ const es: typeof en = {
       japon: 'Japón',
       canada: 'Canadá'
     },
-    minutoQue: 'El minuto en el que empieza mi podcast'
+    minutoQue: 'El minuto de esa emisión en el que empieza mi podcast'
+  },
+
+  materialQue: {
+    rendonLink: 'El enlace de este episodio en TikTok',
+    rendonFoto: 'Una foto de la grabación',
+    duranCargo: 'El cargo de Manuel Durán, como lo diga él mismo',
+    duranVideo: 'El video del episodio con Manuel Durán',
+    majoCargo: 'El cargo de María José Cortés, como lo diga ella misma',
+    majoClip: 'El clip de esta conversación, cuando se publique'
   },
 
   head: {
@@ -2614,7 +2735,8 @@ const es: typeof en = {
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'Una sesión a la que asistí, no una entrevista mía — «Lo que dejó el Chief ETF Strategist de J.P. Morgan», como lo publica el sitio.'
       },
-      dieck: { nombre: 'Moris Dieck', rol: '', tipo: '«Una conversación con Moris Dieck», con las palabras del propio sitio.' },
+      dieck: { nombre: 'Moris Dieck', rol: '', tipo: 'Una conferencia en el Tec, Estado de México, organizada por HSBC. En mi propia publicación: «Aunque tenía la agenda apretada, pude hablar brevemente con él y pedirle consejo para mi propio podcast de finanzas.» Todavía no hay entrevista.', tipoTag: 'Mi publicación está en inglés. Lo entrecomillado es traducción.' },
+      marg: { nombre: 'Marg Franklin', rol: '', tipo: 'En la firma del acuerdo global CFA Institute × Tec de Monterrey, en el Campus Estado de México. En mi propia publicación: escuché «su historia como mujer al frente de una de las organizaciones más importantes del mundo financiero», y al final le pedí consejo sobre estudiar en Canadá, porque ella es canadiense. Una pregunta y su respuesta — no una entrevista.', tipoTag: 'Mi publicación está en inglés. Lo entrecomillado es traducción.' },
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
@@ -2625,6 +2747,17 @@ const es: typeof en = {
         nombre: 'Jesús Gutiérrez Parra',
         rol: 'Estudiante de finanzas',
         tipo: 'El podcast que organicé en el Financial Trading Room del Tec.'
+      },
+      rendon: {
+        nombre: 'Miguel Ángel Rendón',
+        rol: 'Director regional del Departamento de Contabilidad y Finanzas, Tec de Monterrey',
+        tipo: 'Como se presenta él en la grabación: doctor en Ciencias Financieras por la EGADE Business School, y director regional para la región Ciudad de México, Santa Fe, Toluca y Estado de México. Un episodio de mi podcast que organicé y conduje yo; él abre dando las gracias por la invitación.',
+        alt: ''
+      },
+      majo: {
+        nombre: 'María José Cortés',
+        rol: '',
+        tipo: 'Una conversación que organicé y grabé — dos preguntas, en mi prepa. Su cargo no se dice en la grabación, así que esta página no lo adivina.'
       },
       raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' },
       sol: {
@@ -3069,6 +3202,18 @@ const es: typeof en = {
       que: 'Una cosa que me llevé de Raúl Irabién',
       pista: 'Una línea sobre la conversación de los grupos estudiantiles.'
     },
+    entrevistaRendon: {
+      que: 'Una cosa que me llevé de Miguel Ángel Rendón',
+      pista: 'Una línea. Del episodio: el LinkedIn desde prepa, «el que brilla es la persona», o «por amor a tu yo futuro» — lo que más te haya servido.'
+    },
+    entrevistaMajo: {
+      que: 'Una cosa que me llevé de María José Cortés',
+      pista: 'Una línea. De la cinta: «sería mucho más curiosa» o «aprovechen el tiempo» — lo que más te haya servido.'
+    },
+    consejoMarg: {
+      que: 'Una cosa que me llevé de su respuesta',
+      pista: 'Una línea: qué te contestó sobre estudiar en Canadá y qué hiciste con eso.'
+    },
     servirAnimales: {
       que: 'Los animalitos, con mis palabras',
       pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
@@ -3121,6 +3266,9 @@ const es: typeof en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
+    entrevistaRendon: '',
+    entrevistaMajo: '',
+    consejoMarg: '',
     servirAnimales: '',
     // Los quince de la ola 2.
     acadPromedio: '',
