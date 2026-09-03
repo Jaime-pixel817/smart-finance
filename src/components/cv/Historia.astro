@@ -1352,6 +1352,14 @@ const cifrasFranja = c.franja.sitioQ
          queda es la última línea de la lista de arriba, que es otra cosa: no
          es el premio, es lo que Andy Toh firma sobre su trabajo en el Green
          Tech Youth Summit. */}
+    {/* ── A DOS COLUMNAS (spec-ola4-sitios §C): lo que verifican, en la
+         prosa; «las que faltan» —dos huecos de carta, un plegable corto— en
+         la pista de margen. Medido antes: de aquí al cierre el capítulo era
+         una columna de 688 con el 40 % derecho vacío (f11 a 1440: 1.4 % de
+         tinta). Los huecos y los plegables cortos son justo lo que el spec
+         manda al margen. */}
+    <div class="con-aparte cartas-verifica">
+    <div class="prosa-col">
     <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
     <details class="ref-plegable">
       <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.verifica}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
@@ -1380,6 +1388,8 @@ const cifrasFranja = c.franja.sitioQ
       ))}
     </ul>
     </details>
+    </div>
+    <div class="aparte">
     <details class="ref-plegable">
       <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.cartas.faltanH}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
     {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
@@ -1394,6 +1404,8 @@ const cifrasFranja = c.franja.sitioQ
       ))}
     </div>
     </details>
+    </div>
+    </div>
     <p class="meta-mono cap-cierre">{c.cierre.cartas}</p>
   </section>
 
@@ -6070,4 +6082,33 @@ const cifrasFranja = c.franja.sitioQ
     .cap .lista-seca { display: block; column-count: 2; column-gap: 48px; max-width: none; }
     .cap .lista-seca li { break-inside: avoid; }
   }
+  /* ══ EL APARTE, EN SERIO (ola 4, revisión adversarial) ════════════════
+     Medido con `ink.cjs` a 1440: en 13 de 29 cuadros el 40 % derecho tenía
+     menos del 2 % de tinta y el quinto derecho estaba vacío en 26 de 29. La
+     rejilla ponía el resumen a la derecha de la cabecera y luego ABANDONABA
+     esa columna: cartas, taller, premios, expediente y frase eran una
+     columna de 688 con 560 px de nada al lado. Es la queja literal de Jaime
+     («no tiene armonía… el 40 % derecho vacío… súper extenso»).
+     Lo que va aquí es spec-ola4-sitios §C.2 aplicado: cada uno de esos
+     capítulos pone su cuerpo en `.con-aparte` (prosa 688 · canal 48 · aparte
+     332) y al aparte van los pies, los huecos, las citas que confirman, las
+     miniaturas de 154 y los plegables cortos. El margen NUNCA lleva cuerpo
+     de 19 px: todo lo que cae en `.aparte` baja a 15. Y es la palanca de
+     longitud: lo que sube al margen deja de apilarse. */
+  .cap:not(.cap-portada) > .con-aparte { margin-block-start: var(--cv-v3); }
+  .aparte > :global(*) { margin: 0; }
+  .aparte .cap-frases, .aparte .cap-lede, .aparte .tercero p, .aparte .premio-cita p,
+  .aparte .ref-ver-txt, .aparte .ref-ver-pista, .aparte .cal, .aparte .carta-pista,
+  .aparte :global(.hueco-mat-que), .aparte :global(.hueco-que), .aparte :global(.foto-hueco-que),
+  .aparte :global(.cv-suyo), .aparte .acad-fuentes li {
+    font-size: var(--fs-caption); line-height: 1.5;
+  }
+  .aparte .t-h3, .aparte .t-h4 { font-size: var(--fs-caption); }
+  .aparte .ref-plegable, .aparte .cal, .aparte .curva, .aparte .testimonios,
+  .aparte .tercero, .aparte .premios-huecos, .aparte .cartas, .aparte .acad-huecos { max-width: 332px; }
+  .aparte .cartas, .aparte .premios-huecos, .aparte .acad-huecos { grid-template-columns: minmax(0, 1fr); }
+  .aparte .testimonios { gap: var(--sp-3); }
+  .aparte .etiqueta { margin-top: var(--cv-v2, var(--sp-5)); }
+  .aparte > .etiqueta:first-child { margin-top: 0; }
+  .prosa-col > .t-h3 + .cap-frases, .prosa-col > .t-h3 + :global(*) { margin-top: 0; }
 </style>
