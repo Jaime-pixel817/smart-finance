@@ -2193,22 +2193,34 @@ const cifrasFranja = c.franja.sitioQ
          párrafo en español, y las comillas puestas por el panel (« » en
          español, “ ” en inglés) porque son puntuación del idioma que las
          rodea, no de la cita. */}
+    {/* ── TARJETA + CITA A DOS COLUMNAS (spec-ola4-sitios §C) ────────────
+         La tarjeta en la prosa; la cita de la carta que confirma —«la cita
+         de la carta que confirma» es el ejemplo literal del spec de lo que
+         va al margen— y el plegable de lo pendiente, en el aparte. Antes
+         todo iba dentro de la tarjeta, en una columna de 688 (f23 a 1440:
+         1.2 % de tinta en el 40 % derecho). */}
+    <div class="con-aparte premios-fila">
+    <div class="prosa-col">
     <ul class="premios">
       {c.premios.entregados.map((x) => (
         <li class="premio">
           <p class="meta-mono premio-cuando">{x.de} · {x.anio}</p>
           <p class="premio-que">{x.que}</p>
-          {x.cita && (
-            <blockquote class="premio-cita">
-              <p>{locale === 'es' ? '«' : '“'}<span lang="en">{x.cita}</span>{locale === 'es' ? '»' : '”'}</p>
-            </blockquote>
-          )}
           <p class="meta-mono premio-tag">{c.premios.fuenteTag.replace('{s}', c.caps.cartas)}</p>
-          {c.premios.citaTag && <p class="meta-mono premio-cita-tag">{c.premios.citaTag}</p>}
           <p class="pie">{x.nota}</p>
         </li>
       ))}
     </ul>
+    </div>
+    <div class="aparte">
+      {c.premios.entregados.filter((x) => x.cita).map((x) => (
+        <figure class="premio-cita-fig">
+          <blockquote class="premio-cita">
+            <p>{locale === 'es' ? '«' : '“'}<span lang="en">{x.cita}</span>{locale === 'es' ? '»' : '”'}</p>
+          </blockquote>
+          {c.premios.citaTag && <figcaption class="meta-mono premio-cita-tag">{c.premios.citaTag}</figcaption>}
+        </figure>
+      ))}
     {/* El documento del premio no existe todavía: la única fuente es la
          carta. Se dice dónde falta con el mismo hueco de foto que usan los
          certificados, no con una frase escondida. */}
@@ -2227,6 +2239,8 @@ const cifrasFranja = c.franja.sitioQ
       </div>
     </div>
     </details>
+    </div>
+    </div>
     <p class="meta-mono cap-cierre">{c.cierre.premios}</p>
   </section>
 
@@ -6126,6 +6140,10 @@ const cifrasFranja = c.franja.sitioQ
      154 + 24 + 154 = 332, el ancho del aparte. Abren al natural. */
   .aparte-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 154px)); gap: 24px; max-width: 332px; align-items: end; }
   .aparte-fotos > .caja-mitad { grid-column: 1 / -1; }
+  .premio-cita-fig { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  /* El h3 «What I have» queda como hijo directo del capítulo, a 96 de la
+     cabecera; la fila que lo sigue va pegada a él (24), no a 96. */
+  .cap:not(.cap-portada) > h3 + .premios-fila { margin-block-start: var(--cv-v1); }
   .aparte .etiqueta { margin-top: var(--cv-v2, var(--sp-5)); }
   .aparte > .etiqueta:first-child { margin-top: 0; }
   .prosa-col > .t-h3 + .cap-frases, .prosa-col > .t-h3 + :global(*) { margin-top: 0; }
