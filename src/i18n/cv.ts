@@ -410,7 +410,12 @@ const en = {
     // prueba liderazgo. Y entran Moris y Marg como EXPERIENCIAS (consejos que
     // pidió, no entrevistas), que es la palabra de Jaime: «episodio de podcast
     // o de experiencia de Moris Dieck o Marg».
-    lede: 'Every point opens something that exists. The people are the leadership: the ones I got to sit down with me. Two are advice I asked for, not interviews, and they say so. The countries are the voice: what I explain to camera — and Mexico is the one I was chosen to represent. They are not the same thing, and this page does not pretend they are.',
+    // ── «SOMETHING THAT EXISTS» NO ERA VERDAD PARA RENDÓN (ola 4) ────────
+    // Su punto abre una ficha sin enlace (la grabación no está publicada), y
+    // el lede prometía que cada punto abría algo existente. El nodo se queda
+    // —es el índice de lo que hay—; el lede dice lo que abre de verdad: una
+    // grabación, una publicación o la ficha que dice qué falta.
+    lede: 'Every point opens a recording, a publication, or the note that says what is still missing. The people are the leadership: the ones I got to sit down with me. Two are advice I asked for, not interviews, and they say so. The countries are the voice: what I explain to camera — and Mexico is the one I was chosen to represent. They are not the same thing, and this page does not pretend they are.',
     // El pie del micrófono: es a la vez la entrega al documento y la promesa
     // de que arriba no se cuenta nada que abajo no esté entero.
     sigue: 'Everything below is the long version. Nothing up here replaces a chapter.',
@@ -1213,23 +1218,27 @@ const en = {
       // Santa Fe, Ciudad de México, Toluca y el Estado de México.» ⚠️ whisper
       // escribió «EGA de»; el LEEME lo corrige a EGADE (la escuela de negocios
       // de posgrado del Tec). Es la única palabra del cargo que no está
-      // literal en la cinta, y va en la lista de preguntas a Jaime. El
-      // doctorado va en `tipo`, no en `rol` (el rótulo corto). `alt` vacío:
-      // no hay foto de la grabación.
+      // literal en la cinta, y va en la lista de preguntas a Jaime. HASTA QUE
+      // ÉL CONFIRME, EL DOCTORADO NO SE PUBLICA en ningún idioma (estaba en
+      // `tipo` con «EGADE» escrito como si fuera literal); el `rol` sí, que
+      // ese es palabra por palabra. Cuando confirme, vuelve a `tipo`, no a
+      // `rol` (el rótulo corto). `alt` vacío: no hay foto de la grabación.
       rendon: {
         nombre: 'Miguel Ángel Rendón',
         rol: 'Regional director of the Department of Accounting and Finance, Tec de Monterrey',
-        tipo: 'As he introduces himself on the recording: PhD in Financial Sciences from EGADE Business School, and regional director for the Mexico City, Santa Fe, Toluca and State of Mexico region. An episode of my podcast that I organized and hosted myself; he opens by thanking me for the invitation.',
+        tipo: 'As he introduces himself on the recording: regional director for the Mexico City, Santa Fe, Toluca and State of Mexico region. An episode of my podcast that I organized and hosted myself; he opens by thanking me for the invitation.',
         alt: ''
       },
       // ── MARÍA JOSÉ CORTÉS («Majo», «la miss»): grabada, sin cargo ─────
       // Entrevista de 2:09 (IMG_4424.MOV, transcrita). En la cinta solo se
       // dice su nombre; el cargo NO se inventa y va como hueco de material.
-      // Que la organizó Jaime es afirmación suya (2026-09-02).
+      // Que la organizó Jaime es afirmación suya (2026-09-02). DÓNDE se grabó
+      // no está ni en la cinta ni en OLA4 §8: decía «at my school» / «en mi
+      // prepa» y era un adorno; fuera.
       majo: {
         nombre: 'María José Cortés',
         rol: '',
-        tipo: 'A conversation I organized and recorded — two questions, at my school. Her role is not said on the recording, so this page does not guess it.',
+        tipo: 'A conversation I organized and recorded — two questions. Her role is not said on the recording, so this page does not guess it.',
         alt: 'María José Cortés, long dark hair and a cream jacket, seated beside a desk with an open laptop in a Tec classroom'
       },
       // MANUEL DURÁN (ola 4): palabra de Jaime del 2026-09-02, sin cinta, sin
@@ -2628,7 +2637,7 @@ const es: typeof en = {
     eyebrow: 'Índice y obertura',
     h: 'Lo que suena aquí',
     piezas: '{n} piezas',
-    lede: 'Cada punto abre algo que existe. Las personas son el liderazgo: a quién conseguí sentar conmigo. Dos son consejos que pedí, no entrevistas, y lo dicen. Los países son la voz: lo que explico a cámara — y México es el que me eligieron para representar. No son lo mismo, y esta página no finge que lo sean.',
+    lede: 'Cada punto abre una grabación, una publicación o la ficha que dice qué falta. Las personas son el liderazgo: a quién conseguí sentar conmigo. Dos son consejos que pedí, no entrevistas, y lo dicen. Los países son la voz: lo que explico a cámara — y México es el que me eligieron para representar. No son lo mismo, y esta página no finge que lo sean.',
     sigue: 'Todo lo de abajo es la versión larga. Nada de aquí arriba sustituye a un capítulo.',
     indiceAria: 'Lo que abre el micrófono: {n} piezas',
     sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas {n} piezas.',
@@ -2949,13 +2958,13 @@ const es: typeof en = {
       rendon: {
         nombre: 'Miguel Ángel Rendón',
         rol: 'Director regional del Departamento de Contabilidad y Finanzas, Tec de Monterrey',
-        tipo: 'Como se presenta él en la grabación: doctor en Ciencias Financieras por la EGADE Business School, y director regional para la región Ciudad de México, Santa Fe, Toluca y Estado de México. Un episodio de mi podcast que organicé y conduje yo; él abre dando las gracias por la invitación.',
+        tipo: 'Como se presenta él en la grabación: director regional para la región Ciudad de México, Santa Fe, Toluca y Estado de México. Un episodio de mi podcast que organicé y conduje yo; él abre dando las gracias por la invitación.',
         alt: ''
       },
       majo: {
         nombre: 'María José Cortés',
         rol: '',
-        tipo: 'Una conversación que organicé y grabé — dos preguntas, en mi prepa. Su cargo no se dice en la grabación, así que esta página no lo adivina.',
+        tipo: 'Una conversación que organicé y grabé — dos preguntas. Su cargo no se dice en la grabación, así que esta página no lo adivina.',
         alt: 'María José Cortés, de pelo largo oscuro y saco crema, sentada junto a un escritorio con una laptop abierta en un salón del Tec'
       },
       duran: {
@@ -3132,10 +3141,13 @@ const es: typeof en = {
       { en: 'low 90%' },
       ' —noventas bajos— en mis mejores materias de último año, incluida la de inglés, más un curso de matemáticas para estudiantes que van a la universidad: una materia de último año de prepa, no una universitaria. Schulich exige ENG4U, MHF4U y cálculo (MCV4U) o manejo de datos entre mis seis mejores materias de último año, con un mínimo de 70 % en ENG4U y MHF4U, y dice que un promedio competitivo va de los ochentas altos a los noventas bajos, con el corte de años anteriores entre 91 % y 92 %. Son números que solo puedo dar yo, así que están marcados como que faltan en vez de no aparecer.'
     ],
+    // Los rótulos van en español y el título de la página original entre
+    // comillas: el panel ES tenía tres enlaces rotulados en inglés («What we
+    // look for»…), que es el único texto del panel que no estaba traducido.
     notaFuentes: [
-      { que: 'rotmancommerce.utoronto.ca — What we look for', url: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/' },
-      { que: 'ivey.uwo.ca — AEO, secondary school students', url: 'https://www.ivey.uwo.ca/hba/admissions/secondary-school-students/' },
-      { que: 'schulich.yorku.ca — BBA admission requirements', url: 'https://schulich.yorku.ca/admissions/admissions-requirements/bba/' }
+      { que: 'rotmancommerce.utoronto.ca — qué buscan en quien aplica («What we look for»)', url: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/' },
+      { que: 'ivey.uwo.ca — admisión anticipada (AEO) para estudiantes de preparatoria («AEO, secondary school students»)', url: 'https://www.ivey.uwo.ca/hba/admissions/secondary-school-students/' },
+      { que: 'schulich.yorku.ca — requisitos de admisión al BBA («BBA admission requirements»)', url: 'https://schulich.yorku.ca/admissions/admissions-requirements/bba/' }
     ]
   },
 
