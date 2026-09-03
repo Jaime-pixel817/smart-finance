@@ -615,6 +615,9 @@ const en = {
     otrosDos: 'The other two',
     reto: 'The contest calendar and my portfolio',
     abrir: 'Open the photo at full size',
+    pendiente: 'Still to come',
+    cinta: 'The live tape: three prices from the site',
+    verifica: 'What the letters verify, line by line',
     mas: 'More'
   },
 
@@ -2745,6 +2748,9 @@ const es: typeof en = {
     otrosDos: 'Los otros dos',
     reto: 'El calendario del reto y mi cartera',
     abrir: 'Abrir la foto a su tamaño',
+    pendiente: 'Lo que falta',
+    cinta: 'La cinta en vivo: tres precios del sitio',
+    verifica: 'Lo que las cartas verifican, renglón por renglón',
     mas: 'Más'
   },
 
