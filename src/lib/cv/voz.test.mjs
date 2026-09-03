@@ -125,6 +125,11 @@ const SUJETO_AJENO = new Map([
   // ola 4: el nodo del FTR dejó de decir «episodio completo» y dice de qué
   // emisión sale. El sujeto de «salió» es EL PODCAST, no Jaime.
   ['podcast|Salió|Salió dentro del programa del canal de la escuela', 'el sujeto es el podcast: «Salió dentro del programa del canal de la escuela»'],
+  // ola 4: el taller lo organizó EL GRUPO («Mi grupo organizó un taller») y el
+  // episodio de Durán «ya se grabó» (sujeto: el episodio). Jaime sigue en
+  // primera persona en el resto de las dos frases («yo lo abrí», «organicé»).
+  ['que|organizó|Mi grupo organizó', 'el sujeto es el grupo: «Mi grupo organizó un taller de finanzas personales»'],
+  ['tipo|grabó|Ya se grabó', 'el sujeto es el episodio: «Ya se grabó; el video todavía no está publicado»'],
   // AQUÍ VIVÍAN SEIS EXENCIONES MÁS, una por cada rótulo de los ocho huecos
   // de contratiempo de la ola 2 («Si una materia o un examen salió mal…»),
   // donde el sujeto era la cosa que salió mal y no Jaime. Los ocho huecos se

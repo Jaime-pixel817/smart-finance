@@ -70,8 +70,8 @@ export const TIKTOK = 'https://www.tiktok.com/@smart.financee/video/';
 //                          (lon +104) caía en la cara de atrás. La geografía de
 //                          verdad no reparte nodos: los apelotona.
 // `cap`    en qué capítulo VIVE la historia entera de ese nodo, con el orden
-//          de la ola 4: las conversaciones y las experiencias en el 2, los
-//          países en el 6 («Lo que construí»), que es donde viven sus clips.
+//          de la ola 4 (la tapa es el 1): las conversaciones y las experiencias en el 3, los
+//          países en el 7 («Lo que construí»), que es donde viven sus clips.
 //          ⚠️ NO ES EL DESTINO DEL ENLACE. El destino es la PIEZA: `ancla()`.
 // `href`   la pieza que abre. O una URL que existe y se comprobó, o `null`:
 //          `null` significa que la pieza está DENTRO del CV —la ficha del
@@ -84,7 +84,7 @@ export const TIKTOK = 'https://www.tiktok.com/@smart.financee/video/';
 export const NODOS = [
   // ── LAS OCHO PERSONAS (el liderazgo) ─────────────────────────────────────
   {
-    id: 'podcast', tipo: 'persona', cap: 2,
+    id: 'podcast', tipo: 'persona', cap: 3,
     // EL PRIMER NODO CON VERBO DE ORGANIZACIÓN EN SU PROPIA FUENTE. LI-22,
     // verbatim: «I had the opportunity to ORGANIZE and participate in a
     // podcast about finance and personal finance in the FTR room at Tec, a
@@ -107,7 +107,7 @@ export const NODOS = [
     externo: 'YouTube · ExprésaTEC', verificado: true
   },
   {
-    id: 'rendon', tipo: 'persona', cap: 2,
+    id: 'rendon', tipo: 'persona', cap: 3,
     // EL SEGUNDO CON VERBO DE ORGANIZACIÓN, Y LO PRUEBA LA CINTA: Rendón,
     // parte 1 [00:00:21 → 00:00:25]: «Sí, con mucho gusto, Jaime. Pues primero
     // que nada, gracias por la invitación.» Y Jaime cierra la parte 2
@@ -123,7 +123,7 @@ export const NODOS = [
     href: null, externo: '', verificado: true
   },
   {
-    id: 'mauricio', tipo: 'persona', cap: 2,
+    id: 'mauricio', tipo: 'persona', cap: 3,
     // Cuatro partes numeradas por él con un profesional del sector. Se enlaza
     // la Parte 4, que es la que está descargada y descrita. ⚠️ Las partes 2 y
     // 3 también tienen id público (7660806476172184852 y 7663530569631911188);
@@ -132,7 +132,7 @@ export const NODOS = [
     href: TIKTOK + '7671351658227469588', externo: 'TikTok', verificado: true
   },
   {
-    id: 'lloyd', tipo: 'persona', cap: 2,
+    id: 'lloyd', tipo: 'persona', cap: 3,
     // Lo entrevistó en Singapur y un mes después ese mismo hombre le firmó una
     // carta. ⚠️ NO es «profesor de la NUS»: su carta abre como CEO de TAQ Pte
     // Ltd y solo dice que dio clase dos semanas en el Green Technology
@@ -140,7 +140,7 @@ export const NODOS = [
     href: TIKTOK + '7666916220049870100', externo: 'TikTok', verificado: true
   },
   {
-    id: 'andy', tipo: 'persona', cap: 2,
+    id: 'andy', tipo: 'persona', cap: 3,
     // El otro firmante. Su carta describe, verbatim, cómo Jaime consigue sus
     // nodos: «While many students spent their breaks socialising with their
     // peers, Jaime actively approached and engaged with the educators,
@@ -148,20 +148,20 @@ export const NODOS = [
     href: TIKTOK + '7662781308988411156', externo: 'TikTok', verificado: true
   },
   {
-    id: 'raul', tipo: 'persona', cap: 2,
+    id: 'raul', tipo: 'persona', cap: 3,
     // Siendo presidente de un grupo estudiantil, consiguió al presidente del
     // paraguas que agrupa a todos. ⚠️ El cargo va SIN «del Tec»: ese vídeo no
     // menciona al Tec.
     href: TIKTOK + '7673350797958155541', externo: 'TikTok', verificado: true
   },
   {
-    id: 'nus', tipo: 'persona', cap: 2,
+    id: 'nus', tipo: 'persona', cap: 3,
     // Es una ENTREVISTA, no un monólogo suyo. Su nombre NO está publicado en
     // ninguna fuente y no se inventa: la ficha la nombra por lo que es.
     href: TIKTOK + '7657190267245563156', externo: 'TikTok', verificado: true
   },
   {
-    id: 'jesus', tipo: 'persona', cap: 2,
+    id: 'jesus', tipo: 'persona', cap: 3,
     // Abordó a un desconocido y lo grabó. Iniciativa, no liderazgo sobre
     // otros, y la ficha no lo insinúa. ⚠️ No confundir con Jesús Gutiérrez
     // Parra (`podcast`): son dos personas distintas.
@@ -170,7 +170,7 @@ export const NODOS = [
 
   // ── LAS DOS EXPERIENCIAS (consejos que pidió, no entrevistas) ────────────
   {
-    id: 'dieck', tipo: 'experiencia', cap: 2,
+    id: 'dieck', tipo: 'experiencia', cap: 3,
     // LI-21, verbatim: «Although he had a tight schedule, I had the chance to
     // briefly speak with him and ask for advice on my own finance podcast.
     // […] I hope to have the opportunity to interview him in the future.» Lo
@@ -181,7 +181,7 @@ export const NODOS = [
     href: null, externo: '', verificado: true
   },
   {
-    id: 'marg', tipo: 'experiencia', cap: 2,
+    id: 'marg', tipo: 'experiencia', cap: 3,
     // LI-20: la firma del acuerdo global CFA Institute × Tec de Monterrey,
     // Campus Estado de México; «At the end, I had the opportunity to ask her
     // for advice about studying in Canada, since she is Canadian herself».
@@ -195,23 +195,23 @@ export const NODOS = [
 
   // ── LOS CUATRO PAÍSES (la voz) ───────────────────────────────────────────
   {
-    id: 'mexico', tipo: 'pais', cap: 6,
+    id: 'mexico', tipo: 'pais', cap: 7,
     // EL ÚNICO NODO DE PAÍS CON LIDERAZGO REAL: no se auto-asignó, LI-12 y
     // LI-15 dicen «I was selected to represent Mexico».
     href: TIKTOK + '7658163945479408917', externo: 'TikTok', verificado: true
   },
   {
-    id: 'singapur', tipo: 'pais', cap: 6,
+    id: 'singapur', tipo: 'pais', cap: 7,
     href: TIKTOK + '7655111359419387157', externo: 'TikTok', verificado: true
   },
   {
-    id: 'japon', tipo: 'pais', cap: 6,
+    id: 'japon', tipo: 'pais', cap: 7,
     // Se enlaza el vídeo «Datos financieros de Japón» (el que la página sirve
     // desde este dominio), no el carrusel de Tokio.
     href: TIKTOK + '7653328531694439700', externo: 'TikTok', verificado: true
   },
   {
-    id: 'canada', tipo: 'pais', cap: 6,
+    id: 'canada', tipo: 'pais', cap: 7,
     // El único donde explica, con su voz, POR QUÉ eligió Canadá — y quien lee
     // esta página es justo quien decide sobre eso.
     href: TIKTOK + '7664460671727258900', externo: 'TikTok', verificado: true
