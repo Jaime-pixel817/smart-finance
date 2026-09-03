@@ -1426,12 +1426,19 @@ const cifrasFranja = c.franja.sitioQ
     <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.grupoHace}</h2>
     <p class="cap-lede">{c.grupoHace.lede}</p>
 
+    {/* ── LOS DOS BLOQUES VAN A DOS COLUMNAS (spec-ola4-sitios §C) ──────
+         Antes eran una columna de 688 hasta el cierre: a 1440 el cuadro del
+         Reto tenía 0.0 % de tinta en el 40 % derecho. Taller: el texto a la
+         izquierda; a la derecha el hueco de asistencia, la foto `mitad` con
+         las otras dos como miniaturas de 154, y los testimonios. Reto: el
+         texto a la izquierda; el plegable del calendario y la cartera, a la
+         derecha. Todo lo del aparte baja a 15 px (regla del margen). */}
     <div class="bloques">
-      <div class="bloque taller">
+      <div class="bloque taller con-aparte">
+        <div class="prosa-col">
         <h3 class="t-h3">{c.taller.h}</h3>
         <p class="cap-frases">{c.taller.que}</p>
         <p class="meta-mono fuente-carta">{c.taller.queFuente}</p>
-        <HuecoMaterial c={c} que={c.taller.asistenciaQue} />
 
         <details class="ref-plegable">
           <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.taller.aperturaH}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
@@ -1451,18 +1458,20 @@ const cifrasFranja = c.franja.sitioQ
         <h4 class="etiqueta">{c.taller.temaH}</h4>
         <p class="cap-frases">{c.taller.tema}</p>
         <p class="meta-mono fuente-carta">{c.taller.temaFuente}</p>
-
+        </div>
+        <div class="aparte">
+        <HuecoMaterial c={c} que={c.taller.asistenciaQue} />
         <h4 class="etiqueta">{c.taller.fotosH}</h4>
         {/* 1500×2000 → 560×747 (3:4, sin recorte: son fotos que alguien encuadró).
              Caras de compañeros MENORES: la publicación la confirma Jaime (informe). */}
-        <div class="fila-2 fila-2-mini">
-          {c.taller.fotos.slice(0, 2).map((f) => (
+        <div class="aparte-fotos">
+          {c.taller.fotos.slice(0, 1).map((f) => (
             <figure class="lote-fig caja-mitad">
               <span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span>
               <figcaption class="pie">{f.pie}</figcaption>
             </figure>
           ))}
-          {c.taller.fotos.slice(2).map((f) => (
+          {c.taller.fotos.slice(1).map((f) => (
             <figure class="lote-fig caja-tarjeta">
               <a class="mini" href={foto(f.id)} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span></a>
               <figcaption class="pie">{f.pie}</figcaption>
@@ -1486,6 +1495,7 @@ const cifrasFranja = c.franja.sitioQ
           ))}
         </ul>
     </details>
+        </div>
       </div>
 
       {/* ── El Reto Actinver ── El calendario sale de src/lib/reto/actinver.mjs
@@ -1493,7 +1503,8 @@ const cifrasFranja = c.franja.sitioQ
            El logo con las reglas del repo: pequeño, placa oscura, línea de no
            afiliación. Calendario, cartera, nota y hueco de foto van PLEGADOS
            (OLA4 §6.3): hasta el 5 de octubre no dicen nada. */}
-      <div class="bloque reto">
+      <div class="bloque reto con-aparte">
+        <div class="prosa-col">
         <h3 class="t-h3">{c.dos.actinverH}</h3>
         {/* texto de Jaime, pendiente de su revisión final */}
         <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
@@ -1506,6 +1517,8 @@ const cifrasFranja = c.franja.sitioQ
           <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
           <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
         </p>
+        </div>
+        <div class="aparte">
     <details class="ref-plegable">
       <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.reto}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
         <h4 class="etiqueta">{c.reto.calH}</h4>
@@ -1539,6 +1552,7 @@ const cifrasFranja = c.franja.sitioQ
           <FotoHueco c={c} que={c.fotosPend.actinver} />
         </div>
     </details>
+        </div>
       </div>
     </div>
     <p class="meta-mono cap-cierre">{c.cierre.grupoHace}</p>
@@ -6108,6 +6122,10 @@ const cifrasFranja = c.franja.sitioQ
   .aparte .tercero, .aparte .premios-huecos, .aparte .cartas, .aparte .acad-huecos { max-width: 332px; }
   .aparte .cartas, .aparte .premios-huecos, .aparte .acad-huecos { grid-template-columns: minmax(0, 1fr); }
   .aparte .testimonios { gap: var(--sp-3); }
+  /* La `mitad` arriba (332) y las dos miniaturas de 154 en fila debajo:
+     154 + 24 + 154 = 332, el ancho del aparte. Abren al natural. */
+  .aparte-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 154px)); gap: 24px; max-width: 332px; align-items: end; }
+  .aparte-fotos > .caja-mitad { grid-column: 1 / -1; }
   .aparte .etiqueta { margin-top: var(--cv-v2, var(--sp-5)); }
   .aparte > .etiqueta:first-child { margin-top: 0; }
   .prosa-col > .t-h3 + .cap-frases, .prosa-col > .t-h3 + :global(*) { margin-top: 0; }
