@@ -1225,7 +1225,8 @@ const en = {
       majo: {
         nombre: 'María José Cortés',
         rol: '',
-        tipo: 'A conversation I organized and recorded — two questions, at my school. Her role is not said on the recording, so this page does not guess it.'
+        tipo: 'A conversation I organized and recorded — two questions, at my school. Her role is not said on the recording, so this page does not guess it.',
+        alt: 'María José Cortés, long dark hair and a cream jacket, seated beside a desk with an open laptop in a Tec classroom'
       },
       // MANUEL DURÁN (ola 4): palabra de Jaime del 2026-09-02, sin cinta, sin
       // enlace, sin foto y SIN CARGO («director de negocios» está en su nota de
@@ -2946,7 +2947,8 @@ const es: typeof en = {
       majo: {
         nombre: 'María José Cortés',
         rol: '',
-        tipo: 'Una conversación que organicé y grabé — dos preguntas, en mi prepa. Su cargo no se dice en la grabación, así que esta página no lo adivina.'
+        tipo: 'Una conversación que organicé y grabé — dos preguntas, en mi prepa. Su cargo no se dice en la grabación, así que esta página no lo adivina.',
+        alt: 'María José Cortés, de pelo largo oscuro y saco crema, sentada junto a un escritorio con una laptop abierta en un salón del Tec'
       },
       duran: {
         nombre: 'Manuel Durán',

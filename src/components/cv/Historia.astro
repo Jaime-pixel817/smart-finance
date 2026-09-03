@@ -387,7 +387,7 @@ const citas = [
   // hay. Majo tiene cinta (IMG_4424, 2:09, dos preguntas) y sin clip
   // publicado; Durán ni cinta ni video. Ninguna afirma que el episodio esté
   // publicado; cuando Jaime pegue el enlace se cambia `tiktokId` y nada más.
-  { key: 'majo' as const, img: null, alt: '', hueco: 'entrevistaMajo' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
+  { key: 'majo' as const, img: foto('cv-cara-majo.webp'), alt: pers.majo.alt, hueco: 'entrevistaMajo' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
   { key: 'duran' as const, img: null, alt: '', hueco: 'entrevistaDuran' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
   { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, url: null as string | null, verLabel: null as string | null, tiktokId: '7673350797958155541' },
   { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7677118351327431956' }
@@ -912,8 +912,8 @@ const cifrasFranja = c.franja.sitioQ
           </blockquote>
           {/* Foto 2 del lote del 2026-08-30: la visita a Toronto. Va PEGADA a
                su cita sobre la U of T, que es de esa visita. */}
-          <figure class="lote-fig lote-toronto sin-imprimir">
-            <span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" height="640" loading="lazy" decoding="async" /></span>
+          <figure class="caja-tarjeta lote-fig lote-toronto sin-imprimir">
+            <span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" style="--nat-w:480" height="640" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.torontoPie}</figcaption>
           </figure>
           <Hueco c={c} id="quienSoy" />
@@ -922,11 +922,11 @@ const cifrasFranja = c.franja.sitioQ
              micrófono en Singapur. Pasa por build-photos.mjs con huella,
              como todas; el retrato de /about (jaime-320) deja de usarse aquí
              para no repetir a la misma persona dos veces en una pantalla. */}
-        <figure class="cap-1-retrato sin-imprimir">
+        <figure class="cap-1-retrato caja-mitad sin-imprimir">
           <img class="cap-1-foto" src={foto('cv-retrato-480.webp')}
             srcset={`${foto('cv-retrato-480.webp')} 480w, ${foto('cv-retrato-800.webp')} 800w`}
             sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 592px, 320px"
-            alt={c.head.fotoAlt} width="480" height="600" decoding="async" loading="lazy" />
+            alt={c.head.fotoAlt} width="480" style="--nat-w:480" height="600" decoding="async" loading="lazy" />
           <figcaption class="pie">{c.head.retratoPie}</figcaption>
         </figure>
       </div>
@@ -955,11 +955,11 @@ const cifrasFranja = c.franja.sitioQ
            caja de la figura — con los viejos, la foto llegaba y empujaba
            95 px de página (CLS gratuito). El recorte y su porqué están en
            scripts/build-photos.mjs. */}
-      <figure class="cap-1-figura sin-imprimir">
+      <figure class="cap-1-figura caja-mitad sin-imprimir">
         <img src={foto('cv-torre-520.webp')}
           srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
           sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 592px, 520px"
-          alt={c.head.torreAlt} width="520" height="650"
+          alt={c.head.torreAlt} width="520" style="--nat-w:520" height="650"
           decoding="async" loading="lazy" />
         {/* EL PIE ES SUYO (mensaje del 2026-08-29), pulido en ortografía y
              puntuación y nada más — patrón voz.*, pendiente de su revisión
@@ -1009,19 +1009,19 @@ const cifrasFranja = c.franja.sitioQ
         <p class="cap-frases">{c.proyectos.grupoTaller.replace('{s}', c.caps.grupoHace)}</p>
         <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
       </div>
-      <figure class="lote-fig fig-sola grupo-fig sin-imprimir">
-        <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" height="810" loading="lazy" decoding="async" /></span>
+      <figure class="caja-mitad lote-fig fig-sola grupo-fig sin-imprimir">
+        <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" style="--nat-w:720" height="810" loading="lazy" decoding="async" /></span>
         <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
       </figure>
     </div>
     <details class="ref-plegable sin-imprimir">
       <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masFotos}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
       <div class="fila-fotos">
-        <figure class="lote-fig">
-          <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" height="600" loading="lazy" decoding="async" /></span>
+        <figure class="caja-tarjeta lote-fig">
+          <span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" style="--nat-w:800" height="600" loading="lazy" decoding="async" /></span>
         </figure>
-        <figure class="lote-fig">
-          <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" height="786" loading="lazy" decoding="async" /></span>
+        <figure class="caja-tarjeta lote-fig">
+          <span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" style="--nat-w:560" height="786" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
         </figure>
       </div>
@@ -1096,7 +1096,7 @@ const cifrasFranja = c.franja.sitioQ
           <li class="cita" id={ancla(p, rt.key)}>
             <div class="cita-media">
               {rt.img && (
-                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" height="360" loading="lazy" decoding="async" />
+                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" style="--nat-w:480" height="360" loading="lazy" decoding="async" />
               )}
               {rt.video && (
                 <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
@@ -1161,12 +1161,12 @@ const cifrasFranja = c.franja.sitioQ
     <h3 class="t-h3 ens-h" id={`${p}-consejo-h`}>{c.mic.grupoExperiencias}</h3>
     <ul class="consejos" aria-labelledby={`${p}-consejo-h`}>
       {([
-        { id: 'dieck', per: c.entrevistas.personas.dieck, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), w: 480, h: 360, pie: c.lote.dieckPie, hueco: 'entrevistaDieck' as const },
-        { id: 'marg', per: c.entrevistas.personas.marg, img: foto('cv-lote-marg.webp'), alt: c.lote.margAlt, w: 480, h: 640, pie: c.lote.margPie, hueco: 'consejoMarg' as const }
+        { id: 'dieck', per: c.entrevistas.personas.dieck, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), w: 480, h: 360, pie: c.lote.dieckPie, hueco: 'entrevistaDieck' as const, caja: 'caja-tarjeta' },
+        { id: 'marg', per: c.entrevistas.personas.marg, img: foto('cv-lote-marg.webp'), alt: c.lote.margAlt, w: 480, h: 640, pie: c.lote.margPie, hueco: 'consejoMarg' as const, caja: 'caja-mitad' }
       ]).map((x) => (
         <li class="consejo" id={ancla(p, x.id)}>
-          <figure class="lote-fig consejo-fig">
-            <span class="recuerdo"><img src={x.img} alt={x.alt} width={x.w} height={x.h} loading="lazy" decoding="async" /></span>
+          <figure class={`lote-fig consejo-fig ${x.caja}`}>
+            <span class="recuerdo"><img src={x.img} alt={x.alt} width={x.w} style={`--nat-w:${x.w}`} height={x.h} loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{x.pie}</figcaption>
           </figure>
           <div class="consejo-texto">
@@ -1316,13 +1316,13 @@ const cifrasFranja = c.franja.sitioQ
             <span class="carta-pdf-no">{c.cartas.pdfNo.replace('{n}', k.nombre)}</span>
           </p>
           {k.lote === 'lloyd' ? (
-            <figure class="lote-fig">
-              <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" height="996" loading="lazy" decoding="async" /></span>
+            <figure class="caja-tarjeta lote-fig">
+              <span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" style="--nat-w:560" height="996" loading="lazy" decoding="async" /></span>
               <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
             </figure>
           ) : k.lote === 'andy' ? (
-            <figure class="lote-fig">
-              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" height="360" loading="lazy" decoding="async" /></span>
+            <figure class="caja-tarjeta lote-fig">
+              <span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" style="--nat-w:480" height="360" loading="lazy" decoding="async" /></span>
               <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
             </figure>
           ) : null}
@@ -1432,6 +1432,27 @@ const cifrasFranja = c.franja.sitioQ
         <p class="cap-frases">{c.taller.tema}</p>
         <p class="meta-mono fuente-carta">{c.taller.temaFuente}</p>
 
+        <h4 class="etiqueta">{c.taller.fotosH}</h4>
+        {/* 1500×2000 → 560×747 (3:4, sin recorte: son fotos que alguien encuadró).
+             Caras de compañeros MENORES: la publicación la confirma Jaime (informe). */}
+        <div class="fila-2">
+          {c.taller.fotos.slice(0, 2).map((f) => (
+            <figure class="lote-fig caja-mitad">
+              <span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{f.pie}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <details class="ref-plegable">
+          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masFotos}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+          {c.taller.fotos.slice(2).map((f) => (
+            <figure class="lote-fig caja-tarjeta">
+              <span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span>
+              <figcaption class="pie">{f.pie}</figcaption>
+            </figure>
+          ))}
+        </details>
+
         <h4 class="etiqueta">{c.taller.testimoniosH}</h4>
         <p class="pie">{c.taller.testimoniosLede}</p>
         {c.taller.testimoniosTag && <p class="meta-mono">{c.taller.testimoniosTag}</p>}
@@ -1461,7 +1482,7 @@ const cifrasFranja = c.franja.sitioQ
         <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
         <p class="cap-lede">{c.reto.lede}</p>
         <div class="reto-marca">
-          <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
+          <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" style="--nat-w:182" height="108" loading="lazy" decoding="async" /></span>
           <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
         </div>
         <p class="links-row">
@@ -1554,17 +1575,17 @@ const cifrasFranja = c.franja.sitioQ
              cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
              enseña un teléfono— y su hueco, en la tarjeta de Sol del
              capítulo 4, lo dice en pantalla. */}
-        <div class="fila-fotos">
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-donacion.webp')} alt={c.lote.donacionAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+        <div class="fila-fotos fila-mtt">
+          <figure class="caja-mitad lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-donacion.webp')} alt={c.lote.donacionAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.donacionPie}</figcaption>
           </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+          <figure class="caja-tarjeta lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.perritosPie}</figcaption>
           </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" height="747" loading="lazy" decoding="async" /></span>
+          <figure class="caja-tarjeta lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.marchaPie}</figcaption>
           </figure>
         </div>
@@ -1601,17 +1622,17 @@ const cifrasFranja = c.franja.sitioQ
              se pudieron bajar porque Chrome activó su bloqueo de descargas
              automáticas para linkedin.com — es un permiso del navegador de
              Jaime, no algo que se arregle desde aquí. */}
-        <div class="playa-fotos">
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
+        <div class="playa-fotos fila-mtt">
+          <figure class="caja-mitad lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.playa1Pie}</figcaption>
           </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" height="747" loading="lazy" decoding="async" /></span>
+          <figure class="caja-tarjeta lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.playa2Pie}</figcaption>
           </figure>
-          <figure class="lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" height="731" loading="lazy" decoding="async" /></span>
+          <figure class="caja-tarjeta lote-fig">
+            <span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" style="--nat-w:560" height="731" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.lote.playa3Pie}</figcaption>
           </figure>
         </div>
@@ -1861,7 +1882,7 @@ const cifrasFranja = c.franja.sitioQ
             <noscript><video {...attrsClip(v.clip, v.titulo, false, v.w, v.h)} poster={v.poster}></video></noscript>
           )}
           {v.img && (
-            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} height={v.ih} loading="lazy" decoding="async" /></span>
+            <span class="recuerdo"><img src={v.img} alt="" width={v.iw} style={`--nat-w:${v.iw}`} height={v.ih} loading="lazy" decoding="async" /></span>
           )}
           <p class="clip-titulo">{v.titulo}</p>
           <p class="clip-anio meta-mono">2026</p>
@@ -1896,8 +1917,8 @@ const cifrasFranja = c.franja.sitioQ
          LLEGUE: original a cv-fotos/, línea en build-photos.mjs, y aquí el
          nombre nuevo — y entonces el recorte raro de build-photos.mjs se
          puede borrar entero. */}
-    <figure class="arco-fig fig-sola">
-      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" height="691" loading="lazy" decoding="async" /></span>
+    <figure class="caja-tarjeta arco-fig fig-sola">
+      <span class="recuerdo"><img src={foto('cv-tt-nus-presentacion.webp')} alt={c.tiktok.arcoImgAlt} width="960" style="--nat-w:960" height="691" loading="lazy" decoding="async" /></span>
       <figcaption class="pie">{c.tiktok.arcoImgPie} <a class="hist-link" href={urlVideo('7658163945479408917')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></figcaption>
     </figure>
     <p class="cap-frases">{c.tiktok.nota}</p>
@@ -1932,9 +1953,9 @@ const cifrasFranja = c.franja.sitioQ
              clavado: entra sin recorte y sin aire.
              (Aquí decía que el pie lleva el año 2025 y ya no lo lleva: las
              fechas de arranque se retiraron en esta misma ola.) */}
-        <figure class="jasa-fig fig-sola">
+        <figure class="caja-mitad jasa-fig fig-sola">
           <span class="recuerdo"><img src={foto('cv-jasa-tienda.webp')} alt={c.proyectos.jasaAlt}
-            width="640" height="800" loading="lazy" decoding="async" /></span>
+            width="640" style="--nat-w:640" height="800" loading="lazy" decoding="async" /></span>
           <figcaption class="pie">{c.proyectos.jasaPie}</figcaption>
         </figure>
         {/* EL SITIO EN VIVO ES LA TIENDA, NO EL CORPORATIVO (2026-09-02).
@@ -2322,7 +2343,7 @@ const cifrasFranja = c.franja.sitioQ
             {f.img
               ? <a class="cert-mini-a" href={foto(f.img)} target="_blank" rel="noopener"
                    aria-label={`${c.certs.verEscaneo} — ${f.que}`}>
-                  <img src={foto(f.img)} alt={f.alt} width={f.w} height={f.h}
+                  <img src={foto(f.img)} alt={f.alt} width={f.w} style={`--nat-w:${f.w}`} height={f.h}
                        loading="lazy" decoding="async" />
                 </a>
               : <span class="cert-insignia-mini" role="img"
@@ -3543,14 +3564,14 @@ const cifrasFranja = c.franja.sitioQ
      suelo propio de `--cvh-h-name`, a 320 px y al 200 % ya no hace falta. */
   .hist-name { font-size: var(--cvh-h-name); overflow-wrap: break-word; }
   .cap-1-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
-  @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 320px; } }
+  @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 332px; } }
   .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
   .cap-1-retrato { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   .cap-1-foto { max-width: 100%; height: auto; display: block; border-radius: 18px; }
   /* La Torre CN de Jaime. `max-width` en px y no en `ch` ni en `%`: es una
      figura y su tamaño lo manda la foto, no el texto. Ya viene en gris del
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
-  .cap-1-figura { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 520px; }
+  .cap-1-figura { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 332px; }
   .cap-1-figura img { width: 100%; height: auto; display: block; }
   /* El pie de la Torre CN son TRES renglones y no uno: la marca de
      traducción, sus palabras y la procedencia. Cada uno en su línea porque
@@ -3752,7 +3773,7 @@ const cifrasFranja = c.franja.sitioQ
   /* ---- Reto: placa, calendario, curva ---- */
   .reto-marca { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
   .logo-placa { display: inline-flex; padding: var(--sp-2) var(--sp-3); background: #101014; flex: none; }
-  .logo-placa img { width: 121px; height: 72px; display: block; }
+  .logo-placa img { width: 154px; height: auto; display: block; }
   .cal { display: flex; flex-direction: column; max-width: 720px; }
   .cal li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3) 0; border-top: 1px solid var(--cvh-raya); }
   .cal-que { color: var(--cvh-tinta); }
@@ -3843,10 +3864,10 @@ const cifrasFranja = c.franja.sitioQ
   }
   .cita-media { min-width: 0; }
   .cita-foto {
-    display: block; width: min(100%, 200px); height: auto;
+    display: block; width: min(100%, 154px); height: auto;
     border-radius: 14px;
   }
-  .cita .clip-video { max-width: 170px; border-radius: 14px; }
+  .cita .clip-video { max-width: 154px; border-radius: 14px; }
   .cita-nombre { font-weight: 600; margin-top: var(--sp-2); }
   .cita-rol, .cita-tipo { font-size: var(--fs-caption); color: var(--cvh-tapa-tinta-2); }
   /* El rótulo que dice de quién es la frase de abajo, pegado a ella. */
@@ -3900,7 +3921,7 @@ const cifrasFranja = c.franja.sitioQ
     padding-block: var(--sp-3);
     border-block-end: 1px solid var(--cvh-raya);
   }
-  .cert-mini { width: 154px; }
+  .cert-mini { width: 156px; }  /* 154 de imagen + el borde del enlace */
   .cert-mini-a {
     display: block; border: 1px solid var(--cvh-raya); border-radius: 8px;
     overflow: hidden; background: var(--cvh-papel);
@@ -5549,7 +5570,7 @@ const cifrasFranja = c.franja.sitioQ
        a la izquierda y el texto que ya venía debajo, a su derecha. */
     .clip-par {
       display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
+      grid-template-columns: 154px minmax(0, 1fr);
       gap: var(--cv-v2) var(--cv-h2, var(--sp-4));
       align-items: start;
     }
@@ -5585,7 +5606,7 @@ const cifrasFranja = c.franja.sitioQ
     .cita {
       flex: 0 0 min(72%, 880px);
       display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
+      grid-template-columns: 154px minmax(0, 1fr);
       column-gap: var(--sp-5); row-gap: var(--sp-2);
       align-content: start;
     }
@@ -5595,15 +5616,14 @@ const cifrasFranja = c.franja.sitioQ
        quedaba en la primera fila, empujando el cargo 230 px hacia abajo.
        Con un span mayor que el número de renglones de cualquier tarjeta, el
        media llega hasta abajo y la columna de texto arranca pegada arriba. */
+    /* La cara es `tarjeta` (154, Ondo: avatar de 150–200 junto a la cita) y
+       NO se estira a la altura de la tarjeta: se pintaba a 300×366 con
+       `cover`, o sea recortada y a 0.62× de su natural. */
     .cita-media {
       grid-column: 1; grid-row: 1 / span 10;
-      align-self: stretch;
-      min-height: 220px;
+      align-self: start;
     }
-    .cita-foto, .cita .clip-video {
-      width: 100%; height: 100%; max-width: none;
-      object-fit: cover;
-    }
+    .cita-foto, .cita .clip-video { width: 154px; height: auto; max-width: 100%; }
     .cita-nombre { margin-top: 0; }
 
     /* La rejilla de clips: tres columnas IGUALES (eran 250/528/250 porque
@@ -5822,4 +5842,45 @@ const cifrasFranja = c.franja.sitioQ
   .exped-h { margin-top: var(--sp-6); }
   .cert-insignia-tag { display: block; font: 500 10px/1.2 var(--mono, ui-monospace, monospace); letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; margin-top: 4px; text-align: center; }
   .podcasts { max-width: 688px; }
+
+  /* ══ OLA 4 · LAS CINCO CAJAS (spec-ola4-sitios §A) ═══════════════════════
+     Los tres sitios de referencia usan 4–5 anchos de imagen y ninguno tiene
+     un valor intermedio. Aquí son cinco y nada entre ellas: `sangre` (la
+     portada), `marco` (≤ 1320: micrófono, carrusel, tabla), `prosa` 688,
+     `mitad` 332 y `tarjeta` 154. Las tres últimas NO crecen con la pantalla.
+     LA REGLA POR PROPORCIÓN: una vertical (r < 1) va a `mitad` si es prueba
+     y a `tarjeta` si es contexto; NUNCA a `prosa` (688/0.8 = 860 > 522) ni a
+     una caja apaisada: medido antes de esto, cinco verticales se pintaban a
+     688×522 recortadas a horizontal (Marg, el grupo ×2, Jasa, la carta).
+     EL TECHO POR NATURAL: cada <img> lleva su ancho natural en `--nat-w` y
+     la caja se encoge hasta él, nunca al revés — una imagen de 480 no ocupa
+     688 aunque alguien la meta en `prosa` por error (antes: 4 ampliadas).
+     `width: auto` y no `100%`: con el techo de 58 vh, `100%` deformaba. */
+  /* `.cap .caja-*` y no `.caja-*` a secas: `.carta .lote-fig { max-width: 100% }`
+     y `.cap-1-figura img { width: 100% }` ganaban por especificidad y la caja
+     no mandaba (medido: la foto de Andy en las cartas seguía a 480). */
+  .cap .caja-prosa { width: 100%; max-width: 688px; }
+  .cap .caja-mitad { width: 100%; max-width: 332px; }
+  .cap .caja-tarjeta { width: 100%; max-width: 154px; }
+  .cap .caja-prosa .recuerdo, .cap .caja-mitad .recuerdo, .cap .caja-tarjeta .recuerdo { width: 100%; }
+  .cap .caja-prosa img, .cap .caja-mitad img, .cap .caja-tarjeta img {
+    width: auto; height: auto; max-width: 100%; max-block-size: 58vh;
+  }
+  .cap img[style*="--nat-w"] { max-width: min(100%, calc(var(--nat-w) * 1px)); }
+  /* Dos verticales en fila: 332 + 24 + 332 = 688, la pista de prosa. */
+  .fila-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 332px)); gap: 24px; max-width: 688px; align-items: start; }
+  /* Una `mitad` y dos `tarjeta`: 332 + 24 + 154 + 24 + 154 = 688. La foto
+     que es prueba grande, las dos de contexto pequeñas, a ras por abajo. */
+  .fila-mtt { display: grid; grid-template-columns: 332px 154px 154px; gap: 24px; max-width: 688px; align-items: end; }
+  @media (max-width: 47em) {
+    .fila-2 { grid-template-columns: 1fr; }
+    .fila-mtt { grid-template-columns: repeat(auto-fit, minmax(154px, 1fr)); }
+  }
+  /* Los clips en tira de `tarjeta`: 154 × 4 + 24 × 3 = 688. El de la NUS
+     (16:9, enderezado) es la única apaisada y va a `prosa` entera. */
+  .clips { display: grid; grid-template-columns: repeat(auto-fill, 154px); gap: 24px; max-width: 688px; }
+  .clip { padding: 0; border: 0; background: transparent; border-radius: 0; }
+  .clip .recuerdo img, .clip .clip-video { width: 154px; max-width: 154px; height: auto; }
+  .clip-ancho { grid-column: 1 / -1; }
+  .clip-ancho .clip-video { width: 688px; max-width: 100%; }
 </style>

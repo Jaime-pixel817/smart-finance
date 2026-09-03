@@ -645,6 +645,63 @@ console.log('Jaime');
     console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
   }
 
+  /* ── EL TALLER DE FINANZAS PERSONALES (ola 4, 2026-09-02) ───────────────
+   *
+   * ORIGEN: cv-material/pendiente/taller-finanzas/fotos/ (fuera del repo),
+   * diez fotos de 1500x2000 (3:4) del taller que organizó el grupo de Jaime en
+   * su prepa, más una de la entrevista a María José Cortés
+   * (~/sf-video/entrada/taller/IMG_4580.JPG, 4032x3024 con orientación EXIF 6:
+   * `.rotate()` la endereza a 3024x4032 antes de recortar, o la cara caería
+   * de lado). Los originales NO entran al repositorio: salen caras de
+   * compañeros MENORES de edad y Jaime tiene que confirmar la publicación (la
+   * pregunta está en el informe de la ola); lo que sí entra es el WebP con
+   * huella, que es lo que se sirve, y se regenera desde la carpeta de material
+   * como el resto de este archivo lo hace desde cv-fotos/.
+   *
+   * Tres del taller SIN RECORTE (misma decisión que el lote del 2026-08-30:
+   * son fotos que alguien encuadró) y a 560 px, que cubre a densidad 2 los
+   * 332 px de la caja `mitad` y los 154 de `tarjeta` que les tocan en la
+   * página. Majo va como CARA 4:3 con punto focal escrito (ojos en
+   * x=0.62 · y=0.28 de la foto ya enderezada), porque su sitio es la tarjeta
+   * de conversación, que es la caja de las caras. */
+  {
+    const PEND = (n) => path.join(raiz, '..', 'cv-material', 'pendiente', 'taller-finanzas', 'fotos', n);
+    const TALLER = [
+      ['cv-taller-4603', 'taller-4603.jpg'],   // Gustavo con la diapositiva S.M.A.R.T.
+      ['cv-taller-4573', 'taller-4573.jpg'],   // el auditorio, desde el frente
+      ['cv-taller-4609', 'taller-4609.jpg']    // plano abierto; una mano levantada al fondo
+    ];
+    const hay = TALLER.every(([, src]) => fs.existsSync(PEND(src)));
+    if (!hay) {
+      console.log('taller: no está cv-material/pendiente/taller-finanzas/fotos/ — me lo salto (el manifiesto conserva lo que ya tenía)');
+      for (const [id] of TALLER) conservar(id + '.webp');
+    } else {
+      console.log('taller de finanzas (sin recorte, 560 px, calidad 72)');
+      for (const [id, src] of TALLER) {
+        const m2 = await sharp(PEND(src)).metadata();
+        const w = Math.min(560, m2.width);
+        const buf = await sharp(PEND(src)).rotate().resize(w).webp({ quality: 72 }).toBuffer();
+        const archivo = publicar(id + '.webp', buf);
+        console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
+      }
+    }
+    const MAJO = path.join(process.env.HOME || '', 'sf-video', 'entrada', 'taller', 'IMG_4580.JPG');
+    if (!fs.existsSync(MAJO)) {
+      console.log('Majo: no está ~/sf-video/entrada/taller/IMG_4580.JPG — me la salto');
+      conservar('cv-cara-majo.webp');
+    } else {
+      // `.rotate()` sin argumento aplica la orientación EXIF y la descarta;
+      // la caja se calcula sobre las medidas YA enderezadas.
+      const girada = sharp(MAJO).rotate();
+      const buf0 = await girada.toBuffer();
+      const m2 = await sharp(buf0).metadata();
+      const c = caja(m2.width, m2.height, 0.62, 0.28);
+      const buf = await sharp(buf0).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
+      const archivo = publicar('cv-cara-majo.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   480x360 (enderezada ' + m2.width + 'x' + m2.height + ')');
+    }
+  }
+
   /* ── EL HEADER DE smartfinance.lat (Jaime, 2026-08-30) ──────────────────
    * «pon una imagen del header padre». Es una CAPTURA del sitio en vivo, no
    * un render: 1280x736 css a densidad 2 (2560x1472), el hero entero con el
