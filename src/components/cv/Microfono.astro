@@ -202,11 +202,28 @@ const grupos = [
      la ventana es el aire, no la letra. */
   .mic-h {
     font-family: var(--font-serif); font-weight: 600;
-    font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.022em;
+    font-size: 1.5rem; line-height: 1.17; letter-spacing: -0.022em;   /* 24, del sistema; era 28 */
   }
   .mic-n {
     font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
     letter-spacing: .14em; text-transform: uppercase; color: var(--cvh-tinta-3);
+  }
+  /* ── `.etiqueta` SE REPITE AQUÍ, Y NO ES UN DESCUIDO ────────────────────
+     Este componente usa la clase `.etiqueta` en dos sitios (el ojo del
+     módulo y los tres encabezados de grupo del índice), pero esa clase está
+     definida en el `<style>` de Historia.astro — y los `<style>` de Astro
+     tienen ámbito POR COMPONENTE: le pegan a cada parte del selector el
+     atributo del archivo donde se escriben, así que `.etiqueta` de allí no
+     alcanza este marcado. Es la misma trampa que CLAUDE.md ya tiene escrita
+     para `.proj` entre `Hub.astro` y `RetoActinver.astro`.
+     Consecuencia medida por el guardián: los tres `<h3 class="etiqueta">` de
+     aquí salían al tamaño POR OMISIÓN de un h3 —20 px, que no es ninguno de
+     los ocho del sistema— en vez de a los 12 de un rótulo. Se ven tres veces
+     por panel, o sea seis veces en el documento. */
+  .etiqueta {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-3);
+    font-weight: 600; margin: 0;
   }
   .mic-lede { font-size: var(--fs-caption); line-height: 1.55; color: var(--cvh-tinta-2); }
 
@@ -292,7 +309,7 @@ const grupos = [
   }
   .mic-nodos :global(.nodo-et) {
     position: absolute; left: 50%; top: calc(50% + 13px); transform: translateX(-50%);
-    white-space: nowrap; font-size: 12px; line-height: 1.2; letter-spacing: .01em;
+    white-space: nowrap; font-size: .75rem; line-height: 1.2; letter-spacing: .01em;
     color: var(--cvh-tinta); background: var(--cvh-papel);
     padding: 3px 7px; border-radius: 5px; border: 1px solid var(--cvh-raya);
     opacity: 0; transition: opacity var(--dur-1) linear; pointer-events: none;

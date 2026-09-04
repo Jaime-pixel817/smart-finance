@@ -96,7 +96,7 @@ const h = c.huecos[id];
      que este capítulo no puede insinuar. */
   .cv-suyo-grande {
     font-family: var(--font-serif); font-weight: 600;
-    font-size: clamp(1.25rem, 2.6vw, 1.75rem); line-height: 1.25;
+    font-size: clamp(1.25rem, 2.6vw, 1.5rem); line-height: 1.17;   /* 24 arriba, del sistema */
     letter-spacing: -0.01em;
   }
 
@@ -132,7 +132,7 @@ const h = c.huecos[id];
   @media print {
     .hueco {
       display: block; padding: 0; border-radius: 0; background: none; max-width: none;
-      font-family: var(--font-mono); font-size: 11px; line-height: 1.4; letter-spacing: .04em;
+      font-family: var(--font-mono); font-size: .75rem; line-height: 1.33; letter-spacing: .04em;
     }
     .hueco-tag, .hueco-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2, var(--ink-2)); }
     .hueco-tag::after { content: ' · '; }

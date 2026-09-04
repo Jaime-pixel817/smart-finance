@@ -2727,13 +2727,86 @@ const cifrasFranja = c.franja.sitioQ
        21 del cuerpo; a 390 px, 31 contra 43 y 17. El techo (4.25rem) es más
        bajo que el de la frase final a propósito: la de abajo tiene la
        pantalla para ella sola y esta comparte capítulo con el nombre. */
-    --cvh-h-abre: clamp(1.75rem, 8vw, 4.25rem);
-    --cvh-cuerpo: clamp(1.0625rem, 2.2vw, 1.3125rem);
-    --cvh-etiqueta: 0.6875rem;
+    --cvh-h-abre: clamp(1.75rem, 8vw, 2.5rem);
+    --cvh-cuerpo: clamp(1.0625rem, 2.2vw, 1.1875rem);
+
+    /* ══ LOS OCHO TAMAÑOS, Y NINGUNO MÁS ══════════════════════════════════
+       Sistema de Apple Newsroom, §3.1 de cv-material/ola5/SISTEMA-REFERENCIA.md,
+       declarado en src/styles/cv.css y vigilado por `npm run check-sistema-cv`:
+
+         display  56 · 40 · 24 · 21        cuerpo  19 · 17 · 14 · 12
+
+       Medido el 2026-09-04 sobre lo publicado, este documento corría con
+       QUINCE en el cuerpo, tres tamaños de h2 y dos fuentes. `apple-restore`
+       corre con CUATRO en 17 706 px y 4 302 palabras, y se lleva el 42 % de
+       sus caracteres en 19/27 y el 100 % de sus pies en 12/16. Linear llega a
+       tener el 89 % de los caracteres en un solo tamaño. No es una cuestión
+       de gusto: quince tamaños es lo que Jaime llamó «no tiene sintonía, no
+       tiene armonía».
+
+       LO QUE SE REDEFINE AQUÍ Y POR QUÉ. Los siete tamaños que el guardián
+       encontró fuera de la escala eran 44 · 38 · 28 · 20 · 16 · 13 · 11, y
+       casi ninguno venía de un `font-size` suelto: venían de estas variables,
+       que son las que de verdad mandan en el documento. Cambiarlas aquí
+       arregla 240 nodos de texto de una vez; ir a buscar los `font-size` uno
+       por uno habría dejado vivo el mecanismo que los repone.
+
+       · `--cvh-etiqueta` era 11 px (0.6875rem) y ahora es 12: es el tamaño de
+         TODO pie y TODA nota del sistema, y de los 84 nodos que medían 11 px
+         la inmensa mayoría son rótulos y pies.
+       · `--fs-eyebrow` (11 px del sitio) cae en el mismo 12.
+       · `--fs-h4` (1.05 rem ≈ 17 px) se clava en 17, que sí es del sistema.
+       · Y `font-size: 1.0625rem` en la raíz del documento es el arreglo de
+         los 16 px: 137 nodos de texto medían 16 porque NADIE les había dicho
+         nada y heredaban el cuerpo del sitio. La prosa del sistema es 19 y su
+         paso de abajo es 17; heredar 17 deja a esos 137 dentro de la escala
+         sin tocar un solo bloque. Los que tienen tamaño propio no se enteran.
+
+       Los valores van en `rem` y NO en px, aunque Apple los escriba en px:
+       con el texto del navegador al 200 % un px no crece, y capar un titular
+       frente al zoom de texto incumple WCAG 1.4.4 — la lección que este CV ya
+       pagó una vez. Con la raíz en 16, `rem` calcula exactamente los mismos
+       ocho números que mide el guardián, y además escala. ══════════════════ */
+    --cvh-etiqueta: .75rem;   /* 12 · el pie y el rótulo del sistema */
+    --fs-eyebrow: .75rem;     /* 12 · era 11 */
+    --fs-h4: 1.0625rem;       /* 17 · era 1.05rem ≈ 16.8 */
+    font-size: 1.0625rem;     /* 17 · el suelo heredado del documento */
 
     position: relative;
     display: flex; flex-direction: column;
     color: var(--cvh-tinta);
+  }
+
+  /* ══ LA TAPA SE QUEDA EN 16, Y NO ES UNA EXCEPCIÓN CÓMODA ════════════════
+     El suelo heredado de 17 de arriba es del DOCUMENTO. La tapa no es
+     documento: es una composición de pantalla completa con texto encima de
+     una foto, la única del sitio, y su contraste no se razona sino que se
+     mide sobre la página pintada (`npm run check-contraste-cv`, 168
+     mediciones). El guardián del sistema ya la trata aparte por lo mismo
+     (`enTapa` salta `.cap-portada, .portada-uno, .portada-dos`), así que
+     subirle el cuerpo no acerca ni un nodo a los ocho tamaños: solo mueve
+     una composición que está cuadrada al píxel.
+
+     Y lo movió. Medido a 768×1024 en inglés con el texto del navegador al
+     200 %, la columna de la tapa bajaba 62 px: el señuelo «Scroll to read ↓»
+     pasaba de y=307 a y=369, y a esa altura cae sobre una parte más clara de
+     la foto de Toronto — su contraste de CAJA bajaba de 5.00:1 a 4.30:1, por
+     debajo del 4.5 de WCAG 1.4.3. Lo cazó `npm run check-contraste-cv`.
+
+     Los 62 px salen ENTEROS de la barra de arriba de la tapa
+     (`.portada-barra`, «Curriculum vitae · 01 / 10» a un lado y las dos
+     pastillas de idioma al otro): pasó de 52 a 114 px de alto. Es una fila
+     `flex-wrap: wrap` de 768 px, y con el rótulo a 12 en vez de a 11 —o sea
+     a 24 en vez de a 22 con el texto al 200 %— dejó de caber en una línea y
+     se partió. Dos píxeles de letra, tres líneas de barra y un fallo de
+     contraste dos pantallas más abajo.
+
+     Por eso se devuelven las DOS cosas, y solo dentro de la tapa: el cuerpo
+     heredado y el tamaño del rótulo. El documento entero sigue en 17 y en
+     12, que es lo que mide el guardián del sistema. */
+  .cap-portada {
+    font-size: 1rem;            /* 16 · contra lo que está medido el recibo */
+    --cvh-etiqueta: .6875rem;   /* 11 · el rótulo de la barra de la tapa */
   }
 
   /* ═══ LAS FOTOS Y LOS CLIPS VAN A COLOR, Y LO DECIDIÓ JAIME (2026-08-28) ══
@@ -4054,7 +4127,7 @@ const cifrasFranja = c.franja.sitioQ
     display: inline-flex; align-items: center; justify-content: center;
     border: 1px solid var(--cvh-tinta-3); border-radius: 12px;
     background: var(--cvh-papel); color: var(--cvh-tinta);
-    font-size: 1.25rem; line-height: 1; cursor: pointer;
+    font-size: 1.3125rem; line-height: 1; cursor: pointer;   /* 21, del sistema; era 20 */
   }
   .citas-btn:hover { background: var(--bg-2); }
   .citas-btn[data-inerte] { opacity: .35; cursor: default; }
@@ -4868,9 +4941,21 @@ const cifrasFranja = c.franja.sitioQ
          36, 37, 39, 40, 43, 44 px) y `gap: var(--sp-5)` = 20 px entre bloques
          de primer nivel: a 21 px de cuerpo, medio interlineado — todo se leía
          como un bloque continuo. Ondo pone 130–170 px entre bloques. */
-      --cv-v1: 24px;    /* dentro de un grupo: una figura y su pie */
-      --cv-v2: 48px;    /* entre bloques de la misma idea */
-      --cv-v3: 96px;    /* entre ideas dentro de un capítulo */
+      /* ══ LOS CUATRO PASOS SON LOS DEL SISTEMA: 16 · 44 · 72 · 80 ═══════
+         Eran 24 · 48 · 96 · 160, una escalera propia, razonada contra
+         ondo.finance. La escalera del sistema está MEDIDA sobre
+         `apple-restore`: 22 saltos de 44 y 2 de 72 en 17 706 px, 4 302
+         palabras y 20 fotos. Es el ritmo de un documento del mismo largo que
+         este y sin huecos, y es el que vigila `npm run check-sistema-cv`
+         (prueba 4: entre bloques 16·44·72·80, dentro 8·20).
+
+         Lo que cambia en píxeles, y es la respuesta a «súper extenso»: el
+         paso entre capítulos baja de 160 a 80, ocho veces = 640 px; el de
+         ideas dentro de un capítulo, de 96 a 72; el de bloques, de 48 a 44;
+         y el de dentro de un grupo, de 24 a 16. Ninguna palabra se toca. */
+      --cv-v1: 16px;    /* dentro de un grupo: una figura y su pie */
+      --cv-v2: 44px;    /* entre bloques de la misma idea — EL ritmo */
+      --cv-v3: 72px;    /* entre ideas dentro de un capítulo */
       /* ── 160, Y MEDIDO DESDE EL CIERRE HASTA EL NÚMERO ─────────────────
          Estuvo en 264 con el argumento de la proporción de Linear (96
          dentro / 266 entre). Medido en captura a 1440 (ola 4, revisión):
@@ -4883,7 +4968,7 @@ const cifrasFranja = c.franja.sitioQ
          cierre al número van 160 con el filete en medio (80 + 80), y el
          titular 24 más abajo. La proporción con el 96 de dentro es 1.67 :
          1 y la frontera la marca el surco a sangre, no el aire. */
-      --cv-v4: 160px;   /* entre capítulos: cierre → 80 → filete → 80 → número */
+      --cv-v4: 80px;    /* entre capítulos: cierre → 40 → filete → 40 → número */
     }
 
     /* ══ LA FRONTERA DE CAPÍTULO: UN SURCO A SANGRE ══════════════════════
@@ -4918,8 +5003,68 @@ const cifrasFranja = c.franja.sitioQ
       background: linear-gradient(var(--cvh-tinta-3) 0 1px, var(--cvh-raya) 1px 2px);
     }
     /* El micrófono NO lleva filete ni por arriba ni por abajo: el surco es la
-       gramática del CAPÍTULO en este documento, y la obertura no es uno. */
-    .mic + .cap::before { content: none; }
+       gramática del CAPÍTULO en este documento, y la obertura no es uno.
+
+       ══ EL DEFECTO DE REJILLA DEL CAPÍTULO 2, Y POR QUÉ ERA ESTA REGLA ════
+       El filete de arriba se pinta con `.cap + .cap::before`, o sea SOLO
+       cuando un capítulo va detrás de otro capítulo. El capítulo 2 va detrás
+       del micrófono (`.mic + .cap`), así que ese selector nunca lo alcanzó y
+       su pseudoelemento nunca tuvo `content`: sin `content` no se genera
+       ninguna caja, y sin caja LA FILA 1 DE SU REJILLA SE QUEDA LIBRE.
+
+       Y la fila 1 libre es el defecto entero. El número está escrito en la
+       fila 2 y el titular en la 3 (más abajo, en el bloque de la cabecera
+       7 + 5), pero todos los DEMÁS hijos se colocan solos — y la colocación
+       automática mete al primero que encuentra en la primera fila libre, que
+       aquí es la 1. O sea: el contenido del capítulo se pinta ENCIMA de su
+       propio número y de su propio titular.
+
+       Medido sobre lo publicado el 2026-09-04, en chromium y en webkit a
+       1440: en los ocho capítulos que van detrás de otro capítulo el número
+       cae a +82…+106 px del arranque de su sección (el 4-8 % del alto) y el
+       titular justo debajo. En el capítulo 2 el número caía a +848 y el
+       titular a +894 de 1 037 px de sección: EL 86 % HACIA ABAJO, o sea al
+       final del capítulo, después de las fotos y del aparte. Era el único
+       capítulo distinto de los nueve.
+
+       El arreglo NO es mover el número y el titular a las filas 1 y 2 —eso
+       cambiaría los nueve capítulos para arreglar uno—: es que la fila 1
+       esté OCUPADA aquí también. Este pseudoelemento existe SOLO para eso.
+       Lleva `content` (sin él no hay caja y no ocupa nada), toma la fila 1 de
+       lado a lado para que ningún hijo pueda colarse en ella, y no pinta ni
+       un píxel: sin alto, sin fondo y sin márgenes. El micrófono sigue sin
+       filete —que es lo que esta regla siempre quiso— y la rejilla del
+       capítulo 2 vuelve a ser la de los otros ocho.
+
+       Y ojo con `height: 0` + `gap`: no añade aire porque la rejilla del
+       capítulo va con `gap: 0` (el hueco lo ponen los márgenes de cada hijo,
+       está escrito en su sitio). Si algún día esa rejilla estrena `row-gap`,
+       esta fila de 0 px empezará a costar un hueco.
+
+       ══ `:global(.mic)` NO ES ADORNO: SIN ÉL ESTA REGLA NO EXISTE ═════════
+       El micrófono lo pinta OTRO componente (`Microfono.astro`), y los
+       `<style>` de Astro tienen ámbito por componente: le pegan a cada parte
+       del selector el atributo del archivo donde se escriben. Comprobado en
+       el HTML construido, la sección del micrófono sale con
+       `class="mic" … data-astro-cid-ofodwz5b` y NADA de `2iagrydi`, que es el
+       de este archivo — así que `.mic + .cap` escrito a secas se compila a
+       `.mic[data-astro-cid-2iagrydi] + …` y no casa con nada.
+
+       Es la trampa que CLAUDE.md ya tiene escrita para `.proj` entre
+       `Hub.astro` y `RetoActinver.astro`, y la que este mismo archivo
+       documenta para `.etiqueta`. Y es la razón por la que el defecto duró:
+       la regla ANTERIOR (`content: none`) tampoco casaba, así que llevaba
+       desde que se escribió sin hacer nada — ni lo que quería, ni daño
+       visible. Un `:global()` de menos no da error, no avisa y no se ve en
+       ninguna captura: se ve midiendo dónde cae el titular. */
+    :global(.mic) + .cap::before {
+      content: ""; display: block;
+      grid-row: 1;
+      grid-column: 1 / -1;
+      height: 0;
+      background: none;
+      margin-block: 0;
+    }
 
     /* La columna de la tapa se alinea con el MARCO del documento (≤1320) en
        vez de con el contenedor de 1152: la barra de arriba (etiqueta a la
@@ -5376,18 +5521,31 @@ const cifrasFranja = c.franja.sitioQ
      VENTANA, que es otra cosa. */
   @media screen and (min-width: 58.75em) {
     .historia {
-      --cvh-h: 2.375rem;         /* 38 px · los 9 titulares de capítulo */
+      /* 38 → 40 y 44 → 40: los dos caían FUERA de los ocho tamaños del
+         sistema y eran los dos más grandes del cuerpo. 40 es el paso de
+         display que ya existe (`--sf-t-cap`, el `.pullquote` de Apple medido
+         a 40/44), así que los nueve titulares de capítulo y la frase de
+         cierre pasan a medir lo mismo — y dejan de ser dos tamaños casi
+         iguales que no se distinguen pero sí ensucian la escala. */
+      --cvh-h: 2.5rem;           /* 40 px · los 9 titulares de capítulo */
       --cvh-cuerpo: 1.1875rem;   /* 19 px · el 60 % del texto */
       --cvh-voz: 1.3125rem;      /* 21 px · las palabras de Jaime */
-      --cvh-h-frase: 2.75rem;    /* 44 px · la frase de cierre */
+      --cvh-h-frase: 2.5rem;     /* 40 px · la frase de cierre */
+      --cvh-h-name: 3.5rem;      /* 56 px · el nombre, en el cuerpo */
+      --cvh-h-abre: 2.5rem;      /* 40 px · la frase de apertura */
     }
     /* Interlínea BINARIA (regla medida sobre 469 elementos de Stripe):
        ≥24 px → 1.03-1.15 · ≤21 px → 1.30-1.55. Nada intermedio.
        `.cap-h` iba a 0.95 —por debajo de 1— y dos líneas de titular
        literalmente se tocaban. */
     .cap-h { line-height: 1.10; letter-spacing: -0.022em; }
-    .franja-n { font-size: 2rem; }
-    .cifra { font-size: 3rem; }
+    /* 32 y 48 no son del sistema. Los dos bajan a 40, que es el paso de
+       display de una cifra suelta (§3.4 viii). El documento de referencia
+       propone 48 para las cifras y aquí NO se copia: 48 sería un noveno
+       tamaño, y abrir la escala para tres cifras es la puerta por la que se
+       colaron los quince de hoy. */
+    .franja-n { font-size: 2.5rem; }
+    .cifra { font-size: 2.5rem; }
   }
 
   @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
@@ -5400,7 +5558,11 @@ const cifrasFranja = c.franja.sitioQ
          `--cv-margen` = 280 px en vez de 574 y se quedaba a la mitad). Un
          hijo que quiera el ancho de su pista pide `100%`, que es lo que
          ya hace por omisión; y el que quiera un tope escribe el número. */
-      --cv-frame: min(100% - 2 * var(--cv-gutter), 1320px);
+      /* 1320 → 1280: el marco ancho del sistema (§3.2), y el número con el
+         que cuadran las dos rejillas que vienen — 782 + 16 + 482 = 1280 para
+         el micrófono y 4 × 308 + 3 × 16 = 1280 para los países. Con 1320 no
+         cuadraba ninguna de las dos. */
+      --cv-frame: min(100% - 2 * var(--cv-gutter), 1280px);
       --cv-canal: 48px;
       --cv-prosa: min(43rem, calc(var(--cv-frame) - var(--cv-canal) - 280px));
       --cv-margen: calc(var(--cv-frame) - var(--cv-canal) - var(--cv-prosa));
@@ -6027,7 +6189,7 @@ const cifrasFranja = c.franja.sitioQ
   .cita-dijo .tercero { margin-top: var(--sp-2); }
   .exped-h { margin-top: var(--sp-6); }
   /* Visible y con contraste (axe lo pidió a 4.5:1): tinta-2, sin opacidad. */
-  .cert-insignia-tag { display: block; font: 500 11px/1.25 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--cvh-tinta-2); margin-top: 6px; text-align: center; }
+  .cert-insignia-tag { display: block; font: 500 .75rem/1.33 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--cvh-tinta-2); margin-top: 6px; text-align: center; }
   .podcasts { max-width: 688px; }
 
   /* ══ OLA 4 · LAS CINCO CAJAS (spec-ola4-sitios §A) ═══════════════════════
@@ -6095,10 +6257,12 @@ const cifrasFranja = c.franja.sitioQ
      miniatura (G8): `tarjeta` de 154 que abre la foto al natural en un
      <dialog> (cv-movimiento.ts); sin JS es un enlace a la foto. La fila de
      cifra (G4, Ondo): etiqueta 13 · numeral 24 tabular · filete al 12 %. */
+  /* 13 px no era del sistema; 12 sí, y es el tamaño de todo rótulo. En rem
+     por lo mismo que el resto: el zoom de texto (WCAG 1.4.4). */
   .cap-aro {
     display: inline-grid; place-items: center; width: 30px; height: 30px;
     border: 1px solid var(--cvh-tinta-3); border-radius: 50%;
-    font-size: 13px; line-height: 1; margin-right: 8px; vertical-align: middle;
+    font-size: .75rem; line-height: 1; margin-right: 8px; vertical-align: middle;
   }
   .cap-de { vertical-align: middle; }
   .con-aparte { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
@@ -6111,8 +6275,8 @@ const cifrasFranja = c.franja.sitioQ
   .cap .bloque { border: 0; background: transparent; padding: 0; border-radius: 0; }
   .cap .cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 48px; max-width: 688px; }
   .cap .cifras li { display: flex; flex-direction: column-reverse; gap: 4px; padding: 12px 0; min-height: 64px; border-bottom: 1px solid color-mix(in oklab, var(--cvh-tinta) 12%, transparent); }
-  .cap .cifra { font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-  .cap .cifra-que { font-size: 13px; color: var(--cvh-tinta-3); }
+  .cap .cifra { font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .cap .cifra-que { font-size: .75rem; color: var(--cvh-tinta-3); }
   .fila-2-mini { grid-template-columns: repeat(2, minmax(0, 332px)) 154px; max-width: 866px; align-items: end; }
   @media (max-width: 47em) { .fila-2-mini { grid-template-columns: 1fr; } }
   @media (min-width: 940px) {

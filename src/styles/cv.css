@@ -19,3 +19,482 @@
    para todo el sitio, y el CV se lleva su copia dentro de su propio trozo — una
    sola petición para él también. */
 @import './base.css';
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EL SISTEMA
+   ══════════════════════════════════════════════════════════════════════════
+
+   Todo lo que hay debajo de esta línea sale de UN documento y de ninguna
+   inspiración:
+
+     cv-material/ola5/SISTEMA-REFERENCIA.md
+
+   que es la medición de Apple Newsroom / «Apple Stories» (plantilla
+   `apple-restore`) en diez páginas de referencia, dos motores y dos anchos, y
+   que Jaime aprobó como referencia única el 2026-09-04 con estas palabras:
+   «quiero que ya nos guiemos de una página, ya que tu creatividad no me está
+   siendo servible».
+
+   NINGÚN NÚMERO DE AQUÍ SE INVENTA. Si uno tiene que cambiar, cambia primero
+   en ese documento, que es donde está escrito de dónde salió.
+
+   ── LO QUE HACE QUE APPLE NO TENGA HUECOS ─────────────────────────────────
+   Y es lo único que hay que recordar de todo esto: **el vacío no se rellena,
+   se prohíbe**. Un hueco aparece cuando la maqueta le pregunta al contenido
+   cuánto mide. En este sistema no se le pregunta nunca: cada caja lleva su
+   alto escrito y la foto se recorta dentro.
+
+   Medido en vivo sobre `apple-restore`: su pareja de fotos son dos <figure>
+   de 482 × 706 EXACTOS, en las dos instancias de la página y en los dos
+   motores. No hay ninguna regla que las iguale — la caja de la foto es fija
+   (482×642) y el pie reserva tres líneas (48 px). Son iguales POR
+   CONSTRUCCIÓN. Por eso ese documento tiene 17 706 px, 20 fotos y UNA sola
+   franja vacía de más de 160 px, y el CV tiene 24 126 px y trece.
+
+   ── QUIÉN VIGILA ESTO ─────────────────────────────────────────────────────
+   `npm run check-sistema-cv` (scripts/check-sistema-cv.mjs) recorre la página
+   construida en chromium y webkit a 1440 y 1920 y falla nombrando el elemento
+   que se salió. Un `font-size` que no sea uno de los ocho, una tarjeta oscura
+   que no mida 482×288, una foto por debajo de 308 px, una franja de más de
+   160 px sin tinta o un `gap` que no sea un paso, se ven ahí. Los topes con
+   la deuda de hoy están en la cabecera de ese archivo.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── PAPEL Y TINTA ─────────────────────────────────────────────────────
+     Medidos en `apple-detroit` y `apple-newsroom`, que son el mismo sistema
+     que `apple-restore` pero en blanco. De la elegida se copia la GEOMETRÍA,
+     no el papel: `restore` va sobre negro y el CV es papel blanco. */
+  --sf-papel:        #FFFFFF;
+  --sf-papel-2:      #F5F5F7;   /* placa: las dos cartas, la tabla, el marco */
+  --sf-papel-3:      #FAFAFC;   /* pie de documento */
+  --sf-tinta:        #1D1D1F;
+  --sf-tinta-2:      #6E6E73;   /* TODO pie y TODA nota, sin excepción */
+  --sf-borde:        #D2D2D7;   /* el único borde claro del sistema */
+  --sf-enlace:       #0066CC;
+  --sf-oscuro:       #000000;   /* la tarjeta de conversación */
+  --sf-oscuro-tinta: #F5F5F7;
+  --sf-oscuro-tinta2:#86868B;
+  --sf-oscuro-borde: rgba(255, 255, 255, .08);
+
+  /* ── TIPOGRAFÍA: UNA familia y OCHO tamaños ────────────────────────────
+     Cuatro de cuerpo (19 · 17 · 14 · 12) y cuatro de display (56 · 40 · 24 ·
+     21). El CV de hoy tiene quince en el cuerpo, tres tamaños de h2 y dos
+     fuentes; `apple-restore` corre con CUATRO en el cuerpo y se lleva el 42 %
+     de sus caracteres en 19/27 y el 100 % de sus pies en 12/16.
+
+     ── VAN EN `rem` Y NO EN `px`, Y NO ES UN DETALLE ─────────────────────
+     Apple los escribe en px. Aquí no se puede: con el tamaño de texto del
+     navegador al 200 % un px no crece, y capar un titular frente al zoom de
+     texto incumple WCAG 1.4.4 — es la regla que este repo ya tiene escrita
+     para los clamp de la portada. En `rem` calculan EXACTAMENTE los mismos
+     56/40/24/21/19/17/14/12 px con la raíz de 16 (que es lo que mide el
+     guardián) y además escalan. Se gana en las dos.
+
+     ── EL TRACKING VA A CERO, Y ES UNA DECISIÓN HONESTA ──────────────────
+     Los `letter-spacing` del documento de referencia (-.28 · .216 · .231 ·
+     .228 · -.374 · -.224 · -.12) son los de SF Pro MEDIDOS EN APPLE. Geist
+     Sans tiene otras métricas, así que copiarlos sería copiar una corrección
+     hecha para otra letra. Quedan a 0 hasta que se midan sobre esta página.
+     La interlínea sí se conserva: 27 sobre 19 es 1.42, y eso no depende de
+     la familia. */
+  --sf-t-tapa:    700 3.5rem/3.75rem var(--font-sans);      /* 56/60 */
+  --sf-t-cap:     700 2.5rem/2.75rem var(--font-sans);      /* 40/44 */
+  --sf-t-entra:   500 1.5rem/1.75rem var(--font-sans);      /* 24/28 */
+  --sf-t-tarjeta: 700 1.3125rem/1.5625rem var(--font-sans); /* 21/25 */
+  --sf-t-prosa:   400 1.1875rem/1.6875rem var(--font-sans); /* 19/27 ★ */
+  --sf-t-sec:     400 1.0625rem/1.5625rem var(--font-sans); /* 17/25 */
+  --sf-t-rotulo:  600 .875rem/1.125rem var(--font-sans);    /* 14/18 */
+  --sf-t-pie:     600 .75rem/1rem var(--font-sans);         /* 12/16 ★ */
+  /* ★ los dos que se llevan el documento. */
+  --sf-ls: 0;
+
+  /* ── AIRE: cuatro pasos ENTRE bloques y dos DENTRO ─────────────────────
+     El ritmo es el 44: en `apple-restore` hay 22 saltos de 44 y 2 de 72 en
+     17 706 px. No hay un quinto paso. */
+  --sf-aire-0:  8px;    /* dentro de un bloque */
+  --sf-aire-1: 16px;    /* foto → su pie · tarjeta ↔ tarjeta · el canal */
+  --sf-aire-2: 44px;    /* EL ritmo: párrafo ↔ foto ↔ pareja ↔ vídeo */
+  --sf-aire-3: 72px;    /* arriba y abajo de una cita grande */
+  --sf-aire-4: 80px;    /* arriba y abajo de algo a sangre */
+  --sf-aire-cabeza: 20px; /* ojo → titular → entradilla */
+
+  /* ── RADIOS: cuatro ───────────────────────────────────────────────────── */
+  --sf-r-foto: 0;         /* foto en columna y a sangre */
+  --sf-r-par: 10px;       /* foto en pareja y en collage */
+  --sf-r-tarjeta: 24px;   /* tarjeta oscura, placa, marco del sitio */
+  --sf-r-pildora: 999px;  /* flecha de 44 y punto de 8 */
+
+  /* ── LA REJILLA ────────────────────────────────────────────────────────
+     1440 ─┬─ 230 ─┬────────────── 980 ──────────────┬─ 230 ─┐  marco de lectura
+           │       │  163.5 │─── 653 lectura ───│163.5│      │
+           └─ 80 ──┴──────────── 1280 ────────────────┴─ 80 ─┘  marco ancho
+           ├──────────────────── 1440 a sangre ─────────────────┤
+
+     NADA CRECE DE 1440 A 1920 SALVO LAS FOTOS A SANGRE. Medido en `restore`:
+     `pLeft` pasa de 232 a 472 y todo se corre +240, pero la columna sigue en
+     980, la pareja en 482 y la medida de lectura en 653; el documento entero
+     pasa de 17 706 a 18 291 px (+3.3 %) y TODA la diferencia está en sus tres
+     fotos a sangre. Aquí nos separamos de Apple en una cosa: su marco ancho
+     escala ×1.4 y el nuestro no, porque el lienzo del micrófono se dibuja a
+     una resolución — un lienzo que crece es un lienzo borroso o un `resize`
+     en cada `resize`.
+
+     Los `min(…, 100% - 32px)` son para lo que no es escritorio: el objetivo
+     principal es ordenador («nuestro objetivo principal es ordenador»), pero
+     una columna de 980 px clavada haría scroll horizontal en un teléfono, y
+     eso es WCAG 1.4.10 y lo mide `npm run check-reflow-cv`. En 1440 y 1920
+     —los dos anchos que mide el guardián— el `min()` no actúa. */
+  --sf-ancho:   min(1280px, 100% - 2 * var(--sf-aire-1));  /* marco ancho */
+  --sf-util:    min(980px,  100% - 2 * var(--sf-aire-1));  /* la columna */
+  --sf-lectura: min(653px,  100% - 2 * var(--sf-aire-1));  /* la lectura */
+  --sf-canal:   16px;      /* el ÚNICO canal del sistema */
+  --sf-pie-max: 605px;     /* ancho máximo de un pie */
+  /* Media columna: (980 − 16) / 2 = 482. Es el ancho de media foto de la
+     pareja Y el de la tarjeta oscura, a propósito: que midan lo mismo quita
+     un número del sistema y hace que la tarjeta encaje exacta en el marco de
+     lectura (482 + 16 + 482 = 980) y en la columna del micrófono. */
+  --sf-media: calc((var(--sf-util) - var(--sf-canal)) / 2);
+  /* Un tercio: 3 × 316 + 2 × 16 = 980. */
+  --sf-tercio: calc((var(--sf-util) - 2 * var(--sf-canal)) / 3);
+  /* Un cuarto del marco ancho: 4 × 308 + 3 × 16 = 1280. */
+  --sf-cuarto: calc((var(--sf-ancho) - 3 * var(--sf-canal)) / 4);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §3.2 · LAS TRES PISTAS
+   Un bloque del documento vive en una de tres y en ninguna otra. No hay dos
+   columnas, y ese es el arreglo: el 36 % del CV que está vacío de lado a lado
+   sale de una maqueta de dos columnas que solo llena una. Apple no tiene dos
+   columnas: tiene UNA de 980 con una medida de lectura de 653 centrada
+   dentro, y todo bloque ocupa los 980 y va 44 px debajo del anterior.
+   ══════════════════════════════════════════════════════════════════════════ */
+.sf-doc     { width: 100%; max-width: var(--sf-util);    margin-inline: auto; }
+.sf-ancho   { width: 100%; max-width: var(--sf-ancho);   margin-inline: auto; }
+.sf-lectura { width: 100%; max-width: var(--sf-lectura); margin-inline: auto; }
+/* A sangre es lo ÚNICO que crece de 1440 a 1920. */
+.sf-sangre {
+  width: 100vw; position: relative; left: 50%; translate: -50% 0;
+  height: min(56.25vw, 100vh);          /* 1440×810 → 1920×1080 */
+  overflow: hidden;
+  margin-block: var(--sf-aire-4);
+}
+.sf-sangre > img, .sf-sangre > video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* El ritmo, en un sitio y no en cuarenta: todo bloque va 44 debajo del
+   anterior. Un bloque que quiera otro paso lo escribe, y el guardián
+   comprueba que sea 16, 72 u 80. */
+.sf-doc > * + *, .sf-ancho > * + * { margin-block-start: var(--sf-aire-2); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §3.3 · LA REGLA QUE MATA EL VACÍO
+   Tres reglas en orden de importancia. La primera arregla los ocho huecos del
+   CV que salen de que una columna se acaba antes que la otra.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Ninguna fila de dos columnas se cierra con `auto`. ────────────────
+   La caja de la foto es FIJA y el pie reserva líneas fijas. Copiado de
+   `.photogrid__photos` de apple-restore, medido: dos <figure> de 482×706
+   idénticos = 482×642 de foto + 16 + 48 de pie. */
+.sf-par {
+  display: grid;
+  grid-template-columns: repeat(2, var(--sf-media));
+  column-gap: var(--sf-canal);
+  grid-template-rows: auto auto;   /* fila 1 = foto · fila 2 = pie */
+  align-items: start;              /* el sobrante cae ABAJO, no en medio */
+}
+.sf-par > figure {
+  display: grid; grid-template-rows: subgrid; grid-row: 1 / span 2; margin: 0;
+}
+.sf-par img, .sf-par video {
+  width: 100%; aspect-ratio: 3 / 4; height: auto;   /* 482 × 642 medido */
+  object-fit: cover; object-position: var(--sf-foco, 50% 50%);
+  border-radius: var(--sf-r-par); display: block;
+}
+.sf-par figcaption { margin-block-start: var(--sf-aire-1); }
+/* Respaldo sin subgrid: el número medido de Apple, tres líneas de pie. Va
+   escrito porque un pie de una línea junto a uno de tres desiguala la fila, y
+   desigualar la fila es el hueco. (WebKit SÍ tiene subgrid — comprobado en la
+   sonda de la referencia —, así que esto es para lo que venga.) */
+@supports not (grid-template-rows: subgrid) {
+  .sf-par > figure { display: block; }
+  .sf-par figcaption { min-height: 48px; }
+}
+
+/* ── 2. Una fila de dos columnas contiene EXACTAMENTE dos hijos. ──────────
+   Los huecos del CV salen de filas con tres bloques a un lado y uno al otro.
+   Apple no lo evita con CSS: `.photogrid` solo admite dos <figure> y nada
+   más.
+
+   AQUÍ NO SE MARCA EN ROJO, y se pensó: un tercer hijo con `outline: 2px
+   dashed #C00` avisa muy bien… y se publica. Esta página la abre un comité de
+   admisiones, y un recuadro rojo de depuración delante de ellos es peor que
+   la fila descuadrada que venía a avisar. Lo cuenta el guardián
+   (`.sf-par` con un número de hijos que no es dos), que corre antes del PR y
+   no se ve desde fuera. La regla verbal se queda escrita aquí, que es donde
+   la lee quien va a escribir el marcado. */
+
+/* ── 3. Si el contenido no da para dos, no hay dos: hay UNO a 980. ────────
+   Se sustituye el hueco por una foto más grande, que es lo que el CV
+   necesita: 29 de sus 39 fotos miden 154 px. */
+.sf-par:has(> figure:only-child) { grid-template-columns: var(--sf-util); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §3.4 · LAS ONCE PLANTILLAS DE BLOQUE
+   Medidas a 1440. Todas viven en `--sf-util` (980) salvo donde se diga.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── (i) APERTURA DE CAPÍTULO ─────────────────────────────────────────────
+   ojo 12 → 20 → titular 40 → 20 → entradilla 24 → 44 → la prosa.
+   Alto ≈ 184 px, sin franja, sin fondo y sin línea. Nueve capítulos son
+   1 656 px de aperturas, contra los 3 165 que hoy se lleva sola la portada. */
+.sf-cap { text-align: center; }
+.sf-cap .sf-ojo {
+  font: var(--sf-t-pie); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--sf-tinta-2); margin: 0;
+}
+.sf-cap h2, .sf-cap .sf-titular {
+  font: var(--sf-t-cap); letter-spacing: var(--sf-ls); color: var(--sf-tinta);
+  max-width: var(--sf-lectura); margin: var(--sf-aire-cabeza) auto 0;
+}
+.sf-cap .sf-entra {
+  font: var(--sf-t-entra); color: var(--sf-tinta-2);
+  max-width: var(--sf-lectura); margin: var(--sf-aire-cabeza) auto 0;
+}
+
+/* ── (ii) PÁRRAFO Y FOTO ──────────────────────────────────────────────────
+   La prosa a 653 dentro de los 980; la foto a 653 o a 980. */
+.sf-prosa { max-width: var(--sf-lectura); margin-inline: auto; }
+.sf-prosa p { font: var(--sf-t-prosa); letter-spacing: var(--sf-ls); color: var(--sf-tinta); margin: 0; }
+.sf-prosa p + p { margin-block-start: 1.6875rem; }   /* una línea de 27 */
+.sf-pie, .sf-par figcaption, .sf-foto figcaption {
+  font: var(--sf-t-pie); letter-spacing: var(--sf-ls); color: var(--sf-tinta-2);
+  max-width: var(--sf-pie-max); margin-block-start: var(--sf-aire-1);
+}
+.sf-foto { margin: 0; }
+.sf-foto img, .sf-foto video { width: 100%; height: auto; display: block; border-radius: var(--sf-r-foto); }
+/* Las tres cajas de imagen del §4. El suelo del cuerpo es 480 en Apple; el
+   piso absoluto del sistema es 308, que es la tarjeta de país. */
+.sf-foto--columna { max-width: var(--sf-lectura); margin-inline: auto; }  /* 653 */
+.sf-foto--ancha   { max-width: var(--sf-util); margin-inline: auto; }      /* 980 */
+.sf-foto--v45 img { aspect-ratio: 4 / 5; object-fit: cover; }   /* 653 × 816 */
+.sf-foto--h32 img { aspect-ratio: 3 / 2; object-fit: cover; }   /* 653 × 435 · 980 × 653 */
+.sf-foto--h169 img { aspect-ratio: 16 / 9; object-fit: cover; } /* 980 × 551 */
+
+/* ── (iii) FILA DE TRES ───────────────────────────────────────────────────
+   3 × 316 + 2 × 16 = 980. Una SOLA línea de pie por falta de sitio: si un pie
+   no cabe en una línea, la fila baja a dos fotos. */
+.sf-trio { display: grid; grid-template-columns: repeat(3, var(--sf-tercio)); gap: var(--sf-canal); align-items: start; }
+.sf-trio > figure { margin: 0; }
+.sf-trio img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--sf-r-par); display: block; }
+.sf-trio figcaption { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin-block-start: var(--sf-aire-1); min-height: 16px; }
+
+/* ── (iv) LA TARJETA OSCURA, Y SU CARRUSEL ────────────────────────────────
+   **482 × 288, y una sola talla.** Es lo que Jaime pidió por su nombre: «los
+   recuadros negros todos deberían de tener el mismo tamaño». Hoy hay doce con
+   diez alturas, de 329 a 567.
+
+   De dónde sale cada número: 482 es media columna medida en `.photogrid`
+   ((980 − 16) / 2). 288 = 482 / 1.674, y la razón se aprieta desde el 1.853
+   de `apple-environment` porque estas llevan una cita y un crédito, no una
+   foto. La capacidad, contada: 288 = 32 de relleno + 4 líneas de 25 + 16 +
+   36 del crédito + 32 de relleno + 4 de holgura. **Una cita que no quepa en
+   cuatro líneas se recorta; la tarjeta no crece.** */
+.sf-tarjeta {
+  flex: 0 0 482px; width: 482px; height: 288px;   /* LOS DOS NÚMEROS. Nunca `auto`. */
+  background: var(--sf-oscuro); color: var(--sf-oscuro-tinta);
+  border-radius: var(--sf-r-tarjeta); padding: 32px; box-sizing: border-box;
+  display: flex; flex-direction: column; justify-content: space-between;
+  scroll-snap-align: center; margin: 0;
+}
+.sf-tarjeta blockquote {
+  font: var(--sf-t-sec); margin: 0;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden;
+}
+.sf-tarjeta .sf-credito { margin: 0; font: var(--sf-t-rotulo); color: var(--sf-oscuro-tinta); }
+.sf-tarjeta .sf-credito span { display: block; font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2); }
+.sf-pista {
+  display: flex; gap: var(--sf-canal); margin: 0; padding: 0; list-style: none;
+  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  scroll-padding-inline: 150px;
+}
+.sf-pista::-webkit-scrollbar { display: none; }
+/* Las flechas y los puntos son de Apple; el auto-play NO se copia (WCAG 2.2.2
+   y la regla del repo de que nada va en bucle infinito). Sin JavaScript las
+   flechas no existen y la lista se desplaza igual. */
+.sf-flecha {
+  width: 44px; height: 44px; border-radius: var(--sf-r-pildora);
+  background: var(--sf-papel-2); border: 0; cursor: pointer;
+}
+.sf-puntos { display: flex; gap: var(--sf-canal); list-style: none; margin: var(--sf-aire-1) 0 0; padding: 0; justify-content: center; }
+.sf-puntos li { width: 8px; height: 8px; border-radius: 50%; background: var(--sf-borde); }
+.sf-puntos li[aria-current] { background: var(--sf-tinta); }
+
+/* ── (v) REJILLA DE PAÍSES CON VÍDEO ──────────────────────────────────────
+   4 × 308 + 3 × 16 = 1280 exacto. Si hay CINCO países la fila no pasa a cinco
+   columnas: pasa a ser el carrusel de (iv) con `flex: 0 0 308px`. Nunca
+   cuatro arriba y uno abajo — ese es exactamente el hueco de 1 426 px. */
+.sf-paises { display: grid; grid-template-columns: repeat(4, var(--sf-cuarto)); gap: var(--sf-canal); list-style: none; margin: 0; padding: 0; }
+.sf-pais { position: relative; aspect-ratio: 4 / 5; border-radius: var(--sf-r-tarjeta); overflow: hidden; }
+.sf-pais video, .sf-pais img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sf-pais .sf-rotulo {
+  position: absolute; inset-inline-start: var(--sf-aire-1); inset-block-end: var(--sf-aire-1);
+  font: var(--sf-t-rotulo); color: #FFF; margin: 0;
+}
+.sf-pais::after {
+  content: ""; position: absolute; inset-inline: 0; inset-block-end: 0; height: 96px;
+  background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.72)); pointer-events: none;
+}
+
+/* ── (vi) TABLA DE CERTIFICACIONES CON MINIATURA ──────────────────────────
+   Fila de 980 × 112 con separador de 1 px. Un dato no comprobado NO borra la
+   fila: la fila existe con su hueco pendiente en el sitio de la miniatura. */
+.sf-tabla { list-style: none; margin: 0; padding: 0; }
+.sf-tabla > li {
+  display: grid; grid-template-columns: 171px 1fr auto; gap: 24px; align-items: center;
+  min-height: 112px; padding-block: var(--sf-aire-0);
+  border-block-end: 1px solid var(--sf-borde);
+}
+.sf-tabla > li:last-child { border-block-end: 0; }
+.sf-tabla img { width: 171px; height: 96px; object-fit: cover; border-radius: var(--sf-r-par); display: block; }
+.sf-tabla .sf-nombre { font: 600 1.0625rem/1.5625rem var(--font-sans); color: var(--sf-tinta); margin: 0; }
+.sf-tabla .sf-emisor { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
+.sf-tabla a { font: var(--sf-t-rotulo); color: var(--sf-enlace); }
+
+/* ── (vii) LA CITA LARGA — LAS DOS CARTAS ─────────────────────────────────
+   Apple no tiene componente para una cita larga (su `.pullquote` es de veinte
+   palabras a 40/44), así que se arma con dos piezas suyas: la frase que se
+   lleva la carta FUERA de la placa, y la carta entera DENTRO. Es el único
+   sitio del CV con fondo, y como no tiene columna enfrente, su alto libre no
+   genera ningún hueco. Dos cartas = las únicas dos placas del documento. */
+.sf-cita-grande {
+  font: var(--sf-t-cap); letter-spacing: var(--sf-ls); color: var(--sf-tinta);
+  text-align: center; max-width: var(--sf-util); margin: var(--sf-aire-3) auto;
+}
+.sf-cita-grande .sf-credito {
+  font: var(--sf-t-rotulo); color: var(--sf-tinta-2);
+  max-width: var(--sf-lectura); margin: var(--sf-aire-cabeza) auto 0;
+}
+.sf-placa {
+  background: var(--sf-papel-2); border-radius: var(--sf-r-tarjeta);
+  padding: var(--sf-aire-2); max-width: var(--sf-util); margin-inline: auto;
+}
+.sf-placa > * { max-width: var(--sf-lectura); }
+.sf-placa p { font: var(--sf-t-sec); color: var(--sf-tinta); margin: 0; }  /* voz ajena: un paso por debajo de la prosa */
+.sf-placa p + p { margin-block-start: var(--sf-aire-1); }
+.sf-placa .sf-firma { font: var(--sf-t-rotulo); color: var(--sf-tinta); margin-block-start: var(--sf-aire-1); }
+.sf-placa .sf-fuente { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin-block-start: var(--sf-aire-1); }
+
+/* ── (viii) CIFRAS ────────────────────────────────────────────────────────
+   3 × 316 + 2 × 16 = 980. El documento de referencia propone el número a 48,
+   y AQUÍ NO: 48 no es uno de los ocho tamaños que vigila el guardián, y meter
+   un noveno para tres cifras es abrir la puerta por la que se colaron los
+   quince de hoy. Va en 40, que es el paso de display que ya existe.
+   Regla del repo, sin excepción: cada cifra lleva su fuente y su fecha
+   PEGADAS, en el mismo bloque, nunca en una nota al pie. */
+.sf-cifras { display: grid; grid-template-columns: repeat(3, var(--sf-tercio)); gap: var(--sf-canal); list-style: none; margin: 0; padding: 0; }
+.sf-cifras .sf-numero { font: var(--sf-t-cap); color: var(--sf-tinta); margin: 0; font-variant-numeric: tabular-nums; }
+.sf-cifras .sf-que { font: var(--sf-t-rotulo); text-transform: uppercase; color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
+.sf-cifras .sf-fuente { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
+
+/* ── (ix) EL MARCO DEL SITIO EN VIVO ──────────────────────────────────────
+   La caja NO cambia de tamaño según cargue o no lo que va dentro. */
+.sf-marco {
+  max-width: var(--sf-util); margin-inline: auto;
+  background: var(--sf-papel); border: 1px solid var(--sf-borde);
+  border-radius: var(--sf-r-tarjeta); padding: var(--sf-aire-0);
+}
+.sf-marco .sf-barra { height: 32px; display: flex; align-items: center; gap: var(--sf-aire-0); font: var(--sf-t-pie); color: var(--sf-tinta-2); }
+.sf-marco .sf-captura { width: 100%; aspect-ratio: 964 / 518; object-fit: contain; border-radius: var(--sf-r-par); display: block; }
+
+/* ── (x) LA NOTA, Y EL HUECO PENDIENTE ────────────────────────────────────
+   Hoy: 227 bloques de nota, 2 137 palabras, el 50.6 % del cuerpo. Apple, en
+   17 706 px, tiene letra chica en DOS sitios: el pie de la foto que describe,
+   y una vez al final. Cero repetición.
+
+   Una nota solo puede vivir en uno de tres sitios: (1) pegada a lo que
+   describe, ≤ 3 líneas; (2) plegada bajo el bloque, en el `.ref-plegable` que
+   el repo ya tiene — no cuenta como tinta a la vista; (3) una vez, al final.
+   58 + 1 = 59, y el guardián cuenta.
+
+   EL HUECO PENDIENTE NO ES UNA NOTA. Es una caja vacía con LA GEOMETRÍA
+   FINAL, para que el documento no cambie de alto cuando se llene. Se declara
+   con la caja que va a ocupar: `.sf-pendiente.sf-tarjeta`, `.sf-pendiente` en
+   una figura, etc. */
+.sf-nota { font: 400 .75rem/1rem var(--font-sans); color: var(--sf-tinta-2); max-width: var(--sf-util); margin-inline: auto; }
+.sf-nota h2, .sf-nota h3 { font: 700 .875rem/1.125rem var(--font-sans); color: var(--sf-tinta); margin: 0 0 var(--sf-aire-0); }
+.sf-pendiente {
+  border: 1px dashed var(--sf-borde); border-radius: var(--sf-r-par);
+  display: grid; place-items: center;
+  font: var(--sf-t-pie); color: var(--sf-tinta-2); background: none;
+}
+
+/* ── (xi) EL MÓDULO DEL MICRÓFONO ─────────────────────────────────────────
+   Hoy: lienzo de 353 × 558 al lado de un índice de 727 × 959 con 356
+   palabras. La fila mide 959 y el lienzo 558, así que debajo del micrófono
+   hay **401 px vacíos** — la queja literal de Jaime («en el micrófono abajo
+   hay un espacio gigante en blanco, y a la derecha hay mucho texto»).
+
+   La aritmética que los pone a cero POR CONSTRUCCIÓN:
+     782 + 16 + 482 = 1280                                    ✓
+     3 × 288 + 2 × 16 = 896  ← y el lienzo se declara a 896
+                              PORQUE la columna de tarjetas mide 896,
+                              no al revés
+     4 × 308 + 3 × 16 = 1280                                  ✓
+   Con eso el micrófono se ve 3.55× más grande en área (782×896 = 700 672 px²
+   contra 353×558 = 196 974), tres conversaciones quedan a la vista y los
+   cuatro países caben debajo, en prácticamente el mismo alto que ocupa hoy.
+   El índice de 14 piezas se va a un `.ref-plegable`: es lo que compite con el
+   lienzo por la fila y lo que trae 356 palabras a un bloque que es visual. */
+.sf-micro { max-width: var(--sf-ancho); margin-inline: auto; }
+.sf-micro__fila { display: grid; grid-template-columns: 782px 482px; gap: var(--sf-canal); }
+.sf-micro__lienzo { width: 782px; height: 896px; display: block; }  /* escrito, no calculado */
+.sf-pista--vertical {
+  height: 896px; overflow-y: auto;
+  scroll-snap-type: y mandatory; scrollbar-width: none;
+  display: flex; flex-direction: column; gap: var(--sf-canal);
+  list-style: none; margin: 0; padding: 0;
+}
+.sf-pista--vertical::-webkit-scrollbar { display: none; }
+
+/* ── EL RESPALDO DE SAFARI 16.6, QUE ES LO QUE ROMPIÓ LA OLA ANTERIOR ─────
+   La Mac de Jaime es macOS 13.5 con Safari 16.6:
+     CSS.supports('animation-timeline: scroll()') === false
+   (comprobado en la sonda de la referencia y otra vez en el guardián, que lo
+   imprime en cada corrida). Toda la transición del header y de la intro vivía
+   en un `@supports (animation-timeline: view())` SIN RESPALDO, así que en su
+   navegador no pasaba nada y el alto reservado se quedaba vacío.
+
+   Apple resuelve exactamente esto sin scroll-timeline: su aparición es
+   `animation-name: nr-scroll-animation` con una clase `--on` que pone el
+   JavaScript. El mecanismo se copia; la cantidad no (`restore` tiene 18
+   bloques animados y la regla del repo es UNA animación por pantalla).
+
+   La clase es `.sf-aparece` + `.sf-aparece--on`, y el estado FINAL es el que
+   manda: sin JavaScript, sin scroll-timeline y con «menos movimiento», el
+   bloque se ve. Nada que dependa de esto puede nacer invisible — es la prueba
+   8b del guardián.
+
+   ── SE LLAMABA `.sf-entra`, Y ESE NOMBRE ERA UNA TRAMPA CARGADA ───────────
+   `.sf-entra` ya es la ENTRADILLA de la apertura de capítulo (plantilla (i),
+   arriba: `.sf-cap .sf-entra`, 24/28 en tinta-2). Con las dos cosas
+   llamándose igual, la primera entradilla que alguien escribiera —que es
+   literalmente el marcado que la plantilla (i) manda escribir— nacía a
+   `opacity: 0` y solo se veía a los 3 s por la red de rescate, sin que nadie
+   hubiera pedido que se animara. En Chrome se disimula; en el Safari 16.6 de
+   Jaime es una entradilla en blanco al principio de cada capítulo.
+
+   Es el mismo defecto que la prueba 8b acaba de cazar en `cv-movimiento.ts`,
+   pero en su versión barata: aquí no hace falta medirlo, basta con no llamar
+   igual a dos cosas distintas. `entra` es el nombre del CONTENIDO (la
+   entradilla) y `aparece` el del MOVIMIENTO. */
+.sf-aparece { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .sf-aparece:not(.sf-aparece--on) { opacity: 0; translate: 0 var(--rise, 12px); }
+  .sf-aparece { transition: opacity var(--dur-3, 240ms) var(--ease-out, ease-out), translate var(--dur-3, 240ms) var(--ease-out, ease-out); }
+  /* Si el JavaScript no llega, a los 3 s se ve igual: una página no se queda
+     invisible porque un módulo se caiga. Es la regla que `Base.astro` ya sigue
+     al esconder desde el guion y no desde el CSS. */
+  .sf-aparece { animation: sf-rescate 0s linear 3s forwards; }
+}
+@keyframes sf-rescate { to { opacity: 1; translate: 0 0; } }
