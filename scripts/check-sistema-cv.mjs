@@ -114,14 +114,32 @@ const TOL = 1;                                              // ±1 px
 //    sin tinta dentro de la columna útil. La vara de aquí es la que se puede
 //    volver a correr en un segundo y comparar con la de ayer, y es la que
 //    baja cuando el documento mejora — que es para lo que sirve un guardián.
+// ── LOS TOPES SE BAJARON AL CERRAR LA OLA 5 · PASO 1 (2026-09-04) ──────────
+// Un tope que se queda arriba después de que la ola lo haya batido no vigila
+// nada: deja sitio para devolver en silencio lo que se acaba de ganar. Los
+// cinco que este paso bajó, con el número de antes al lado:
+//   tamanos  7 → 1     (los tokens de la escala: 44·38·28·20·16·13·11 fuera)
+//   pasos  213 → 132   (los cuatro pasos 16·44·72·80 en `--cv-v1…v4`)
+//   huecos  13 → 5     (la rejilla del capítulo 2 y el aire del sistema)
+//   huecoPx 3036 → 1200
+//   apagados  — → 0    (ya era 0; ahora además hay una prueba que lo cazó)
+// Los que NO bajaron son la deuda declarada de la ola siguiente, que es la de
+// los CAPÍTULOS: las 12 tarjetas oscuras, las 42 fotos fuera de medida, las 39
+// por debajo del piso, las 50 notas, los 24 huecos y los 9 rótulos repetidos.
 const TOPES = {
-  tamanos: 7,      // tamaños distintos fuera de los ocho (44 · 38 · 28 · 20 · 16 · 13 · 11)
+  tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
   tarjetas: 12,    // las 12 tarjetas oscuras: 880 de ancho y 10 alturas
+  parejas: 0,      // .sf-par mal formada — nace en cero y se queda en cero
   fotos: 42,       // imágenes con un ancho que no es del sistema
   pisos: 39,       // imágenes por debajo de 308 px (la moda es 154)
-  pasos: 213,      // distancias que no son un paso del sistema
-  huecos: 13,      // franjas de más de 160 px sin tinta en la columna útil
-  huecoPx: 3036,   // suma de esas franjas, en px
+  pasos: 132,      // distancias que no son un paso del sistema
+  huecos: 5,       // franjas de más de 160 px sin tinta en la columna útil
+  // 1 200 y no los 1 120 medidos hoy: es la ÚNICA cuenta que se mueve entre
+  // corridas, porque sale de barrer el documento en filas de 4 px buscando
+  // tinta y las fotos no siempre llegan en el mismo fotograma. Medido 1 140 ·
+  // 1 140 · 1 120 en tres corridas. El margen es de UNA franja corta, no de
+  // una holgura cómoda: 1 200 sigue siendo el 40 % de los 3 036 de la ola 4.
+  huecoPx: 1200,   // suma de esas franjas, en px
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
   notas: 50,       // bloques de nota a la vista (el sistema admite 59)
   pendientes: 24,  // huecos «TO WRITE» declarados
@@ -235,7 +253,7 @@ const SONDA = (lang) => {
   const fuera = (el) => plegado(el) || enTapa(el) || !seVe(el);
 
   const out = {
-    tamanos: [], tarjetas: [], fotos: [], pasos: [], huecos: [],
+    tamanos: [], tarjetas: [], fotos: [], pasos: [], huecos: [], parejas: [],
     notas: 0, pendientes: 0, repes: [], apagados: [], texto: [],
     alto: 0, desborde: 0, tinta: 0, filas: 0
   };
@@ -273,6 +291,17 @@ const SONDA = (lang) => {
     if (fuera(el)) continue;
     const r = abs(el.getBoundingClientRect());
     out.tarjetas.push({ donde: cadena(el), w: Math.round(r.w), h: Math.round(r.h), y: Math.round(r.t) });
+  }
+
+  // ── 2b · LA PAREJA CON UN NÚMERO DE HIJOS QUE NO ES DOS ─────────────────
+  // §3.3 regla 2: una fila de dos columnas contiene EXACTAMENTE dos hijos.
+  // Los huecos del CV salen de filas con tres bloques a un lado y uno al otro.
+  // Esto NO se marca en rojo en el CSS a propósito (lo abriría un comité de
+  // admisiones); se cuenta aquí, que corre antes del PR.
+  for (const el of raiz.querySelectorAll('.sf-par')) {
+    if (fuera(el)) continue;
+    const n = [...el.children].length;
+    if (n !== 2 && n !== 1) out.parejas.push({ donde: cadena(el), n });
   }
 
   // ── 3 · FOTOS ───────────────────────────────────────────────────────────
@@ -487,25 +516,33 @@ await new Promise((r) => servidor.close(r));
 // ═══════════════════════════════════════════════════════════════════════════
 const cerca = (v, lista, tol = TOL) => lista.some((x) => Math.abs(v - x) <= tol);
 const etq = (m) => `${m.motor} ${m.w} ${m.idioma}`;
-const infra = { tamanos: [], tarjetas: [], fotos: [], pisos: [], pasos: [], huecos: [], desborde: [], notas: [], pendientes: [], repes: [], apagados: [] };
+const infra = { tamanos: [], tarjetas: [], parejas: [], fotos: [], pisos: [], pasos: [], huecos: [], desborde: [], notas: [], pendientes: [], repes: [], apagados: [] };
 
+// ── `combo` Y `donde` SON DOS COSAS, Y LLEGARON A SER UNA ──────────────────
+// La sonda devuelve cada infracción con un `donde` que es SU SELECTOR. El
+// motor y el ancho se añaden aquí. Escrito `{ donde: etq(m), ...t }` el spread
+// pisa la etiqueta con el selector y el informe pierde en qué motor y a qué
+// ancho pasó — que es justo lo que se mira, porque «solo en webkit» y «en los
+// dos» son dos problemas distintos: el primero lo ve Jaime en su Mac y no lo
+// enseña ninguna captura de Chrome. Va en una clave PROPIA.
 for (const m of medidas) {
-  for (const t of m.tamanos) if (!cerca(t.px, TAMANOS, 0.5)) infra.tamanos.push({ donde: etq(m), px: t.px, n: t.n, sel: t.donde, muestra: t.muestra });
-  for (const t of m.tarjetas) if (Math.abs(t.w - TARJETA.w) > 0.5 || Math.abs(t.h - TARJETA.h) > 0.5) infra.tarjetas.push({ donde: etq(m), ...t });
+  for (const t of m.tamanos) if (!cerca(t.px, TAMANOS, 0.5)) infra.tamanos.push({ combo: etq(m), px: t.px, n: t.n, sel: t.donde, muestra: t.muestra });
+  for (const t of m.tarjetas) if (Math.abs(t.w - TARJETA.w) > 0.5 || Math.abs(t.h - TARJETA.h) > 0.5) infra.tarjetas.push({ ...t, combo: etq(m) });
+  for (const p of m.parejas || []) infra.parejas.push({ ...p, combo: etq(m) });
   for (const f of m.fotos) {
-    if (!cerca(f.w, ANCHOS_FOTO)) infra.fotos.push({ donde: etq(m), ...f });
-    if (f.w < PISO_FOTO) infra.pisos.push({ donde: etq(m), ...f });
+    if (!cerca(f.w, ANCHOS_FOTO)) infra.fotos.push({ ...f, combo: etq(m) });
+    if (f.w < PISO_FOTO) infra.pisos.push({ ...f, combo: etq(m) });
   }
   for (const p of m.pasos) {
     const ok = p.entre ? cerca(p.d, PASOS_ENTRE) : cerca(p.d, [...PASOS_DENTRO, ...PASOS_ENTRE]);
-    if (!ok) infra.pasos.push({ donde: etq(m), ...p });
+    if (!ok) infra.pasos.push({ ...p, combo: etq(m) });
   }
-  for (const h of m.huecos) infra.huecos.push({ donde: etq(m), ...h });
-  if (m.desborde > 0) infra.desborde.push({ donde: etq(m), px: m.desborde });
-  if (m.notas > NOTAS_MAX) infra.notas.push({ donde: etq(m), n: m.notas });
-  infra.pendientes.push({ donde: etq(m), n: m.pendientes });
-  for (const r of m.repes) infra.repes.push({ donde: etq(m), ...r });
-  for (const a of m.apagados) infra.apagados.push({ donde: etq(m), ...a });
+  for (const h of m.huecos) infra.huecos.push({ ...h, combo: etq(m) });
+  if (m.desborde > 0) infra.desborde.push({ combo: etq(m), px: m.desborde });
+  if (m.notas > NOTAS_MAX) infra.notas.push({ combo: etq(m), n: m.notas });
+  infra.pendientes.push({ combo: etq(m), n: m.pendientes });
+  for (const r of m.repes) infra.repes.push({ ...r, combo: etq(m) });
+  for (const a of m.apagados) infra.apagados.push({ ...a, combo: etq(m) });
 }
 
 // Las cuentas que mandan: el PEOR de los combos, no la suma (medir dos idiomas
@@ -514,6 +551,7 @@ const peor = (fn) => Math.max(0, ...medidas.map(fn));
 const cuenta = {
   tamanos: peor((m) => m.tamanos.filter((t) => !cerca(t.px, TAMANOS, 0.5)).length),
   tarjetas: peor((m) => m.tarjetas.filter((t) => Math.abs(t.w - TARJETA.w) > 0.5 || Math.abs(t.h - TARJETA.h) > 0.5).length),
+  parejas: peor((m) => (m.parejas || []).length),
   fotos: peor((m) => m.fotos.filter((f) => !cerca(f.w, ANCHOS_FOTO)).length),
   pisos: peor((m) => m.fotos.filter((f) => f.w < PISO_FOTO).length),
   pasos: peor((m) => m.pasos.filter((p) => !(p.entre ? cerca(p.d, PASOS_ENTRE) : cerca(p.d, [...PASOS_DENTRO, ...PASOS_ENTRE]))).length),
@@ -528,7 +566,8 @@ const cuenta = {
 
 const NOMBRE = {
   tamanos: '1 · TAMAÑOS fuera de los ocho (56 40 24 21 19 17 14 12)',
-  tarjetas: '2 · TARJETAS oscuras que no miden 482 × 288',
+  tarjetas: '2a · TARJETAS oscuras que no miden 482 × 288',
+  parejas: '2b · PAREJAS (.sf-par) con un número de hijos que no es dos',
   fotos: '3a · FOTOS con un ancho que no es del sistema',
   pisos: '3b · FOTOS por debajo del piso de 308 px',
   pasos: '4 · AIRE que no es un paso (entre 16·44·72·80 · dentro 8·20)',
@@ -564,23 +603,36 @@ const linea = (k) => {
   return mal;
 };
 
-for (const k of ['tamanos', 'tarjetas', 'fotos', 'pisos', 'pasos', 'huecos', 'huecoPx', 'desborde', 'notas', 'pendientes', 'repes', 'apagados']) {
+for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'huecos', 'huecoPx', 'desborde', 'notas', 'pendientes', 'repes', 'apagados']) {
   linea(k);
   const lista = k === 'huecoPx' ? infra.huecos : infra[k];
   if (!lista || !lista.length) { L.push(''); continue; }
-  // Se imprime UNA vez por infracción distinta, no una por combo.
-  const clave = (x) => JSON.stringify([x.sel || x.donde2 || x.texto || x.alt || '', x.px, x.d, x.w, x.h, x.y, x.n]);
-  const unicos = [...new Map(lista.map((x) => [clave(x), x])).values()];
-  for (const x of unicos.slice(0, LISTA)) {
-    if (k === 'tamanos') L.push(`     ${String(x.px).padStart(6)} px · ${x.n} nodos · ${x.sel}  «${x.muestra}»`);
-    else if (k === 'tarjetas') L.push(`     ${x.w}×${x.h} en y=${x.y} · ${x.donde2 || x.sel || ''}${x.donde ? '' : ''} ${x.w !== TARJETA.w ? '(ancho)' : ''}${x.h !== TARJETA.h ? '(alto)' : ''}  ${x.donde}`);
-    else if (k === 'fotos' || k === 'pisos') L.push(`     ${String(x.w).padStart(5)}×${String(x.h).padEnd(5)} en y=${x.y}  «${x.alt}»`);
-    else if (k === 'pasos') L.push(`     ${String(x.d).padStart(5)} px ${x.entre ? 'entre' : 'dentro'} en y=${x.y}  ${x.donde}`);
-    else if (k === 'huecos' || k === 'huecoPx') L.push(`     ${String(x.px).padStart(5)} px vacíos desde y=${x.y}  (${x.pct}% del documento)`);
-    else if (k === 'desborde') L.push(`     ${x.px} px de más — ${x.donde}`);
-    else if (k === 'repes') L.push(`     ×${String(x.n).padStart(3)}  «${x.texto}»`);
-    else if (k === 'apagados') L.push(`     opacity ${x.opacidad} en y=${x.y}  ${x.donde}`);
-    else if (k === 'notas' || k === 'pendientes') L.push(`     ${x.n} en ${x.donde}`);
+  // Se imprime UNA vez por infracción distinta, no una por combo — pero SE
+  // DICE EN CUÁLES SALIÓ. «solo en webkit 1920» y «en los cuatro» piden cosas
+  // distintas: lo primero es un defecto de motor que ninguna captura de Chrome
+  // enseña (y que la Mac de Jaime SÍ ve), lo segundo es del documento.
+  const clave = (x) => JSON.stringify([x.sel || x.donde || x.texto || x.alt || '', x.px, x.d, x.w, x.h, x.y, x.n]);
+  const juntos = new Map();
+  for (const x of lista) {
+    const c = clave(x);
+    if (!juntos.has(c)) juntos.set(c, { x, combos: new Set() });
+    juntos.get(c).combos.add(x.combo);
+  }
+  const unicos = [...juntos.values()];
+  const donde = ({ combos }) =>
+    combos.size >= medidas.length ? `[los ${combos.size} combos]` : `[${[...combos].join(' · ')}]`;
+  for (const u of unicos.slice(0, LISTA)) {
+    const x = u.x;
+    if (k === 'tamanos') L.push(`     ${String(x.px).padStart(6)} px · ${x.n} nodos · ${x.sel}  «${x.muestra}»  ${donde(u)}`);
+    else if (k === 'tarjetas') L.push(`     ${x.w}×${x.h} en y=${x.y} ${x.w !== TARJETA.w ? '(ancho)' : ''}${x.h !== TARJETA.h ? '(alto)' : ''}  ${x.donde}  ${donde(u)}`);
+    else if (k === 'fotos' || k === 'pisos') L.push(`     ${String(x.w).padStart(5)}×${String(x.h).padEnd(5)} en y=${x.y}  «${x.alt}»  ${donde(u)}`);
+    else if (k === 'pasos') L.push(`     ${String(x.d).padStart(5)} px ${x.entre ? 'entre' : 'dentro'} en y=${x.y}  ${x.donde}  ${donde(u)}`);
+    else if (k === 'huecos' || k === 'huecoPx') L.push(`     ${String(x.px).padStart(5)} px vacíos desde y=${x.y}  (${x.pct}% del documento)  ${donde(u)}`);
+    else if (k === 'desborde') L.push(`     ${x.px} px de más  ${donde(u)}`);
+    else if (k === 'parejas') L.push(`     ${x.n} hijos  ${x.donde}  ${donde(u)}`);
+    else if (k === 'repes') L.push(`     ×${String(x.n).padStart(3)}  «${x.texto}»  ${donde(u)}`);
+    else if (k === 'apagados') L.push(`     opacity ${x.opacidad} en y=${x.y}  ${x.donde}  ${donde(u)}`);
+    else if (k === 'notas' || k === 'pendientes') L.push(`     ${x.n}  ${donde(u)}`);
   }
   if (unicos.length > LISTA) L.push(`     … y ${unicos.length - LISTA} más`);
   L.push('');
