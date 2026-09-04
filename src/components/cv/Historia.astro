@@ -1474,7 +1474,7 @@ const cifrasFranja = c.franja.sitioQ
              MENORES: Jaime dio el permiso el 2026-09-03 («que sí salgan mis
              compañeros, solo que salga yo también»). */}
         <div class="aparte-fotos">
-          <figure class="lote-fig caja-mitad">
+          <figure class="lote-fig caja-mitad fig-9-16">
             <span class="recuerdo"><img src={foto(c.taller.aperturaFoto.id)} alt={c.taller.aperturaFoto.alt} width="664" height="1180" style="--nat-w:664" loading="lazy" decoding="async" /></span>
             <figcaption class="pie">{c.taller.aperturaFoto.pie}</figcaption>
           </figure>
@@ -4035,6 +4035,10 @@ const cifrasFranja = c.franja.sitioQ
   /* La marca «palabra mía» de la tarjeta de Durán: sobre negro, la tinta-3 del
      papel no llega a 4.5:1 (lo atrapó axe en los ocho anchos). */
   .cita .cifra-suya-marca { color: var(--cvh-tapa-tinta-2); }
+  /* La línea de fuente del cargo de Durán (2026-09-03) va sobre la tarjeta
+     oscura: con la tinta-2 del papel daba color-contrast en axe (1440 y 390,
+     EN y ES); toma la tinta-2 de la tapa, como el rol, el tipo y la marca. */
+  .cita .fuente-carta { color: var(--cvh-tapa-tinta-2); }
   /* El plegado «Lo que dijo» dentro de la tarjeta negra: tinta clara (axe). */
   .cita .ref-ver-txt, .cita .ref-flecha, .cita .tercero, .cita .tercero cite { color: var(--cvh-tapa-tinta); }
   .cita .tercero { border-left-color: rgba(255, 255, 255, .35); }
@@ -6056,6 +6060,14 @@ const cifrasFranja = c.franja.sitioQ
     width: 100%; height: auto; max-width: 100%;
   }
   .cap img[style*="--nat-w"] { max-width: min(100%, calc(var(--nat-w) * 1px)); }
+  /* LA ÚNICA 9:16 EN `mitad` (Jaime abriendo el taller, 2026-09-03): a 332
+     de ancho mide 590, y el techo de 58 vh de `.recuerdo img` (522 a 900 de
+     alto) se la comía con `width: 100%` puesto — medido: 332×522, o sea
+     DEFORMADA (la proporción natural es 0,5627, no 0,636). Sin techo pinta
+     332×590 entera y sin recorte, que es lo que se pidió para esta foto: una
+     vertical nunca se recorta a horizontal. Sí pasa del 58 % del viewport a
+     900 de alto (65,6 %); es la excepción y va escrita. */
+  .cap .caja-mitad.fig-9-16 .recuerdo img { max-block-size: none; }
   /* Dos verticales en fila: 332 + 24 + 332 = 688, la pista de prosa. */
   .fila-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 332px)); gap: 24px; max-width: 688px; align-items: start; }
   /* Una `mitad` y dos `tarjeta`: 332 + 24 + 154 + 24 + 154 = 688. La foto
