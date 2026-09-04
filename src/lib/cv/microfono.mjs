@@ -23,8 +23,9 @@
 //
 //  · Manuel Durán — el episodio está grabado (palabra de Jaime, 2026-09-02) y
 //    el video NO está publicado. Sin video no hay pieza que abrir. Es un
-//    episodio DISTINTO del de Rendón (son dos grabaciones, no una): cuando
-//    llegue su video, entra con su propio punto y el mismo molde.
+//    episodio DISTINTO del de Rendón (son dos grabaciones, no una; el de
+//    Rendón ya está publicado en TikTok, ver su nodo): cuando llegue su
+//    video, entra con su propio punto y el mismo molde.
 //  · María José Cortés («Majo») — grabada (2:09, transcrita), sin clip
 //    publicado todavía. Mismo caso: tarjeta en el capítulo, punto cuando haya
 //    enlace.
@@ -76,10 +77,11 @@ export const TIKTOK = 'https://www.tiktok.com/@smart.financee/video/';
 // `href`   la pieza que abre. O una URL que existe y se comprobó, o `null`:
 //          `null` significa que la pieza está DENTRO del CV —la ficha del
 //          capítulo, `#<idioma>-pieza-<id>`— y el nodo la abre sin salir. Es
-//          el estado de Rendón, Moris y Marg mientras no llegue su enlace: el
+//          el estado de Moris y Marg mientras no llegue su enlace: el
 //          punto sigue abriendo algo que existe (la experiencia tal como la
 //          cuenta el CV, con su foto), y el día que llegue la URL se cambia un
-//          dato aquí y nada más.
+//          dato aquí y nada más. Rendón fue ese caso hasta el 2026-09-03: llegó
+//          su id de TikTok y se cambió ese dato, y nada más.
 // `externo` de dónde sale la pieza (rótulo mono). Vacío cuando es interna.
 export const NODOS = [
   // ── LAS OCHO PERSONAS (el liderazgo) ─────────────────────────────────────
@@ -115,12 +117,14 @@ export const NODOS = [
     // acompañarnos en este episodio de Smart Finance.» Dos transcripciones
     // (≈29 min 37 s) y diez clips cortados existen en
     // cv-material/pendiente/podcast-rendon-duran/.
-    // ⚠️ EL ENLACE DE TIKTOK NO ESTÁ EN EL MATERIAL (el perfil sirve
-    // CAPTCHA). Jaime: «ahorita solo está el de Mike subido». Hasta que lo
-    // mande, el punto baja a su tarjeta del capítulo 2 —que lleva el hueco del
-    // enlace— y NADA dice «publicado». Cuando llegue: `href: TIKTOK + '<id>'`,
-    // `externo: 'TikTok'`, y la tarjeta enlaza sola.
-    href: null, externo: '', verificado: true
+    // EL ENLACE LLEGÓ EL 2026-09-03 (lo mandó Jaime). Comprobado por oEmbed:
+    // autor `smart.financee`, y la descripción del video lo presenta con su
+    // doctorado y su cargo: «Nos acompaña el Dr. Miguel Ángel Rendón: doctor
+    // en Ciencias Financieras por EGADE Business School y director regional
+    // de Contabilidad y Finanzas del Tec de Monterrey para CDMX, Santa Fe,
+    // Toluca y Estado de México.» Hasta ese día el punto abría su ficha del
+    // capítulo, con el hueco del enlace; ahora abre el episodio publicado.
+    href: TIKTOK + '7680977307850378512', externo: 'TikTok', verificado: true
   },
   {
     id: 'mauricio', tipo: 'persona', cap: 3,

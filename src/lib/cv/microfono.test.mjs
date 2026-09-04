@@ -104,9 +104,10 @@ test('mic: los tres sin pieza siguen sin punto', () => {
   assert.ok(SIN_PUNTO.duran && SIN_PUNTO.majo && SIN_PUNTO.sol);
 });
 
-test('mic: los tres nodos internos son exactamente Rendón, Moris y Marg', () => {
+test('mic: los dos nodos internos son exactamente Moris y Marg (Rendón lo fue hasta el 2026-09-03)', () => {
   // El día que llegue un enlace, este test cambia: es el recibo de qué falta.
-  assert.deepEqual(NODOS.filter((n) => n.href === null).map((n) => n.id), ['rendon', 'dieck', 'marg']);
+  // Cambió una vez: el enlace de Rendón llegó el 2026-09-03.
+  assert.deepEqual(NODOS.filter((n) => n.href === null).map((n) => n.id), ['dieck', 'marg']);
 });
 
 test('mic: el podcast de la sala FTR enlaza al destino final, no al acortador', () => {
