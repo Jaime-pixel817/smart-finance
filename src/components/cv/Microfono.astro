@@ -1,0 +1,377 @@
+---
+// EL MICRÓFONO DE PARTÍCULAS — la obertura del CV.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// QUÉ ES Y QUÉ NO ES
+// ═══════════════════════════════════════════════════════════════════════════
+// Es ÍNDICE Y OBERTURA. No es un capítulo y no sustituye a ninguno: cada punto
+// BAJA a donde vive su historia entera, y ni una de las once fichas de aquí
+// arriba repite lo que dice su capítulo. Si lo repitiera, el documento sería
+// más largo — y la queja de Jaime (2026-09-02) era exactamente que se sentía
+// infinito.
+//
+// Por eso no lleva ni filete ni número de capítulo: el filete a sangre es la
+// gramática del capítulo en este documento, y esto no es uno.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// DÓNDE VA, Y QUÉ NO SE TOCA PARA PONERLO
+// ═══════════════════════════════════════════════════════════════════════════
+// Justo después de la portada, FUERA de la pista de intro. La transición de la
+// tarjeta al 62 % no se toca: ni una línea del bloque
+// `@media screen and (min-aspect-ratio: 1/1)` que la define, ni los
+// `--carta-w / --carta-h / --carta-top`. El micrófono empieza donde esa pista
+// termina.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LA COLUMNA DE LA DERECHA NO ES UNA LEYENDA: ES LA PIEZA
+// ═══════════════════════════════════════════════════════════════════════════
+// El índice de texto vive FUERA del contenedor del lienzo, a propósito:
+//  · Es la degradación real. Sin JavaScript, sin WebGL, con «menos
+//    movimiento» o con la GPU ahogada, esta lista es idéntica y completa. No
+//    se pierde una sola pieza: se pierde el dibujo.
+// (Aquí había un segundo motivo —que la lista sobreviviera a la impresión— y
+//  ya no aplica: el módulo entero no se imprime, y por qué está escrito abajo,
+//  en el `@media print`. El motivo de arriba se sostiene solo.)
+// Y va AL LADO y no debajo porque un micrófono es alto y estrecho —al revés
+// que el globo—: puesto a lo ancho del marco dejaba un hueco muerto enorme
+// entre el dibujo y la lista, que es justo lo que Jaime señaló.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LOS NODOS SON ENLACES Y ABREN LA PIEZA CON UN CLIC
+// ═══════════════════════════════════════════════════════════════════════════
+// Literal de Jaime: «los puntos al darle click se abriera un episodio». Un
+// panel intermedio serían dos clics para lo que él pidió que fuera uno. Los
+// crea `src/scripts/cv-microfono.ts` leyendo el texto de ESTE índice, así que
+// ninguna frase viaja dos veces por la red y el bilingüe sale exacto sin que
+// el guion sepa una palabra.
+//
+// EN TÁCTIL LOS NODOS DEL LIENZO SON DECORACIÓN. La silueta es alta y flaca y
+// los blancos bajan a ~25 px: pasa WCAG 2.5.8 (24×24) por 1.8 px, o sea por
+// los pelos. La salida no es ensanchar el micrófono, es que en el teléfono la
+// interfaz sea esta lista —renglones de 44 px— y el lienzo sea el dibujo. Lo
+// decide el guion con `(hover: hover) and (pointer: fine)`.
+import type { CvCopy } from '../../i18n/cv';
+import type { Locale } from '../../i18n/routes';
+import { NODOS, ancla } from '../../lib/cv/microfono.mjs';
+
+interface Props { c: CvCopy; p: Locale }
+const { c, p } = Astro.props;
+
+// El nombre de cada nodo sale de donde YA vive con su fuente: las personas y
+// las experiencias de `entrevistas.personas` (donde está anotado de dónde sale
+// cada cargo) y los países de `mic.paises`. Aquí no se escribe ni un nombre ni
+// un cargo: tener dos sitios donde corregir un cargo es como se publica un
+// cargo mal.
+//
+// ── LOS NODOS INTERNOS (ola 4) ────────────────────────────────────────────
+// `href: null` en `microfono.mjs` significa que la pieza está DENTRO del CV:
+// la ficha del capítulo. Es el estado de Rendón (su enlace de TikTok no ha
+// llegado), Moris y Marg (sus publicaciones no están cosechadas). Aquí el
+// enlace se resuelve al ancla de la ficha EN ESTE IDIOMA, sin `target`, y el
+// verbo es «ver la ficha». El día que llegue el enlace, cambia un dato allí y
+// esta fila pasa sola a abrir la pieza fuera.
+type Fila = {
+  id: string; tipo: string; cap: number; href: string; interno: boolean; externo: string;
+  nombre: string; rol: string; que: string; ver: string; ancla: string;
+};
+const filas: Fila[] = NODOS.map((n) => {
+  const per = n.tipo !== 'pais'
+    ? (c.entrevistas.personas as Record<string, { nombre: string; rol: string }>)[n.id]
+    : null;
+  const nombre = per ? per.nombre : (c.mic.paises as Record<string, string>)[n.id];
+  const interno = n.href === null;
+  const ver = interno ? c.mic.ver.ficha
+    : n.id === 'podcast' ? c.mic.ver.episodio
+    : n.tipo === 'pais' ? c.mic.ver.video
+    : n.tipo === 'experiencia' ? c.mic.ver.experiencia
+    : c.mic.ver.conversacion;
+  return {
+    id: n.id, tipo: n.tipo, cap: n.cap,
+    href: n.href ?? '#' + ancla(p, n.id), interno, externo: n.externo,
+    ancla: ancla(p, n.id),
+    nombre, rol: per ? per.rol : '',
+    que: (c.mic.abre as Record<string, string>)[n.id],
+    ver
+  };
+});
+const personas = filas.filter((f) => f.tipo === 'persona');
+const experiencias = filas.filter((f) => f.tipo === 'experiencia');
+const paises = filas.filter((f) => f.tipo === 'pais');
+// Los tres rótulos que dicen CUÁNTAS piezas hay se rellenan con la cuenta
+// real: escritos a mano decían «once» cuando ya eran catorce.
+const n = String(filas.length);
+const piezas = c.mic.piezas.replace('{n}', n);
+const indiceAria = c.mic.indiceAria.replace('{n}', n);
+const sinLienzo = c.mic.sinLienzo.replace('{n}', n);
+// Los tres grupos del índice, en el orden del lede: liderazgo, consejo, voz.
+const grupos = [
+  { id: 'g1', h: c.mic.grupoPersonas, filas: personas },
+  { id: 'g2', h: c.mic.grupoExperiencias, filas: experiencias },
+  { id: 'g3', h: c.mic.grupoPaises, filas: paises }
+];
+---
+<section class="mic" data-mic aria-labelledby={`${p}-mic-h`}>
+  <div class="mic-cab">
+    <p class="etiqueta" aria-hidden="true">{c.mic.eyebrow}</p>
+    <h2 class="mic-h" id={`${p}-mic-h`}>{c.mic.h}</h2>
+    <p class="mic-n" aria-hidden="true">{piezas}</p>
+    <p class="mic-lede">{c.mic.lede}</p>
+  </div>
+
+  <div class="mic-cuerpo">
+    {/* EL LIENZO. La caja se reserva en CSS y dentro se pinta ANTES el dibujo
+        estático, así que WebGL lo sustituye en su sitio sin mover nada: CLS 0
+        por construcción. El lienzo es `aria-hidden` porque no dice nada que la
+        lista de al lado no diga mejor. */}
+    <div class="mic-stage" data-mic-stage>
+      <canvas data-mic-canvas aria-hidden="true"></canvas>
+      {/* Respaldo estático. Nace VISIBLE y se apaga cuando el motor pinta su
+          primer fotograma (`[data-mic-listo]`), que es al revés que el globo
+          del home: allí el SVG nace invisible porque el lienzo llega en el
+          primer pintado; aquí el micrófono espera a entrar en pantalla, y una
+          caja vacía durante dos pantallas de scroll es peor que un dibujo. */}
+      <div class="mic-respaldo" aria-hidden="true">
+        <svg viewBox="0 0 120 220" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M60 14a26 26 0 0 1 26 26v34a26 26 0 0 1-52 0V40A26 26 0 0 1 60 14Z"/>
+          <path d="M35 40h50M34 54h52M34 68h52M35 82h50"/>
+          <path d="M28 70v6a32 32 0 0 0 64 0v-6M60 108v34M40 142h40"/>
+        </svg>
+      </div>
+      <ul class="mic-nodos" data-mic-nodos hidden></ul>
+    </div>
+
+    {/* EL ÍNDICE. Once filas, cada una con lo que abre y a qué capítulo baja.
+        Esto es lo que se imprime, lo que lee un lector de pantalla y lo que se
+        ve sin JavaScript. */}
+    <nav class="mic-indice" aria-label={indiceAria}>
+      <p class="mic-sinlienzo" aria-hidden="true">{sinLienzo}</p>
+
+      {/* TRES GRUPOS, UN SOLO MOLDE. La fila de un nodo INTERNO enlaza a su
+          ficha de este mismo documento (sin `target`, sin ↗) y el pie no
+          lleva fuente externa: el «En el capítulo ↓» es el mismo destino, y
+          se queda porque es el gesto que ya conoce quien lee el índice.
+          (El hueco del minuto del podcast del FTR ya no vive aquí: está
+          junto a su ficha, en el capítulo de las conversaciones.) */}
+      {grupos.map((g) => (
+        <>
+          <h3 class="etiqueta mic-grupo" id={`${p}-mic-${g.id}`}>{g.h}</h3>
+          <ol class="mic-lista" aria-labelledby={`${p}-mic-${g.id}`}>
+            {g.filas.map((f) => (
+              <li class="mic-fila" data-mic-fila={f.id}
+                  data-nombre={f.nombre}
+                  data-aria={`${f.ver}: ${f.nombre}${f.rol ? ' — ' + f.rol : ''}`}>
+                <p class="mic-fila-n">
+                  {f.interno
+                    ? <a class="hist-link mic-fila-a" href={f.href}>{f.nombre}</a>
+                    : <a class="hist-link mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<span class="mic-ext" aria-hidden="true"> ↗</span></a>}
+                </p>
+                {f.rol && <p class="mic-fila-rol">{f.rol}</p>}
+                <p class="mic-fila-que">{f.que}</p>
+                <p class="mic-fila-pie">
+                  {f.externo && <span class="mic-fuente">{f.externo}</span>}
+                  <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
+                </p>
+              </li>
+            ))}
+          </ol>
+        </>
+      ))}
+    </nav>
+  </div>
+
+  <p class="mic-sigue">{c.mic.sigue}</p>
+</section>
+
+<style>
+  /* ═══ LA CAJA ═══════════════════════════════════════════════════════════
+     Aire arriba (portada → micrófono): 96 px, SIN filete. Portada y micrófono
+     son un solo movimiento de apertura.
+     Aire abajo (micrófono → capítulo 2): 224 px, SIN filete. Es el hueco más
+     grande del documento y es lo que dice «esto no era un capítulo». */
+  .mic {
+    display: flex; flex-direction: column; gap: var(--sp-5);
+    width: 100%;
+    max-width: calc(var(--container) - 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    padding-block: var(--sp-6) var(--sp-8);
+  }
+  .mic-cab { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 44rem; }
+  /* NINGÚN `font-size` del micrófono depende de `vw` ni de `clamp` por encima
+     de 940 px. Es la regla que arregla «todo súper grande»: lo que crece con
+     la ventana es el aire, no la letra. */
+  .mic-h {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.022em;
+  }
+  .mic-n {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .14em; text-transform: uppercase; color: var(--cvh-tinta-3);
+  }
+  .mic-lede { font-size: var(--fs-caption); line-height: 1.55; color: var(--cvh-tinta-2); }
+
+  .mic-cuerpo { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+  /* ═══ EL LIENZO ═════════════════════════════════════════════════════════ */
+  .mic-stage {
+    position: relative; width: 100%;
+    /* Alto RESERVADO en CSS: el lienzo llega tarde y no debe mover nada. */
+    height: clamp(300px, 42svh, 380px);
+    /* ── EL ARRASTRE (v2): el micrófono se gira con la mano ─────────────
+       `pan-y` deja el scroll VERTICAL al navegador —aquí nunca hay
+       preventDefault— y se queda solo con el gesto horizontal, que es el
+       que gira. `user-select: none` para que arrastrar no seleccione las
+       etiquetas de los nodos. */
+    touch-action: pan-y;
+    user-select: none;
+  }
+  /* El cursor dice que se puede agarrar SOLO cuando el motor ya pinta: sobre
+     el respaldo estático no hay nada que girar. */
+  .mic-stage[data-mic-listo] { cursor: grab; }
+  .mic-stage[data-mic-arrastre] { cursor: grabbing; }
+  .mic-stage canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+  .mic-respaldo {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    color: var(--cvh-tinta-3); pointer-events: none;
+    transition: opacity var(--dur-3) linear;
+  }
+  .mic-respaldo svg { width: auto; height: 82%; opacity: .5; }
+  /* En cuanto el motor pinta, el dibujo plano se va. Si NUNCA pinta —sin
+     WebGL, sin JS, con la válvula disparada— se queda, que es lo correcto. */
+  .mic-stage[data-mic-listo] .mic-respaldo { opacity: 0; }
+
+  .mic-nodos {
+    position: absolute; inset: 0; margin: 0; padding: 0; list-style: none;
+    /* ⚠️ EL VALOR POR DEFECTO VIVE AQUÍ, EN EL PADRE, y no en `.nodo`: una
+       custom property declarada en el propio elemento TAPA la heredada, así
+       que con `--blanco` dentro de `.nodo` el ajuste que escribe el guion no
+       llegaba nunca — los blancos seguían midiendo 44 px con 28 de separación
+       (o sea encimados) y `getBoundingClientRect` decía «44» tan tranquilo. */
+    --blanco: 44px;
+  }
+  .mic-nodos li { position: absolute; top: 0; left: 0; }
+  .mic-nodos :global(.nodo) {
+    /* Blanco CLICABLE = `--blanco`, que escribe el guion con la separación REAL
+       medida entre nodos. El punto que se VE mide 10 px; el resto es aire. */
+    position: absolute; top: 0; left: 0;
+    width: var(--blanco); height: var(--blanco);
+    margin: calc(var(--blanco) / -2) 0 0 calc(var(--blanco) / -2);
+    display: grid; place-items: center;
+    text-decoration: none; -webkit-tap-highlight-color: transparent;
+    /* El blanco va CUADRADO. Con `border-radius: 50%` se pierden los cuatro
+       vértices, y a 390 px eso eran 13 de 91 toques fallando en el prototipo. */
+    border-radius: 0;
+  }
+  .mic-nodos :global(.nodo::before) {
+    content: ""; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--cvh-tinta);
+    box-shadow: 0 0 0 3px var(--cvh-papel), 0 0 0 4px var(--cvh-tinta-3);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  /* Los países se distinguen por FORMA, no solo por color: quien no distingue
+     tonos tiene que poder separar las dos mitades igual. */
+  .mic-nodos :global(.nodo[data-pais]::before) {
+    border-radius: 2px; background: var(--cvh-papel);
+    box-shadow: 0 0 0 2px var(--cvh-tinta), 0 0 0 4px var(--cvh-papel);
+  }
+  .mic-nodos :global(.nodo:hover::before),
+  .mic-nodos :global(.nodo:focus-visible::before) { transform: scale(1.5); }
+  .mic-nodos :global(.nodo:focus-visible) { outline: 2px solid var(--cvh-tinta); outline-offset: 2px; }
+  .mic-nodos :global(.nodo[hidden]) { display: none; }
+  /* Un nodo en la CARA DE ATRÁS (facing < 0.12, lo escribe el guion) se ve
+     atenuado y no se puede pinchar: pinchar «a través» del micrófono abriría
+     una pieza que no se está mirando. Sigue en el orden de tabulación —
+     enfocarlo gira el micrófono hasta traerlo al frente. */
+  .mic-nodos :global(.nodo[data-atras]) { pointer-events: none; }
+  /* Las EXPERIENCIAS se distinguen por FORMA, como los países: un aro hueco
+     (persona = punto lleno · país = cuadrado · experiencia = aro). Quien no
+     distingue tonos separa las tres clases igual. */
+  .mic-nodos :global(.nodo[data-exp]::before) {
+    background: var(--cvh-papel);
+    box-shadow: 0 0 0 2px var(--cvh-tinta), 0 0 0 4px var(--cvh-papel);
+  }
+  .mic-nodos :global(.nodo-et) {
+    position: absolute; left: 50%; top: calc(50% + 13px); transform: translateX(-50%);
+    white-space: nowrap; font-size: 12px; line-height: 1.2; letter-spacing: .01em;
+    color: var(--cvh-tinta); background: var(--cvh-papel);
+    padding: 3px 7px; border-radius: 5px; border: 1px solid var(--cvh-raya);
+    opacity: 0; transition: opacity var(--dur-1) linear; pointer-events: none;
+  }
+  .mic-nodos :global(.nodo:hover .nodo-et),
+  .mic-nodos :global(.nodo:focus-visible .nodo-et) { opacity: 1; }
+
+  /* ═══ EL ÍNDICE ═════════════════════════════════════════════════════════ */
+  .mic-indice { display: flex; flex-direction: column; gap: var(--sp-3); }
+  /* Solo se lee cuando NO hay dibujo. Con lienzo sobra: se ve el micrófono. */
+  .mic-sinlienzo { display: none; font-size: var(--fs-caption); color: var(--cvh-tinta-3); }
+  .mic-stage[data-mic-fallo] ~ .mic-indice .mic-sinlienzo,
+  .mic-cuerpo:has(.mic-stage[data-mic-fallo]) .mic-sinlienzo { display: block; }
+  .mic-grupo { margin-block-start: var(--sp-2); }
+  .mic-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+  .mic-fila {
+    display: flex; flex-direction: column; gap: 2px;
+    padding-inline-start: var(--sp-3);
+    border-inline-start: 2px solid var(--cvh-raya);
+    transition: border-color var(--dur-1) linear;
+  }
+  .mic-fila[data-activo] { border-inline-start-color: var(--cvh-tinta); }
+  .mic-fila-n { font-weight: 600; }
+  .mic-fila-a { min-height: 44px; }
+  .mic-ext { color: var(--cvh-tinta-3); }
+  .mic-fila-rol { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
+  .mic-fila-que { font-size: var(--fs-caption); line-height: 1.5; color: var(--cvh-tinta); max-width: 34rem; }
+  .mic-fila-pie {
+    display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); align-items: center;
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .1em; text-transform: uppercase; color: var(--cvh-tinta-3);
+  }
+  .mic-baja {
+    color: var(--cvh-tinta-2); text-decoration: none;
+    border-block-end: 1px solid var(--cvh-raya);
+    min-height: 24px; display: inline-flex; align-items: center;
+  }
+  .mic-baja:hover { color: var(--cvh-tinta); border-block-end-color: currentColor; }
+  .mic-sigue { font-size: var(--fs-caption); color: var(--cvh-tinta-3); max-width: 40rem; }
+
+  /* ═══ DOS COLUMNAS EN ESCRITORIO ════════════════════════════════════════
+     Un micrófono es ALTO Y ESTRECHO, al revés que el globo. A lo ancho del
+     marco deja un hueco muerto enorme a los lados del dibujo — que es
+     exactamente lo que se señaló del primer prototipo. En dos columnas el
+     dibujo se queda con su forma y la lista ocupa el aire que sobraba. */
+  @media (min-width: 62em) {
+    .mic-cuerpo {
+      flex-direction: row; align-items: start;
+      gap: var(--sp-6);
+    }
+    .mic-stage { flex: 0 0 clamp(300px, 32%, 420px); height: min(62svh, 620px); }
+    .mic-indice { flex: 1 1 auto; min-width: 0; }
+    .mic-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3) var(--sp-4); }
+  }
+
+  /* Con «menos movimiento» el micrófono se pinta ya armado y quieto (lo hace
+     el guion, en un fotograma). Aquí solo se apagan las transiciones. */
+  @media (prefers-reduced-motion: reduce) {
+    .mic-respaldo, .mic-nodos :global(.nodo::before),
+    .mic-nodos :global(.nodo-et), .mic-fila { transition: none; }
+  }
+
+  /* ═══ AL IMPRIMIR NO VA ═══════════════════════════════════════════════
+     Antes se iba solo el LIENZO y la lista se quedaba. Eso contradecía la
+     primera línea de la hoja impresa (`impresionNota`), que le promete al
+     lector, con estas palabras: «El CV completo —las fotografías, LOS CLIPS,
+     LAS CONVERSACIONES y el sitio— está en la página desde la que se
+     imprimió». El papel arrancaba con un índice de once conversaciones y
+     clips justo debajo de esa promesa.
+     Y los once «En el capítulo ↓» apuntan a piezas del capítulo 8, que es
+     `sin-imprimir`: en papel eran once enlaces a algo que no está en la hoja.
+     El impreso es un SUBCONJUNTO declarado y esto es la obertura de lo que
+     vive en pantalla, así que se va con su capítulo. Una regla, dicha una
+     vez, obedecida en los dos sitios.
+     EL ÍNDICE SIGUE VIVIENDO FUERA DEL CONTENEDOR DEL LIENZO. Esa decisión
+     nunca fue solo por la impresión: su motivo fuerte es la DEGRADACIÓN —sin
+     JavaScript, sin WebGL o con la GPU ahogada, esa lista es la pieza entera—
+     y ese motivo sigue en pie. */
+  @media print {
+    .mic { display: none; }
+  }
+</style>

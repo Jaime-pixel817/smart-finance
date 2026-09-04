@@ -299,3 +299,44 @@
 /* El primer posicionamiento se pone, no se desliza: una marca entrando volando
    desde la izquierda al cargar es justo la animación de bienvenida que sobra. */
 [data-slide][data-slide-init]::after { transition: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EL CV (ola 4) — el catálogo de spec-ola4-sitios §B, entre Vercel y Framer
+   ═══════════════════════════════════════════════════════════════════════════
+   Los atributos los pone src/scripts/cv-movimiento.ts, y solo él esconde: sin
+   JavaScript no hay `data-entra` ni `data-carga` y todo está visible. Con
+   «menos movimiento» el guion no hace nada y los tokens ya valen 0.
+   M2 · cabecera de capítulo: 12 px / 240 ms, escalonada 40 ms, una vez.
+   M3 · fundido de imagen al cargar: 180 ms de opacidad, caja ya reservada.
+   M6 · hover: 2 px arriba en 120 ms; la miniatura además scale(1.02).
+   M7 · <dialog>: opacidad + scale(.98 → 1) en 400 ms; el fondo, solo opacidad.
+   Una sola cosa llama la atención por pantalla: la cabecera está sola en la
+   suya (filete + 132 px arriba, 96 abajo) y las fotos entran donde el lector
+   ya está mirando. */
+.cap [data-entra] { opacity: 0; translate: 0 var(--rise); }
+.cap [data-entra="si"] {
+  opacity: 1; translate: 0 0;
+  transition: opacity var(--dur-3) var(--ease-out), translate var(--dur-3) var(--ease-out);
+}
+.cap [data-entra="si"][data-entra-n="2"] { transition-delay: var(--stagger); }
+.cap [data-entra="si"][data-entra-n="3"] { transition-delay: calc(var(--stagger) * 2); }
+.cap img[data-carga] { opacity: 0; }
+.cap img[data-carga="si"] { opacity: 1; transition: opacity var(--dur-2) var(--ease-out); }
+.cap .mini, .cap .cita, .cap .cert-fila { transition: translate var(--dur-1) var(--ease-out); }
+.cap .mini img { transition: scale var(--dur-1) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .cap .mini:hover, .cap .cita:hover, .cap .cert-fila:hover { translate: 0 calc(-1 * var(--lift)); }
+  .cap .mini:hover img { scale: 1.02; }
+}
+.cv-dialog {
+  border: 0; padding: 0; background: transparent;
+  max-width: min(96vw, 1320px); max-height: 96vh; border-radius: 20px;
+}
+.cv-dialog[open] { animation: cv-dialog-entra var(--dur-4) var(--ease-out); }
+.cv-dialog::backdrop { background: rgba(16, 16, 20, .72); animation: cv-fondo-entra var(--dur-4) var(--ease-out); }
+.cv-dialog img { display: block; max-width: 100%; max-height: 96vh; border-radius: 20px; }
+@keyframes cv-dialog-entra { from { opacity: 0; scale: .98; } }
+@keyframes cv-fondo-entra { from { opacity: 0; } }
+@media print {
+  .cap [data-entra], .cap img[data-carga] { opacity: 1; translate: none; }
+}

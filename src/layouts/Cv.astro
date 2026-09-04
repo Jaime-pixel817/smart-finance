@@ -291,11 +291,17 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
       // secas, que es el ancla de arriba del documento: cambiar de idioma a
       // mitad del CV te devolvía al principio. Aquí se les pega el capítulo en
       // el que estás, que es lo que ya hacen bien los enlaces del índice.
+      // El sufijo, no solo el número de capítulo: desde que los once enlaces
+      // del micrófono aterrizan en la PIEZA (`#en-pieza-lloyd`) y no en el
+      // capítulo, un patrón que solo reconociera `cap-N` mandaba al principio
+      // del documento a quien cambiara de idioma parado en una ficha.
+      // Vale para las dos formas porque las dos son `#<idioma>-<lo que sea>`,
+      // que es la misma convención de la que ya depende `esEs()`.
       function sincronizar(h) {
-        var m = /^#(?:en|es)-cap-(\d+)$/.exec(h);
+        var m = /^#(?:en|es)-(.+)$/.exec(h);
         for (var i = 0; i < enlaces.length; i++) {
           var l = enlaces[i], d = l.getAttribute('data-lang');
-          l.setAttribute('href', (m && hasHas) ? '#' + d + '-cap-' + m[1] : '#' + d);
+          l.setAttribute('href', (m && hasHas) ? '#' + d + '-' + m[1] : '#' + d);
         }
       }
       function aplicar(anunciar) {
@@ -373,7 +379,17 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
         // metía en el bug de arriba — dos clics seguidos y el segundo no
         // desplaza —, y ahí el segundo clic es lo normal: la franja invita a
         // mirar los certificados y volver por las cartas.
-        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"]') : null;
+        // `.mic-baja` son los once «En el capítulo ↓» del micrófono, y tenían
+        // que entrar aquí por el mismo motivo que `.cv-salto`, solo que más:
+        // el micrófono es un ÍNDICE y está en la segunda pantalla, o sea el
+        // sitio del documento donde es más probable que alguien pulse dos
+        // destinos seguidos — que es exactamente el gesto que dispara el bug
+        // de arriba (la segunda navegación de ancla en vuelo no desplaza).
+        // `a.nodo[href^="#"]` son los nodos del LIENZO que abren una ficha de
+        // dentro del CV (Rendón, Moris y Marg mientras no llegue su enlace):
+        // mismo viaje que sus «En el capítulo ↓». Los nodos externos no casan
+        // con `[href^="#"]` y siguen abriendo su pestaña.
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-baja[href^="#"], a.nodo[href^="#"]') : null;
         if (!a) return;
         var h = a.getAttribute('href');
         var destino = document.getElementById(h.slice(1));
@@ -427,6 +443,10 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
     import '../scripts/cv-cinta';
     import '../scripts/cv-clips';
     import '../scripts/cv-citas';
+    import '../scripts/cv-microfono';
+    import '../scripts/cv-sitios';
+    import '../scripts/cv-rail';
+    import '../scripts/cv-movimiento';
   </script>
 </body>
 </html>

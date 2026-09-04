@@ -59,6 +59,25 @@ const en = {
   // «mi cifra de 2026» no dice si tiene una semana o diez meses.
   cifraSuya: 'My figure, 29 August 2026. This page does not count it: it is my claim.',
 
+  // ── Y ESTE ES EL MISMO RECIBO PARA LO QUE NO ES UNA CIFRA ────────────
+  // `cifraSuya` se escribió para las DOS cifras del 29 de agosto (≈200 en la
+  // comunidad, +100 en el boletín) y se estaba usando también debajo del
+  // podcast de Rendón y Durán, que no es una cifra y no es del 29 de agosto:
+  // esa afirmación es del 2026-09-02 (lo dice la cabecera de su propio bloque
+  // aquí abajo y lo fecha ESTADO-NOCTURNO.md). O sea que el recibo mentía dos
+  // veces —la fecha y la palabra «cifra»— en un documento cuya tesis es que
+  // cada afirmación lleva el suyo.
+  dichoSuyo: 'My word, 2 September 2026. This page does not verify it: it is my claim.',
+  // El mismo recibo para lo que Jaime dijo el 3 de septiembre (el cargo de
+  // Majo, tal como él lo recuerda). No se reutiliza el de arriba: la fecha
+  // es parte del recibo.
+  dichoSuyo3: 'My word, 3 September 2026. This page does not verify it: it is my claim.',
+  // Dos rótulos de traducción más (ola 4): la cinta de Rendón y de Majo es en
+  // español, y las publicaciones de LinkedIn de Jaime son en inglés. Vacío =
+  // no se pinta, como `aperturaTag`/`peTag`.
+  cintaTag: 'Said in Spanish, on the recording. This is a translation; the original is in the Spanish panel.',
+  postTag: '',
+
   // EL AÑO EN DISPUTA, EN PANTALLA. Mismo recibo que `cifraSuya` y por el
   // mismo motivo: 2025 es lo que dice Jaime («que la creé desde 2025 empecé»,
   // 2026-08-30; «el grupo estudiantil lo creó a finales de 2025», 2026-08-29)
@@ -89,7 +108,6 @@ const en = {
   // decide esta página. LO QUE NO SE HACE ES INVENTAR: donde no hay fuente
   // pública (Jasa Motor) el recibo dice que no hay con qué comparar, y no se
   // le pone un año de adorno ni se le quita el suyo.
-  anioDisputa: 'The five 2025 dates on this page are my word: the student group, smartfinance.lat, Jasa Motor, the AEM assembly and the session with Jon Maier. My LinkedIn publishes the group as January 2026 and smartfinance.lat as February 2026; my posts about the AEM and about that session are from 2026; Jasa Motor has no published date to compare against. This page writes what I say and shows you the difference; it does not decide which one is right.',
   // ── Y SE IMPRIME UNA VEZ, NO TRES (2026-09-01) ─────────────────────────
   // El recibo de arriba salía ENTERO en los tres sitios donde se lee un
   // 2025: la tabla de experiencia, el lede del sitio y el bloque de Jasa
@@ -100,7 +118,6 @@ const en = {
   // en los otros dos va este renglón, que dice lo mismo que importa ahí —
   // este año es palabra mía— y manda al recibo POR EL TÍTULO del capítulo,
   // no por su número. Nada se esconde: lo que se quita es la repetición.
-  anioDisputaCorto: 'This 2025 is my word, not a published date. The receipt is in “{s}”.',
 
   // ---- Marca de hueco ----
   hueco: {
@@ -109,6 +126,11 @@ const en = {
   },
   // Marca de foto pendiente (FotoHueco.astro).
   fotoHueco: { tag: 'Photo to come' },
+  // Marca de MATERIAL pendiente (HuecoMaterial.astro). Es otra cosa que un
+  // hueco de texto: no falta una frase de Jaime, falta un archivo suyo — un
+  // enlace, una foto, un cargo, un minuto. Por eso lleva la carpeta donde
+  // dejarlo: rellenarlo tiene que ser cambiar un dato, no rehacer un capítulo.
+  materialHueco: { tag: 'Material to come' },
   // Qué foto falta en cada sitio. Instrucciones del hueco, no contenido.
   // ══ LAS 13 FOTOS QUE JAIME MANDÓ POR CHAT EL 2026-08-30: COLOCADAS ════
   // YA ESTÁN EN DISCO, en cv-material/imagenes/nuevas/ con su MAPA.md. Este
@@ -173,6 +195,10 @@ const en = {
        no me lo dio para publicarlo; el de la carta lo escribió quien la firma
        en un documento que me dio para entregarlo. */
     sol: 'A portrait of Sol, or a frame from the march videos. The one from the stand is not published here: a phone number is legible on the sign.',
+    // La carpeta `pendiente/podcast-rendon-duran/fotos/` existe y está vacía.
+    rendon: 'A frame from the recording with Miguel Ángel Rendón.',
+    majo: 'A frame from the recording with María José Cortés.',
+    duran: 'A frame from the recording with Manuel Durán.',
     // YA NO SE USA (2026-08-31): la ficha de su carta enseña el cuadro de la
     // entrevista, que es lo que pidió el MAPA.md. Ver la nota de arriba.
     cartaAndy: 'A photo of me with Andy Toh, the CEO who wrote this letter.',
@@ -206,6 +232,9 @@ const en = {
     perritosPie: 'The dogs at the stand.',
     margAlt: 'Me next to Marg Franklin, who is wearing a light grey checked blazer, in front of a dark backdrop',
     margPie: 'With Marg Franklin at the signing (2026).',
+    // La foto de Moris ya estaba en el repo (breakdown-moris-dieck): ahora
+    // tiene pie propio porque sale del carrusel y va con su ficha.
+    dieckPie: 'With Moris Dieck after his talk at Tec.',
     grupoEntrevistaAlt: 'Me holding a microphone, interviewing two students in front of the Smart Finance Prepa Tec stand poster',
     grupoEntrevistaPie: 'Interviewing at my school, for the student group.',
     grupoNarraAlt: 'Me talking to camera with a clip-on microphone, next to the Smart Finance Prepa Tec poster inviting students to join',
@@ -340,19 +369,293 @@ const en = {
   // vuelve arriba.
   caps: {
     abro: 'I opened my eyes',
-    experiencias: 'Experience',
-    academico: 'School, grades and English',
+    grupo: 'I founded a student group, and I lead it',
+    conversaciones: 'I got executives, professors and entrepreneurs to sit down with me',
+    cartas: 'What two CEOs wrote about me',
+    grupoHace: 'What I organize with the group',
     voluntariados: 'Serving',
-    proyectos: 'My projects',
-    conversaciones: 'Everyone brings something',
-    retoPe: 'Reto Actinver and private equity',
-    certificaciones: 'Certifications',
+    construi: 'What I built: smartfinance.lat, my channel, my family’s store',
     premios: 'Awards',
-    cartas: 'Recommendation letters',
+    expediente: 'School, English, certifications — and the whole list',
     frase: 'The sentence'
   },
 
+  // ══════════════════════════════════════════════════════════════════════
+  // EL MICRÓFONO DE PARTÍCULAS — la pieza que diseñó Jaime (2026-09-02)
+  // ══════════════════════════════════════════════════════════════════════
+  // Aquí van SOLO las palabras del módulo. Los nombres y los cargos NO se
+  // repiten: la ficha de cada nodo los toma de `entrevistas.personas`, que es
+  // donde ya viven con su fuente. Repetirlos sería tener dos sitios donde
+  // corregir un cargo, y un cargo mal puesto en un CV que va a un comité es
+  // un problema serio (son las palabras de PENDIENTE.md).
+  //
+  // LA LÍNEA QUE HACE HONESTO EL MÓDULO ES `lede`. De los once puntos, siete
+  // son personas y cuatro son países, y NO prueban lo mismo: conseguir que un
+  // ejecutivo de FX se siente delante de una cámara es liderazgo; grabar un
+  // vídeo con datos de Japón es constancia y audiencia. Un lector de
+  // admisiones lo nota en dos segundos. Dicho en una línea, deja de ser un
+  // problema y pasa a ser la estructura de la pieza.
+  mic: {
+    eyebrow: 'Index and overture',
+    h: 'What you can hear here',
+    // `{n}` lo rellena el componente con NODOS.length: escrito a mano, el
+    // número mentiría en cuanto entre el punto 12 (Rendón y Durán).
+    piezas: '{n} pieces',
+    // ── ERA UN CALCO DEL ESPAÑOL Y NO ERA UNA ORACIÓN (2026-09-02) ──────
+    // Decía «The seven people are the leadership — who I got to sit down with
+    // me», traducido palabra por palabra de «a quién conseguí sentar conmigo».
+    // En español ese «a quién» abre una interrogativa indirecta y funciona; en
+    // inglés queda una relativa sin antecedente, o sea media frase. Y es la
+    // SEGUNDA que lee quien lo nomine para la Pearson.
+    // ── TRES GRUPOS, Y MÉXICO YA NO SE DESMIENTE (ola 4) ──────────────────
+    // Decía «what I say when nobody is asking» de los cuatro países, y la
+    // primera fila de países decía «I was selected to represent Mexico»: la
+    // línea que existía para no inflar los países desinflaba el único que
+    // prueba liderazgo. Y entran Moris y Marg como EXPERIENCIAS (consejos que
+    // pidió, no entrevistas), que es la palabra de Jaime: «episodio de podcast
+    // o de experiencia de Moris Dieck o Marg».
+    // ── «SOMETHING THAT EXISTS» NO ERA VERDAD PARA RENDÓN (ola 4) ────────
+    // Su punto abre una ficha sin enlace (la grabación no está publicada), y
+    // el lede prometía que cada punto abría algo existente. El nodo se queda
+    // —es el índice de lo que hay—; el lede dice lo que abre de verdad: una
+    // grabación, una publicación o la ficha que dice qué falta.
+    lede: 'Every point opens a recording, a publication, or the note that says what is still missing. The people are the leadership: the ones I got to sit down with me. Two are advice I asked for, not interviews, and they say so. The countries are the voice: what I explain to camera — and Mexico is the one I was chosen to represent. They are not the same thing, and this page does not pretend they are.',
+    // El pie del micrófono: es a la vez la entrega al documento y la promesa
+    // de que arriba no se cuenta nada que abajo no esté entero.
+    sigue: 'Everything below is the long version. Nothing up here replaces a chapter.',
+    // `{n}` lo rellena el componente, como `piezas`: escrito a mano decía
+    // «eleven» cuando ya eran catorce.
+    indiceAria: 'What the microphone opens: {n} pieces',
+    // Lo que se lee sin JavaScript, sin WebGL o con «menos movimiento»: la
+    // lista de abajo ES el micrófono. No se pierde nada salvo el dibujo.
+    sinLienzo: 'The drawing needs WebGL. The list is the same {n} pieces.',
+    // Rótulos de los tres grupos del índice.
+    grupoPersonas: 'People I recorded',
+    grupoExperiencias: 'People I asked for advice',
+    grupoPaises: 'Countries I explained',
+    bajar: 'In the chapter',
+    // Qué abre cada punto. Una línea, y ni una palabra que no esté ya probada
+    // más abajo. Los cargos NO se repiten aquí.
+    abre: {
+      // ── DECÍA «THE FULL EPISODE» Y EL ENLACE ABRE LA EMISIÓN (ola 4) ──
+      // El vídeo es la emisión de 30 min de ExprésaTec del 16 de abril de
+      // 2026 y el podcast de Jaime es un segmento dentro cuyo minuto la
+      // propia página declara desconocido. Si fuera su episodio completo no
+      // faltaría el minuto; si falta el minuto, no es su episodio completo.
+      podcast: 'The podcast I organized in the Financial Trading Room at Tec. It aired inside the school channel’s programme; the link opens that full broadcast.',
+      // La cinta lo prueba: «gracias por la invitación» (parte 1, 00:00:21).
+      // Sin enlace de TikTok todavía: el punto baja a su tarjeta.
+      rendon: 'The episode I organized and hosted; he opens by thanking me for the invitation.',
+      // ── DECÍA «Y ESTA ES LA QUE TIENE RECIBO», Y ERA FALSO (2026-09-02) ──
+      // De las cuatro partes, TRES tienen id público: la 2
+      // (7660806476172184852, además descargada en `cv-clips/` con su
+      // `.info.json`, 69 s), la 3 (7663530569631911188, en
+      // EVIDENCIA-LINKEDIN-TIKTOK.md) y esta, la 4. La única sin recibo es la
+      // 1 — y eso es exactamente lo que dice el comentario interno del nodo en
+      // `microfono.mjs`. La ficha generalizaba al revés Y en exclusiva, o sea
+      // desmentía al fichero de evidencia del propio proyecto dentro del
+      // módulo cuyo argumento entero es que cada punto abre algo comprobable.
+      // Ni «cuatro» ni «la última» tienen recibo: con id público hay tres
+      // (2, 3 y 4) y nadie ha mirado si hay una quinta. Se dice lo que hay.
+      mauricio: 'Part 4 of the podcast I recorded with him. Parts 2 and 3 are on my TikTok too.',
+      lloyd: 'The interview in Singapore with the man who signed one of my two letters.',
+      andy: 'The interview with the other signatory, during the programme.',
+      raul: 'The conversation with the president of Student Groups.',
+      nus: 'The interview about what it takes to be at a top-8 university.',
+      jesus: 'The interview at sunset, with the Marina Bay skyline behind us.',
+      mexico: 'I was selected to represent Mexico and presented about it at NUS.',
+      singapur: 'Why the world’s money lives there.',
+      japon: 'Financial data from Japan.',
+      canada: 'Why I chose this country for my future.',
+      // ── LAS DOS EXPERIENCIAS: consejos que pidió, no entrevistas ───────
+      // Y lo dicen en la misma línea. Moris: LI-21 («I hope to have the
+      // opportunity to interview him in the future»). Marg: LI-20, sin cargo
+      // (cfainstitute.org lista hoy a Tricia Rothschild como Interim CEO).
+      dieck: 'His talk at Tec, organized by HSBC; I asked him for advice on my own podcast. The interview does not exist yet, and this point does not pretend it does.',
+      marg: 'The day I asked her for advice about studying in Canada: my post and my photo with her. A question and her answer — not an interview.'
+    },
+    // El verbo del enlace, por tipo de pieza. NO todos son «episodio»: el de
+    // Jesús Gutiérrez Parra es una EMISIÓN de media hora en YouTube (el
+    // podcast va dentro), los demás son clips de un minuto en TikTok, y las
+    // experiencias abren una publicación. Llamarlos igual sería inflarlos.
+    // `ficha` es para los nodos que hoy abren la ficha DENTRO del CV porque
+    // su enlace no ha llegado.
+    ver: {
+      episodio: 'Watch the broadcast',
+      conversacion: 'Watch the conversation',
+      video: 'Watch the video',
+      experiencia: 'See the post',
+      ficha: 'See the card'
+    },
+    // Nombres de los cuatro países. Los de las siete personas salen de
+    // `entrevistas.personas`.
+    paises: {
+      mexico: 'Mexico',
+      singapur: 'Singapore',
+      japon: 'Japan',
+      canada: 'Canada'
+    },
+    // ⚠️ EL ÚNICO DATO QUE FALTA DEL MÓDULO, Y VA COMO HUECO EN PANTALLA.
+    // El enlace del podcast de la sala FTR resuelve (comprobado el 2026-09-02)
+    // a la emisión del día del programa ExprésaTec del 16 de abril de 2026,
+    // 30 minutos. El podcast de Jaime es un SEGMENTO dentro; no hay fuente
+    // para el minuto en el que empieza, así que no se escribe.
+    minutoQue: 'The minute of that broadcast where my podcast starts'
+  },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // LOS HUECOS DE MATERIAL, ESCRITOS PARA EL LECTOR (ola 4)
+  // ══════════════════════════════════════════════════════════════════════
+  // Ni preguntas ni rutas: solo QUÉ falta. La pregunta entera vive en
+  // `cv-material/PENDIENTE.md`, fuera del repo.
+  // El 2026-09-03 se cerraron tres: el enlace de Rendón (llegó el id de
+  // TikTok), el cargo de Durán (su titular de LinkedIn) y el de Majo (palabra
+  // de Jaime, con `dichoSuyo3`). Quedan la foto de Rendón, el video de Durán
+  // y el clip de Majo.
+  materialQue: {
+    rendonFoto: 'A photo of the recording',
+    duranVideo: 'The video of the episode with Manuel Durán',
+    majoClip: 'The clip of this conversation, when it is published'
+  },
+
   // ---- Capítulo 1: portada ----
+  // ══════════════════════════════════════════════════════════════════════
+  // OLA 4 (2026-09-03): LOS EPISODIOS, EL TALLER Y LAS LÍNEAS DE CIERRE
+  // ══════════════════════════════════════════════════════════════════════
+  // Texto de cv-material/OLA4-CONTENIDO.md, pegado tal cual. Cada frase es
+  // una de cuatro cosas: verbatim de una cinta (con archivo y minuto en ese
+  // documento), palabra de Jaime con `dichoSuyo` debajo, un hueco, o una
+  // traducción rotulada. Ni una frase inventada sobre Jaime.
+  //
+  // RENDÓN tiene cinta (≈29 min 37 s en dos partes, transcritas por whisper)
+  // y por eso va SIN marca de «palabra suya»: su recibo es la propia
+  // grabación, donde él abre con «gracias por la invitación» (parte 1,
+  // 00:00:21). EL EPISODIO ESTÁ PUBLICADO desde que Jaime mandó el enlace
+  // (2026-09-03): TikTok 7680977307850378512, autor smart.financee según el
+  // oEmbed; la tarjeta del capítulo 2 y el nodo del micrófono lo enlazan. Los
+  // diez clips existen como ARCHIVOS; de ellos no se afirma que estén
+  // publicados. DURÁN no tiene cinta: su línea vive en su tarjeta con
+  // `dichoSuyo` y un hueco (`materialQue.duranVideo`); su cargo sale de su
+  // titular de LinkedIn, con la fuente escrita.
+  podcasts: {
+    h: 'Episodes I organized myself',
+    rendon: 'I organized and hosted an episode with Miguel Ángel Rendón. It is published on my TikTok; the recording is transcribed, and ten clips have been cut from it.',
+    rendonFuente: 'From the recording itself: he opens with “gracias por la invitación” — thank you for the invitation. The link on the card is the episode on my TikTok, @smart.financee.',
+    clipsH: 'The ten clips',
+    clips: 'Ten clips are cut from the episode: my future self · LinkedIn without fear · the myth of starting a business · “too many finance graduates” · it is the person who shines · the welcome · a real day in finance · AI in finance · the hardest decision · myths, true or false.'
+  },
+
+  // LO QUE DIJERON ELLOS, verbatim de la cinta. Son palabras de un tercero:
+  // van en <blockquote> con <cite>, como las cartas, y NUNCA en el hueco
+  // «Lo que me llevé», que es de Jaime. En inglés son traducción y lo dice
+  // `cintaTag`. Rendón: parte 1 · 00:08:43 → 00:09:05 y parte 2 · 00:13:05 →
+  // 00:13:13 (las dos que hablan a un alumno de prepa; R2 y R4 quedan fuera).
+  // Majo: IMG_4424 · 00:00:35 → 00:00:44 y 00:01:15 → 00:01:59; el «[…]» tapa
+  // el tramo que salta.
+  dijo: {
+    el: 'What he said',
+    ella: 'What she said',
+    enCinta: 'on the recording',
+    rendon: [
+      '“I think the main one — the main one, the one that has helped me and the advice I always give students — is relationships. Building relationships, building a network. A student in the last year of high school must, without fail, start building their LinkedIn.”',
+      '“Convince yourself that what you do now is out of love for your future self. That is: what you put away today, what you save today, what you invest today, your future self will enjoy.”'
+    ],
+    majo: [
+      '“I would definitely be much more curious than I was, and that is what I can recommend to you. I would pay much more attention to what is happening in the world, what is happening around me.”',
+      '“Don’t lose your way; don’t take the easy doors. […] Make the most of your time, because it is the resource we have least of as we grow up.”'
+    ]
+  },
+
+  // EL TALLER DE FINANZAS PERSONALES. Recibos: `apertura-jaime.txt`
+  // [00:00:00 → 00:00:17] («este taller lo organizamos»), `gustavo-apertura.txt`
+  // [00:00:12 → 00:00:26], la diapositiva S.M.A.R.T. en `taller-4603.jpg`,
+  // once testimonios grabados por Jaime a la salida (IMG_9408, 9397, 9395,
+  // 9405, 9407, 9399, 9400 son los siete de aquí), y su LinkedIn, que lista
+  // «personal finance workshops» en dos sitios. LO QUE NO SE ESCRIBE: cuántos
+  // fueron, cuándo, en qué aula, el apellido y cargo de Gustavo, «flujo de
+  // caja / gastos fijos» (solo en un LEEME que cita transcripciones que no
+  // están), y ninguna frase de impacto que no digan ellos. Los testimonios
+  // van SIN nombre: son compañeros menores de edad.
+  taller: {
+    h: 'The personal-finance workshop',
+    que: 'My group organized a personal-finance workshop at my school. I opened it and introduced the speaker, Professor Gustavo, who told the room it was the first talk he had ever given at a high school.',
+    queFuente: 'From the recordings of that day. My LinkedIn lists “personal finance workshops” among the group’s activities, in two places.',
+    asistenciaQue: 'How many people came',
+    aperturaH: 'How I opened it',
+    apertura: '“First of all, thank you very much to everyone who came, to everyone interested in this workshop. We organized it with a lot of care; it will be something very simple, with activities, so that it is interactive and not boring for you, like just another class. So, first, let’s start with this, our speaker, with Professor Gustavo.”',
+    aperturaTag: 'Said in Spanish, on the recording. This is a translation; the original is in the Spanish panel.',
+    gustavo: '“The truth is, this is the first time I give a talk at a high school. I have always given them at the business school or at the chambers.”',
+    gustavoQuien: 'Professor Gustavo, opening the workshop',
+    gustavoQue: 'Professor Gustavo’s surname and title',
+    temaH: 'What he taught',
+    tema: 'Financial goals with the S.M.A.R.T. method, the 50-30-20 rule, CETES, and the small expenses that add up.',
+    temaFuente: 'The S.M.A.R.T. slide is in the photos; the rest is what the attendees themselves said on camera.',
+    testimoniosH: 'What they said on their way out',
+    testimoniosLede: 'I recorded these myself at the door, with one question: what are you taking with you? Their words, untouched.',
+    testimoniosTag: 'Said in Spanish. These are translations; the originals are in the Spanish panel.',
+    testimonios: [
+      { cita: '“Learning how CETES work, investments, the 50-30-20 rule and SMART goals, to manage my finances better.”', quien: 'a student who attended' },
+      { cita: '“I am taking a lot of knowledge with me: to manage my money better, make smarter purchases and have a safe investment for the future.”', quien: 'a student who attended' },
+      { cita: '“I am taking a lot of knowledge of the basics of finance, like the expenses you sometimes don’t notice, right? Small expenses that, at a certain point, are a lot of money, right?”', quien: 'a student who attended' },
+      { cita: '“The drive to be better professionals, and to see from the inside what they can achieve.”', quien: 'a teacher who attended' },
+      { cita: '“How to organize myself and control my expenses […] and learning about the 50, 30 and 20.”', quien: 'a student who attended' },
+      { cita: '“Strategies.”', quien: 'a student who attended' },
+      { cita: '“Learning, and strategies.”', quien: 'a student who attended' }
+    ],
+    fotosH: 'That day',
+    // LA FOTO GRANDE (2026-09-03): Jaime abriendo el taller, junto a la
+    // diapositiva del título. Es un cuadro de su propio video (IMG_6041, a
+    // los 6 s), 1080×1920, y va en la caja `mitad` vertical (332×590), sin
+    // recortar. Jaime, textual: «que sí salgan mis compañeros, solo que salga
+    // yo también» — o sea: permiso para las fotos de compañeros que ya
+    // estaban, y él en la grande. Pasa por build-photos.mjs como las otras.
+    aperturaFoto: { id: 'cv-taller-apertura-jaime.webp', alt: 'Me, standing to the right of the projected title slide — “Taller de Finanzas Personales · Grupos Estudiantiles”, with the Smart Finance logo — in a classroom, one hand pointing at the screen', pie: 'Opening the workshop, next to the title slide.' },
+    // Las tres de compañeros pasan por build-photos.mjs (huella en el nombre)
+    // y van como miniaturas de 154 debajo; el orden es el de la página: el
+    // tema, la sala, y una pregunta desde el fondo.
+    fotos: [
+      { id: 'cv-taller-4603.webp', alt: 'Professor Gustavo, in a brown blazer and light-blue shirt, speaking in front of the projected slide “Metas Financieras”, with the S.M.A.R.T. method spelled out and a savings example in pesos', pie: 'The S.M.A.R.T. slide.' },
+      { id: 'cv-taller-4573.webp', alt: 'The speaker from behind, facing the rows of blue auditorium seats full of students; a classmate films with a phone on a gimbal', pie: 'The room, from the front.' },
+      { id: 'cv-taller-4609.webp', alt: 'Wide view of the auditorium; at the back, a student raises a hand', pie: 'A question from the back.' }
+    ]
+  },
+
+  // El capítulo «Lo que organizo con el grupo»: la entradilla, en la voz de
+  // la página, dice qué dos cosas junta y con qué recibo cada una.
+  grupoHace: {
+    lede: 'What the group organizes, with its receipts: a personal-finance workshop — recordings, photos and the attendees’ own words — and the Reto Actinver, with its calendar from the source.'
+  },
+
+  // LOS RÓTULOS DE LOS PLEGADOS (OLA4 §6.3). Plegar es recortar sin borrar:
+  // lo que va dentro sigue siendo prueba y se imprime abierto.
+  // Los tres subtítulos del expediente (ola 4): eran capítulos.
+  expedienteSub: { acad: 'School and English', certs: 'Certifications', exp: 'Experience — the whole list' },
+
+  plegado: {
+    masFotos: 'More photos',
+    masDijeron: 'More of what they said',
+    otrosDos: 'The other two',
+    reto: 'The contest calendar and my portfolio',
+    abrir: 'Open the photo at full size',
+    pendiente: 'Still to come',
+    cinta: 'The live tape: three prices from the site',
+    verifica: 'What the letters verify, line by line',
+    mas: 'More'
+  },
+
+  // LA LÍNEA DE CIERRE DE CADA CAPÍTULO (mono, una por capítulo): dice qué
+  // queda probado y con qué. Es la regla 3 de la especificación de estructura.
+  cierre: {
+    grupo: 'Proven: founded and president — my LinkedIn, and Lloyd George’s letter.',
+    conversaciones: 'Proven: every conversation above opens with its own link; the ones without one say so.',
+    cartas: 'Proven: two signed letters, quoted untouched, with the contact each signatory gave.',
+    grupoHace: 'Proven: one workshop with its recordings, its photos and the attendees’ own words; the contest calendar from its source.',
+    voluntariados: 'Proven: my posts, my photos, the clip — and the beach clean-up signed by Lloyd George.',
+    construi: 'Proven: a site loaded live inside this page; four figures counted by the build; a store you can open.',
+    premios: 'Proven by one source only — a letter. The diploma is still to come.',
+    expediente: 'Proven: seven certifications, six with a credential ID; one English exam still to sit.'
+  },
+
   head: {
     eyebrow: 'Curriculum vitae',
     name: 'Jaime Sandoval Ricaño',
@@ -448,6 +751,9 @@ const en = {
     // afirmación suya y marcada.
     grupoCifra: 'There are almost 200 of us in the community.',
     grupoLink: 'The community, on the site',
+    // La línea que manda del grupo a lo que organiza con él (ola 4). `{s}` es
+    // el título del capítulo, de `caps`: si el capítulo se mueve, el texto no miente.
+    grupoTaller: 'What the group organizes — the workshop, with its recordings, and the Reto Actinver — is in “{s}”.',
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
     // El cuadro del vídeo de promo del grupo (2026, @smart.financee): qué es
     // y de dónde sale, como piden los pies de foto del brief.
@@ -462,9 +768,17 @@ const en = {
     jasaH: 'Jasa Motor',
     // EL AÑO ES 2025 y lo corrigió Jaime (2026-08-29): la tienda la creó en
     // 2025, no en 2026 como decía la línea del capítulo de experiencias.
-    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store in 2025 and I run its marketing.',
+    jasa: 'My family’s auto-parts business in Cuautitlán, State of Mexico, with more than twenty years of history. I built its online store and I run its marketing.',
     jasaAlt: 'Home page of the Jasa Motor online store: the logo with a piston in the A, a search by make, model, year and engine, the “Refacciones para Motor” heading and the best-sellers grid with real prices.',
-    jasaPie: 'The store I built — tienda.jasamotor.com.mx (2025)',
+    jasaPie: 'The store I built — tienda.jasamotor.com.mx',
+    // ── MERCADO LIBRE: SOLO LO QUE ELLOS PUBLICAN ─────────────────────────
+    // Dos datos, los dos de su página de vendedor y los dos con fecha de
+    // consulta. Lo que NO entra —«0 productos», que es un artefacto de leer
+    // una página que pinta su catálogo con JavaScript, y una calificación que
+    // es de un producto y no del vendedor— está escrito junto al marcado.
+    ml: 'The business also sells on Mercado Libre. Mercado Libre publishes its seller page as REFACCIONES JASA MOTOR, with “+3,100 seguidores” — more than 3,100 followers.',
+    mlFuente: 'Mercado Libre’s own seller page, read on 2 September 2026. The store name and the follower count are theirs, not mine.',
+    mlLink: 'The store on Mercado Libre',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
@@ -500,13 +814,11 @@ const en = {
     // lede va `anioDisputa`, el mismo recibo en mono que llevan sus cifras.
     // Estuvo anotada solo en este comentario —invisible para quien lee— y
     // eso era el doble criterio que este archivo no se permite.
-    lede: 'I started smartfinance.lat in 2025, to make finance easier to understand for any student. This is its home page.',
+    lede: 'I started smartfinance.lat to make finance easier to understand for any student. This is its home page.',
     // El pie de la captura del header. Dice QUÉ es y DE CUÁNDO: la imagen
     // lleva dentro precios y una hora, y sin fecha sería una lámina de
     // cifras sin edad justo encima de una cinta que sí pide precios de
     // verdad al abrir esta página.
-    headerPie: 'The home page of smartfinance.lat, captured on 31 August 2026. The prices inside the image are from that moment; the ones below are asked for now.',
-    headerAlt: 'The smartfinance.lat home page: the Smart Finance wordmark and menu, a dark globe with markers on New York and Mexico City, the headline “Markets and money, explained for young people. By Jaime Sandoval”, and a row of eight stock-exchange chips',
     // ── LAS LECCIONES, PROMOVIDAS (Jaime, 2026-08-30) ──────────────────
     // «promociona más lo de lessons y pon un link». Dejan de ser un renglón
     // suelto detrás de las cifras y pasan a bloque propio con su enlace. El
@@ -890,7 +1202,20 @@ const en = {
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'A session I attended, not an interview of mine — “Takeaways from JPMorgan’s Chief ETF Strategist”, as the site puts it.'
       },
-      dieck: { nombre: 'Moris Dieck', rol: '', tipo: '“A conversation with Moris Dieck”, in the site’s own words.' },
+      // ── MORIS DIECK ES UNA EXPERIENCIA, NO UNA ENTREVISTA (ola 4) ──────
+      // Sale del carrusel (que promete «conversations I sought out and
+      // recorded») y va al bloque «People I asked for advice» con la cita de
+      // su propio post (LI-21). `tipoTag` solo se pinta en español, donde la
+      // cita del post es traducción.
+      dieck: { nombre: 'Moris Dieck', rol: '', tipo: 'A conference at Tec, Estado de México, organized by HSBC. In my own post: “Although he had a tight schedule, I had the chance to briefly speak with him and ask for advice on my own finance podcast.” No interview yet.', tipoTag: '' },
+      // ── MARG FRANKLIN, SIN CARGO, Y ES UN HALLAZGO (2026-09-02) ────────
+      // cfainstitute.org/about/governance/leadership-team, leída ese día,
+      // lista a Tricia Rothschild como «Interim President and CEO» —y es
+      // quien firma el certificado Investment Foundations de Jaime—. Marg
+      // Franklin no aparece ahí. Que fuera CEO el día del evento es plausible
+      // y no está probado con fecha; que lo sea hoy es falso según su propia
+      // institución. Va con las palabras de Jaime (LI-20), que no caducan.
+      marg: { nombre: 'Marg Franklin', rol: '', tipo: 'At the signing of the CFA Institute × Tec de Monterrey global agreement, at Campus Estado de México. In my own post: I heard “her story as a woman leading one of the most important organizations in the financial world”, and at the end I asked her for advice about studying in Canada, since she is Canadian herself. A question and her answer — not an interview.', tipoTag: '' },
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
@@ -902,6 +1227,61 @@ const en = {
         rol: 'Finance student',
         tipo: 'The podcast I organized in the Financial Trading Room at Tec.'
       },
+      // ── MIGUEL ÁNGEL RENDÓN, CON EL CARGO COMO LO DICE ÉL EN LA CINTA ──
+      // Parte 1 [00:00:25 → 00:00:46]: «mi nombre es Miguel Ángel Rendón,
+      // soy doctor en Ciencias Financieras por la EGA de Business School y
+      // actualmente soy el director regional del Departamento de Contabilidad
+      // y Finanzas en el TEC de Monterrey para la región Ciudad de México,
+      // Santa Fe, Ciudad de México, Toluca y el Estado de México.» ⚠️ whisper
+      // escribió «EGA de»; el LEEME lo corrige a EGADE (la escuela de negocios
+      // de posgrado del Tec). Es la única palabra del cargo que no está
+      // literal en la cinta. El 424d0b0 sacó el doctorado de `tipo` en los dos
+      // idiomas hasta tener una fuente con la palabra escrita; LLEGÓ EL
+      // 2026-09-03: la descripción pública del episodio en TikTok
+      // (7680977307850378512, autor smart.financee, leída por oEmbed) dice
+      // «doctor en Ciencias Financieras por EGADE Business School y director
+      // regional de Contabilidad y Finanzas del Tec de Monterrey para CDMX,
+      // Santa Fe, Toluca y Estado de México». Con eso el doctorado vuelve a
+      // `tipo` (no a `rol`, el rótulo corto) y `tipo` nombra las dos
+      // fuentes. `alt` vacío: sigue sin haber foto de la grabación.
+      rendon: {
+        nombre: 'Miguel Ángel Rendón',
+        rol: 'Regional director of the Department of Accounting and Finance, Tec de Monterrey',
+        tipo: 'As he introduces himself on the recording, and as the episode’s own description on TikTok puts it: PhD in Financial Sciences from EGADE Business School, and regional director for the Mexico City, Santa Fe, Toluca and State of Mexico region. An episode of my podcast that I organized and hosted myself; he opens by thanking me for the invitation.',
+        alt: ''
+      },
+      // ── MARÍA JOSÉ CORTÉS («Majo», «la miss»): grabada, cargo de memoria ─
+      // Entrevista de 2:09 (IMG_4424.MOV, transcrita). En la cinta solo se
+      // dice su nombre. El cargo lo puso Jaime el 2026-09-03, textual: «el
+      // cargo de la miss no sé muy bien, es maestra en el Tecnológico de
+      // Monterrey en business creo». Se escribe SOLO lo que sostiene
+      // —maestra en el Tec— con su duda dentro de la frase y `dichoSuyo3`
+      // debajo; «business» no se escribe, porque él mismo dice «creo».
+      // Que la organizó Jaime es afirmación suya (2026-09-02). DÓNDE se grabó
+      // no está ni en la cinta ni en OLA4 §8: decía «at my school» / «en mi
+      // prepa» y era un adorno; fuera.
+      majo: {
+        nombre: 'María José Cortés',
+        rol: 'A teacher at Tecnológico de Monterrey — that is how I remember it; I have not confirmed the exact title',
+        tipo: 'A conversation I organized and recorded — two questions. Her title is not said on the recording.',
+        alt: 'María José Cortés, long dark hair and a cream jacket, seated beside a desk with an open laptop in a Tec classroom'
+      },
+      // MANUEL DURÁN (ola 4): palabra de Jaime del 2026-09-02, sin cinta, sin
+      // enlace y sin foto. EL CARGO (2026-09-03) sale del titular de su perfil
+      // de LinkedIn (linkedin.com/in/manuel-duran-24058a5, perfil de 2.º grado
+      // leído con la sesión de Jaime): «Experienced and accomplished
+      // production site manager/academic with a unique combination of
+      // management, manufacturing & financial expertise …», Tecnológico de
+      // Monterrey · University of Bristol. «Director de negocios», que era lo
+      // que Jaime recordaba, NO aparece ahí y no se escribe. El `rol` resume
+      // el titular y lo dice; `fuente` da el perfil. La tarjeta sigue con
+      // `dichoSuyo` (lo de grabado y no publicado) y el hueco del video.
+      duran: {
+        nombre: 'Manuel Durán',
+        rol: 'Production site manager and academic (his LinkedIn headline)',
+        tipo: 'An episode of my podcast that I organized. It is recorded; the video is not published yet.',
+        fuente: 'His title: the headline of his LinkedIn profile, linkedin.com/in/manuel-duran-24058a5'
+      },
       raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' },
       sol: {
         nombre: 'Sol',
@@ -909,6 +1289,39 @@ const en = {
         tipo: 'Interviewed at the responsible-adoption march; the clip of that day is in “Serving”.'
       }
     }
+  },
+
+
+  // ══════════════════════════════════════════════════════════════════════
+  // LOS SITIOS EN VIVO (SitioVivo.astro)
+  // ══════════════════════════════════════════════════════════════════════
+  // El rótulo de la tapa dice lo que va a pasar y no «Ver más»: al pulsarlo,
+  // el teclado ENTRA en un documento ajeno. Eso se avisa.
+  vivo: {
+    abrir: 'Open {s} in a new tab',
+    interactuar: 'Use the site here',
+    pie: 'This is {s} itself, loaded live inside the page — not a screenshot. It only loads when you scroll this far.'
+  },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // DOCUMENTOS ACADÉMICOS — SEPARADOS DE LAS CERTIFICACIONES A PROPÓSITO
+  // ══════════════════════════════════════════════════════════════════════
+  // Jaime, 2026-09-02: «no hagas solo una sección». Y tiene razón, porque no
+  // son la misma clase de cosa: una CERTIFICACIÓN es un curso que él eligió
+  // hacer y aprobó (los siete de la tabla, con su folio); un DOCUMENTO
+  // ACADÉMICO es lo que la escuela o el examinador emiten sobre él y que un
+  // comité pide de oficio. Mezclarlos hace que un curso de Bloomberg y una
+  // constancia de promedio se lean con el mismo peso, y no lo tienen.
+  //
+  // LOS DOS QUE FALTAN SON LOS DOS QUE MÁS PESAN, y por eso van con el hueco
+  // a la vista: la constancia de promedio CIERRA el hueco académico que este
+  // capítulo ya declara abierto, y el Duolingo es el segundo examen de inglés
+  // que la propia página dice que le falta.
+  acadDocs: {
+    h: 'Academic documents',
+    lede: 'These are not certifications: they are what my school and the examiner issue about me, and what a committee asks for as a matter of course. Neither is here yet.',
+    promedioQue: 'Cumulative grade-point certificate',
+    duolingoQue: 'Duolingo English Test'
   },
 
   // ---- Capítulo 3: servir (los voluntariados) ----
@@ -937,7 +1350,19 @@ const en = {
     bloques: {
       animales: 'The animals',
       playas: 'Beach clean-up'
-    }
+    },
+    // ── AQUÍ VIVÍA «LO QUE VIENE», Y SE FUE POR NO TENER FUENTE (2026-09-02)
+    // Decía: «Two more with the student group: a clothing drive, and one more
+    // volunteering day.» El tiempo verbal estaba bien —futuro, porque no ha
+    // pasado—, pero eso presupone que existan como plan declarado POR ÉL, y no
+    // existen: `grep -rniE 'colecta de ropa|clothing drive'` sobre
+    // `cv-material/`, `cv-clips/` y `ESTADO-NOCTURNO.md` da CERO. Ni MATERIAL,
+    // ni NOTAS-DEL-BRIEF, ni PENDIENTE, ni CARTAS, ni EVIDENCIA, ni el registro
+    // de sus decisiones del 2026-09-02. La única justificación era el mensaje
+    // de un commit.
+    // Y anunciar un compromiso que nadie declaró es peor que omitirlo: si en
+    // octubre alguien pregunta por la colecta de ropa, no hay nada detrás.
+    // SI EXISTEN, LAS ESCRIBE ÉL. La pregunta está en PENDIENTE.md.
   },
 
   // ---- Capítulo 2: experiencias (en seco) ----
@@ -947,7 +1372,15 @@ const en = {
   // Las publicaciones nuevas que suman (visita a U of T/Rotman, Concordia,
   // AEM, la firma CFA×Tec con Marg Franklin) entran con su año.
   exp: {
-    lede: 'What, where, when — years only. This chapter and the next are the ones a committee scans.',
+    // ── PROMETÍA UNA COLUMNA QUE LA TABLA NO TIENE (2026-09-02) ────────
+    // Decía «What, where, when — years only». Contado sobre el HTML
+    // construido: de los doce renglones, CINCO no llevan ninguna fecha (Jon
+    // Maier, la comunidad estudiantil, la AEM, Jasa Motor y smartfinance.lat)
+    // y siete llevan «2026». El commit 67302d9 quitó los años de arranque
+    // —con razón, es la regla de fechas de Jaime— y no tocó la frase que los
+    // anuncia, así que el capítulo que «un comité escanea» abría prometiendo
+    // una columna que no cumple, y se ve sin desplegar nada.
+    lede: 'What, where, and the year where the year says something. This chapter and the next are the ones a committee scans.',
     // ── PLEGADO DESDE EL 2026-08-30 ─────────────────────────────────────
     // Jaime: «experience consume mucho, mejor que sea una cosa que diga view
     // y ya se deslice toda mi experience». El rótulo es el suyo. `pista`
@@ -964,6 +1397,22 @@ const en = {
     pista: '{n} entries',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
+      // ── AQUÍ VIVÍA EL JIUJITSU, Y SE FUE (2026-09-02) ─────────────────
+      // Decía «Since I was 13 · Jiu-jitsu — five years training», y la nota
+      // que lo acompañaba lo justificaba como «palabra suya». No lo es:
+      // `grep -rniE 'jiu ?jitsu|jiu-jitsu'` sobre `cv-material/` (MATERIAL,
+      // NOTAS-DEL-BRIEF, PENDIENTE, cartas/CARTAS), `cv-clips/` (EVIDENCIA) y
+      // `ESTADO-NOCTURNO.md` da CERO coincidencias. La única fuente era el
+      // mensaje de un commit, y el mensaje de un commit no es una fuente
+      // sobre Jaime.
+      // TRES COSAS A LA VEZ, y cualquiera bastaba: (1) es una afirmación sobre
+      // él sin origen; (2) se pintaba SIN la marca de «palabra suya» que sí
+      // lleva el podcast de Rendón, así que un comité la leía con el mismo
+      // peso que «2024–2027 Tec de Monterrey»; (3) «cinco años» no es un dato
+      // sino una resta (18 − 13) que además asume que no paró nunca.
+      // Y «Desde los 13» ES un arranque biográfico, justo lo que el commit
+      // anterior acababa de borrar de este mismo capítulo.
+      // SI ENTRENA JIUJITSU, ENTRA CUANDO ÉL LO DIGA. Está en PENDIENTE.md.
       // Jon Maier va en su PROPIA fila y no en las conversaciones: la sesión
       // de J.P. Morgan fue algo a lo que Jaime ASISTIÓ. El año lo corrigió
       // él: es 2025, no 2026.
@@ -973,7 +1422,7 @@ const en = {
       // 2026-08-27, o sea ~abril de 2026. Publicar en 2026 un evento de 2025
       // es posible y nadie lo ha desmentido: se pone el año que él afirma y
       // el recibo `anioDisputa` lo dice. Estaba SIN anotar hasta 2026-08-31.
-      { cuando: '2025', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
+      { cuando: '', que: 'Session with Jon Maier, Chief ETF Strategist at J.P. Morgan Asset Management, at Tec Santa Fe' },
       // ⚠️ EL AÑO DEL GRUPO ESTUDIANTIL ESTÁ EN DISPUTA Y NO LO RESUELVE
       // ESTA PÁGINA. Jaime dijo el 2026-08-29 que lo creó «a finales de
       // 2025»; su propio LinkedIn publica el grupo como «ene. 2026» y el
@@ -982,7 +1431,7 @@ const en = {
       // una contradicción REAL con una fuente pública suya, y hasta que él
       // la aclare (corrigiendo el LinkedIn o corrigiendo esta línea) se
       // queda anotada aquí. No la borres sin su respuesta.
-      { cuando: '2025', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
+      { cuando: '', que: 'Founder and president of the Smart Finance student community — stock-exchange visits, talks, workshops, volunteering, and the Student Groups Fair at Tec' },
       // «One of his first», no «his first»: su post dice «one of my first
       // experiences attending a business conference» (MATERIAL.md LI-17).
       // Redondearlo a «la primera» inflaba el hecho — corregido 2026-08-29.
@@ -991,13 +1440,13 @@ const en = {
       // está fechada «hace ~2 meses» en MATERIAL.md (cosecha del 2026-08-27),
       // o sea ~junio de 2026. Anotada desde el 2026-08-31 y recogida en
       // `anioDisputa`.
-      { cuando: '2025', que: 'AEM General Assembly — one of my first business conferences and networking events' },
+      { cuando: '', que: 'AEM General Assembly — one of my first business conferences and networking events' },
       // 2025 también, y también corregido por él: «esta la creé en 2025».
       // ⚠️ AQUÍ NO HAY FUENTE PÚBLICA NINGUNA: Jasa Motor no aparece en su
       // LinkedIn (MATERIAL.md, bloque C2, verbatim: «Jasa Motor no aparece en
       // ningún lado de su LinkedIn»). No es una contradicción, es un año sin
       // contraste — y el recibo lo dice con esas palabras en vez de callarlo.
-      { cuando: '2025', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (in “My projects”)' },
+      { cuando: '', que: 'Jasa Motor — online store and marketing for my family’s auto-parts business (in “My projects”)' },
       // ⚠️ 2025 Y NO 2026, y es la MISMA disputa que la del grupo estudiantil
       // dos filas más arriba. Jaime, 2026-08-30: «que la creé desde 2025
       // empecé». Su LinkedIn publica el proyecto como «feb. 2026». Se pone
@@ -1007,7 +1456,7 @@ const en = {
       // mismo. La anotación NO se queda en este comentario: `anioDisputa` la
       // pinta al pie de estas filas, dentro del mismo plegable, para que
       // quien ve el año vea también de quién es.
-      { cuando: '2025', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
+      { cuando: '', que: 'smartfinance.lat — bilingual financial-education site: lessons, market data, glossary, weekly newsletter' },
       { cuando: '2026', que: 'Visit to the University of Toronto and Rotman Commerce — the campus this application is aimed at' },
       { cuando: '2026', que: 'Singapore: summer programme (Green Technology and Sustainable Ecology), presentation about Mexico at NUS, beach clean-up, interviews' },
       { cuando: '2026', que: 'Visit to Concordia University, Montréal' },
@@ -1075,7 +1524,7 @@ const en = {
         hueco: 'expGrupo' as const,
         rol: 'Founder and president',
         org: 'Smart Finance student community, Prepa Tec CEM',
-        cuando: '2025 – today',
+        cuando: 'Ongoing',
         accion: 'I founded it and I lead it: visits to the Mexican stock exchange, finance talks and workshops, volunteering for our community and the environment, and the Student Groups Fair at Tec.',
         resultado: '',
         quien: '',
@@ -1086,7 +1535,7 @@ const en = {
         hueco: 'expSitio' as const,
         rol: 'Author and developer',
         org: 'smartfinance.lat — my own project',
-        cuando: '2025 – today',
+        cuando: 'Ongoing',
         accion: 'I write the bilingual lessons, I build the site and I send the weekly newsletter. The figures it publishes are counted from its own files on every build.',
         resultado: '',
         quien: '',
@@ -1097,7 +1546,7 @@ const en = {
         hueco: 'expJasa' as const,
         rol: 'Online store and marketing',
         org: 'Jasa Motor — my family’s auto-parts business, Cuautitlán, State of Mexico',
-        cuando: '2025 – today',
+        cuando: 'Ongoing',
         accion: 'I built its online store (tienda.jasamotor.com.mx) and I run its marketing, for a business with more than twenty years of history.',
         resultado: '',
         quien: '',
@@ -1308,6 +1757,10 @@ const en = {
     // ser más comprobable que un identificador: sede y fechas impresas.
     lede: 'The receipts, as my LinkedIn publishes them. Six of the seven carry a credential ID; the seventh prints its venue and its dates on the certificate itself.',
     verLinkedIn: 'See it on LinkedIn',
+    // El escaneo se abre en una pestaña, a su tamaño natural (700 px de ancho),
+    // que es donde un folio se lee. La miniatura de la fila mide 154 px: es la
+    // señal de que el escaneo existe, no el escaneo.
+    verEscaneo: 'Open the scan',
     credencial: 'Credential ID',
     // ═══════════════════════════════════════════════════════════════════
     // EL GREEN TECHNOLOGY PROGRAMME: SIN ID, PERO NO SIN RECIBO
@@ -1857,6 +2310,22 @@ const en = {
       que: 'One thing I took from Raúl Irabién',
       pista: 'One line about the student-groups conversation.'
     },
+    entrevistaRendon: {
+      que: 'One thing I took from Miguel Ángel Rendón',
+      pista: 'Una línea. Del episodio: el LinkedIn desde prepa, «el que brilla es la persona», o «por amor a tu yo futuro» — lo que más te haya servido.'
+    },
+    entrevistaMajo: {
+      que: 'One thing I took from María José Cortés',
+      pista: 'Una línea. De la cinta: «sería mucho más curiosa» o «aprovechen el tiempo» — lo que más te haya servido.'
+    },
+    entrevistaDuran: {
+      que: 'One thing I took from Manuel Durán',
+      pista: 'Una línea. Del episodio con Manuel Durán: lo que más te haya servido.'
+    },
+    consejoMarg: {
+      que: 'One thing I took from her answer',
+      pista: 'Una línea: qué te contestó sobre estudiar en Canadá y qué hiciste con eso.'
+    },
     servirAnimales: {
       que: 'The animals, in my words',
       pista: 'One or two sentences. What you did, not what you felt.'
@@ -1960,6 +2429,10 @@ const en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
+    entrevistaRendon: '',
+    entrevistaMajo: '',
+    entrevistaDuran: '',
+    consejoMarg: '',
     servirAnimales: '',
     // Los quince de la ola 2. Mismo mecanismo: en cuanto tienen texto, el
     // hueco desaparece solo. Si Jaime escribe solo el español, el hueco
@@ -2097,11 +2570,14 @@ const es: typeof en = {
   docTitle: 'Jaime Sandoval Ricaño — Smart Finance',
 
   cifraSuya: 'Mi cifra, del 29 de agosto de 2026. Esta página no la cuenta: es mi afirmación.',
+  // Ver la nota del bloque inglés: el podcast no es una cifra ni es del 29.
+  dichoSuyo: 'Palabra mía, del 2 de septiembre de 2026. Esta página no lo verifica: es mi afirmación.',
+  dichoSuyo3: 'Palabra mía, del 3 de septiembre de 2026. Esta página no lo verifica: es mi afirmación.',
+  cintaTag: '',
+  postTag: 'De mi propia publicación en LinkedIn, escrita en inglés. Esto es una traducción; el original está en el panel en inglés.',
 
   // Ver la nota de la tabla inglesa.
   // Ver la nota de la tabla inglesa: son las CINCO filas de 2025.
-  anioDisputa: 'Las cinco fechas de 2025 de esta página son palabra mía: el grupo estudiantil, smartfinance.lat, Jasa Motor, la asamblea de la AEM y la sesión con Jon Maier. Mi LinkedIn publica el grupo como ene. 2026 y smartfinance.lat como feb. 2026; mis publicaciones sobre la AEM y sobre esa sesión son de 2026; Jasa Motor no tiene fecha publicada con la que comparar. Esta página escribe lo que yo digo y te enseña la diferencia; no decide cuál es la buena.',
-  anioDisputaCorto: 'Este 2025 es palabra mía, no una fecha publicada. El recibo está en «{s}».',
 
   lang: { en: 'English', es: 'Español', aria: 'Idioma de esta página' },
 
@@ -2110,11 +2586,15 @@ const es: typeof en = {
     note: 'Esto lo escribo yo, con mis palabras. Nada de esta página se genera en mi lugar.'
   },
   fotoHueco: { tag: 'Falta la foto' },
+  materialHueco: { tag: 'Material pendiente' },
   fotosPend: {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
     sol: 'Un retrato de Sol, o un cuadro de los vídeos de la marcha. La del puesto no se publica aquí: en el cartel se lee un número de teléfono.',
+    rendon: 'Un cuadro de la grabación con Miguel Ángel Rendón.',
+    majo: 'Un cuadro de la grabación con María José Cortés.',
+    duran: 'Un cuadro de la grabación con Manuel Durán.',
     cartaAndy: 'Una foto mía con Andy Toh, el CEO que escribió esta carta.',
   },
   // Ver la nota de la tabla inglesa.
@@ -2137,6 +2617,7 @@ const es: typeof en = {
     perritosPie: 'Los perritos del stand.',
     margAlt: 'Yo junto a Marg Franklin, que lleva un saco gris claro de cuadros, frente a un fondo oscuro',
     margPie: 'Con Marg Franklin en la firma (2026).',
+    dieckPie: 'Con Moris Dieck al terminar su conferencia en el Tec.',
     grupoEntrevistaAlt: 'Yo con un micrófono, entrevistando a dos estudiantes frente al cartel del stand de Smart Finance Prepa Tec',
     grupoEntrevistaPie: 'Entrevistando en mi prepa, para el grupo estudiantil.',
     grupoNarraAlt: 'Yo hablando a cámara con un micrófono de solapa, junto al cartel de Smart Finance Prepa Tec que invita a sumarse',
@@ -2174,16 +2655,155 @@ const es: typeof en = {
   // «Cada quien trae algo» baja del 4 al 6.
   caps: {
     abro: 'Abrí los ojos',
-    experiencias: 'Experiencias',
-    academico: 'Escuela, calificaciones e inglés',
+    grupo: 'Fundé un grupo estudiantil y lo presido',
+    conversaciones: 'Conseguí que directivos, profesores y emprendedores se sentaran conmigo',
+    cartas: 'Lo que dos CEOs escribieron de mí',
+    grupoHace: 'Lo que organizo con el grupo',
     voluntariados: 'Servir',
-    proyectos: 'Mis proyectos',
-    conversaciones: 'Cada quien trae algo',
-    retoPe: 'Reto Actinver y private equity',
-    certificaciones: 'Certificaciones',
+    construi: 'Lo que construí: smartfinance.lat, mi canal, la tienda de mi familia',
     premios: 'Premios',
-    cartas: 'Cartas de recomendación',
+    expediente: 'Escuela, inglés, certificaciones — y la lista entera',
     frase: 'La frase'
+  },
+
+  // Paridad exacta con el panel inglés. Ver la nota grande de `mic` allí.
+  mic: {
+    eyebrow: 'Índice y obertura',
+    h: 'Lo que suena aquí',
+    piezas: '{n} piezas',
+    lede: 'Cada punto abre una grabación, una publicación o la ficha que dice qué falta. Las personas son el liderazgo: a quién conseguí sentar conmigo. Dos son consejos que pedí, no entrevistas, y lo dicen. Los países son la voz: lo que explico a cámara — y México es el que me eligieron para representar. No son lo mismo, y esta página no finge que lo sean.',
+    sigue: 'Todo lo de abajo es la versión larga. Nada de aquí arriba sustituye a un capítulo.',
+    indiceAria: 'Lo que abre el micrófono: {n} piezas',
+    sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas {n} piezas.',
+    grupoPersonas: 'Personas que grabé',
+    grupoExperiencias: 'Gente a la que pedí consejo',
+    grupoPaises: 'Países que expliqué',
+    bajar: 'En el capítulo',
+    abre: {
+      podcast: 'El podcast que organicé en la sala Financial Trading Room del Tec. Salió dentro del programa del canal de la escuela; el enlace abre esa emisión completa.',
+      rendon: 'El episodio que organicé y conduje; él abre dando las gracias por la invitación.',
+      mauricio: 'La Parte 4 del podcast que grabé con él. Las partes 2 y 3 también están en mi TikTok.',
+      lloyd: 'La entrevista en Singapur al hombre que después firmó una de mis dos cartas.',
+      andy: 'La entrevista al otro firmante, durante el programa.',
+      raul: 'La conversación con el presidente de Grupos Estudiantiles.',
+      nus: 'La entrevista sobre qué hace falta para estar en una universidad top 8.',
+      // «horizonte» y no «skyline»: cada panel 100 % en su idioma, y el alt
+      // de la misma foto ya decía «horizonte».
+      jesus: 'La entrevista al atardecer, con el horizonte de Marina Bay detrás.',
+      mexico: 'Fui seleccionado para representar a México y presenté sobre él en la NUS.',
+      singapur: 'Por qué aquí vive el dinero del mundo.',
+      japon: 'Datos financieros de Japón.',
+      canada: 'Por qué elegí este país para mi futuro.',
+      dieck: 'Su conferencia en el Tec, organizada por HSBC; le pedí consejo para mi propio podcast. La entrevista todavía no existe, y este punto no finge que exista.',
+      marg: 'El día que le pedí consejo sobre estudiar en Canadá: mi publicación y mi foto con ella. Una pregunta y su respuesta — no una entrevista.'
+    },
+    ver: {
+      episodio: 'Ver la emisión',
+      conversacion: 'Ver la conversación',
+      video: 'Ver el video',
+      experiencia: 'Ver la publicación',
+      ficha: 'Ver la ficha'
+    },
+    paises: {
+      mexico: 'México',
+      singapur: 'Singapur',
+      japon: 'Japón',
+      canada: 'Canadá'
+    },
+    minutoQue: 'El minuto de esa emisión en el que empieza mi podcast'
+  },
+
+  materialQue: {
+    rendonFoto: 'Una foto de la grabación',
+    duranVideo: 'El video del episodio con Manuel Durán',
+    majoClip: 'El clip de esta conversación, cuando se publique'
+  },
+
+  podcasts: {
+    h: 'Episodios que organicé yo',
+    rendon: 'Organicé y conduje un episodio con Miguel Ángel Rendón. Está publicado en mi TikTok; la grabación está transcrita y de ella hay diez clips cortados.',
+    rendonFuente: 'De la propia grabación: él abre con «gracias por la invitación». El enlace de la tarjeta es el episodio en mi TikTok, @smart.financee.',
+    clipsH: 'Los diez clips',
+    clips: 'Del episodio hay diez clips cortados: mi yo futuro · LinkedIn sin miedo · el mito de emprender · «muchos financieros» · brilla la persona · la bienvenida · un día real en finanzas · la IA en finanzas · la decisión difícil · mitos, verdadero o falso.'
+  },
+
+  // En español la cinta es el original: solo se pule la puntuación.
+  dijo: {
+    el: 'Lo que dijo él',
+    ella: 'Lo que dijo ella',
+    enCinta: 'en la grabación',
+    rendon: [
+      '«Creo que la principal, principal, y que me ha ayudado y que yo siempre doy el consejo a los estudiantes, es las relaciones. Crear relaciones, crear un networking. Un alumno que va en el último año de preparatoria sí o sí debe empezar a construir su LinkedIn.»',
+      '«Convéncete de lo que hagas, de que lo que hagas ahorita es por amor a tu yo futuro. Es decir, lo que guardes hoy, lo que ahorres hoy, lo que inviertas hoy, lo va a gozar tu yo del futuro.»'
+    ],
+    majo: [
+      '«Definitivamente sería mucho más curiosa de lo que fui, y es lo que les puedo recomendar. Estaría mucho más pendiente de qué pasa en el mundo, qué pasa alrededor.»',
+      '«Que no se pierdan, que no se vayan por las puertas fáciles. […] Aprovechen mucho el tiempo, porque es el recurso que menos tenemos conforme vamos creciendo.»'
+    ]
+  },
+
+  taller: {
+    h: 'El taller de finanzas personales',
+    que: 'Mi grupo organizó un taller de finanzas personales en mi prepa. Yo lo abrí y presenté al ponente, el profesor Gustavo, que le dijo al salón que era la primera plática que daba en una preparatoria.',
+    queFuente: 'De las grabaciones de ese día. Mi LinkedIn lista «personal finance workshops» entre las actividades del grupo, en dos sitios.',
+    asistenciaQue: 'Cuánta gente vino',
+    aperturaH: 'Cómo lo abrí',
+    apertura: '«Primero que nada, muchas gracias a todos los que vinieron, a todos los que están interesados en este taller. Lo organizamos con mucho cariño; va a ser algo muy sencillo y con actividades, para que sea algo interactivo y no sea aburrido para ustedes, como una clase más. Y pues bueno, primero vamos a empezar con este, nuestro orador, con el profesor Gustavo.»',
+    aperturaTag: '',
+    gustavo: '«La realidad es la primera vez que doy una plática en prepa. Siempre las he dado en la escuela de negocios o en las cámaras.»',
+    gustavoQuien: 'el profesor Gustavo, al abrir el taller',
+    gustavoQue: 'El apellido y el cargo del profesor Gustavo',
+    temaH: 'Qué enseñó',
+    tema: 'Metas financieras con el método S.M.A.R.T., la regla 50-30-20, los CETES, y los gastos pequeños que suman.',
+    temaFuente: 'La diapositiva de S.M.A.R.T. está en las fotos; lo demás es lo que dijeron los asistentes a cámara.',
+    testimoniosH: 'Lo que dijeron al salir',
+    testimoniosLede: 'Los grabé yo mismo en la puerta, con una sola pregunta: ¿qué te llevas? Sus palabras, sin tocar.',
+    testimoniosTag: '',
+    testimonios: [
+      { cita: '«Pues aprender cómo funcionan los CETES, las inversiones, la ley del 50-30-20 y los objetivos SMART para administrar mejor mis finanzas.»', quien: 'un estudiante que asistió' },
+      { cita: '«Me llevo muchos conocimientos para poder administrar de mejor manera mi dinero, hacer compras más inteligentes y tener una inversión a futuro segura.»', quien: 'un estudiante que asistió' },
+      { cita: '«Me llevo mucho conocimiento de los conocimientos básicos de finanzas, como los gastos que a veces no te das cuenta, ¿no? Que son como pequeños gastos que a cierto grado, pues es mucho dinero, ¿no?»', quien: 'un estudiante que asistió' },
+      { cita: '«La inquietud de ser mejores profesionales y ver la perspectiva interna de lo que pueden lograr.»', quien: 'un profesor que asistió' },
+      { cita: '«Cómo organizarme y controlar mis gastos […] y conocer sobre el 50, 30 y 20.»', quien: 'un estudiante que asistió' },
+      { cita: '«Estrategias.»', quien: 'un estudiante que asistió' },
+      { cita: '«Aprendizaje y estrategias.»', quien: 'un estudiante que asistió' }
+    ],
+    fotosH: 'Ese día',
+    aperturaFoto: { id: 'cv-taller-apertura-jaime.webp', alt: 'Yo, de pie a la derecha de la diapositiva proyectada del título —«Taller de Finanzas Personales · Grupos Estudiantiles», con el logo de Smart Finance— en un salón, con una mano señalando la pantalla', pie: 'Abriendo el taller, junto a la diapositiva del título.' },
+    fotos: [
+      { id: 'cv-taller-4603.webp', alt: 'El profesor Gustavo, con saco café y camisa azul claro, hablando frente a la diapositiva proyectada «Metas Financieras», con el método S.M.A.R.T. desglosado y un ejemplo de ahorro en pesos', pie: 'La diapositiva S.M.A.R.T.' },
+      { id: 'cv-taller-4573.webp', alt: 'El ponente de espaldas, frente a las filas de butacas azules llenas de estudiantes; una compañera graba con un celular en un estabilizador', pie: 'El auditorio, desde el frente.' },
+      { id: 'cv-taller-4609.webp', alt: 'Plano abierto del auditorio; al fondo, un estudiante levanta la mano', pie: 'Una pregunta desde el fondo.' }
+    ]
+  },
+
+  grupoHace: {
+    lede: 'Lo que organiza el grupo, con sus recibos: un taller de finanzas personales —grabaciones, fotos y las palabras de los asistentes— y el Reto Actinver, con su calendario desde la fuente.'
+  },
+
+  expedienteSub: { acad: 'Escuela e inglés', certs: 'Certificaciones', exp: 'Experiencia — la lista entera' },
+
+  plegado: {
+    masFotos: 'Más fotos',
+    masDijeron: 'Más de lo que dijeron',
+    otrosDos: 'Los otros dos',
+    reto: 'El calendario del reto y mi cartera',
+    abrir: 'Abrir la foto a su tamaño',
+    pendiente: 'Lo que falta',
+    cinta: 'La cinta en vivo: tres precios del sitio',
+    verifica: 'Lo que las cartas verifican, renglón por renglón',
+    mas: 'Más'
+  },
+
+  cierre: {
+    grupo: 'Probado: fundador y presidente — mi LinkedIn, y la carta de Lloyd George.',
+    conversaciones: 'Probado: cada conversación de arriba abre con su propio enlace; las que no lo tienen lo dicen.',
+    cartas: 'Probado: dos cartas firmadas, citadas sin tocar, con el contacto que dio cada quien.',
+    grupoHace: 'Probado: un taller con sus grabaciones, sus fotos y las palabras de los asistentes; el calendario del reto desde su fuente.',
+    voluntariados: 'Probado: mis publicaciones, mis fotos, el clip — y la limpieza de playa firmada por Lloyd George.',
+    construi: 'Probado: un sitio cargado en vivo dentro de esta página; cuatro cifras contadas por el build; una tienda que se puede abrir.',
+    premios: 'Probado por una sola fuente — una carta. El diploma está por llegar.',
+    expediente: 'Probado: siete certificaciones, seis con ID de credencial; un examen de inglés por presentar.'
   },
 
   head: {
@@ -2219,19 +2839,21 @@ const es: typeof en = {
     grupo: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
     grupoCifra: 'Somos casi 200 en la comunidad.',
     grupoLink: 'La comunidad, en el sitio',
+    grupoTaller: 'Lo que organiza el grupo —el taller, con sus grabaciones, y el Reto Actinver— está en «{s}».',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
-    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea en 2025 y llevo su marketing.',
+    jasa: 'La refaccionaria de mi familia, en Cuautitlán, Estado de México, con más de veinte años de historia. Yo desarrollé su tienda en línea y llevo su marketing.',
     jasaAlt: 'Portada de la tienda en línea de Jasa Motor: el logotipo con un pistón en la A, el buscador por marca, modelo, año y motor, el título «Refacciones para Motor» y la rejilla de los más vendidos con precios reales.',
-    jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx (2025)',
+    jasaPie: 'La tienda que desarrollé — tienda.jasamotor.com.mx',
+    ml: 'La refaccionaria también vende en Mercado Libre. Mercado Libre publica su página de vendedor como REFACCIONES JASA MOTOR, con «+3,100 seguidores».',
+    mlFuente: 'La propia página de vendedor de Mercado Libre, consultada el 2 de septiembre de 2026. El nombre de la tienda y los seguidores son suyos, no míos.',
+    mlLink: 'La tienda en Mercado Libre',
     jasaLink: 'tienda.jasamotor.com.mx'
   },
 
   prueba: {
-    lede: 'Empecé smartfinance.lat en 2025, para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
-    headerPie: 'La portada de smartfinance.lat, capturada el 31 de agosto de 2026. Los precios que se ven dentro de la imagen son de ese momento; los de abajo se piden ahora.',
-    headerAlt: 'La portada de smartfinance.lat: el logotipo y el menú de Smart Finance, un globo oscuro con marcadores en Nueva York y Ciudad de México, el titular «Mercados y dinero, explicados para jóvenes. Por Jaime Sandoval» y una fila de ocho chips de bolsas',
+    lede: 'Empecé smartfinance.lat para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
     leccionesH: 'Las lecciones',
     leccionesQue: 'Lo que enseñaría primero: {n} lecciones, cada una escrita en inglés y en español, y cada una citando sus fuentes.',
     leccionesLink: 'Leer las lecciones',
@@ -2352,7 +2974,8 @@ const es: typeof en = {
         rol: 'Chief ETF Strategist, J.P. Morgan Asset Management',
         tipo: 'Una sesión a la que asistí, no una entrevista mía — «Lo que dejó el Chief ETF Strategist de J.P. Morgan», como lo publica el sitio.'
       },
-      dieck: { nombre: 'Moris Dieck', rol: '', tipo: '«Una conversación con Moris Dieck», con las palabras del propio sitio.' },
+      dieck: { nombre: 'Moris Dieck', rol: '', tipo: 'Una conferencia en el Tec, Estado de México, organizada por HSBC. En mi propia publicación: «Aunque tenía la agenda apretada, pude hablar brevemente con él y pedirle consejo para mi propio podcast de finanzas.» Todavía no hay entrevista.', tipoTag: 'Mi publicación está en inglés. Lo entrecomillado es traducción.' },
+      marg: { nombre: 'Marg Franklin', rol: '', tipo: 'En la firma del acuerdo global CFA Institute × Tec de Monterrey, en el Campus Estado de México. En mi propia publicación: escuché «su historia como mujer al frente de una de las organizaciones más importantes del mundo financiero», y al final le pedí consejo sobre estudiar en Canadá, porque ella es canadiense. Una pregunta y su respuesta — no una entrevista.', tipoTag: 'Mi publicación está en inglés. Lo entrecomillado es traducción.' },
       mauricio: {
         nombre: 'Mauricio Mercenario Nieto',
         rol: 'FX Sales & Trading',
@@ -2364,6 +2987,24 @@ const es: typeof en = {
         rol: 'Estudiante de finanzas',
         tipo: 'El podcast que organicé en el Financial Trading Room del Tec.'
       },
+      rendon: {
+        nombre: 'Miguel Ángel Rendón',
+        rol: 'Director regional del Departamento de Contabilidad y Finanzas, Tec de Monterrey',
+        tipo: 'Como se presenta él en la grabación, y como lo dice la propia descripción del episodio en TikTok: doctor en Ciencias Financieras por EGADE Business School, y director regional para la región Ciudad de México, Santa Fe, Toluca y Estado de México. Un episodio de mi podcast que organicé y conduje yo; él abre dando las gracias por la invitación.',
+        alt: ''
+      },
+      majo: {
+        nombre: 'María José Cortés',
+        rol: 'Maestra en el Tecnológico de Monterrey — así lo recuerdo; no he confirmado el cargo exacto',
+        tipo: 'Una conversación que organicé y grabé — dos preguntas. Su cargo no se dice en la grabación.',
+        alt: 'María José Cortés, de pelo largo oscuro y saco crema, sentada junto a un escritorio con una laptop abierta en un salón del Tec'
+      },
+      duran: {
+        nombre: 'Manuel Durán',
+        rol: 'Gerente de planta y académico (según el titular de su LinkedIn)',
+        tipo: 'Un episodio de mi podcast que organicé. Ya se grabó; el video todavía no está publicado.',
+        fuente: 'Su cargo: el titular de su perfil de LinkedIn, linkedin.com/in/manuel-duran-24058a5'
+      },
       raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' },
       sol: {
         nombre: 'Sol',
@@ -2371,6 +3012,20 @@ const es: typeof en = {
         tipo: 'Entrevistada en la marcha por la adopción responsable; el clip de ese día está en «Servir».'
       }
     }
+  },
+
+
+  vivo: {
+    abrir: 'Abrir {s} en otra pestaña',
+    interactuar: 'Usar el sitio aquí',
+    pie: 'Esto es {s} de verdad, cargado en vivo dentro de la página — no una captura. Solo se carga si bajas hasta aquí.'
+  },
+
+  acadDocs: {
+    h: 'Documentos académicos',
+    lede: 'Esto no son certificaciones: es lo que mi escuela y el examinador emiten sobre mí, y lo que un comité pide de oficio. Ninguno de los dos está todavía.',
+    promedioQue: 'Constancia de promedio acumulado',
+    duolingoQue: 'Duolingo English Test'
   },
 
   servir: {
@@ -2381,22 +3036,26 @@ const es: typeof en = {
     bloques: {
       animales: 'Los animalitos',
       playas: 'Limpieza de playa'
-    }
+    },
+    // «Lo que viene» se fue: ver la nota larga en el bloque inglés.
   },
 
   exp: {
-    lede: 'Qué, dónde, cuándo — solo el año. Este capítulo y el siguiente son los que un comité escanea.',
+    // Ver la nota del bloque inglés: cinco de los doce renglones no llevan
+    // fecha, así que «solo el año» prometía una columna que no está.
+    lede: 'Qué, dónde, y el año donde el año dice algo. Este capítulo y el siguiente son los que un comité escanea.',
     // Ver la nota de la tabla inglesa: el plegable nace abierto.
     ver: 'Mi experiencia',
     pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
-      { cuando: '2025', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
+      // El jiujitsu se fue: ver la nota larga en la tabla inglesa.
+      { cuando: '', que: 'Sesión con Jon Maier, Chief ETF Strategist de J.P. Morgan Asset Management, en el Tec Santa Fe' },
       // ⚠️ Año en disputa: ver la nota larga en la tabla inglesa.
-      { cuando: '2025', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
-      { cuando: '2025', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
-      { cuando: '2025', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (en «Mis proyectos»)' },
-      { cuando: '2025', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
+      { cuando: '', que: 'Fundador y presidente de la comunidad estudiantil de Smart Finance — visitas a la bolsa, pláticas, talleres, voluntariados, y la Feria de Grupos Estudiantiles del Tec' },
+      { cuando: '', que: 'Asamblea General de la AEM — una de mis primeras conferencias de negocios y eventos de networking' },
+      { cuando: '', que: 'Jasa Motor — tienda en línea y marketing de la refaccionaria de mi familia (en «Mis proyectos»)' },
+      { cuando: '', que: 'smartfinance.lat — sitio bilingüe de educación financiera: lecciones, datos de mercado, glosario, boletín semanal' },
       { cuando: '2026', que: 'Visita a la University of Toronto y Rotman Commerce — el campus al que apunta esta solicitud' },
       { cuando: '2026', que: 'Singapur: programa de verano (Green Technology and Sustainable Ecology), presentación sobre México en la NUS, limpieza de playa, entrevistas' },
       { cuando: '2026', que: 'Visita a Concordia University, Montréal' },
@@ -2424,7 +3083,7 @@ const es: typeof en = {
         hueco: 'expGrupo' as const,
         rol: 'Fundador y presidente',
         org: 'Comunidad estudiantil Smart Finance, Prepa Tec CEM',
-        cuando: '2025 – hoy',
+        cuando: 'En curso',
         accion: 'La fundé y la dirijo: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, voluntariados por la comunidad y el medio ambiente, y la Feria de Grupos Estudiantiles del Tec.',
         resultado: '',
         quien: '',
@@ -2435,7 +3094,7 @@ const es: typeof en = {
         hueco: 'expSitio' as const,
         rol: 'Autor y desarrollador',
         org: 'smartfinance.lat — proyecto propio',
-        cuando: '2025 – hoy',
+        cuando: 'En curso',
         accion: 'Escribo las lecciones bilingües, construyo el sitio y mando el boletín semanal. Las cifras que publica las cuenta él mismo de sus archivos en cada build.',
         resultado: '',
         quien: '',
@@ -2446,7 +3105,7 @@ const es: typeof en = {
         hueco: 'expJasa' as const,
         rol: 'Tienda en línea y marketing',
         org: 'Jasa Motor — refaccionaria de mi familia, Cuautitlán, Estado de México',
-        cuando: '2025 – hoy',
+        cuando: 'En curso',
         accion: 'Construí su tienda en línea (tienda.jasamotor.com.mx) y llevo su marketing, para un negocio con más de veinte años de historia.',
         resultado: '',
         quien: '',
@@ -2515,16 +3174,20 @@ const es: typeof en = {
       { en: 'low 90%' },
       ' —noventas bajos— en mis mejores materias de último año, incluida la de inglés, más un curso de matemáticas para estudiantes que van a la universidad: una materia de último año de prepa, no una universitaria. Schulich exige ENG4U, MHF4U y cálculo (MCV4U) o manejo de datos entre mis seis mejores materias de último año, con un mínimo de 70 % en ENG4U y MHF4U, y dice que un promedio competitivo va de los ochentas altos a los noventas bajos, con el corte de años anteriores entre 91 % y 92 %. Son números que solo puedo dar yo, así que están marcados como que faltan en vez de no aparecer.'
     ],
+    // Los rótulos van en español y el título de la página original entre
+    // comillas: el panel ES tenía tres enlaces rotulados en inglés («What we
+    // look for»…), que es el único texto del panel que no estaba traducido.
     notaFuentes: [
-      { que: 'rotmancommerce.utoronto.ca — What we look for', url: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/' },
-      { que: 'ivey.uwo.ca — AEO, secondary school students', url: 'https://www.ivey.uwo.ca/hba/admissions/secondary-school-students/' },
-      { que: 'schulich.yorku.ca — BBA admission requirements', url: 'https://schulich.yorku.ca/admissions/admissions-requirements/bba/' }
+      { que: 'rotmancommerce.utoronto.ca — qué buscan en quien aplica («What we look for»)', url: 'https://rotmancommerce.utoronto.ca/future-students/what-we-look-for/' },
+      { que: 'ivey.uwo.ca — admisión anticipada (AEO) para estudiantes de preparatoria («AEO, secondary school students»)', url: 'https://www.ivey.uwo.ca/hba/admissions/secondary-school-students/' },
+      { que: 'schulich.yorku.ca — requisitos de admisión al BBA («BBA admission requirements»)', url: 'https://schulich.yorku.ca/admissions/admissions-requirements/bba/' }
     ]
   },
 
   certs: {
     lede: 'Los recibos, tal como los publica mi LinkedIn. Seis de los siete llevan ID de credencial; el séptimo trae impresas en el propio certificado la sede y las fechas.',
     verLinkedIn: 'Verlo en LinkedIn',
+    verEscaneo: 'Abrir el escaneo',
     credencial: 'ID de la credencial',
     sinCred: 'Impreso en el certificado en vez de un ID',
     fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
@@ -2777,6 +3440,22 @@ const es: typeof en = {
       que: 'Una cosa que me llevé de Raúl Irabién',
       pista: 'Una línea sobre la conversación de los grupos estudiantiles.'
     },
+    entrevistaRendon: {
+      que: 'Una cosa que me llevé de Miguel Ángel Rendón',
+      pista: 'Una línea. Del episodio: el LinkedIn desde prepa, «el que brilla es la persona», o «por amor a tu yo futuro» — lo que más te haya servido.'
+    },
+    entrevistaMajo: {
+      que: 'Una cosa que me llevé de María José Cortés',
+      pista: 'Una línea. De la cinta: «sería mucho más curiosa» o «aprovechen el tiempo» — lo que más te haya servido.'
+    },
+    entrevistaDuran: {
+      que: 'Una cosa que me llevé de Manuel Durán',
+      pista: 'Una línea. Del episodio con Manuel Durán: lo que más te haya servido.'
+    },
+    consejoMarg: {
+      que: 'Una cosa que me llevé de su respuesta',
+      pista: 'Una línea: qué te contestó sobre estudiar en Canadá y qué hiciste con eso.'
+    },
     servirAnimales: {
       que: 'Los animalitos, con mis palabras',
       pista: 'Una o dos frases. Qué hiciste, no qué sentiste.'
@@ -2829,6 +3508,10 @@ const es: typeof en = {
     entrevistaMauricio: '',
     entrevistaSol: '',
     entrevistaRaul: '',
+    entrevistaRendon: '',
+    entrevistaMajo: '',
+    entrevistaDuran: '',
+    consejoMarg: '',
     servirAnimales: '',
     // Los quince de la ola 2.
     acadPromedio: '',

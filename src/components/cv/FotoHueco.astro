@@ -32,11 +32,11 @@ const { c, que, ratio = '4 / 3', class: cls } = Astro.props;
   .foto-hueco {
     display: flex; flex-direction: column; justify-content: center; gap: 6px;
     padding: var(--sp-4);
-    border: 1px dashed var(--cvh-tinta-3, var(--ink-3));
+    border: 0;
     /* Redondeado como las tarjetas del CV (brief 2026-08-28): la caja
        reserva el rectángulo de una foto que irá con el mismo radio. */
-    border-radius: 14px;
-    background: transparent;
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--cvh-tinta, #000) 2%, var(--cvh-papel, #fff));
     min-width: 0;
   }
   .foto-hueco-tag {
@@ -48,5 +48,23 @@ const { c, que, ratio = '4 / 3', class: cls } = Astro.props;
     font-size: var(--fs-caption);
     color: var(--cvh-tinta-2, var(--ink-2));
     overflow-wrap: anywhere;
+  }
+
+  /* AL IMPRIMIR, UNA LÍNEA (misma regla que `Hueco.astro`). La proporción
+     viene en el `style` del elemento y no se puede quitar sin `!important`,
+     así que se la vence con los límites, que mandan sobre `aspect-ratio`:
+     `max-height` acota el alto a tres renglones (a un renglón cortaba «The
+     certificate or diploma itself, when…» por la mitad) y `min-width: 100 %`
+     impide que la proporción, al perder el alto, se cobre el ancho (sin el
+     mínimo salía una columna de 23 px con las palabras partidas letra a
+     letra). */
+  @media print {
+    .foto-hueco {
+      display: block; padding: 0; border-radius: 0; background: none;
+      max-height: 4.8em; min-width: 100%; overflow: hidden;
+      font-family: var(--font-mono); font-size: 11px; line-height: 1.4; letter-spacing: .04em;
+    }
+    .foto-hueco-tag, .foto-hueco-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2, var(--ink-2)); }
+    .foto-hueco-tag::after { content: ' · '; }
   }
 </style>

@@ -1,0 +1,83 @@
+---
+// UN HUECO DE MATERIAL: el dato que no falta por escribir, falta por LLEGAR.
+//
+// `Hueco.astro` pide una FRASE a Jaime («lo que solo él puede escribir»).
+// Esto pide otra cosa: un enlace, una foto, un cargo, un minuto — material que
+// existe fuera del repo y que él tiene que pasar. La diferencia importa porque
+// la instrucción es distinta: uno se rellena escribiendo en `cv.ts`, el otro se
+// rellena dejando un archivo en una carpeta.
+//
+// SE VE QUE FALTA, igual que el otro: borde discontinuo y rótulo en mono. Un
+// hueco disimulado es peor que no tenerlo — alguien mandaría el enlace creyendo
+// que la página está terminada.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LA INSTRUCCIÓN NO SE PINTA, Y ESTO YA SE HABÍA DECIDIDO (2026-08-31)
+// ═══════════════════════════════════════════════════════════════════════════
+// Este componente nació pintando DOS cosas más: la pregunta entera dirigida a
+// Jaime y la ruta del repositorio donde dejar el archivo. Eran diez recuadros
+// en la página construida (cinco huecos × dos paneles de idioma) con textos
+// como «It goes here and not with the certifications, AS YOU ASKED», «AND YOU
+// TOLD ME you interviewed the people who came», «DID YOU ORGANIZE IT or were
+// you invited?» y, debajo, «↳ cv-material/pendiente/promedio/».
+//
+// Eso revierte una decisión escrita y razonada en `Hueco.astro`, verbatim:
+// «En la tercera pantalla del documento, un lector que no es Jaime leía una
+// nota de trabajo dirigida a Jaime, y el hueco pasaba de "esto falta" a "esto
+// es un formulario a medio llenar". El hueco honesto es una virtud; enseñar el
+// guion editorial no lo es.»
+//
+// Y aquí costaba dos cosas más que allí:
+//  · EL CV ESTÁ ESCRITO EN PRIMERA PERSONA («I write this, in my own words»).
+//    En estos recuadros el «yo» dejaba de ser Jaime y aparecía un «tú» que era
+//    él. Su lector es quien lo nomina para la Pearson, no él.
+//  · SE IMPRIMÍA. No hay `@media print` aquí y `.sin-imprimir` no alcanza a
+//    los capítulos 5 y 7, así que el PDF que Jaime entregue llevaba la ruta
+//    del repositorio dentro.
+// Y una tercera, la peor: la pregunta del podcast PUBLICABA DOS CARGOS SIN
+// CONFIRMAR de dos personas con nombre y apellido —Miguel Rendón y Manuel
+// Durán—, en los dos idiomas y también en papel. Decir «es una nota mía sin
+// confirmar» no deshace la publicación: quien lee ve dos nombres propios con
+// dos cargos institucionales atribuidos.
+//
+// ASÍ QUE EL HUECO PINTA LO QUE ES —el rótulo y QUÉ falta— y nada más. La
+// pregunta y la carpeta viven donde Jaime las lee: `cv-material/PENDIENTE.md`,
+// que es fuera del repositorio y no se publica. Es el mismo sitio que ya
+// nombraba el encabezado de este archivo, solo que ahora es el ÚNICO.
+import type { CvCopy } from '../../i18n/cv';
+
+interface Props { c: CvCopy; que: string; class?: string }
+const { c, que, class: cls } = Astro.props;
+---
+<div class:list={['hueco-mat', cls]} role="note" aria-label={`${c.materialHueco.tag}: ${que}`}>
+  <p class="hueco-mat-marca" aria-hidden="true">{c.materialHueco.tag}</p>
+  <p class="hueco-mat-que" aria-hidden="true">{que}</p>
+</div>
+
+<style>
+  .hueco-mat {
+    /* Tarjeta de tinta al 2 % (ola 4): sin raya discontinua, radio único. */
+    border: 0;
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--cvh-tinta, #000) 2%, var(--cvh-papel, #fff));
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 6px;
+    max-width: 34rem;
+  }
+  .hueco-mat-marca {
+    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--cvh-tinta-3);
+  }
+  .hueco-mat-que { font-weight: 600; color: var(--cvh-tinta); }
+
+  /* AL IMPRIMIR, UNA LÍNEA (misma regla que `Hueco.astro`): en el PDF estos
+     recuadros salían como tarjetas; en papel son una nota mono de 11 px. */
+  @media print {
+    .hueco-mat {
+      display: block; padding: 0; border-radius: 0; background: none; max-width: none;
+      font-family: var(--font-mono); font-size: 11px; line-height: 1.4; letter-spacing: .04em;
+    }
+    .hueco-mat-marca, .hueco-mat-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2); }
+    .hueco-mat-marca::after { content: ' · '; }
+  }
+</style>
