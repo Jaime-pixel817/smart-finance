@@ -1432,8 +1432,9 @@ const cifrasFranja = c.franja.sitioQ
     {/* ── LOS DOS BLOQUES VAN A DOS COLUMNAS (spec-ola4-sitios §C) ──────
          Antes eran una columna de 688 hasta el cierre: a 1440 el cuadro del
          Reto tenía 0.0 % de tinta en el 40 % derecho. Taller: el texto a la
-         izquierda; a la derecha el hueco de asistencia, la foto `mitad` con
-         las otras dos como miniaturas de 154, y los testimonios. Reto: el
+         izquierda; a la derecha el hueco de asistencia, la foto `mitad` (él
+         abriendo, vertical 332×590) con las tres de compañeros como
+         miniaturas de 154, y los testimonios. Reto: el
          texto a la izquierda; el plegable del calendario y la cartera, a la
          derecha. Todo lo del aparte baja a 15 px (regla del margen). */}
     <div class="bloques">
@@ -1465,16 +1466,19 @@ const cifrasFranja = c.franja.sitioQ
         <div class="aparte">
         <HuecoMaterial c={c} que={c.taller.asistenciaQue} />
         <h4 class="etiqueta">{c.taller.fotosH}</h4>
-        {/* 1500×2000 → 560×747 (3:4, sin recorte: son fotos que alguien encuadró).
-             Caras de compañeros MENORES: la publicación la confirma Jaime (informe). */}
+        {/* LA GRANDE es Jaime abriendo el taller (cuadro de su video IMG_6041,
+             1080×1920 → 664×1180, 9:16 sin recorte: una vertical no se
+             recorta a horizontal). En la caja `mitad` pinta 332×590. Las
+             tres de compañeros (1500×2000 → 560×747, 3:4, sin recorte: son
+             fotos que alguien encuadró) van de miniatura. Caras de compañeros
+             MENORES: Jaime dio el permiso el 2026-09-03 («que sí salgan mis
+             compañeros, solo que salga yo también»). */}
         <div class="aparte-fotos">
-          {c.taller.fotos.slice(0, 1).map((f) => (
-            <figure class="lote-fig caja-mitad">
-              <span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span>
-              <figcaption class="pie">{f.pie}</figcaption>
-            </figure>
-          ))}
-          {c.taller.fotos.slice(1).map((f) => (
+          <figure class="lote-fig caja-mitad">
+            <span class="recuerdo"><img src={foto(c.taller.aperturaFoto.id)} alt={c.taller.aperturaFoto.alt} width="664" height="1180" style="--nat-w:664" loading="lazy" decoding="async" /></span>
+            <figcaption class="pie">{c.taller.aperturaFoto.pie}</figcaption>
+          </figure>
+          {c.taller.fotos.map((f) => (
             <figure class="lote-fig caja-tarjeta">
               <a class="mini" href={foto(f.id)} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span></a>
               <figcaption class="pie">{f.pie}</figcaption>

@@ -603,8 +603,16 @@ const en = {
       { cita: '“Learning, and strategies.”', quien: 'a student who attended' }
     ],
     fotosH: 'That day',
-    // Las fotos pasan por build-photos.mjs (huella en el nombre); el orden es
-    // el de la página: el tema, la sala, y una pregunta desde el fondo.
+    // LA FOTO GRANDE (2026-09-03): Jaime abriendo el taller, junto a la
+    // diapositiva del título. Es un cuadro de su propio video (IMG_6041, a
+    // los 6 s), 1080×1920, y va en la caja `mitad` vertical (332×590), sin
+    // recortar. Jaime, textual: «que sí salgan mis compañeros, solo que salga
+    // yo también» — o sea: permiso para las fotos de compañeros que ya
+    // estaban, y él en la grande. Pasa por build-photos.mjs como las otras.
+    aperturaFoto: { id: 'cv-taller-apertura-jaime.webp', alt: 'Me, standing to the right of the projected title slide — “Taller de Finanzas Personales · Grupos Estudiantiles”, with the Smart Finance logo — in a classroom, one hand pointing at the screen', pie: 'Opening the workshop, next to the title slide.' },
+    // Las tres de compañeros pasan por build-photos.mjs (huella en el nombre)
+    // y van como miniaturas de 154 debajo; el orden es el de la página: el
+    // tema, la sala, y una pregunta desde el fondo.
     fotos: [
       { id: 'cv-taller-4603.webp', alt: 'Professor Gustavo, in a brown blazer and light-blue shirt, speaking in front of the projected slide “Metas Financieras”, with the S.M.A.R.T. method spelled out and a savings example in pesos', pie: 'The S.M.A.R.T. slide.' },
       { id: 'cv-taller-4573.webp', alt: 'The speaker from behind, facing the rows of blue auditorium seats full of students; a classmate films with a phone on a gimbal', pie: 'The room, from the front.' },
@@ -2761,6 +2769,7 @@ const es: typeof en = {
       { cita: '«Aprendizaje y estrategias.»', quien: 'un estudiante que asistió' }
     ],
     fotosH: 'Ese día',
+    aperturaFoto: { id: 'cv-taller-apertura-jaime.webp', alt: 'Yo, de pie a la derecha de la diapositiva proyectada del título —«Taller de Finanzas Personales · Grupos Estudiantiles», con el logo de Smart Finance— en un salón, con una mano señalando la pantalla', pie: 'Abriendo el taller, junto a la diapositiva del título.' },
     fotos: [
       { id: 'cv-taller-4603.webp', alt: 'El profesor Gustavo, con saco café y camisa azul claro, hablando frente a la diapositiva proyectada «Metas Financieras», con el método S.M.A.R.T. desglosado y un ejemplo de ahorro en pesos', pie: 'La diapositiva S.M.A.R.T.' },
       { id: 'cv-taller-4573.webp', alt: 'El ponente de espaldas, frente a las filas de butacas azules llenas de estudiantes; una compañera graba con un celular en un estabilizador', pie: 'El auditorio, desde el frente.' },
