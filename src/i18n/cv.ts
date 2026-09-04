@@ -68,6 +68,10 @@ const en = {
   // veces —la fecha y la palabra «cifra»— en un documento cuya tesis es que
   // cada afirmación lleva el suyo.
   dichoSuyo: 'My word, 2 September 2026. This page does not verify it: it is my claim.',
+  // El mismo recibo para lo que Jaime dijo el 3 de septiembre (el cargo de
+  // Majo, tal como él lo recuerda). No se reutiliza el de arriba: la fecha
+  // es parte del recibo.
+  dichoSuyo3: 'My word, 3 September 2026. This page does not verify it: it is my claim.',
   // Dos rótulos de traducción más (ola 4): la cinta de Rendón y de Majo es en
   // español, y las publicaciones de LinkedIn de Jaime son en inglés. Vacío =
   // no se pinta, como `aperturaTag`/`peTag`.
@@ -504,12 +508,13 @@ const en = {
   // ══════════════════════════════════════════════════════════════════════
   // Ni preguntas ni rutas: solo QUÉ falta. La pregunta entera vive en
   // `cv-material/PENDIENTE.md`, fuera del repo.
+  // El 2026-09-03 se cerraron tres: el enlace de Rendón (llegó el id de
+  // TikTok), el cargo de Durán (su titular de LinkedIn) y el de Majo (palabra
+  // de Jaime, con `dichoSuyo3`). Quedan la foto de Rendón, el video de Durán
+  // y el clip de Majo.
   materialQue: {
-    rendonLink: 'The link to this episode on TikTok',
     rendonFoto: 'A photo of the recording',
-    duranCargo: 'Manuel Durán’s title, as he states it himself',
     duranVideo: 'The video of the episode with Manuel Durán',
-    majoCargo: 'María José Cortés’s role, as she states it herself',
     majoClip: 'The clip of this conversation, when it is published'
   },
 
@@ -525,13 +530,17 @@ const en = {
   // RENDÓN tiene cinta (≈29 min 37 s en dos partes, transcritas por whisper)
   // y por eso va SIN marca de «palabra suya»: su recibo es la propia
   // grabación, donde él abre con «gracias por la invitación» (parte 1,
-  // 00:00:21). Los diez clips existen como ARCHIVOS; no se afirma que estén
+  // 00:00:21). EL EPISODIO ESTÁ PUBLICADO desde que Jaime mandó el enlace
+  // (2026-09-03): TikTok 7680977307850378512, autor smart.financee según el
+  // oEmbed; la tarjeta del capítulo 2 y el nodo del micrófono lo enlazan. Los
+  // diez clips existen como ARCHIVOS; de ellos no se afirma que estén
   // publicados. DURÁN no tiene cinta: su línea vive en su tarjeta con
-  // `dichoSuyo` y dos huecos (`materialQue.duranCargo`, `duranVideo`).
+  // `dichoSuyo` y un hueco (`materialQue.duranVideo`); su cargo sale de su
+  // titular de LinkedIn, con la fuente escrita.
   podcasts: {
     h: 'Episodes I organized myself',
-    rendon: 'I organized and hosted an episode with Miguel Ángel Rendón. The recording is done and transcribed, and ten clips have been cut from it.',
-    rendonFuente: 'From the recording itself: he opens with “gracias por la invitación” — thank you for the invitation.',
+    rendon: 'I organized and hosted an episode with Miguel Ángel Rendón. It is published on my TikTok; the recording is transcribed, and ten clips have been cut from it.',
+    rendonFuente: 'From the recording itself: he opens with “gracias por la invitación” — thank you for the invitation. The link on the card is the episode on my TikTok, @smart.financee.',
     clipsH: 'The ten clips',
     clips: 'Ten clips are cut from the episode: my future self · LinkedIn without fear · the myth of starting a business · “too many finance graduates” · it is the person who shines · the welcome · a real day in finance · AI in finance · the hardest decision · myths, true or false.'
   },
@@ -1218,36 +1227,52 @@ const en = {
       // Santa Fe, Ciudad de México, Toluca y el Estado de México.» ⚠️ whisper
       // escribió «EGA de»; el LEEME lo corrige a EGADE (la escuela de negocios
       // de posgrado del Tec). Es la única palabra del cargo que no está
-      // literal en la cinta, y va en la lista de preguntas a Jaime. HASTA QUE
-      // ÉL CONFIRME, EL DOCTORADO NO SE PUBLICA en ningún idioma (estaba en
-      // `tipo` con «EGADE» escrito como si fuera literal); el `rol` sí, que
-      // ese es palabra por palabra. Cuando confirme, vuelve a `tipo`, no a
-      // `rol` (el rótulo corto). `alt` vacío: no hay foto de la grabación.
+      // literal en la cinta. El 424d0b0 sacó el doctorado de `tipo` en los dos
+      // idiomas hasta tener una fuente con la palabra escrita; LLEGÓ EL
+      // 2026-09-03: la descripción pública del episodio en TikTok
+      // (7680977307850378512, autor smart.financee, leída por oEmbed) dice
+      // «doctor en Ciencias Financieras por EGADE Business School y director
+      // regional de Contabilidad y Finanzas del Tec de Monterrey para CDMX,
+      // Santa Fe, Toluca y Estado de México». Con eso el doctorado vuelve a
+      // `tipo` (no a `rol`, el rótulo corto) y `tipo` nombra las dos
+      // fuentes. `alt` vacío: sigue sin haber foto de la grabación.
       rendon: {
         nombre: 'Miguel Ángel Rendón',
         rol: 'Regional director of the Department of Accounting and Finance, Tec de Monterrey',
-        tipo: 'As he introduces himself on the recording: regional director for the Mexico City, Santa Fe, Toluca and State of Mexico region. An episode of my podcast that I organized and hosted myself; he opens by thanking me for the invitation.',
+        tipo: 'As he introduces himself on the recording, and as the episode’s own description on TikTok puts it: PhD in Financial Sciences from EGADE Business School, and regional director for the Mexico City, Santa Fe, Toluca and State of Mexico region. An episode of my podcast that I organized and hosted myself; he opens by thanking me for the invitation.',
         alt: ''
       },
-      // ── MARÍA JOSÉ CORTÉS («Majo», «la miss»): grabada, sin cargo ─────
+      // ── MARÍA JOSÉ CORTÉS («Majo», «la miss»): grabada, cargo de memoria ─
       // Entrevista de 2:09 (IMG_4424.MOV, transcrita). En la cinta solo se
-      // dice su nombre; el cargo NO se inventa y va como hueco de material.
+      // dice su nombre. El cargo lo puso Jaime el 2026-09-03, textual: «el
+      // cargo de la miss no sé muy bien, es maestra en el Tecnológico de
+      // Monterrey en business creo». Se escribe SOLO lo que sostiene
+      // —maestra en el Tec— con su duda dentro de la frase y `dichoSuyo3`
+      // debajo; «business» no se escribe, porque él mismo dice «creo».
       // Que la organizó Jaime es afirmación suya (2026-09-02). DÓNDE se grabó
       // no está ni en la cinta ni en OLA4 §8: decía «at my school» / «en mi
       // prepa» y era un adorno; fuera.
       majo: {
         nombre: 'María José Cortés',
-        rol: '',
-        tipo: 'A conversation I organized and recorded — two questions. Her role is not said on the recording, so this page does not guess it.',
+        rol: 'A teacher at Tecnológico de Monterrey — that is how I remember it; I have not confirmed the exact title',
+        tipo: 'A conversation I organized and recorded — two questions. Her title is not said on the recording.',
         alt: 'María José Cortés, long dark hair and a cream jacket, seated beside a desk with an open laptop in a Tec classroom'
       },
       // MANUEL DURÁN (ola 4): palabra de Jaime del 2026-09-02, sin cinta, sin
-      // enlace, sin foto y SIN CARGO («director de negocios» está en su nota de
-      // trabajo, sin confirmar). La tarjeta lleva `dichoSuyo` y dos huecos.
+      // enlace y sin foto. EL CARGO (2026-09-03) sale del titular de su perfil
+      // de LinkedIn (linkedin.com/in/manuel-duran-24058a5, perfil de 2.º grado
+      // leído con la sesión de Jaime): «Experienced and accomplished
+      // production site manager/academic with a unique combination of
+      // management, manufacturing & financial expertise …», Tecnológico de
+      // Monterrey · University of Bristol. «Director de negocios», que era lo
+      // que Jaime recordaba, NO aparece ahí y no se escribe. El `rol` resume
+      // el titular y lo dice; `fuente` da el perfil. La tarjeta sigue con
+      // `dichoSuyo` (lo de grabado y no publicado) y el hueco del video.
       duran: {
         nombre: 'Manuel Durán',
-        rol: '',
-        tipo: 'An episode of my podcast that I organized. It is recorded; the video is not published yet.'
+        rol: 'Production site manager and academic (his LinkedIn headline)',
+        tipo: 'An episode of my podcast that I organized. It is recorded; the video is not published yet.',
+        fuente: 'His title: the headline of his LinkedIn profile, linkedin.com/in/manuel-duran-24058a5'
       },
       raul: { nombre: 'Raúl Irabién', rol: 'President of Student Groups', tipo: '' },
       sol: {
@@ -2539,6 +2564,7 @@ const es: typeof en = {
   cifraSuya: 'Mi cifra, del 29 de agosto de 2026. Esta página no la cuenta: es mi afirmación.',
   // Ver la nota del bloque inglés: el podcast no es una cifra ni es del 29.
   dichoSuyo: 'Palabra mía, del 2 de septiembre de 2026. Esta página no lo verifica: es mi afirmación.',
+  dichoSuyo3: 'Palabra mía, del 3 de septiembre de 2026. Esta página no lo verifica: es mi afirmación.',
   cintaTag: '',
   postTag: 'De mi propia publicación en LinkedIn, escrita en inglés. Esto es una traducción; el original está en el panel en inglés.',
 
@@ -2680,18 +2706,15 @@ const es: typeof en = {
   },
 
   materialQue: {
-    rendonLink: 'El enlace de este episodio en TikTok',
     rendonFoto: 'Una foto de la grabación',
-    duranCargo: 'El cargo de Manuel Durán, como lo diga él mismo',
     duranVideo: 'El video del episodio con Manuel Durán',
-    majoCargo: 'El cargo de María José Cortés, como lo diga ella misma',
     majoClip: 'El clip de esta conversación, cuando se publique'
   },
 
   podcasts: {
     h: 'Episodios que organicé yo',
-    rendon: 'Organicé y conduje un episodio con Miguel Ángel Rendón. La grabación está hecha y transcrita, y de ella hay diez clips cortados.',
-    rendonFuente: 'De la propia grabación: él abre con «gracias por la invitación».',
+    rendon: 'Organicé y conduje un episodio con Miguel Ángel Rendón. Está publicado en mi TikTok; la grabación está transcrita y de ella hay diez clips cortados.',
+    rendonFuente: 'De la propia grabación: él abre con «gracias por la invitación». El enlace de la tarjeta es el episodio en mi TikTok, @smart.financee.',
     clipsH: 'Los diez clips',
     clips: 'Del episodio hay diez clips cortados: mi yo futuro · LinkedIn sin miedo · el mito de emprender · «muchos financieros» · brilla la persona · la bienvenida · un día real en finanzas · la IA en finanzas · la decisión difícil · mitos, verdadero o falso.'
   },
@@ -2958,19 +2981,20 @@ const es: typeof en = {
       rendon: {
         nombre: 'Miguel Ángel Rendón',
         rol: 'Director regional del Departamento de Contabilidad y Finanzas, Tec de Monterrey',
-        tipo: 'Como se presenta él en la grabación: director regional para la región Ciudad de México, Santa Fe, Toluca y Estado de México. Un episodio de mi podcast que organicé y conduje yo; él abre dando las gracias por la invitación.',
+        tipo: 'Como se presenta él en la grabación, y como lo dice la propia descripción del episodio en TikTok: doctor en Ciencias Financieras por EGADE Business School, y director regional para la región Ciudad de México, Santa Fe, Toluca y Estado de México. Un episodio de mi podcast que organicé y conduje yo; él abre dando las gracias por la invitación.',
         alt: ''
       },
       majo: {
         nombre: 'María José Cortés',
-        rol: '',
-        tipo: 'Una conversación que organicé y grabé — dos preguntas. Su cargo no se dice en la grabación, así que esta página no lo adivina.',
+        rol: 'Maestra en el Tecnológico de Monterrey — así lo recuerdo; no he confirmado el cargo exacto',
+        tipo: 'Una conversación que organicé y grabé — dos preguntas. Su cargo no se dice en la grabación.',
         alt: 'María José Cortés, de pelo largo oscuro y saco crema, sentada junto a un escritorio con una laptop abierta en un salón del Tec'
       },
       duran: {
         nombre: 'Manuel Durán',
-        rol: '',
-        tipo: 'Un episodio de mi podcast que organicé. Ya se grabó; el video todavía no está publicado.'
+        rol: 'Gerente de planta y académico (según el titular de su LinkedIn)',
+        tipo: 'Un episodio de mi podcast que organicé. Ya se grabó; el video todavía no está publicado.',
+        fuente: 'Su cargo: el titular de su perfil de LinkedIn, linkedin.com/in/manuel-duran-24058a5'
       },
       raul: { nombre: 'Raúl Irabién', rol: 'Presidente de Grupos Estudiantiles', tipo: '' },
       sol: {

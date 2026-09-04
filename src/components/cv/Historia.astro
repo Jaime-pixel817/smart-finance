@@ -376,12 +376,12 @@ const citas = [
   { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null, url: urlPodcast, verLabel: c.mic.ver.episodio },
   // ── MIGUEL ÁNGEL RENDÓN (ola 4): el segundo episodio con verbo de
   // organización en su propia fuente (la cinta: «gracias por la invitación»).
-  // Sin `img` ni `video` —la carpeta de fotos de la grabación está vacía— y
-  // con `tiktokId: null` mientras Jaime no mande el enlace: la tarjeta lleva
-  // el hueco de la foto (`fotosPend.rendon`) y el hueco del enlace
-  // (`materialQue.rendonLink`), y NADA dice «publicado». Cuando llegue el
-  // enlace, se escribe aquí el id y el nodo del micrófono en microfono.mjs.
-  { key: 'rendon' as const, img: null, alt: '', hueco: 'entrevistaRendon' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
+  // Sin `img` ni `video` —la carpeta de fotos de la grabación sigue vacía—:
+  // la tarjeta lleva el hueco de la foto (`fotosPend.rendon`). EL ENLACE
+  // LLEGÓ EL 2026-09-03 (Jaime; oEmbed: autor smart.financee), así que
+  // `tiktokId` es el mismo id que el nodo del micrófono en microfono.mjs y
+  // la tarjeta enlaza como las demás; el hueco del enlace se fue con él.
+  { key: 'rendon' as const, img: null, alt: '', hueco: 'entrevistaRendon' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7680977307850378512' as string | null },
   // ── MAJO Y DURÁN (OLA4 §8: «deja un espacio para el de la miss … y el de
   // Manuel Durán»): tarjetas del MISMO tamaño que la de Rendón, con lo que
   // hay. Majo tiene cinta (IMG_4424, 2:09, dos preguntas) y sin clip
@@ -1109,6 +1109,9 @@ const cifrasFranja = c.franja.sitioQ
             <p class="cita-nombre">{per.nombre}</p>
             {per.rol && <p class="cita-rol">{per.rol}</p>}
             {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
+            {/* De dónde sale el cargo cuando no lo dice una cinta: Durán, el
+                 titular de su LinkedIn (2026-09-03). */}
+            {'fuente' in per && per.fuente && <p class="meta-mono fuente-carta">{per.fuente}</p>}
             {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
                  no: en cuanto Jaime escriba la frase este renglón es lo único
                  que separa «lo que me llevé» de «lo que me dijeron». */}
@@ -1119,15 +1122,13 @@ const cifrasFranja = c.franja.sitioQ
                  el único dato que le falta a ESTA pieza, y el enlace de
                  arriba abre 30 minutos de emisión sin decir en cuál empieza. */}
             {rt.key === 'podcast' && <HuecoMaterial c={c} que={c.mic.minutoQue} class="cita-hueco-mat" />}
-            {/* Y el enlace de Rendón, mientras no llegue: la tarjeta dice qué
-                 falta en vez de fingir un enlace. */}
-            {rt.key === 'rendon' && !rt.tiktokId && <HuecoMaterial c={c} que={c.materialQue.rendonLink} class="cita-hueco-mat" />}
-            {/* Majo: cinta sí, clip no; su cargo no se dice en la cinta. Durán: palabra
-                 de Jaime (2026-09-02) y nada más — por eso lleva `dichoSuyo`. */}
-            {rt.key === 'majo' && <HuecoMaterial c={c} que={c.materialQue.majoCargo} class="cita-hueco-mat" />}
+            {/* Majo: cinta sí, clip no; su cargo es como lo recuerda Jaime
+                 (2026-09-03) — por eso lleva `dichoSuyo3`. Durán: que está
+                 grabado y sin publicar es palabra de Jaime (2026-09-02) — por
+                 eso lleva `dichoSuyo`; su cargo ya no es hueco (LinkedIn). */}
+            {rt.key === 'majo' && <p class="meta-mono cifra-suya-marca">{c.dichoSuyo3}</p>}
             {rt.key === 'majo' && <HuecoMaterial c={c} que={c.materialQue.majoClip} class="cita-hueco-mat" />}
             {rt.key === 'duran' && <p class="meta-mono cifra-suya-marca">{c.dichoSuyo}</p>}
-            {rt.key === 'duran' && <HuecoMaterial c={c} que={c.materialQue.duranCargo} class="cita-hueco-mat" />}
             {rt.key === 'duran' && <HuecoMaterial c={c} que={c.materialQue.duranVideo} class="cita-hueco-mat" />}
             {/* LO QUE DIJERON ELLOS, verbatim de la cinta y plegado: son palabras
                  de un tercero (<blockquote> + <cite>, como las cartas), nunca
@@ -1185,8 +1186,10 @@ const cifrasFranja = c.franja.sitioQ
          Rendón tiene cinta (≈29 min 37 s, transcrita; diez clips cortados):
          va SIN marca de «palabra suya» y con su recibo de la propia grabación.
          Los clips son INVENTARIO —archivos que existen, no publicaciones— y
-         van plegados; el día que tengan enlace dejan de ser texto. Durán vive
-         en su tarjeta de arriba, con `dichoSuyo` y sus dos huecos. */}
+         van plegados; el día que tengan enlace dejan de ser texto. El
+         episodio entero SÍ está publicado (TikTok, 2026-09-03) y lo enlaza
+         su tarjeta de arriba. Durán vive en la suya, con `dichoSuyo`, su
+         cargo de LinkedIn y el hueco del video. */}
     <div class="podcasts">
       <h3 class="t-h3 ens-h">{c.podcasts.h}</h3>
       <p class="cap-frases">{c.podcasts.rendon}</p>
