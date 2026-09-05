@@ -426,6 +426,13 @@ const en = {
     // `{n}` lo rellena el componente, como `piezas`: escrito a mano decía
     // «eleven» cuando ya eran catorce.
     indiceAria: 'What the microphone opens: {n} pieces',
+    // ── EL CARRUSEL DE LA OLA 5 ──────────────────────────────────────────
+    // Nombre accesible de la columna de tarjetas negras. Dice el EJE porque
+    // sin verlo no se sabe por dónde se mueve: en escritorio la pista es
+    // vertical (tres tarjetas de 482 × 288 en una columna de 896) y por debajo
+    // de 1312 px se pone horizontal. Es la misma cortesía que ya lleva el
+    // carrusel de citas del capítulo de las conversaciones.
+    carruselAria: 'The conversations I recorded and the advice I asked for, one card each. The list scrolls; the buttons below move it three at a time.',
     // Lo que se lee sin JavaScript, sin WebGL o con «menos movimiento»: la
     // lista de abajo ES el micrófono. No se pierde nada salvo el dibujo.
     sinLienzo: 'The drawing needs WebGL. The list is the same {n} pieces.',
@@ -2674,6 +2681,7 @@ const es: typeof en = {
     lede: 'Cada punto abre una grabación, una publicación o la ficha que dice qué falta. Las personas son el liderazgo: a quién conseguí sentar conmigo. Dos son consejos que pedí, no entrevistas, y lo dicen. Los países son la voz: lo que explico a cámara — y México es el que me eligieron para representar. No son lo mismo, y esta página no finge que lo sean.',
     sigue: 'Todo lo de abajo es la versión larga. Nada de aquí arriba sustituye a un capítulo.',
     indiceAria: 'Lo que abre el micrófono: {n} piezas',
+    carruselAria: 'Las conversaciones que grabé y los consejos que pedí, una tarjeta cada una. La lista se desplaza; los botones de abajo la mueven de tres en tres.',
     sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas {n} piezas.',
     grupoPersonas: 'Personas que grabé',
     grupoExperiencias: 'Gente a la que pedí consejo',

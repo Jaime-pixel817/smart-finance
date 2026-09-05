@@ -106,7 +106,8 @@ import Hueco from './Hueco.astro';
 import FotoHueco from './FotoHueco.astro';
 import Microfono from './Microfono.astro';
 import HuecoMaterial from './HuecoMaterial.astro';
-import { ancla, NODOS } from '../../lib/cv/microfono.mjs';
+import { ancla, NODOS, CLIP_PAIS } from '../../lib/cv/microfono.mjs';
+import { attrsClip } from '../../lib/cv/clips.mjs';
 import SitioVivo from './SitioVivo.astro';
 import Rail from './Rail.astro';
 import { SYMBOLS } from '../../data/symbols';
@@ -311,11 +312,11 @@ const estado = (rep.meta.status || 'draft') as string;
 // página — CLS gratuito.
 const ensena = [
   { pieza: null as string | null, id: '7678749901433474324', titulo: c.tiktok.videos.jpmvisit, poster: '/assets/cv/cv-poster-jpmvisit.jpg', clip: '/assets/cv/cv-clip-jpmvisit.mp4' as string | null, w: 360, h: 640, img: null as string | null, iw: 0, ih: 0, carrusel: false, nota: null as string | null, ancha: false },
-  { pieza: 'mexico', id: '7658163945479408917', titulo: c.tiktok.videos.nus, poster: '/assets/cv/cv-poster-nus.jpg', clip: '/assets/cv/cv-clip-nus.mp4', w: 640, h: 360, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: true },
-  { pieza: 'singapur', id: '7655111359419387157', titulo: c.tiktok.videos.singapur, poster: '/assets/cv/cv-poster-singapur.jpg', clip: '/assets/cv/cv-clip-singapur.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
-  { pieza: 'japon', id: '7653328531694439700', titulo: c.tiktok.videos.japon, poster: '/assets/cv/cv-poster-japon.jpg', clip: '/assets/cv/cv-clip-japon.mp4', w: 360, h: 640, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { pieza: 'mexico', id: '7658163945479408917', titulo: c.tiktok.videos.nus, ...CLIP_PAIS.mexico, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: true },
+  { pieza: 'singapur', id: '7655111359419387157', titulo: c.tiktok.videos.singapur, ...CLIP_PAIS.singapur, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
+  { pieza: 'japon', id: '7653328531694439700', titulo: c.tiktok.videos.japon, ...CLIP_PAIS.japon, img: null, iw: 0, ih: 0, carrusel: false, nota: null, ancha: false },
   { pieza: null, id: '7654312797160934676', titulo: c.tiktok.videos.tokio, poster: null, clip: null, w: 0, h: 0, img: foto('cv-tt-tokio.webp'), iw: 720, ih: 960, carrusel: true, nota: null, ancha: false },
-  { pieza: 'canada', id: '7664460671727258900', titulo: c.tiktok.videos.canada, poster: null, clip: null, w: 0, h: 0, img: null, iw: 0, ih: 0, carrusel: true, nota: c.tiktok.canadaNota, ancha: false }
+  { pieza: 'canada', id: '7664460671727258900', titulo: c.tiktok.videos.canada, ...CLIP_PAIS.canada, img: null, iw: 0, ih: 0, carrusel: true, nota: c.tiktok.canadaNota, ancha: false }
 ];
 const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 
@@ -328,12 +329,9 @@ const urlVideo = (id: string) => `${TIKTOK}/video/${id}`;
 // mueve cv-clips.ts; los demás llevan sonido y los arranca una persona.
 // `w`/`h` porque ya no todos son 9:16: el de la NUS va enderezado (16:9) y
 // la clase ancha le da su caja (aspect-ratio en el CSS, cero CLS).
-const attrsClip = (src: string, etiqueta: string, bucle = false, w = 360, h = 640) => ({
-  class: 'clip-video' + (w > h ? ' clip-video-ancho' : ''), src,
-  width: String(w), height: String(h),
-  controls: true, playsinline: true, preload: 'none', 'aria-label': etiqueta,
-  ...(bucle ? { muted: true, loop: true, 'data-en-vista': '' } : {})
-});
+// (la función vive en `src/lib/cv/clips.mjs` desde la ola 5: el módulo del
+//  micrófono sirve los mismos clips y dos copias de estos atributos es como se
+//  pierde la regla de los 109 KB en una de las dos.)
 
 // ------------------------------------------- las conversaciones (c4)
 // Diez tarjetas para el carrusel de citas (la forma de Ondo: tarjeta negra,

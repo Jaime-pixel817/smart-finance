@@ -312,7 +312,15 @@
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden;
 }
 .sf-tarjeta .sf-credito { margin: 0; font: var(--sf-t-rotulo); color: var(--sf-oscuro-tinta); }
-.sf-tarjeta .sf-credito span { display: block; font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2); }
+/* `> span` y no `span` a secas, y esto está COMPROBADO, no supuesto: el
+   nombre de una tarjeta es un ENLACE a la pieza y lleva dentro su ↗; con el
+   selector suelto esa flecha se vuelve un bloque y se cae a su propio
+   renglón — se vio en la primera versión de la tarjeta del micrófono, que al
+   final se armó con su propia estructura (el nombre manda y va arriba) y ya
+   no usa esta clase. La corrección se queda porque el molde sí se va a usar:
+   las doce tarjetas del capítulo de las conversaciones lo esperan en la ola
+   siguiente, y ahí el nombre también lleva su ↗. El hijo directo es el cargo. */
+.sf-tarjeta .sf-credito > span { display: block; font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2); }
 .sf-pista {
   display: flex; gap: var(--sf-canal); margin: 0; padding: 0; list-style: none;
   overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;

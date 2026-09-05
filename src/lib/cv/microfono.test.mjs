@@ -216,10 +216,27 @@ test('mic: los catorce nodos tienen ancla propia en el capítulo', () => {
   assert.deepEqual(sinAncla, [], `nodos sin dónde aterrizar: ${sinAncla.join(', ')}`);
 });
 
-test('mic: el enlace de bajada usa el ancla de la pieza y no el del capítulo', () => {
-  assert.ok(!/mic-baja"\s+href=\{`#\$\{p\}-cap-/.test(MIC),
+// ── LA PRUEBA CAMBIÓ DE FORMA EN LA OLA 5, NO DE INTENCIÓN ───────────────
+// Antes exigía que el «En el capítulo ↓» usara `f.ancla`. Ese renglón ya no
+// existe: el índice de texto de catorce fichas se convirtió en el carrusel de
+// tarjetas negras (una ficha = una tarjeta), y los catorce «En el capítulo ↓»
+// se fueron con él — el guardián del sistema los contaba como el rótulo
+// repetido más caro del documento («In the chapter ↓» ×14).
+// LO QUE LA PRUEBA PROTEGÍA SIGUE PROTEGIDO, y es lo que costó medirlo: los
+// enlaces del módulo apuntaban todos a `#<idioma>-cap-8`, y sobre `dist` a
+// 1440×900 eso dejaba las fichas de persona 757 px por debajo de su destino y
+// los vídeos de país entre 3 165 y 4 620. Un índice que aterriza cinco
+// pantallas antes de lo que promete confirma el «se me hizo infinito» en vez
+// de atacarlo. Así que la regla que se comprueba es la de fondo, y ahora vale
+// para CUALQUIER enlace del módulo: nunca al capítulo, siempre a la pieza.
+test('mic: ningún enlace del módulo apunta a un capítulo; los internos van a la pieza', () => {
+  assert.ok(!/#\$\{p\}-cap-/.test(MIC),
     'el micrófono volvió a apuntar al capítulo en vez de a la pieza');
-  assert.ok(MIC.includes('href={`#${f.ancla}`}'), 'el enlace de bajada no usa `f.ancla`');
+  // El destino interno se arma UNA vez, en el mapeo de fichas, con `ancla()`
+  // — la misma función con la que `Historia.astro` pinta el ancla, para que no
+  // puedan separarse.
+  assert.ok(MIC.includes("ancla(p, n.id)"), 'el destino interno ya no sale de `ancla()`');
+  assert.ok(MIC.includes('href={f.href}'), 'la tarjeta ya no enlaza el `href` de la ficha');
 });
 
 test('mic: los enlaces internos viajan por el arreglo del índice, no como ancla nativa', () => {
@@ -229,7 +246,7 @@ test('mic: los enlaces internos viajan por el arreglo del índice, no como ancla
   // selector que intercepta el clic (ver la cabecera de Cv.astro): los «En el
   // capítulo ↓» y los NODOS internos del lienzo.
   const CV_LAYOUT = fs.readFileSync(path.join(RAIZ, 'src/layouts/Cv.astro'), 'utf8');
-  assert.ok(CV_LAYOUT.includes('a.mic-baja[href^="#"]'),
+  assert.ok(CV_LAYOUT.includes('a.mic-fila-a[href^="#"]'),
     'los enlaces del micrófono no pasan por el interceptor de `Cv.astro`');
   assert.ok(CV_LAYOUT.includes('a.nodo[href^="#"]'),
     'los nodos internos del lienzo no pasan por el interceptor de `Cv.astro`');

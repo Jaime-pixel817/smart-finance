@@ -126,13 +126,28 @@ const TOL = 1;                                              // ±1 px
 // Los que NO bajaron son la deuda declarada de la ola siguiente, que es la de
 // los CAPÍTULOS: las 12 tarjetas oscuras, las 42 fotos fuera de medida, las 39
 // por debajo del piso, las 50 notas, los 24 huecos y los 9 rótulos repetidos.
+// ── LOS TOPES QUE BAJÓ EL PASO DEL MICRÓFONO (2026-09-04) ─────────────────
+// Tres, y los tres los bajó el mismo cambio: el índice de texto de catorce
+// fichas del módulo del micrófono se convirtió en el carrusel de diez tarjetas
+// negras de 482 × 288 que Jaime pidió.
+//   fotos  42 → 41   el lienzo pasa de 353 a 782, que SÍ es un ancho del
+//                    sistema (§4). Es la primera imagen del CV que lo cumple.
+//   pasos 132 → 91   las catorce fichas del índice llevaban `gap: 2px` con
+//                    cuatro hijos cada una: 42 distancias que no eran un paso,
+//                    en un solo bloque. Hoy el módulo entero solo usa
+//                    16 · 44 entre bloques y 8 · 16 dentro.
+//   repes   9 → 7    se fueron «In the chapter ↓» ×14 (uno por ficha) y
+//                    «TikTok» ×11 (la fuente repetida en cada renglón del
+//                    índice; la tarjeta la dice UNA vez y ya no llega a ocho).
+// `huecoPx` NO baja y se queda en 1 000 sobre 924 medidos: es la única cuenta
+// que se mueve entre corridas, y el margen relativo se conserva.
 const TOPES = {
   tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
   tarjetas: 12,    // las 12 tarjetas oscuras: 880 de ancho y 10 alturas
   parejas: 0,      // .sf-par mal formada — nace en cero y se queda en cero
-  fotos: 42,       // imágenes con un ancho que no es del sistema
+  fotos: 41,       // imágenes con un ancho que no es del sistema
   pisos: 39,       // imágenes por debajo de 308 px (la moda es 154)
-  pasos: 132,      // distancias que no son un paso del sistema
+  pasos: 91,       // distancias que no son un paso del sistema
   // 5 → 4 EN EL PASO DE SAFARI (2026-09-04). La franja que se fue es la de la
   // pista de la intro: `172 px vacíos desde y=900` a 1440 y 200 px a 1920, que
   // eran las filas de la pista por debajo de la caja del lienzo clavado. No se
@@ -150,7 +165,7 @@ const TOPES = {
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
   notas: 50,       // bloques de nota a la vista (el sistema admite 59)
   pendientes: 24,  // huecos «TO WRITE» declarados
-  repes: 9,        // rótulos que salen 8 veces o más («↓» ×18, «To write» ×16)
+  repes: 7,        // rótulos que salen 8 veces o más («↓» ×19, «To write» ×16)
   apagados: 0      // bloques que nunca llegan a verse — el fallo de Safari 16.6
 };
 // ═══════════════════════════════════════════════════════════════════════════
@@ -326,7 +341,13 @@ const SONDA = (lang) => {
   // Entre HERMANOS consecutivos. «Entre bloques» = hijos directos de una
   // `section.cap`; lo demás es «dentro». Los solapes (negativos) y lo que
   // está en la misma línea (mismo `top`) no son aire y no se cuentan.
-  const secciones = [...raiz.querySelectorAll('section.cap, .sf-doc, .sf-util')];
+  // `.sf-ancho` ENTRA EN LA LISTA (ola 5). §3.2 declara TRES pistas —lectura
+  // 653, útil 980 y marco ancho 1280— y `cv.css` ya le da a las tres el mismo
+  // aire entre bloques (`.sf-doc > * + *, .sf-ancho > * + * { 44px }`). Faltaba
+  // aquí: sin ella, los 44 px que el sistema MANDA entre los bloques del marco
+  // ancho se medían con la vara de «dentro» (0·8·16·20) y se contaban como
+  // infracción. El módulo del micrófono es el primero que vive en esa pista.
+  const secciones = [...raiz.querySelectorAll('section.cap, .sf-doc, .sf-util, .sf-ancho')];
   const bloques = new Set(secciones);
   const contenedores = new Set([raiz, ...raiz.querySelectorAll('*')]);
   for (const cont of contenedores) {
@@ -361,10 +382,43 @@ const SONDA = (lang) => {
   const FILA = 4;
   const filas = Math.ceil(alto / FILA);
   const mapa = new Uint8Array(filas);
-  const marca = (r) => {
+  // ── LO QUE ASOMA POR UN SCROLLER NO ES TINTA, Y ESTO LO DESCUBRIÓ EL
+  //    CARRUSEL DEL MICRÓFONO (ola 5) ───────────────────────────────────────
+  // `getBoundingClientRect` devuelve la caja REAL de un elemento aunque su
+  // antepasado con `overflow` lo esté recortando. La pista de tarjetas mide
+  // 896 px de alto y contiene 3 024 px de tarjetas: sin recortar, las siete
+  // tarjetas que no se ven marcaban 2 128 px de tinta HACIA ABAJO, por encima
+  // de la fila de países y del capítulo siguiente — o sea que el guardián
+  // habría dado por llena una franja vacía de otro bloque. Una vara que se
+  // deja engañar por un scroller no mide el documento: mide el DOM.
+  // Se recorta contra CADA antepasado que recorte, no solo el primero.
+  const cajaRecorte = (el) => {
+    let c = null;
+    for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      const recorta = (v) => v && v !== 'visible';
+      if (!recorta(cs.overflowX) && !recorta(cs.overflowY)) continue;
+      const r = n.getBoundingClientRect();
+      c = c ? {
+        left: Math.max(c.left, r.left), right: Math.min(c.right, r.right),
+        top: Math.max(c.top, r.top), bottom: Math.min(c.bottom, r.bottom)
+      } : { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+    }
+    return c;
+  };
+  const marca = (r, el) => {
     if (r.width <= 0 || r.height <= 0) return;
-    if (r.right <= colI || r.left >= colF) return;   // fuera de la columna útil
-    const t = Math.floor((r.top + Y) / FILA), b = Math.ceil((r.bottom + Y) / FILA);
+    let { left, right, top, bottom } = r;
+    if (el) {
+      const c = cajaRecorte(el);
+      if (c) {
+        left = Math.max(left, c.left); right = Math.min(right, c.right);
+        top = Math.max(top, c.top); bottom = Math.min(bottom, c.bottom);
+        if (right <= left || bottom <= top) return;   // recortado del todo
+      }
+    }
+    if (right <= colI || left >= colF) return;   // fuera de la columna útil
+    const t = Math.floor((top + Y) / FILA), b = Math.ceil((bottom + Y) / FILA);
     for (let i = Math.max(0, t); i < Math.min(filas, b); i++) mapa[i] = 1;
   };
   const it2 = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
@@ -374,11 +428,11 @@ const SONDA = (lang) => {
     const el = n.parentElement;
     if (!el || plegado(el) || !seVe(el)) continue;
     rango.selectNodeContents(n);
-    for (const r of rango.getClientRects()) marca(r);
+    for (const r of rango.getClientRects()) marca(r, el);
   }
   for (const el of raiz.querySelectorAll('img, video, canvas, svg, hr, picture, iframe')) {
     if (plegado(el) || !seVe(el)) continue;
-    marca(el.getBoundingClientRect());
+    marca(el.getBoundingClientRect(), el);
   }
   for (const el of raiz.querySelectorAll('*')) {
     if (plegado(el) || !seVe(el)) continue;
@@ -388,7 +442,7 @@ const SONDA = (lang) => {
     const img = cs.backgroundImage && cs.backgroundImage !== 'none';
     const borde = ['Top', 'Right', 'Bottom', 'Left'].some((l) =>
       parseFloat(cs['border' + l + 'Width']) > 0 && cs['border' + l + 'Style'] !== 'none');
-    if (fondo || img || borde) marca(el.getBoundingClientRect());
+    if (fondo || img || borde) marca(el.getBoundingClientRect(), el);
   }
   let tinta = 0;
   for (let i = 0; i < filas; i++) if (mapa[i]) tinta++;

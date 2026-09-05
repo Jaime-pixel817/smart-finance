@@ -450,7 +450,7 @@ export function crearMotor(canvas: HTMLCanvasElement, n: number): Motor {
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform1f(U.uIn, m.intro);
       gl.uniform1f(U.uT, m.t);
-      gl.uniform1f(U.uPx, (m.h / 340) * 2.05 * m.fit * m.dpr);
+      gl.uniform1f(U.uPx, (m.h / 340) * PX_REF * Math.sqrt(N_REF / n) * GROSOR * m.fit * m.dpr);
       gl.uniform2f(U.uRy, Math.cos(m.rotY), Math.sin(m.rotY));
       gl.uniform2f(U.uRx, Math.cos(m.rotX), Math.sin(m.rotX));
       gl.uniform2f(U.uSc, (asp > 1 ? 1 / asp : 1) * m.fit, (asp > 1 ? 1 : asp) * m.fit);
@@ -486,7 +486,40 @@ const FPS_MIN = 25, VALVULA_MS = 3000;
 // inercia, foco girando— o mientras dura la entrada. Los números están en la
 // cabecera («LO QUE CUESTA»).
 const FPS_REPOSO = 30, FPS_VIVO = 60;
-const N_PARTICULAS = 8000;
+// ═══════════════════════════════════════════════════════════════════════════
+// CUÁNTOS PUNTOS Y CÓMO DE GORDO ES CADA UNO (ola 5, 2026-09-04)
+// ═══════════════════════════════════════════════════════════════════════════
+// Jaime: «el micrófono se ve bien, pero creo que las partículas deberían de
+// reducir su tamaño». Y en el mismo mensaje el lienzo pasa de 353 × 558 a
+// 782 × 896, o sea 3.55× de ÁREA. Las dos cosas se resuelven juntas o ninguna:
+//
+//  · SI SOLO CRECE EL LIENZO, la partícula CRECE con él —el tamaño va atado al
+//    alto, `m.h / 340`— y se ve justo lo contrario de lo que pidió: 5.40 px de
+//    punto contra los 3.37 de hoy.
+//  · SI SOLO SE ENCOGE EL PUNTO, la malla se abre: 8 000 puntos repartidos en
+//    3.55× de área es la densidad de 2 250 en el lienzo viejo, y la silueta
+//    deja de leerse como un micrófono. El comentario de la geometría ya avisa
+//    en la otra dirección: con 16 000 se leía «como grano de un sólido».
+//
+// Así que el tamaño se ata al NÚMERO DE PUNTOS y no solo al alto:
+//   uPx = (h / 340) · PX_REF · √(N_REF / n) · GROSOR
+// La raíz es la separación entre vecinos: en una nube repartida por área, el
+// hueco medio va con 1/√n, así que un punto que siga esa cuenta conserva la
+// PROPORCIÓN entre lo pintado y lo vacío mientras se añaden puntos. `N_REF` y
+// `PX_REF` son los valores de la ola 4 —con n = 8 000 la fórmula devuelve
+// EXACTAMENTE lo de antes—, y `GROSOR` es la única perilla nueva: el ajuste
+// que él pidió, escrito como un número y no repartido por tres constantes.
+//
+// LO QUE SALE A 782 × 896 (la cuenta, para que se pueda rehacer):
+//   punto      (896/340) · 2.05 · √(8000/28000) · 0.86 = 2.48 px
+//              contra 3.37 px hoy → 26 % más pequeño EN PÍXELES, y sobre un
+//              objeto 1.6× más grande de lado: 2.2× más fino de lo que se ve.
+//   separación √(700 672 / 28 000) = 5.00 px  →  punto/hueco 0.50 (hoy 0.68)
+//   relleno    28 000 · π · (2.48 · dpr/2)² ≈ 386 k fragmentos por fotograma,
+//              contra 284 k hoy. El presupuesto de píxeles del `resize`
+//              (2 000 000) fija el DPR en 1.69 a este tamaño y no se toca.
+const N_REF = 8000, PX_REF = 2.05, GROSOR = 0.86;
+const N_PARTICULAS = 28000;
 
 function arrancaUno(raiz: HTMLElement): void {
   const stage = raiz.querySelector<HTMLElement>('[data-mic-stage]');
@@ -558,8 +591,30 @@ function arrancaUno(raiz: HTMLElement): void {
       a.appendChild(et);
       if (fino) {
         a.setAttribute('aria-label', fila.dataset.aria || '');
-        // Señalar la fila del índice al pasar por el nodo: dibujo y lista son UNA cosa.
-        const marca = (on: boolean) => fila.toggleAttribute('data-activo', on);
+        // Señalar la tarjeta al pasar por el nodo: dibujo y carrusel son UNA
+        // cosa. Y si la tarjeta está fuera del tramo visible de la pista, la
+        // pista se mueve hasta enseñarla — así el micrófono CONDUCE el
+        // carrusel, que es lo que hace que las dos columnas se lean como un
+        // solo objeto y no como dos bloques uno al lado del otro.
+        //
+        // ⚠️ SE MUEVE `scrollTop` A MANO Y NO `scrollIntoView`: ese método
+        // desplaza TODOS los antepasados desplazables, o sea también la
+        // página — posar el ratón sobre un punto haría saltar el documento
+        // bajo la mano de quien está leyendo. Aquí solo se toca la pista.
+        const asomar = () => {
+          const pista = fila.closest<HTMLElement>('[data-mic-pista]');
+          if (!pista) return;
+          const rf = fila.getBoundingClientRect(), rp = pista.getBoundingClientRect();
+          const vert = getComputedStyle(pista).flexDirection === 'column';
+          const d = vert
+            ? (rf.top < rp.top ? rf.top - rp.top : rf.bottom > rp.bottom ? rf.bottom - rp.bottom : 0)
+            : (rf.left < rp.left ? rf.left - rp.left : rf.right > rp.right ? rf.right - rp.right : 0);
+          if (!d) return;
+          const modo: ScrollBehavior = reduce.matches ? 'auto' : 'smooth';
+          if (vert) pista.scrollTo({ top: pista.scrollTop + d, behavior: modo });
+          else pista.scrollTo({ left: pista.scrollLeft + d, behavior: modo });
+        };
+        const marca = (on: boolean) => { fila.toggleAttribute('data-activo', on); if (on) asomar(); };
         a.addEventListener('pointerenter', () => { marca(true); sobreNodo = true; });
         a.addEventListener('pointerleave', () => { marca(false); sobreNodo = false; });
         a.addEventListener('focus', () => marca(true));

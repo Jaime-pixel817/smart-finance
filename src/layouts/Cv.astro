@@ -307,6 +307,12 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
          JavaScript serían dos botones muertos, así que no existen — la lista
          se desplaza igual con el dedo, la rueda o el teclado. */
       .citas-nav { display: none !important; }
+      /* Y los del carrusel del micrófono, por lo mismo (cv-mic-pista.ts). Sin
+         JavaScript la pista NO lleva `data-mic-pag`, o sea que sigue siendo un
+         scroller de verdad: las diez tarjetas se alcanzan con la rueda, el
+         dedo y el teclado. Los puntos se van con los botones: sin nada que los
+         mueva, cuatro puntos fijos señalarían siempre la primera parada. */
+      .mic-nav { display: none !important; }
     </style>
   </noscript>
 </head>
@@ -449,17 +455,22 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
         // metía en el bug de arriba — dos clics seguidos y el segundo no
         // desplaza —, y ahí el segundo clic es lo normal: la franja invita a
         // mirar los certificados y volver por las cartas.
-        // `.mic-baja` son los once «En el capítulo ↓» del micrófono, y tenían
-        // que entrar aquí por el mismo motivo que `.cv-salto`, solo que más:
-        // el micrófono es un ÍNDICE y está en la segunda pantalla, o sea el
-        // sitio del documento donde es más probable que alguien pulse dos
-        // destinos seguidos — que es exactamente el gesto que dispara el bug
-        // de arriba (la segunda navegación de ancla en vuelo no desplaza).
-        // `a.nodo[href^="#"]` son los nodos del LIENZO que abren una ficha de
-        // dentro del CV (Rendón, Moris y Marg mientras no llegue su enlace):
-        // mismo viaje que sus «En el capítulo ↓». Los nodos externos no casan
-        // con `[href^="#"]` y siguen abriendo su pestaña.
-        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-baja[href^="#"], a.nodo[href^="#"]') : null;
+        // `.mic-fila-a` es el enlace de cada TARJETA del micrófono, y entra
+        // aquí por el mismo motivo que `.cv-salto`, solo que más: el micrófono
+        // es un ÍNDICE y está en la segunda pantalla, o sea el sitio del
+        // documento donde es más probable que alguien pulse dos destinos
+        // seguidos — que es exactamente el gesto que dispara el bug de arriba
+        // (la segunda navegación de ancla en vuelo no desplaza).
+        // ── OJO, EL SELECTOR CAMBIÓ EN LA OLA 5 Y CUBRE MÁS QUE ANTES ─────
+        // Era `.mic-baja`, los catorce «En el capítulo ↓» del índice de texto.
+        // Ese índice ya no existe: sus renglones son las tarjetas negras del
+        // carrusel, y ahí el enlace que apunta DENTRO del CV es el del nombre
+        // (Moris y Marg, mientras no lleguen sus publicaciones). Con
+        // `.mic-fila-a` se interceptan justo esos, que antes se quedaban fuera
+        // —el `.mic-baja` de al lado sí entraba, el nombre no—, y los externos
+        // siguen sin casar con `[href^="#"]`: abren su pestaña como siempre.
+        // `a.nodo[href^="#"]` son los mismos destinos desde el LIENZO.
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-fila-a[href^="#"], a.nodo[href^="#"]') : null;
         if (!a) return;
         var h = a.getAttribute('href');
         var destino = document.getElementById(h.slice(1));
@@ -514,6 +525,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
     import '../scripts/cv-clips';
     import '../scripts/cv-citas';
     import '../scripts/cv-microfono';
+    import '../scripts/cv-mic-pista';
     import '../scripts/cv-sitios';
     import '../scripts/cv-rail';
     import '../scripts/cv-movimiento';
