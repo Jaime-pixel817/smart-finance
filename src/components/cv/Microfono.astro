@@ -354,7 +354,10 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
   /* ═══ LA FILA: DOS CAJAS DEL MISMO ALTO ══════════════════════════════════
      782 + 16 + 482 = 1280. Los dos anchos van ESCRITOS y no calculados: es lo
      que hace que el hueco de 401 px no pueda volver. La segunda fila (44 px)
-     es la de los mandos, y solo ocupa la columna de la derecha. */
+     es la de los mandos, que solo ocupan la columna de la derecha — pero el
+     LIENZO sí baja hasta ahí (`grid-row: 1 / -1`), porque si no, esos 44 px
+     más su canal eran 60 px de papel vacío bajo el lienzo. El alto total de
+     la fila es 896 + 16 + 44 = 956, y las dos columnas lo llenan entero. */
   .mic-fila {
     display: grid;
     grid-template-columns: 782px 482px;
@@ -362,10 +365,29 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
     gap: var(--sf-canal);
   }
 
-  /* ═══ EL LIENZO ═════════════════════════════════════════════════════════ */
+  /* ═══ EL LIENZO ═════════════════════════════════════════════════════════
+     OCUPA LAS DOS FILAS, Y ESO SON LOS ÚLTIMOS 60 px DEL HUECO DE JAIME.
+     Con `grid-row: 1` el lienzo medía 896 y la fila 956 —la columna derecha
+     lleva los mandos debajo del carrusel (896 + 16 + 44)—, así que quedaban
+     60 px de papel vacío justo debajo del lienzo, en su propia columna. El
+     paso anterior contó ese hueco como 0 porque lo midió contra la COLUMNA
+     DEL CARRUSEL (896 − 896) en vez de contra el fondo de su fila, y el
+     comentario de aquí arriba ya decía «DOS CAJAS DEL MISMO ALTO», que era
+     justo lo que no eran.
+     Ahora el lienzo se estira a las dos filas y mide 782 × 956: las dos
+     columnas acaban a la misma altura por construcción y el hueco es 0 con
+     cualquier vara. Las cuentas que sostienen el módulo no se tocan —
+     782 + 16 + 482 = 1280, y la PISTA sigue midiendo 896 = 3 × 288 + 2 × 16,
+     que es de donde salen las tarjetas de una sola talla.
+     El motor no necesita nada: el `<canvas>` va `inset: 0` y el tamaño sale
+     de `stage.clientWidth/clientHeight` con un `ResizeObserver` detrás; el
+     punto crece un 6.7 % (2.48 → 2.65 px) porque su fórmula va atada al alto,
+     que es exactamente lo que esa fórmula existe para hacer.
+     Por debajo de 82em esto no aplica: ahí la fila se apila y el lienzo
+     vuelve a `grid-row: 1` con su `aspect-ratio` (ver la media query). */
   .mic-stage {
-    position: relative; grid-column: 1; grid-row: 1;
-    width: 782px; height: 896px;
+    position: relative; grid-column: 1; grid-row: 1 / -1;
+    width: 782px; height: 100%;
     /* ── EL ARRASTRE: el micrófono se gira con la mano ──────────────────
        `pan-y` deja el scroll VERTICAL al navegador —aquí nunca hay
        preventDefault— y se queda solo con el gesto horizontal, que es el
