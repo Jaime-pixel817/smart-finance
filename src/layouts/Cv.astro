@@ -164,8 +164,29 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
        DESPUÉS del primer pintado y eso es un salto de composición en el
        elemento del LCP: el presupuesto de CLS de esta página es 0.02. Aquí
        corre antes de que exista un solo píxel pintado, y no cuesta ninguna
-       petición. El guardia de la pista (`document.querySelector`) es
-       perezoso a propósito: en el `<head>` el marcado todavía no existe.
+       petición. La búsqueda de la pista es perezosa a propósito: en el
+       `<head>` el marcado todavía no existe.
+
+       ── HAY DOS PISTAS, UNA POR PANEL DE IDIOMA, Y ESTO COSTÓ EL PASO ───
+       `Historia.astro` se renderiza DOS veces (inglés y español), así que
+       hay DOS `.intro-pista` en el documento y el selector de idioma
+       (`:target`, cero JavaScript) esconde una de las dos con `display:
+       none`. Un `document.querySelector('.intro-pista')` devuelve SIEMPRE
+       la del panel inglés; cacheada, en español se medía una caja de 0×0,
+       `recorrido` salía negativo, `p` se quedaba clavado en 0 y en Safari
+       el CV en español no hacía la transición NUNCA — con el agravante de
+       que la pista larga sí se reservaba: 306 px (1440) y 367 px (1920) de
+       recorrido donde no ocurría nada. Los dos defectos que Jaime reportó
+       —«en Safari no funciona el header la transición» y «abajo dejas un
+       buen de espacios»— en la misma pantalla, y solo en su idioma.
+       Se resuelve la pista CONTRA EL PANEL VISIBLE en cada medición: se
+       recorren las dos y se usa la primera con caja (la escondida mide 0).
+       Es la misma cautela que ya llevan escrita `cv-mic-pista.ts` y
+       `cv-microfono.ts`, que recorren los dos paneles con
+       `querySelectorAll`. La lista se cachea (los nodos no cambian); lo que
+       NO se cachea es cuál de las dos manda, porque eso cambia cada vez que
+       se pulsa una pastilla de idioma. Y por eso `hashchange` también pide
+       una medida: cambiar de idioma no dispara `scroll` por sí solo.
 
        ── EL RECORRIDO ES EL TRAMO `contain`, Y SALE DE UNA CUENTA ────────
        `view-timeline` sobre la pista con `animation-range: contain …` corre
@@ -184,14 +205,19 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
       raiz.setAttribute('data-intro', nativo ? 'css' : 'js');
       if (nativo || !window.requestAnimationFrame) return;
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var pista = null, pedido = false, ultimo = -1;
+      var pistas = null, pedido = false, ultimo = -1;
       function medir() {
         pedido = false;
-        if (!pista) pista = document.querySelector('.intro-pista');
-        if (!pista) return;
-        var caja = pista.getBoundingClientRect();
-        var recorrido = caja.height - window.innerHeight;
-        var p = recorrido > 0 ? -caja.top / recorrido : 0;
+        if (!pistas || !pistas.length) pistas = document.querySelectorAll('.intro-pista');
+        var p = 0;
+        for (var i = 0; i < pistas.length; i++) {
+          var caja = pistas[i].getBoundingClientRect();
+          if (!caja.height) continue;                 // el panel escondido mide 0
+          var recorrido = caja.height - window.innerHeight;
+          if (recorrido <= 0) break;                  // sin recorrido no hay efecto
+          p = -caja.top / recorrido;
+          break;
+        }
         p = p < 0 ? 0 : p > 1 ? 1 : p;
         p = Math.round(p * 1000) / 1000;
         if (p === ultimo) return;
@@ -201,6 +227,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
       function pedir() { if (!pedido) { pedido = true; requestAnimationFrame(medir); } }
       addEventListener('scroll', pedir, { passive: true });
       addEventListener('resize', pedir, { passive: true });
+      addEventListener('hashchange', pedir);
       document.addEventListener('DOMContentLoaded', medir);
     })();
   </script>
