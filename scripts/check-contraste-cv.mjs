@@ -136,7 +136,10 @@ const PIEZAS = [
   ['1 · idioma on',  '.portada-uno .cv-lang-a.on', 4.5],
   ['1 · idioma off', '.portada-uno .cv-lang-a:not(.on)', 4.5],
   ['1 · nombre 1',   '.portada-n1', 3],
-  ['1 · señuelo',    '.portada-senuelo', 4.5],
+  // «1 · señuelo» (.portada-senuelo) SE FUE EN LA OLA 6: el «Scroll to read ↓»
+  // entre las dos mitades del nombre se quitó (INVENTARIO.md §3: venía de
+  // ondo.finance, que ya no es la referencia). Sin la pieza, el selector no
+  // encontraba nada y la prueba fallaba por un elemento que ya no existe.
   ['1 · nombre 2',   '.portada-n2', 3]
 ];
 const MIN_BORDE = 3; // WCAG 1.4.11

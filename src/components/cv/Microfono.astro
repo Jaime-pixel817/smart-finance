@@ -119,6 +119,7 @@ import type { CvCopy } from '../../i18n/cv';
 import type { Locale } from '../../i18n/routes';
 import { NODOS, ancla, CLIP_PAIS } from '../../lib/cv/microfono.mjs';
 import { attrsClip } from '../../lib/cv/clips.mjs';
+import { foto } from '../../lib/photos';
 
 interface Props { c: CvCopy; p: Locale }
 const { c, p } = Astro.props;
@@ -243,7 +244,7 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
               <p class="mic-t-nombre">
                 {f.interno
                   ? <a class="mic-fila-a" href={f.href}>{f.nombre}</a>
-                  : <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<i class="mic-ext" aria-hidden="true"> ↗</i></a>}
+                  : <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}</a>}
               </p>
               {f.rol && <p class="mic-t-rol">{f.rol}</p>}
             </div>
@@ -291,25 +292,25 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
             <noscript><video {...attrsClip(cl.clip, aria, false, cl.w, cl.h, 'mic-pais-v')} poster={cl.poster}></video></noscript>
           )}
           <p class="mic-pais-rot">
-            <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<i class="mic-ext" aria-hidden="true"> ↗</i></a>
+            <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}</a>
           </p>
-          {/* Canadá no tiene vídeo y no es un descuido: su pieza es un carrusel
-              de fotos de TikTok. Los dos rótulos que ya existen lo dicen —qué
-              es y por qué su lámina no está aquí— en vez de dejar un hueco de
-              clip que nunca se va a llenar, y de paso llenan una tarjeta que
-              si no sería el único rectángulo negro y vacío de la fila. */}
+          {/* CANADÁ NO TIENE VÍDEO y no es un descuido: su pieza es un carrusel
+              de fotos de TikTok, sin mp4 que servir. Lo que sí existe es su
+              PORTADA pública (1620 × 2880, «5 financial facts about Canada»,
+              la Torre CN en B/N), y entra aquí a la misma caja 4:5 que los
+              tres vídeos, por build-photos.mjs. Que es un carrusel lo dice el
+              pie de la fila, UNA vez, en vez de una nota dentro de un
+              recuadro negro vacío (ola 6). */}
           {!cl.clip && (
-            <div class="mic-pais-nota">
-              <p class="mic-pais-tag" role="note">{c.clip.carrusel}</p>
-              <p class="mic-pais-pie">{c.tiktok.canadaNota}</p>
-            </div>
+            <img class="mic-pais-v mic-pais-poster" src={foto('cv-pais-canada.webp')} alt={c.mic.canadaAlt}
+              width="308" height="385" loading="lazy" decoding="async" />
           )}
         </li>
       );
     })}
   </ul>
 
-  <p class="mic-sigue">{c.mic.sigue}</p>
+  <p class="mic-pie">{c.mic.paisesPie}</p>
 </section>
 
 <style>
@@ -331,13 +332,16 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
        44 es además el aire que `.sf-ancho` ya pone ENTRE los bloques del
        módulo: el aire de dentro y el de fuera son el mismo, que es lo que
        hace que se lea como una pieza y no como tres. */
-    padding-block: var(--sf-aire-2);
+    padding-block: var(--sf-aire-4) 0;
   }
-  .mic-cab { display: flex; flex-direction: column; gap: var(--sf-aire-cabeza); max-width: var(--sf-lectura); }
+  .mic-cab {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: var(--sf-aire-cabeza); max-width: var(--sf-lectura); margin-inline: auto;
+  }
   /* NINGÚN `font-size` del micrófono depende de `vw` ni de `clamp` por encima
      de 940 px. Es la regla que arregla «todo súper grande»: lo que crece con
      la ventana es el aire, no la letra. Los tamaños son los del sistema. */
-  .mic-h { font: var(--sf-t-entra); letter-spacing: var(--sf-ls); color: var(--sf-tinta); margin: 0; }
+  .mic-h { font: var(--sf-t-cap); letter-spacing: var(--sf-ls); color: var(--sf-tinta); margin: 0; }
   .etiqueta {
     font: var(--sf-t-pie); letter-spacing: .12em; text-transform: uppercase;
     color: var(--sf-tinta-2); margin: 0;
@@ -349,7 +353,7 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
      alcanza este marcado. Es la misma trampa que CLAUDE.md ya tiene escrita
      para `.proj` entre `Hub.astro` y `RetoActinver.astro`. Sin esto, el ojo
      del módulo salía al tamaño por omisión, que no es ninguno de los ocho. */
-  .mic-lede { font: var(--sf-t-sec); letter-spacing: var(--sf-ls); color: var(--sf-tinta-2); margin: 0; }
+  .mic-lede { font: var(--sf-t-entra); letter-spacing: var(--sf-ls); color: var(--sf-tinta-2); margin: 0; }
 
   /* ═══ LA FILA: DOS CAJAS DEL MISMO ALTO ══════════════════════════════════
      782 + 16 + 482 = 1280. Los dos anchos van ESCRITOS y no calculados: es lo
@@ -520,7 +524,9 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
   }
   .mic-t .mic-fila-a:hover { text-decoration-thickness: 2px; }
   .mic-t .mic-fila-a:focus-visible { outline: 2px solid var(--sf-oscuro-tinta); outline-offset: 3px; border-radius: 2px; }
-  .mic-ext { font-style: normal; }
+  /* Sin ↗ en los nombres (corrección de la ola 6): un glifo pintado en cada
+     tarjeta es un rótulo repetido, sea texto o pseudoelemento. El subrayado
+     ya dice que el nombre es un enlace. */
   /* El eco del nodo: posar el puntero sobre un punto del micrófono enciende su
      tarjeta, y al revés. Es un aro por DENTRO (`inset`) para que la tarjeta
      siga midiendo 482 × 288 clavados. */
@@ -587,19 +593,15 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
   /* La nota de Canadá va abajo, en la caja completa menos los márgenes: es el
      único sitio de la fila donde hay texto corrido, y arrinconado a la
      izquierda se partía en cinco renglones de dos palabras. */
-  .mic-pais-nota {
-    position: absolute; inset-block-end: var(--sf-canal);
-    inset-inline: var(--sf-canal);
-    display: flex; flex-direction: column; gap: var(--sf-aire-0);
-  }
-  .mic-pais-tag { margin: 0; font: var(--sf-t-rotulo); color: var(--sf-oscuro-tinta); }
-  .mic-pais-pie { margin: 0; font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2); }
+  /* El póster de Canadá llena la caja (es una portada 4:5 recortada para
+     esto); los vídeos siguen en `contain`. */
+  .mic-pais .mic-pais-poster { object-fit: cover; }
   .mic-pais[data-activo] { box-shadow: inset 0 0 0 2px var(--sf-oscuro-tinta); }
 
-  .mic-sigue { font: var(--sf-t-pie); color: var(--sf-tinta-2); max-width: var(--sf-pie-max); margin: 0; }
-  /* El pie del módulo va a 16 del bloque anterior, no a 44: es su pie, no el
-     bloque siguiente. Es el único paso que `.sf-ancho` no acierta solo. */
-  .mic > .mic-sigue { margin-block-start: var(--sf-aire-1); }
+  .mic-pie { font: var(--sf-t-pie); color: var(--sf-tinta-2); max-width: var(--sf-pie-max); margin: 0; }
+  /* El pie de la fila va a 16 de la fila, no a 44: es su pie, no el bloque
+     siguiente (§3.4 v). Es el único paso que `.sf-ancho` no acierta solo. */
+  .mic > .mic-pie { margin-block-start: var(--sf-aire-1); }
 
   /* ═══ POR DEBAJO DEL MARCO ANCHO ════════════════════════════════════════
      «Nuestro objetivo principal es ordenador», y los dos anchos que mide el

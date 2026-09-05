@@ -113,6 +113,8 @@ const SUJETO_AJENO = new Map([
   ['nota|escribió', 'el sujeto es el firmante: «lo escribió y lo firmó alguien más»'],
   ['toronto|reforzó', 'el sujeto es la visita: «esta visita reforzó algo…»'],
   ['playa|recordó', 'el sujeto es la experiencia: «una experiencia… que me recordó…»'],
+  // La cita grande de la playa (ola 6) es la primera oración de `playa`, verbatim: mismo sujeto.
+  ['playaCita|recordó', 'el sujeto es la experiencia: «una experiencia… que me recordó…»'],
   ['tipo|dejó', 'el sujeto es el Chief ETF Strategist: «lo que dejó…», título que publica el sitio'],
   ['relacion|observó', 'el sujeto es Andy Toh: «me observó durante mi programa»'],
   // ── Las dos del micrófono (2026-09-02). Las dos son de la clave `podcast` y

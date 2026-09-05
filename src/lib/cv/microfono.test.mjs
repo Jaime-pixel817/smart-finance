@@ -87,12 +87,22 @@ test('mic: ocho personas, dos experiencias y cuatro países, y la diferencia se 
   // liderazgo, que dos son consejos y no entrevistas, y que México es el país
   // con recibo. Es lo único que impide que grabar un vídeo de datos de Japón
   // se lea como conseguir a un ejecutivo.
+  // ── OLA 6 (INVENTARIO.md §4): el lede baja a DOS líneas de 24/28 ──────
+  // Las 66 palabras que explicaban qué es un índice se fueron; lo que
+  // decían —que dos son consejos y no entrevistas, que a México lo
+  // representó él— lo dice CADA TARJETA en pantalla (`mic.abre.marg`,
+  // `mic.abre.dieck`, `mic.abre.mexico`). Se comprueba ahí, no en el lede.
   for (const clave of [
-    'The people are the leadership', 'Las personas son el liderazgo',
-    'Two are advice I asked for, not interviews', 'Dos son consejos que pedí, no entrevistas',
-    'Mexico is the one I was chosen to represent', 'México es el que me eligieron para representar'
+    'The people I got to sit down with me', 'La gente que conseguí sentar conmigo',
+    'not an interview', 'no una entrevista',
+    'represent Mexico', 'representar a México'
   ]) {
-    assert.ok(CV.includes(clave), `falta en cv.ts la línea del lede: «${clave}»`);
+    assert.ok(CV.includes(clave), `falta en cv.ts la línea que dice la diferencia en pantalla: «${clave}»`);
+  }
+  for (const lede of CV.matchAll(/^\s*lede: '([^']+)',/gm)) {
+    if (/sit down with me|sentar conmigo/.test(lede[1])) {
+      assert.ok(lede[1].length <= 110, `el lede del micrófono ya no cabe en dos líneas de 24/28: ${lede[1].length} caracteres`);
+    }
   }
 });
 

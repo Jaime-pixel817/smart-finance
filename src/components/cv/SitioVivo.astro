@@ -59,7 +59,7 @@ const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
   {/* EL ENLACE VA PRIMERO EN EL DOM, y eso es la mitad del arreglo de
       accesibilidad: quien tabula se encuentra la salida antes que la trampa. */}
   <p class="viv-salida">
-    <a class="hist-link" href={url} target="_blank" rel="noopener noreferrer">{c.vivo.abrir.replace('{s}', host)} ↗</a>
+    <a class="hist-link" href={url} target="_blank" rel="noopener noreferrer">{c.vivo.abrir.replace('{s}', host)}</a>
   </p>
 
   <div class="viv-marco">
@@ -67,7 +67,7 @@ const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
         NO lo es: es la prueba, y por eso va en mono y seleccionable. */}
     <div class="viv-barra">
       <span class="viv-puntos" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="viv-url meta-mono">{host}</span>
+      <span class="viv-url">{host}</span>
     </div>
 
     <div class="viv-caja">
@@ -76,7 +76,7 @@ const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
       <div class="viv-respaldo" aria-hidden="true">
         {img
           ? <img src={img} srcset={srcset} sizes={sizes} alt="" width={w} height={h} loading="lazy" decoding="async" />
-          : <span class="viv-respaldo-url meta-mono">{host}</span>}
+          : <span class="viv-respaldo-url">{host}</span>}
       </div>
 
       <iframe class="viv-frame" src={url} title={titulo} id={`viv-${id}`}
@@ -95,59 +95,60 @@ const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
       </button>
     </div>
   </div>
-  <figcaption class="pie">{c.vivo.pie.replace('{s}', host)}</figcaption>
+  <figcaption class="sf-pie">{c.vivo.pie.replace('{s}', host)}</figcaption>
 </figure>
 
 <style>
-  .viv { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
-  .viv-salida { font-size: var(--fs-caption); }
+  /* ── (ix) EL MARCO DEL SITIO EN VIVO, A LOS NÚMEROS DEL SISTEMA (ola 6) ──
+     SISTEMA-REFERENCIA.md §3.4 (ix): placa 980 × 558, r24, borde 1px,
+     relleno 8; barra de 32 con tres puntos de 8 y la dirección a 12/16;
+     captura de 964 × 518. Si el sitio se enseña en vivo en un <iframe>, la
+     caja es la MISMA y no cambia de tamaño según cargue o no. El enlace de
+     salida arriba y el pie abajo van a 16 del marco. */
+  .viv { margin: 0 auto; max-width: var(--sf-util); display: flex; flex-direction: column; gap: var(--sf-aire-1); }
+  .viv > figcaption { margin: 0; }
+  .viv-salida { margin: 0; font: var(--sf-t-rotulo); }
+  .viv-salida .hist-link { min-height: 0; }
   .viv-marco {
-    border: 1px solid var(--cvh-raya); border-radius: var(--cv-radio, 20px);
-    overflow: hidden; background: var(--cvh-papel);
+    border: 1px solid var(--sf-borde); border-radius: var(--sf-r-tarjeta);
+    overflow: hidden; background: var(--sf-papel);
+    padding: var(--sf-aire-0); box-sizing: border-box;
   }
   .viv-barra {
-    display: flex; align-items: center; gap: var(--sp-3);
-    height: 36px; padding-inline: var(--sp-3);
-    border-block-end: 1px solid var(--cvh-raya);
+    display: flex; align-items: center; gap: var(--sf-aire-0);
+    height: 32px; padding-inline: var(--sf-aire-0);
+    font: var(--sf-t-pie); color: var(--sf-tinta-2);
   }
-  .viv-puntos { display: flex; gap: 6px; flex: 0 0 auto; }
-  .viv-puntos i { width: 8px; height: 8px; border-radius: 50%; background: var(--cvh-raya); }
-  .viv-url { color: var(--cvh-tinta-2); overflow-wrap: anywhere; }
-  /* La caja tiene LA PROPORCIÓN DEL RESPALDO (1120 × 644 → 688 × 395 en la
-     pista de prosa), no 16:10: con 16:10 la caja medía 688 × 430 y la
-     captura, en `cover`, se ampliaba 1,09× y perdía 35 px por abajo. Es el
-     único sitio del CV donde una foto se pintaba más grande que su archivo.
-     El marco vivo se adapta a lo que haya; la imagen no. Se reserva con
+  .viv-puntos { display: flex; gap: var(--sf-aire-0); flex: 0 0 auto; }
+  .viv-puntos i { width: 8px; height: 8px; border-radius: 50%; background: var(--sf-borde); }
+  .viv-url { overflow-wrap: anywhere; }
+  /* 964 × 518 (16:8.6), medido en la placa de Vercel. Se reserva con
      `aspect-ratio`, así que el marco no mueve nada al cargar: CLS 0. */
-  .viv-caja { position: relative; aspect-ratio: 1120 / 644; }
+  .viv-caja { position: relative; aspect-ratio: 964 / 518; border-radius: var(--sf-r-par); overflow: hidden; }
   .viv-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
   .viv-respaldo {
     position: absolute; inset: 0; display: grid; place-items: center;
-    background: var(--bg-2);
+    background: var(--sf-papel-2);
   }
   /* Se apaga SOLO cuando el marco dice `load`. Si no llega —sitio caído,
      `X-Frame-Options` nuevo, red mala— se queda puesto para siempre, que es
-     justo lo que hace falta: un `<iframe>` no dispara `onerror`. */
+     justo lo que hace falta: un <iframe> no dispara `onerror`. */
   .viv[data-viv-cargado] .viv-respaldo { opacity: 0; transition: opacity var(--dur-3) linear; }
-  /* Sin `cover`: la caja ya tiene su proporción, así que 100 % × 100 % es
-     el archivo entero, ni ampliado ni recortado. */
   .viv-respaldo img { width: 100%; height: 100%; display: block; }
-  .viv-respaldo-url { color: var(--cvh-tinta-3); }
+  .viv-respaldo-url { font: var(--sf-t-entra); color: var(--sf-tinta-2); }
   .viv-tapa {
     position: absolute; inset: 0; width: 100%; height: 100%;
-    display: grid; place-items: end center; padding-block-end: var(--sp-4);
+    display: grid; place-items: end center; padding-block-end: var(--sf-aire-1);
     border: 0; background: none; cursor: pointer; font: inherit; color: inherit;
   }
   .viv-tapa-txt {
-    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
-    letter-spacing: .12em; text-transform: uppercase;
-    color: var(--cvh-tinta); background: var(--cvh-papel);
-    border: 1px solid var(--cvh-raya); border-radius: 999px;
+    font: var(--sf-t-rotulo); color: var(--sf-tinta); background: var(--sf-papel);
+    border: 1px solid var(--sf-borde); border-radius: var(--sf-r-pildora);
     padding: 8px 14px; min-height: 44px; display: inline-flex; align-items: center;
   }
-  .viv-tapa:hover .viv-tapa-txt { border-color: var(--cvh-tinta-3); }
+  .viv-tapa:hover .viv-tapa-txt { border-color: var(--sf-tinta-2); }
   .viv[data-viv-vivo] .viv-tapa { display: none; }
-  /* AL IMPRIMIR se va el marco entero: un `<iframe>` en papel es un
+  /* AL IMPRIMIR se va el marco entero: un <iframe> en papel es un
      rectángulo. Lo que queda es la dirección, que es lo que sirve impreso. */
   @media print {
     .viv-marco { display: none; }

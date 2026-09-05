@@ -111,7 +111,8 @@ const TAMANOS = [56, 40, 24, 21, 19, 17, 14, 12];          // §3.1
 const PASOS_ENTRE = [16, 44, 72, 80];                       // §3.1 aire
 const PASOS_DENTRO = [0, 8, 16, 20];                        // §3.1 aire interior
 const TARJETA = { w: 482, h: 288 };                         // §3.4 (iv)
-const ANCHOS_FOTO = [1920, 1440, 1280, 980, 782, 653, 482, 316, 308, 171]; // §4
+const PAIS = { w: 308, h: 385 };                            // §3.4 (v): la tarjeta de país con vídeo
+const ANCHOS_FOTO = [1920, 1440, 1280, 980, 962, 782, 653, 482, 316, 308, 171]; // §4 (+ la captura de (ix): 980 − 2×1 de borde − 2×8 de relleno = 962)
 const PISO_FOTO = 308;                                      // §4, piso absoluto
 const HUECO_MAX = 160;                                      // §5.5
 const NOTAS_MAX = 59;                                       // §3.4 (x): 227 → 59
@@ -182,36 +183,151 @@ const TOL = 1;                                              // ±1 px
 // estaba mal. Los dos que la vara de cajas fabricaba —«216 px desde y=900» y
 // «236 px desde y=2472»— no existen en pantalla, y el barrido de capturas lo
 // enseña en los dos motores.
+// ── LOS TOPES QUE BAJÓ LA OLA 6 · PASO A (2026-09-05): LA ENTRADA DEL DOCUMENTO
+// La tapa (3ª pantalla), el micrófono, el capítulo del grupo y el de las
+// conversaciones se reconstruyeron SOLO con las plantillas de §3.4, y las
+// fotos entraron por CURADURIA-FOTOS.md. Medido con `--sin-topes` en los 8
+// combos sobre el build de esta rama; el número de antes, al lado:
+//   tarjetas   12 → 0     las 12 tarjetas del capítulo 3 miden 482 × 288: UNA talla
+//   fotos      41 → 27    retrato 653 · Toronto+Torre 482 · grupo 980 · entrevista 653 ·
+//                         4 losas 482 · Moris+Marg 482 · Canadá 308; 14 fotos de 154 fuera
+//   pisos      39 → 25    ninguna foto de los capítulos 1-3 baja de 308
+//   pasos      91 → 61    la rejilla vieja ya no toca los capítulos del sistema
+//   huecos      3 → 1     las franjas de 178 (mic → cap 2) y 305 (cap 2) ya no existen;
+//                         queda la de 182 en el 60 % (capítulos 6-7, ola siguiente)
+//   huecoPx   700 → 200   sobre 182 medidos: el margen relativo de siempre
+//   notas     136 → 107   -29: cierres «Proven», «What I took from it» ×12, las tres
+//                         notas de traducción (al bloque único), «The cover:…»
+//   pendientes 24 → 19    los 3 «PHOTO TO COME» y 4 «MATERIAL TO COME» del
+//                         capítulo 3 son UN recuadro; los huecos siguen todos
+//   repes       7 → 1     «↓» ×19, «To write» ×16, «↗» ×13, «What I took from it»
+//                         ×12, «/10» ×8 y «Watch…TikTok» ×8 se fueron; queda «2026»
+//                         ×14 (capítulos 4 y 9)
+// Los que NO bajaron son la deuda de los pasos B y C: tamanos (el h2
+// `visually-hidden` de la frase), las 25 fotos bajo el piso de los capítulos
+// 4-9, las 107 notas contra 59, y el «2026» repetido de cartas y expediente.
+// ── LOS TOPES QUE BAJÓ LA OLA 6 · PASO B (2026-09-05): LAS PRUEBAS DE TERCEROS
+//    Y EL SERVICIO ───────────────────────────────────────────────────────────
+// Las cartas (4), el taller y el Reto (5) y el servicio (6) se reconstruyeron
+// SOLO con las plantillas de §3.4, con las fotos de CURADURIA-FOTOS.md.
+// Medido con `--sin-topes` en los 8 combos sobre el build de esta rama:
+//   fotos      27 → 13    las dos cartas en pareja 482 · él abriendo + la lámina
+//                         S.M.A.R.T. en pareja 482 · el auditorio 653 · el clip
+//                         308 · marcha + stand 482 · la playa sola 482; 13
+//                         fotos de 154 fuera y 4 WebP huérfanos borrados. Las
+//                         13 que quedan son de los capítulos 7-9
+//   pisos      25 → 11    ninguna foto de los capítulos 1-6 baja de 308
+//   pasos      61 → 32    las 32 que quedan son del 7 en adelante y del cierre
+//   huecos      1 → 0     la franja de 182 px (capítulos 6-7) ya no existe
+//   huecoPx   200 → 0     cero píxeles vacíos sumados, en los 8 combos
+//   notas     107 → 74    -33: «Proven» ×3, «The letter itself» ×2, «See it on
+//                         LinkedIn / Open the scan», los rótulos de cada
+//                         testimonio y del calendario, las notas de traducción
+//                         del taller y de la playa (al bloque único), la tercera
+//                         mención a la carta de Lloyd George
+//   pendientes 19 → 19    no baja: los huecos siguen todos. Los dos materiales
+//                         que faltan del taller (cuánta gente vino, el apellido
+//                         de Gustavo) son UN recuadro, como en el capítulo 3
+//   repes       1 → 1     «2026» ×14 → ×12: los dos de las fichas de las cartas
+//                         se fueron; los doce que quedan son del expediente
+// La marca del Reto Actinver (154 px, original de 182) sale de la cuenta de
+// fotos con `data-marca` (ver la sonda): es una marca de tercero, no una foto.
+// Los que NO bajaron son la deuda del paso C: tamanos (el h2 `visually-hidden`
+// de la frase), las 11 fotos bajo el piso de los capítulos 7-9, las 75 notas
+// contra 59, y el «2026» repetido del expediente.
+// ── LOS TOPES QUE BAJÓ LA OLA 6 · PASO C (2026-09-05): LO QUE CONSTRUYÓ, EL
+//    EXPEDIENTE Y EL CIERRE ───────────────────────────────────────────────
+// Los capítulos 7 (el sitio, el canal, la tienda, el research), 8 (el premio),
+// 9 (escuela, inglés, certificaciones y la lista) y 10 (la frase y el bloque
+// único de notas) se reconstruyeron SOLO con las plantillas de §3.4, con las
+// decisiones de INVENTARIO.md §10-§13 y las fotos de CURADURIA-FOTOS.md
+// (caps. 7 y 9). Medido con `--sin-topes` en los 8 combos:
+//   tamanos     1 → 0     el h2 oculto de la frase vive dentro de `.sf-cap` y
+//                         mide 40 como todo titular; el 44 de la frase pasa a 56
+//   fotos      13 → 0     NUS 653 · Jasa 653 (banda 3:2) · Cambridge + CFA en
+//                         pareja 482; la captura tapada por el iframe, Tokio (la
+//                         imagen rota, 0×0) y cuatro escaneos de certificado
+//                         (Vista, BofA, Bloomberg, Green Tech) SE FUERON
+//   pisos      11 → 0     ninguna foto del documento baja de 308: la moda pasa
+//                         de 154 a 482
+//   pasos      32 → 0     el marco del sitio (ix) a los pasos del sistema; el
+//                         `sf-doc` de dentro de las cifras y del marco ponía 44
+//                         entre hermanos que van a 16; y el ancla de cada
+//                         capítulo dejó de contar como bloque (ponía 44 sobre
+//                         los 80 entre capítulos, en los nueve)
+//   notas      74 → 52    -22: «Proven» ×3, «TO WRITE»/«PHOTO TO COME» ×7 en un
+//                         recuadro por bloque, «See it on LinkedIn ↗ Open the
+//                         scan ↗» ×6 → un enlace por fila, «What I took from
+//                         it», los rótulos de la tarjeta del reporte, «My words,
+//                         in Spanish. In English:», «Room for more». Por debajo
+//                         del 59 del sistema por primera vez
+//   repes       1 → 0     «2026» ×12 va dentro del renglón «emisor · año · ID»
+//                         (un nodo de texto); «TikTok» ×8 (siete del micrófono
+//                         + el contacto) → el contacto dice «TikTok
+//                         @smart.financee»
+//   pendientes 19 → 23    SUBE, Y ES A PROPÓSITO: los huecos de los capítulos
+//                         7-9 vivían PLEGADOS (el contratiempo, el research, el
+//                         diploma, los cinco académicos) y no se contaban; el
+//                         inventario los quiere a la vista con su geometría
+//                         final (§15: «los huecos se quedan todos»). Los huecos
+//                         REALES de esos capítulos bajan de 16 a 9 (cinco
+//                         cajas académicas → una lista; dos del research → una;
+//                         el recuadro «Award to come» se fue). Este tope no es
+//                         deuda de diseño: es la cuenta de lo que Jaime tiene
+//                         que escribir, y baja cada vez que él llene uno.
+// ── LA CORRECCIÓN TRAS LA REVISIÓN DE LA OLA 6 (2026-09-05): TRES VARAS
+//    QUE ESTABAN MAL A NUESTRO FAVOR, Y LOS NÚMEROS QUE SALEN CON LAS BUENAS ─
+// Un revisor independiente midió la rama con su propia sonda y encontró que
+// tres de las seis cifras de Jaime no aguantaban la vara con la que se midió
+// la queja. Este archivo se corrigió PRIMERO, y después la página:
+//   notas      52 → 148   La lista de clases no veía .sf-emisor, .sf-fuente,
+//                         .sf-pie, .sf-ojo, .cita-quien, .mic-t-fuente ni los
+//                         <li> de las listas pendientes. Con la vara literal
+//                         de la auditoría —todo texto a la vista en mono o
+//                         por debajo de 14 px, por bloque— salen 148. No es
+//                         que subieran: es que nunca fueron 52. El objetivo
+//                         «≤ 59» del sistema y esta vara son incompatibles
+//                         por construcción (23 renglones «emisor · año · ID»
+//                         + 22 pies de foto + 14 fuentes de cifra ya suman
+//                         59); cuál de los dos manda es decisión de Jaime y
+//                         está preguntada en el PR #64.
+//   repes       0 → 0     pero ahora con tres varas: nodo exacto, FAMILIA
+//                         (tres primeras palabras) y `content` de
+//                         pseudoelementos. Se fueron de verdad «↗» ×35,
+//                         «↓» ×12 (hoy un chevrón de bordes), «One thing I
+//                         took from …» ×14 (los huecos de cita de las
+//                         tarjetas ya no pintan texto) y «Curriculum vitae ·
+//                         NN / 10» ×9 (el ojo dice solo «NN / 10»).
+//   huecos      0 → 0     pero con el borde punteado de los huecos APAGADO
+//                         durante el barrido: con él encendido el cero
+//                         descansaba en 23 cajas vacías; sin él quedaba una
+//                         franja de 166 (placa → hueco de prosa de 162), que
+//                         se cerró bajando el hueco de prosa a cuatro líneas.
+//   vacio     nuevo 412   41.2 % de filas sin tinta (Jaime pide < 20 %; la
+//                         auditoría dio 52 %, la ola 5 34.7 % con la vara
+//                         vieja). Se declara para que no pueda crecer.
+//   tarjetas    0 → 0     pero ahora por PÍXEL (fondo oscuro ≥ 8 000 px²), no
+//                         solo por clase: una caja negra sin `.sf-tarjeta`
+//                         ya se caza. Y UMBRAL_TINTA bajó de 243 a 224: un
+//                         hueco relleno de #F0F0F0 ya se caza.
+// Las siete inyecciones del revisor (foto 300, font 15, hueco blanco 400,
+// rótulo ×9, caja negra ajena, hueco gris 240, foto plegada) se cazan las
+// seis primeras; la séptima (dentro de <details> cerrado) sigue fuera de la
+// vista a propósito (§3.4 x: lo plegado no cuenta como tinta).
 const TOPES = {
-  tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
-  tarjetas: 12,    // las 12 tarjetas oscuras: 880 de ancho y 10 alturas
+  tamanos: 0,      // los ocho del sistema, y ninguno más
+  tarjetas: 0,     // las 12 + 7 tarjetas oscuras miden 482 × 288 — y se queda en cero
   parejas: 0,      // .sf-par mal formada — nace en cero y se queda en cero
-  fotos: 41,       // imágenes con un ancho que no es del sistema
-  pisos: 39,       // imágenes por debajo de 308 px (la moda es 154)
-  pasos: 91,       // distancias que no son un paso del sistema
-  // 3 con la vara de píxeles pintados. Las dos franjas que un lector VE a
-  // 1440 en inglés son 178 px en y≈4786 y 305 px en y≈6890, idénticas en los
-  // dos motores; en español aparece una tercera de 182 px en y≈12730. Son la
-  // deuda de la ola de los CAPÍTULOS, y están en el sitio exacto donde hay que
-  // ir a buscarlas.
-  huecos: 3,       // franjas de más de 160 px sin tinta en la columna útil
-  // 700 y no los 665 medidos: sigue siendo la única cuenta que se mueve entre
-  // corridas (las fotos diferidas no siempre llegan en el mismo fotograma), y
-  // el margen relativo es el de siempre, ~5 %.
-  huecoPx: 700,    // suma de esas franjas, en px
+  fotos: 0,        // toda imagen del cuerpo mide un ancho del sistema
+  pisos: 0,        // ninguna baja de 308
+  pasos: 0,        // todo aire es un paso del sistema
+  huecos: 0,       // ninguna franja de más de 160 px sin tinta — y se queda en cero
+  huecoPx: 0,      // cero píxeles vacíos sumados
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
-  // 50 → 136, Y ES LA SEGUNDA VARA QUE SE CORRIGE HOY. El 50 salía de contar
-  // tres familias de clases, así que la línea se imprimía «50 · tope del
-  // sistema 59» y se leía como «esta regla ya está dentro del sistema». No lo
-  // está: la auditoría contó 227 bloques = 2 137 palabras = 50.6 % del cuerpo
-  // mirando TODO el aparato que rodea al documento, pies de figura y rótulos
-  // incluidos, y con esa vara hoy siguen a la vista 134 en inglés y 136 en
-  // español = 1 424 palabras = 33.6 % de las que se ven. La mejora es real
-  // —227 → 136 bloques, 50.6 % → 33.6 %— pero el sistema pide 59, y ahora el
-  // número lo dice. Este tope es el que la ola de los CAPÍTULOS tiene que bajar.
-  notas: 136,      // bloques de nota a la vista, vara de la auditoría (≤ 59)
-  pendientes: 24,  // huecos «TO WRITE» declarados
-  repes: 7,        // rótulos que salen 8 veces o más («↓» ×19, «To write» ×16)
+  notas: 148,      // bloques a la vista en mono o < 14 px — la vara literal de la auditoría (el ≤ 59 del sistema NO se cumple: ver arriba)
+  pendientes: 23,  // huecos declarados, todos a la vista y con su geometría final
+  repes: 0,        // ningún rótulo sale 8 veces o más — ni como texto, ni como familia, ni como pseudoelemento
+  vacio: 412,      // filas sin tinta en la columna de 980, en DÉCIMAS de % (el objetivo de Jaime es < 200)
   apagados: 0,     // bloques que nunca llegan a verse — el fallo de Safari 16.6
   portada: 0       // combos donde la tapa NO llega a su último fotograma
 };
@@ -333,7 +449,14 @@ const BASE = `http://127.0.0.1:${servidor.address().port}`;
 // cabeza. Cuesta ~26 capturas por combo; el guardián ya recorría el documento
 // dos veces, y una vara que se puede fudgear no vale lo que ahorra.
 const UTIL = 980;
-const UMBRAL_TINTA = 243;   // por debajo de esto en cualquier canal, hay tinta
+// ── LA VARA DE TINTA BAJÓ DE 243 A 224 (corrección de la ola 6) ──────────
+// Un revisor rellenó un hueco de 400 px con #F0F0F0 (240) y el guardián lo
+// contó como tinta: bastaba un gris a tres puntos del umbral para tapar un
+// hueco. Con 224 (#E0E0E0) el papel-2 de las placas (#F5F5F7 = 245), un gris
+// de relleno y el borde claro del sistema (#D2D2D7 = 210, que sí pasa) se
+// separan de la tinta de verdad: texto, fotos y tarjetas. Se comprobó sobre
+// el documento entero en los 8 combos que ninguna foto se lee como vacío.
+const UMBRAL_TINTA = 224;   // por debajo de esto en cualquier canal, hay tinta
 
 // PNG de Playwright → píxeles. Sin dependencias: `zlib` y los cinco filtros.
 function pixelesPNG(png) {
@@ -378,6 +501,14 @@ function pixelesPNG(png) {
 }
 
 async function barrido(page, ancho, alto) {
+  // ── EL BORDE PUNTEADO DE UN HUECO NO ES TINTA (corrección de la ola 6) ──
+  // Un hueco pendiente es, por definición, una caja VACÍA con la geometría
+  // final. Un revisor midió que el «0 franjas» del paso C descansaba en el
+  // borde D2D2D7 de veintitrés cajas vacías: sin él, una franja de 166 px.
+  // Durante el barrido el borde se apaga y se mide lo que hay dentro, que es
+  // lo que el lector ve como vacío. Se enciende otra vez al terminar.
+  const sinBorde = await page.addStyleTag({ content: '.sf-pendiente, .hueco, .hueco-mat, .foto-hueco, .pendiente { border-color: transparent !important; }' });
+  await page.waitForTimeout(60);
   const total = await page.evaluate(() => document.documentElement.scrollHeight);
   const colI = Math.max(0, Math.round((ancho - UTIL) / 2));
   const mapa = new Uint8Array(total);
@@ -398,6 +529,7 @@ async function barrido(page, ancho, alto) {
     }
   }
   await page.evaluate(() => window.scrollTo(0, 0));
+  await sinBorde.evaluate((s) => s.remove());
   await page.waitForTimeout(200);
   let tinta = 0, ultima = 0;
   for (let i = 0; i < total; i++) if (mapa[i]) { tinta++; ultima = i; }
@@ -412,7 +544,9 @@ async function barrido(page, ancho, alto) {
       ini = -1;
     }
   }
-  return { huecos, tinta, filas: total };
+  // `vacio`: filas sin un píxel de tinta en la columna de 980, en % del
+  // documento entero — la cifra que Jaime compara con el 52 % de la auditoría.
+  return { huecos, tinta, filas: total, vacio: total ? +((100 - (tinta / total) * 100).toFixed(1)) : 0 };
 }
 
 const SONDA_PORTADA = async () => {
@@ -498,9 +632,21 @@ const SONDA = (lang) => {
 
   const out = {
     tamanos: [], tarjetas: [], fotos: [], pasos: [], huecos: [], parejas: [],
-    notas: 0, notasPalabras: 0, palabras: 0, pendientes: 0, repes: [], apagados: [], texto: [],
+    notas: 0, notasPalabras: 0, notasClases: [], palabras: 0, pendientes: 0, repes: [], apagados: [], texto: [],
     alto: 0, desborde: 0, tinta: 0, filas: 0
   };
+  const esMono = (cs) => /mono/i.test(cs.fontFamily);
+  const bloqueDe = (el) => {
+    let b = el;
+    while (b && b !== raiz) {
+      const d = getComputedStyle(b).display;
+      if (/block|grid|flex|list-item|table/.test(d) && !/inline/.test(d)) break;
+      b = b.parentElement;
+    }
+    return b || el;
+  };
+  const bloquesNota = new Map();
+  const familias = new Map();
 
   // ── 1 · TAMAÑOS DE TEXTO ────────────────────────────────────────────────
   // Un nodo de texto con contenido; el tamaño se lee de su elemento padre.
@@ -512,12 +658,36 @@ const SONDA = (lang) => {
     if (!txt) continue;
     const el = n.parentElement;
     if (!el || fuera(el)) continue;
-    const fs = Math.round(parseFloat(getComputedStyle(el).fontSize) * 2) / 2;
+    const csEl = getComputedStyle(el);
+    const fs = Math.round(parseFloat(csEl.fontSize) * 2) / 2;
     if (!vistos.has(fs)) vistos.set(fs, { px: fs, n: 0, donde: cadena(el), muestra: txt.slice(0, 40) });
     vistos.get(fs).n++;
     // Las palabras A LA VISTA del cuerpo (la tapa va aparte, como en todo
     // este archivo): es el denominador del porcentaje de notas.
-    out.palabras += txt.split(/\s+/).filter(Boolean).length;
+    const palabras = txt.split(/\s+/).filter(Boolean).length;
+    out.palabras += palabras;
+    // ── 7 · NOTAS, CON LA VARA LITERAL DE LA AUDITORÍA ────────────────────
+    // AUDITORIA-2026-09-04.md §7: texto a la vista «mono o < 14 px». Antes se
+    // contaba por una lista de CLASES, y las clases nuevas del sistema
+    // (.sf-emisor, .sf-fuente, .sf-pie, .sf-ojo, .cita-quien, .mic-t-fuente…)
+    // no estaban en la lista: el guardián decía «52» donde la vara de la
+    // auditoría daba 142 (corrección de la ola 6, medido por un revisor). Se
+    // cuenta por BLOQUE (el ancestro con caja propia: un pie de tres líneas es
+    // una nota, no tres) y se apunta la clase, para saber de dónde salen.
+    if (fs < 14 || esMono(csEl)) {
+      const b = bloqueDe(el);
+      if (!bloquesNota.has(b)) bloquesNota.set(b, { clase: sel(b).replace(/#[^.]*/, ''), palabras: 0 });
+      bloquesNota.get(b).palabras += palabras;
+    }
+    // ── 8 · FAMILIAS. «One thing I took from Andy Toh» y «One thing I took
+    //    from Sol» no son el mismo nodo de texto, y son el mismo rótulo. Un
+    //    rótulo corto se agrupa por sus tres primeras palabras.
+    if (txt.length <= 90 && palabras >= 3) {
+      const k = txt.toLowerCase().split(/\s+/).slice(0, 3).join(' ');
+      if (!familias.has(k)) familias.set(k, { texto: txt.slice(0, 60), n: 0, donde: cadena(el), exactos: new Set() });
+      familias.get(k).n++;
+      familias.get(k).exactos.add(txt.toLowerCase());
+    }
     // ── 8 · REPETICIONES. Un rótulo corto que sale 8 veces o más no informa
     //    de nada (§3.4 x). Solo cuentan los cortos: un párrafo repetido es
     //    otro problema, y la prosa larga no se repite por accidente.
@@ -528,16 +698,70 @@ const SONDA = (lang) => {
     }
   }
   out.tamanos = [...vistos.values()].sort((a, b) => b.px - a.px);
-  out.repes = [...rotulos.values()].filter((r) => r.n >= 8).sort((a, b) => b.n - a.n);
+  out.notas = bloquesNota.size;
+  out.notasPalabras = [...bloquesNota.values()].reduce((s, b) => s + b.palabras, 0);
+  {
+    const porClase = new Map();
+    for (const b of bloquesNota.values()) porClase.set(b.clase, (porClase.get(b.clase) || 0) + 1);
+    out.notasClases = [...porClase.entries()].sort((a, b) => b[1] - a[1]).map(([clase, n]) => ({ clase, n }));
+  }
+  // ── 8 · REPETICIONES, TRES VARAS (corrección de la ola 6) ───────────────
+  // (a) el mismo nodo de texto ≥ 8 veces; (b) la misma FAMILIA (tres
+  // primeras palabras) ≥ 8 veces aunque los textos difieran; (c) el mismo
+  // `content` de un ::before/::after pintado ≥ 8 veces. La (c) existe porque
+  // «↗» ×35 y «↓» ×12 se habían movido a pseudoelementos para salir de la
+  // prueba, y un rótulo pintado es un rótulo, lo escriba quien lo escriba.
+  const exactas = [...rotulos.values()].filter((r) => r.n >= 8);
+  const yaExactas = new Set(exactas.map((r) => r.texto.toLowerCase()));
+  const fam = [...familias.values()].filter((f) => f.n >= 8 && ![...f.exactos].some((e) => yaExactas.has(e.slice(0, 60))))
+    .map((f) => ({ texto: f.texto.split(/\s+/).slice(0, 3).join(' ') + ' …', n: f.n, donde: f.donde }));
+  const pseudos = new Map();
+  for (const el of raiz.querySelectorAll('*')) {
+    if (fuera(el)) continue;
+    for (const p of ['::before', '::after']) {
+      const c = getComputedStyle(el, p).content;
+      if (!c || c === 'none' || c === 'normal' || c === '""' || c === "''") continue;
+      const t = c.replace(/^["']|["']$/g, '').trim();
+      if (!t || /^attr\(|^counter/.test(c)) continue;
+      const k = p + t;
+      if (!pseudos.has(k)) pseudos.set(k, { texto: p + ' «' + t + '»', n: 0, donde: cadena(el) });
+      pseudos.get(k).n++;
+    }
+  }
+  out.repes = [...exactas, ...fam, ...[...pseudos.values()].filter((r) => r.n >= 8)].sort((a, b) => b.n - a.n);
 
   // ── 2 · TARJETAS OSCURAS ────────────────────────────────────────────────
   // Se reconocen por clase declarada (.sf-tarjeta, la del sistema) y por las
   // que hoy hacen ese papel en el documento (.cita, .tile). Si mañana nace
   // otra, se añade aquí — o mejor, se le pone .sf-tarjeta.
-  for (const el of raiz.querySelectorAll('.sf-tarjeta, li.cita, .tarjeta')) {
+  // ── Y POR PÍXEL, NO SOLO POR NOMBRE (corrección de la ola 6) ──────────
+  // Un revisor metió una caja negra de 400 × 300 sin clase y el guardián no
+  // la vio: la talla única se vigilaba por el nombre de la clase. Ahora toda
+  // caja OSCURA a la vista (fondo con luminancia < 0.15, ≥ 8 000 px², la más
+  // exterior) es una tarjeta y tiene que medir 482 × 288 — o 308 × 385 si es
+  // la tarjeta de país de (v) — salvo la placa que sostiene la marca de un
+  // tercero (`[data-marca]`), que va pequeña por mandato de CLAUDE.md.
+  const lum = (bg) => {
+    const m = (bg || '').match(/[\d.]+/g);
+    if (!m || m.length < 3 || (m.length > 3 && parseFloat(m[3]) < 0.5)) return 1;
+    return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
+  };
+  const oscuros = [];
+  for (const el of raiz.querySelectorAll('*')) {
     if (fuera(el)) continue;
+    if (lum(getComputedStyle(el).backgroundColor) > 0.15) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width * r.height < 8000) continue;
+    oscuros.push(el);
+  }
+  const declaradas = new Set(raiz.querySelectorAll('.sf-tarjeta, li.cita, .tarjeta'));
+  for (const el of [...new Set([...declaradas, ...oscuros])]) {
+    if (fuera(el)) continue;
+    if (oscuros.some((o) => o !== el && o.contains(el))) continue;      // la más exterior
+    if (el.querySelector('[data-marca]') || el.closest('[data-marca]')) continue;
     const r = abs(el.getBoundingClientRect());
-    out.tarjetas.push({ donde: cadena(el), w: Math.round(r.w), h: Math.round(r.h), y: Math.round(r.t) });
+    const pais = !!el.closest('.mic-pais, .sf-pais');
+    out.tarjetas.push({ donde: cadena(el), w: Math.round(r.w), h: Math.round(r.h), y: Math.round(r.t), pais, declarada: declaradas.has(el) });
   }
 
   // ── 2b · LA PAREJA CON UN NÚMERO DE HIJOS QUE NO ES DOS ─────────────────
@@ -552,8 +776,16 @@ const SONDA = (lang) => {
   }
 
   // ── 3 · FOTOS ───────────────────────────────────────────────────────────
+  // UNA EXCEPCIÓN, ESCRITA EN EL MARCADO Y NO AQUÍ: `data-marca`. Es la
+  // marca de un tercero (el logo del Reto Actinver, original de 182 px), no
+  // una foto: CLAUDE.md manda que vaya pequeña junto al nombre del concurso y
+  // sobre placa oscura fija, y CURADURIA-FOTOS.md §3 (cap. 5) la deja fuera
+  // del suelo de 480 a propósito: «el suelo de 480 no aplica». Se salta y se
+  // cuenta aparte (`marcas`), para que no desaparezca en silencio.
+  out.marcas = 0;
   for (const el of raiz.querySelectorAll('img, video, canvas')) {
     if (fuera(el)) continue;
+    if (el.hasAttribute('data-marca')) { out.marcas++; continue; }
     const r = el.getBoundingClientRect();
     out.fotos.push({
       donde: cadena(el),
@@ -600,7 +832,8 @@ const SONDA = (lang) => {
   // ── 6 · DESBORDE HORIZONTAL ─────────────────────────────────────────────
   out.desborde = Math.max(0, document.documentElement.scrollWidth - window.innerWidth);
 
-  // ── 7 · NOTAS Y HUECOS PENDIENTES ───────────────────────────────────────
+  // ── 7 · HUECOS PENDIENTES (las notas se cuentan arriba, en el recorrido
+  //    de nodos de texto, con la vara literal de la auditoría) ─────────────
   // LA VARA SE AMPLIÓ EL 2026-09-04, Y ESTO IMPORTA MÁS DE LO QUE PARECE.
   // Contaba tres familias de clases y salía «50 · tope del sistema 59», que en
   // este formato se lee como «esta regla ya está dentro del sistema». No lo
@@ -613,15 +846,11 @@ const SONDA = (lang) => {
   // `.meta-mono` dentro de un `figcaption` es una nota, no dos) y se imprimen
   // además las PALABRAS y su porcentaje sobre las que se ven, que es la cifra
   // que él comparó: 2 137 palabras = 50.6 % del cuerpo.
+  // Y SE VOLVIÓ A CORREGIR EN LA OLA 6: la lista de clases de aquí (.meta-mono,
+  // figcaption, .pie…) daba 52 mientras la vara literal de la auditoría —todo
+  // texto a la vista en mono o por debajo de 14 px— daba 142. La cuenta vive
+  // ahora en el recorrido de texto (arriba) y no depende de ninguna lista.
   const esNota = (el) => !plegado(el) && seVe(el);
-  const cuentaPal = (t) => (t || '').trim().split(/\s+/).filter(Boolean).length;
-  const NOTA_SEL = '.meta-mono, .sf-nota, .nota, .fuente, .pie-fuente,'
-    + ' .hueco, .hueco-mat, .foto-hueco, .sf-pendiente, .pendiente,'
-    + ' figcaption, .pie, .etiqueta';
-  const nodosNota = [...raiz.querySelectorAll(NOTA_SEL)].filter(esNota);
-  const raicesNota = nodosNota.filter((n) => !nodosNota.some((o) => o !== n && o.contains(n)));
-  out.notas = raicesNota.length;
-  out.notasPalabras = raicesNota.reduce((s, n) => s + cuentaPal(n.textContent), 0);
   out.pendientes = [...raiz.querySelectorAll('.hueco, .hueco-mat, .foto-hueco, .sf-pendiente, .pendiente')]
     .filter(esNota).length;
 
@@ -736,6 +965,7 @@ await new Promise((r) => servidor.close(r));
 // EL VEREDICTO
 // ═══════════════════════════════════════════════════════════════════════════
 const cerca = (v, lista, tol = TOL) => lista.some((x) => Math.abs(v - x) <= tol);
+const malTarjeta = (t) => { const T = t.pais ? PAIS : TARJETA; return Math.abs(t.w - T.w) > 0.5 || Math.abs(t.h - T.h) > 0.5; };
 const etq = (m) => `${m.motor} ${m.w} ${m.idioma}`;
 const infra = { tamanos: [], tarjetas: [], parejas: [], fotos: [], pisos: [], pasos: [], huecos: [], desborde: [], notas: [], pendientes: [], repes: [], apagados: [], portada: [] };
 
@@ -748,7 +978,7 @@ const infra = { tamanos: [], tarjetas: [], parejas: [], fotos: [], pisos: [], pa
 // enseña ninguna captura de Chrome. Va en una clave PROPIA.
 for (const m of medidas) {
   for (const t of m.tamanos) if (!cerca(t.px, TAMANOS, 0.5)) infra.tamanos.push({ combo: etq(m), px: t.px, n: t.n, sel: t.donde, muestra: t.muestra });
-  for (const t of m.tarjetas) if (Math.abs(t.w - TARJETA.w) > 0.5 || Math.abs(t.h - TARJETA.h) > 0.5) infra.tarjetas.push({ ...t, combo: etq(m) });
+  for (const t of m.tarjetas) if (malTarjeta(t)) infra.tarjetas.push({ ...t, combo: etq(m) });
   for (const p of m.parejas || []) infra.parejas.push({ ...p, combo: etq(m) });
   for (const f of m.fotos) {
     if (!cerca(f.w, ANCHOS_FOTO)) infra.fotos.push({ ...f, combo: etq(m) });
@@ -774,13 +1004,14 @@ for (const m of medidas) {
 const peor = (fn) => Math.max(0, ...medidas.map(fn));
 const cuenta = {
   tamanos: peor((m) => m.tamanos.filter((t) => !cerca(t.px, TAMANOS, 0.5)).length),
-  tarjetas: peor((m) => m.tarjetas.filter((t) => Math.abs(t.w - TARJETA.w) > 0.5 || Math.abs(t.h - TARJETA.h) > 0.5).length),
+  tarjetas: peor((m) => m.tarjetas.filter(malTarjeta).length),
   parejas: peor((m) => (m.parejas || []).length),
   fotos: peor((m) => m.fotos.filter((f) => !cerca(f.w, ANCHOS_FOTO)).length),
   pisos: peor((m) => m.fotos.filter((f) => f.w < PISO_FOTO).length),
   pasos: peor((m) => m.pasos.filter((p) => !(p.entre ? cerca(p.d, PASOS_ENTRE) : cerca(p.d, [...PASOS_DENTRO, ...PASOS_ENTRE]))).length),
   huecos: peor((m) => m.huecos.length),
   huecoPx: peor((m) => m.huecos.reduce((s, h) => s + h.px, 0)),
+  vacio: peor((m) => Math.round((m.vacio || 0) * 10)),
   desborde: peor((m) => m.desborde),
   notas: peor((m) => m.notas),
   pendientes: peor((m) => m.pendientes),
@@ -803,6 +1034,7 @@ const NOMBRE = {
   pasos: '4 · AIRE que no es un paso (entre 16·44·72·80 · dentro 8·20)',
   huecos: '5a · FRANJAS de más de 160 px sin tinta',
   huecoPx: '5b · PÍXELES vacíos, sumados',
+  vacio: '5c · FILAS sin tinta en la columna de 980, en décimas de % (Jaime pide < 200; la auditoría dio 520)',
   desborde: '6 · DESBORDE horizontal (scrollWidth > innerWidth)',
   notas: '7a · NOTAS a la vista — vara de la auditoría (el sistema pide ≤ 59)',
   pendientes: '7b · HUECOS «TO WRITE» declarados',
@@ -823,6 +1055,8 @@ for (const m of medidas) {
   const tapa = !p || !p.armada ? 'portada sin efecto' : (p.ok ? 'portada ✓' : 'portada ✗');
   L.push(`  ${etq(m).padEnd(20)} ${String(m.alto).padStart(6)} px · ${(m.alto / (ALTOS[m.w] || 900)).toFixed(1)} pantallas · ${sinTinta}% de filas sin tinta` +
     (m.soporta && !m.soporta.scroll ? '  · sin animation-timeline' : '') + '  · ' + tapa);
+  L.push(`  ${''.padEnd(20)} notas (mono o < 14 px): ${m.notas} bloques · ${m.notasPalabras} palabras · ${m.palabras ? ((m.notasPalabras / m.palabras) * 100).toFixed(1) : '?'}% de ${m.palabras} — ` +
+    (m.notasClases || []).slice(0, 8).map((c) => `${c.clase} ${c.n}`).join(' · '));
 }
 L.push('');
 
@@ -836,7 +1070,7 @@ const linea = (k) => {
   return mal;
 };
 
-for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'huecos', 'huecoPx', 'desborde', 'notas', 'pendientes', 'repes', 'apagados', 'portada']) {
+for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'huecos', 'huecoPx', 'vacio', 'desborde', 'notas', 'pendientes', 'repes', 'apagados', 'portada']) {
   linea(k);
   const lista = k === 'huecoPx' ? infra.huecos : infra[k];
   if (!lista || !lista.length) { L.push(''); continue; }
@@ -857,7 +1091,7 @@ for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'h
   for (const u of unicos.slice(0, LISTA)) {
     const x = u.x;
     if (k === 'tamanos') L.push(`     ${String(x.px).padStart(6)} px · ${x.n} nodos · ${x.sel}  «${x.muestra}»  ${donde(u)}`);
-    else if (k === 'tarjetas') L.push(`     ${x.w}×${x.h} en y=${x.y} ${x.w !== TARJETA.w ? '(ancho)' : ''}${x.h !== TARJETA.h ? '(alto)' : ''}  ${x.donde}  ${donde(u)}`);
+    else if (k === 'tarjetas') L.push(`     ${x.w}×${x.h} en y=${x.y} ${x.pais ? '(tarjeta de país, (v) pide 308×385)' : ''}${x.declarada ? '' : '(caja oscura SIN clase de tarjeta)'}  ${x.donde}  ${donde(u)}`);
     else if (k === 'fotos' || k === 'pisos') L.push(`     ${String(x.w).padStart(5)}×${String(x.h).padEnd(5)} en y=${x.y}  «${x.alt}»  ${donde(u)}`);
     else if (k === 'pasos') L.push(`     ${String(x.d).padStart(5)} px ${x.entre ? 'entre' : 'dentro'} en y=${x.y}  ${x.donde}  ${donde(u)}`);
     else if (k === 'huecos' || k === 'huecoPx') L.push(`     ${String(x.px).padStart(5)} px vacíos desde y=${x.y}  (${x.pct}% del documento)  ${donde(u)}`);

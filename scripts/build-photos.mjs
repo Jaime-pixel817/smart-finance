@@ -94,6 +94,31 @@ const MANIFIESTO = p('src/generated/photos.json');
 const manifiesto = {};
 const escritos = new Set();
 
+/* ── conservar(): la clave se queda como estaba ────────────────────────────
+ * Varios originales viven FUERA del repo (cv-material/, ~/sf-video/). Si uno
+ * falta en la máquina donde corre esto, la clave conserva la ruta que ya tenía
+ * en el manifiesto y su archivo no se barre como huérfano. Se usaba sin estar
+ * definida (ola 4): con un original ausente el script se caía con
+ * ReferenceError en vez de conservar nada. */
+const previo = fs.existsSync(MANIFIESTO) ? JSON.parse(fs.readFileSync(MANIFIESTO, 'utf8')) : {};
+function conservar(nombre) {
+  const ruta = previo[nombre];
+  if (!ruta) { console.log('  ' + nombre + ': no estaba en el manifiesto y falta su original — queda fuera'); return; }
+  manifiesto[nombre] = ruta;
+  escritos.add(path.basename(ruta));
+}
+
+/** La caja más grande de proporción `ratio` (ancho/alto) dentro de W×H,
+ *  centrada en (fx, fy) y sujeta al borde. Generaliza `caja()` (4:3). */
+function cajaRatio(W, H, ratio, fx, fy) {
+  let w, h;
+  if (W / H > ratio) { h = H; w = Math.round(H * ratio); }
+  else { w = W; h = Math.round(W / ratio); }
+  const left = Math.max(0, Math.min(W - w, Math.round(fx * W - w / 2)));
+  const top = Math.max(0, Math.min(H - h, Math.round(fy * H - h / 2)));
+  return { left, top, width: w, height: h };
+}
+
 fs.mkdirSync(SALIDA, { recursive: true });
 
 function publicar(nombre, buffer) {
@@ -250,6 +275,21 @@ console.log('Jaime');
     const buf = await sharp(src).resize(1600).jpeg({ quality: 80, mozjpeg: true }).toBuffer();
     const archivo = publicar('grupo.jpg', buf);
     console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   1600x' + Math.round(1600 * g.height / g.width));
+
+    /* ── LA MISMA FOTO PARA EL CV, A 3:2 (ola 5 · capítulos, 2026-09-04) ──
+     * En el CV va a la caja ANCHA del sistema, 980 × 653 (3:2): es la prueba
+     * visual de «casi 200 de nosotros» y estaba pintada a 154 px (0.19×), la
+     * escala más baja de las 39 fotos (CURADURIA-FOTOS.md, cap. 2). La banda
+     * 3:2 mide el 88.9 % del alto: arranca en el 3 % —entra el cartel, que va
+     * del 5 al 30 %— y corta por los tobillos (el zapato más bajo está en el
+     * 95 %). Se recorta el suelo, que es lo que sobra, no el cielo con el
+     * cartel. Dos anchos: 980 para densidad 1 y 1960 para densidad 2. */
+    const banda = { left: 0, top: Math.round(0.03 * g.height), width: g.width, height: Math.round(g.width * 2 / 3) };
+    for (const ancho of [980, 1960]) {
+      const wp = await sharp(src).extract(banda).resize(ancho).webp({ quality: 76 }).toBuffer();
+      const a = publicar('cv-grupo-' + ancho + '.webp', wp);
+      console.log('  ' + a.padEnd(40) + kb(wp).padStart(9) + '   ' + ancho + 'x' + Math.round(ancho * 2 / 3) + ' (3:2, desde y=' + banda.top + ')');
+    }
   }
 }
 
@@ -477,26 +517,52 @@ console.log('Jaime');
   const CVF = (n) => p('public/assets/cv-fotos', n);
   console.log('fotos nuevas del CV (cv-fotos/, a color)');
 
-  // Caras 4:3 con punto focal, mismas mecánicas que los breakdowns.
-  const CARAS = [
-    // Lloyd y Jaime de pie ante las letras NUS: caras en y=0.40.
-    { id: 'cara-lloyd', src: 'tt-entrevista-lloyd-nus.jpg', fx: 0.35, fy: 0.52 },
-    // Podcast con Mauricio (pt. 4), sillones y mesa: caras en y=0.38.
-    { id: 'cara-mauricio', src: 'tt-entrevista-mauricio-podcast-p4.jpg', fx: 0.50, fy: 0.47 },
-    // Entrevista al creador de contenido de EE. UU., Marina Bay detrás:
-    // caras en y=0.53; el 0.62 baja el cielo vacío y deja el skyline.
-    { id: 'cara-jesus', src: 'tt-entrevista-jesus-singapur.jpg', fx: 0.50, fy: 0.62 },
-    // La promo del grupo en el Tec (`tt-grupo`) SE FUE el 2026-08-31: su
-    // único sitio en la página lo ocupa ahora la foto 8 del lote (él
-    // entrevistando en su prepa), que es la sustitución que pidió Jaime.
-    // Generarla igual dejaba un WebP desplegado que no pide nadie.
+  /* ── LAS CARAS DEL CAPÍTULO DE LAS CONVERSACIONES: LOSAS DE 482 × 288 ──
+   * (ola 5 · capítulos, 2026-09-04). Vivían DENTRO de las tarjetas negras a
+   * 154 × 116 (0.32×). En el sistema de Apple la tarjeta oscura es cita +
+   * crédito y no lleva foto (SISTEMA-REFERENCIA §3.4 iv), así que las caras
+   * salen a su propia rejilla, a 482 de ancho y con el alto que fija la
+   * tarjeta (288): la MISMA caja, con una foto dentro (CURADURIA-FOTOS.md,
+   * cap. 3: «tarjeta, 482»). Se generan al doble, 964 × 576, salvo cuando el
+   * original no da: entonces al ancho nativo y sin ampliar.
+   *
+   * Las que se van, y por qué (CURADURIA-FOTOS.md §5.3): `cara-lloyd` y
+   * `cara-mauricio` salen de originales de 576 px —1.19× a 482— y llevan el
+   * subtítulo de TikTok quemado en los píxeles («IS JUST BE YOURSELF.», «SALEN
+   * DE LA»). Lloyd sube al capítulo de las cartas con una foto mejor
+   * (`cv-lote-carta-lloyd`); Mauricio vuelve el día que se re-extraiga el
+   * cuadro del vídeo original a resolución nativa.
+   *
+   * `tile-jesus` es la más blanda que entra (720 px → 1.49×) y entra porque
+   * es la única prueba de esa entrevista: la banda 482:288 se toma POR ENCIMA
+   * del subtítulo quemado («WHEN I WAS», que empieza en y ≈ 0.72) con las
+   * caras (y ≈ 0.55) dentro. `tile-maier` y `tile-podcast` salen de los
+   * mismos originales que sus miniaturas del sitio, con el mismo punto focal. */
+  const RATIO_LOSA = 482 / 288;
+  const LOSAS = [
+    { id: 'tile-jesus', src: CVF('tt-entrevista-jesus-singapur.jpg'), fx: 0.50, fy: 0.53 },
+    { id: 'tile-maier', src: p('public/assets/breakdowns/breakdown-jpmorgan-etf.jpg'), fx: 0.50, fy: 0.35 },
+    { id: 'tile-podcast', src: p('public/assets/breakdowns/breakdown-trading-room-podcast.jpg'), fx: 0.51, fy: 0.38 }
   ];
-  for (const f of CARAS) {
-    const m2 = await sharp(CVF(f.src)).metadata();
-    const c = caja(m2.width, m2.height, f.fx, f.fy);
-    const buf = await sharp(CVF(f.src)).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
+  for (const f of LOSAS) {
+    const m2 = await sharp(f.src).metadata();
+    const c = cajaRatio(m2.width, m2.height, RATIO_LOSA, f.fx, f.fy);
+    const w = Math.min(964, c.width);
+    const buf = await sharp(f.src).extract(c).resize(w).webp({ quality: 78 }).toBuffer();
     const archivo = publicar('cv-' + f.id + '.webp', buf);
-    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   480x360');
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w / RATIO_LOSA) + ' (482:288)');
+  }
+  /* Moris Dieck, ENTERO y en 3:4 para la pareja de 482 × 642 del bloque
+   * «gente a la que pedí consejo» (CURADURIA-FOTOS.md, cap. 3): el original
+   * ya es 900 × 1200, o sea 3:4 clavado, 1.87× a 482. La miniatura 4:3 del
+   * sitio público (`breakdown-moris-dieck`) se queda como está. */
+  {
+    const src = p('public/assets/breakdowns/breakdown-moris-dieck.jpg');
+    const m2 = await sharp(src).metadata();
+    const w = Math.min(964, m2.width);
+    const buf = await sharp(src).resize(w).webp({ quality: 76 }).toBuffer();
+    const archivo = publicar('cv-moris-900.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width) + ' (3:4, sin recorte)');
   }
 
   // El retrato que Jaime ELIGIÓ como su primera foto: él con micrófono en un
@@ -508,7 +574,10 @@ console.log('Jaime');
     const m2 = await sharp(src).metadata();
     const alto45 = Math.round(m2.width / 0.8);
     const top = Math.max(0, Math.min(m2.height - alto45, Math.round(0.35 * m2.height - alto45 / 2)));
-    for (const ancho of [480, 800]) {
+    // 653 Y 1306 DESDE LA OLA 5 (capítulos): la caja columna del sistema es
+    // 653 × 816, y 1306 es esa caja a densidad 2. Eran 480 y 800 para una
+    // caja de 332 que ya no existe.
+    for (const ancho of [653, 1306]) {
       const buf = await sharp(src).extract({ left: 0, top, width: m2.width, height: alto45 })
         .resize(ancho).webp({ quality: 80 }).toBuffer();
       const archivo = publicar('cv-retrato-' + ancho + '.webp', buf);
@@ -517,14 +586,19 @@ console.log('Jaime');
   }
 
   // Los cuadros sin recorte: cada uno a su proporción, en un ancho.
+  // CUATRO SE FUERON EN LA OLA 5 (`tt-ahorro30`, `tt-bienvenida`, `tt-jpmorgan`,
+  // `tt-linkedin`): estaban desplegados con `immutable` y no los pedía ningún
+  // fichero de src/ (CURADURIA-FOTOS.md §4). Los dos del set FTR eran además
+  // la misma escena que `breakdown-trading-room-podcast`. Las dos infografías
+  // (oro, 4 noticias) se generan a 964 = pareja 482 × 642 a densidad 2, que
+  // es la caja que CURADURIA-FOTOS.md les da en el capítulo 7.
+  // TOKIO SE FUE EN LA OLA 6 · PASO C: era la imagen ROTA del documento
+  // (declarada 0×0) y, aunque no lo estuviera, «torre iluminada de noche con
+  // subtítulo quemado: decorado puro» (CURADURIA-FOTOS.md, cap. 7). El
+  // original sigue en cv-fotos/; su WebP sale del manifiesto.
   const CUADROS = [
-    ['tt-ahorro30', 'tt-podcast-ftr-ahorro30.jpg', 960],      // set FTR, 2.17:1
-    ['tt-bienvenida', 'tt-podcast-ftr-bienvenida.jpg', 960],  // set FTR, 2.17:1
-    ['tt-oro', 'tt-noticias-oro.jpg', 560],                   // infografía vertical
-    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 560],   // infografía vertical
-    ['tt-jpmorgan', 'tt-jpmorgan-singapur-bn.jpg', 560],      // cita sobre foto (ya era B/N en el original)
-    ['tt-linkedin', 'tt-entrevista-mauricio-podcast-p2.jpg', 560], // consejo LinkedIn + pt. 2
-    ['tt-tokio', 'tt-viaje-japon-tokyo-tower.jpg', 720]       // Torre de Tokio, 3:4
+    ['tt-oro', 'tt-noticias-oro.jpg', 964],                   // infografía vertical
+    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 964]    // infografía vertical
   ];
   for (const [id, src, ancho] of CUADROS) {
     const m2 = await sharp(CVF(src)).metadata();
@@ -555,12 +629,20 @@ console.log('Jaime');
    * cambia el contenido y con él la huella, que es justo para lo que está.
    * El fotograma viejo (tt-viaje-presentar-mexico-nus.jpg) se queda en
    * cv-fotos/ sin publicar: es el original del vídeo, no una foto de más. */
+  /* ── OLA 6 · PASO C: A LA COLUMNA 653 × 435 (CURADURIA-FOTOS.md, cap. 7) ──
+   * Era la escala más baja de las 39 fotos (154 × 111, 0.16×) para una de las
+   * mejores pruebas: él presentando sobre México en la NUS. La caja de (ii)
+   * en horizontal es 3:2; el original es 1655 × 1192 (1.39:1), así que se
+   * corta la banda 3:2 centrada —él y la lámina quedan dentro, sobra techo y
+   * suelo— y sale a 1306, la columna de 653 a densidad 2 (2.0×). */
   {
     const src = CVF('lote-12-nus-explicando-mexico.jpg');
     const m2 = await sharp(src).metadata();
-    const buf = await sharp(src).resize(960).webp({ quality: 78 }).toBuffer();
+    const c = cajaRatio(m2.width, m2.height, 3 / 2, 0.50, 0.50);
+    const w = Math.min(1306, c.width);
+    const buf = await sharp(src).extract(c).resize(w).webp({ quality: 78 }).toBuffer();
     const archivo = publicar('cv-tt-nus-presentacion.webp', buf);
-    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   960x' + Math.round(960 * m2.height / m2.width));
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * c.height / c.width) + ' (banda 3:2 desde y=' + c.top + ')');
   }
 
   /* ── EL LOTE DE 13 FOTOS QUE JAIME MANDÓ EL 2026-08-30 ──────────────────
@@ -615,18 +697,36 @@ console.log('Jaime');
    * LA 8 y LA 12 SON SUSTITUCIONES, no huecos: los dos sitios ya tenían foto
    * (ver el comentario de la 12, aquí arriba, y el de `grupo-tec` en
    * Historia.astro). */
+  /* ── LOS ANCHOS SON LOS DE LAS CAJAS DEL SISTEMA (ola 5 · capítulos) ────
+   * 964 = la pareja de 482 × 642 a densidad 2; 1306 = la columna de 653 a
+   * densidad 2. `Math.min` con el ancho natural: nunca se amplía (Marg mide
+   * 800 y sale a 800; la 8 del grupo mide 1206 y sale a 1206). Los capítulos
+   * 4 a 9 siguen a 560 hasta que su reconstrucción los suba.
+   * LA 9 (él solo, narrando junto al mismo cartel) SE FUE: es la tercera foto
+   * de la misma escena que la 8 y no añade un hecho, añade una pose
+   * (CURADURIA-FOTOS.md, cap. 2). */
+  /* ── OLA 6 · PASO B: LAS DEL SERVICIO SUBEN A SU CAJA, Y CINCO SE VAN ────
+   * CURADURIA-FOTOS.md, cap. 6: la playa-1 (él con la pinza y la cubeta) va
+   * SOLA a 482 × 642 —su original mide 800, o sea 1.66×: no aguanta 653—; la
+   * marcha (1280 px) va en pareja a 482. Las que se van, con el motivo del
+   * documento: playa-2 «no sale nadie, es el resultado sin el acto», playa-3
+   * «caras no visibles, misma escena que playa-1», perritos «decorado» y
+   * donación «él solo sosteniendo mercancía: se lee como una compra» — la
+   * sustituye la 11 (él con las voluntarias de Callejeritos y los carteles),
+   * que va en su propio bloque más abajo. Las cuatro ya no se generan: un
+   * WebP desplegado que no usa nadie es peso sin foto (CURADURIA-FOTOS.md
+   * §4, «limpieza aparte del recuento»). Lloyd George sale de esta lista:
+   * su foto es la pareja de la carta y se recorta a 3:4 en el bloque de las
+   * cartas. */
   const LOTE = [
-    ['cv-lote-carta-lloyd', 'lote-01-lloyd-george-banderas.jpg', 560],
-    ['cv-lote-toronto', 'lote-02-toronto-city-hall.jpg', 480],
-    ['cv-lote-playa-1', 'lote-03-playa-limpiando-cubeta.jpg', 560],
-    ['cv-lote-playa-2', 'lote-04-playa-basura-recogida.jpg', 560],
-    ['cv-lote-playa-3', 'lote-10-playa-limpiando-con-companera.jpg', 560],
-    ['cv-lote-donacion', 'lote-05-donando-alimento-perritos.jpg', 560],
-    ['cv-lote-perritos', 'lote-06-perritos-refugio.jpg', 560],
-    ['cv-lote-marg', 'lote-07-marg-franklin-cfa.jpg', 480],
-    ['cv-lote-grupo-entrevista', 'lote-08-grupo-entrevistando-prepa.jpg', 720],
-    ['cv-lote-grupo-narra', 'lote-09-grupo-narrando-cartel.jpg', 560],
-    ['cv-lote-marcha', 'lote-13-marcha-animales-callejeros.jpg', 560]
+    ['cv-lote-toronto', 'lote-02-toronto-city-hall.jpg', 964],
+    ['cv-lote-playa-1', 'lote-03-playa-limpiando-cubeta.jpg', 964],
+    // AQUÍ IBAN playa-2 (lote-04), playa-3 (lote-10), donación (lote-05) y
+    // perritos (lote-06): SE FUERON con el capítulo 6 (motivos arriba). Los
+    // originales siguen en cv-fotos/; el script borra sus WebP del manifiesto.
+    ['cv-lote-marg', 'lote-07-marg-franklin-cfa.jpg', 964],
+    ['cv-lote-grupo-entrevista', 'lote-08-grupo-entrevistando-prepa.jpg', 1306],
+    ['cv-lote-marcha', 'lote-13-marcha-animales-callejeros.jpg', 964]
   ];
   /* CALIDAD 72, y no el 76-78 del resto del archivo. Este bloque es, con
    * diferencia, el peso de imagen más grande de la página: once fotos que se
@@ -643,6 +743,74 @@ console.log('Jaime');
     const buf = await sharp(CVF(src)).resize(w).webp({ quality: 72 }).toBuffer();
     const archivo = publicar(id + '.webp', buf);
     console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
+  }
+
+  /* ── LAS DOS CARTAS: LLOYD GEORGE Y ANDY TOH EN PAREJA 3:4 (ola 6 · paso B)
+   * CURADURIA-FOTOS.md, cap. 4: «el capítulo donde un comité se detiene deja
+   * de tener sus dos pruebas a 154 px para tenerlas en un bloque de 980 con
+   * dos cajas idénticas» de 482 × 642. Las dos se recortan a 3:4 AQUÍ y no en
+   * el navegador: la de Lloyd es 9:16 (1125 × 2000) y la de Andy casi
+   * (900 × 1582); servirlas enteras sería bajar un 30 % de píxeles que
+   * `object-fit: cover` tira. El punto focal deja las dos cabezas dentro y
+   * corta por los pies. Andy Toh es el ÚNICO archivo que la curaduría
+   * encontró repetido (aquí y en el carrusel del capítulo 3): ahora vive solo
+   * aquí, bajo su carta, y su miniatura 4:3 del sitio público
+   * (`breakdown-andy-toh`) no se toca. 964 = 482 a densidad 2; Andy se
+   * queda en 900, que es lo que da su original (1.87×). */
+  console.log('las dos cartas (pareja 3:4)');
+  const PAREJA_CARTAS = [
+    ['cv-lote-carta-lloyd', CVF('lote-01-lloyd-george-banderas.jpg'), 0.50, 0.55],
+    ['cv-carta-andy', p('public/assets/breakdowns/breakdown-andy-toh.jpg'), 0.50, 0.52]
+  ];
+  for (const [id, src, fx, fy] of PAREJA_CARTAS) {
+    const m2 = await sharp(src).metadata();
+    const c = cajaRatio(m2.width, m2.height, 3 / 4, fx, fy);
+    const w = Math.min(964, c.width);
+    const buf = await sharp(src).extract(c).resize(w).webp({ quality: 74 }).toBuffer();
+    const archivo = publicar(id + '.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * 4 / 3) + ' (3:4)');
+  }
+
+  /* ── LA 11 DEL LOTE ENTRA, CON EL TELÉFONO DEL CARTEL PIXELADO ──────────
+   * CURADURIA-FOTOS.md §5.5 la mete en lugar de la donación: «una es una
+   * donación, la otra es una organización» — él con dos voluntarias de
+   * Callejeritos y los carteles hechos a mano del grupo, bajo la carpa. Lo
+   * que la tenía fuera era el número de teléfono del cartel de
+   * «CALLEJERITOS», que es de un tercero y nadie lo dio para publicarlo
+   * (misma regla por la que el teléfono de la carta de Lloyd George no se
+   * publica). La regla no cambia: el número SE PIXELA antes de publicar —la
+   * franja del cartel donde está escrito, medida sobre el original (x del 3
+   * al 44 %, y del 61.5 al 68 %)— y lo demás de la foto sale entero.
+   * EL ORIGINAL NO ENTRA AL REPOSITORIO: se lee de cv-material/ (fuera del
+   * repo, como las del taller) porque public/assets/cv-fotos/ SÍ se commitea
+   * y el repo es público; lo que se commitea es solo el WebP ya pixelado. Si
+   * el original falta en la máquina, el manifiesto conserva la ruta. */
+  {
+    const SOL = path.join(raiz, '..', 'cv-material', 'imagenes', 'nuevas', '11-sol-callejeritos.jpg');
+    if (!fs.existsSync(SOL)) {
+      console.log('Sol: no está cv-material/imagenes/nuevas/11-sol-callejeritos.jpg — me la salto (el manifiesto conserva lo que ya tenía)');
+      conservar('cv-lote-sol.webp');
+    } else {
+      const orig = await sharp(SOL).rotate().toBuffer();
+      const m2 = await sharp(orig).metadata();
+      const zona = {
+        left: Math.round(0.03 * m2.width), top: Math.round(0.615 * m2.height),
+        width: Math.round(0.41 * m2.width), height: Math.round(0.065 * m2.height)
+      };
+      // Pixelado, no desenfoque: doce celdas a lo ancho se leen como una
+      // decisión, un difuminado se lee como un defecto de la foto. DOS
+      // pasadas separadas: en sharp un segundo `resize` en la misma cadena
+      // SUSTITUYE al primero (se comprobó: la primera versión encadenaba los
+      // dos y devolvía la franja intacta, con el número legible).
+      const chico = await sharp(orig).extract(zona).resize(12, null, { kernel: 'nearest' }).toBuffer();
+      const velo = await sharp(chico).resize(zona.width, zona.height, { kernel: 'nearest' }).toBuffer();
+      const tapada = await sharp(orig).composite([{ input: velo, left: zona.left, top: zona.top }]).toBuffer();
+      const c = cajaRatio(m2.width, m2.height, 3 / 4, 0.5, 0.5);
+      const w = Math.min(964, c.width);
+      const buf = await sharp(tapada).extract(c).resize(w).webp({ quality: 72 }).toBuffer();
+      const archivo = publicar('cv-lote-sol.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * 4 / 3) + ' (3:4, teléfono pixelado)');
+    }
   }
 
   /* ── EL TALLER DE FINANZAS PERSONALES (ola 4, 2026-09-02) ───────────────
@@ -676,24 +844,37 @@ console.log('Jaime');
    * porcentaje es el mismo que la fracción. */
   {
     const PEND = (n) => path.join(raiz, '..', 'cv-material', 'pendiente', 'taller-finanzas', 'fotos', n);
+    /* ── OLA 6 · PASO B: A LAS CAJAS DEL SISTEMA (CURADURIA-FOTOS.md, cap. 5)
+     * La 4603 (Gustavo ante la lámina S.M.A.R.T.) va en PAREJA con la de
+     * Jaime abriendo, a 482 × 642: es 3:4 nativa y sale a 964 (3.11×). La
+     * 4609 (el auditorio, una mano levantada) va en COLUMNA 653 × 435, «a lo
+     * ancho, que es como se lee un auditorio»: la banda 3:2 se corta del
+     * retrato con la mano dentro (y ≈ 0.27) y sale a 1306 (2.30×). La 4573
+     * SE VA: «mismo plano que 4574, de espaldas, con la sala pareciendo medio
+     * vacía; contradice a la que sí cuenta el lleno». Y la de Jaime, que es
+     * un cuadro 9:16 de su vídeo, se recorta a 3:4 con él y la diapositiva
+     * dentro (x 0.82 · y 0.55) para la pareja, a 964 (2.24×). */
     const TALLER = [
-      ['cv-taller-4603', 'taller-4603.jpg'],   // Gustavo con la diapositiva S.M.A.R.T.
-      ['cv-taller-4573', 'taller-4573.jpg'],   // el auditorio, desde el frente
-      ['cv-taller-4609', 'taller-4609.jpg']    // plano abierto; una mano levantada al fondo
+      ['cv-taller-4603', 'taller-4603.jpg', 964, null],                 // 3:4 nativa → pareja
+      ['cv-taller-4609', 'taller-4609.jpg', 1306, [3 / 2, 0.50, 0.47]]  // banda 3:2 → columna
     ];
-    const APERTURA = ['cv-taller-apertura-jaime', 'taller-apertura-jaime.jpg', 664, { fx: 0.82, fy: 0.55 }];
+    const APERTURA = ['cv-taller-apertura-jaime', 'taller-apertura-jaime.jpg', 964, { ratio: 3 / 4, fx: 0.82, fy: 0.55 }];
     const hay = TALLER.every(([, src]) => fs.existsSync(PEND(src)));
     if (!hay) {
       console.log('taller: no está cv-material/pendiente/taller-finanzas/fotos/ — me lo salto (el manifiesto conserva lo que ya tenía)');
       for (const [id] of TALLER) conservar(id + '.webp');
     } else {
-      console.log('taller de finanzas (sin recorte, 560 px, calidad 72)');
-      for (const [id, src] of TALLER) {
-        const m2 = await sharp(PEND(src)).metadata();
-        const w = Math.min(560, m2.width);
-        const buf = await sharp(PEND(src)).rotate().resize(w).webp({ quality: 72 }).toBuffer();
+      console.log('taller de finanzas (a las cajas del sistema, calidad 72)');
+      for (const [id, src, ancho, corte] of TALLER) {
+        // `.rotate()` aplica la orientación EXIF; la caja se mide sobre la
+        // foto YA enderezada (misma trampa que la de Majo, abajo).
+        const girada = await sharp(PEND(src)).rotate().toBuffer();
+        const m2 = await sharp(girada).metadata();
+        const c = corte ? cajaRatio(m2.width, m2.height, corte[0], corte[1], corte[2]) : { left: 0, top: 0, width: m2.width, height: m2.height };
+        const w = Math.min(ancho, c.width);
+        const buf = await sharp(girada).extract(c).resize(w).webp({ quality: 72 }).toBuffer();
         const archivo = publicar(id + '.webp', buf);
-        console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width));
+        console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * c.height / c.width) + (corte ? ' (recorte ' + corte[0].toFixed(2) + ')' : ' (sin recorte)'));
       }
     }
     if (!fs.existsSync(PEND(APERTURA[1]))) {
@@ -701,26 +882,53 @@ console.log('Jaime');
       conservar(APERTURA[0] + '.webp');
     } else {
       const [id, src, ancho, f] = APERTURA;
-      const m2 = await sharp(PEND(src)).metadata();
-      const w = Math.min(ancho, m2.width);
-      const buf = await sharp(PEND(src)).rotate().resize(w).webp({ quality: 72 }).toBuffer();
+      const girada = await sharp(PEND(src)).rotate().toBuffer();
+      const m2 = await sharp(girada).metadata();
+      const c = cajaRatio(m2.width, m2.height, f.ratio, f.fx, f.fy);
+      const w = Math.min(ancho, c.width);
+      const buf = await sharp(girada).extract(c).resize(w).webp({ quality: 72 }).toBuffer();
       const archivo = publicar(id + '.webp', buf);
-      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width) + ' (9:16, sin recorte)   object-position: ' + Math.round(f.fx * 100) + '% ' + Math.round(f.fy * 100) + '%');
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * c.height / c.width) + ' (3:4 desde el 9:16 del vídeo, foco ' + Math.round(f.fx * 100) + '% ' + Math.round(f.fy * 100) + '%)');
     }
+    /* MAJO, RECORTE MÁS ABIERTO (CURADURIA-FOTOS.md §5.4): el 480 × 360 de
+     * antes la dejaba «como una foto de carnet en un cuarto vacío». Ahora es
+     * una losa 482:288 (la caja de la tarjeta, al doble: 964 × 576) tomada de
+     * la foto ENDEREZADA entera de ancho —se ve la sala y el portátil, o sea
+     * la grabación— y con el mismo punto focal (ojos en x=0.62 · y=0.28). */
     const MAJO = path.join(process.env.HOME || '', 'sf-video', 'entrada', 'taller', 'IMG_4580.JPG');
     if (!fs.existsSync(MAJO)) {
       console.log('Majo: no está ~/sf-video/entrada/taller/IMG_4580.JPG — me la salto');
-      conservar('cv-cara-majo.webp');
+      conservar('cv-tile-majo.webp');
     } else {
       // `.rotate()` sin argumento aplica la orientación EXIF y la descarta;
       // la caja se calcula sobre las medidas YA enderezadas.
       const girada = sharp(MAJO).rotate();
       const buf0 = await girada.toBuffer();
       const m2 = await sharp(buf0).metadata();
-      const c = caja(m2.width, m2.height, 0.62, 0.28);
-      const buf = await sharp(buf0).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
-      const archivo = publicar('cv-cara-majo.webp', buf);
-      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   480x360 (enderezada ' + m2.width + 'x' + m2.height + ')');
+      const c = cajaRatio(m2.width, m2.height, 482 / 288, 0.62, 0.28);
+      const buf = await sharp(buf0).extract(c).resize(964).webp({ quality: 78 }).toBuffer();
+      const archivo = publicar('cv-tile-majo.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   964x576 (482:288, enderezada ' + m2.width + 'x' + m2.height + ')');
+    }
+
+    /* ── EL PÓSTER DE CANADÁ (ola 5 · capítulos) ───────────────────────────
+     * La tarjeta de país del micrófono era un recuadro negro con una nota
+     * meta: su pieza es un carrusel de fotos de TikTok, sin mp4 que servir.
+     * Su portada pública sí existe —1620 × 2880, «5. financial facts about
+     * Canada», la Torre CN en B/N— y vive en cv-material/pendiente/paises/.
+     * Entra a la caja 4:5 de la tarjeta (308 × 385) recortada por el centro:
+     * la ventana 4:5 cubre del 15 al 85 % del alto y dentro caen el título
+     * (0.63–0.73) y la torre. 616 = 308 × 2. Fuera del repo, como el taller. */
+    const CANADA = path.join(raiz, '..', 'cv-material', 'pendiente', 'paises', 'tiktok-canada-portada.jpg');
+    if (!fs.existsSync(CANADA)) {
+      console.log('Canadá: no está cv-material/pendiente/paises/tiktok-canada-portada.jpg — me la salto');
+      conservar('cv-pais-canada.webp');
+    } else {
+      const m2 = await sharp(CANADA).metadata();
+      const c = cajaRatio(m2.width, m2.height, 4 / 5, 0.5, 0.5);
+      const buf = await sharp(CANADA).extract(c).resize(616).webp({ quality: 76 }).toBuffer();
+      const archivo = publicar('cv-pais-canada.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   616x770 (4:5, desde y=' + c.top + ')');
     }
   }
 
@@ -801,33 +1009,45 @@ console.log('Jaime');
   const CVF = (n) => p('public/assets/cv-fotos', n);
   console.log('certificados y tienda (cv-fotos/, a color)');
 
-  // Nombre lógico → archivo original y lado LARGO de la salida. El lado largo
-  // y no el ancho: cuatro son apaisados y dos verticales, y lo que tiene que
-  // caber igual en la tarjeta es el lado mayor.
+  /* ── OLA 6 · PASO C: DOS ESCANEOS EN PAREJA, CUATRO SALEN DE LAS IMÁGENES
+   * (CURADURIA-FOTOS.md, cap. 9). Se quedan el B2 First de Cambridge (examen
+   * de un tercero con la calificación desglosada) y el Investment Foundations
+   * del CFA Institute (folio y QR), en la pareja de 482 × 455 del expediente:
+   * el ancho de salida es 964, la media columna a densidad 2, sin ampliar
+   * (Cambridge mide 899 y sale a 899: 1.87×). Vista, BofA, Bloomberg y Green
+   * Technology dejan de generarse: sus filas siguen en la tabla con su folio
+   * («una captura de un PDF no prueba más que su folio»); los originales
+   * siguen en cv-fotos/ por si Jaime los quiere de vuelta, y el script borra
+   * sus WebP como huérfanos. */
   const DOCS = [
-    ['cv-cert-vista', 'cert-vista.png', 700],
-    ['cv-cert-bofa', 'cert-bofa.png', 700],
-    ['cv-cert-cfa', 'cert-cfa-investment-foundations.png', 700],
-    ['cv-cert-green-tech', 'cert-green-technology-programme.png', 700],
-    ['cv-cert-bloomberg', 'cert-bloomberg-finance-fundamentals.png', 700],
-    ['cv-cert-b2-cambridge', 'cert-b2-first-cambridge-recortado.png', 700],
-    // La portada de la tienda que construyó él. 1280x1600 es 4:5 clavado, o
-    // sea la misma proporción del marco donde se pinta: entra sin letterbox.
-    // 1000 Y NO 800 DESDE LA OLA 2b: en escritorio esta captura se pinta a
-    // ancho de la pista `texto` (688 px) y con 640 px de origen el navegador
-    // la estiraba. Es una captura de una tienda —lo que hay que poder leer
-    // son sus rótulos—, así que se sirve reduciendo y nunca ampliando.
-    ['cv-jasa-tienda', 'jasa-tienda.png', 1000]
+    ['cv-cert-cfa', 'cert-cfa-investment-foundations.png', 964],
+    ['cv-cert-b2-cambridge', 'cert-b2-first-cambridge-recortado.png', 964]
   ];
-  for (const [id, src, largo] of DOCS) {
-    const m2 = await sharp(CVF(src)).metadata();
-    const opciones = m2.width >= m2.height ? { width: largo } : { height: largo };
-    const buf = await sharp(CVF(src)).resize({ ...opciones, withoutEnlargement: true })
+  for (const [id, src, ancho] of DOCS) {
+    const buf = await sharp(CVF(src)).resize({ width: ancho, withoutEnlargement: true })
       .webp({ quality: 80 }).toBuffer();
     const archivo = publicar(id + '.webp', buf);
     const salida = await sharp(buf).metadata();
     console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' +
                 salida.width + 'x' + salida.height);
+  }
+  /* LA TIENDA DE JASA, A LA COLUMNA 653 × 435 (CURADURIA-FOTOS.md, cap. 7):
+   * «recorte horizontal de la banda de arriba (logo, buscador por marca/
+   * modelo/año, banner) y no la captura vertical entera: la parrilla de
+   * productos es ilegible a cualquier tamaño y una ventana de navegador es
+   * apaisada». La captura mide 1280 × 1600; la banda 3:2 desde arriba es
+   * 1280 × 853 y sale a 1280 (1.96× a 653). Se sirve reduciendo, nunca
+   * ampliando: lo que hay que poder leer son sus rótulos. */
+  {
+    const src = CVF('jasa-tienda.png');
+    const m2 = await sharp(src).metadata();
+    const banda = { left: 0, top: 0, width: m2.width, height: Math.min(m2.height, Math.round(m2.width * 2 / 3)) };
+    const buf = await sharp(src).extract(banda).resize({ width: 1280, withoutEnlargement: true })
+      .webp({ quality: 80 }).toBuffer();
+    const archivo = publicar('cv-jasa-tienda.webp', buf);
+    const salida = await sharp(buf).metadata();
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' +
+                salida.width + 'x' + salida.height + ' (banda 3:2 desde arriba)');
   }
 }
 

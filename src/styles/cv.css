@@ -197,8 +197,12 @@
    `.photogrid__photos` de apple-restore, medido: dos <figure> de 482×706
    idénticos = 482×642 de foto + 16 + 48 de pie. */
 .sf-par {
-  display: grid;
-  grid-template-columns: repeat(2, var(--sf-media));
+  display: grid; max-width: var(--sf-util); margin-inline: auto;
+  /* `calc(100% …)` Y NO `--sf-media`: ese token lleva `min(980px, 100% − 32px)`
+     dentro, y un `100%` metido en una variable se resuelve DONDE SE USA — aquí
+     la caja ya mide 980, así que restaba los 32 una segunda vez y la mitad
+     salía a 466 (medido con el guardián). Mismo aviso que en el micrófono. */
+  grid-template-columns: repeat(2, calc((100% - var(--sf-canal)) / 2));
   column-gap: var(--sf-canal);
   grid-template-rows: auto auto;   /* fila 1 = foto · fila 2 = pie */
   align-items: start;              /* el sobrante cae ABAJO, no en medio */
@@ -220,6 +224,15 @@
   .sf-par > figure { display: block; }
   .sf-par figcaption { min-height: 48px; }
 }
+/* Dos variantes de la pareja (ola 6). `--losa`: la MISMA caja que la tarjeta
+   oscura, 482 × 288, con una foto dentro — las caras del capítulo de las
+   conversaciones (CURADURIA-FOTOS.md, cap. 3). `--tres`: foto · pie · hueco,
+   para las dos fichas de consejo, cuyo «lo que me llevé» va bajo la foto con
+   la geometría de la cita. */
+.sf-par--losa img { aspect-ratio: 482 / 288; }
+.sf-par--tres { grid-template-rows: auto auto auto; }
+.sf-par--tres > figure { grid-row: 1 / span 3; }
+.sf-par figure > .sf-pendiente { margin-block-start: var(--sf-aire-1); }
 
 /* ── 2. Una fila de dos columnas contiene EXACTAMENTE dos hijos. ──────────
    Los huecos del CV salen de filas con tres bloques a un lado y uno al otro.
@@ -237,7 +250,14 @@
 /* ── 3. Si el contenido no da para dos, no hay dos: hay UNO a 980. ────────
    Se sustituye el hueco por una foto más grande, que es lo que el CV
    necesita: 29 de sus 39 fotos miden 154 px. */
-.sf-par:has(> figure:only-child) { grid-template-columns: var(--sf-util); }
+.sf-par:has(> figure:only-child):not(.sf-par--sola) { grid-template-columns: var(--sf-util); }
+/* ── 3b. …salvo cuando el original NO da para 980: la media caja SOLA. ─────
+   CURADURIA-FOTOS.md reparte diecisiete fotos entre «pareja / sola 482 × 642»
+   y pone el corte de densidad en 1.5×: la de la playa (él con la pinza y la
+   cubeta) mide 800 px de origen —1.66× a 482, 1.22× a 653, 0.82× a 980—, así
+   que subirla de caja sería estirarla. `--sola` centra la media caja en
+   lugar de crecer a 980: misma caja que la pareja, con un solo hijo. */
+.sf-par--sola { grid-template-columns: calc((100% - var(--sf-canal)) / 2); justify-content: center; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    §3.4 · LAS ONCE PLANTILLAS DE BLOQUE
@@ -248,7 +268,7 @@
    ojo 12 → 20 → titular 40 → 20 → entradilla 24 → 44 → la prosa.
    Alto ≈ 184 px, sin franja, sin fondo y sin línea. Nueve capítulos son
    1 656 px de aperturas, contra los 3 165 que hoy se lleva sola la portada. */
-.sf-cap { text-align: center; }
+.sf-cap { text-align: center; max-width: var(--sf-util); margin-inline: auto; }
 .sf-cap .sf-ojo {
   font: var(--sf-t-pie); letter-spacing: .08em; text-transform: uppercase;
   color: var(--sf-tinta-2); margin: 0;
@@ -256,6 +276,7 @@
 .sf-cap h2, .sf-cap .sf-titular {
   font: var(--sf-t-cap); letter-spacing: var(--sf-ls); color: var(--sf-tinta);
   max-width: var(--sf-lectura); margin: var(--sf-aire-cabeza) auto 0;
+  text-wrap: balance;   /* sin una palabra huérfana en la tercera línea */
 }
 .sf-cap .sf-entra {
   font: var(--sf-t-entra); color: var(--sf-tinta-2);
@@ -266,7 +287,9 @@
    La prosa a 653 dentro de los 980; la foto a 653 o a 980. */
 .sf-prosa { max-width: var(--sf-lectura); margin-inline: auto; }
 .sf-prosa p { font: var(--sf-t-prosa); letter-spacing: var(--sf-ls); color: var(--sf-tinta); margin: 0; }
-.sf-prosa p + p { margin-block-start: 1.6875rem; }   /* una línea de 27 */
+/* 20 y no los 27 de una línea: 27 no es un paso del sistema y el guardián lo
+   cuenta (dentro de un bloque solo hay 8 y 20). */
+.sf-prosa p + p { margin-block-start: var(--sf-aire-cabeza); }
 .sf-pie, .sf-par figcaption, .sf-foto figcaption {
   font: var(--sf-t-pie); letter-spacing: var(--sf-ls); color: var(--sf-tinta-2);
   max-width: var(--sf-pie-max); margin-block-start: var(--sf-aire-1);
@@ -284,7 +307,7 @@
 /* ── (iii) FILA DE TRES ───────────────────────────────────────────────────
    3 × 316 + 2 × 16 = 980. Una SOLA línea de pie por falta de sitio: si un pie
    no cabe en una línea, la fila baja a dos fotos. */
-.sf-trio { display: grid; grid-template-columns: repeat(3, var(--sf-tercio)); gap: var(--sf-canal); align-items: start; }
+.sf-trio { max-width: var(--sf-util); margin-inline: auto; display: grid; grid-template-columns: repeat(3, calc((100% - 2 * var(--sf-canal)) / 3)); gap: var(--sf-canal); align-items: start; }
 .sf-trio > figure { margin: 0; }
 .sf-trio img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--sf-r-par); display: block; }
 .sf-trio figcaption { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin-block-start: var(--sf-aire-1); min-height: 16px; }
@@ -349,6 +372,10 @@
   position: absolute; inset-inline-start: var(--sf-aire-1); inset-block-end: var(--sf-aire-1);
   font: var(--sf-t-rotulo); color: #FFF; margin: 0;
 }
+/* Un solo vídeo en un capítulo (ola 6: la marcha de Callejeritos): la tarjeta
+   es la misma 308 × 385 y va CENTRADA en lugar de ocupar la primera de cuatro
+   columnas con tres vacías al lado. */
+.sf-paises--uno { grid-template-columns: 308px; justify-content: center; }
 .sf-pais::after {
   content: ""; position: absolute; inset-inline: 0; inset-block-end: 0; height: 96px;
   background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.72)); pointer-events: none;
@@ -357,7 +384,7 @@
 /* ── (vi) TABLA DE CERTIFICACIONES CON MINIATURA ──────────────────────────
    Fila de 980 × 112 con separador de 1 px. Un dato no comprobado NO borra la
    fila: la fila existe con su hueco pendiente en el sitio de la miniatura. */
-.sf-tabla { list-style: none; margin: 0; padding: 0; }
+.sf-tabla { list-style: none; margin: 0 auto; padding: 0; max-width: var(--sf-util); }
 .sf-tabla > li {
   display: grid; grid-template-columns: 171px 1fr auto; gap: 24px; align-items: center;
   min-height: 112px; padding-block: var(--sf-aire-0);
@@ -368,6 +395,22 @@
 .sf-tabla .sf-nombre { font: 600 1.0625rem/1.5625rem var(--font-sans); color: var(--sf-tinta); margin: 0; }
 .sf-tabla .sf-emisor { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
 .sf-tabla a { font: var(--sf-t-rotulo); color: var(--sf-enlace); }
+/* Sin miniatura: la fila de «lo que las cartas verifican» (ola 6). La carta
+   no se publica, y el sitio de la miniatura no se rellena con nada — la fila
+   es texto y crédito, con los mismos 112 y el mismo separador. */
+.sf-tabla--texto > li { grid-template-columns: minmax(0, 1fr); }
+/* La fila del DELF A2 (INVENTARIO §12, conservar): la única sin escaneo
+   lleva la miniatura de (vi) DIBUJADA por la página —171 × 96, borde del
+   sistema, 12/16— y dice al lado que no es el diploma. En la tabla de texto
+   recupera la columna de la miniatura solo ella. */
+.sf-tabla--texto > li.sf-fila--insignia { grid-template-columns: 171px minmax(0, 1fr) auto; }
+.sf-insignia {
+  width: 171px; height: 96px; box-sizing: border-box; padding: var(--sf-aire-0);
+  display: grid; place-content: center; gap: var(--sf-aire-0); text-align: center;
+  border: 1px solid var(--sf-borde); border-radius: var(--sf-r-par);
+  font: var(--sf-t-pie); color: var(--sf-tinta); letter-spacing: .04em; text-transform: uppercase;
+}
+.sf-insignia-tag { display: block; color: var(--sf-tinta-2); text-transform: none; letter-spacing: 0; }
 
 /* ── (vii) LA CITA LARGA — LAS DOS CARTAS ─────────────────────────────────
    Apple no tiene componente para una cita larga (su `.pullquote` es de veinte
@@ -379,6 +422,7 @@
   font: var(--sf-t-cap); letter-spacing: var(--sf-ls); color: var(--sf-tinta);
   text-align: center; max-width: var(--sf-util); margin: var(--sf-aire-3) auto;
 }
+.sf-cita-grande p { margin: 0; font: inherit; }
 .sf-cita-grande .sf-credito {
   font: var(--sf-t-rotulo); color: var(--sf-tinta-2);
   max-width: var(--sf-lectura); margin: var(--sf-aire-cabeza) auto 0;
@@ -400,7 +444,7 @@
    quince de hoy. Va en 40, que es el paso de display que ya existe.
    Regla del repo, sin excepción: cada cifra lleva su fuente y su fecha
    PEGADAS, en el mismo bloque, nunca en una nota al pie. */
-.sf-cifras { display: grid; grid-template-columns: repeat(3, var(--sf-tercio)); gap: var(--sf-canal); list-style: none; margin: 0; padding: 0; }
+.sf-cifras { max-width: var(--sf-util); display: grid; grid-template-columns: repeat(3, calc((100% - 2 * var(--sf-canal)) / 3)); gap: var(--sf-canal); list-style: none; margin: 0 auto; padding: 0; }
 .sf-cifras .sf-numero { font: var(--sf-t-cap); color: var(--sf-tinta); margin: 0; font-variant-numeric: tabular-nums; }
 .sf-cifras .sf-que { font: var(--sf-t-rotulo); text-transform: uppercase; color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
 .sf-cifras .sf-fuente { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
@@ -435,7 +479,33 @@
   border: 1px dashed var(--sf-borde); border-radius: var(--sf-r-par);
   display: grid; place-items: center;
   font: var(--sf-t-pie); color: var(--sf-tinta-2); background: none;
+  box-sizing: border-box;
 }
+/* ── LAS GEOMETRÍAS FINALES DE LOS HUECOS (ola 6) ─────────────────────────
+   La caja mide lo que va a medir el contenido cuando llegue, para que el
+   documento no cambie de alto al llenarse. `--prosa`: CUATRO líneas de 27 a
+   653 (el hueco de la portada). Eran seis (162 px) hasta la corrección de
+   la ola 6: seis era una apuesta tan arbitraria como cuatro sobre un párrafo
+   que no existe, y dejaba 73 px de nada encima y debajo de un título de una
+   línea — que con los 44 de aire de cada lado era la única franja de más de
+   160 px sin tinta que le quedaba al documento cuando el borde punteado se
+   mide como lo que es (nada). `--cita`: cuatro líneas de 25, que es la
+   cita de la tarjeta oscura (§3.4 iv), dentro de la tarjeta o bajo la foto
+   de una pareja. */
+.sf-pendiente--prosa { max-width: var(--sf-lectura); min-height: 108px; margin-inline: auto; }
+.sf-pendiente--cita  { height: 100px; }
+/* Una más de la ola 6 · paso B. `--foto`: la columna 653 × 435 de (ii), para
+   la foto del Reto que falta. (Hubo `--cifra` y `--pie` para dos huecos del
+   taller; los dos se fundieron en UN recuadro `--lista` y se fueron.) */
+.sf-pendiente--foto  { aspect-ratio: 3 / 2; max-width: var(--sf-lectura); }
+/* EL ↗ DE ENLACE EXTERNO SE FUE (corrección de la ola 6). Primero era texto
+   (×13) y después `content` de un pseudoelemento (×35 pintados a 1440): un
+   revisor midió que seguía siendo el mismo rótulo repetido, solo que fuera
+   del alcance de la prueba, y desde entonces el guardián cuenta también los
+   pseudoelementos. La referencia (Apple Newsroom) no marca sus enlaces
+   externos con ningún glifo: el subrayado ya dice que es un enlace, y el
+   `target="_blank"` no necesita rótulo. `.sf-ext` se queda como marca en el
+   HTML, sin pintar nada. */
 
 /* ── (xi) EL MÓDULO DEL MICRÓFONO ─────────────────────────────────────────
    Hoy: lienzo de 353 × 558 al lado de un índice de 727 × 959 con 356
@@ -506,3 +576,10 @@
   .sf-aparece { animation: sf-rescate 0s linear 3s forwards; }
 }
 @keyframes sf-rescate { to { opacity: 1; translate: 0 0; } }
+
+/* Las cifras (viii) en un teléfono: una columna. En 1440 y 1920 —los dos
+   anchos del guardián— la consulta no actúa. */
+@media (max-width: 47.99em) {
+  .sf-cifras { grid-template-columns: minmax(0, 1fr); }
+  .sf-par--sola { grid-template-columns: minmax(0, 1fr); }
+}
