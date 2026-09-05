@@ -3465,19 +3465,17 @@ const cifrasFranja = c.franja.sitioQ
       :global(html[data-intro]) .intro-pista {
         height: calc(100svh + clamp(250px, 36svh, 330px));
         view-timeline: --pista block;
-        /* ── EL PAPEL DE LA PISTA CIERRA UN HUECO DE 172 px MEDIDO ────────
-           La pista mide una pantalla MÁS el recorrido, y el lienzo que se
-           clava dentro mide una pantalla justa: por debajo de su caja quedan
-           172 px a 1440 y 200 px a 1920 que no tienen fondo propio. Nadie los
-           ve —el lienzo clavado los está pintando, y en cuanto se despega
-           llega el papel del manifiesto—, pero la máscara de tinta de
-           `check-sistema-cv` mide CAJAS, no lo pintado, y ahí eran una franja
-           vacía: la más alta de todo el documento en Chromium
-           (`172 px vacíos desde y=900`), y la que WebKit iba a heredar en
-           cuanto el respaldo le diera la misma pista larga. El fondo lo
-           declara la pista, que es de quien son esas filas. Mismo papel que
-           el lienzo, así que no cambia ni un píxel de lo que se ve. */
-        background: var(--cvh-papel);
+        /* AQUÍ HUBO UN `background: var(--cvh-papel)` Y SE QUITÓ. Se puso
+           para cerrar «172 px vacíos desde y=900» en la máscara de tinta de
+           `check-sistema-cv`, y su propio comentario reconocía que «no cambia
+           ni un píxel de lo que se ve»: el lienzo clavado ya pintaba esas
+           filas y, en cuanto se despega, llega el papel del manifiesto. O
+           sea que bajaba un número sin mejorar la página — y con eso bajó
+           `huecos` de 5 a 4 y `huecoPx` de 1 120 a 920, dos topes que Jaime
+           lee como progreso. El arreglo no era quitar el fondo: era que la
+           vara dejara de contar papel sobre papel como tinta, y eso ya está
+           hecho en `check-sistema-cv.mjs`. Quitado el fondo, los topes vuelven
+           a su número honesto. */
       }
       /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
          del manifiesto que sube, para que no haya costura. El negro
@@ -3523,6 +3521,33 @@ const cifrasFranja = c.franja.sitioQ
         animation-timeline: --pista;
         --t0: .04; --t1: .3;
         animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
+      }
+      /* ── EL `visibility: hidden` DE LA TAPA NO PUEDE LLEVARSE AL <h1> ────
+         El único `<h1>` del documento —«Jaime Sandoval Ricaño»— vive dentro
+         de `.portada-uno`, y el fotograma final de la tapa apaga
+         `visibility`. Eso saca el titular del árbol de accesibilidad: en
+         cuanto el lector pasa la portada, el CV se queda SIN encabezado de
+         nivel uno, y axe lo marca (`page-has-heading-one`). Medido: 12 de
+         los 16 combos tras recorrer el documento; los 4 que faltaban eran
+         los de webkit en español, y solo porque ahí la intro no corría —o
+         sea que el 0 era síntoma de otro fallo, no un aprobado.
+         MIENTRAS VIVIÓ TRAS `@supports (animation-timeline: view())` esto
+         solo le pasaba a Chrome. Al pasar el gate a `html[data-intro]`,
+         Safari lo heredó: no es un defecto previo, lo trajo esta ola.
+         EL TITULAR SE QUEDA VISIBLE Y NO SE VE, que no es una contradicción:
+         `visibility` es suya, pero la OPACIDAD es del grupo —la tapa entera
+         se disuelve en una sola alfa— y a opacidad 0 no pinta ni un píxel.
+         Un lector de pantalla lo sigue encontrando; un ojo, no.
+         Y NO DEVUELVE NADA PULSABLE. Lo único que se puede tocar dentro de
+         la tapa son las dos pastillas de idioma, que viven en
+         `.portada-barra` y tienen su PROPIO fotograma de `visibility` (ver
+         más abajo): esas siguen desapareciendo del tabulado cuando siempre.
+         El `<h1>` no es focalizable y no contiene enlaces, pero a opacidad 0
+         seguiría recibiendo el ratón sobre media pantalla, así que
+         `pointer-events: none`. */
+      :global(html[data-intro]) .portada-h1 {
+        visibility: visible;
+        pointer-events: none;
       }
       /* El señuelo se va primero (en la referencia, «Swipe to explore»
          desaparece antes de que el titular se mueva)… */
