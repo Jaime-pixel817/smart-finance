@@ -135,6 +135,103 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   {/* Blanca en los dos esquemas: el blanco es del documento. */}
   <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href={FAVICON}>
+
+  {/* ═══ QUIÉN CONDUCE LA TRANSICIÓN DE LA PORTADA ═══════════════════════
+       Jaime, 2026-09-04: «en Safari no funciona el header la transición, y
+       además abajo dejas un buen de espacios». Su Mac es macOS 13.5 con
+       Safari 16.6, y ahí `CSS.supports('animation-timeline: view()')` es
+       **false**: toda la secuencia de la tapa vivía en un `@supports` sin
+       respaldo y en su navegador no ocurría NADA — la barra se iba con la
+       página, la foto seguía a sangre, «SCROLL TO READ» seguía puesto a
+       600 px de rueda y el manifiesto se quedaba con 200 px de alto vacío
+       por debajo (`min-height: 100svh` sin el margen del efecto).
+
+       Estas doce líneas son el interruptor. Escriben en `<html>` una marca
+       con DOS valores y nada más:
+         data-intro="css"  el navegador tiene `animation-timeline` → conduce
+                           él, con el `view-timeline` de la pista. Esa vía no
+                           cambia ni un byte.
+         data-intro="js"   no lo tiene → conduce este guion: escribe
+                           `--intro-p` (0→1) y el CSS de Historia.astro pinta
+                           el fotograma con un `animation-delay` negativo
+                           sobre LAS MISMAS animaciones. Un solo motor vivo.
+       Sin marca —JavaScript apagado— no se aplica nada del efecto y la tapa
+       es una pantalla de foto a sangre, legible, sin pista reservada.
+
+       ── POR QUÉ EN LÍNEA Y EN EL `<head>`, Y NO EN UN MÓDULO ────────────
+       Lo que la marca enciende incluye el ALTO de la pista (una pantalla más
+       el recorrido). Puesta desde un módulo diferido, la pista crecería
+       DESPUÉS del primer pintado y eso es un salto de composición en el
+       elemento del LCP: el presupuesto de CLS de esta página es 0.02. Aquí
+       corre antes de que exista un solo píxel pintado, y no cuesta ninguna
+       petición. La búsqueda de la pista es perezosa a propósito: en el
+       `<head>` el marcado todavía no existe.
+
+       ── HAY DOS PISTAS, UNA POR PANEL DE IDIOMA, Y ESTO COSTÓ EL PASO ───
+       `Historia.astro` se renderiza DOS veces (inglés y español), así que
+       hay DOS `.intro-pista` en el documento y el selector de idioma
+       (`:target`, cero JavaScript) esconde una de las dos con `display:
+       none`. Un `document.querySelector('.intro-pista')` devuelve SIEMPRE
+       la del panel inglés; cacheada, en español se medía una caja de 0×0,
+       `recorrido` salía negativo, `p` se quedaba clavado en 0 y en Safari
+       el CV en español no hacía la transición NUNCA — con el agravante de
+       que la pista larga sí se reservaba: 306 px (1440) y 367 px (1920) de
+       recorrido donde no ocurría nada. Los dos defectos que Jaime reportó
+       —«en Safari no funciona el header la transición» y «abajo dejas un
+       buen de espacios»— en la misma pantalla, y solo en su idioma.
+       Se resuelve la pista CONTRA EL PANEL VISIBLE en cada medición: se
+       recorren las dos y se usa la primera con caja (la escondida mide 0).
+       Es la misma cautela que ya llevan escrita `cv-mic-pista.ts` y
+       `cv-microfono.ts`, que recorren los dos paneles con
+       `querySelectorAll`. La lista se cachea (los nodos no cambian); lo que
+       NO se cachea es cuál de las dos manda, porque eso cambia cada vez que
+       se pulsa una pastilla de idioma. Y por eso `hashchange` también pide
+       una medida: cambiar de idioma no dispara `scroll` por sí solo.
+
+       ── EL RECORRIDO ES EL TRAMO `contain`, Y SALE DE UNA CUENTA ────────
+       `view-timeline` sobre la pista con `animation-range: contain …` corre
+       exactamente mientras la pista CONTIENE la ventana: empieza cuando su
+       borde de arriba toca el de la ventana y termina `alto − ventana` px
+       después. O sea `p = −rect.top / (rect.height − innerHeight)`, acotado
+       a 0…1. No es una aproximación del efecto nativo: es su definición.
+
+       `passive: true` para no bloquear el scroll, un `requestAnimationFrame`
+       por ráfaga (no uno por evento) y `setProperty` SOLO cuando el valor
+       cambia de milésima — a 1440 una milésima son 0.3 px de recorrido. */}
+  <script is:inline>
+    (function () {
+      var raiz = document.documentElement;
+      var nativo = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline', 'view()'));
+      raiz.setAttribute('data-intro', nativo ? 'css' : 'js');
+      if (nativo || !window.requestAnimationFrame) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var pistas = null, pedido = false, ultimo = -1;
+      function medir() {
+        pedido = false;
+        if (!pistas || !pistas.length) pistas = document.querySelectorAll('.intro-pista');
+        var p = 0;
+        for (var i = 0; i < pistas.length; i++) {
+          var caja = pistas[i].getBoundingClientRect();
+          if (!caja.height) continue;                 // el panel escondido mide 0
+          var recorrido = caja.height - window.innerHeight;
+          if (recorrido <= 0) break;                  // sin recorrido no hay efecto
+          p = -caja.top / recorrido;
+          break;
+        }
+        p = p < 0 ? 0 : p > 1 ? 1 : p;
+        p = Math.round(p * 1000) / 1000;
+        if (p === ultimo) return;
+        ultimo = p;
+        raiz.style.setProperty('--intro-p', String(p));
+      }
+      function pedir() { if (!pedido) { pedido = true; requestAnimationFrame(medir); } }
+      addEventListener('scroll', pedir, { passive: true });
+      addEventListener('resize', pedir, { passive: true });
+      addEventListener('hashchange', pedir);
+      document.addEventListener('DOMContentLoaded', medir);
+    })();
+  </script>
+
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
@@ -237,6 +334,12 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
          JavaScript serían dos botones muertos, así que no existen — la lista
          se desplaza igual con el dedo, la rueda o el teclado. */
       .citas-nav { display: none !important; }
+      /* Y los del carrusel del micrófono, por lo mismo (cv-mic-pista.ts). Sin
+         JavaScript la pista NO lleva `data-mic-pag`, o sea que sigue siendo un
+         scroller de verdad: las diez tarjetas se alcanzan con la rueda, el
+         dedo y el teclado. Los puntos se van con los botones: sin nada que los
+         mueva, cuatro puntos fijos señalarían siempre la primera parada. */
+      .mic-nav { display: none !important; }
     </style>
   </noscript>
 </head>
@@ -379,17 +482,22 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
         // metía en el bug de arriba — dos clics seguidos y el segundo no
         // desplaza —, y ahí el segundo clic es lo normal: la franja invita a
         // mirar los certificados y volver por las cartas.
-        // `.mic-baja` son los once «En el capítulo ↓» del micrófono, y tenían
-        // que entrar aquí por el mismo motivo que `.cv-salto`, solo que más:
-        // el micrófono es un ÍNDICE y está en la segunda pantalla, o sea el
-        // sitio del documento donde es más probable que alguien pulse dos
-        // destinos seguidos — que es exactamente el gesto que dispara el bug
-        // de arriba (la segunda navegación de ancla en vuelo no desplaza).
-        // `a.nodo[href^="#"]` son los nodos del LIENZO que abren una ficha de
-        // dentro del CV (Rendón, Moris y Marg mientras no llegue su enlace):
-        // mismo viaje que sus «En el capítulo ↓». Los nodos externos no casan
-        // con `[href^="#"]` y siguen abriendo su pestaña.
-        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-baja[href^="#"], a.nodo[href^="#"]') : null;
+        // `.mic-fila-a` es el enlace de cada TARJETA del micrófono, y entra
+        // aquí por el mismo motivo que `.cv-salto`, solo que más: el micrófono
+        // es un ÍNDICE y está en la segunda pantalla, o sea el sitio del
+        // documento donde es más probable que alguien pulse dos destinos
+        // seguidos — que es exactamente el gesto que dispara el bug de arriba
+        // (la segunda navegación de ancla en vuelo no desplaza).
+        // ── OJO, EL SELECTOR CAMBIÓ EN LA OLA 5 Y CUBRE MÁS QUE ANTES ─────
+        // Era `.mic-baja`, los catorce «En el capítulo ↓» del índice de texto.
+        // Ese índice ya no existe: sus renglones son las tarjetas negras del
+        // carrusel, y ahí el enlace que apunta DENTRO del CV es el del nombre
+        // (Moris y Marg, mientras no lleguen sus publicaciones). Con
+        // `.mic-fila-a` se interceptan justo esos, que antes se quedaban fuera
+        // —el `.mic-baja` de al lado sí entraba, el nombre no—, y los externos
+        // siguen sin casar con `[href^="#"]`: abren su pestaña como siempre.
+        // `a.nodo[href^="#"]` son los mismos destinos desde el LIENZO.
+        var a = ev.target && ev.target.closest ? ev.target.closest('.indice-lista a[href^="#"], a.cv-salto[href^="#"], a.mic-fila-a[href^="#"], a.nodo[href^="#"]') : null;
         if (!a) return;
         var h = a.getAttribute('href');
         var destino = document.getElementById(h.slice(1));
@@ -444,6 +552,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
     import '../scripts/cv-clips';
     import '../scripts/cv-citas';
     import '../scripts/cv-microfono';
+    import '../scripts/cv-mic-pista';
     import '../scripts/cv-sitios';
     import '../scripts/cv-rail';
     import '../scripts/cv-movimiento';

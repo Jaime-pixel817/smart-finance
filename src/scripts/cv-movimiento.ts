@@ -22,16 +22,56 @@
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// ── POR QUÉ ESTO NO ES UN `isIntersecting` A SECAS ─────────────────────────
+// Lo era, con `rootMargin: '0px 0px -35% 0px'`, y dejaba cabeceras invisibles
+// PARA SIEMPRE. Lo cazó `npm run check-sistema-cv` (prueba 8b) el 2026-09-04 y
+// está medido en los dos motores a 1920 × 1080:
+//
+//   webkit   1920 · «02 / 10» y el titular del capítulo 3 (y=5 853 y 5 899)
+//   chromium 1920 · «06 / 10» y el titular del capítulo 7 (y=14 533 y 14 579)
+//
+// El mecanismo: con ese `rootMargin` la raíz del observador no es la ventana,
+// es una banda de su 65 % — 702 px de los 1 080. Un `IntersectionObserver` no
+// avisa por fotograma sino cuando CRUZA un umbral, así que un salto de scroll
+// más largo que la banda puede llevar al titular de «debajo de la banda» a
+// «encima de la banda» sin que llegue a estar dentro en ningún fotograma: no
+// se cruza ningún umbral, no llega ninguna entrada, y el `data-entra` se queda
+// sin encender. El salto que lo destapó es el del propio guardián (0.8 × alto
+// de ventana = 864 px, más que los 702 de la banda), pero es exactamente lo
+// que hace en la vida real un `Fin`, un ancla del índice o un empujón fuerte
+// con dos dedos.
+//
+// EN CHROME NO SE VE, Y ESO ES LO PEOR DEL ASUNTO: ahí la regla de
+// `@supports (animation-timeline: view())` de Historia.astro anima las mismas
+// tres piezas con el scroll y las deja a opacidad 1 igual. En el Safari 16.6
+// de Jaime ese `@supports` es falso, no hay nada detrás, y la cabecera del
+// capítulo se queda en blanco mientras él lee el resto.
+//
+// El arreglo no cambia CUÁNDO entra (sigue siendo al cruzar el 65 %): cambia
+// quién lo decide. El observador pasa a mirar la ventana entera —que no se
+// puede saltar con un salto más corto que la propia ventana— y la línea del
+// 65 % se comprueba con geometría, sobre TODAS las cabeceras que quedan
+// pendientes, cada vez que llega cualquier entrada. Una que se haya quedado
+// atrás se enciende en la siguiente entrada de cualquier otra. Son ocho
+// `getBoundingClientRect` por aviso, y los avisos llegan al cruzar un borde,
+// no por fotograma.
 function cabeceras(): void {
   if (reduce || !('IntersectionObserver' in window)) return;
-  const io = new IntersectionObserver((entradas) => {
-    for (const e of entradas) {
-      if (!e.isIntersecting) continue;
-      const cap = e.target.closest<HTMLElement>('.cap');
-      cap?.querySelectorAll('[data-entra]').forEach((el) => el.setAttribute('data-entra', 'si'));
-      io.unobserve(e.target);
+  const pendientes = new Set<HTMLElement>();
+  const encender = (h: HTMLElement): void => {
+    const cap = h.closest<HTMLElement>('.cap');
+    cap?.querySelectorAll('[data-entra]').forEach((el) => el.setAttribute('data-entra', 'si'));
+    pendientes.delete(h);
+    io.unobserve(h);
+  };
+  // Se barre TODO lo pendiente, no solo lo que trae la entrada: la cabecera
+  // que se saltó el salto ya no va a generar avisos propios.
+  const barrer = (): void => {
+    for (const h of [...pendientes]) {
+      if (h.getBoundingClientRect().top < innerHeight * 0.65) encender(h);
     }
-  }, { rootMargin: '0px 0px -35% 0px' });
+  };
+  const io = new IntersectionObserver(barrer);
   document.querySelectorAll<HTMLElement>('.cap:not(.cap-portada)').forEach((cap) => {
     const h = cap.querySelector<HTMLElement>(':scope > .cap-h');
     if (!h || h.getBoundingClientRect().top < innerHeight * 0.65) return;
@@ -39,6 +79,7 @@ function cabeceras(): void {
       .map((s) => cap.querySelector<HTMLElement>(s))
       .filter((el): el is HTMLElement => !!el);
     piezas.forEach((el, i) => { el.setAttribute('data-entra', ''); el.setAttribute('data-entra-n', String(i + 1)); });
+    pendientes.add(h);
     io.observe(h);
   });
 }

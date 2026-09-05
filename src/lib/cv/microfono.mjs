@@ -198,24 +198,45 @@ export const NODOS = [
   },
 
   // ── LOS CUATRO PAÍSES (la voz) ───────────────────────────────────────────
+  //
+  // ═══ `clip`/`poster`/`w`/`h` (ola 5) ═══════════════════════════════════
+  // Jaime, 2026-09-04: «abajo de eso, los videos de que yo estoy en diferentes
+  // países explicando temas». Esos vídeos pasan a verse DENTRO del módulo, en
+  // la fila de cuatro tarjetas de 308 × 385, y para eso hace falta saber qué
+  // archivo sirve cada país. Va AQUÍ y no en `Historia.astro` por la misma
+  // razón por la que el enlace del podcast vive aquí: el capítulo 7 ya pinta
+  // esos mismos cuatro clips y, con la ruta escrita en los dos sitios, el día
+  // que se recorte un clip habría dos verdades. Ahora el capítulo LEE de aquí.
+  //  · `w`/`h` son las dimensiones REALES del archivo, no las de la caja: el
+  //    de México se publicó girado y el clip servido va enderezado (640×360),
+  //    los otros dos son verticales (360×640).
+  //  · Canadá va con `clip: null` A PROPÓSITO y no es un descuido: su pieza es
+  //    un CARRUSEL DE FOTOS de TikTok, no un vídeo — no hay mp4 que servir, y
+  //    su lámina es la Torre CN, que ya sale en el capítulo 1 (la regla de
+  //    «ninguna imagen dos veces»). Su tarjeta lo dice con el rótulo que ya
+  //    existe (`clip.carrusel`) en vez de dejar un hueco que nunca se llena.
   {
     id: 'mexico', tipo: 'pais', cap: 7,
+    clip: '/assets/cv/cv-clip-nus.mp4', poster: '/assets/cv/cv-poster-nus.jpg', w: 640, h: 360,
     // EL ÚNICO NODO DE PAÍS CON LIDERAZGO REAL: no se auto-asignó, LI-12 y
     // LI-15 dicen «I was selected to represent Mexico».
     href: TIKTOK + '7658163945479408917', externo: 'TikTok', verificado: true
   },
   {
     id: 'singapur', tipo: 'pais', cap: 7,
+    clip: '/assets/cv/cv-clip-singapur.mp4', poster: '/assets/cv/cv-poster-singapur.jpg', w: 360, h: 640,
     href: TIKTOK + '7655111359419387157', externo: 'TikTok', verificado: true
   },
   {
     id: 'japon', tipo: 'pais', cap: 7,
+    clip: '/assets/cv/cv-clip-japon.mp4', poster: '/assets/cv/cv-poster-japon.jpg', w: 360, h: 640,
     // Se enlaza el vídeo «Datos financieros de Japón» (el que la página sirve
     // desde este dominio), no el carrusel de Tokio.
     href: TIKTOK + '7653328531694439700', externo: 'TikTok', verificado: true
   },
   {
     id: 'canada', tipo: 'pais', cap: 7,
+    clip: null, poster: null, w: 0, h: 0,
     // El único donde explica, con su voz, POR QUÉ eligió Canadá — y quien lee
     // esta página es justo quien decide sobre eso.
     href: TIKTOK + '7664460671727258900', externo: 'TikTok', verificado: true
@@ -248,3 +269,16 @@ export const PAISES = NODOS.filter((n) => n.tipo === 'pais');
 // separarse. Hay un guardián que comprueba que los catorce ids tienen dónde
 // aterrizar.
 export const ancla = (lang, id) => `${lang}-pieza-${id}`;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EL ARCHIVO DE CADA PAÍS, EN UN SOLO SITIO
+// ═══════════════════════════════════════════════════════════════════════════
+// Lo leen los DOS componentes que pintan esos cuatro clips: el módulo del
+// micrófono (la fila de países) y el capítulo 7 (`ensena`). Antes las rutas
+// estaban escritas a mano en `Historia.astro`; con dos copias, recortar un
+// clip deja una de las dos apuntando a un archivo que ya no existe — y un
+// `<video>` roto en producción no avisa de nada.
+/** @type {Record<string, {clip: string|null, poster: string|null, w: number, h: number}>} */
+export const CLIP_PAIS = Object.fromEntries(
+  PAISES.map((n) => [n.id, { clip: n.clip, poster: n.poster, w: n.w, h: n.h }])
+);

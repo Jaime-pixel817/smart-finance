@@ -38,6 +38,7 @@
     "check-reflow": "node scripts/check-reflow.mjs",
     "check-reflow-cv": "node scripts/check-reflow.mjs --rutas=/cv/ --anchos=1280,1440,1536,1920",
     "check-contraste-cv": "node scripts/check-contraste-cv.mjs",
+    "check-sistema-cv": "node scripts/check-sistema-cv.mjs",
     "precheck-lh": "test -f dist/cv/vista-previa.html || { echo '[check-lh] Falta dist/cv/vista-previa.html, que es la URL del CV que mide lighthouserc.json. Ese archivo SOLO se emite cuando CV_SLUG no esta definida, y .env.local cuenta: si la pusiste ahi, cada build local emite tu slug de verdad y esta comprobacion mediria un 404 (un cero que no significa nada). Lighthouse mide la vista previa a proposito: con el slug bueno, la direccion privada acabaria escrita en los informes de .lighthouseci/. Construye sin la variable y vuelve: CV_SLUG= npm run build && npm run check-lh' >&2; exit 1; }",
     "check-lh": "npx -y @lhci/cli@0.15.1 autorun --config=lighthouserc.json",
     "test": "node --test",

@@ -40,7 +40,7 @@ const { c, que, ratio = '4 / 3', class: cls } = Astro.props;
     min-width: 0;
   }
   .foto-hueco-tag {
-    font-family: var(--font-mono); font-size: 11px;
+    font-family: var(--font-mono); font-size: .75rem;
     letter-spacing: .16em; text-transform: uppercase;
     color: var(--cvh-tinta-2, var(--ink-2));
   }
@@ -62,7 +62,7 @@ const { c, que, ratio = '4 / 3', class: cls } = Astro.props;
     .foto-hueco {
       display: block; padding: 0; border-radius: 0; background: none;
       max-height: 4.8em; min-width: 100%; overflow: hidden;
-      font-family: var(--font-mono); font-size: 11px; line-height: 1.4; letter-spacing: .04em;
+      font-family: var(--font-mono); font-size: .75rem; line-height: 1.33; letter-spacing: .04em;
     }
     .foto-hueco-tag, .foto-hueco-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2, var(--ink-2)); }
     .foto-hueco-tag::after { content: ' · '; }

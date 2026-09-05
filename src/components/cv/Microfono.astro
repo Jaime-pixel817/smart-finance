@@ -4,77 +4,142 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // QUÉ ES Y QUÉ NO ES
 // ═══════════════════════════════════════════════════════════════════════════
-// Es ÍNDICE Y OBERTURA. No es un capítulo y no sustituye a ninguno: cada punto
-// BAJA a donde vive su historia entera, y ni una de las once fichas de aquí
-// arriba repite lo que dice su capítulo. Si lo repitiera, el documento sería
-// más largo — y la queja de Jaime (2026-09-02) era exactamente que se sentía
-// infinito.
+// Es ÍNDICE Y OBERTURA. No es un capítulo y no sustituye a ninguno: cada pieza
+// de aquí arriba BAJA a donde vive su historia entera, y ni una repite lo que
+// dice su capítulo. Si lo repitiera, el documento sería más largo — y la queja
+// de Jaime (2026-09-02) era exactamente que se sentía infinito.
 //
 // Por eso no lleva ni filete ni número de capítulo: el filete a sangre es la
 // gramática del capítulo en este documento, y esto no es uno.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// DÓNDE VA, Y QUÉ NO SE TOCA PARA PONERLO
+// LA RECONSTRUCCIÓN DE LA OLA 5 (2026-09-04) — Y ES SUYA, PALABRA POR PALABRA
 // ═══════════════════════════════════════════════════════════════════════════
-// Justo después de la portada, FUERA de la pista de intro. La transición de la
-// tarjeta al 62 % no se toca: ni una línea del bloque
-// `@media screen and (min-aspect-ratio: 1/1)` que la define, ni los
-// `--carta-w / --carta-h / --carta-top`. El micrófono empieza donde esa pista
-// termina.
+// Jaime: «En el micrófono abajo hay un espacio gigante en blanco, y a la
+// derecha hay mucho texto… los recuadros negros todos deberían de tener el
+// mismo tamaño, y podríamos aprovechar el espacio que deja en blanco al lado y
+// poner ahí el carrusel de todos los que he entrevistado y con todos los que
+// he tenido la experiencia, y abajo de eso, los videos de que yo estoy en
+// diferentes países explicando temas… También agrégalo de Mike en lo del
+// carrusel negro, que esté ya a la derecha… el micrófono se ve bien, pero creo
+// que las partículas deberían de reducir su tamaño.»
+//
+// EL DEFECTO, MEDIDO (AUDITORIA-2026-09-04.md): lienzo 353 × 558 al lado de un
+// índice de texto de 727 × 959 con 356 palabras en 14 fichas. La fila medía
+// 959 y el lienzo 558: 401 px de vacío debajo del dibujo, y un muro de letra
+// pequeña a la derecha.
+//
+// LA CURA NO ES UNA REGLA QUE REACCIONE AL CONTENIDO, SON DOS CAJAS IGUALES:
+//
+//   ┌──────── 782 ────────┬─16─┬──── 482 ────┐
+//   │   LIENZO 782 × 896  │    │ tarjeta 288 │
+//   │                     │    ├─────16──────┤
+//   │                     │    │ tarjeta 288 │
+//   │                     │    ├─────16──────┤
+//   │                     │    │ tarjeta 288 │
+//   └─────────────────────┴────┴─────────────┘
+//           896                     896        ← IGUALES POR CONSTRUCCIÓN
+//                       ↕ 44
+//   ┌─308─┬16┬─308─┬16┬─308─┬16┬─308─┐  los cuatro países, 385 de alto
+//
+// `782 + 16 + 482 = 1280` (el marco ancho) · `3 × 288 + 2 × 16 = 896` ·
+// `4 × 308 + 3 × 16 = 1280`. EL LIENZO MIDE 896 PORQUE LA COLUMNA DE TARJETAS
+// MIDE 896, no al revés: los 401 px pasan a CERO por construcción, no porque
+// una regla los persiga. Y el micrófono queda 3.55× más grande en área
+// (782 × 896 = 700 672 px² contra 353 × 558 = 196 974).
+// Los números salen de cv-material/ola5/SISTEMA-REFERENCIA.md §3.4 (iv), (v)
+// y (xi); no se inventa ni uno aquí.
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// LA COLUMNA DE LA DERECHA NO ES UNA LEYENDA: ES LA PIEZA
+// EL ÍNDICE DE TEXTO NO SE PLIEGA: SE CONVIERTE EN EL CARRUSEL
 // ═══════════════════════════════════════════════════════════════════════════
-// El índice de texto vive FUERA del contenedor del lienzo, a propósito:
-//  · Es la degradación real. Sin JavaScript, sin WebGL, con «menos
-//    movimiento» o con la GPU ahogada, esta lista es idéntica y completa. No
-//    se pierde una sola pieza: se pierde el dibujo.
-// (Aquí había un segundo motivo —que la lista sobreviviera a la impresión— y
-//  ya no aplica: el módulo entero no se imprime, y por qué está escrito abajo,
-//  en el `@media print`. El motivo de arriba se sostiene solo.)
-// Y va AL LADO y no debajo porque un micrófono es alto y estrecho —al revés
-// que el globo—: puesto a lo ancho del marco dejaba un hueco muerto enorme
-// entre el dibujo y la lista, que es justo lo que Jaime señaló.
+// El plan de la ola 5 mandaba las 14 fichas a un `<details>` plegado. NO se
+// hace, y el motivo es de medida, no de gusto: la ficha y la tarjeta dicen LO
+// MISMO —nombre, cargo, qué abre esa pieza y de dónde sale—, así que un
+// `<details>` con las fichas sería el mismo texto DOS VECES en el mismo
+// módulo, o sea devolver las 356 palabras que la auditoría manda quitar
+// («227 bloques de texto meta = 2 137 palabras = 50.6 % del cuerpo»).
+// La ficha no se pliega ni se borra: SE PROMUEVE. Cada renglón de aquel muro
+// es ahora una tarjeta negra de 482 × 288 en la columna de la derecha, que es
+// literalmente lo que él pidió que ocupara ese espacio.
+//
+// Y NO SE PIERDE NINGUNA DE LAS DOS PROMESAS QUE SOSTENÍAN AL ÍNDICE:
+//  · DEGRADACIÓN. Sin JavaScript, sin WebGL, con «menos movimiento» o con la
+//    GPU ahogada, las tarjetas y la fila de países están enteras y completas:
+//    son HTML, no las pinta nadie. Se pierde el dibujo, no las piezas.
+//  · LAS CATORCE SIGUEN A LA VISTA. Diez son las tarjetas (ocho personas y las
+//    dos experiencias) y cuatro son los países de la fila de abajo. No hace
+//    falta un índice de las piezas cuando las piezas son lo que se ve.
+//
+// LO QUE SÍ SE BORRA, Y SE BORRA A PROPÓSITO: los catorce «En el capítulo ↓».
+// El guardián los cuenta como el rótulo repetido más caro del documento
+// («In the chapter ↓» ×14). El gesto no se pierde: la línea de cierre del
+// módulo (`mic.sigue`) lo dice UNA vez, que es cuantas veces hay que decirlo.
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// CÓMO SE NAVEGAN DIEZ TARJETAS EN UNA COLUMNA DE TRES
+// ═══════════════════════════════════════════════════════════════════════════
+// La pista es un scroller VERTICAL de 896 px con imán (`scroll-snap-type: y`)
+// y diez tarjetas: 10 × 288 + 9 × 16 = 3 024 px de contenido. Tres decisiones,
+// y las tres tienen su porqué:
+//
+//  1. NO ES PAGINACIÓN POR PÁGINAS DE TRES. Diez no es múltiplo de tres, y una
+//     última página con una tarjeta y dos huecos de 288 px sería exactamente el
+//     vacío que este paso viene a matar. Con un scroller continuo, la última
+//     parada (scrollTop 2 128 = 7 × 304) enseña las tarjetas 8, 9 y 10 llenas.
+//  2. SIN JAVASCRIPT LA PISTA SE DESPLAZA SOLA (`overflow-y: auto`): rueda,
+//     dedo, teclado. Las diez son alcanzables sin una línea de guion.
+//  3. CON JAVASCRIPT LA PISTA DEJA DE COMER LA RUEDA. El guion le pone
+//     `data-mic-pag` y el CSS pasa a `overflow-y: hidden`: la rueda vertical
+//     ya no la scrollea —sigue de largo a la página, que es lo que quiere
+//     quien está recorriendo un CV de 24 000 px— y la pista se mueve con los
+//     botones ▲▼, con el tabulador (el navegador la desplaza solo al enfocar
+//     una tarjeta de más abajo) y desde los nodos del propio micrófono.
+//     `overflow: hidden` NO la vuelve inalcanzable: `scrollTop` sigue siendo
+//     el único mecanismo, así que los botones, el foco y los puntos no pueden
+//     desincronizarse — no hay dos estados que mantener a mano.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LOS NODOS SON ENLACES Y ABREN LA PIEZA CON UN CLIC
 // ═══════════════════════════════════════════════════════════════════════════
 // Literal de Jaime: «los puntos al darle click se abriera un episodio». Un
 // panel intermedio serían dos clics para lo que él pidió que fuera uno. Los
-// crea `src/scripts/cv-microfono.ts` leyendo el texto de ESTE índice, así que
-// ninguna frase viaja dos veces por la red y el bilingüe sale exacto sin que
-// el guion sepa una palabra.
+// crea `src/scripts/cv-microfono.ts` leyendo el enlace y el nombre de ESTAS
+// tarjetas, así que ninguna frase viaja dos veces por la red y el bilingüe
+// sale exacto sin que el guion sepa una palabra. Por eso las tarjetas y las
+// tarjetas de país conservan `data-mic-fila`, `data-nombre`, `data-aria` y
+// `.mic-fila-a`: son el contrato con el guion.
 //
 // EN TÁCTIL LOS NODOS DEL LIENZO SON DECORACIÓN. La silueta es alta y flaca y
-// los blancos bajan a ~25 px: pasa WCAG 2.5.8 (24×24) por 1.8 px, o sea por
-// los pelos. La salida no es ensanchar el micrófono, es que en el teléfono la
-// interfaz sea esta lista —renglones de 44 px— y el lienzo sea el dibujo. Lo
-// decide el guion con `(hover: hover) and (pointer: fine)`.
+// los blancos bajan a ~25 px: pasa WCAG 2.5.8 (24×24) por los pelos. La salida
+// no es ensanchar el micrófono, es que en el teléfono la interfaz sean las
+// tarjetas —cajas de 288 px— y el lienzo sea el dibujo. Lo decide el guion con
+// `(hover: hover) and (pointer: fine)`.
 import type { CvCopy } from '../../i18n/cv';
 import type { Locale } from '../../i18n/routes';
-import { NODOS, ancla } from '../../lib/cv/microfono.mjs';
+import { NODOS, ancla, CLIP_PAIS } from '../../lib/cv/microfono.mjs';
+import { attrsClip } from '../../lib/cv/clips.mjs';
 
 interface Props { c: CvCopy; p: Locale }
 const { c, p } = Astro.props;
 
-// El nombre de cada nodo sale de donde YA vive con su fuente: las personas y
+// El nombre de cada pieza sale de donde YA vive con su fuente: las personas y
 // las experiencias de `entrevistas.personas` (donde está anotado de dónde sale
 // cada cargo) y los países de `mic.paises`. Aquí no se escribe ni un nombre ni
 // un cargo: tener dos sitios donde corregir un cargo es como se publica un
 // cargo mal.
 //
-// ── LOS NODOS INTERNOS (ola 4) ────────────────────────────────────────────
+// ── LAS PIEZAS INTERNAS ───────────────────────────────────────────────────
 // `href: null` en `microfono.mjs` significa que la pieza está DENTRO del CV:
-// la ficha del capítulo. Es el estado de Rendón (su enlace de TikTok no ha
-// llegado), Moris y Marg (sus publicaciones no están cosechadas). Aquí el
-// enlace se resuelve al ancla de la ficha EN ESTE IDIOMA, sin `target`, y el
-// verbo es «ver la ficha». El día que llegue el enlace, cambia un dato allí y
-// esta fila pasa sola a abrir la pieza fuera.
-type Fila = {
-  id: string; tipo: string; cap: number; href: string; interno: boolean; externo: string;
+// la ficha del capítulo. Es el estado de Moris y Marg (sus publicaciones no
+// están cosechadas). Aquí el enlace se resuelve al ancla de la ficha EN ESTE
+// IDIOMA, sin `target`, y el verbo es «ver la ficha». El día que llegue el
+// enlace, cambia un dato allí y esta tarjeta pasa sola a abrir la pieza fuera.
+type Ficha = {
+  id: string; tipo: string; href: string; interno: boolean; externo: string;
   nombre: string; rol: string; que: string; ver: string; ancla: string;
 };
-const filas: Fila[] = NODOS.map((n) => {
+const fichas: Ficha[] = NODOS.map((n) => {
   const per = n.tipo !== 'pais'
     ? (c.entrevistas.personas as Record<string, { nombre: string; rol: string }>)[n.id]
     : null;
@@ -86,7 +151,7 @@ const filas: Fila[] = NODOS.map((n) => {
     : n.tipo === 'experiencia' ? c.mic.ver.experiencia
     : c.mic.ver.conversacion;
   return {
-    id: n.id, tipo: n.tipo, cap: n.cap,
+    id: n.id, tipo: n.tipo,
     href: n.href ?? '#' + ancla(p, n.id), interno, externo: n.externo,
     ancla: ancla(p, n.id),
     nombre, rol: per ? per.rol : '',
@@ -94,35 +159,42 @@ const filas: Fila[] = NODOS.map((n) => {
     ver
   };
 });
-const personas = filas.filter((f) => f.tipo === 'persona');
-const experiencias = filas.filter((f) => f.tipo === 'experiencia');
-const paises = filas.filter((f) => f.tipo === 'pais');
-// Los tres rótulos que dicen CUÁNTAS piezas hay se rellenan con la cuenta
-// real: escritos a mano decían «once» cuando ya eran catorce.
-const n = String(filas.length);
+// EL CARRUSEL ES «TODOS LOS QUE HE ENTREVISTADO Y CON LOS QUE HE TENIDO LA
+// EXPERIENCIA», que es su frase: las ocho personas y las dos experiencias.
+// Los cuatro países NO van aquí — van abajo, con su vídeo, que es lo que él
+// pidió («abajo de eso, los videos»). Las catorce piezas siguen todas a la
+// vista, en la forma que le toca a cada una.
+const tarjetas = fichas.filter((f) => f.tipo !== 'pais');
+const paises = fichas.filter((f) => f.tipo === 'pais');
+// El rótulo que dice CUÁNTAS piezas hay se rellena con la cuenta real:
+// escrito a mano decía «once» cuando ya eran catorce.
+const n = String(fichas.length);
 const piezas = c.mic.piezas.replace('{n}', n);
-const indiceAria = c.mic.indiceAria.replace('{n}', n);
 const sinLienzo = c.mic.sinLienzo.replace('{n}', n);
-// Los tres grupos del índice, en el orden del lede: liderazgo, consejo, voz.
-const grupos = [
-  { id: 'g1', h: c.mic.grupoPersonas, filas: personas },
-  { id: 'g2', h: c.mic.grupoExperiencias, filas: experiencias },
-  { id: 'g3', h: c.mic.grupoPaises, filas: paises }
-];
+// Cuántas paradas tiene la pista: se ven TRES tarjetas de golpe, así que los
+// puntos son las paradas de tres en tres. Se cuenta, no se escribe: el día que
+// entre la tarjeta 11 los puntos son cuatro sin tocar nada.
+const VISIBLES = 3;
+const paradas = Math.max(1, Math.ceil(tarjetas.length / VISIBLES));
+const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | null; poster: string | null; w: number; h: number }>)[id];
 ---
-<section class="mic" data-mic aria-labelledby={`${p}-mic-h`}>
+<section class="mic sf-ancho" data-mic aria-labelledby={`${p}-mic-h`}>
   <div class="mic-cab">
-    <p class="etiqueta" aria-hidden="true">{c.mic.eyebrow}</p>
+    {/* La cuenta va PEGADA al ojo y no en su propio renglón: suelta debajo de
+        la entradilla quedaba un «14 PIECES» huérfano a media página de aire,
+        y el aire entre bloques es de 44 — o sea el hueco más caro del módulo
+        por dos palabras. */}
+    <p class="etiqueta" aria-hidden="true">{c.mic.eyebrow} · {piezas}</p>
     <h2 class="mic-h" id={`${p}-mic-h`}>{c.mic.h}</h2>
-    <p class="mic-n" aria-hidden="true">{piezas}</p>
     <p class="mic-lede">{c.mic.lede}</p>
   </div>
 
-  <div class="mic-cuerpo">
-    {/* EL LIENZO. La caja se reserva en CSS y dentro se pinta ANTES el dibujo
-        estático, así que WebGL lo sustituye en su sitio sin mover nada: CLS 0
-        por construcción. El lienzo es `aria-hidden` porque no dice nada que la
-        lista de al lado no diga mejor. */}
+  <div class="mic-fila">
+    {/* EL LIENZO. La caja se reserva en CSS —782 × 896 escritos, no
+        calculados— y dentro se pinta ANTES el dibujo estático, así que WebGL
+        lo sustituye en su sitio sin mover nada: CLS 0 por construcción. El
+        lienzo es `aria-hidden` porque no dice nada que las tarjetas de al lado
+        no digan mejor. */}
     <div class="mic-stage" data-mic-stage>
       <canvas data-mic-canvas aria-hidden="true"></canvas>
       {/* Respaldo estático. Nace VISIBLE y se apaga cuando el motor pinta su
@@ -140,84 +212,161 @@ const grupos = [
       <ul class="mic-nodos" data-mic-nodos hidden></ul>
     </div>
 
-    {/* EL ÍNDICE. Once filas, cada una con lo que abre y a qué capítulo baja.
-        Esto es lo que se imprime, lo que lee un lector de pantalla y lo que se
-        ve sin JavaScript. */}
-    <nav class="mic-indice" aria-label={indiceAria}>
+    {/* EL CARRUSEL DE CONVERSACIONES. Diez tarjetas, UNA SOLA TALLA
+        (482 × 288), tres a la vista. Es lo que Jaime pidió por su nombre, y
+        Rendón —«el de Mike»— es la segunda. */}
+    <div class="mic-carrusel" data-mic-carrusel>
       <p class="mic-sinlienzo" aria-hidden="true">{sinLienzo}</p>
+      <ol class="mic-pista" data-mic-pista tabindex="0" aria-label={c.mic.carruselAria}>
+        {tarjetas.map((f) => (
+          <li class="sf-tarjeta mic-t" data-mic-fila={f.id}
+              data-nombre={f.nombre}
+              data-aria={`${f.ver}: ${f.nombre}${f.rol ? ' — ' + f.rol : ''}`}>
+            {/* ═══ EL NOMBRE VA ARRIBA Y VA GRANDE ═══════════════════════
+                La primera versión copiaba a Apple al pie de la letra —frase
+                grande arriba, crédito chiquito abajo— y la captura enseñó dos
+                cosas a la vez: las líneas de `mic.abre` miden entre 52 y 154
+                caracteres, así que ocupaban 2 de las 8 líneas de la tarjeta y
+                dejaban ~170 px de negro en medio; y el dato que un comité
+                busca en tres segundos —A QUIÉN consiguió sentar delante de una
+                cámara— salía a 14 px, abajo del todo.
+                En Apple la frase grande es una CITA del retratado y por eso
+                manda. Aquí no puede serlo: lo que Jaime se llevó de cada
+                conversación lo escribe él, y todavía no está escrito. Con eso
+                fuera, lo que manda es el nombre.
+                Cuatro bloques en dos grupos, y los tres pasos son del sistema
+                (16 entre grupos, 8 dentro): nombre 21 · cargo 17 apagado ·
+                qué abre 17 · fuente 12. El peor caso medido —Rendón en
+                inglés, con dos líneas de cargo— suma 173 de los 224 útiles;
+                el más largo (Moris) 198. Ninguna llega al recorte. */}
+            <div class="mic-t-quien">
+              <p class="mic-t-nombre">
+                {f.interno
+                  ? <a class="mic-fila-a" href={f.href}>{f.nombre}</a>
+                  : <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<i class="mic-ext" aria-hidden="true"> ↗</i></a>}
+              </p>
+              {f.rol && <p class="mic-t-rol">{f.rol}</p>}
+            </div>
+            <div class="mic-t-pieza">
+              {/* QUÉ ABRE. La misma línea que llevaba la ficha del índice
+                  (`mic.abre.<id>`), con su fuente comprobada. */}
+              <p class="mic-t-que">{f.que}</p>
+              <p class="mic-t-fuente">{f.externo || f.ver}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
 
-      {/* TRES GRUPOS, UN SOLO MOLDE. La fila de un nodo INTERNO enlaza a su
-          ficha de este mismo documento (sin `target`, sin ↗) y el pie no
-          lleva fuente externa: el «En el capítulo ↓» es el mismo destino, y
-          se queda porque es el gesto que ya conoce quien lee el índice.
-          (El hueco del minuto del podcast del FTR ya no vive aquí: está
-          junto a su ficha, en el capítulo de las conversaciones.) */}
-      {grupos.map((g) => (
-        <>
-          <h3 class="etiqueta mic-grupo" id={`${p}-mic-${g.id}`}>{g.h}</h3>
-          <ol class="mic-lista" aria-labelledby={`${p}-mic-${g.id}`}>
-            {g.filas.map((f) => (
-              <li class="mic-fila" data-mic-fila={f.id}
-                  data-nombre={f.nombre}
-                  data-aria={`${f.ver}: ${f.nombre}${f.rol ? ' — ' + f.rol : ''}`}>
-                <p class="mic-fila-n">
-                  {f.interno
-                    ? <a class="hist-link mic-fila-a" href={f.href}>{f.nombre}</a>
-                    : <a class="hist-link mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<span class="mic-ext" aria-hidden="true"> ↗</span></a>}
-                </p>
-                {f.rol && <p class="mic-fila-rol">{f.rol}</p>}
-                <p class="mic-fila-que">{f.que}</p>
-                <p class="mic-fila-pie">
-                  {f.externo && <span class="mic-fuente">{f.externo}</span>}
-                  <a class="mic-baja" href={`#${f.ancla}`}>{c.mic.bajar} ↓</a>
-                </p>
-              </li>
-            ))}
-          </ol>
-        </>
-      ))}
-    </nav>
+    {/* LOS MANDOS DE LA PISTA. Van en la segunda fila de la rejilla, bajo la
+        columna de tarjetas y nunca bajo el lienzo: son de la pista. Sin
+        JavaScript se esconden (la regla vive en el <noscript> de Cv.astro),
+        como las del carrusel de citas — son un atajo, no el mecanismo. */}
+    <div class="mic-nav" data-mic-nav>
+      <ol class="mic-puntos" aria-hidden="true">
+        {Array.from({ length: paradas }).map((_, i) => (
+          <li class="mic-punto" aria-current={i === 0 ? 'true' : undefined}></li>
+        ))}
+      </ol>
+      <div class="mic-flechas">
+        <button type="button" class="mic-flecha" data-mic-prev aria-label={c.entrevistas.prev}>↑</button>
+        <button type="button" class="mic-flecha" data-mic-next aria-label={c.entrevistas.next}>↓</button>
+      </div>
+    </div>
   </div>
+
+  {/* LOS CUATRO PAÍSES, CON SU VÍDEO. 4 × 308 + 3 × 16 = 1 280 exacto.
+      El vídeo va `contain` y no `cover`: tres de los cuatro archivos son
+      verticales 9:16 y el de México va enderezado a 16:9, y `cover` sobre una
+      caja 4:5 le come a uno el 30 % de alto y al otro medio encuadre. Un CV no
+      recorta la cara de quien habla para que cuadre una rejilla. */}
+  <ul class="mic-paises" aria-label={c.mic.grupoPaises}>
+    {paises.map((f) => {
+      const cl = clipDe(f.id);
+      const aria = `${f.ver}: ${f.nombre}`;
+      return (
+        <li class="mic-pais" data-mic-fila={f.id} data-nombre={f.nombre} data-aria={aria}>
+          {cl.clip && (
+            <video {...attrsClip(cl.clip, aria, false, cl.w, cl.h, 'mic-pais-v')} data-poster={cl.poster}></video>
+            <noscript><video {...attrsClip(cl.clip, aria, false, cl.w, cl.h, 'mic-pais-v')} poster={cl.poster}></video></noscript>
+          )}
+          <p class="mic-pais-rot">
+            <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<i class="mic-ext" aria-hidden="true"> ↗</i></a>
+          </p>
+          {/* Canadá no tiene vídeo y no es un descuido: su pieza es un carrusel
+              de fotos de TikTok. Los dos rótulos que ya existen lo dicen —qué
+              es y por qué su lámina no está aquí— en vez de dejar un hueco de
+              clip que nunca se va a llenar, y de paso llenan una tarjeta que
+              si no sería el único rectángulo negro y vacío de la fila. */}
+          {!cl.clip && (
+            <div class="mic-pais-nota">
+              <p class="mic-pais-tag" role="note">{c.clip.carrusel}</p>
+              <p class="mic-pais-pie">{c.tiktok.canadaNota}</p>
+            </div>
+          )}
+        </li>
+      );
+    })}
+  </ul>
 
   <p class="mic-sigue">{c.mic.sigue}</p>
 </section>
 
 <style>
   /* ═══ LA CAJA ═══════════════════════════════════════════════════════════
-     Aire arriba (portada → micrófono): 96 px, SIN filete. Portada y micrófono
-     son un solo movimiento de apertura.
-     Aire abajo (micrófono → capítulo 2): 224 px, SIN filete. Es el hueco más
-     grande del documento y es lo que dice «esto no era un capítulo». */
+     El módulo vive en el MARCO ANCHO (1280), que es más ancho que la columna
+     de los capítulos (1152): §3.2 del documento de referencia da tres pistas
+     —lectura 653, útil 980, ancho 1280— y el micrófono, los carruseles y los
+     países son la tercera. El aire entre sus bloques lo pone `.sf-ancho`
+     (44 px, `--sf-aire-2`) y aquí solo se declara la excepción del pie. */
   .mic {
-    display: flex; flex-direction: column; gap: var(--sp-5);
-    width: 100%;
-    max-width: calc(var(--container) - 2 * var(--gutter));
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-    padding-block: var(--sp-6) var(--sp-8);
+    /* 44 ARRIBA Y ABAJO, y el número está medido, no elegido por gusto. Con
+       80 (`--sf-aire-4`, «arriba y abajo de algo a sangre») el guardián subía
+       los píxeles vacíos de 920 a 960: la franja que va del cierre del módulo
+       al número del capítulo 2 pasaba de 176 a 212 px. Esa franja se reparte
+       entre TRES dueños —44 de este padding, 92 del `justify-content: center`
+       del capítulo y unos 40 del aire de su propio encabezado—, así que aquí
+       solo se puede pagar el primer tercio; los otros dos son de la ola de los
+       capítulos, y van escritos para que se puedan cobrar.
+       44 es además el aire que `.sf-ancho` ya pone ENTRE los bloques del
+       módulo: el aire de dentro y el de fuera son el mismo, que es lo que
+       hace que se lea como una pieza y no como tres. */
+    padding-block: var(--sf-aire-2);
   }
-  .mic-cab { display: flex; flex-direction: column; gap: var(--sp-2); max-width: 44rem; }
+  .mic-cab { display: flex; flex-direction: column; gap: var(--sf-aire-cabeza); max-width: var(--sf-lectura); }
   /* NINGÚN `font-size` del micrófono depende de `vw` ni de `clamp` por encima
      de 940 px. Es la regla que arregla «todo súper grande»: lo que crece con
-     la ventana es el aire, no la letra. */
-  .mic-h {
-    font-family: var(--font-serif); font-weight: 600;
-    font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.022em;
+     la ventana es el aire, no la letra. Los tamaños son los del sistema. */
+  .mic-h { font: var(--sf-t-entra); letter-spacing: var(--sf-ls); color: var(--sf-tinta); margin: 0; }
+  .etiqueta {
+    font: var(--sf-t-pie); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--sf-tinta-2); margin: 0;
   }
-  .mic-n {
-    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
-    letter-spacing: .14em; text-transform: uppercase; color: var(--cvh-tinta-3);
-  }
-  .mic-lede { font-size: var(--fs-caption); line-height: 1.55; color: var(--cvh-tinta-2); }
+  /* ── `.etiqueta` SE REPITE AQUÍ, Y NO ES UN DESCUIDO ────────────────────
+     La clase está definida en el `<style>` de Historia.astro, y los `<style>`
+     de Astro tienen ámbito POR COMPONENTE: le pegan a cada parte del selector
+     el atributo del archivo donde se escriben, así que `.etiqueta` de allí no
+     alcanza este marcado. Es la misma trampa que CLAUDE.md ya tiene escrita
+     para `.proj` entre `Hub.astro` y `RetoActinver.astro`. Sin esto, el ojo
+     del módulo salía al tamaño por omisión, que no es ninguno de los ocho. */
+  .mic-lede { font: var(--sf-t-sec); letter-spacing: var(--sf-ls); color: var(--sf-tinta-2); margin: 0; }
 
-  .mic-cuerpo { display: flex; flex-direction: column; gap: var(--sp-4); }
+  /* ═══ LA FILA: DOS CAJAS DEL MISMO ALTO ══════════════════════════════════
+     782 + 16 + 482 = 1280. Los dos anchos van ESCRITOS y no calculados: es lo
+     que hace que el hueco de 401 px no pueda volver. La segunda fila (44 px)
+     es la de los mandos, y solo ocupa la columna de la derecha. */
+  .mic-fila {
+    display: grid;
+    grid-template-columns: 782px 482px;
+    grid-template-rows: 896px 44px;
+    gap: var(--sf-canal);
+  }
 
   /* ═══ EL LIENZO ═════════════════════════════════════════════════════════ */
   .mic-stage {
-    position: relative; width: 100%;
-    /* Alto RESERVADO en CSS: el lienzo llega tarde y no debe mover nada. */
-    height: clamp(300px, 42svh, 380px);
-    /* ── EL ARRASTRE (v2): el micrófono se gira con la mano ─────────────
+    position: relative; grid-column: 1; grid-row: 1;
+    width: 782px; height: 896px;
+    /* ── EL ARRASTRE: el micrófono se gira con la mano ──────────────────
        `pan-y` deja el scroll VERTICAL al navegador —aquí nunca hay
        preventDefault— y se queda solo con el gesto horizontal, que es el
        que gira. `user-select: none` para que arrastrar no seleccione las
@@ -232,7 +381,7 @@ const grupos = [
   .mic-stage canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
   .mic-respaldo {
     position: absolute; inset: 0; display: grid; place-items: center;
-    color: var(--cvh-tinta-3); pointer-events: none;
+    color: var(--sf-tinta-2); pointer-events: none;
     transition: opacity var(--dur-3) linear;
   }
   .mic-respaldo svg { width: auto; height: 82%; opacity: .5; }
@@ -264,19 +413,19 @@ const grupos = [
   }
   .mic-nodos :global(.nodo::before) {
     content: ""; width: 10px; height: 10px; border-radius: 50%;
-    background: var(--cvh-tinta);
-    box-shadow: 0 0 0 3px var(--cvh-papel), 0 0 0 4px var(--cvh-tinta-3);
+    background: var(--sf-tinta);
+    box-shadow: 0 0 0 3px var(--sf-papel), 0 0 0 4px var(--sf-tinta-2);
     transition: transform var(--dur-2) var(--ease-out);
   }
   /* Los países se distinguen por FORMA, no solo por color: quien no distingue
      tonos tiene que poder separar las dos mitades igual. */
   .mic-nodos :global(.nodo[data-pais]::before) {
-    border-radius: 2px; background: var(--cvh-papel);
-    box-shadow: 0 0 0 2px var(--cvh-tinta), 0 0 0 4px var(--cvh-papel);
+    border-radius: 2px; background: var(--sf-papel);
+    box-shadow: 0 0 0 2px var(--sf-tinta), 0 0 0 4px var(--sf-papel);
   }
   .mic-nodos :global(.nodo:hover::before),
   .mic-nodos :global(.nodo:focus-visible::before) { transform: scale(1.5); }
-  .mic-nodos :global(.nodo:focus-visible) { outline: 2px solid var(--cvh-tinta); outline-offset: 2px; }
+  .mic-nodos :global(.nodo:focus-visible) { outline: 2px solid var(--sf-tinta); outline-offset: 2px; }
   .mic-nodos :global(.nodo[hidden]) { display: none; }
   /* Un nodo en la CARA DE ATRÁS (facing < 0.12, lo escribe el guion) se ve
      atenuado y no se puede pinchar: pinchar «a través» del micrófono abriría
@@ -287,90 +436,204 @@ const grupos = [
      (persona = punto lleno · país = cuadrado · experiencia = aro). Quien no
      distingue tonos separa las tres clases igual. */
   .mic-nodos :global(.nodo[data-exp]::before) {
-    background: var(--cvh-papel);
-    box-shadow: 0 0 0 2px var(--cvh-tinta), 0 0 0 4px var(--cvh-papel);
+    background: var(--sf-papel);
+    box-shadow: 0 0 0 2px var(--sf-tinta), 0 0 0 4px var(--sf-papel);
   }
   .mic-nodos :global(.nodo-et) {
     position: absolute; left: 50%; top: calc(50% + 13px); transform: translateX(-50%);
-    white-space: nowrap; font-size: 12px; line-height: 1.2; letter-spacing: .01em;
-    color: var(--cvh-tinta); background: var(--cvh-papel);
-    padding: 3px 7px; border-radius: 5px; border: 1px solid var(--cvh-raya);
+    white-space: nowrap; font: var(--sf-t-pie); text-transform: none; letter-spacing: 0;
+    color: var(--sf-tinta); background: var(--sf-papel);
+    padding: 3px 7px; border-radius: var(--sf-r-par); border: 1px solid var(--sf-borde);
     opacity: 0; transition: opacity var(--dur-1) linear; pointer-events: none;
   }
   .mic-nodos :global(.nodo:hover .nodo-et),
   .mic-nodos :global(.nodo:focus-visible .nodo-et) { opacity: 1; }
 
-  /* ═══ EL ÍNDICE ═════════════════════════════════════════════════════════ */
-  .mic-indice { display: flex; flex-direction: column; gap: var(--sp-3); }
+  /* ═══ LA PISTA DE TARJETAS ══════════════════════════════════════════════ */
+  .mic-carrusel { position: relative; grid-column: 2; grid-row: 1; width: 482px; height: 896px; }
   /* Solo se lee cuando NO hay dibujo. Con lienzo sobra: se ve el micrófono. */
-  .mic-sinlienzo { display: none; font-size: var(--fs-caption); color: var(--cvh-tinta-3); }
-  .mic-stage[data-mic-fallo] ~ .mic-indice .mic-sinlienzo,
-  .mic-cuerpo:has(.mic-stage[data-mic-fallo]) .mic-sinlienzo { display: block; }
-  .mic-grupo { margin-block-start: var(--sp-2); }
-  .mic-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
-  .mic-fila {
-    display: flex; flex-direction: column; gap: 2px;
-    padding-inline-start: var(--sp-3);
-    border-inline-start: 2px solid var(--cvh-raya);
-    transition: border-color var(--dur-1) linear;
+  .mic-sinlienzo { display: none; font: var(--sf-t-pie); color: var(--sf-tinta-2); margin: 0; }
+  .mic-fila:has(.mic-stage[data-mic-fallo]) .mic-sinlienzo {
+    display: block; position: absolute; inset-block-end: calc(100% + var(--sf-aire-0)); inset-inline-start: 0;
   }
-  .mic-fila[data-activo] { border-inline-start-color: var(--cvh-tinta); }
-  .mic-fila-n { font-weight: 600; }
-  .mic-fila-a { min-height: 44px; }
-  .mic-ext { color: var(--cvh-tinta-3); }
-  .mic-fila-rol { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
-  .mic-fila-que { font-size: var(--fs-caption); line-height: 1.5; color: var(--cvh-tinta); max-width: 34rem; }
-  .mic-fila-pie {
-    display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); align-items: center;
-    font-family: var(--font-mono); font-size: var(--cvh-etiqueta);
-    letter-spacing: .1em; text-transform: uppercase; color: var(--cvh-tinta-3);
+  .mic-pista {
+    height: 896px; margin: 0; padding: 0; list-style: none;
+    display: flex; flex-direction: column; gap: var(--sf-canal);
+    overflow-y: auto; overflow-x: hidden;
+    scroll-snap-type: y mandatory; scrollbar-width: none;
   }
-  .mic-baja {
-    color: var(--cvh-tinta-2); text-decoration: none;
-    border-block-end: 1px solid var(--cvh-raya);
-    min-height: 24px; display: inline-flex; align-items: center;
-  }
-  .mic-baja:hover { color: var(--cvh-tinta); border-block-end-color: currentColor; }
-  .mic-sigue { font-size: var(--fs-caption); color: var(--cvh-tinta-3); max-width: 40rem; }
+  .mic-pista::-webkit-scrollbar { display: none; }
+  /* CON JAVASCRIPT LA RUEDA YA NO SE QUEDA AQUÍ. `scrollTop` sigue mandando
+     —los botones, el tabulador y los nodos del micrófono la mueven igual—,
+     pero la rueda vertical pasa de largo a la página. Sin JavaScript este
+     atributo no existe y la pista se desplaza sola. */
+  .mic-carrusel[data-mic-pag] .mic-pista { overflow-y: hidden; }
+  .mic-pista:focus-visible { outline: 2px solid var(--sf-tinta); outline-offset: 4px; }
 
-  /* ═══ DOS COLUMNAS EN ESCRITORIO ════════════════════════════════════════
-     Un micrófono es ALTO Y ESTRECHO, al revés que el globo. A lo ancho del
-     marco deja un hueco muerto enorme a los lados del dibujo — que es
-     exactamente lo que se señaló del primer prototipo. En dos columnas el
-     dibujo se queda con su forma y la lista ocupa el aire que sobraba. */
-  @media (min-width: 62em) {
-    .mic-cuerpo {
-      flex-direction: row; align-items: start;
-      gap: var(--sp-6);
+  /* La tarjeta la declara `.sf-tarjeta` en cv.css (482 × 288, una sola talla).
+     Aquí solo lo que cambia por ir en una pista VERTICAL: en un flex en
+     columna, `flex: 0 0 482px` sería un basis de 482 px de ALTO. */
+  /* Los DOS grupos van pegados arriba y el sobrante se queda abajo, negro
+     sobre negro: dentro de una caja de un solo tamaño, el aire de abajo no se
+     ve. El aire EN MEDIO sí — que es lo que enseñaba la primera captura. */
+  .mic-t { flex: 0 0 288px; justify-content: flex-start; gap: var(--sf-canal); scroll-snap-align: start; }
+  .mic-t-quien, .mic-t-pieza { display: flex; flex-direction: column; gap: var(--sf-aire-0); }
+  .mic-t-nombre { font: var(--sf-t-tarjeta); letter-spacing: var(--sf-ls); margin: 0; }
+  .mic-t-rol {
+    font: var(--sf-t-sec); letter-spacing: var(--sf-ls); margin: 0; color: var(--sf-oscuro-tinta2);
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  }
+  .mic-t-que {
+    font: var(--sf-t-sec); letter-spacing: var(--sf-ls); margin: 0;
+    /* Cuatro líneas de 25 = 100 px. La más larga del documento (Moris, 152
+       caracteres) cabe en cuatro; el recorte es el seguro de que una línea
+       nueva no estire la tarjeta, no algo que ocurra hoy. «Una cita que no
+       quepa se recorta, no crece la tarjeta» (§3.4 iv). */
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden;
+  }
+  .mic-t-fuente { font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2); margin: 0; }
+  .mic-t .mic-fila-a {
+    color: var(--sf-oscuro-tinta); text-decoration: underline;
+    text-underline-offset: 3px; text-decoration-thickness: 1px;
+  }
+  .mic-t .mic-fila-a:hover { text-decoration-thickness: 2px; }
+  .mic-t .mic-fila-a:focus-visible { outline: 2px solid var(--sf-oscuro-tinta); outline-offset: 3px; border-radius: 2px; }
+  .mic-ext { font-style: normal; }
+  /* El eco del nodo: posar el puntero sobre un punto del micrófono enciende su
+     tarjeta, y al revés. Es un aro por DENTRO (`inset`) para que la tarjeta
+     siga midiendo 482 × 288 clavados. */
+  .mic-t[data-activo] { box-shadow: inset 0 0 0 2px var(--sf-oscuro-tinta); }
+
+  /* ═══ LOS MANDOS ════════════════════════════════════════════════════════ */
+  .mic-nav {
+    grid-column: 2; grid-row: 2; height: 44px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mic-puntos { display: flex; gap: var(--sf-aire-0); list-style: none; margin: 0; padding: 0; }
+  .mic-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--sf-borde); }
+  .mic-punto[aria-current] { background: var(--sf-tinta); }
+  .mic-flechas { display: flex; gap: var(--sf-aire-0); }
+  .mic-flecha {
+    width: 44px; height: 44px; border-radius: var(--sf-r-pildora);
+    background: var(--sf-papel-2); border: 0; cursor: pointer;
+    color: var(--sf-tinta); font: var(--sf-t-rotulo); line-height: 1;
+  }
+  .mic-flecha:hover { background: var(--sf-borde); }
+  .mic-flecha:focus-visible { outline: 2px solid var(--sf-tinta); outline-offset: 2px; }
+  /* `data-inerte` y no `disabled` en los extremos: deshabilitar un botón que
+     tiene el foco lo suelta al body, y quien recorre con teclado pierde el
+     sitio. El botón inerte sigue enfocable y su clic no tiene nada que mover. */
+  .mic-flecha[data-inerte] { opacity: .35; cursor: default; }
+
+  /* ═══ LOS CUATRO PAÍSES ═════════════════════════════════════════════════
+     4 × 308 + 3 × 16 = 1280. La rejilla va en `fr` y no en `--sf-cuarto`
+     A PROPÓSITO: ese token se calcula con `min(1280px, 100% − 32px)` y aquí el
+     `100%` ya es el marco de 1280, así que restaría los 32 px una segunda vez
+     y las tarjetas saldrían de 300. Con `1fr` dentro de un marco de 1280 salen
+     los 308 exactos que manda el sistema. */
+  .mic-paises {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sf-canal); list-style: none; margin: 0; padding: 0;
+  }
+  .mic-pais {
+    position: relative; aspect-ratio: 4 / 5;
+    border-radius: var(--sf-r-tarjeta); overflow: hidden;
+    background: var(--sf-oscuro);
+  }
+  .mic-pais :global(.mic-pais-v) {
+    width: 100%; height: 100%; display: block;
+    /* `contain` y no `cover`: ver el comentario del marcado. */
+    object-fit: contain; background: var(--sf-oscuro);
+  }
+  /* EL RÓTULO VA ARRIBA Y NO ABAJO, y se separa del documento de referencia
+     por una razón medida: estos vídeos llevan `controls` —son el mecanismo de
+     pausa de WCAG 2.2.2 y no se quitan— y la barra de controles vive en el
+     borde de abajo. Un rótulo ahí se pisa con el play. */
+  .mic-pais-rot {
+    position: absolute; inset-block-start: var(--sf-canal); inset-inline-start: var(--sf-canal);
+    margin: 0; font: var(--sf-t-rotulo); letter-spacing: var(--sf-ls);
+    /* Chip OPACO y no un degradado: el texto cae encima de un fotograma de
+       vídeo, y un fotograma no tiene contraste garantizado. Con el chip, la
+       cuenta la hace `check-contraste-cv` sobre dos colores fijos. */
+    background: var(--sf-oscuro); border-radius: var(--sf-r-pildora); padding: 6px 12px;
+  }
+  .mic-pais-rot .mic-fila-a {
+    color: var(--sf-oscuro-tinta); text-decoration: underline;
+    text-underline-offset: 3px; text-decoration-thickness: 1px;
+  }
+  .mic-pais-rot .mic-fila-a:focus-visible { outline: 2px solid var(--sf-oscuro-tinta); outline-offset: 3px; }
+  /* La nota de Canadá va abajo, en la caja completa menos los márgenes: es el
+     único sitio de la fila donde hay texto corrido, y arrinconado a la
+     izquierda se partía en cinco renglones de dos palabras. */
+  .mic-pais-nota {
+    position: absolute; inset-block-end: var(--sf-canal);
+    inset-inline: var(--sf-canal);
+    display: flex; flex-direction: column; gap: var(--sf-aire-0);
+  }
+  .mic-pais-tag { margin: 0; font: var(--sf-t-rotulo); color: var(--sf-oscuro-tinta); }
+  .mic-pais-pie { margin: 0; font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2); }
+  .mic-pais[data-activo] { box-shadow: inset 0 0 0 2px var(--sf-oscuro-tinta); }
+
+  .mic-sigue { font: var(--sf-t-pie); color: var(--sf-tinta-2); max-width: var(--sf-pie-max); margin: 0; }
+  /* El pie del módulo va a 16 del bloque anterior, no a 44: es su pie, no el
+     bloque siguiente. Es el único paso que `.sf-ancho` no acierta solo. */
+  .mic > .mic-sigue { margin-block-start: var(--sf-aire-1); }
+
+  /* ═══ POR DEBAJO DEL MARCO ANCHO ════════════════════════════════════════
+     «Nuestro objetivo principal es ordenador», y los dos anchos que mide el
+     guardián son 1440 y 1920 — ahí la rejilla de arriba es exacta. Por debajo
+     de 1312 (1280 + los dos canales) los 782 y los 482 clavados harían scroll
+     horizontal, que es WCAG 1.4.10. Así que el módulo se apila: el lienzo a lo
+     ancho con su proporción y la pista pasa a HORIZONTAL, que es el gesto que
+     una pantalla estrecha ya conoce. */
+  @media (max-width: 81.99em) {
+    .mic-fila { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; }
+    .mic-stage { width: 100%; height: auto; aspect-ratio: 782 / 896; max-height: 70svh; grid-column: 1; grid-row: 1; }
+    .mic-carrusel { grid-column: 1; grid-row: 2; width: 100%; height: auto; }
+    .mic-nav { grid-column: 1; grid-row: 3; }
+    .mic-pista {
+      height: auto; flex-direction: row;
+      overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory;
     }
-    .mic-stage { flex: 0 0 clamp(300px, 32%, 420px); height: min(62svh, 620px); }
-    .mic-indice { flex: 1 1 auto; min-width: 0; }
-    .mic-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3) var(--sp-4); }
+    /* En horizontal la tarjeta vuelve a su declaración de origen: 482 de ancho
+       es su basis, y por debajo de 514 px de ventana se encoge para no
+       desbordar.
+       ── Y AQUÍ LA ALTURA SÍ SE SUELTA, Y LO CAZÓ AXE ──────────────────────
+       Con `height: 288px` clavados y la tarjeta más estrecha, el texto ocupa
+       más renglones de los que caben y se SALÍA por abajo del rectángulo
+       negro: los 12 px del rótulo de fuente acababan pintados sobre el papel
+       blanco, a 3.62:1 (axe, `color-contrast`, serious, en 1280 y 390, los dos
+       idiomas). No se ve en 1440 ni en 1920 —ahí la tarjeta mide sus 482 y el
+       texto cabe—, así que ninguna captura de escritorio lo enseñaba.
+       `min-height` en vez de `height` mantiene la talla única (las tarjetas de
+       una fila flex se estiran a la más alta, así que siguen siendo iguales
+       ENTRE ELLAS) y deja que crezca lo que haga falta. Los 482 × 288 clavados
+       siguen intactos en los dos anchos que mide el guardián. */
+    .mic-t { flex: 0 1 482px; max-width: 100%; height: auto; min-height: 288px; }
+    .mic-carrusel[data-mic-pag] .mic-pista { overflow-x: auto; overflow-y: hidden; }
+    .mic-paises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 34em) {
+    .mic-paises { grid-template-columns: minmax(0, 1fr); }
   }
 
   /* Con «menos movimiento» el micrófono se pinta ya armado y quieto (lo hace
      el guion, en un fotograma). Aquí solo se apagan las transiciones. */
   @media (prefers-reduced-motion: reduce) {
     .mic-respaldo, .mic-nodos :global(.nodo::before),
-    .mic-nodos :global(.nodo-et), .mic-fila { transition: none; }
+    .mic-nodos :global(.nodo-et), .mic-t { transition: none; }
+    .mic-pista { scroll-behavior: auto; }
   }
 
   /* ═══ AL IMPRIMIR NO VA ═══════════════════════════════════════════════
-     Antes se iba solo el LIENZO y la lista se quedaba. Eso contradecía la
-     primera línea de la hoja impresa (`impresionNota`), que le promete al
-     lector, con estas palabras: «El CV completo —las fotografías, LOS CLIPS,
-     LAS CONVERSACIONES y el sitio— está en la página desde la que se
-     imprimió». El papel arrancaba con un índice de once conversaciones y
-     clips justo debajo de esa promesa.
-     Y los once «En el capítulo ↓» apuntan a piezas del capítulo 8, que es
-     `sin-imprimir`: en papel eran once enlaces a algo que no está en la hoja.
-     El impreso es un SUBCONJUNTO declarado y esto es la obertura de lo que
-     vive en pantalla, así que se va con su capítulo. Una regla, dicha una
-     vez, obedecida en los dos sitios.
-     EL ÍNDICE SIGUE VIVIENDO FUERA DEL CONTENEDOR DEL LIENZO. Esa decisión
-     nunca fue solo por la impresión: su motivo fuerte es la DEGRADACIÓN —sin
-     JavaScript, sin WebGL o con la GPU ahogada, esa lista es la pieza entera—
-     y ese motivo sigue en pie. */
+     El módulo entero se va del papel, y no es una comodidad de maquetación:
+     la primera línea de la hoja impresa (`impresionNota`) le promete al lector,
+     con estas palabras, que «el CV completo —las fotografías, LOS CLIPS, LAS
+     CONVERSACIONES y el sitio— está en la página desde la que se imprimió».
+     El impreso es un SUBCONJUNTO declarado, y esto es la obertura de lo que
+     vive en pantalla: un lienzo WebGL, cuatro vídeos y un carrusel. Una regla,
+     dicha una vez, obedecida en los dos sitios. */
   @media print {
     .mic { display: none; }
   }
