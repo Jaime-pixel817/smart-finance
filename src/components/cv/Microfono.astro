@@ -244,7 +244,7 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
               <p class="mic-t-nombre">
                 {f.interno
                   ? <a class="mic-fila-a" href={f.href}>{f.nombre}</a>
-                  : <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<i class="mic-ext" aria-hidden="true"></i></a>}
+                  : <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}</a>}
               </p>
               {f.rol && <p class="mic-t-rol">{f.rol}</p>}
             </div>
@@ -292,7 +292,7 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
             <noscript><video {...attrsClip(cl.clip, aria, false, cl.w, cl.h, 'mic-pais-v')} poster={cl.poster}></video></noscript>
           )}
           <p class="mic-pais-rot">
-            <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}<i class="mic-ext" aria-hidden="true"></i></a>
+            <a class="mic-fila-a" href={f.href} target="_blank" rel="noopener">{f.nombre}</a>
           </p>
           {/* CANADÁ NO TIENE VÍDEO y no es un descuido: su pieza es un carrusel
               de fotos de TikTok, sin mp4 que servir. Lo que sí existe es su
@@ -524,10 +524,9 @@ const clipDe = (id: string) => (CLIP_PAIS as Record<string, { clip: string | nul
   }
   .mic-t .mic-fila-a:hover { text-decoration-thickness: 2px; }
   .mic-t .mic-fila-a:focus-visible { outline: 2px solid var(--sf-oscuro-tinta); outline-offset: 3px; border-radius: 2px; }
-  /* El ↗ es un pseudoelemento y no un nodo de texto: salía doce veces aquí
-     y el guardián lo contaba como rótulo repetido. */
-  .mic-ext { font-style: normal; }
-  .mic-ext::after { content: " ↗"; }
+  /* Sin ↗ en los nombres (corrección de la ola 6): un glifo pintado en cada
+     tarjeta es un rótulo repetido, sea texto o pseudoelemento. El subrayado
+     ya dice que el nombre es un enlace. */
   /* El eco del nodo: posar el puntero sobre un punto del micrófono enciende su
      tarjeta, y al revés. Es un aro por DENTRO (`inset`) para que la tarjeta
      siga midiendo 482 × 288 clavados. */

@@ -1045,13 +1045,31 @@ const en = {
     // no se entrecomilla porque no es lo que él publicó palabra por palabra
     // (cuatro títulos son en español y dos llegan truncados en su info.json).
     // El panel español lleva los originales verbatim donde son en español.
+    // ── Y ESTE PANEL LLEVA VERBATIM LOS DOS QUE ÉL PUBLICÓ EN INGLÉS ──────
+    // (corrección de la ola 6): la regla es que ninguna cita suya se pierde
+    // al mover; se reubica. «Canada is not just beautiful…» y «Visiting J.P.
+    // Morgan…» son títulos suyos en inglés, así que aquí van entre comillas
+    // y tal como los publicó (truncados donde su info.json los trunca, con
+    // el «…» dentro de las comillas).
     videos: {
-      jpmvisit: 'Visiting J.P. Morgan in Singapore — the visit, told to camera',
+      jpmvisit: '“📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…” — the visit, told to camera',
       nus: 'Presenting about Mexico to students at the National University of Singapore',
       singapur: 'Why the world’s money lives in Singapore',
       japon: 'Financial data from Japan',
       tokio: 'Financial facts about Japan, from the Tokyo Tower',
-      canada: 'Five financial facts about Canada'
+      canada: '“Canada is not just beautiful it’s one of the smartest places in the w…” — five financial facts about Canada'
+    },
+    // ── LAS DOS INFOGRAFÍAS QUE VUELVEN (CURADURIA-FOTOS.md §3, cap. 7) ───
+    // Estaban desplegadas con huella y sin que nadie las usara. Son la única
+    // prueba visual QUIETA de lo que produce el canal; el pie dice que la
+    // pieza es en español también en este panel, porque el canal es en
+    // español y el documento no mezcla idiomas. El texto del alt describe lo
+    // que la imagen lleva escrito, y no afirma nada más.
+    cuadros: {
+      noticiasAlt: 'Infographic in Spanish titled “4 noticias que movieron el dinero”: four market stories — Wall Street records, oil, AI in Singapore, US retail sales — each with a photo and its figures',
+      noticiasPie: 'An infographic from my channel, in Spanish: “4 noticias que movieron el dinero”.',
+      oroAlt: 'Infographic in Spanish titled “El oro se dispara”, dated 13 August 2026: a gold bar, a rising line and three figures for the spot price of gold',
+      oroPie: 'An infographic from my channel, in Spanish: “El oro se dispara” (13 August 2026).'
     },
     // ── LO QUE HABÍA DEBAJO Y YA NO ESTÁ (Jaime, 2026-08-30) ─────────────
     // «abajo de eso hay más fechas con títulos, quítalos y pon de link a mi
@@ -1805,6 +1823,12 @@ const en = {
     lede: 'The receipts, as my LinkedIn publishes them. Six of the seven carry a credential ID; the seventh prints its venue and its dates on the certificate itself.',
     verLinkedIn: 'See it on LinkedIn',
     credencial: 'Credential ID',
+    // LA INSIGNIA DIBUJADA DEL DELF A2 VUELVE (corrección de la ola 6):
+    // INVENTARIO.md §12 la marca «conservar» —(vi) miniatura + (x) nota tipo
+    // 1— y el paso C la había quitado sin argumentar contra esa decisión. Es
+    // la única fila sin escaneo y la nota deja claro que la dibuja la página.
+    insigniaNivel: 'CEFR level A2',
+    insigniaTag: 'Designed by this page — not the diploma',
     // ── LOS DOS ESCANEOS QUE SE QUEDAN, EN PAREJA (CURADURIA-FOTOS.md, cap. 9)
     // El B2 First con la calificación desglosada y el Investment Foundations
     // con folio y QR. Los otros cuatro salen de las imágenes y se quedan en la
@@ -2996,6 +3020,12 @@ const es: typeof en = {
       tokio: '«Lo creerías?» — datos financieros de Japón, desde la Torre de Tokio',
       canada: 'Cinco datos financieros de Canadá'
     },
+    cuadros: {
+      noticiasAlt: 'Infografía titulada «4 noticias que movieron el dinero»: cuatro noticias de mercado —récords en Wall Street, el petróleo, la IA en Singapur, las ventas minoristas de EE. UU.—, cada una con su foto y sus cifras',
+      noticiasPie: 'Una infografía de mi canal: «4 noticias que movieron el dinero».',
+      oroAlt: 'Infografía titulada «El oro se dispara», fechada el 13 de agosto de 2026: un lingote, una línea que sube y tres cifras del precio spot del oro',
+      oroPie: 'Una infografía de mi canal: «El oro se dispara» (13 de agosto de 2026).'
+    },
     verTodo: 'Ver todo mi contenido',
     arcoImgAlt: 'Yo, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
     arcoImgPie: 'La presentación sobre México en la NUS — una foto mía'
@@ -3247,6 +3277,8 @@ const es: typeof en = {
     lede: 'Los recibos, tal como los publica mi LinkedIn. Seis de los siete llevan ID de credencial; el séptimo trae impresas en el propio certificado la sede y las fechas.',
     verLinkedIn: 'Verlo en LinkedIn',
     credencial: 'ID de la credencial',
+    insigniaNivel: 'Nivel A2 del marco europeo',
+    insigniaTag: 'Diseñada por esta página — no es el diploma',
     cambridgePie: 'Mi certificado B2 First, Cambridge English (2024): el escaneo, cortado por encima de sus números de control',
     cfaPie: 'Investment Foundations Certificate, CFA Institute (2026): número de certificado y QR de verificación',
     sinCred: 'Impreso en el certificado en vez de un ID',

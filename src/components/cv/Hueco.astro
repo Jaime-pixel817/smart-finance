@@ -54,6 +54,18 @@ const h = c.huecos[id];
      texto de dentro. */
   .hueco { padding: var(--sf-aire-cabeza, 20px); text-align: center; }
   .hueco-que { margin: 0; font: var(--sf-t-pie); color: inherit; overflow-wrap: anywhere; }
+  /* EL HUECO DE CITA NO PINTA TEXTO (corrección de la ola 6). Los catorce
+     «One thing I took from …» de las tarjetas de conversación y los cuatro
+     «The result, and who confirms it» de la lista de experiencia eran la
+     familia ×14 de la auditoría escrita DENTRO de las cajas: INVENTARIO §6
+     dice «el hueco es una caja con geometría final, no un texto». La caja
+     vive debajo del nombre de la persona (o de la fila), que ya dice de
+     quién es; el nombre accesible sigue llevando el título entero. Los
+     huecos de prosa (seis, cada uno con un título distinto) sí lo pintan. */
+  .hueco.cita-pend .hueco-que, .hueco.expapp-hueco .hueco-que { display: none; }
+  /* Los dos huecos de cita que van BAJO UNA FOTO de la pareja (Moris, Marg)
+     sí pintan su título: son dos, no una familia, y sin él la caja de 100 px
+     bajo el pie de foto se leía como una franja vacía de 195 px. */
 
   /* Al imprimir, un hueco es una nota al margen, no una caja: mono de 12 px,
      rótulo y qué falta en el mismo renglón. El rótulo sale del nombre

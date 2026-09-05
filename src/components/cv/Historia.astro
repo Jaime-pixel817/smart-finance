@@ -132,6 +132,9 @@ const c = useCv(locale);
 const L = (id: string) => route(id, locale);
 /** Prefijo de los ids de este pane: sin él, los dos idiomas los repetirían. */
 const p = locale;
+// La captura de la portada de smartfinance.lat existe en los dos idiomas
+// (build-photos.mjs la hace en los dos): es el respaldo del marco (ix).
+const sufHeader = locale === 'es' ? '-es' : '';
 
 const LINKEDIN = 'https://www.linkedin.com/in/jaime-sandoval-ricano-23b3a4401';
 const TIKTOK = 'https://www.tiktok.com/@smart.financee';
@@ -811,6 +814,15 @@ const certsFranja = c.franja.certsDe
       <blockquote class="abre">
         <p>{c.voz.apertura}</p>
       </blockquote>
+      {/* LA AFIRMACIÓN DE LIDERAZGO, EN LA SEGUNDA PANTALLA (corrección de la
+           ola 6). Un revisor midió que «I founded a student group» aparecía
+           por primera vez a 5 462 px —la séptima pantalla— y que el lector
+           sabía a qué ciudad quiere ir antes de saber qué fundó. La beca
+           Pearson se nomina por liderazgo e impacto: la afirmación va aquí,
+           debajo de su frase, y es el mismo titular del capítulo 2 (nada
+           nuevo se afirma), con el enlace al capítulo donde está la prueba y
+           el tercero que la confirma. */}
+      <p class="portada-claim"><a class="hist-link cv-salto" href={`#${p}-cap-2`}>{c.caps.grupo} →</a></p>
 
       {/* ══ LA FRANJA DE PRUEBAS (ola 2, 2026-08-31) ═══════════════════════
            Cuatro piezas, sin una frase de prosa, debajo de la cita de
@@ -974,7 +986,6 @@ const certsFranja = c.franja.certsDe
        No es un capítulo: no lleva número, no entra en `capitulos` y no cambia
        la numeración de nada. Es índice y obertura, y los once puntos BAJAN a
        sus capítulos, que se quedan enteros. */}
-  <Microfono c={c} p={p} />
 
   {/* ════ 02 · Fundé un grupo estudiantil y lo presido ════════════════════
        PRIMER CAPÍTULO POR LIDERAZGO (ola 4). El texto es el que ya publicaba
@@ -991,7 +1002,7 @@ const certsFranja = c.franja.certsDe
          rejilla vieja (INVENTARIO.md §5)—, y el ojo lleva el número: un solo
          rótulo para «capítulo y número», no dos. */}
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(1).n} / {num(1).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(1).n} / {num(1).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-2-h`}>{c.caps.grupo}</h2>
     </header>
     {/* (ii) LA PROSA, a 653. Y debajo, PEGADA, la única mención a la carta de
@@ -1027,10 +1038,15 @@ const certsFranja = c.franja.certsDe
          «sale haciendo algo». Ilustra la frase de al lado → columna 653 × 816
          (§4, pregunta 3); 1306 a densidad 2. La tercera foto del mismo
          cartel (él solo, narrando) SE FUE: añadía una pose, no un hecho. */}
-    <figure class="sf-foto sf-foto--columna sf-foto--v45 sin-imprimir">
-      <img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="653" height="816" loading="lazy" decoding="async" />
-      <figcaption>{c.lote.grupoEntrevistaPie}</figcaption>
-    </figure>
+    {/* CURADURIA-FOTOS.md §3 (cap. 2): «482 sola», 482 × 642 — la caja de la
+         pareja, con una sola figura centrada (`.sf-par--sola`). Iba a columna
+         653 × 816, que no es la caja que la curaduría le asignó. */}
+    <div class="sf-par sf-par--sola sin-imprimir">
+      <figure>
+        <img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.grupoEntrevistaPie}</figcaption>
+      </figure>
+    </div>
   </section>
 
   {/* ════ 03 · Cada quien trae algo — las conversaciones ═════════════════
@@ -1058,10 +1074,15 @@ const certsFranja = c.franja.certsDe
        de aquí lo está respaldando.
 
        La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
+  {/* EL MICRÓFONO VA DELANTE DE LAS CONVERSACIONES, NO DELANTE DEL GRUPO
+       (corrección de la ola 6): es el índice y la obertura de las catorce
+       piezas del capítulo 3, y puesto entre la tapa y el capítulo 2 empujaba
+       la primera afirmación de liderazgo 1 669 px más abajo. */}
+  <Microfono c={c} p={p} />
   <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-3-h`}>
     <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(2).n} / {num(2).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(2).n} / {num(2).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-3-h`}>{c.caps.conversaciones}</h2>
     </header>
     {/* (vii) Su frase, verbatim: es suya y explica el capítulo entero. */}
@@ -1287,7 +1308,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(3).n} / {num(3).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(3).n} / {num(3).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-4-h`}>{c.caps.cartas}</h2>
       <p class="sf-entra">{c.cartas.lede}</p>
     </header>
@@ -1409,7 +1430,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(4).n} / {num(4).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(4).n} / {num(4).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-5-h`}>{c.caps.grupoHace}</h2>
       <p class="sf-entra">{c.grupoHace.lede}</p>
     </header>
@@ -1602,7 +1623,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
     <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(5).n} / {num(5).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(5).n} / {num(5).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-6-h`}>{c.caps.voluntariados}</h2>
     </header>
     {/* (vii) texto de Jaime, verbatim, pendiente de su revisión final */}
@@ -1725,7 +1746,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-7-h`}>
     <span id={`${p}-cap-7`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(6).n} / {num(6).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(6).n} / {num(6).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-7-h`}>{c.caps.construi}</h2>
       <p class="sf-entra">{c.prueba.lede}</p>
     </header>
@@ -1735,7 +1756,17 @@ const certsFranja = c.franja.certsDe
          «no se ve nunca: está debajo del iframe»); el respaldo es la
          dirección, y el enlace para abrirlo en otra pestaña va PRIMERO en el
          DOM, que es la mitad del arreglo de accesibilidad del marco. */}
-    <SitioVivo c={c} url="https://smartfinance.lat" id={`sf-${p}`} titulo={c.proyectos.sitioH} />
+    {/* LA CAPTURA VUELVE DETRÁS DEL MARCO (corrección de la ola 6):
+         CURADURIA-FOTOS.md §3 (cap. 7) la deja «se queda, ancha 980 × 551» y
+         el paso C la quitó sin declarar el conflicto. Es lo que se ve sin
+         JavaScript, mientras el sitio no ha cargado y en cualquier motor que
+         no pinte el iframe; y sin ella seis WebP con huella se desplegaban
+         sin que nadie los usara. La curaduría recomienda además la foto EN
+         VEZ del iframe; esa decisión es de Jaime y queda preguntada en el PR. */}
+    <SitioVivo c={c} url="https://smartfinance.lat" id={`sf-${p}`} titulo={c.proyectos.sitioH}
+      img={foto(`cv-sf-header${sufHeader}-1120.webp`)}
+      srcset={`${foto(`cv-sf-header${sufHeader}-640.webp`)} 640w, ${foto(`cv-sf-header${sufHeader}-1120.webp`)} 1120w, ${foto(`cv-sf-header${sufHeader}-1600.webp`)} 1600w`}
+      sizes="(max-width: 1023px) 100vw, 964px" w={1120} h={602} />
 
     {/* (x) LA CINTA VIVA, PLEGADA. `data-cinta` va en el plegable y no en la
          sección: cv-cinta.ts busca dentro de cada raíz su chip y sus filas.
@@ -1880,6 +1911,20 @@ const certsFranja = c.franja.certsDe
     {/* El botón al perfil que pidió Jaime (2026-08-30): «pon de link a mi
          perfil de TikTok para ver todo mi contenido». */}
     <p class="sf-pie sf-lectura"><a class="hist-link sf-ext" href={TIKTOK} target="_blank" rel="noopener">{c.tiktok.verTodo}</a> · {c.tiktok.perfil}</p>
+    {/* LAS DOS INFOGRAFÍAS, EN PAREJA 482 × 642 (CURADURIA-FOTOS.md §3, cap. 7:
+         «VUELVEN»). Estaban desplegadas con huella y sin usarlas nadie. Son la
+         única prueba visual quieta de lo que produce el canal; todo lo demás
+         de este bloque son vídeos. El pie dice que la pieza es en español. */}
+    <div class="sf-par">
+      <figure>
+        <img src={foto('cv-tt-noticias.webp')} alt={c.tiktok.cuadros.noticiasAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.tiktok.cuadros.noticiasPie}</figcaption>
+      </figure>
+      <figure>
+        <img src={foto('cv-tt-oro.webp')} alt={c.tiktok.cuadros.oroAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.tiktok.cuadros.oroPie}</figcaption>
+      </figure>
+    </div>
 
     {/* ══ JASA MOTOR ═════════════════════════════════════════════════════════
          EL FRAMING ES EL FAMILIAR Y LO APROBÓ JAIME: la refaccionaria es de
@@ -1984,7 +2029,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf" aria-labelledby={`${p}-cap-8-h`}>
     <span id={`${p}-cap-8`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(7).n} / {num(7).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(7).n} / {num(7).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-8-h`}>{c.caps.premios}</h2>
       <p class="sf-entra">{c.premios.lede}</p>
     </header>
@@ -2066,7 +2111,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf" aria-labelledby={`${p}-cap-9-h`}>
     <span id={`${p}-cap-9`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(8).n} / {num(8).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(8).n} / {num(8).t}</p>
       <h2 class="sf-titular" id={`${p}-cap-9-h`}>{c.caps.expediente}</h2>
       <p class="sf-entra">{c.acad.lede}</p>
     </header>
@@ -2166,7 +2211,16 @@ const certsFranja = c.franja.certsDe
     <div class="sf-prosa"><p>{c.certs.lede}</p></div>
     <ul class="sf-tabla sf-tabla--texto sf-tabla--enlace">
       {c.certs.filas.map((f) => (
-        <li>
+        <li class:list={[f.que === 'DELF A2' && 'sf-fila--insignia']}>
+          {/* LA INSIGNIA DEL DELF A2 (INVENTARIO.md §12: conservar — (vi)
+               miniatura 171 × 96 + (x) nota tipo 1). Es la única fila sin
+               escaneo; la insignia la dibuja la página y lo dice al lado. */}
+          {f.que === 'DELF A2' && (
+            <span class="sf-insignia" role="img" aria-label={`${f.que} — ${f.de}. ${c.certs.insigniaTag}`}>
+              <span aria-hidden="true">{c.certs.insigniaNivel}</span>
+              <span class="sf-insignia-tag" aria-hidden="true">{c.certs.insigniaTag}</span>
+            </span>
+          )}
           <div>
             <p class="sf-nombre">{f.que}</p>
             <p class="sf-emisor">{f.cred
@@ -2268,7 +2322,7 @@ const certsFranja = c.franja.certsDe
   <section class="cap cap--sf cap-cierre-doc" aria-labelledby={`${p}-cap-10-h`}>
     <span id={`${p}-cap-10`} class="cap-ancla" aria-hidden="true"></span>
     <header class="sf-cap">
-      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(9).n} / {num(9).t}</p>
+      <p class="sf-ojo" aria-hidden="true">{num(9).n} / {num(9).t}</p>
       <h2 class="sf-titular visually-hidden" id={`${p}-cap-10-h`}>{c.caps.frase}</h2>
     </header>
     <blockquote class="sf-cita-grande sf-cita-grande--tapa" lang="es">
@@ -3505,6 +3559,10 @@ const certsFranja = c.franja.certsDe
      una palabra solo cuando esa palabra no cabe de ninguna manera — a 320 px
      con el texto al 200 %, «oportunidades» mide más que la columna. */
   .abre { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  /* La afirmación de liderazgo bajo la frase: el titular del capítulo 2 como
+     enlace, a 21/28 (el tamaño de subtítulo del sistema). */
+  .portada-claim { margin: 0; font: 600 1.3125rem/1.75rem var(--font-sans); }
+  .portada-claim .hist-link { min-height: 0; }
   .abre p:not(.meta-mono) {
     font-family: var(--font-serif); font-weight: 600;
     font-size: var(--cvh-h-abre); line-height: 1.1; letter-spacing: -0.02em;
@@ -4002,14 +4060,18 @@ const certsFranja = c.franja.certsDe
   .ref-ver-txt { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
   .ref-ver:hover .ref-ver-txt { color: var(--cvh-tinta-2); }
   .ref-ver-pista { color: var(--cvh-tinta-2); }
-  /* La flecha es un pseudoelemento y no un nodo de texto: «↓» salía 19
-     veces en el documento y un rótulo que sale 8 veces o más se borra. */
-  .ref-flecha::after { content: "↓"; }
+  /* La flecha del plegable se DIBUJA con dos bordes, no se escribe: «↓»
+     salía 19 veces como texto y después 12 como `content` de un
+     pseudoelemento, y un revisor midió que lo segundo seguía siendo el mismo
+     rótulo pintado doce veces. Un chevrón de bordes no es un rótulo: no hay
+     nada que leer. Abierto, gira. */
   .ref-flecha {
-    margin-left: auto; color: var(--cvh-tinta-2);
+    margin-left: auto; align-self: center; width: 8px; height: 8px; flex: 0 0 auto;
+    border-right: 1.5px solid var(--cvh-tinta-2); border-bottom: 1.5px solid var(--cvh-tinta-2);
+    transform: translateY(-2px) rotate(45deg);
     transition: transform var(--dur-2) var(--ease-std);
   }
-  .ref-plegable[open] .ref-flecha { transform: rotate(180deg); }
+  .ref-plegable[open] .ref-flecha { transform: translateY(2px) rotate(225deg); }
   /* AL IMPRIMIR, ABIERTO SIEMPRE. Dos reglas porque hay dos mecanismos según
      el motor (el viejo esconde los hijos que no son el resumen; el nuevo
      pone `content-visibility: hidden` en `::details-content`), y la segunda
@@ -6129,6 +6191,11 @@ const certsFranja = c.franja.certsDe
   /* (vi) la fila con «Ver» a la derecha, y una tercera línea de fuente
      (el DELF, cuyo diploma no tiene imagen). */
   .sf-tabla--enlace > li { grid-template-columns: minmax(0, 1fr) auto; }
+  /* La fila del DELF A2 recupera la columna de la miniatura (la insignia
+     dibujada, 171 × 96): esta regla vive aquí y no solo en cv.css porque la
+     de arriba, con el atributo de ámbito de Astro, le ganaba y mandaba el
+     enlace a una segunda fila, 36 px por debajo. */
+  .sf-tabla--enlace > li.sf-fila--insignia { grid-template-columns: 171px minmax(0, 1fr) auto; }
   .sf-tabla .sf-fuente { font: var(--sf-t-pie); color: var(--sf-tinta-2); margin: var(--sf-aire-0) 0 0; }
   /* El hueco de (x) en el sitio de la miniatura: 171 × 96, la geometría
      final del escaneo del diploma. */

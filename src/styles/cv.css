@@ -399,6 +399,18 @@
    no se publica, y el sitio de la miniatura no se rellena con nada — la fila
    es texto y crédito, con los mismos 112 y el mismo separador. */
 .sf-tabla--texto > li { grid-template-columns: minmax(0, 1fr); }
+/* La fila del DELF A2 (INVENTARIO §12, conservar): la única sin escaneo
+   lleva la miniatura de (vi) DIBUJADA por la página —171 × 96, borde del
+   sistema, 12/16— y dice al lado que no es el diploma. En la tabla de texto
+   recupera la columna de la miniatura solo ella. */
+.sf-tabla--texto > li.sf-fila--insignia { grid-template-columns: 171px minmax(0, 1fr) auto; }
+.sf-insignia {
+  width: 171px; height: 96px; box-sizing: border-box; padding: var(--sf-aire-0);
+  display: grid; place-content: center; gap: var(--sf-aire-0); text-align: center;
+  border: 1px solid var(--sf-borde); border-radius: var(--sf-r-par);
+  font: var(--sf-t-pie); color: var(--sf-tinta); letter-spacing: .04em; text-transform: uppercase;
+}
+.sf-insignia-tag { display: block; color: var(--sf-tinta-2); text-transform: none; letter-spacing: 0; }
 
 /* ── (vii) LA CITA LARGA — LAS DOS CARTAS ─────────────────────────────────
    Apple no tiene componente para una cita larga (su `.pullquote` es de veinte
@@ -471,21 +483,29 @@
 }
 /* ── LAS GEOMETRÍAS FINALES DE LOS HUECOS (ola 6) ─────────────────────────
    La caja mide lo que va a medir el contenido cuando llegue, para que el
-   documento no cambie de alto al llenarse. `--prosa`: seis líneas de 27 a
-   653 (el hueco de la portada). `--cita`: cuatro líneas de 25, que es la
+   documento no cambie de alto al llenarse. `--prosa`: CUATRO líneas de 27 a
+   653 (el hueco de la portada). Eran seis (162 px) hasta la corrección de
+   la ola 6: seis era una apuesta tan arbitraria como cuatro sobre un párrafo
+   que no existe, y dejaba 73 px de nada encima y debajo de un título de una
+   línea — que con los 44 de aire de cada lado era la única franja de más de
+   160 px sin tinta que le quedaba al documento cuando el borde punteado se
+   mide como lo que es (nada). `--cita`: cuatro líneas de 25, que es la
    cita de la tarjeta oscura (§3.4 iv), dentro de la tarjeta o bajo la foto
    de una pareja. */
-.sf-pendiente--prosa { max-width: var(--sf-lectura); min-height: 162px; margin-inline: auto; }
+.sf-pendiente--prosa { max-width: var(--sf-lectura); min-height: 108px; margin-inline: auto; }
 .sf-pendiente--cita  { height: 100px; }
 /* Una más de la ola 6 · paso B. `--foto`: la columna 653 × 435 de (ii), para
    la foto del Reto que falta. (Hubo `--cifra` y `--pie` para dos huecos del
    taller; los dos se fundieron en UN recuadro `--lista` y se fueron.) */
 .sf-pendiente--foto  { aspect-ratio: 3 / 2; max-width: var(--sf-lectura); }
-/* El ↗ de un enlace externo y la ↓ de un plegable se pintan desde CSS y no
-   como texto: el guardián cuenta nodos de texto, y «↗» ×13 y «↓» ×19 eran
-   dos de las siete familias de rótulos repetidos. Un pseudoelemento no es
-   un nodo de texto. */
-.sf-ext::after { content: " ↗"; }
+/* EL ↗ DE ENLACE EXTERNO SE FUE (corrección de la ola 6). Primero era texto
+   (×13) y después `content` de un pseudoelemento (×35 pintados a 1440): un
+   revisor midió que seguía siendo el mismo rótulo repetido, solo que fuera
+   del alcance de la prueba, y desde entonces el guardián cuenta también los
+   pseudoelementos. La referencia (Apple Newsroom) no marca sus enlaces
+   externos con ningún glifo: el subrayado ya dice que es un enlace, y el
+   `target="_blank"` no necesita rótulo. `.sf-ext` se queda como marca en el
+   HTML, sin pintar nada. */
 
 /* ── (xi) EL MÓDULO DEL MICRÓFONO ─────────────────────────────────────────
    Hoy: lienzo de 353 × 558 al lado de un índice de 727 × 959 con 356
