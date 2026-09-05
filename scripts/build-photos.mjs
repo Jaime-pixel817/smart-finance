@@ -94,6 +94,31 @@ const MANIFIESTO = p('src/generated/photos.json');
 const manifiesto = {};
 const escritos = new Set();
 
+/* ── conservar(): la clave se queda como estaba ────────────────────────────
+ * Varios originales viven FUERA del repo (cv-material/, ~/sf-video/). Si uno
+ * falta en la máquina donde corre esto, la clave conserva la ruta que ya tenía
+ * en el manifiesto y su archivo no se barre como huérfano. Se usaba sin estar
+ * definida (ola 4): con un original ausente el script se caía con
+ * ReferenceError en vez de conservar nada. */
+const previo = fs.existsSync(MANIFIESTO) ? JSON.parse(fs.readFileSync(MANIFIESTO, 'utf8')) : {};
+function conservar(nombre) {
+  const ruta = previo[nombre];
+  if (!ruta) { console.log('  ' + nombre + ': no estaba en el manifiesto y falta su original — queda fuera'); return; }
+  manifiesto[nombre] = ruta;
+  escritos.add(path.basename(ruta));
+}
+
+/** La caja más grande de proporción `ratio` (ancho/alto) dentro de W×H,
+ *  centrada en (fx, fy) y sujeta al borde. Generaliza `caja()` (4:3). */
+function cajaRatio(W, H, ratio, fx, fy) {
+  let w, h;
+  if (W / H > ratio) { h = H; w = Math.round(H * ratio); }
+  else { w = W; h = Math.round(W / ratio); }
+  const left = Math.max(0, Math.min(W - w, Math.round(fx * W - w / 2)));
+  const top = Math.max(0, Math.min(H - h, Math.round(fy * H - h / 2)));
+  return { left, top, width: w, height: h };
+}
+
 fs.mkdirSync(SALIDA, { recursive: true });
 
 function publicar(nombre, buffer) {
@@ -250,6 +275,21 @@ console.log('Jaime');
     const buf = await sharp(src).resize(1600).jpeg({ quality: 80, mozjpeg: true }).toBuffer();
     const archivo = publicar('grupo.jpg', buf);
     console.log('  ' + archivo.padEnd(40) + kb(buf).padStart(9) + '   1600x' + Math.round(1600 * g.height / g.width));
+
+    /* ── LA MISMA FOTO PARA EL CV, A 3:2 (ola 5 · capítulos, 2026-09-04) ──
+     * En el CV va a la caja ANCHA del sistema, 980 × 653 (3:2): es la prueba
+     * visual de «casi 200 de nosotros» y estaba pintada a 154 px (0.19×), la
+     * escala más baja de las 39 fotos (CURADURIA-FOTOS.md, cap. 2). La banda
+     * 3:2 mide el 88.9 % del alto: arranca en el 3 % —entra el cartel, que va
+     * del 5 al 30 %— y corta por los tobillos (el zapato más bajo está en el
+     * 95 %). Se recorta el suelo, que es lo que sobra, no el cielo con el
+     * cartel. Dos anchos: 980 para densidad 1 y 1960 para densidad 2. */
+    const banda = { left: 0, top: Math.round(0.03 * g.height), width: g.width, height: Math.round(g.width * 2 / 3) };
+    for (const ancho of [980, 1960]) {
+      const wp = await sharp(src).extract(banda).resize(ancho).webp({ quality: 76 }).toBuffer();
+      const a = publicar('cv-grupo-' + ancho + '.webp', wp);
+      console.log('  ' + a.padEnd(40) + kb(wp).padStart(9) + '   ' + ancho + 'x' + Math.round(ancho * 2 / 3) + ' (3:2, desde y=' + banda.top + ')');
+    }
   }
 }
 
@@ -477,26 +517,52 @@ console.log('Jaime');
   const CVF = (n) => p('public/assets/cv-fotos', n);
   console.log('fotos nuevas del CV (cv-fotos/, a color)');
 
-  // Caras 4:3 con punto focal, mismas mecánicas que los breakdowns.
-  const CARAS = [
-    // Lloyd y Jaime de pie ante las letras NUS: caras en y=0.40.
-    { id: 'cara-lloyd', src: 'tt-entrevista-lloyd-nus.jpg', fx: 0.35, fy: 0.52 },
-    // Podcast con Mauricio (pt. 4), sillones y mesa: caras en y=0.38.
-    { id: 'cara-mauricio', src: 'tt-entrevista-mauricio-podcast-p4.jpg', fx: 0.50, fy: 0.47 },
-    // Entrevista al creador de contenido de EE. UU., Marina Bay detrás:
-    // caras en y=0.53; el 0.62 baja el cielo vacío y deja el skyline.
-    { id: 'cara-jesus', src: 'tt-entrevista-jesus-singapur.jpg', fx: 0.50, fy: 0.62 },
-    // La promo del grupo en el Tec (`tt-grupo`) SE FUE el 2026-08-31: su
-    // único sitio en la página lo ocupa ahora la foto 8 del lote (él
-    // entrevistando en su prepa), que es la sustitución que pidió Jaime.
-    // Generarla igual dejaba un WebP desplegado que no pide nadie.
+  /* ── LAS CARAS DEL CAPÍTULO DE LAS CONVERSACIONES: LOSAS DE 482 × 288 ──
+   * (ola 5 · capítulos, 2026-09-04). Vivían DENTRO de las tarjetas negras a
+   * 154 × 116 (0.32×). En el sistema de Apple la tarjeta oscura es cita +
+   * crédito y no lleva foto (SISTEMA-REFERENCIA §3.4 iv), así que las caras
+   * salen a su propia rejilla, a 482 de ancho y con el alto que fija la
+   * tarjeta (288): la MISMA caja, con una foto dentro (CURADURIA-FOTOS.md,
+   * cap. 3: «tarjeta, 482»). Se generan al doble, 964 × 576, salvo cuando el
+   * original no da: entonces al ancho nativo y sin ampliar.
+   *
+   * Las que se van, y por qué (CURADURIA-FOTOS.md §5.3): `cara-lloyd` y
+   * `cara-mauricio` salen de originales de 576 px —1.19× a 482— y llevan el
+   * subtítulo de TikTok quemado en los píxeles («IS JUST BE YOURSELF.», «SALEN
+   * DE LA»). Lloyd sube al capítulo de las cartas con una foto mejor
+   * (`cv-lote-carta-lloyd`); Mauricio vuelve el día que se re-extraiga el
+   * cuadro del vídeo original a resolución nativa.
+   *
+   * `tile-jesus` es la más blanda que entra (720 px → 1.49×) y entra porque
+   * es la única prueba de esa entrevista: la banda 482:288 se toma POR ENCIMA
+   * del subtítulo quemado («WHEN I WAS», que empieza en y ≈ 0.72) con las
+   * caras (y ≈ 0.55) dentro. `tile-maier` y `tile-podcast` salen de los
+   * mismos originales que sus miniaturas del sitio, con el mismo punto focal. */
+  const RATIO_LOSA = 482 / 288;
+  const LOSAS = [
+    { id: 'tile-jesus', src: CVF('tt-entrevista-jesus-singapur.jpg'), fx: 0.50, fy: 0.53 },
+    { id: 'tile-maier', src: p('public/assets/breakdowns/breakdown-jpmorgan-etf.jpg'), fx: 0.50, fy: 0.35 },
+    { id: 'tile-podcast', src: p('public/assets/breakdowns/breakdown-trading-room-podcast.jpg'), fx: 0.51, fy: 0.38 }
   ];
-  for (const f of CARAS) {
-    const m2 = await sharp(CVF(f.src)).metadata();
-    const c = caja(m2.width, m2.height, f.fx, f.fy);
-    const buf = await sharp(CVF(f.src)).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
+  for (const f of LOSAS) {
+    const m2 = await sharp(f.src).metadata();
+    const c = cajaRatio(m2.width, m2.height, RATIO_LOSA, f.fx, f.fy);
+    const w = Math.min(964, c.width);
+    const buf = await sharp(f.src).extract(c).resize(w).webp({ quality: 78 }).toBuffer();
     const archivo = publicar('cv-' + f.id + '.webp', buf);
-    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   480x360');
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w / RATIO_LOSA) + ' (482:288)');
+  }
+  /* Moris Dieck, ENTERO y en 3:4 para la pareja de 482 × 642 del bloque
+   * «gente a la que pedí consejo» (CURADURIA-FOTOS.md, cap. 3): el original
+   * ya es 900 × 1200, o sea 3:4 clavado, 1.87× a 482. La miniatura 4:3 del
+   * sitio público (`breakdown-moris-dieck`) se queda como está. */
+  {
+    const src = p('public/assets/breakdowns/breakdown-moris-dieck.jpg');
+    const m2 = await sharp(src).metadata();
+    const w = Math.min(964, m2.width);
+    const buf = await sharp(src).resize(w).webp({ quality: 76 }).toBuffer();
+    const archivo = publicar('cv-moris-900.webp', buf);
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width) + ' (3:4, sin recorte)');
   }
 
   // El retrato que Jaime ELIGIÓ como su primera foto: él con micrófono en un
@@ -508,7 +574,10 @@ console.log('Jaime');
     const m2 = await sharp(src).metadata();
     const alto45 = Math.round(m2.width / 0.8);
     const top = Math.max(0, Math.min(m2.height - alto45, Math.round(0.35 * m2.height - alto45 / 2)));
-    for (const ancho of [480, 800]) {
+    // 653 Y 1306 DESDE LA OLA 5 (capítulos): la caja columna del sistema es
+    // 653 × 816, y 1306 es esa caja a densidad 2. Eran 480 y 800 para una
+    // caja de 332 que ya no existe.
+    for (const ancho of [653, 1306]) {
       const buf = await sharp(src).extract({ left: 0, top, width: m2.width, height: alto45 })
         .resize(ancho).webp({ quality: 80 }).toBuffer();
       const archivo = publicar('cv-retrato-' + ancho + '.webp', buf);
@@ -517,13 +586,15 @@ console.log('Jaime');
   }
 
   // Los cuadros sin recorte: cada uno a su proporción, en un ancho.
+  // CUATRO SE FUERON EN LA OLA 5 (`tt-ahorro30`, `tt-bienvenida`, `tt-jpmorgan`,
+  // `tt-linkedin`): estaban desplegados con `immutable` y no los pedía ningún
+  // fichero de src/ (CURADURIA-FOTOS.md §4). Los dos del set FTR eran además
+  // la misma escena que `breakdown-trading-room-podcast`. Las dos infografías
+  // vuelven al capítulo 7 a 482 × 642 en la ola de los capítulos, y Tokio se
+  // va de ahí cuando ese capítulo se reconstruya; mientras, se generan.
   const CUADROS = [
-    ['tt-ahorro30', 'tt-podcast-ftr-ahorro30.jpg', 960],      // set FTR, 2.17:1
-    ['tt-bienvenida', 'tt-podcast-ftr-bienvenida.jpg', 960],  // set FTR, 2.17:1
-    ['tt-oro', 'tt-noticias-oro.jpg', 560],                   // infografía vertical
-    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 560],   // infografía vertical
-    ['tt-jpmorgan', 'tt-jpmorgan-singapur-bn.jpg', 560],      // cita sobre foto (ya era B/N en el original)
-    ['tt-linkedin', 'tt-entrevista-mauricio-podcast-p2.jpg', 560], // consejo LinkedIn + pt. 2
+    ['tt-oro', 'tt-noticias-oro.jpg', 964],                   // infografía vertical
+    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 964],   // infografía vertical
     ['tt-tokio', 'tt-viaje-japon-tokyo-tower.jpg', 720]       // Torre de Tokio, 3:4
   ];
   for (const [id, src, ancho] of CUADROS) {
@@ -615,17 +686,24 @@ console.log('Jaime');
    * LA 8 y LA 12 SON SUSTITUCIONES, no huecos: los dos sitios ya tenían foto
    * (ver el comentario de la 12, aquí arriba, y el de `grupo-tec` en
    * Historia.astro). */
+  /* ── LOS ANCHOS SON LOS DE LAS CAJAS DEL SISTEMA (ola 5 · capítulos) ────
+   * 964 = la pareja de 482 × 642 a densidad 2; 1306 = la columna de 653 a
+   * densidad 2. `Math.min` con el ancho natural: nunca se amplía (Marg mide
+   * 800 y sale a 800; la 8 del grupo mide 1206 y sale a 1206). Los capítulos
+   * 4 a 9 siguen a 560 hasta que su reconstrucción los suba.
+   * LA 9 (él solo, narrando junto al mismo cartel) SE FUE: es la tercera foto
+   * de la misma escena que la 8 y no añade un hecho, añade una pose
+   * (CURADURIA-FOTOS.md, cap. 2). */
   const LOTE = [
     ['cv-lote-carta-lloyd', 'lote-01-lloyd-george-banderas.jpg', 560],
-    ['cv-lote-toronto', 'lote-02-toronto-city-hall.jpg', 480],
+    ['cv-lote-toronto', 'lote-02-toronto-city-hall.jpg', 964],
     ['cv-lote-playa-1', 'lote-03-playa-limpiando-cubeta.jpg', 560],
     ['cv-lote-playa-2', 'lote-04-playa-basura-recogida.jpg', 560],
     ['cv-lote-playa-3', 'lote-10-playa-limpiando-con-companera.jpg', 560],
     ['cv-lote-donacion', 'lote-05-donando-alimento-perritos.jpg', 560],
     ['cv-lote-perritos', 'lote-06-perritos-refugio.jpg', 560],
-    ['cv-lote-marg', 'lote-07-marg-franklin-cfa.jpg', 480],
-    ['cv-lote-grupo-entrevista', 'lote-08-grupo-entrevistando-prepa.jpg', 720],
-    ['cv-lote-grupo-narra', 'lote-09-grupo-narrando-cartel.jpg', 560],
+    ['cv-lote-marg', 'lote-07-marg-franklin-cfa.jpg', 964],
+    ['cv-lote-grupo-entrevista', 'lote-08-grupo-entrevistando-prepa.jpg', 1306],
     ['cv-lote-marcha', 'lote-13-marcha-animales-callejeros.jpg', 560]
   ];
   /* CALIDAD 72, y no el 76-78 del resto del archivo. Este bloque es, con
@@ -707,20 +785,45 @@ console.log('Jaime');
       const archivo = publicar(id + '.webp', buf);
       console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * m2.height / m2.width) + ' (9:16, sin recorte)   object-position: ' + Math.round(f.fx * 100) + '% ' + Math.round(f.fy * 100) + '%');
     }
+    /* MAJO, RECORTE MÁS ABIERTO (CURADURIA-FOTOS.md §5.4): el 480 × 360 de
+     * antes la dejaba «como una foto de carnet en un cuarto vacío». Ahora es
+     * una losa 482:288 (la caja de la tarjeta, al doble: 964 × 576) tomada de
+     * la foto ENDEREZADA entera de ancho —se ve la sala y el portátil, o sea
+     * la grabación— y con el mismo punto focal (ojos en x=0.62 · y=0.28). */
     const MAJO = path.join(process.env.HOME || '', 'sf-video', 'entrada', 'taller', 'IMG_4580.JPG');
     if (!fs.existsSync(MAJO)) {
       console.log('Majo: no está ~/sf-video/entrada/taller/IMG_4580.JPG — me la salto');
-      conservar('cv-cara-majo.webp');
+      conservar('cv-tile-majo.webp');
     } else {
       // `.rotate()` sin argumento aplica la orientación EXIF y la descarta;
       // la caja se calcula sobre las medidas YA enderezadas.
       const girada = sharp(MAJO).rotate();
       const buf0 = await girada.toBuffer();
       const m2 = await sharp(buf0).metadata();
-      const c = caja(m2.width, m2.height, 0.62, 0.28);
-      const buf = await sharp(buf0).extract(c).resize(ANCHO, ALTO).webp({ quality: 78 }).toBuffer();
-      const archivo = publicar('cv-cara-majo.webp', buf);
-      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   480x360 (enderezada ' + m2.width + 'x' + m2.height + ')');
+      const c = cajaRatio(m2.width, m2.height, 482 / 288, 0.62, 0.28);
+      const buf = await sharp(buf0).extract(c).resize(964).webp({ quality: 78 }).toBuffer();
+      const archivo = publicar('cv-tile-majo.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   964x576 (482:288, enderezada ' + m2.width + 'x' + m2.height + ')');
+    }
+
+    /* ── EL PÓSTER DE CANADÁ (ola 5 · capítulos) ───────────────────────────
+     * La tarjeta de país del micrófono era un recuadro negro con una nota
+     * meta: su pieza es un carrusel de fotos de TikTok, sin mp4 que servir.
+     * Su portada pública sí existe —1620 × 2880, «5. financial facts about
+     * Canada», la Torre CN en B/N— y vive en cv-material/pendiente/paises/.
+     * Entra a la caja 4:5 de la tarjeta (308 × 385) recortada por el centro:
+     * la ventana 4:5 cubre del 15 al 85 % del alto y dentro caen el título
+     * (0.63–0.73) y la torre. 616 = 308 × 2. Fuera del repo, como el taller. */
+    const CANADA = path.join(raiz, '..', 'cv-material', 'pendiente', 'paises', 'tiktok-canada-portada.jpg');
+    if (!fs.existsSync(CANADA)) {
+      console.log('Canadá: no está cv-material/pendiente/paises/tiktok-canada-portada.jpg — me la salto');
+      conservar('cv-pais-canada.webp');
+    } else {
+      const m2 = await sharp(CANADA).metadata();
+      const c = cajaRatio(m2.width, m2.height, 4 / 5, 0.5, 0.5);
+      const buf = await sharp(CANADA).extract(c).resize(616).webp({ quality: 76 }).toBuffer();
+      const archivo = publicar('cv-pais-canada.webp', buf);
+      console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   616x770 (4:5, desde y=' + c.top + ')');
     }
   }
 

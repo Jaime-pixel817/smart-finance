@@ -72,10 +72,13 @@ const en = {
   // Majo, tal como él lo recuerda). No se reutiliza el de arriba: la fecha
   // es parte del recibo.
   dichoSuyo3: 'My word, 3 September 2026. This page does not verify it: it is my claim.',
+  // La cinta de Rendón y de Majo y los testimonios del taller son en español;
+  // el taller (capítulo 5) todavía pinta esta marca en su sitio. Las de los
+  // capítulos ya reconstruidos viven en `notas.traduccion`, al final.
+  cintaTag: 'Said in Spanish, on the recording. This is a translation; the original is in the Spanish panel.',
   // Dos rótulos de traducción más (ola 4): la cinta de Rendón y de Majo es en
   // español, y las publicaciones de LinkedIn de Jaime son en inglés. Vacío =
   // no se pinta, como `aperturaTag`/`peTag`.
-  cintaTag: 'Said in Spanish, on the recording. This is a translation; the original is in the Spanish panel.',
   postTag: '',
 
   // EL AÑO EN DISPUTA, EN PANTALLA. Mismo recibo que `cifraSuya` y por el
@@ -237,8 +240,19 @@ const en = {
     dieckPie: 'With Moris Dieck after his talk at Tec.',
     grupoEntrevistaAlt: 'Me holding a microphone, interviewing two students in front of the Smart Finance Prepa Tec stand poster',
     grupoEntrevistaPie: 'Interviewing at my school, for the student group.',
-    grupoNarraAlt: 'Me talking to camera with a clip-on microphone, next to the Smart Finance Prepa Tec poster inviting students to join',
-    grupoNarraPie: 'Talking to camera about the student group.',
+    // La foto del grupo entero (los fundadores ante el pendón), a 980.
+    grupoPie: 'The group I founded, in front of its banner.',
+    // Moris, en primera persona (el `alt.moris` de ui.ts es del sitio, en tercera).
+    dieckAlt: 'Me next to Moris Dieck at a financial education event in Mexico',
+    // ── LAS LOSAS DEL CAPÍTULO 3 (ola 6): las caras que salen de las
+    // tarjetas oscuras y van a 482 × 288, con su pie. Cada pie dice lo que
+    // la foto prueba, y Maier dice con todas las letras que fue asistencia.
+    tileJesusPie: 'Interviewing a content creator from the U.S. in Singapore, with Marina Bay behind us (2026).',
+    tileMaierAlt: 'Me with four other attendees on stage, after the session with J.P. Morgan’s Chief ETF Strategist',
+    tileMaierPie: 'On stage after the session with Jon Maier. I attended it; I did not interview him.',
+    tilePodcastAlt: 'Me and a guest with microphones, recording the Financial Trading Room podcast in front of the market screens',
+    tilePodcastPie: 'Recording the podcast in the Financial Trading Room at Tec.',
+    tileMajoPie: 'María José Cortés, the day I recorded our conversation.',
     marchaAlt: 'Me holding a hand-made poster about Canelo, a dog up for adoption, at the march, with the Tlalnepantla arch and the fountain behind me',
     marchaPie: 'The march for street animals.'
   },
@@ -308,11 +322,12 @@ const en = {
     // escrita: `{n}` son las filas con `cred` y `{d}` las que tienen
     // `dondeCuando`, y Historia.astro tumba el build si entre las dos no
     // cubren todas las filas.
-    certsQ: 'certifications: {n} with a credential ID, {d} with the venue and dates printed on the certificate',
-    cartasQ: 'letters signed by CEOs in Singapore, with the contact each of them gave',
-    sitioN: 'smartfinance.lat',
-    sitioQ: 'a site I built: {p} automated tests · {l} bilingual lessons · {f} cited sources · {g} glossary terms',
-    premiosQ: 'award — GreenTech Summit 2026, and its only source is a letter',
+    certsQ: 'certifications',
+    certsDe: '{n} with a credential ID, {d} with the venue and dates printed on the certificate',
+    cartasQ: 'signed letters',
+    cartasDe: 'by CEOs in Singapore, with the contact each of them gave',
+    premiosQ: 'award',
+    premiosDe: 'GreenTech Summit 2026; its only source is a letter',
     // Sufijo del nombre accesible de cada pieza: son enlaces, y «7» a secas
     // no dice a dónde llevan.
     ir: 'Go to “{s}”'
@@ -419,10 +434,12 @@ const en = {
     // el lede prometía que cada punto abría algo existente. El nodo se queda
     // —es el índice de lo que hay—; el lede dice lo que abre de verdad: una
     // grabación, una publicación o la ficha que dice qué falta.
-    lede: 'Every point opens a recording, a publication, or the note that says what is still missing. The people are the leadership: the ones I got to sit down with me. Two are advice I asked for, not interviews, and they say so. The countries are the voice: what I explain to camera — and Mexico is the one I was chosen to represent. They are not the same thing, and this page does not pretend they are.',
+    // ── A DOS LÍNEAS (ola 6): 66 palabras a 12 px explicando qué es un índice
+    // decían menos que los nodos. Lo que quitó —que dos son consejos y no
+    // entrevistas, que a México lo representó él— lo dice cada tarjeta.
+    lede: 'The people I got to sit down with me, and the countries I explain to camera.',
     // El pie del micrófono: es a la vez la entrega al documento y la promesa
     // de que arriba no se cuenta nada que abajo no esté entero.
-    sigue: 'Everything below is the long version. Nothing up here replaces a chapter.',
     // `{n}` lo rellena el componente, como `piezas`: escrito a mano decía
     // «eleven» cuando ya eran catorce.
     indiceAria: 'What the microphone opens: {n} pieces',
@@ -507,7 +524,12 @@ const en = {
     // a la emisión del día del programa ExprésaTec del 16 de abril de 2026,
     // 30 minutos. El podcast de Jaime es un SEGMENTO dentro; no hay fuente
     // para el minuto en el que empieza, así que no se escribe.
-    minutoQue: 'The minute of that broadcast where my podcast starts'
+    minutoQue: 'The minute of that broadcast where my podcast starts',
+    // El pie único de la fila de países (§3.4 v): la fuente UNA vez, y que
+    // Canadá es un carrusel de fotos, dicho aquí y no en un recuadro vacío.
+    paisesPie: 'Four clips from my TikTok, @smart.financee. Canada is a photo carousel there, not a video: its cover opens it.',
+    // La portada pública de la pieza de Canadá (cv-material/pendiente/paises/).
+    canadaAlt: 'Cover of my TikTok piece on Canada: the CN Tower in black and white, with the title “5 financial facts about Canada”.'
   },
 
   // ══════════════════════════════════════════════════════════════════════
@@ -653,8 +675,6 @@ const en = {
   // LA LÍNEA DE CIERRE DE CADA CAPÍTULO (mono, una por capítulo): dice qué
   // queda probado y con qué. Es la regla 3 de la especificación de estructura.
   cierre: {
-    grupo: 'Proven: founded and president — my LinkedIn, and Lloyd George’s letter.',
-    conversaciones: 'Proven: every conversation above opens with its own link; the ones without one say so.',
     cartas: 'Proven: two signed letters, quoted untouched, with the contact each signatory gave.',
     grupoHace: 'Proven: one workshop with its recordings, its photos and the attendees’ own words; the contest calendar from its source.',
     voluntariados: 'Proven: my posts, my photos, the clip — and the beach clean-up signed by Lloyd George.',
@@ -676,7 +696,6 @@ const en = {
     nameL2: 'Ricaño',
     site: 'smartfinance.lat',
     // El señuelo de bajar, entre las dos mitades del nombre.
-    senuelo: 'Scroll to read',
     // Su meta, dicha por él (texto de Jaime, pendiente de su revisión final):
     // programas de negocios en Canadá, entrada septiembre de 2027.
     // SOLO EL AÑO (decisión de Jaime, 2026-08-28): nada de meses en pantalla.
@@ -701,7 +720,6 @@ const en = {
     // El rótulo que dice de qué foto habla la descripción visible. Ver el
     // comentario de `.portada-alt` en Historia.astro: sin él, la descripción
     // de la portada se leía como el pie de la foto que va justo debajo.
-    portadaAltRotulo: 'The cover',
     // ---- La Torre CN de Jaime, ya en el cuerpo ----
     // HECHO VERIFICADO, no una frase sobre Jaime: la foto es suya y la publicó
     // él. Sale de su TikTok del 20 de julio de 2026 (@smart.financee, vídeo
@@ -721,7 +739,6 @@ const en = {
     // versión inglesa es TRADUCCIÓN y lo dice `torrePieTag` (vacío en
     // español, que es donde está el original).
     torrePieVoz: '“I took it when I went to visit the Toronto campuses. It inspires me every day to keep growing: my goal is there.”',
-    torrePieTag: 'My words, in Spanish. This is a translation; the original is in the Spanish panel.',
     // La procedencia NO se pierde con el pie nuevo: sigue diciendo que la
     // foto es suya y de cuándo (la fecha comprobable es la de publicación
     // en su TikTok, misma regla que el arco de Singapur).
@@ -757,10 +774,13 @@ const en = {
     // build no puede contar a la gente de una comunidad, así que va como
     // afirmación suya y marcada.
     grupoCifra: 'There are almost 200 of us in the community.',
+    // La misma cifra como bloque de (viii): número + rótulo, y debajo la
+    // frase entera con su marca de «cifra mía».
+    grupoCifraN: '≈200',
+    grupoCifraQue: 'in the community',
     grupoLink: 'The community, on the site',
     // La línea que manda del grupo a lo que organiza con él (ola 4). `{s}` es
     // el título del capítulo, de `caps`: si el capítulo se mueve, el texto no miente.
-    grupoTaller: 'What the group organizes — the workshop, with its recordings, and the Reto Actinver — is in “{s}”.',
     grupoAlt: 'The Smart Finance student group, in front of the group’s banner',
     // El cuadro del vídeo de promo del grupo (2026, @smart.financee): qué es
     // y de dónde sale, como piden los pies de foto del brief.
@@ -1133,14 +1153,25 @@ const en = {
     // material del repo. La frase va en la voz de la PÁGINA (como
     // `prueba.lede` o `tape.note`), no en la de Jaime: no afirma nada sobre
     // él, describe qué es lo que se está enseñando.
-    aviso: 'These are conversations I sought out and recorded. Nobody here is endorsing me: what is set large is what I took from each conversation, in my own words.',
+    aviso: 'These are conversations I sought out and recorded. Nobody here is endorsing me: the space on each card is for what I took from the conversation, in my own words.',
     // El carrusel: rótulos de las flechas y de la región desplazable.
     carruselAria: 'Conversations, one card per person. Horizontal list; it scrolls sideways.',
     prev: 'Previous conversation',
     next: 'Next conversation',
+    // ── OLA 6: lo que no cabe en una tarjeta de 288 px ─────────────────
+    // El contexto de cada persona se pliega bajo el carrusel (`quienH`);
+    // los dos clips que no son de país también (`dosClipsH`); y las tres
+    // tarjetas sin enlace llevan su línea de honestidad (`estado`), sacada
+    // de su `tipo`, que sigue entero en el plegable.
+    quienH: 'Who each person is, and where each title comes from',
+    dosClipsH: 'Two of the conversations, on video',
+    estado: {
+      maier: 'A session I attended, not an interview of mine.',
+      majo: 'Recorded and transcribed; the clip is not published yet.',
+      duran: 'Recorded; the video is not published yet.'
+    },
     // El rótulo que va encima de cada frase grande, para que ni leyendo por
     // encima se pueda confundir de quién es.
-    llevo: 'What I took from it',
     // ── FUENTE DE CADA FICHA (2026-08-28, MATERIAL.md fuera del repo) ────
     // · Mauricio Mercenario Nieto — «FX Sales & Trading» es el titular de su
     //   propio LinkedIn (capturado en la evidencia); el podcast está en
@@ -2248,6 +2279,17 @@ const en = {
     p: 'Smart Finance is a student project. Everything on this page is published for educational purposes and is not financial, investment or tax advice, nor a recommendation to buy or sell anything. Market data is delayed and comes from third parties; check it at the source before deciding anything.'
   },
 
+  // ── EL BLOQUE ÚNICO DE NOTAS (ola 6) ──────────────────────────────────
+  // Las notas de traducción viven aquí UNA vez, y no encima de cada cita:
+  // Jaime las nombró («textos como “esta traducción está en español” está
+  // muy mal»). Es la página hablando del documento, así que va al final,
+  // con el fine print (§3.4 x, sitio 3). Cubre sus palabras, las de los
+  // terceros grabados en español y sus publicaciones de LinkedIn en inglés.
+  notas: {
+    h: 'Notes',
+    traduccion: 'Translations. My own words on this page, and what others said on my recordings, were said or written in Spanish; on this panel they are translations, and the originals are in the Spanish panel. What I quote from my LinkedIn posts is in English, the language I wrote them in.'
+  },
+
   // ═════════════════════════════════════════════════════════════════════════
   // LOS HUECOS. `que` es el rótulo del hueco y `pista` dice qué va dentro.
   // Ninguno de los dos es contenido del CV: son las instrucciones del hueco.
@@ -2480,7 +2522,6 @@ const en = {
     // (`aperturaTag`, vacío en español porque ahí está el original).
     // texto de Jaime (traducción), pendiente de su revisión final
     apertura: '“I opened my eyes and saw every possible opportunity, and I do what I can to make the most of them. My goal is that everyone can open theirs too, and to help them.”',
-    aperturaTag: 'My words, in Spanish. This is a translation; the original is in the Spanish panel.',
     // Palabras de Jaime, VERBATIM, de su publicación en LinkedIn sobre la
     // simulación de Vista Equity Partners (2026-08, urn 7495934696430764032).
     // En inglés en el original: aquí no hay traducción que revisar.
@@ -2537,7 +2578,6 @@ const en = {
     // original): es la línea que dice a dónde apunta este CV, y sustituye al
     // hueco «What I'm applying to» que Jaime pidió quitar.
     toronto: '“This visit reinforced something I had been thinking about for a long time: this is where I want to study Finance.”',
-    torontoTag: '',
     torontoFuente: 'From my LinkedIn post on my visit to the University of Toronto and Rotman Commerce (2026).',
     // ---- La limpieza de playa en Singapur ----
     // VERBATIM de su publicación de LinkedIn sobre el voluntariado (LI-16, en
@@ -2627,8 +2667,14 @@ const es: typeof en = {
     dieckPie: 'Con Moris Dieck al terminar su conferencia en el Tec.',
     grupoEntrevistaAlt: 'Yo con un micrófono, entrevistando a dos estudiantes frente al cartel del stand de Smart Finance Prepa Tec',
     grupoEntrevistaPie: 'Entrevistando en mi prepa, para el grupo estudiantil.',
-    grupoNarraAlt: 'Yo hablando a cámara con un micrófono de solapa, junto al cartel de Smart Finance Prepa Tec que invita a sumarse',
-    grupoNarraPie: 'Hablando a cámara sobre el grupo estudiantil.',
+    grupoPie: 'El grupo que fundé, delante de su cartel.',
+    dieckAlt: 'Yo junto a Moris Dieck en un evento de educación financiera en México',
+    tileJesusPie: 'Entrevistando a un creador de contenido de EE. UU. en Singapur, con Marina Bay detrás (2026).',
+    tileMaierAlt: 'Yo con otros cuatro asistentes en el escenario, al terminar la sesión con el Chief ETF Strategist de J.P. Morgan',
+    tileMaierPie: 'En el escenario al terminar la sesión con Jon Maier. Asistí; no lo entrevisté.',
+    tilePodcastAlt: 'Yo y un invitado con micrófonos, grabando el podcast del Financial Trading Room frente a las pantallas de mercado',
+    tilePodcastPie: 'Grabando el podcast en el Financial Trading Room del Tec.',
+    tileMajoPie: 'María José Cortés, el día que grabé nuestra conversación.',
     marchaAlt: 'Yo con un cartel hecho a mano sobre Canelo, un perro en adopción, en la marcha, con el arco y la fuente de Tlalnepantla detrás',
     marchaPie: 'La marcha por los animales callejeros.'
   },
@@ -2650,11 +2696,12 @@ const es: typeof en = {
   // escribe, las cuatro se cuentan en el build.
   franja: {
     tag: 'Comprobable, antes de bajar',
-    certsQ: 'certificaciones: {n} con ID de credencial, {d} con la sede y las fechas impresas en el certificado',
-    cartasQ: 'cartas firmadas por CEOs en Singapur, con el contacto que dio cada uno',
-    sitioN: 'smartfinance.lat',
-    sitioQ: 'un sitio que construí: {p} pruebas automáticas · {l} lecciones bilingües · {f} fuentes citadas · {g} términos de glosario',
-    premiosQ: 'premio — GreenTech Summit 2026, y su única fuente es una carta',
+    certsQ: 'certificaciones',
+    certsDe: '{n} con ID de credencial, {d} con la sede y las fechas impresas en el certificado',
+    cartasQ: 'cartas firmadas',
+    cartasDe: 'por CEOs en Singapur, con el contacto que dio cada uno',
+    premiosQ: 'premio',
+    premiosDe: 'GreenTech Summit 2026; la única fuente es una carta',
     ir: 'Ir a «{s}»'
   },
 
@@ -2678,8 +2725,7 @@ const es: typeof en = {
     eyebrow: 'Índice y obertura',
     h: 'Lo que suena aquí',
     piezas: '{n} piezas',
-    lede: 'Cada punto abre una grabación, una publicación o la ficha que dice qué falta. Las personas son el liderazgo: a quién conseguí sentar conmigo. Dos son consejos que pedí, no entrevistas, y lo dicen. Los países son la voz: lo que explico a cámara — y México es el que me eligieron para representar. No son lo mismo, y esta página no finge que lo sean.',
-    sigue: 'Todo lo de abajo es la versión larga. Nada de aquí arriba sustituye a un capítulo.',
+    lede: 'La gente que conseguí sentar conmigo, y los países que explico a cámara.',
     indiceAria: 'Lo que abre el micrófono: {n} piezas',
     carruselAria: 'Las conversaciones que grabé y los consejos que pedí, una tarjeta cada una. La lista se desplaza; los botones de abajo la mueven de tres en tres.',
     sinLienzo: 'El dibujo necesita WebGL. La lista son las mismas {n} piezas.',
@@ -2718,7 +2764,9 @@ const es: typeof en = {
       japon: 'Japón',
       canada: 'Canadá'
     },
-    minutoQue: 'El minuto de esa emisión en el que empieza mi podcast'
+    minutoQue: 'El minuto de esa emisión en el que empieza mi podcast',
+    paisesPie: 'Cuatro clips de mi TikTok, @smart.financee. Canadá es ahí un carrusel de fotos, no un video: la portada lo abre.',
+    canadaAlt: 'Portada de mi pieza de TikTok sobre Canadá: la Torre CN en blanco y negro, con el título «5 financial facts about Canada».'
   },
 
   materialQue: {
@@ -2804,8 +2852,6 @@ const es: typeof en = {
   },
 
   cierre: {
-    grupo: 'Probado: fundador y presidente — mi LinkedIn, y la carta de Lloyd George.',
-    conversaciones: 'Probado: cada conversación de arriba abre con su propio enlace; las que no lo tienen lo dicen.',
     cartas: 'Probado: dos cartas firmadas, citadas sin tocar, con el contacto que dio cada quien.',
     grupoHace: 'Probado: un taller con sus grabaciones, sus fotos y las palabras de los asistentes; el calendario del reto desde su fuente.',
     voluntariados: 'Probado: mis publicaciones, mis fotos, el clip — y la limpieza de playa firmada por Lloyd George.',
@@ -2820,7 +2866,6 @@ const es: typeof en = {
     nameL1: 'Jaime Sandoval',
     nameL2: 'Ricaño',
     site: 'smartfinance.lat',
-    senuelo: 'Baja para leer',
     // texto de Jaime, pendiente de su revisión final. SOLO EL AÑO.
     meta: 'Programas de negocios en Canadá · entrada 2027',
     fotoAlt: 'Yo hablando al micrófono en un panel, con los logos de Mitsubishi Heavy Industries y Forest City International School en la pantalla de atrás.',
@@ -2831,12 +2876,10 @@ const es: typeof en = {
     // 2026), que es la comprobable.
     portadaAlt: 'El horizonte de Toronto visto desde el agua al anochecer: la Torre CN encendida sobre las torres del centro, y el lago delante de ellas.',
     portadaPie: 'Toronto · foto de Jochem Raat, Unsplash',
-    portadaAltRotulo: 'La portada',
     torreAlt: 'La Torre CN de Toronto vista desde abajo, en blanco y negro: el mástil contra un cielo nublado, el mirador, y dos edificios de oficinas en los bordes.',
     // Sus palabras, pulidas solo en ortografía y puntuación (ver el bloque
     // inglés). Aquí va el original, así que `torrePieTag` está vacío.
     torrePieVoz: '«La tomé cuando fui a visitar los campus de Toronto. Me inspira todos los días a seguir creciendo: mi meta está ahí.»',
-    torrePieTag: '',
     torrePie: 'Toronto · foto mía (2026)',
     // Ver la nota de la tabla inglesa: solo se pinta al imprimir.
     impresionNota: 'Resumen impreso: experiencia, expediente, certificaciones, premios, cartas y la frase final. El CV completo —las fotografías, los clips, las conversaciones y el sitio— está en la página desde la que se imprimió.'
@@ -2846,8 +2889,9 @@ const es: typeof en = {
     grupoH: 'El grupo estudiantil',
     grupo: 'El grupo estudiantil que fundé y presido: visitas a la Bolsa Mexicana de Valores, pláticas y talleres de finanzas, y voluntariados por la comunidad y el medio ambiente.',
     grupoCifra: 'Somos casi 200 en la comunidad.',
+    grupoCifraN: '≈200',
+    grupoCifraQue: 'en la comunidad',
     grupoLink: 'La comunidad, en el sitio',
-    grupoTaller: 'Lo que organiza el grupo —el taller, con sus grabaciones, y el Reto Actinver— está en «{s}».',
     grupoAlt: 'El grupo estudiantil de Smart Finance, delante del cartel del grupo',
     sitioH: 'smartfinance.lat',
     jasaH: 'Jasa Motor',
@@ -2957,11 +3001,17 @@ const es: typeof en = {
     verVideo: 'Ver la conversación en TikTok',
     // Ver el bloque inglés: sin esta línea, la forma de las citas de Ondo
     // insinúa un aval que no existe.
-    aviso: 'Son conversaciones que yo busqué y grabé. Nadie de aquí me está respaldando: lo que va en grande es lo que yo me llevé de cada conversación, con mis palabras.',
+    aviso: 'Son conversaciones que yo busqué y grabé. Nadie de aquí me está respaldando: el espacio de cada tarjeta es para lo que yo me llevé de la conversación, con mis palabras.',
     carruselAria: 'Conversaciones, una tarjeta por persona. Lista horizontal; se desplaza de lado.',
     prev: 'Conversación anterior',
     next: 'Conversación siguiente',
-    llevo: 'Lo que me llevé',
+    quienH: 'Quién es cada persona, y de dónde sale cada cargo',
+    dosClipsH: 'Dos de las conversaciones, en video',
+    estado: {
+      maier: 'Una sesión a la que asistí, no una entrevista mía.',
+      majo: 'Grabada y transcrita; el clip todavía no está publicado.',
+      duran: 'Grabado; el video todavía no está publicado.'
+    },
     personas: {
       andy: { nombre: 'Andy Toh', rol: 'CEO, Bluesky Education', tipo: '' },
       // Rol corregido: ver la nota larga en la tabla inglesa.
@@ -3391,6 +3441,11 @@ const es: typeof en = {
     p: 'Smart Finance es el proyecto de un estudiante. Todo lo de esta página se publica con fines educativos y no es asesoría financiera, de inversión ni fiscal, ni una recomendación de comprar o vender nada. Los datos de mercado llegan con retraso y vienen de terceros; verifícalos en la fuente antes de decidir cualquier cosa.'
   },
 
+  notas: {
+    h: 'Notas',
+    traduccion: 'Traducciones. Mis palabras en esta página, y lo que otros dijeron en mis grabaciones, se dijeron o escribieron en español y aquí van tal cual. Lo que cito de mis publicaciones de LinkedIn está en inglés; en este panel es traducción, y el original está en el panel en inglés.'
+  },
+
   huecos: {
     quienSoy: {
       que: 'Dónde empezó',
@@ -3549,7 +3604,6 @@ const es: typeof en = {
     // texto de Jaime, pendiente de su revisión final
     apertura: '«Abrí los ojos y vi todas las oportunidades posibles, y hago lo que puedo por aprovecharlas. Mi objetivo es que todos también los puedan abrir, y ayudarlos.»',
     // Vacío en español: aquí la cita es el original, no una traducción.
-    aperturaTag: '',
     // Palabras de Jaime en LinkedIn, en inglés en el original. Esta versión es
     // TRADUCCIÓN para el panel español, pendiente de su revisión final — y
     // ahora lo DICE en pantalla (`peTag`), porque unas comillas atribuidas a
@@ -3598,7 +3652,6 @@ const es: typeof en = {
     // TRADUCCIÓN para el panel español y lo dice en pantalla (`torontoTag`).
     // texto de Jaime (traducción), pendiente de su revisión final
     toronto: '«Esta visita reforzó algo que llevaba mucho tiempo pensando: aquí es donde quiero estudiar finanzas.»',
-    torontoTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
     torontoFuente: 'De mi publicación en LinkedIn sobre mi visita a la University of Toronto y Rotman Commerce (2026).',
     // ── PRIMERA PERSONA TAMBIÉN EN LAS MARCAS (2026-08-30) ─────────────
     // Las marcas del panel español van en primera persona («Mi cifra, del

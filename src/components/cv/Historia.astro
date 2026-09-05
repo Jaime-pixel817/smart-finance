@@ -100,7 +100,7 @@
 import type { Locale } from '../../i18n/routes';
 import { route } from '../../i18n/routes';
 import { useT } from '../../i18n/ui';
-import { useCv } from '../../i18n/cv';
+import { useCv, type CvHueco } from '../../i18n/cv';
 import SourceChip from '../SourceChip.astro';
 import Hueco from './Hueco.astro';
 import FotoHueco from './FotoHueco.astro';
@@ -364,31 +364,42 @@ const dijoDe = (k: string): string[] => ((c.dijo as unknown) as Record<string, s
 const nodoPodcast = NODOS.find((n) => n.id === 'podcast');
 if (!nodoPodcast) throw new Error('cv: falta el nodo `podcast` en microfono.mjs');
 const urlPodcast = nodoPodcast.href;
+type Cita = { key: keyof typeof pers; hueco: CvHueco; href: string | null; estado?: string; marca?: string };
+// ── LAS DOCE TARJETAS DEL CAPÍTULO 3 (ola 6) ──────────────────────────────
+// Sin foto ni vídeo dentro: la tarjeta de (iv) es cita + crédito (482 × 288).
+// `href` es la pieza que abre el NOMBRE; `estado` es la línea de honestidad
+// de las tres que no tienen enlace (una sesión a la que asistió; dos
+// grabaciones sin publicar), y `marca` la de «palabra mía» donde el cargo es
+// de memoria (Majo, `dichoSuyo3`) o el hecho es de Jaime (Durán, `dichoSuyo`).
+// `const citas = [` … `] satisfies Cita[]` y NO `const citas: Cita[]`: el
+// guardián de microfono.test.mjs recorta el array por esa cadena literal para
+// comprobar que cada nodo del micrófono tiene dónde aterrizar.
 const citas = [
-  { key: 'andy' as const, img: foto('breakdown-andy-toh.webp'), alt: t('alt.andytoh'), hueco: 'entrevistaAndy' as const, video: null as null | { src: string; poster: string; bucle: boolean }, url: null as string | null, verLabel: null as string | null, tiktokId: '7662781308988411156' },
-  { key: 'lloyd' as const, img: foto('cv-cara-lloyd.webp'), alt: pers.lloyd.alt, hueco: 'entrevistaLloyd' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7666916220049870100' },
-  { key: 'nus' as const, img: null, alt: '', hueco: 'entrevistaNus' as const, video: { src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true }, url: null as string | null, verLabel: null as string | null, tiktokId: '7657190267245563156' },
-  { key: 'jesus' as const, img: foto('cv-cara-jesus.webp'), alt: pers.jesus.alt, hueco: 'entrevistaJesus' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7656095688484211988' },
-  { key: 'maier' as const, img: foto('breakdown-jpmorgan-etf.webp'), alt: t('alt.jpmorgan'), hueco: 'entrevistaMaier' as const, video: null, url: null, verLabel: null, tiktokId: null },
-  { key: 'mauricio' as const, img: foto('cv-cara-mauricio.webp'), alt: pers.mauricio.alt, hueco: 'entrevistaMauricio' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7671351658227469588' },
-  { key: 'podcast' as const, img: foto('breakdown-trading-room-podcast.webp'), alt: t('alt.tradingroom'), hueco: 'entrevistaPodcast' as const, video: null, tiktokId: null, url: urlPodcast, verLabel: c.mic.ver.episodio },
-  // ── MIGUEL ÁNGEL RENDÓN (ola 4): el segundo episodio con verbo de
-  // organización en su propia fuente (la cinta: «gracias por la invitación»).
-  // Sin `img` ni `video` —la carpeta de fotos de la grabación sigue vacía—:
-  // la tarjeta lleva el hueco de la foto (`fotosPend.rendon`). EL ENLACE
-  // LLEGÓ EL 2026-09-03 (Jaime; oEmbed: autor smart.financee), así que
-  // `tiktokId` es el mismo id que el nodo del micrófono en microfono.mjs y
-  // la tarjeta enlaza como las demás; el hueco del enlace se fue con él.
-  { key: 'rendon' as const, img: null, alt: '', hueco: 'entrevistaRendon' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7680977307850378512' as string | null },
-  // ── MAJO Y DURÁN (OLA4 §8: «deja un espacio para el de la miss … y el de
-  // Manuel Durán»): tarjetas del MISMO tamaño que la de Rendón, con lo que
-  // hay. Majo tiene cinta (IMG_4424, 2:09, dos preguntas) y sin clip
-  // publicado; Durán ni cinta ni video. Ninguna afirma que el episodio esté
-  // publicado; cuando Jaime pegue el enlace se cambia `tiktokId` y nada más.
-  { key: 'majo' as const, img: foto('cv-cara-majo.webp'), alt: pers.majo.alt, hueco: 'entrevistaMajo' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
-  { key: 'duran' as const, img: null, alt: '', hueco: 'entrevistaDuran' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: null as string | null },
-  { key: 'raul' as const, img: null, alt: '', hueco: 'entrevistaRaul' as const, video: { src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }, url: null as string | null, verLabel: null as string | null, tiktokId: '7673350797958155541' },
-  { key: 'sol' as const, img: null, alt: '', hueco: 'entrevistaSol' as const, video: null, url: null as string | null, verLabel: null as string | null, tiktokId: '7677118351327431956' }
+  { key: 'andy', hueco: 'entrevistaAndy', href: urlVideo('7662781308988411156') },
+  { key: 'lloyd', hueco: 'entrevistaLloyd', href: urlVideo('7666916220049870100') },
+  { key: 'nus', hueco: 'entrevistaNus', href: urlVideo('7657190267245563156') },
+  { key: 'jesus', hueco: 'entrevistaJesus', href: urlVideo('7656095688484211988') },
+  { key: 'maier', hueco: 'entrevistaMaier', href: null, estado: c.entrevistas.estado.maier },
+  { key: 'mauricio', hueco: 'entrevistaMauricio', href: urlVideo('7671351658227469588') },
+  { key: 'podcast', hueco: 'entrevistaPodcast', href: urlPodcast },
+  { key: 'rendon', hueco: 'entrevistaRendon', href: urlVideo('7680977307850378512') },
+  { key: 'majo', hueco: 'entrevistaMajo', href: null, estado: c.entrevistas.estado.majo, marca: c.dichoSuyo3 },
+  { key: 'duran', hueco: 'entrevistaDuran', href: null, estado: c.entrevistas.estado.duran, marca: c.dichoSuyo },
+  { key: 'raul', hueco: 'entrevistaRaul', href: urlVideo('7673350797958155541') },
+  { key: 'sol', hueco: 'entrevistaSol', href: urlVideo('7677118351327431956') }
+] satisfies Cita[];
+// LAS CARAS QUE SE QUEDAN (CURADURIA-FOTOS.md, cap. 3), como losas de
+// 482 × 288 fuera de las tarjetas. Los `alt` van en primera persona.
+const losas = [
+  { id: 'jesus', img: foto('cv-tile-jesus.webp'), alt: pers.jesus.alt, pie: c.lote.tileJesusPie },
+  { id: 'maier', img: foto('cv-tile-maier.webp'), alt: c.lote.tileMaierAlt, pie: c.lote.tileMaierPie },
+  { id: 'podcast', img: foto('cv-tile-podcast.webp'), alt: c.lote.tilePodcastAlt, pie: c.lote.tilePodcastPie },
+  { id: 'majo', img: foto('cv-tile-majo.webp'), alt: pers.majo.alt, pie: c.lote.tileMajoPie }
+];
+// Los dos clips que no son de país, plegados (INVENTARIO.md §10).
+const clipsDos = [
+  { nombre: pers.nus.nombre, etiqueta: `${pers.nus.nombre} — ${pers.nus.rol}`, src: '/assets/cv/cv-clip-skills.webm', poster: '/assets/cv/cv-poster-skills.jpg', bucle: true },
+  { nombre: pers.raul.nombre, etiqueta: `${pers.raul.nombre} — ${pers.raul.rol}`, src: '/assets/cv/cv-clip-raul.mp4', poster: '/assets/cv/cv-poster-raul.jpg', bucle: false }
 ];
 
 // ------------------------------------------------------------- el índice
@@ -513,14 +524,9 @@ if (nCertsConId + nCertsConDonde !== c.certs.filas.length) {
     'o la franja dice menos certificaciones de las que el capítulo enseña.'
   );
 }
-const certsFranja = c.franja.certsQ
+const certsFranja = c.franja.certsDe
   .replace('{n}', String(nCertsConId))
   .replace('{d}', String(nCertsConDonde));
-const cifrasFranja = c.franja.sitioQ
-  .replace('{p}', String(nPruebas))
-  .replace('{l}', String(nLecciones))
-  .replace('{f}', String(nFuentes))
-  .replace('{g}', String(nGlosario));
 ---
 <div class="historia">
 
@@ -762,9 +768,6 @@ const cifrasFranja = c.franja.sitioQ
            una pantalla más abajo y lleva a todos los capítulos. */}
       <h1 class="hist-name portada-h1" id={`${p}-h1`}>
         <span class="portada-n1">{c.head.nameL1}</span>
-        <span class="portada-senuelo meta-mono" aria-hidden="true">
-          {c.head.senuelo} <span class="portada-flecha">↓</span>
-        </span>
         <span class="portada-n2">{c.head.nameL2}</span>
       </h1>
      </div>
@@ -796,7 +799,6 @@ const cifrasFranja = c.franja.sitioQ
            foto: es el mismo movimiento de Ondo (su manifiesto entra en blanco
            justo debajo de la segunda mitad del titular). */}
       <blockquote class="abre">
-        {c.voz.aperturaTag && <p class="meta-mono">{c.voz.aperturaTag}</p>}
         <p>{c.voz.apertura}</p>
       </blockquote>
 
@@ -827,33 +829,32 @@ const cifrasFranja = c.franja.sitioQ
            — Go to “Certifications”»): «7» a secas no dice a dónde lleva. Por
            eso los dos `<span>` de dentro van `aria-hidden`, como en los
            huecos: si no, cada pieza se anunciaría dos veces. */}
-      <ul class="franja" aria-label={c.franja.tag}>
+      {/* TRES Y NO CUATRO (INVENTARIO.md §3): la del sitio la repite el
+           capítulo 7 con las mismas cuentas. Son las cifras de (viii): tres
+           columnas de 316, número a 40, rótulo a 14 y su fuente a 12. */}
+      <ul class="franja sf-cifras" aria-label={c.franja.tag}>
         <li>
           <a class="franja-item cv-salto" href={`#${p}-cap-9`}
-            aria-label={`${c.certs.filas.length} ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.expediente)}`}>
-            <span class="franja-n" aria-hidden="true">{c.certs.filas.length}</span>
-            <span class="franja-q" aria-hidden="true">{certsFranja}</span>
+            aria-label={`${c.certs.filas.length} ${c.franja.certsQ} — ${certsFranja} — ${c.franja.ir.replace('{s}', c.caps.expediente)}`}>
+            <span class="sf-numero" aria-hidden="true">{c.certs.filas.length}</span>
+            <span class="sf-que" aria-hidden="true">{c.franja.certsQ}</span>
+            <span class="sf-fuente" aria-hidden="true">{certsFranja}</span>
           </a>
         </li>
         <li>
           <a class="franja-item cv-salto" href={`#${p}-cap-4`}
-            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.ir.replace('{s}', c.caps.cartas)}`}>
-            <span class="franja-n" aria-hidden="true">{c.cartas.entregadas.length}</span>
-            <span class="franja-q" aria-hidden="true">{c.franja.cartasQ}</span>
-          </a>
-        </li>
-        <li>
-          <a class="franja-item cv-salto" href={`#${p}-cap-7`}
-            aria-label={`${c.franja.sitioN} — ${cifrasFranja} — ${c.franja.ir.replace('{s}', c.caps.construi)}`}>
-            <span class="franja-n franja-n-txt" aria-hidden="true">{c.franja.sitioN}</span>
-            <span class="franja-q" aria-hidden="true">{cifrasFranja}</span>
+            aria-label={`${c.cartas.entregadas.length} ${c.franja.cartasQ} — ${c.franja.cartasDe} — ${c.franja.ir.replace('{s}', c.caps.cartas)}`}>
+            <span class="sf-numero" aria-hidden="true">{c.cartas.entregadas.length}</span>
+            <span class="sf-que" aria-hidden="true">{c.franja.cartasQ}</span>
+            <span class="sf-fuente" aria-hidden="true">{c.franja.cartasDe}</span>
           </a>
         </li>
         <li>
           <a class="franja-item cv-salto" href={`#${p}-cap-8`}
-            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.ir.replace('{s}', c.caps.premios)}`}>
-            <span class="franja-n" aria-hidden="true">{c.premios.entregados.length}</span>
-            <span class="franja-q" aria-hidden="true">{c.franja.premiosQ}</span>
+            aria-label={`${c.premios.entregados.length} ${c.franja.premiosQ} — ${c.franja.premiosDe} — ${c.franja.ir.replace('{s}', c.caps.premios)}`}>
+            <span class="sf-numero" aria-hidden="true">{c.premios.entregados.length}</span>
+            <span class="sf-que" aria-hidden="true">{c.franja.premiosQ}</span>
+            <span class="sf-fuente" aria-hidden="true">{c.franja.premiosDe}</span>
           </a>
         </li>
       </ul>
@@ -882,94 +883,73 @@ const cifrasFranja = c.franja.sitioQ
      </div>
     </div>
 
-    {/* ── 3ª pantalla: ya sobre papel ───────────────────────────────────
-         Aquí se acaba la foto y empieza el documento. El retrato de Jaime
-         deja de ser el LCP (lo es la portada), así que baja a carga normal:
-         a esta altura ya se hizo scroll. */}
+    {/* ── 3ª pantalla: ya sobre papel — EL CIERRE DE LA PORTADA (ola 6) ────
+         Aquí se acaba la foto y empieza el documento. Se compone SOLO con
+         plantillas del sistema (cv-material/ola5/SISTEMA-REFERENCIA.md §3.4),
+         en la columna de 980 con 44 px entre bloques, y cada caja mide lo que
+         mide POR CONSTRUCCIÓN: entradilla (i) → foto columna 653 × 816 (ii) →
+         cita larga (vii) → pareja 482 × 642 (iii) → el hueco, con su geometría
+         final (x). Ya no hay `min-height: 100svh` ni `justify-content:
+         center`: el aire lo pone la escala, no la pantalla.
+
+         LO QUE SE FUE, Y POR QUÉ (INVENTARIO.md §3): el párrafo «The cover:
+         …» era el `alt` de la portada escrito otra vez como texto visible;
+         la nota de traducción vive UNA vez, en el bloque de notas del final;
+         y la viñeta de 154 px de Toronto —la queja literal de Jaime: «la
+         imagen de Toronto la dejaste superchiquita»— pasa a su caja.
+
+         TORONTO Y LA TORRE CN VAN EN PAREJA (CURADURIA-FOTOS.md, cap. 1):
+         *yo en esa ciudad* / *la ciudad que fotografié*. Las dos a 482 × 642
+         y las dos por encima del techo de 2× (2.66× y 2.32×). El retrato del
+         panel —la foto que ELIGIÓ él como primera— va a la columna de 653,
+         que sigue siendo la mitad de lo que aguanta su original (1715 px).
+         La transición de la tapa (las dos pantallas de arriba) no se toca. */}
+    {/* LA LÍNEA QUE SOLO SE VE EN PAPEL. `display: none` de base y
+         `display: block` dentro de `@media print`: la vista impresa es un
+         subconjunto (seis capítulos de once) y esto es lo que impide que el
+         recorte sea un disimulo. Va FUERA de la columna de 980 para no
+         cobrarle a la entradilla los 44 px de un bloque que no se pinta. */}
+    <p class="impresion-nota meta-mono">{c.head.impresionNota}</p>
     <div class="portada-papel-cierre">
-     <div class="portada-col">
-      {/* LA LÍNEA QUE SOLO SE VE EN PAPEL. `display: none` de base y
-           `display: block` dentro de `@media print`: la vista impresa es un
-           subconjunto (seis capítulos de once) y esto es lo que impide que el
-           recorte sea un disimulo — la hoja dice en su primera línea que hay
-           más y dónde está. No nombra la dirección del CV: esa dirección es
-           la credencial de esta página y no se escribe en ninguna parte. */}
-      <p class="impresion-nota meta-mono">{c.head.impresionNota}</p>
-      <div class="cap-1-cuerpo">
-        <div class="cap-1-texto">
-          {/* texto de Jaime (su meta), pendiente de su revisión final */}
-          <p class="meta-mono">{c.head.meta}</p>
-          {/* El hueco «What I'm applying to» YA NO EXISTE: Jaime lo pidió
-               fuera (brief 2026-08-28). En su lugar habla él: la cita
-               VERBATIM de su publicación sobre la visita a la U of T, que es
-               la línea de a dónde apunta este CV. */}
-          <blockquote class="voz">
-            {c.voz.torontoTag && <p class="meta-mono">{c.voz.torontoTag}</p>}
-            <p>{c.voz.toronto}</p>
-            <footer class="pie">{c.voz.torontoFuente}</footer>
-          </blockquote>
-          {/* Foto 2 del lote del 2026-08-30: la visita a Toronto. Va PEGADA a
-               su cita sobre la U of T, que es de esa visita. */}
-          <figure class="caja-tarjeta lote-fig lote-toronto sin-imprimir">
-            <a class="mini" href={foto('cv-lote-toronto.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="480" style="--nat-w:480" height="640" loading="lazy" decoding="async" /></span></a>
-            <figcaption class="pie">{c.lote.torontoPie}</figcaption>
-          </figure>
-          <Hueco c={c} id="quienSoy" />
-        </div>
-        {/* SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
-             micrófono en Singapur. Pasa por build-photos.mjs con huella,
-             como todas; el retrato de /about (jaime-320) deja de usarse aquí
-             para no repetir a la misma persona dos veces en una pantalla. */}
-        <figure class="cap-1-retrato caja-mitad sin-imprimir">
-          <img class="cap-1-foto" src={foto('cv-retrato-480.webp')}
-            srcset={`${foto('cv-retrato-480.webp')} 480w, ${foto('cv-retrato-800.webp')} 800w`}
-            sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 592px, 320px"
-            alt={c.head.fotoAlt} width="480" style="--nat-w:480" height="600" decoding="async" loading="lazy" />
-          <figcaption class="pie">{c.head.retratoPie}</figcaption>
+     <div class="sf-doc portada-cierre">
+      {/* Su meta, dicha por él: la entradilla de (i), 24/28, a 653. */}
+      <p class="sf-entra portada-meta">{c.head.meta}</p>
+      {/* SU PRIMERA FOTO LA ELIGIÓ ÉL (brief 2026-08-28): el panel con
+           micrófono en Singapur. Columna 653 × 816 (4:5); 1306 a densidad 2. */}
+      <figure class="sf-foto sf-foto--columna sf-foto--v45 sin-imprimir">
+        <img src={foto('cv-retrato-653.webp')}
+          srcset={`${foto('cv-retrato-653.webp')} 653w, ${foto('cv-retrato-1306.webp')} 1306w`}
+          sizes="(max-width: 685px) 100vw, 653px"
+          alt={c.head.fotoAlt} width="653" height="816" decoding="async" loading="lazy" />
+        <figcaption>{c.head.retratoPie}</figcaption>
+      </figure>
+      {/* La cita VERBATIM de su publicación sobre la visita a la U of T: la
+           línea que dice a dónde apunta este CV. (vii) con su fuente pegada. */}
+      <blockquote class="sf-cita-grande">
+        <p>{c.voz.toronto}</p>
+        <footer class="sf-credito">{c.voz.torontoFuente}</footer>
+      </blockquote>
+      {/* LA PAREJA: iguales por construcción (482 × 642 + 16 + 48 de pie). */}
+      <div class="sf-par sin-imprimir">
+        <figure>
+          <img src={foto('cv-lote-toronto.webp')} alt={c.lote.torontoAlt} width="482" height="642" loading="lazy" decoding="async" />
+          <figcaption>{c.lote.torontoPie}</figcaption>
+        </figure>
+        <figure>
+          <img src={foto('cv-torre-520.webp')}
+            srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
+            sizes="(max-width: 514px) 100vw, 482px"
+            alt={c.head.torreAlt} width="482" height="642" loading="lazy" decoding="async" />
+          {/* EL PIE ES SUYO (mensaje del 2026-08-29), pulido en ortografía y
+               puntuación y nada más. La marca de traducción del panel inglés
+               vive ahora en el bloque único de notas del final. */}
+          <figcaption><span class="torre-pie-voz">{c.head.torrePieVoz}</span> {c.head.torrePie}</figcaption>
         </figure>
       </div>
-      {/* La descripción de la foto de PORTADA, VISIBLE y no solo en un
-           `alt`: la imagen es decorativa para el lector de pantalla (el
-           `alt=""` de arriba) porque describirla dos veces sería repetirla,
-           y aquí cuenta lo que se ve para quien no la ve.
-           VA ANTES DE LA FOTO DE JAIME Y CON RÓTULO, y las dos cosas son el
-           mismo arreglo: puesta debajo de su figura, esta descripción se leía
-           como el pie de LA TORRE CN — decía «el horizonte visto desde el
-           agua» justo debajo de una foto de la torre desde abajo. Ahora cierra
-           la tapa antes de que empiece la foto suya, y dice de qué habla.
-           El rótulo va en un `<span>` dentro del mismo párrafo: para un lector
-           de pantalla sigue siendo una sola frase. */}
-      <p class="pie portada-alt sin-imprimir"><span class="portada-alt-rotulo">{c.head.portadaAltRotulo}:</span> {c.head.portadaAlt}</p>
-      {/* LA TORRE CN QUE FOTOGRAFIÓ JAIME. Era la portada hasta que la
-           portada pasó a copiar el encuadre de Ondo (la ciudad desde el agua,
-           a lo ancho), que es un plano que él no tiene. No se tira: baja aquí,
-           pegada a la línea donde dice a dónde aplica, porque es de lo que
-           habla esa línea — y porque una foto que hizo él vale más que una de
-           banco de imágenes. Su pie lo dice, y lo dice antes que el crédito de
-           la portada, que va una pantalla más arriba: quien llegue hasta aquí
-           ya sabe cuál es de quién. */}
-      {/* El width/height son los del RECORTE NUEVO (2026-08-29): 4:5, no el
-           0.9375 del original entero. Van escritos porque son la reserva de
-           caja de la figura — con los viejos, la foto llegaba y empujaba
-           95 px de página (CLS gratuito). El recorte y su porqué están en
-           scripts/build-photos.mjs. */}
-      <figure class="cap-1-figura caja-mitad sin-imprimir">
-        <img src={foto('cv-torre-520.webp')}
-          srcset={`${foto('cv-torre-520.webp')} 520w, ${foto('cv-torre-760.webp')} 760w, ${foto('cv-torre-1040.webp')} 1040w`}
-          sizes="(max-width: 767px) 100vw, (min-aspect-ratio: 1/1) 592px, 520px"
-          alt={c.head.torreAlt} width="520" style="--nat-w:520" height="650"
-          decoding="async" loading="lazy" />
-        {/* EL PIE ES SUYO (mensaje del 2026-08-29), pulido en ortografía y
-             puntuación y nada más — patrón voz.*, pendiente de su revisión
-             final. En el panel inglés es TRADUCCIÓN y lo dice arriba
-             (`torrePieTag`, vacío en español). La procedencia de la foto no
-             se pierde: sigue diciendo que es suya y de cuándo. */}
-        <figcaption class="pie torre-pie">
-          {c.head.torrePieTag && <span class="meta-mono torre-pie-tag">{c.head.torrePieTag}</span>}
-          <span class="torre-pie-voz">{c.head.torrePieVoz}</span>
-          <span>{c.head.torrePie}</span>
-        </figcaption>
-      </figure>
+      {/* El único hueco que a Pearson le importa que se llene: de dónde sale
+           la frase con la que cierra el CV. Con la geometría final: 653 de
+           ancho y seis líneas de 27. */}
+      <Hueco c={c} id="quienSoy" class="sf-pendiente--prosa" />
      </div>
     </div>
 
@@ -994,39 +974,53 @@ const cifrasFranja = c.franja.sitioQ
        parte del grupo) y las otras dos plegadas: plegar es recortar sin
        borrar. La línea final manda al capítulo de lo que organiza con el
        grupo, por su TÍTULO (sale de `caps`), no por su número. */}
-  <section class="cap" aria-labelledby={`${p}-cap-2-h`}>
+  <section class="cap cap--sf" aria-labelledby={`${p}-cap-2-h`}>
     <span id={`${p}-cap-2`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(1).n}</span><span class="cap-de">/ {num(1).t}</span></p>
-    <h2 class="cap-h" id={`${p}-cap-2-h`}>{c.caps.grupo}</h2>
-    <div class="grupo-cap con-aparte">
-      <div class="grupo-texto">
-        <p class="cap-frases">{c.proyectos.grupo}</p>
-        <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-        <p class="cifra-suya">{c.proyectos.grupoCifra}</p>
-        <p class="meta-mono cifra-suya-marca">{c.cifraSuya}</p>
-        <p class="cap-frases">{c.proyectos.grupoTaller.replace('{s}', c.caps.grupoHace)}</p>
-        <a class="hist-link t-small" href={L('community')}>{c.proyectos.grupoLink} →</a>
-      </div>
-      {/* EL APARTE (spec-ola4-sitios §C.2): la figura `mitad` y, debajo, las
-           otras dos como MINIATURAS de 154 que abren al natural. El plegado
-           deja de esconder fotos: las enseña pequeñas, al lado de la afirmación. */}
-      <div class="aparte sin-imprimir">
-        <figure class="caja-mitad lote-fig grupo-fig">
-        <span class="recuerdo"><img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="720" style="--nat-w:720" height="810" loading="lazy" decoding="async" /></span>
-        <figcaption class="pie">{c.lote.grupoEntrevistaPie}</figcaption>
-      </figure>
-        <div class="mini-tira">
-          <figure class="caja-tarjeta lote-fig">
-          <a class="mini" href={foto('grupo-800.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('grupo-800.webp')} alt={c.proyectos.grupoAlt} width="800" style="--nat-w:800" height="600" loading="lazy" decoding="async" /></span></a>
-        </figure>
-          <figure class="caja-tarjeta lote-fig">
-          <a class="mini" href={foto('cv-lote-grupo-narra.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-grupo-narra.webp')} alt={c.lote.grupoNarraAlt} width="560" style="--nat-w:560" height="786" loading="lazy" decoding="async" /></span></a>
-          <figcaption class="pie">{c.lote.grupoNarraPie}</figcaption>
-        </figure>
-        </div>
-      </div>
+    {/* (i) APERTURA: ojo → titular. El titular llega PRIMERO —hoy salía 982
+         px después de que empezara el capítulo, por la fila libre de la
+         rejilla vieja (INVENTARIO.md §5)—, y el ojo lleva el número: un solo
+         rótulo para «capítulo y número», no dos. */}
+    <header class="sf-cap">
+      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(1).n} / {num(1).t}</p>
+      <h2 class="sf-titular" id={`${p}-cap-2-h`}>{c.caps.grupo}</h2>
+    </header>
+    {/* (ii) LA PROSA, a 653. Y debajo, PEGADA, la única mención a la carta de
+         Lloyd George de todo el documento: es la afirmación que esa carta
+         firma (la fundación). Las otras cuatro menciones se fueron. */}
+    <div class="sf-prosa">
+      <p>{c.proyectos.grupo}</p>
     </div>
-    <p class="meta-mono cap-cierre">{c.cierre.grupo}</p>
+    <p class="sf-pie sf-lectura">{fuenteCarta('Lloyd George')}</p>
+    <p class="sf-link sf-lectura"><a class="hist-link" href={L('community')}>{c.proyectos.grupoLink} →</a></p>
+    {/* (viii) LA CIFRA DE IMPACTO DEL CAPÍTULO, con su fuente y su fecha en
+         el mismo bloque: es suya, y lo dice con sus palabras exactas debajo
+         del número. El build no puede contar a la gente de una comunidad. */}
+    <ul class="sf-cifras sf-doc">
+      <li>
+        <p class="sf-numero">{c.proyectos.grupoCifraN}</p>
+        <p class="sf-que">{c.proyectos.grupoCifraQue}</p>
+        <p class="sf-fuente">{c.proyectos.grupoCifra} {c.cifraSuya}</p>
+      </li>
+    </ul>
+    {/* LA FOTO DEL GRUPO, A 980 × 653 (CURADURIA-FOTOS.md, cap. 2): era el
+         desperdicio más grande del documento —el original de 3797 px pintado
+         a 154—. Es la prueba visual de «casi 200 de nosotros». 1960 a
+         densidad 2. */}
+    <figure class="sf-foto sf-foto--ancha sf-foto--h32 sin-imprimir">
+      <img src={foto('cv-grupo-980.webp')}
+        srcset={`${foto('cv-grupo-980.webp')} 980w, ${foto('cv-grupo-1960.webp')} 1960w`}
+        sizes="(max-width: 1012px) 100vw, 980px"
+        alt={c.proyectos.grupoAlt} width="980" height="653" loading="lazy" decoding="async" />
+      <figcaption>{c.lote.grupoPie}</figcaption>
+    </figure>
+    {/* ÉL ENTREVISTANDO EN SU PREPA, por parte del grupo: micrófono en mano,
+         «sale haciendo algo». Ilustra la frase de al lado → columna 653 × 816
+         (§4, pregunta 3); 1306 a densidad 2. La tercera foto del mismo
+         cartel (él solo, narrando) SE FUE: añadía una pose, no un hecho. */}
+    <figure class="sf-foto sf-foto--columna sf-foto--v45 sin-imprimir">
+      <img src={foto('cv-lote-grupo-entrevista.webp')} alt={c.lote.grupoEntrevistaAlt} width="653" height="816" loading="lazy" decoding="async" />
+      <figcaption>{c.lote.grupoEntrevistaPie}</figcaption>
+    </figure>
   </section>
 
   {/* ════ 03 · Cada quien trae algo — las conversaciones ═════════════════
@@ -1054,150 +1048,205 @@ const cifrasFranja = c.franja.sitioQ
        de aquí lo está respaldando.
 
        La frase de cada uno sigue siendo un hueco hasta que él la escriba. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-3-h`}>
+  <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-3-h`}>
     <span id={`${p}-cap-3`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(2).n}</span><span class="cap-de">/ {num(2).t}</span></p>
-    <h2 class="cap-h" id={`${p}-cap-3-h`}>{c.caps.conversaciones}</h2>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.entrevistas}</p></blockquote>
+    <header class="sf-cap">
+      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(2).n} / {num(2).t}</p>
+      <h2 class="sf-titular" id={`${p}-cap-3-h`}>{c.caps.conversaciones}</h2>
+    </header>
+    {/* (vii) Su frase, verbatim: es suya y explica el capítulo entero. */}
+    <blockquote class="sf-cita-grande"><p>{c.voz.entrevistas}</p></blockquote>
     {/* La frase que impide que este capítulo se lea como una lista de avales.
-         Va en la voz de la página, como `prueba.lede` o `tape.note`: no es una
-         afirmación sobre Jaime, es la página diciendo qué es lo que enseña. */}
-    <p class="pie">{c.entrevistas.aviso}</p>
-    {/* Que el podcast lo conduce él y que las entrevistas de Singapur las
-         organizó por su cuenta («entirely on his own steam») lo firma la
-         carta de Lloyd George desde el 2026-08-29. Sigue sin ser un aval de
-         nadie: lo que la carta respalda es que las conversaciones son suyas,
-         no lo que dijeron los entrevistados. */}
-    <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
+         Va en la voz de la página, UNA vez (nota tipo 1). Que las
+         conversaciones son suyas lo firma la carta de Lloyd George, y esa
+         fuente vive pegada a lo que firma, en el capítulo del grupo. */}
+    <p class="sf-pie sf-lectura">{c.entrevistas.aviso}</p>
 
-    {/* ══ EL CARRUSEL DE CITAS (la forma de Ondo, con la frase de Jaime) ══
-         Tarjetas negras redondeadas en scroll horizontal con imán de eje X
-         (el imán vertical de la página se quitó; ESTE es otro gesto: una
-         lista de tarjetas que pagina de lado, que es justo para lo que
-         scroll-snap x existe). Las flechas son <button> de verdad: con
-         teclado y con su aria-label; las mueve cv-citas.ts con scrollBy, y
-         sin JavaScript se esconden (la regla vive en el <noscript> de
-         Cv.astro) — la lista se desplaza igual con el dedo, la rueda o las
-         flechas del teclado (tabindex="0" en la lista, que es lo que exige
-         una región desplazable alcanzable).
-         LA DIFERENCIA CON ONDO ES DE QUIÉN ES LA FRASE: allí la cita grande
-         es del retratado avalando a Ondo; aquí es LO QUE JAIME SE LLEVÓ, con
-         su rótulo delante y sin comillas — y el aviso de arriba lo dice con
-         todas las letras. Eso no se negocia con la estética. */}
-    <div class="citas-marco" data-citas>
-      <ul class="citas" tabindex="0" aria-label={c.entrevistas.carruselAria}>
+    {/* ══ (iv) EL CARRUSEL DE TARJETAS OSCURAS IGUALES: 482 × 288 ═══════════
+         Doce tarjetas, UNA talla, dos a la vista en los 980 del marco y la
+         tercera asomando en los 150 px de cada lado (SISTEMA-REFERENCIA.md
+         §3.4 iv). Es lo que Jaime pidió por su nombre: «los recuadros negros
+         todos deberían de tener el mismo tamaño». Hoy había doce con diez
+         alturas, de 329 a 567.
+         Dentro de cada una: el NOMBRE (que es el enlace a la pieza, con su ↗
+         pintado desde CSS), el cargo, y el hueco de «lo que me llevé» con la
+         geometría final de la cita —cuatro líneas de 25— y SIN rótulo: el
+         borde punteado ya dice que falta algo, y un rótulo repetido doce
+         veces («WHAT I TOOK FROM IT») no informa de nada.
+         LAS CARAS SALEN DE LAS TARJETAS: la tarjeta de (iv) es cita + crédito
+         y no lleva foto. Las que se quedan van debajo, a tamaño de foto.
+         Lo que no cabe en 288 px NO estira la tarjeta: el contexto de cada
+         persona y de dónde sale cada cargo se pliega debajo (nota tipo 2), y
+         el material que falta va en UN solo recuadro pendiente.
+         Las flechas son <button> de verdad y las mueve cv-citas.ts; sin
+         JavaScript no existen (la regla vive en el <noscript> de Cv.astro) y
+         la lista se desplaza igual con el dedo, la rueda o el teclado. */}
+    <div class="sf-carrusel" data-citas>
+      <ul class="citas sf-pista" tabindex="0" aria-label={c.entrevistas.carruselAria}>
         {citas.map((rt) => {
-          const per = c.entrevistas.personas[rt.key];
-          // `rol` vacío = no había fuente para el rol y no se inventa uno.
-          // `tipo` lleno = el contexto (o el límite) del encuentro, en pantalla.
-          const etiqueta = per.rol ? `${per.nombre} — ${per.rol}` : per.nombre;
+          const per = pers[rt.key];
           return (
-          <li class="cita" id={ancla(p, rt.key)}>
-            <div class="cita-media">
-              {rt.img && (
-                <img class="cita-foto" src={rt.img} alt={rt.alt} width="480" style="--nat-w:480" height="360" loading="lazy" decoding="async" />
-              )}
-              {rt.video && (
-                <video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} data-poster={rt.video.poster}></video>
-                <noscript><video {...attrsClip(rt.video.src, etiqueta, rt.video.bucle)} poster={rt.video.poster}></video></noscript>
-              )}
-              {!rt.img && !rt.video && <FotoHueco c={c} que={rt.key === 'rendon' ? c.fotosPend.rendon : rt.key === 'majo' ? c.fotosPend.majo : rt.key === 'duran' ? c.fotosPend.duran : c.fotosPend.sol} class="cita-hueco-foto" />}
-            </div>
-            <p class="cita-nombre">{per.nombre}</p>
-            {per.rol && <p class="cita-rol">{per.rol}</p>}
-            {per.tipo && <p class="cita-tipo">{per.tipo}</p>}
-            {/* De dónde sale el cargo cuando no lo dice una cinta: Durán, el
-                 titular de su LinkedIn (2026-09-03). */}
-            {'fuente' in per && per.fuente && <p class="meta-mono fuente-carta">{per.fuente}</p>}
-            {/* EL RÓTULO DE QUIÉN HABLA. Va SIEMPRE, esté escrita la frase o
-                 no: en cuanto Jaime escriba la frase este renglón es lo único
-                 que separa «lo que me llevé» de «lo que me dijeron». */}
-            <p class="etiqueta cita-llevo">{c.entrevistas.llevo}</p>
-            <Hueco c={c} id={rt.hueco} grande />
-            {(rt.url || rt.tiktokId) && <a class="hist-link t-small cita-link" href={rt.url || urlVideo(rt.tiktokId as string)} target="_blank" rel="noopener">{rt.verLabel || c.entrevistas.verVideo} ↗</a>}
-            {/* EL MINUTO DEL FTR VIVE JUNTO A SU FICHA, no en el micrófono: es
-                 el único dato que le falta a ESTA pieza, y el enlace de
-                 arriba abre 30 minutos de emisión sin decir en cuál empieza. */}
-            {rt.key === 'podcast' && <HuecoMaterial c={c} que={c.mic.minutoQue} class="cita-hueco-mat" />}
-            {/* Majo: cinta sí, clip no; su cargo es como lo recuerda Jaime
-                 (2026-09-03) — por eso lleva `dichoSuyo3`. Durán: que está
-                 grabado y sin publicar es palabra de Jaime (2026-09-02) — por
-                 eso lleva `dichoSuyo`; su cargo ya no es hueco (LinkedIn). */}
-            {rt.key === 'majo' && <p class="meta-mono cifra-suya-marca">{c.dichoSuyo3}</p>}
-            {rt.key === 'majo' && <HuecoMaterial c={c} que={c.materialQue.majoClip} class="cita-hueco-mat" />}
-            {rt.key === 'duran' && <p class="meta-mono cifra-suya-marca">{c.dichoSuyo}</p>}
-            {rt.key === 'duran' && <HuecoMaterial c={c} que={c.materialQue.duranVideo} class="cita-hueco-mat" />}
-            {/* LO QUE DIJERON ELLOS, verbatim de la cinta y plegado: son palabras
-                 de un tercero (<blockquote> + <cite>, como las cartas), nunca
-                 el hueco «Lo que me llevé», que es de Jaime. */}
-            {(rt.key === 'rendon' || rt.key === 'majo') && (
-              <details class="ref-plegable cita-dijo">
-                <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{rt.key === 'majo' ? c.dijo.ella : c.dijo.el}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
-                {c.cintaTag && <p class="meta-mono">{c.cintaTag}</p>}
-                {dijoDe(rt.key).map((q) => (
-                  <blockquote class="tercero"><p>{q}</p><footer class="pie">— <cite>{per.nombre}</cite>, {c.dijo.enCinta}</footer></blockquote>
-                ))}
-              </details>
-            )}
-          </li>
+            <li class="cita sf-tarjeta" id={ancla(p, rt.key)}>
+              <div class="cita-quien">
+                <p class="cita-nombre">
+                  {rt.href
+                    ? <a class="cita-a sf-ext" href={rt.href} target="_blank" rel="noopener">{per.nombre}</a>
+                    : per.nombre}
+                </p>
+                {per.rol && <p class="cita-rol">{per.rol}</p>}
+                {rt.estado && <p class="cita-rol">{rt.estado}</p>}
+              </div>
+              <Hueco c={c} id={rt.hueco} class="sf-pendiente--cita cita-pend" />
+            </li>
           );
         })}
       </ul>
-      <div class="citas-nav">
-        <button type="button" class="citas-btn" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
-        <button type="button" class="citas-btn" data-citas-next aria-label={c.entrevistas.next}>›</button>
+      <div class="sf-flechas">
+        <button type="button" class="sf-flecha sf-flecha--izq" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
+        <button type="button" class="sf-flecha sf-flecha--der" data-citas-next aria-label={c.entrevistas.next}>›</button>
       </div>
+      <ol class="sf-puntos" aria-hidden="true">
+        {citas.map((_, i) => <li aria-current={i === 0 ? 'true' : undefined}></li>)}
+      </ol>
     </div>
-    {/* ══ GENTE A LA QUE PEDÍ CONSEJO (ola 4) ══════════════════════════════
+
+    {/* ══ LAS CARAS, FUERA DE LAS TARJETAS Y A TAMAÑO DE FOTO ══════════════
+         Cuatro de las siete (CURADURIA-FOTOS.md, cap. 3): las losas de
+         482 × 288 —la MISMA caja que la tarjeta, con una foto dentro— en dos
+         filas de dos. Las que se van: Lloyd (su cara sube al capítulo de las
+         cartas, con una foto mejor) y Mauricio (original de 576 px con el
+         subtítulo de TikTok quemado; vuelve el día que se re-extraiga el
+         cuadro). Andy Toh vive bajo su carta, y solo ahí. */}
+    <div class="sf-par sf-par--losa sin-imprimir">
+      {losas.slice(0, 2).map((x) => (
+        <figure>
+          <img src={x.img} alt={x.alt} width="482" height="288" loading="lazy" decoding="async" />
+          <figcaption>{x.pie}</figcaption>
+        </figure>
+      ))}
+    </div>
+    <div class="sf-par sf-par--losa sin-imprimir">
+      {losas.slice(2, 4).map((x) => (
+        <figure>
+          <img src={x.img} alt={x.alt} width="482" height="288" loading="lazy" decoding="async" />
+          <figcaption>{x.pie}</figcaption>
+        </figure>
+      ))}
+    </div>
+
+    {/* ══ LO QUE NO CABE EN 288 PX, PLEGADO (nota tipo 2) ══════════════════
+         El contexto de cada persona, de dónde sale cada cargo, y las marcas
+         de «palabra mía» donde el cargo es de memoria (Majo) o el hecho es
+         de Jaime (Durán). Ni una fuente se pierde: se pliega. */}
+    <details class="ref-plegable sf-lectura">
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.entrevistas.quienH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
+      <dl class="quien">
+        {citas.map((rt) => {
+          const per = pers[rt.key];
+          const fuente = 'fuente' in per ? per.fuente : '';
+          if (!per.tipo && !fuente && !rt.marca) return null;
+          return (
+            <div class="quien-fila">
+              <dt>{per.nombre}</dt>
+              <dd>
+                {per.tipo && <span>{per.tipo}</span>}
+                {fuente && <span class="quien-fuente">{fuente}</span>}
+                {rt.marca && <span class="quien-fuente">{rt.marca}</span>}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </details>
+    {/* LO QUE DIJERON ELLOS, verbatim de la cinta y plegado: son palabras de
+         un tercero (<blockquote> + <cite>, como las cartas), nunca el hueco
+         de «lo que me llevé», que es de Jaime. En inglés son traducción y lo
+         dice el bloque de notas del final. */}
+    <details class="ref-plegable sf-lectura">
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.dijo.el} — {pers.rendon.nombre}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
+      {dijoDe('rendon').map((q) => (
+        <blockquote class="tercero"><p>{q}</p><footer class="pie">— <cite>{pers.rendon.nombre}</cite>, {c.dijo.enCinta}</footer></blockquote>
+      ))}
+    </details>
+    <details class="ref-plegable sf-lectura">
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.dijo.ella} — {pers.majo.nombre}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
+      {dijoDe('majo').map((q) => (
+        <blockquote class="tercero"><p>{q}</p><footer class="pie">— <cite>{pers.majo.nombre}</cite>, {c.dijo.enCinta}</footer></blockquote>
+      ))}
+    </details>
+    {/* LOS DOS CLIPS QUE NO SON DE PAÍS (la estudiante de la NUS, Raúl
+         Irabién) van plegados, en la tarjeta 308 × 385 de (v): INVENTARIO.md
+         §10, «los otros 2, plegados». Servidos desde este dominio. */}
+    <details class="ref-plegable sf-lectura">
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.entrevistas.dosClipsH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
+      <ul class="clips-dos">
+        {clipsDos.map((x) => (
+          <li class="sf-pais">
+            <video {...attrsClip(x.src, x.etiqueta, x.bucle, 360, 640, 'clip-pais')} data-poster={x.poster}></video>
+            <noscript><video {...attrsClip(x.src, x.etiqueta, x.bucle, 360, 640, 'clip-pais')} poster={x.poster}></video></noscript>
+            <p class="sf-rotulo">{x.nombre}</p>
+          </li>
+        ))}
+      </ul>
+    </details>
+    {/* UN SOLO RECUADRO PENDIENTE para el material que falta (INVENTARIO.md
+         §6: «PHOTO TO COME» ×3 y «MATERIAL TO COME» ×4 → uno). Cada línea es
+         la que ya existía en su hueco; ninguna se pierde. */}
+    <div class="sf-pendiente sf-pendiente--lista sf-lectura" role="note" aria-label={`${c.materialHueco.tag}: ${c.plegado.pendiente}`}>
+      <p class="pend-h">{c.plegado.pendiente}</p>
+      <ul class="pend-lista">
+        <li>{c.mic.minutoQue}</li>
+        <li>{c.materialQue.majoClip}</li>
+        <li>{c.materialQue.duranVideo}</li>
+        <li>{c.fotosPend.rendon}</li>
+        <li>{c.fotosPend.majo}</li>
+        <li>{c.fotosPend.duran}</li>
+        <li>{c.fotosPend.sol}</li>
+      </ul>
+    </div>
+
+    {/* ══ GENTE A LA QUE PEDÍ CONSEJO ══════════════════════════════════════
          Moris Dieck y Marg Franklin, FUERA del carrusel —que promete
          «conversations I sought out and recorded»— y en su propio bloque:
          son consejos que él pidió, no entrevistas, y el rótulo lo dice.
-         Cada figura lleva su ancla (`ancla(p, id)`): son los destinos de los
-         dos nodos de experiencia del micrófono mientras no lleguen las URL
-         de sus publicaciones. La foto de Marg deja de estar suelta al final
-         del capítulo: es esta. SIN CARGO para ella —cfainstitute.org lista
-         hoy a Tricia Rothschild como Interim CEO (ver cv.ts)— y sin él para
-         Moris, que nunca lo tuvo con fuente. */}
-    <h3 class="t-h3 ens-h" id={`${p}-consejo-h`}>{c.mic.grupoExperiencias}</h3>
-    <ul class="consejos" aria-labelledby={`${p}-consejo-h`}>
-      {([
-        { id: 'dieck', per: c.entrevistas.personas.dieck, img: foto('breakdown-moris-dieck.webp'), alt: t('alt.moris'), w: 480, h: 360, pie: c.lote.dieckPie, hueco: 'entrevistaDieck' as const, caja: 'caja-tarjeta' },
-        { id: 'marg', per: c.entrevistas.personas.marg, img: foto('cv-lote-marg.webp'), alt: c.lote.margAlt, w: 480, h: 640, pie: c.lote.margPie, hueco: 'consejoMarg' as const, caja: 'caja-mitad' }
-      ]).map((x) => (
-        <li class="consejo" id={ancla(p, x.id)}>
-          <figure class={`lote-fig consejo-fig ${x.caja}`}>
-            <span class="recuerdo"><img src={x.img} alt={x.alt} width={x.w} style={`--nat-w:${x.w}`} height={x.h} loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{x.pie}</figcaption>
-          </figure>
-          <div class="consejo-texto">
-            <p class="cita-nombre consejo-nombre">{x.per.nombre}</p>
-            {x.per.tipoTag && <p class="meta-mono">{x.per.tipoTag}</p>}
-            <p class="consejo-tipo">{x.per.tipo}</p>
-            <Hueco c={c} id={x.hueco} />
-          </div>
-        </li>
-      ))}
-    </ul>
-
-    {/* ══ LOS EPISODIOS QUE ORGANIZÓ ÉL (ola 4) ═══════════════════════════
-         Rendón tiene cinta (≈29 min 37 s, transcrita; diez clips cortados):
-         va SIN marca de «palabra suya» y con su recibo de la propia grabación.
-         Los clips son INVENTARIO —archivos que existen, no publicaciones— y
-         van plegados; el día que tengan enlace dejan de ser texto. El
-         episodio entero SÍ está publicado (TikTok, 2026-09-03) y lo enlaza
-         su tarjeta de arriba. Durán vive en la suya, con `dichoSuyo`, su
-         cargo de LinkedIn y el hueco del video. */}
-    <div class="podcasts">
-      <h3 class="t-h3 ens-h">{c.podcasts.h}</h3>
-      <p class="cap-frases">{c.podcasts.rendon}</p>
-      <p class="meta-mono fuente-carta">{c.podcasts.rendonFuente}</p>
-    <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.podcasts.clipsH}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
-      <p class="pie">{c.podcasts.clips}</p>
-    </details>
+         (ii) párrafo + (iii) PAREJA 482 × 642: «hoy Moris va a 154 y Marg a
+         332, dos tamaños para dos cosas del mismo tipo» (CURADURIA-FOTOS.md).
+         Al mismo tamaño. Cada figura lleva su ancla: son los destinos de
+         los dos nodos de experiencia del micrófono. SIN CARGO para ella
+         —cfainstitute.org lista hoy a Tricia Rothschild como Interim CEO
+         (ver cv.ts)— y sin él para Moris, que nunca lo tuvo con fuente. */}
+    <h3 class="sf-sub" id={`${p}-consejo-h`}>{c.mic.grupoExperiencias}</h3>
+    <div class="sf-prosa">
+      <p><b>{pers.dieck.nombre}.</b> {pers.dieck.tipo}</p>
+      <p><b>{pers.marg.nombre}.</b> {pers.marg.tipo}</p>
     </div>
-    <p class="meta-mono cap-cierre">{c.cierre.conversaciones}</p>
+    <div class="sf-par sf-par--tres sin-imprimir">
+      <figure id={ancla(p, 'dieck')}>
+        <img src={foto('cv-moris-900.webp')} alt={c.lote.dieckAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.dieckPie}</figcaption>
+        <Hueco c={c} id="entrevistaDieck" class="sf-pendiente--cita" />
+      </figure>
+      <figure id={ancla(p, 'marg')}>
+        <img src={foto('cv-lote-marg.webp')} alt={c.lote.margAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.margPie}</figcaption>
+        <Hueco c={c} id="consejoMarg" class="sf-pendiente--cita" />
+      </figure>
+    </div>
+
+    {/* ══ LOS EPISODIOS QUE ORGANIZÓ ÉL ════════════════════════════════════
+         Rendón tiene cinta (≈29 min 37 s, transcrita; diez clips cortados):
+         va SIN marca de «palabra suya» y con su recibo de la propia
+         grabación. Los clips son INVENTARIO —archivos que existen, no
+         publicaciones— y van plegados. */}
+    <h3 class="sf-sub">{c.podcasts.h}</h3>
+    <div class="sf-prosa">
+      <p>{c.podcasts.rendon}</p>
+    </div>
+    <p class="sf-pie sf-lectura">{c.podcasts.rendonFuente}</p>
+    <details class="ref-plegable sf-lectura">
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.podcasts.clipsH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
+      <p class="sf-pie">{c.podcasts.clips}</p>
+    </details>
   </section>
 
   {/* ════ 04 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
@@ -1363,7 +1412,7 @@ const cifrasFranja = c.franja.sitioQ
     <div class="prosa-col">
     <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
     <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.verifica}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.verifica}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
     <p class="cap-lede">{c.cartas.verificaLede}</p>
     {/* EL RÓTULO SOLO SALE EN ESPAÑOL (en inglés la cadena va vacía): en ese
          panel las tres citas son inglés dentro de un párrafo español, y las
@@ -1392,7 +1441,7 @@ const cifrasFranja = c.franja.sitioQ
     </div>
     <div class="aparte">
     <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.cartas.faltanH}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.cartas.faltanH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
     {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
          atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
     <div class="cartas">
@@ -1443,7 +1492,7 @@ const cifrasFranja = c.franja.sitioQ
         <p class="meta-mono fuente-carta">{c.taller.queFuente}</p>
 
         <details class="ref-plegable">
-          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.taller.aperturaH}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.taller.aperturaH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
         {/* Voz de Jaime, verbatim de la cinta, pulida solo en puntuación. */}
         <blockquote class="voz">
           {c.taller.aperturaTag && <p class="meta-mono">{c.taller.aperturaTag}</p>}
@@ -1493,7 +1542,7 @@ const cifrasFranja = c.franja.sitioQ
           ))}
         </ul>
     <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masDijeron}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masDijeron}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
         <ul class="testimonios">
           {c.taller.testimonios.slice(3).map((x) => (
           <li><blockquote class="tercero"><p>{x.cita}</p><footer class="pie">— <cite>{x.quien}</cite></footer></blockquote></li>
@@ -1525,7 +1574,7 @@ const cifrasFranja = c.franja.sitioQ
         </div>
         <div class="aparte">
     <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.reto}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.reto}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
         <h4 class="etiqueta">{c.reto.calH}</h4>
         <ol class="cal">
           {filasCal.map((f) => (
@@ -1762,7 +1811,7 @@ const cifrasFranja = c.franja.sitioQ
              filas salen con guiones, que es honesto en pantalla y es ruido
              en una hoja que alguien va a adjuntar. */}
         <details class="ref-plegable">
-          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.cinta}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.cinta}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
         <div class="cinta-bloque">
         <div class="sec-head">
           <SourceChip locale={locale} source={FUENTE} delay={RETRASO} class="cinta-chip" inicio="unavailable" />
@@ -1793,7 +1842,7 @@ const cifrasFranja = c.franja.sitioQ
         </div>
         </details>
         <details class="ref-plegable">
-          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.leccionMedida.h}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.leccionMedida.h}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
         <p class="cap-frases">{c.prueba.stats.promesa}</p>
 
         {/* ══ EL CONTRATIEMPO. UNO, REAL, Y AQUÍ ═══════════════════════════
@@ -1965,7 +2014,7 @@ const cifrasFranja = c.franja.sitioQ
       ))}
     </ul>
     <details class="ref-plegable clips-otros">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.otrosDos}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.otrosDos}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
       <ul class="clips">
         {ensena.filter((v) => v.carrusel).map((v) => (
         <li class:list={['clip', v.ancha && 'clip-ancho']} id={v.pieza ? ancla(p, v.pieza) : undefined}>
@@ -2154,7 +2203,7 @@ const cifrasFranja = c.franja.sitioQ
         </a>
 
         <details class="ref-plegable">
-          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
         <Hueco c={c} id="researchNota" />
         <div class="fila-fotos">
           <FotoHueco c={c} que={c.fotosPend.research} />
@@ -2230,7 +2279,7 @@ const cifrasFranja = c.franja.sitioQ
          carta. Se dice dónde falta con el mismo hueco de foto que usan los
          certificados, no con una frase escondida. */}
     <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
     <FotoHueco c={c} que={c.premios.docPend} ratio="4 / 3" class="premio-doc" />
 
     <h3 class="t-h3">{c.premios.faltanH}</h3>
@@ -2331,7 +2380,7 @@ const cifrasFranja = c.franja.sitioQ
             <span class="ref-ver-fila">
               <span class="ref-ver-txt">{c.acad.fuentesVer}</span>
               <span class="ref-ver-pista meta-mono">{c.acad.fuentesH}</span>
-              <span class="ref-flecha" aria-hidden="true">↓</span>
+              <span class="ref-flecha" aria-hidden="true"></span>
             </span>
           </summary>
           <ul class="acad-fuentes">
@@ -2377,7 +2426,7 @@ const cifrasFranja = c.franja.sitioQ
     <div class="aparte">
     <h3 class="t-h3">{c.acadDocs.h}</h3>
     <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true">↓</span></span></summary>
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.pendiente}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
     <p class="cap-lede">{c.acadDocs.lede}</p>
     <HuecoMaterial c={c} que={c.acadDocs.promedioQue} />
     <HuecoMaterial c={c} que={c.acadDocs.duolingoQue} />
@@ -2391,7 +2440,7 @@ const cifrasFranja = c.franja.sitioQ
       <summary class="ref-ver">
         <span class="ref-ver-fila">
           <span class="ref-ver-txt t-h4">{c.acad.notaH}</span>
-          <span class="ref-flecha" aria-hidden="true">↓</span>
+          <span class="ref-flecha" aria-hidden="true"></span>
         </span>
       </summary>
       {/* EL PARRAFO VA EN TROZOS. En el panel espanol lleva dentro tres
@@ -2628,7 +2677,7 @@ const cifrasFranja = c.franja.sitioQ
       <summary class="ref-ver">
         <span class="ref-ver-fila">
           <span class="ref-ver-txt t-h3">{c.expApp.h}</span>
-          <span class="ref-flecha" aria-hidden="true">↓</span>
+          <span class="ref-flecha" aria-hidden="true"></span>
         </span>
       </summary>
     <p class="cap-lede">{c.expApp.lede}</p>
@@ -2676,6 +2725,17 @@ const cifrasFranja = c.franja.sitioQ
         <a class="hist-link" href={TIKTOK} target="_blank" rel="noopener">{c.contacto.tiktok} ↗</a>
         <a class="hist-link" href={L('home')}>{c.contacto.site} →</a>
       </p>
+      {/* ══ EL BLOQUE ÚNICO DE NOTAS (§3.4 x, sitio 3) ══════════════════════
+           Las notas de traducción viven AQUÍ, una vez, y no encima de cada
+           cita: Jaime las nombró («textos como “esta traducción está en
+           español” está muy mal»). Los dos paneles ya existen y el selector
+           está en la portada. Ola 6, paso A: entran las de la portada y las
+           de las conversaciones; las de los demás capítulos llegan con su
+           reconstrucción. */}
+      <div class="sf-nota notas-final">
+        <h3>{c.notas.h}</h3>
+        <p>{c.notas.traduccion}</p>
+      </div>
       <p class="pie">{c.hueco.note}</p>
       <p class="pie"><strong>{c.disc.h}.</strong> {c.disc.p}</p>
     </div>
@@ -3741,10 +3801,8 @@ const cifrasFranja = c.franja.sitioQ
     display: flex; flex-direction: column; gap: var(--sp-6);
     padding-block: var(--sp-10);
   }
-  .portada-alt { color: var(--cvh-tinta-3); }
   /* El rótulo, un punto más oscuro que la descripción: es lo que hay que leer
      primero para saber de qué foto habla el párrafo. */
-  .portada-alt-rotulo { color: var(--cvh-tinta-2); }
 
   /* ---- La portada con «menos movimiento» ----
      Una foto que se queda quieta mientras el texto pasa por encima es
@@ -3864,16 +3922,9 @@ const cifrasFranja = c.franja.sitioQ
      palabra no cabe de ninguna manera, en vez de admitirlo siempre. Con el
      suelo propio de `--cvh-h-name`, a 320 px y al 200 % ya no hace falta. */
   .hist-name { font-size: var(--cvh-h-name); overflow-wrap: break-word; }
-  .cap-1-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
-  @media (min-width: 768px) { .cap-1-cuerpo { grid-template-columns: minmax(0, 1fr) 332px; } }
-  .cap-1-texto { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
-  .cap-1-retrato { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
-  .cap-1-foto { max-width: 100%; height: auto; display: block; border-radius: 20px; }
   /* La Torre CN de Jaime. `max-width` en px y no en `ch` ni en `%`: es una
      figura y su tamaño lo manda la foto, no el texto. Ya viene en gris del
      archivo, por eso está en la lista de excepciones del `filter` de arriba. */
-  .cap-1-figura { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 332px; }
-  .cap-1-figura img { width: 100%; height: auto; display: block; }
   /* El pie de la Torre CN son TRES renglones y no uno: la marca de
      traducción, sus palabras y la procedencia. Cada uno en su línea porque
      son tres cosas distintas — y la suya va con la tinta del documento, no
@@ -3885,9 +3936,6 @@ const cifrasFranja = c.franja.sitioQ
      grandes de `.cifras`, que no llevan marca porque su recibo es el build. */
   .cifra-suya { color: var(--cvh-tinta); margin-top: var(--sp-2); }
   .cifra-suya-marca { color: var(--cvh-tinta-3); margin-top: var(--sp-1); }
-  .torre-pie { display: flex; flex-direction: column; gap: var(--sp-1); }
-  .torre-pie-tag { color: var(--cvh-tinta-3); }
-  .torre-pie-voz { color: var(--cvh-tinta); font-size: var(--fs-small); }
 
   /* ---- La frase de apertura ----
      Fraunces, igual que los titulares y que la frase final: la dirección la
@@ -3914,38 +3962,6 @@ const cifrasFranja = c.franja.sitioQ
      SIN VIÑETAS Y SIN NÚMEROS: es un `<ul>` porque son cuatro cosas de la
      misma clase y un lector de pantalla las cuenta, pero visualmente son
      tarjetas. */
-  .franja {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(13em, 100%), 1fr));
-    gap: var(--sp-3);
-    max-width: 960px;
-    list-style: none; padding: 0; margin: 0;
-  }
-  .franja-item {
-    display: flex; flex-direction: column; gap: 4px;
-    min-height: 44px; min-width: 0; height: 100%;
-    padding: var(--sp-3) var(--sp-4);
-    border: 1px solid var(--cvh-raya); border-radius: 20px;
-    background: var(--cvh-papel); color: var(--cvh-tinta);
-    transition: background var(--dur-2) var(--ease-std);
-  }
-  .franja-item:hover { background: var(--bg-2); }
-  /* La cifra en la serif del CV, al tamaño de un subtítulo: es lo que se lee
-     de un vistazo. `--num-tab` no existe aquí, así que se pide la variante
-     tabular por si el navegador la tiene — cuatro cifras alineadas leen como
-     una tabla y no como cuatro decisiones. */
-  .franja-n {
-    font-family: var(--font-serif); font-weight: 600;
-    font-size: clamp(1.5rem, 3.4vw, 2rem); line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  /* La tercera pieza no lleva cifra sino el dominio: en mono y más chico,
-     porque «smartfinance.lat» a 2rem de serif no cabe en 13em. */
-  .franja-n-txt {
-    font-family: var(--font-mono); font-size: var(--fs-caption);
-    letter-spacing: .02em; overflow-wrap: anywhere;
-  }
-  .franja-q { font-size: var(--fs-caption); color: var(--cvh-tinta-2); }
 
   .indice-linea { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: baseline; }
   .indice-ver { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -4045,12 +4061,6 @@ const cifrasFranja = c.franja.sitioQ
   /* ── GENTE A LA QUE PEDÍ CONSEJO: dos fichas, foto + texto ─────────────
      Moris y Marg, fuera del carrusel. En el teléfono la foto va encima del
      texto; en escritorio, al lado (bloque de escritorio, más abajo). */
-  .consejos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-5); }
-  .consejo { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
-  .consejo-fig { max-width: 320px; }
-  .consejo-texto { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
-  .consejo-nombre { margin-top: 0; }
-  .consejo-tipo { color: var(--cvh-tinta); }
 
   /* ---- Research (la tarjeta de la mesa, al lenguaje de tarjetas) ----
      El radio era 0 cuando toda la página iba a esquina recta; desde el brief
@@ -4143,79 +4153,6 @@ const cifrasFranja = c.franja.sitioQ
      oscuro. El ámbar del hueco dentro de la tarjeta es el --warn del tema
      OSCURO del sitio (#FFB84D, 11:1 sobre #101014): el del tema claro
      (#9A6200) se queda en 3.7:1 sobre negro y no pasa para texto pequeño. */
-  .citas-marco { max-width: 100%; }
-  .citas {
-    display: flex; gap: var(--sp-4);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding: var(--sp-1) var(--sp-1) var(--sp-3);
-    /* El anillo de foco de la lista (tabindex=0) no se recorta. */
-    scroll-padding-inline: var(--sp-1);
-  }
-  .cita {
-    flex: 0 0 min(86%, 340px);
-    scroll-snap-align: start;
-    display: flex; flex-direction: column; gap: var(--sp-2);
-    padding: var(--sp-5);
-    background: #101014;
-    color: var(--cvh-tapa-tinta);
-    border-radius: 20px;
-    min-width: 0;
-  }
-  .cita-media { min-width: 0; }
-  .cita-foto {
-    display: block; width: min(100%, 154px); height: auto;
-    border-radius: 20px;
-  }
-  .cita .clip-video { max-width: 154px; border-radius: 20px; }
-  .cita-nombre { font-weight: 600; margin-top: var(--sp-2); }
-  .cita-rol, .cita-tipo { font-size: var(--fs-caption); color: var(--cvh-tapa-tinta-2); }
-  /* El rótulo que dice de quién es la frase de abajo, pegado a ella. */
-  .cita-llevo { margin-top: auto; padding-top: var(--sp-3); color: var(--cvh-tapa-tinta-2); }
-  .cita-link { color: var(--cvh-tapa-tinta); }
-  .cita-link:hover { color: var(--cvh-tapa-tinta-2); }
-  .cita :focus-visible { outline-color: var(--cvh-tapa-tinta); }
-  /* Los componentes de hueco, versión para tarjeta oscura. `:global` porque
-     sus estilos tienen ámbito propio (la lección de `.proj` en Hub.astro). */
-  .cita :global(.hueco) { background: rgba(255, 255, 255, .06); }
-  .cita :global(.hueco-tag) { color: #FFB84D; }
-  .cita :global(.hueco-que) { color: var(--cvh-tapa-tinta); }
-  /* `.hueco-pista` YA NO EXISTE en el DOM (Hueco.astro dejó de pintar la
-     pista el 2026-08-31), así que su regla para tarjeta oscura se va con
-     ella: una regla huérfana no se ve fallar, se lee como que el elemento
-     sigue ahí. Si la pista vuelve a pintarse algún día, vuelve esta línea. */
-  .cita :global(.cv-suyo) { color: var(--cvh-tapa-tinta); }
-  .cita :global(.foto-hueco) { background: rgba(255, 255, 255, .06); }
-  .cita :global(.hueco-mat) { background: rgba(255, 255, 255, .06); }
-  .cita :global(.hueco-mat-marca) { color: var(--cvh-tapa-tinta-2); }
-  /* La marca «palabra mía» de la tarjeta de Durán: sobre negro, la tinta-3 del
-     papel no llega a 4.5:1 (lo atrapó axe en los ocho anchos). */
-  .cita .cifra-suya-marca { color: var(--cvh-tapa-tinta-2); }
-  /* La línea de fuente del cargo de Durán (2026-09-03) va sobre la tarjeta
-     oscura: con la tinta-2 del papel daba color-contrast en axe (1440 y 390,
-     EN y ES); toma la tinta-2 de la tapa, como el rol, el tipo y la marca. */
-  .cita .fuente-carta { color: var(--cvh-tapa-tinta-2); }
-  /* El plegado «Lo que dijo» dentro de la tarjeta negra: tinta clara (axe). */
-  .cita .ref-ver-txt, .cita .ref-flecha, .cita .tercero, .cita .tercero cite { color: var(--cvh-tapa-tinta); }
-  .cita .tercero { border-left-color: rgba(255, 255, 255, .35); }
-  .cita :global(.hueco-mat-que) { color: var(--cvh-tapa-tinta); }
-  .cita :global(.foto-hueco-tag), .cita :global(.foto-hueco-que) { color: var(--cvh-tapa-tinta-2); }
-  /* Las flechas: botones de verdad, 44px de blanco, con estado de extremo.
-     `data-inerte` y no `disabled`: un botón deshabilitado suelta el foco del
-     teclado a mitad de recorrido. Sin JavaScript no existen (los esconde el
-     <noscript> de Cv.astro) y la lista se desplaza igual. */
-  .citas-nav { display: flex; gap: var(--sp-3); margin-top: var(--sp-2); }
-  .citas-btn {
-    min-width: 44px; min-height: 44px;
-    display: inline-flex; align-items: center; justify-content: center;
-    border: 1px solid var(--cvh-tinta-3); border-radius: 12px;
-    background: var(--cvh-papel); color: var(--cvh-tinta);
-    font-size: 1.3125rem; line-height: 1; cursor: pointer;   /* 21, del sistema; era 20 */
-  }
-  .citas-btn:hover { background: var(--bg-2); }
-  .citas-btn[data-inerte] { opacity: .35; cursor: default; }
-  .citas-btn[data-inerte]:hover { background: var(--cvh-papel); }
 
   /* ---- Certificaciones: UNA TABLA, no siete marcos --------------------
      La razón está escrita entera junto al marcado. En números: 7 marcos de
@@ -4419,7 +4356,6 @@ const cifrasFranja = c.franja.sitioQ
   .lote-fig { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
   /* La de Toronto va en la columna de texto del capítulo 1, que ya es
      estrecha (antes lo hacía `:global(.hueco-toronto)`, que ya no existe). */
-  .lote-toronto { max-width: 320px; }
   /* Las tres de la playa van en columna, una debajo de otra: capadas para
      que las tres se puedan recorrer sin que cada una sea una pantalla. */
   .playa-fotos .lote-fig { max-width: 420px; }
@@ -4581,6 +4517,9 @@ const cifrasFranja = c.franja.sitioQ
   .ref-ver-txt { color: var(--cvh-tinta); text-decoration: underline; text-underline-offset: 3px; }
   .ref-ver:hover .ref-ver-txt { color: var(--cvh-tinta-2); }
   .ref-ver-pista { color: var(--cvh-tinta-2); }
+  /* La flecha es un pseudoelemento y no un nodo de texto: «↓» salía 19
+     veces en el documento y un rótulo que sale 8 veces o más se borra. */
+  .ref-flecha::after { content: "↓"; }
   .ref-flecha {
     margin-left: auto; color: var(--cvh-tinta-2);
     transition: transform var(--dur-2) var(--ease-std);
@@ -4806,10 +4745,6 @@ const cifrasFranja = c.franja.sitioQ
   /* Las dos fotos del capítulo 1 no van envueltas en `.recuerdo` —no tienen
      entrada por scroll: están arriba del todo—, así que el techo se les pone
      aquí. Medían las dos 574×718 = 0.80 vh, que es el mismo defecto. */
-  .cap-1-foto, .cap-1-figura img {
-    display: block; width: auto; height: auto;
-    max-width: 100%; max-block-size: 58vh;
-  }
 
   @supports (animation-timeline: view()) {
     /* ── SOLO ENTRADA DESDE EL 2026-08-31 (ola 2) ──────────────────────
@@ -5077,7 +5012,7 @@ const cifrasFranja = c.franja.sitioQ
        número en la 1 y el titular en la 2 era la 3, y desde ahí el margen
        negativo lo subía hasta cruzar el aro del número (medido: filete a
        5 px del número, 283 px de aire encima). */
-    .cap + .cap::before {
+    .cap + .cap:not(.cap--sf)::before {
       content: ""; display: block;
       grid-row: 1;
       grid-column: sangre-i / sangre-f;
@@ -5689,7 +5624,7 @@ const cifrasFranja = c.franja.sitioQ
   }
 
   @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
-    .cap:not(.cap-portada) {
+    .cap:not(.cap-portada):not(.cap--sf) {
       /* OJO CON ESTAS TRES: llevan `100%` dentro, y un `100%` metido en
          una variable NO se resuelve donde se declara sino DONDE SE USA.
          Solo valen para dimensionar las pistas de `.cap`; en un
@@ -5741,72 +5676,72 @@ const cifrasFranja = c.franja.sitioQ
        libre, que aquí es el aire de la izquierda. Medido en captura: el
        hueco del contratiempo del capítulo 2 salía como una tira de 55 px
        pegada al borde derecho, con una letra por renglón. */
-    .cap:not(.cap-portada) > :global(*) { grid-column: marco-i / marco-f; }
+    .cap:not(.cap-portada):not(.cap--sf) > :global(*) { grid-column: marco-i / marco-f; }
     /* LA PROSA, EN SU PISTA. */
-    .cap:not(.cap-portada) > .cap-num,
-    .cap:not(.cap-portada) > .cap-lede,
-    .cap:not(.cap-portada) > .cap-frases,
-    .cap:not(.cap-portada) > .voz,
-    .cap:not(.cap-portada) > .pie,
-    .cap:not(.cap-portada) > .meta-mono,
-    .cap:not(.cap-portada) > h3,
-    .cap:not(.cap-portada) > :global(.hueco),
-    .cap:not(.cap-portada) > :global(.cv-suyo),
-    .cap:not(.cap-portada) > .acad-nota,
-    .cap:not(.cap-portada) > .verifica,
-    .cap:not(.cap-portada) > .premios,
-    .cap:not(.cap-portada) > .tt-cta,
-    .cap:not(.cap-portada) > .frase-trad,
-    .cap:not(.cap-portada) > .cierre { grid-column: texto-i / texto-f; }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-num,
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-lede,
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-frases,
+    .cap:not(.cap-portada):not(.cap--sf) > .voz,
+    .cap:not(.cap-portada):not(.cap--sf) > .pie,
+    .cap:not(.cap-portada):not(.cap--sf) > .meta-mono,
+    .cap:not(.cap-portada):not(.cap--sf) > h3,
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.hueco),
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.cv-suyo),
+    .cap:not(.cap-portada):not(.cap--sf) > .acad-nota,
+    .cap:not(.cap-portada):not(.cap--sf) > .verifica,
+    .cap:not(.cap-portada):not(.cap--sf) > .premios,
+    .cap:not(.cap-portada):not(.cap--sf) > .tt-cta,
+    .cap:not(.cap-portada):not(.cap--sf) > .frase-trad,
+    .cap:not(.cap-portada):not(.cap--sf) > .cierre { grid-column: texto-i / texto-f; }
     /* LOS MARCOS DE NAVEGADOR VAN EN LA PISTA DE PROSA (688 px) Y NO EN EL
        MARCO, y el motivo es el techo de altura: a 1 248 px de ancho, un 16:10
        mide 780 px = 0.87 pantallas, o sea una de las «imágenes gigantes» de la
        queja. A 688 mide 430 px, dentro del techo de 0.58 vh. Dos marcos de 688
        lado a lado pedirían 1 424 px y el marco máximo es 1 320: no caben, así
        que se apilan con 96 px entre ellos. */
-    .cap:not(.cap-portada) :global(.viv) { grid-column: texto-i / texto-f; max-width: 688px; }
+    .cap:not(.cap-portada):not(.cap--sf) :global(.viv) { grid-column: texto-i / texto-f; max-width: 688px; }
     /* LO QUE ACOMPAÑA, EN EL MARGEN. */
-    .cap:not(.cap-portada) > :global(.premio-doc),
-    .cap:not(.cap-portada) > .arco-fig { grid-column: margen-i / margen-f; }
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.premio-doc),
+    .cap:not(.cap-portada):not(.cap--sf) > .arco-fig { grid-column: margen-i / margen-f; }
 
     /* EL RITMO, EN CUATRO PASOS Y NINGUNO MÁS. */
-    .cap:not(.cap-portada) > :global(*) { margin-block-start: var(--cv-v2); }
-    .cap:not(.cap-portada) > .cap-num { margin-block-start: 0; }
+    .cap:not(.cap-portada):not(.cap--sf) > :global(*) { margin-block-start: var(--cv-v2); }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-num { margin-block-start: 0; }
     /* ── LA CABECERA 7 + 5 (ola 4; Vercel /enterprise, Stripe) ─────────────
        La fila 1 es del filete (`.cap + .cap::before`, arriba). Aro y
        número en la fila 2; en la fila 3, el titular en la pista de prosa
        (≤ 544) y el resumen —cuando lo hay, y solo si va pegado al
        titular— en el margen, alineados por ABAJO. La jerarquía la hace la
        posición, no el tamaño. Lo demás sigue en auto-colocación desde la 4. */
-    .cap:not(.cap-portada) > .cap-num { grid-row: 2; }
-    .cap:not(.cap-portada) > .cap-h { grid-row: 3; grid-column: texto-i / texto-f; max-width: 544px; }
-    .cap:not(.cap-portada) > .cap-h + .cap-lede { grid-row: 3; grid-column: margen-i / margen-f; max-width: 544px; align-self: end; margin-block-start: 0; }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-num { grid-row: 2; }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-h { grid-row: 3; grid-column: texto-i / texto-f; max-width: 544px; }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-h + .cap-lede { grid-row: 3; grid-column: margen-i / margen-f; max-width: 544px; align-self: end; margin-block-start: 0; }
     /* La línea de cierre: en la prosa, a 96 px de lo último. */
-    .cap:not(.cap-portada) > .cap-cierre { grid-column: texto-i / texto-f; margin-block-start: var(--cv-v3); }
-    .cap:not(.cap-portada) > .con-aparte { grid-column: marco-i / marco-f; }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-cierre { grid-column: texto-i / texto-f; margin-block-start: var(--cv-v3); }
+    .cap:not(.cap-portada):not(.cap--sf) > .con-aparte { grid-column: marco-i / marco-f; }
     /* EL AIRE DENTRO DE UN GRUPO ES 24 (spec §1.3: v1 «una figura y su pie»):
        el recibo, el pie, el hueco y la marca van pegados a lo que explican,
        no a 48 como un bloque nuevo. Medido: 48 en cada hijo directo costaba
        ~1 000 px en los capítulos de muchos renglones (expediente, cartas). */
-    .cap:not(.cap-portada) > .meta-mono,
-    .cap:not(.cap-portada) > .pie,
-    .cap:not(.cap-portada) > .cifra-suya,
-    .cap:not(.cap-portada) > :global(.hueco-mat),
-    .cap:not(.cap-portada) > :global(.hueco),
-    .cap:not(.cap-portada) > :global(.cv-suyo),
-    .cap:not(.cap-portada) > h3 + .cap-lede,
-    .cap:not(.cap-portada) > .ref-plegable + .ref-plegable,
-    .cap:not(.cap-portada) > .cap-frases + .cap-frases { margin-block-start: var(--cv-v1); }
-    .cap:not(.cap-portada) > .cap-h { margin-block-start: var(--cv-v1); }
-    .cap:not(.cap-portada) > h3,
-    .cap:not(.cap-portada) > .citas-marco,
-    .cap:not(.cap-portada) > .clips,
-    .cap:not(.cap-portada) > :global(.hueco.contra) { margin-block-start: var(--cv-v3); }
+    .cap:not(.cap-portada):not(.cap--sf) > .meta-mono,
+    .cap:not(.cap-portada):not(.cap--sf) > .pie,
+    .cap:not(.cap-portada):not(.cap--sf) > .cifra-suya,
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.hueco-mat),
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.hueco),
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.cv-suyo),
+    .cap:not(.cap-portada):not(.cap--sf) > h3 + .cap-lede,
+    .cap:not(.cap-portada):not(.cap--sf) > .ref-plegable + .ref-plegable,
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-frases + .cap-frases { margin-block-start: var(--cv-v1); }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-h { margin-block-start: var(--cv-v1); }
+    .cap:not(.cap-portada):not(.cap--sf) > h3,
+    .cap:not(.cap-portada):not(.cap--sf) > .citas-marco,
+    .cap:not(.cap-portada):not(.cap--sf) > .clips,
+    .cap:not(.cap-portada):not(.cap--sf) > :global(.hueco.contra) { margin-block-start: var(--cv-v3); }
 
     /* EL TITULAR DE CAPÍTULO ocupa el marco pero con medida de titular:
        14em de su propio tamaño son ~28 caracteres por renglón a cualquier
        escala. En una columna de 688 px, 81 px de Fraunces darían ocho. */
-    .cap:not(.cap-portada) > .cap-h { max-width: 14em; }
+    .cap:not(.cap-portada):not(.cap--sf) > .cap-h { max-width: 14em; }
 
     /* La frase final SÍ se queda con su pantalla entera: es lo único que
        cierra el documento y está solo a propósito. */
@@ -5836,9 +5771,8 @@ const cifrasFranja = c.franja.sitioQ
        fuentes académicas a 103, `.cita-tipo` a 84 y las citas de las cartas
        a 76. Con la regla por elemento, un párrafo nuevo nace con medida.
        `:global()` porque los huecos los pinta otro componente. */
-    .cap :global(:is(p, dd, figcaption, blockquote, summary)),
+    .cap:not(.cap--sf) :global(:is(p, dd, figcaption, blockquote, summary)),
     .portada-tarjeta :global(:is(p, dd, figcaption)),
-    .portada-papel-cierre :global(:is(p, dd, figcaption)),
     .acad-fuentes li,
     .verifica-fila li { max-width: 33em; }
     /* Y lo MONO a 62ch, que ahí sí es el avance real del glifo: 62ch son 62
@@ -6025,7 +5959,7 @@ const cifrasFranja = c.franja.sitioQ
        (`max-width` en `rem` y no en px por lo de siempre: con el texto del
        navegador al 200 % la prosa crece y la figura tiene que crecer con
        ella, o se queda de sello dentro de su propia columna.) */
-    .cap:not(.cap-portada) > .fig-sola { grid-column: texto-i / texto-f; }
+    .cap:not(.cap-portada):not(.cap--sf) > .fig-sola { grid-column: texto-i / texto-f; }
     .fig-sola { max-width: 43rem; }
     .fig-sola .lote-fig, .fig-sola .recuerdo, .fig-sola .recuerdo img { max-width: 100%; width: 100%; }
 
@@ -6091,15 +6025,6 @@ const cifrasFranja = c.franja.sitioQ
            media se estira a lo que mida su tarjeta, no al revés.
        Y de paso la tarjeta pasa de 340 px a 880: es la medida de Ondo en
        escritorio (1128 px = 78 % del viewport, con la vecina asomando). */
-    .citas { scroll-padding-inline: 0; align-items: start; }
-    .cita {
-      flex: 0 0 min(72%, 880px);
-      display: grid;
-      grid-template-columns: 154px minmax(0, 1fr);
-      column-gap: var(--sp-5); row-gap: var(--sp-2);
-      align-content: start;
-    }
-    .cita > :global(*) { grid-column: 2; }
     /* `span 10` Y NO `1 / -1`: sin filas explícitas declaradas, la línea
        `-1` es la última del grid EXPLÍCITO — o sea la 1 — y el media se
        quedaba en la primera fila, empujando el cargo 230 px hacia abajo.
@@ -6108,12 +6033,6 @@ const cifrasFranja = c.franja.sitioQ
     /* La cara es `tarjeta` (154, Ondo: avatar de 150–200 junto a la cita) y
        NO se estira a la altura de la tarjeta: se pintaba a 300×366 con
        `cover`, o sea recortada y a 0.62× de su natural. */
-    .cita-media {
-      grid-column: 1; grid-row: 1 / span 10;
-      align-self: start;
-    }
-    .cita-foto, .cita .clip-video { width: 154px; height: auto; max-width: 100%; }
-    .cita-nombre { margin-top: 0; }
 
     /* La rejilla de clips: tres columnas IGUALES (eran 250/528/250 porque
        el clip apaisado mandaba) y el clip ancho ocupa dos. Cinco tarjetas
@@ -6128,7 +6047,7 @@ const cifrasFranja = c.franja.sitioQ
        ALTO FIJO, que es lo que hace que los seis escaneos arranquen a la
        misma y (medido: el 3.º empezaba 22 px más abajo porque su título
        ocupa una línea menos). */
-    .cert-tabla, .cartas, .premios-huecos, .acad-huecos, .acad, .franja { max-width: none; }
+    .cert-tabla, .cartas, .premios-huecos, .acad-huecos, .acad { max-width: none; }
     .cartas, .premios-huecos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     /* ── LAS FICHAS DEJAN DE ESTIRARSE, Y CON ELLAS SE VA EL HUECO GRANDE ──
        Es el mismo defecto que las tarjetas del carrusel, y en el marco ancho
@@ -6460,7 +6379,7 @@ const cifrasFranja = c.franja.sitioQ
      miniaturas de 154 y los plegables cortos. El margen NUNCA lleva cuerpo
      de 19 px: todo lo que cae en `.aparte` baja a 15. Y es la palanca de
      longitud: lo que sube al margen deja de apilarse. */
-  .cap:not(.cap-portada) > .con-aparte { margin-block-start: var(--cv-v3); }
+  .cap:not(.cap-portada):not(.cap--sf) > .con-aparte { margin-block-start: var(--cv-v3); }
   .aparte > :global(*) { margin: 0; }
   .aparte .cap-frases, .aparte .cap-lede, .aparte .tercero p, .aparte .premio-cita p,
   .aparte .ref-ver-txt, .aparte .ref-ver-pista, .aparte .cal, .aparte .carta-pista,
@@ -6480,13 +6399,13 @@ const cifrasFranja = c.franja.sitioQ
   .premio-cita-fig { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   /* El h3 «What I have» queda como hijo directo del capítulo, a 96 de la
      cabecera; la fila que lo sigue va pegada a él (24), no a 96. */
-  .cap:not(.cap-portada) > h3 + .premios-fila { margin-block-start: var(--cv-v1); }
+  .cap:not(.cap-portada):not(.cap--sf) > h3 + .premios-fila { margin-block-start: var(--cv-v1); }
   .acad-fila .acad { max-width: none; }
   @media screen and (min-aspect-ratio: 1/1) and (min-width: 62em) {
     /* La lista de experiencia cruza el marco: doce filas a tres columnas
        de ~380 miden un tercio menos que a dos en 688, y el 40 % derecho
        deja de estar vacío en el último cuadro del capítulo (f27: 0.0 %). */
-    .cap:not(.cap-portada) > .exp-plegable { grid-column: marco-i / marco-f; max-width: none; }
+    .cap:not(.cap-portada):not(.cap--sf) > .exp-plegable { grid-column: marco-i / marco-f; max-width: none; }
     .cap .lista-seca { column-count: 3; }
     /* LA FRASE SE QUEDA SOLA Y CENTRADA: es el cierre. Iba en la pista de
        prosa, pegada a la izquierda con 560 px de nada al lado (f28: 0.2 %).
@@ -6499,4 +6418,144 @@ const cifrasFranja = c.franja.sitioQ
   .aparte .etiqueta { margin-top: var(--cv-v2, var(--sp-5)); }
   .aparte > .etiqueta:first-child { margin-top: 0; }
   .prosa-col > .t-h3 + .cap-frases, .prosa-col > .t-h3 + :global(*) { margin-top: 0; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     OLA 6 · PASO A — LOS CAPÍTULOS QUE YA VIVEN EN EL SISTEMA (`.cap--sf`)
+     ═══════════════════════════════════════════════════════════════════════
+     Un capítulo con `.cap--sf` se sale de la rejilla de dos columnas de
+     arriba (`.cap:not(.cap-portada):not(.cap--sf)`) y vive en las tres
+     pistas de §3.2 (cv.css): marco ancho 1280, columna 980, lectura 653. No
+     hay `min-height`, no hay `justify-content: center` y no hay filete: el
+     aire lo pone la escala —44 entre bloques, 72 alrededor de una cita
+     grande, 80 entre capítulos— y cada caja mide lo que mide por
+     construcción. El vacío no se rellena: se prohíbe. */
+  .cap--sf {
+    min-height: 0; display: block; gap: 0;
+    width: 100%; max-width: var(--sf-ancho); margin-inline: auto;
+    padding-block: var(--sf-aire-4) 0; padding-inline: 0;
+  }
+  .cap--sf > * + * { margin-block-start: var(--sf-aire-2); }
+  .cap--sf > :global(.sf-cita-grande) { margin-block: var(--sf-aire-3); }
+  .cap--sf > :global(.sf-cita-grande) + * { margin-block-start: var(--sf-aire-3); }
+  /* Una nota o un enlace PEGADOS a lo que describen: 16, no 44. Y dos filas
+     de losas o dos plegables seguidos son un mismo bloque. */
+  .cap--sf > :global(.sf-prosa) + :global(.sf-pie),
+  .cap--sf > :global(.sf-pie) + :global(.sf-link),
+  .cap--sf > :global(.sf-par--losa) + :global(.sf-par--losa),
+  .cap--sf > :global(.ref-plegable) + :global(.ref-plegable),
+  .cap--sf > :global(.ref-plegable) + :global(.sf-pendiente) { margin-block-start: var(--sf-aire-1); }
+  /* Un sub-bloque dentro del capítulo: 72 arriba, como una idea nueva. */
+  .cap--sf > :global(.sf-sub) { margin-block-start: var(--sf-aire-3); }
+  .cap--sf > :global(.sf-pie) { margin-block-end: 0; margin-inline: auto; }
+  .sf-sub {
+    font: var(--sf-t-entra); letter-spacing: var(--sf-ls); color: var(--sf-tinta);
+    text-align: center; max-width: var(--sf-lectura); margin-inline: auto;
+  }
+  .sf-link { font: var(--sf-t-rotulo); margin-block-end: 0; }
+  .sf-link .hist-link { min-height: 0; }
+
+  /* ── LA 3ª PANTALLA DE LA PORTADA, YA SIN PANTALLA ─────────────────────
+     Tenía `min-height: 100svh` y el contenido centrado: el aire lo ponía la
+     ventana. Ahora es la columna de 980 con sus 44 entre bloques. */
+  .portada-papel-cierre { min-height: 0; display: block; padding-block: var(--sf-aire-2) 0; }
+  .portada-cierre :global(.sf-pie), .portada-cierre figcaption { margin-block-end: 0; }
+  /* La entradilla de (i) fuera de `.sf-cap`: se declara aquí con los mismos
+     números (24/28, tinta-2, 653 centrada). */
+  .portada-meta {
+    font: var(--sf-t-entra); letter-spacing: var(--sf-ls); color: var(--sf-tinta-2);
+    text-align: center; max-width: var(--sf-lectura); margin: 0 auto;
+  }
+
+  /* ── LA FRANJA DE PRUEBAS: TRES CIFRAS DE (viii) ───────────────────────
+     3 × 316 + 2 × 16 = 980 (`.sf-cifras`, cv.css). Cada una es un enlace a
+     su capítulo; el nombre accesible lo lleva el enlace entero. */
+  /* Alineada con la cita de apertura, que en esa pantalla va a la izquierda
+     de la columna: centrar las tres cifras las descolgaba de su frase. */
+  .franja { max-width: var(--sf-util); margin-inline: 0; }
+  .franja li { min-width: 0; }
+  .franja-item {
+    display: flex; flex-direction: column; min-width: 0; min-height: 44px;
+    color: var(--sf-tinta); text-decoration: none;
+  }
+  .franja-item:hover .sf-numero, .franja-item:focus-visible .sf-numero { color: var(--sf-enlace); }
+  .franja-item:focus-visible { outline: 2px solid var(--sf-tinta); outline-offset: 4px; border-radius: 2px; }
+
+  /* ── (iv) EL CARRUSEL DE TARJETAS DEL CAPÍTULO 3 ───────────────────────
+     Marco 1280; pista visible 980 (2 tarjetas + canal) centrada, así la
+     tercera asoma en los 150 px de cada lado; flechas de 44 sobre el borde
+     del marco, centradas en la tarjeta (288 / 2 − 22). Por debajo de 1312
+     el relleno de la pista baja a 0 con el `max()`. */
+  .sf-carrusel { position: relative; width: 100%; max-width: var(--sf-ancho); margin-inline: auto; }
+  .sf-carrusel .citas {
+    padding-inline: max(0px, calc((100% - var(--sf-util)) / 2));
+    scroll-padding-inline: max(0px, calc((100% - var(--sf-util)) / 2));
+    scroll-behavior: smooth;
+  }
+  .sf-carrusel .cita { scroll-snap-align: start; }
+  .citas:focus-visible { outline: 2px solid var(--sf-tinta); outline-offset: 4px; }
+  .sf-flechas { position: absolute; inset-block-start: 0; inset-inline: 0; height: 288px; pointer-events: none; }
+  .sf-carrusel .sf-flecha {
+    position: absolute; top: 144px; margin-top: -22px; z-index: 1; pointer-events: auto;
+    color: var(--sf-tinta); font: var(--sf-t-rotulo); line-height: 1;
+    display: grid; place-items: center;
+  }
+  .sf-flecha--izq { left: 0; }
+  .sf-flecha--der { right: 0; }
+  .sf-flecha:hover { background: var(--sf-borde); }
+  .sf-flecha:focus-visible { outline: 2px solid var(--sf-tinta); outline-offset: 2px; }
+  /* `data-inerte` y no `disabled`: un botón deshabilitado suelta el foco. */
+  .sf-flecha[data-inerte] { opacity: .35; cursor: default; }
+  /* Dentro de la tarjeta: el nombre manda (21/25) y es el enlace; el cargo
+     a 12/16 en la tinta apagada, dos líneas como mucho; y abajo, pegado al
+     borde, el hueco con la geometría de la cita (cuatro líneas de 25). */
+  /* La tarjeta es una caja de 224 útiles y DENTRO tampoco se le pregunta al
+     contenido cuánto mide: el bloque del nombre mide 108 (nombre 25 + 8 +
+     cargo 2×16 + 8 + estado 16 = 89, con holgura), luego 16 de canal y el
+     hueco de 100. Con `space-between` el aire entre los dos era el sobrante
+     —75 px— y el guardián lo contaba doce veces como un paso que no existe. */
+  .cita { justify-content: flex-start; gap: var(--sf-aire-1); }
+  .cita-quien { display: flex; flex-direction: column; gap: var(--sf-aire-0); height: 108px; overflow: hidden; }
+  .cita-nombre { margin: 0; font: var(--sf-t-tarjeta); letter-spacing: var(--sf-ls); color: var(--sf-oscuro-tinta); }
+  .cita-a { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .cita-a:hover { text-decoration-thickness: 2px; }
+  .cita-a:focus-visible { outline: 2px solid var(--sf-oscuro-tinta); outline-offset: 3px; border-radius: 2px; }
+  .cita-rol {
+    margin: 0; font: var(--sf-t-pie); color: var(--sf-oscuro-tinta2);
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  }
+  /* El hueco sobre negro: el borde y la letra en la tinta apagada de la
+     tarjeta (#86868B sobre #000 = 5.8:1). */
+  .cita :global(.hueco) { border-color: var(--sf-oscuro-tinta2); color: var(--sf-oscuro-tinta2); width: 100%; }
+
+  /* ── LO PLEGADO Y LO PENDIENTE DEL CAPÍTULO 3 ──────────────────────────── */
+  .quien { margin: 0; padding-block-start: var(--sf-aire-0); display: flex; flex-direction: column; gap: var(--sf-aire-1); }
+  .quien-fila { display: flex; flex-direction: column; gap: var(--sf-aire-0); }
+  .quien dt { margin: 0; font: var(--sf-t-rotulo); color: var(--sf-tinta); }
+  .quien dd { margin: 0; font: var(--sf-t-pie); color: var(--sf-tinta-2); display: flex; flex-direction: column; gap: var(--sf-aire-0); }
+  .clips-dos { list-style: none; margin: 0; padding: var(--sf-aire-0) 0 0; display: flex; flex-wrap: wrap; gap: var(--sf-canal); }
+  .clips-dos .sf-pais { width: 308px; flex: 0 0 308px; max-width: 100%; background: var(--sf-oscuro); }
+  .clips-dos .sf-pais::after { display: none; }
+  /* `contain` y no `cover`: un CV no recorta la cara de quien habla. */
+  .clips-dos :global(.clip-pais) { width: 100%; height: 100%; object-fit: contain; background: var(--sf-oscuro); display: block; }
+  /* El rótulo va ARRIBA: los vídeos llevan `controls` y la barra vive abajo. */
+  .clips-dos .sf-rotulo {
+    inset-block-start: var(--sf-canal); inset-block-end: auto;
+    background: var(--sf-oscuro); border-radius: var(--sf-r-pildora); padding: 6px 12px;
+  }
+  .sf-pendiente--lista { display: block; text-align: left; padding: var(--sf-aire-cabeza); box-sizing: border-box; }
+  .pend-h { margin: 0 0 var(--sf-aire-0); font: var(--sf-t-rotulo); color: var(--sf-tinta-2); }
+  .pend-lista { margin: 0; padding-inline-start: 1.25em; font: var(--sf-t-pie); color: var(--sf-tinta-2); }
+
+  /* ── EL BLOQUE ÚNICO DE NOTAS, AL FINAL ──────────────────────────────── */
+  .notas-final { text-align: left; }
+  .notas-final h3 { margin: 0 0 var(--sf-aire-0); }
+  .notas-final p { margin: 0; }
+
+  @media print {
+    .cap--sf { padding-block: 0; }
+    /* La línea que solo se ve en papel vive FUERA de la columna (ver el
+       marcado): en papel se le da la misma columna que al resto. */
+    .impresion-nota { max-width: var(--sf-util); margin-inline: auto; }
+    .sf-carrusel .sf-flecha, .sf-carrusel :global(.sf-puntos) { display: none; }
+  }
 </style>

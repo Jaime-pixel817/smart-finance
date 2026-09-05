@@ -182,36 +182,42 @@ const TOL = 1;                                              // ±1 px
 // estaba mal. Los dos que la vara de cajas fabricaba —«216 px desde y=900» y
 // «236 px desde y=2472»— no existen en pantalla, y el barrido de capturas lo
 // enseña en los dos motores.
+// ── LOS TOPES QUE BAJÓ LA OLA 6 · PASO A (2026-09-05): LA ENTRADA DEL DOCUMENTO
+// La tapa (3ª pantalla), el micrófono, el capítulo del grupo y el de las
+// conversaciones se reconstruyeron SOLO con las plantillas de §3.4, y las
+// fotos entraron por CURADURIA-FOTOS.md. Medido con `--sin-topes` en los 8
+// combos sobre el build de esta rama; el número de antes, al lado:
+//   tarjetas   12 → 0     las 12 tarjetas del capítulo 3 miden 482 × 288: UNA talla
+//   fotos      41 → 27    retrato 653 · Toronto+Torre 482 · grupo 980 · entrevista 653 ·
+//                         4 losas 482 · Moris+Marg 482 · Canadá 308; 14 fotos de 154 fuera
+//   pisos      39 → 25    ninguna foto de los capítulos 1-3 baja de 308
+//   pasos      91 → 61    la rejilla vieja ya no toca los capítulos del sistema
+//   huecos      3 → 1     las franjas de 178 (mic → cap 2) y 305 (cap 2) ya no existen;
+//                         queda la de 182 en el 60 % (capítulos 6-7, ola siguiente)
+//   huecoPx   700 → 200   sobre 182 medidos: el margen relativo de siempre
+//   notas     136 → 107   -29: cierres «Proven», «What I took from it» ×12, las tres
+//                         notas de traducción (al bloque único), «The cover:…»
+//   pendientes 24 → 19    los 3 «PHOTO TO COME» y 4 «MATERIAL TO COME» del
+//                         capítulo 3 son UN recuadro; los huecos siguen todos
+//   repes       7 → 1     «↓» ×19, «To write» ×16, «↗» ×13, «What I took from it»
+//                         ×12, «/10» ×8 y «Watch…TikTok» ×8 se fueron; queda «2026»
+//                         ×14 (capítulos 4 y 9)
+// Los que NO bajaron son la deuda de los pasos B y C: tamanos (el h2
+// `visually-hidden` de la frase), las 25 fotos bajo el piso de los capítulos
+// 4-9, las 107 notas contra 59, y el «2026» repetido de cartas y expediente.
 const TOPES = {
   tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
-  tarjetas: 12,    // las 12 tarjetas oscuras: 880 de ancho y 10 alturas
+  tarjetas: 0,     // las 12 tarjetas oscuras miden 482 × 288 — y se queda en cero
   parejas: 0,      // .sf-par mal formada — nace en cero y se queda en cero
-  fotos: 41,       // imágenes con un ancho que no es del sistema
-  pisos: 39,       // imágenes por debajo de 308 px (la moda es 154)
-  pasos: 91,       // distancias que no son un paso del sistema
-  // 3 con la vara de píxeles pintados. Las dos franjas que un lector VE a
-  // 1440 en inglés son 178 px en y≈4786 y 305 px en y≈6890, idénticas en los
-  // dos motores; en español aparece una tercera de 182 px en y≈12730. Son la
-  // deuda de la ola de los CAPÍTULOS, y están en el sitio exacto donde hay que
-  // ir a buscarlas.
-  huecos: 3,       // franjas de más de 160 px sin tinta en la columna útil
-  // 700 y no los 665 medidos: sigue siendo la única cuenta que se mueve entre
-  // corridas (las fotos diferidas no siempre llegan en el mismo fotograma), y
-  // el margen relativo es el de siempre, ~5 %.
-  huecoPx: 700,    // suma de esas franjas, en px
+  fotos: 27,       // imágenes con un ancho que no es del sistema (capítulos 4-9)
+  pisos: 25,       // imágenes por debajo de 308 px (capítulos 4-9; la moda sigue en 154)
+  pasos: 61,       // distancias que no son un paso del sistema (capítulos 4-9)
+  huecos: 1,       // la franja de 182 px del 60 % del documento
+  huecoPx: 200,    // sobre 182 medidos
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
-  // 50 → 136, Y ES LA SEGUNDA VARA QUE SE CORRIGE HOY. El 50 salía de contar
-  // tres familias de clases, así que la línea se imprimía «50 · tope del
-  // sistema 59» y se leía como «esta regla ya está dentro del sistema». No lo
-  // está: la auditoría contó 227 bloques = 2 137 palabras = 50.6 % del cuerpo
-  // mirando TODO el aparato que rodea al documento, pies de figura y rótulos
-  // incluidos, y con esa vara hoy siguen a la vista 134 en inglés y 136 en
-  // español = 1 424 palabras = 33.6 % de las que se ven. La mejora es real
-  // —227 → 136 bloques, 50.6 % → 33.6 %— pero el sistema pide 59, y ahora el
-  // número lo dice. Este tope es el que la ola de los CAPÍTULOS tiene que bajar.
-  notas: 136,      // bloques de nota a la vista, vara de la auditoría (≤ 59)
-  pendientes: 24,  // huecos «TO WRITE» declarados
-  repes: 7,        // rótulos que salen 8 veces o más («↓» ×19, «To write» ×16)
+  notas: 107,      // bloques de nota a la vista, vara de la auditoría (≤ 59)
+  pendientes: 19,  // huecos declarados (15 en los capítulos 1-3, con su geometría final)
+  repes: 1,        // «2026» ×14
   apagados: 0,     // bloques que nunca llegan a verse — el fallo de Safari 16.6
   portada: 0       // combos donde la tapa NO llega a su último fotograma
 };

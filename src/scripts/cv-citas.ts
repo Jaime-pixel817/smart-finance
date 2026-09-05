@@ -33,10 +33,18 @@ for (const marco of document.querySelectorAll<HTMLElement>('[data-citas]')) {
   prev.addEventListener('click', () => mover(-1));
   next.addEventListener('click', () => mover(1));
 
+  // Los puntos (§3.4 iv): uno por tarjeta, y el activo es la primera que se
+  // ve entera. Son decoración (`aria-hidden` en el marcado); sin JavaScript
+  // no existen, como las flechas.
+  const puntos = [...marco.querySelectorAll<HTMLElement>('.sf-puntos > li')];
   const estado = () => {
     const max = lista.scrollWidth - lista.clientWidth - 1;
     prev.toggleAttribute('data-inerte', lista.scrollLeft <= 0);
     next.toggleAttribute('data-inerte', lista.scrollLeft >= max);
+    if (puntos.length) {
+      const i = Math.min(puntos.length - 1, Math.max(0, Math.round(lista.scrollLeft / paso())));
+      puntos.forEach((p, k) => { if (k === i) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current'); });
+    }
   };
   lista.addEventListener('scroll', estado, { passive: true });
   estado();

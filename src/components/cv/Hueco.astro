@@ -1,140 +1,71 @@
 ---
-// UN hueco del CV: el sitio donde va una frase que todavía no está escrita.
+// EL HUECO «FALTA ESCRIBIRLO». Un recuadro honesto: lo que Jaime no ha
+// escrito todavía no se disimula ni se inventa. En cuanto `suyo[id]` tenga
+// texto, el hueco desaparece solo y sale su párrafo.
 //
-// La regla de este componente es la del apartado entero: si `c.suyo[id]` está
-// vacío se pinta el hueco, con el rótulo de qué falta y el título de lo que va
-// dentro; en cuanto esa cadena tiene texto, sale el texto y el hueco
-// desaparece. Nadie tiene que acordarse de quitar nada. La `pista` de `cv.ts`
-// NO se pinta desde el 2026-08-31: es la instrucción para Jaime, y el porqué
-// está escrito abajo, encima del marcado.
+// ── DESDE LA OLA 6 EL HUECO ES UNA CAJA CON LA GEOMETRÍA FINAL (§3.4 x) ───
+// «TO WRITE» salía dieciséis veces, y un rótulo que sale ocho veces o más no
+// informa de nada: se borra (INVENTARIO.md §14). El borde punteado ya dice que
+// falta algo. Lo que se pinta es la caja que va a ocupar el texto cuando
+// llegue —`.sf-pendiente` en cv.css, con la geometría que le pone quien lo
+// coloca (`.sf-pendiente--prosa`, `.sf-pendiente--cita`…)— y dentro, en 12/16,
+// QUÉ falta. Así el documento no cambia de alto cuando se llene.
 //
-// SE VE QUE FALTA. Un hueco que se disimula es peor que no tenerlo: alguien
-// mandaría el enlace creyendo que la página está terminada. Por eso el borde
-// es discontinuo, el rótulo va en mono y en mayúsculas, y el texto de dentro
-// habla de lo que falta, nunca del tema. No hay ni una frase de relleno
-// ("Lorem ipsum", "Estudiante apasionado…") que pudiera colarse a producción
-// leyéndose como si fuera suya.
+// EL NOMBRE ACCESIBLE NO CAMBIA: la región sigue llamándose «Falta escribirlo:
+// <título>», así que quien recorre la página con un lector de pantalla oye lo
+// mismo que antes. El título de dentro va `aria-hidden` porque ya está en el
+// nombre, palabra por palabra; sin eso se anunciaría dos veces.
+//
+// LA PISTA (`h.pista`) sigue en cv.ts y sigue siendo para Jaime: es la
+// instrucción de qué escribir. No se pinta: en la tercera pantalla del
+// documento, un lector que no es Jaime leía una nota de trabajo dirigida a
+// Jaime. Y no se pone en `visually-hidden`: eso se la leería solo a quien
+// navega con lector de pantalla. O se pinta para todos o no se pinta.
 import type { CvCopy, CvHueco } from '../../i18n/cv';
 
-// `grande` es para el capítulo de las conversaciones, que copia el ritmo de
-// las citas de ondo.finance: nombre, cargo y una frase al tamaño de una cita.
-// La frase es lo que JAIME se llevó de cada conversación, o sea justo lo que
-// este hueco pide, así que cuando la escriba tiene que salir a ESE tamaño y no
-// al del cuerpo. El modificador va aquí dentro y no en Historia.astro porque
-// los estilos de Astro tienen ámbito por componente: una clase que Historia le
-// pase a este componente sale con el cid de ESTE, y la regla de allá no la
-// alcanza (la misma lección que `.proj` en Hub.astro y RetoActinver.astro).
-// Solo agranda el TEXTO ESCRITO. El recuadro de "falta escribirlo" se queda
-// igual de discreto: un hueco grande es un agujero grande, y lo que tiene que
-// llamar la atención es la frase cuando exista, no su ausencia.
 interface Props { c: CvCopy; id: CvHueco; class?: string; grande?: boolean }
 const { c, id, class: cls, grande = false } = Astro.props;
 
 const texto = (c.suyo[id] || '').trim();
 const h = c.huecos[id];
 ---
-{/* EL NOMBRE DE LA REGIÓN LLEVA LA MARCA, NO SOLO EL TÍTULO.
-     Estaba como `aria-label={h.que}` con el MISMO texto pintado dentro, y
-     eso rompía las dos mitades de la promesa de este componente:
-     · el título se anunciaba dos veces (el nombre de la región y luego su
-       contenido), y
-     · la marca "FALTA ESCRIBIRLO" se quedaba FUERA del nombre, así que
-       quien recorra la página por regiones —que es como se recorre un
-       documento largo con un lector de pantalla— oía "A qué estoy
-       aplicando" y se iba creyendo que el hueco tenía contenido.
-     Un hueco que se disimula es exactamente lo que este archivo dice arriba
-     que no puede pasar. Ahora el nombre es "Falta escribirlo: <título>", que
-     es lo que se lee en la pantalla, y el título de dentro deja de repetirse
-     en el nombre porque el nombre ya no se calcula del contenido.
-
-     La marca y el título van `aria-hidden` porque los DOS están ya en el
-     nombre de la región, palabra por palabra. Sin esto se anunciarían dos
-     veces cada uno: una al entrar en la región y otra al leer su contenido.
-     No se pierde nada — el nombre de una región se anuncia al entrar en
-     ella —, y desde que la pista no se pinta, dentro del recuadro no queda
-     nada que el nombre no diga ya. Ninguno de los dos es enfocable, así que
-     aria-hidden aquí no esconde nada del teclado.
-
-     LOS DOS PÁRRAFOS DE ARRIBA VIVEN AQUÍ, FUERA DEL TERNARIO: dentro de
-     la expresión, un comentario en llaves deja de ser comentario de
-     plantilla (es JS crudo y rompe el compilado), y en HTML se EMITÍA en
-     cada uno de los ~16 huecos de cada panel.
-
-     ── LA PISTA YA NO SE PINTA (2026-08-31) ──────────────────────────────
-     `h.pista` sigue en `cv.ts`, y sigue siendo para Jaime: es la instrucción
-     de qué escribir («De tres a cinco frases: de dónde te viene esa
-     frase…»). Lo que cambió es que dejó de salir EN PANTALLA. En la tercera
-     pantalla del documento, un lector que no es Jaime leía una nota de
-     trabajo dirigida a Jaime, y el hueco pasaba de «esto falta» a «esto es
-     un formulario a medio llenar». El hueco honesto es una virtud; enseñar
-     el guion editorial no lo es.
-     NO SE ESCONDE EL HUECO, se esconde la instrucción: el rótulo en ámbar y
-     el título siguen ahí, y el nombre accesible de la región sigue siendo
-     «Falta escribirlo: <título>». Un lector de pantalla oye lo mismo que
-     antes menos la nota interna.
-     Y NO SE PONE EN `visually-hidden`: eso la sacaría de la vista pero la
-     dejaría en el árbol de accesibilidad, o sea le leería la nota de trabajo
-     a quien navega con lector de pantalla y a nadie más. O se pinta para
-     todos o no se pinta: no se pinta. */}
 {texto ? (
   <p class:list={['cv-suyo', grande && 'cv-suyo-grande', cls]}>{texto}</p>
 ) : (
-  <div class:list={['hueco', cls]} role="note" aria-label={`${c.hueco.tag}: ${h.que}`}>
-    <p class="hueco-tag" aria-hidden="true">{c.hueco.tag}</p>
+  <div class:list={['hueco', 'sf-pendiente', cls]} role="note" aria-label={`${c.hueco.tag}: ${h.que}`}>
     <p class="hueco-que" aria-hidden="true">{h.que}</p>
   </div>
 )}
 
 <style>
   .cv-suyo { font-size: var(--fs-read); line-height: var(--lh-read); color: var(--ink); max-width: var(--measure); }
-  /* La variante del capítulo de las conversaciones. Fraunces porque en esta
+  /* La frase grande de una tarjeta de conversación: serif porque en esta
      página la serif está reservada a los titulares y a las palabras de Jaime,
-     y esto es lo segundo. Los extremos del clamp en rem: capar la letra en px
-     frente al zoom de texto rompe WCAG 1.4.4, y esa lección ya la pagó este
-     CV una vez. SIN comillas: unas comillas debajo del nombre de otra persona
-     convierten la frase de Jaime en una cita de ella, que es exactamente lo
-     que este capítulo no puede insinuar. */
+     y esto es lo segundo. SIN comillas: unas comillas debajo del nombre de
+     otra persona convierten la frase de Jaime en una cita de ella. */
   .cv-suyo-grande {
     font-family: var(--font-serif); font-weight: 600;
-    font-size: clamp(1.25rem, 2.6vw, 1.5rem); line-height: 1.17;   /* 24 arriba, del sistema */
+    font-size: 1.5rem; line-height: 1.17;   /* 24, del sistema */
     letter-spacing: -0.01em;
   }
 
-  .hueco {
-    display: flex; flex-direction: column; gap: 4px;
-    max-width: var(--measure);
-    padding: var(--card-pad);
-    /* Tarjeta de tinta al 2 % (ola 4, Vercel): un hueco es una tarjeta
-       callada, no un wireframe. Se fue la raya discontinua. */
-    border: 0;
-    /* REDONDEADO desde el brief del 2026-08-28: el lenguaje del CV pasó a
-       tarjetas de esquinas redondeadas (la referencia de Ondo), y un hueco
-       cuadrado entre tarjetas redondeadas se leía como pieza de otra página.
-       Cuando esta página iba toda a esquina recta, aquí decía 0 a propósito;
-       si algún día vuelve, esta es la línea que hay que devolver. */
-    border-radius: 20px;
-    background: color-mix(in oklab, var(--ink, #000) 2%, var(--bg-1));
-  }
-  .hueco-tag {
-    font-family: var(--font-mono); font-size: var(--fs-eyebrow);
-    letter-spacing: .08em; text-transform: uppercase;
-    /* --warn es el color con el que este sitio dice "ojo con esto" (el aviso
-       de las carteras, el estado "borrador" del research). Un hueco es
-       exactamente eso, así que usa el mismo y no uno nuevo. */
-    color: var(--warn);
-  }
-  .hueco-que { color: var(--ink); font-weight: 600; }
+  /* La caja la declara `.sf-pendiente` (cv.css): borde punteado, esquinas de
+     10, centrado, 12/16 en tinta-2 y sin fondo. Aquí solo el relleno y el
+     texto de dentro. */
+  .hueco { padding: var(--sf-aire-cabeza, 20px); text-align: center; }
+  .hueco-que { margin: 0; font: var(--sf-t-pie); color: inherit; overflow-wrap: anywhere; }
 
-  /* AL IMPRIMIR, UNA LÍNEA. En el PDF los once huecos del CV salían como once
-     tarjetas grises de 20 px de radio compitiendo con el texto (rev. ola 4):
-     en papel un hueco es una nota al margen, no una caja. Mono de 11 px,
-     rótulo y qué falta en el mismo renglón, sin fondo y sin relleno. */
+  /* Al imprimir, un hueco es una nota al margen, no una caja: mono de 12 px,
+     rótulo y qué falta en el mismo renglón. El rótulo sale del nombre
+     accesible («Falta escribirlo: <título>»), que ya lo lleva entero. */
   @media print {
     .hueco {
-      display: block; padding: 0; border-radius: 0; background: none; max-width: none;
+      display: block; padding: 0; border: 0; border-radius: 0; background: none;
+      text-align: left; max-width: none; min-height: 0; height: auto;
       font-family: var(--font-mono); font-size: .75rem; line-height: 1.33; letter-spacing: .04em;
+      color: var(--cvh-tinta-2, var(--ink-2));
     }
-    .hueco-tag, .hueco-que { display: inline; font: inherit; letter-spacing: inherit; color: var(--cvh-tinta-2, var(--ink-2)); }
-    .hueco-tag::after { content: ' · '; }
+    .hueco::before { content: attr(aria-label); }
+    .hueco-que { display: none; }
   }
 </style>
