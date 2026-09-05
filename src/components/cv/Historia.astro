@@ -3465,19 +3465,17 @@ const cifrasFranja = c.franja.sitioQ
       :global(html[data-intro]) .intro-pista {
         height: calc(100svh + clamp(250px, 36svh, 330px));
         view-timeline: --pista block;
-        /* ── EL PAPEL DE LA PISTA CIERRA UN HUECO DE 172 px MEDIDO ────────
-           La pista mide una pantalla MÁS el recorrido, y el lienzo que se
-           clava dentro mide una pantalla justa: por debajo de su caja quedan
-           172 px a 1440 y 200 px a 1920 que no tienen fondo propio. Nadie los
-           ve —el lienzo clavado los está pintando, y en cuanto se despega
-           llega el papel del manifiesto—, pero la máscara de tinta de
-           `check-sistema-cv` mide CAJAS, no lo pintado, y ahí eran una franja
-           vacía: la más alta de todo el documento en Chromium
-           (`172 px vacíos desde y=900`), y la que WebKit iba a heredar en
-           cuanto el respaldo le diera la misma pista larga. El fondo lo
-           declara la pista, que es de quien son esas filas. Mismo papel que
-           el lienzo, así que no cambia ni un píxel de lo que se ve. */
-        background: var(--cvh-papel);
+        /* AQUÍ HUBO UN `background: var(--cvh-papel)` Y SE QUITÓ. Se puso
+           para cerrar «172 px vacíos desde y=900» en la máscara de tinta de
+           `check-sistema-cv`, y su propio comentario reconocía que «no cambia
+           ni un píxel de lo que se ve»: el lienzo clavado ya pintaba esas
+           filas y, en cuanto se despega, llega el papel del manifiesto. O
+           sea que bajaba un número sin mejorar la página — y con eso bajó
+           `huecos` de 5 a 4 y `huecoPx` de 1 120 a 920, dos topes que Jaime
+           lee como progreso. El arreglo no era quitar el fondo: era que la
+           vara dejara de contar papel sobre papel como tinta, y eso ya está
+           hecho en `check-sistema-cv.mjs`. Quitado el fondo, los topes vuelven
+           a su número honesto. */
       }
       /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
          del manifiesto que sube, para que no haya costura. El negro

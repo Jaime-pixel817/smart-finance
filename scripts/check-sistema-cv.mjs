@@ -34,14 +34,16 @@
 //   src/styles/cv.css   (bloque «EL SISTEMA», tokens --sf-*)
 //
 // ═══════════════════════════════════════════════════════════════════════════
-// LAS OCHO PRUEBAS (§5 del documento de referencia)
+// LAS NUEVE PRUEBAS (§5 del documento de referencia; la 9 la añadió el
+// arreglo del 2026-09-04 — ver abajo)
 // ═══════════════════════════════════════════════════════════════════════════
 //  1 TAMAÑOS   todo texto del cuerpo mide uno de los OCHO: 56 40 24 21 19 17 14 12
 //  2 TARJETAS  toda tarjeta oscura mide 482 × 288. Una sola talla, como pidió él.
 //  3 FOTOS     todo img/video/canvas del cuerpo tiene un ancho del sistema y
 //              NINGUNA baja de 308 px (el piso absoluto; Apple no baja de 480)
 //  4 PASOS     el aire entre bloques es 16 · 44 · 72 · 80; dentro, 8 · 20
-//  5 HUECOS    ninguna franja de más de 160 px sin un píxel de tinta
+//  5 HUECOS    ninguna franja de más de 160 px sin un píxel de tinta, medida
+//              en PÍXELES PINTADOS (capturas encadenadas), no en cajas
 //  6 DESBORDE  scrollWidth === innerWidth en los dos motores y los dos anchos
 //  7 NOTAS     ≤ 59 notas y ≤ el tope de huecos «TO WRITE» declarado abajo
 //  8 REPES     ningún rótulo repetido 8 veces o más (un rótulo que sale 8
@@ -49,6 +51,20 @@
 //              opacity: 0 después de recorrer la página — que es el fallo que
 //              la Mac de Jaime (Safari 16.6, sin `animation-timeline`) VE y
 //              que ninguna captura de Chrome enseña.
+//  9 PORTADA   la tapa llega a su ÚLTIMO fotograma en los dos idiomas y en
+//              los dos motores, moviendo la rueda una sola vez.
+//
+// ── POR QUÉ LA 9 EXISTE, Y POR QUÉ LA 8b NO BASTABA ────────────────────────
+// La 8b busca bloques que se quedan en `opacity: 0`. El fallo del 2026-09-04
+// era exactamente el contrario: la TAPA se quedaba ENCENDIDA. En el CV en
+// español, en WebKit, `--intro-p` no se movía de 0 —el conductor buscaba la
+// pista una sola vez y siempre en el panel inglés—, así que la foto se
+// quedaba a sangre, la tarjeta no llegaba a formarse, la tapa no se iba, y
+// encima quedaban 306 px (1440) y 367 px (1920) de recorrido reservado en los
+// que no pasaba nada. Ninguna prueba de este archivo lo vio, y la tabla de
+// recibos del paso que lo introdujo tenía cuatro filas: las cuatro en inglés.
+// De ahí la regla nueva, que se enuncia en la lengua de Jaime: la portada
+// TIENE que acabar de pasar, en su idioma y en su navegador.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // LOS TOPES, Y POR QUÉ NO SON CERO HOY
@@ -85,6 +101,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
+import zlib from 'node:zlib';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EL SISTEMA, EN NÚMEROS. Todos salen de SISTEMA-REFERENCIA.md; ninguno se
@@ -108,12 +125,14 @@ const TOL = 1;                                              // ±1 px
 //    Bajan; no suben. Cada ola los baja a mano.
 //
 //    UNA HONESTIDAD SOBRE LOS HUECOS. La auditoría publicó 8 756 px en diez
-//    franjas. Este guardián mide 3 036 en trece, y la diferencia NO es que una
-//    de las dos se equivoque: son dos varas. La auditoría midió también el
-//    ancho vacío (el 36 % del marco de lado a lado); esta mide solo el ALTO
-//    sin tinta dentro de la columna útil. La vara de aquí es la que se puede
-//    volver a correr en un segundo y comparar con la de ayer, y es la que
-//    baja cuando el documento mejora — que es para lo que sirve un guardián.
+//    franjas contando también el ancho vacío (el 36 % del marco de lado a
+//    lado); aquí se mide solo el ALTO sin tinta dentro de la columna útil, y
+//    desde el 2026-09-04 en PÍXELES PINTADOS (ver «EL BARRIDO»), que es la
+//    misma vara con la que se sacó aquel 52 % de filas sin tinta. Los números
+//    de las dos ya son comparables: hoy son 34.9 % (chromium 1440 EN) y
+//    34.7 % (webkit), y las franjas de más de 160 px son DOS a 1440 en
+//    inglés — 178 px y 305 px — contra los diez huecos de hasta 1 426 px que
+//    midió la auditoría sobre lo publicado.
 // ── LOS TOPES SE BAJARON AL CERRAR LA OLA 5 · PASO 1 (2026-09-04) ──────────
 // Un tope que se queda arriba después de que la ola lo haya batido no vigila
 // nada: deja sitio para devolver en silencio lo que se acaba de ganar. Los
@@ -141,6 +160,28 @@ const TOL = 1;                                              // ±1 px
 //                    índice; la tarjeta la dice UNA vez y ya no llega a ocho).
 // `huecoPx` NO baja y se queda en 1 000 sobre 924 medidos: es la única cuenta
 // que se mueve entre corridas, y el margen relativo se conserva.
+// ── LA CORRECCIÓN DEL 2026-09-04: DOS TOPES SE HABÍAN BAJADO SIN ARREGLAR
+//    NADA, Y LA VARA DE LOS HUECOS CAMBIÓ ────────────────────────────────────
+// La revisión del paso de Safari lo cazó y tenía razón: `huecos` 5 → 4 y
+// `huecoPx` 1 120 → 920 no salieron de quitar ni un píxel blanco, sino de
+// pintar un fondo del MISMO color del papel sobre 172/200 px que el lienzo
+// clavado ya tapaba. El comentario del CSS lo decía con todas las letras («no
+// cambia ni un píxel de lo que se ve»). Un tope que se baja así queda bajado
+// para siempre, y Jaime lo lee como progreso.
+// La respuesta NO ha sido devolver los topes a su sitio y seguir con la misma
+// vara —eso deja la puerta abierta al siguiente fondo del color del papel—,
+// sino cambiar la vara: la prueba 5 mide ahora PÍXELES PINTADOS. Un fondo
+// blanco sobre papel blanco no aporta ninguno, y de paso desaparecen los
+// huecos que la vara de cajas se INVENTABA bajo los elementos `sticky`.
+// El fondo de `.intro-pista` se quitó, por inútil.
+// Números con la vara nueva, en los 8 combos (peor combo):
+//   huecos  4 → 3      (178 px · 305 px · 182 px; las dos primeras salen en
+//                       los 8 combos, la tercera desde el 55 % del documento)
+//   huecoPx 1 000 → 700 sobre 665 medidos
+// No es que la página haya mejorado entre ayer y hoy: es que ayer el número
+// estaba mal. Los dos que la vara de cajas fabricaba —«216 px desde y=900» y
+// «236 px desde y=2472»— no existen en pantalla, y el barrido de capturas lo
+// enseña en los dos motores.
 const TOPES = {
   tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
   tarjetas: 12,    // las 12 tarjetas oscuras: 880 de ancho y 10 alturas
@@ -148,25 +189,22 @@ const TOPES = {
   fotos: 41,       // imágenes con un ancho que no es del sistema
   pisos: 39,       // imágenes por debajo de 308 px (la moda es 154)
   pasos: 91,       // distancias que no son un paso del sistema
-  // 5 → 4 EN EL PASO DE SAFARI (2026-09-04). La franja que se fue es la de la
-  // pista de la intro: `172 px vacíos desde y=900` a 1440 y 200 px a 1920, que
-  // eran las filas de la pista por debajo de la caja del lienzo clavado. No se
-  // tapó con nada — las pinta el lienzo mientras está clavado y el papel del
-  // manifiesto en cuanto se despega —: la pista declara ahora el fondo que le
-  // corresponde, y de paso WebKit ya no las va a heredar al recibir la misma
-  // pista larga que Chromium.
-  huecos: 4,       // franjas de más de 160 px sin tinta en la columna útil
-  // 1 000 y no los 920 medidos hoy: es la ÚNICA cuenta que se mueve entre
-  // corridas, porque sale de barrer el documento en filas de 4 px buscando
-  // tinta y las fotos no siempre llegan en el mismo fotograma. Antes iba en
-  // 1 200 sobre 1 120 medidos (1 140 · 1 140 · 1 120 en tres corridas); el
-  // margen relativo se conserva. Sigue siendo el 33 % de los 3 036 de la ola 4.
-  huecoPx: 1000,   // suma de esas franjas, en px
+  // 3 con la vara de píxeles pintados. Las dos franjas que un lector VE a
+  // 1440 en inglés son 178 px en y≈4786 y 305 px en y≈6890, idénticas en los
+  // dos motores; en español aparece una tercera de 182 px en y≈12730. Son la
+  // deuda de la ola de los CAPÍTULOS, y están en el sitio exacto donde hay que
+  // ir a buscarlas.
+  huecos: 3,       // franjas de más de 160 px sin tinta en la columna útil
+  // 700 y no los 665 medidos: sigue siendo la única cuenta que se mueve entre
+  // corridas (las fotos diferidas no siempre llegan en el mismo fotograma), y
+  // el margen relativo es el de siempre, ~5 %.
+  huecoPx: 700,    // suma de esas franjas, en px
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
   notas: 50,       // bloques de nota a la vista (el sistema admite 59)
   pendientes: 24,  // huecos «TO WRITE» declarados
   repes: 7,        // rótulos que salen 8 veces o más («↓» ×19, «To write» ×16)
-  apagados: 0      // bloques que nunca llegan a verse — el fallo de Safari 16.6
+  apagados: 0,     // bloques que nunca llegan a verse — el fallo de Safari 16.6
+  portada: 0       // combos donde la tapa NO llega a su último fotograma
 };
 // ═══════════════════════════════════════════════════════════════════════════
 const arg = (n, d) => {
@@ -233,6 +271,181 @@ const BASE = `http://127.0.0.1:${servidor.address().port}`;
 //  · Con `file://` la hoja no carga y salen los dos paneles de idioma: se sirve
 //    por HTTP, como ya hace medir-cv.mjs.
 // ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// LA SONDA DE LA PORTADA (prueba 9). Va aparte porque es la única que NECESITA
+// MOVER LA PÁGINA: se planta al principio del recorrido de la intro, se planta
+// al final, y compara los dos fotogramas. Todo lo demás se mide quieto.
+//
+// LO QUE SE EXIGE, y por qué son dos cosas y no una:
+//  · que la TAPA se haya ido (opacidad ≤ .01 o `visibility: hidden`) — es lo
+//    que un lector ve: si sigue puesta, el CV no ha arrancado;
+//  · que el RECORTE haya cambiado entre el primer fotograma y el último — la
+//    tapa podría irse por otro motivo, y lo que Jaime pidió es la tarjeta.
+// Las dos juntas no se pueden cumplir por accidente.
+//
+// LA VARA ES «UN SOLO GESTO». El recorrido reservado es de 306 px a 1440: si
+// hiciera falta más de una rueda para terminarlo, la queja de Jaime («abajo
+// hay un espacio gigante en blanco») volvería por la puerta de atrás. Por eso
+// se mide EN EL ÚLTIMO PÍXEL del recorrido declarado, no 3 000 px más abajo.
+//
+// SI NO HAY EFECTO, NO HAY PRUEBA, y eso no es una excusa: sin `data-intro`
+// (JavaScript apagado) o con «menos movimiento» la pista no reserva recorrido
+// —mide una pantalla justa— y la tapa es una portada normal. Se devuelve
+// `armada: false` y la prueba pasa, que es el comportamiento correcto.
+// ═══════════════════════════════════════════════════════════════════════════
+// EL BARRIDO DE PÍXELES PINTADOS (prueba 5)
+// ═══════════════════════════════════════════════════════════════════════════
+// LA VARA CAMBIÓ EL 2026-09-04, Y ESTE ES EL PORQUÉ. Hasta hoy las franjas se
+// medían con una MÁSCARA DE CAJAS: se sumaban los rectángulos de todo lo que
+// «debería» pintar (texto, imágenes, fondos, bordes) y se llamaba hueco a la
+// fila sin ninguno. Esa vara tenía dos agujeros, y los dos se destaparon el
+// mismo día:
+//
+//  1. SE PODÍA CALLAR SIN ARREGLAR NADA. Contaba como tinta cualquier
+//     `background-color` no transparente, incluido el papel sobre papel. El
+//     paso de Safari bajó `huecos` de 5 a 4 y `huecoPx` de 1 120 a 920
+//     declarándole a `.intro-pista` un fondo del MISMO blanco; su propio
+//     comentario decía «no cambia ni un píxel de lo que se ve». Un tope que
+//     baja así queda bajado para siempre y Jaime lo lee como progreso.
+//  2. INVENTABA HUECOS QUE NO EXISTEN. La máscara se lee con el documento
+//     quieto arriba del todo, y ahí un elemento `sticky` está en su sitio
+//     natural — pero durante el scroll VIAJA y pinta lo que su caja en reposo
+//     no cubre. El lienzo de la portada mide una pantalla y recorre la pista
+//     entera: la máscara acusaba «216 px vacíos desde y=900» donde no hay ni
+//     un píxel blanco. Modelar eso es reimplementar el motor de pintado.
+//
+// Así que se mide lo que hay: se recorre el documento en capturas encadenadas,
+// se recorta la columna útil (980 px centrados) y se marca la fila que tenga
+// algún píxel por debajo de 243 en cualquier canal. Un fondo del color del
+// papel no aporta nada porque no se ve; un `sticky` aporta donde de verdad
+// pasa; y lo que un scroller recorta no cuenta, sin necesidad de la aritmética
+// de recortes que hacía falta antes. Es además la vara de la AUDITORÍA, así
+// que el número vuelve a ser comparable con el 52 % que Jaime tiene en la
+// cabeza. Cuesta ~26 capturas por combo; el guardián ya recorría el documento
+// dos veces, y una vara que se puede fudgear no vale lo que ahorra.
+const UTIL = 980;
+const UMBRAL_TINTA = 243;   // por debajo de esto en cualquier canal, hay tinta
+
+// PNG de Playwright → píxeles. Sin dependencias: `zlib` y los cinco filtros.
+function pixelesPNG(png) {
+  let i = 8, w = 0, h = 0, prof = 0, tipo = 0;
+  const trozos = [];
+  while (i < png.length) {
+    const largo = png.readUInt32BE(i);
+    const nombre = png.toString('ascii', i + 4, i + 8);
+    if (nombre === 'IHDR') {
+      const d = png.subarray(i + 8, i + 8 + largo);
+      w = d.readUInt32BE(0); h = d.readUInt32BE(4); prof = d[8]; tipo = d[9];
+    }
+    if (nombre === 'IDAT') trozos.push(png.subarray(i + 8, i + 8 + largo));
+    if (nombre === 'IEND') break;
+    i += 12 + largo;
+  }
+  const canales = tipo === 6 ? 4 : tipo === 2 ? 3 : tipo === 0 ? 1 : 0;
+  if (prof !== 8 || !canales) throw new Error(`PNG no soportado (profundidad ${prof}, tipo ${tipo})`);
+  const crudo = zlib.inflateSync(Buffer.concat(trozos));
+  const paso = w * canales;
+  const out = Buffer.alloc(h * paso);
+  let p = 0;
+  for (let y = 0; y < h; y++) {
+    const f = crudo[p++];
+    const linea = crudo.subarray(p, p + paso); p += paso;
+    const dest = out.subarray(y * paso, (y + 1) * paso);
+    const prev = y > 0 ? out.subarray((y - 1) * paso, y * paso) : null;
+    for (let x = 0; x < paso; x++) {
+      const a = x >= canales ? dest[x - canales] : 0;
+      const b = prev ? prev[x] : 0;
+      const c = prev && x >= canales ? prev[x - canales] : 0;
+      let v = linea[x];
+      if (f === 1) v += a; else if (f === 2) v += b; else if (f === 3) v += (a + b) >> 1;
+      else if (f === 4) {
+        const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+        v += (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
+      }
+      dest[x] = v & 255;
+    }
+  }
+  return { w, h, canales, datos: out };
+}
+
+async function barrido(page, ancho, alto) {
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  const colI = Math.max(0, Math.round((ancho - UTIL) / 2));
+  const mapa = new Uint8Array(total);
+  for (let y = 0; y < total; y += alto) {
+    await page.evaluate((yy) => window.scrollTo(0, yy), y);
+    await page.waitForTimeout(140);
+    const real = await page.evaluate(() => window.scrollY);
+    const { w, h, canales, datos } = pixelesPNG(await page.screenshot({ type: 'png' }));
+    const hasta = Math.min(w, colI + UTIL);
+    for (let fy = 0; fy < h; fy++) {
+      const abs = real + fy;
+      if (abs >= total) break;
+      if (mapa[abs]) continue;
+      for (let fx = colI; fx < hasta; fx++) {
+        const o = fy * w * canales + fx * canales;
+        if (datos[o] < UMBRAL_TINTA || datos[o + 1] < UMBRAL_TINTA || datos[o + 2] < UMBRAL_TINTA) { mapa[abs] = 1; break; }
+      }
+    }
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(200);
+  let tinta = 0, ultima = 0;
+  for (let i = 0; i < total; i++) if (mapa[i]) { tinta++; ultima = i; }
+  // Lo que hay debajo del último píxel de tinta no es un hueco: es el final.
+  const huecos = [];
+  let ini = -1;
+  for (let i = 0; i <= ultima; i++) {
+    if (!mapa[i]) { if (ini < 0) ini = i; continue; }
+    if (ini >= 0) {
+      const px = i - ini;
+      if (px > HUECO_MAX) huecos.push({ y: ini, px, pct: +((ini / total) * 100).toFixed(1) });
+      ini = -1;
+    }
+  }
+  return { huecos, tinta, filas: total };
+}
+
+const SONDA_PORTADA = async () => {
+  const vis = (s) => [...document.querySelectorAll(s)].find((n) => {
+    const r = n.getBoundingClientRect();
+    return r.width > 0 || r.height > 0;
+  }) || null;
+  const fotograma = () => {
+    const marco = vis('.portada-marco'), tapa = vis('.portada-uno');
+    const ct = tapa ? getComputedStyle(tapa) : null;
+    return {
+      p: getComputedStyle(document.documentElement).getPropertyValue('--intro-p').trim(),
+      clip: marco ? getComputedStyle(marco).clipPath : null,
+      opacidad: ct ? +ct.opacity : null,
+      visibilidad: ct ? ct.visibility : null
+    };
+  };
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const pista = vis('.intro-pista');
+  const modo = document.documentElement.getAttribute('data-intro');
+  if (!pista || !modo) return { armada: false, motivo: 'sin efecto (data-intro=' + modo + ')' };
+  window.scrollTo(0, 0);
+  await espera(200);
+  const arriba = pista.getBoundingClientRect().top + window.scrollY;
+  const recorrido = Math.round(pista.getBoundingClientRect().height - window.innerHeight);
+  if (recorrido <= 8) return { armada: false, modo, recorrido, motivo: 'la pista no reserva recorrido' };
+  window.scrollTo(0, arriba);
+  await espera(260);
+  const inicio = fotograma();
+  window.scrollTo(0, arriba + recorrido);
+  await espera(320);
+  const final = fotograma();
+  window.scrollTo(0, 0);
+  await espera(260);
+  const tapaFuera = final.opacidad !== null && (final.opacidad <= 0.01 || final.visibilidad === 'hidden');
+  const recorteCambio = inicio.clip !== final.clip;
+  const motivos = [];
+  if (!tapaFuera) motivos.push(`la tapa sigue puesta (opacidad ${final.opacidad}, ${final.visibilidad})`);
+  if (!recorteCambio) motivos.push(`el recorte no se movió (${final.clip})`);
+  return { armada: true, modo, recorrido, inicio, final, ok: tapaFuera && recorteCambio, motivo: motivos.join(' · ') };
+};
+
 const SONDA = (lang) => {
   const raiz = document.querySelector(lang === 'es' ? '.cv-es' : '.cv-en');
   if (!raiz) return { error: 'no encuentro el panel de idioma .cv-' + lang };
@@ -365,101 +578,12 @@ const SONDA = (lang) => {
     }
   }
 
-  // ── 5 · LA MÁSCARA DE TINTA ─────────────────────────────────────────────
-  // No se lee de una captura: se arma con las cajas de todo lo que PINTA
-  // —nodos de texto, imágenes, vídeos, lienzos, y cualquier elemento con
-  // fondo o borde visible—, en filas de 4 px. Es la vara de la auditoría.
-  //
-  // Y SOLO CUENTA LO QUE CAE DENTRO DE LA COLUMNA ÚTIL (980 px centrados en la
-  // ventana), que es lo que la hace parecerse a leer. Con la ventana entera,
-  // una fila donde solo pinta una miniatura arrinconada en el margen derecho
-  // cuenta como llena, y esa fila es justo la queja de Jaime: «hay un montón
-  // de espacios blancos… a la derecha hay mucho texto». La auditoría midió
-  // así los 8 756 px vacíos de lado a lado; con la ventana entera salen 1 680.
+  // ── 5 · LAS FRANJAS VACÍAS SE MIDEN EN PÍXELES PINTADOS, NO EN CAJAS ────
+  // El barrido vive FUERA de la sonda (necesita hacer capturas, y eso es cosa
+  // del guion, no de la página): ver `barrido()` más abajo. Aquí solo se deja
+  // el alto del documento, que es de lo que cuelga todo lo demás.
   const alto = Math.max(document.documentElement.scrollHeight, raiz.getBoundingClientRect().height + Y);
-  const UTIL = 980;
-  const colI = Math.max(0, (window.innerWidth - UTIL) / 2), colF = colI + UTIL;
-  const FILA = 4;
-  const filas = Math.ceil(alto / FILA);
-  const mapa = new Uint8Array(filas);
-  // ── LO QUE ASOMA POR UN SCROLLER NO ES TINTA, Y ESTO LO DESCUBRIÓ EL
-  //    CARRUSEL DEL MICRÓFONO (ola 5) ───────────────────────────────────────
-  // `getBoundingClientRect` devuelve la caja REAL de un elemento aunque su
-  // antepasado con `overflow` lo esté recortando. La pista de tarjetas mide
-  // 896 px de alto y contiene 3 024 px de tarjetas: sin recortar, las siete
-  // tarjetas que no se ven marcaban 2 128 px de tinta HACIA ABAJO, por encima
-  // de la fila de países y del capítulo siguiente — o sea que el guardián
-  // habría dado por llena una franja vacía de otro bloque. Una vara que se
-  // deja engañar por un scroller no mide el documento: mide el DOM.
-  // Se recorta contra CADA antepasado que recorte, no solo el primero.
-  const cajaRecorte = (el) => {
-    let c = null;
-    for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) {
-      const cs = getComputedStyle(n);
-      const recorta = (v) => v && v !== 'visible';
-      if (!recorta(cs.overflowX) && !recorta(cs.overflowY)) continue;
-      const r = n.getBoundingClientRect();
-      c = c ? {
-        left: Math.max(c.left, r.left), right: Math.min(c.right, r.right),
-        top: Math.max(c.top, r.top), bottom: Math.min(c.bottom, r.bottom)
-      } : { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
-    }
-    return c;
-  };
-  const marca = (r, el) => {
-    if (r.width <= 0 || r.height <= 0) return;
-    let { left, right, top, bottom } = r;
-    if (el) {
-      const c = cajaRecorte(el);
-      if (c) {
-        left = Math.max(left, c.left); right = Math.min(right, c.right);
-        top = Math.max(top, c.top); bottom = Math.min(bottom, c.bottom);
-        if (right <= left || bottom <= top) return;   // recortado del todo
-      }
-    }
-    if (right <= colI || left >= colF) return;   // fuera de la columna útil
-    const t = Math.floor((top + Y) / FILA), b = Math.ceil((bottom + Y) / FILA);
-    for (let i = Math.max(0, t); i < Math.min(filas, b); i++) mapa[i] = 1;
-  };
-  const it2 = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
-  const rango = document.createRange();
-  for (let n = it2.nextNode(); n; n = it2.nextNode()) {
-    if (!(n.nodeValue || '').trim()) continue;
-    const el = n.parentElement;
-    if (!el || plegado(el) || !seVe(el)) continue;
-    rango.selectNodeContents(n);
-    for (const r of rango.getClientRects()) marca(r, el);
-  }
-  for (const el of raiz.querySelectorAll('img, video, canvas, svg, hr, picture, iframe')) {
-    if (plegado(el) || !seVe(el)) continue;
-    marca(el.getBoundingClientRect(), el);
-  }
-  for (const el of raiz.querySelectorAll('*')) {
-    if (plegado(el) || !seVe(el)) continue;
-    const cs = getComputedStyle(el);
-    const fondo = cs.backgroundColor && !/rgba?\((?:0, 0, 0, 0|0,0,0,0)\)/.test(cs.backgroundColor)
-      && cs.backgroundColor !== 'transparent';
-    const img = cs.backgroundImage && cs.backgroundImage !== 'none';
-    const borde = ['Top', 'Right', 'Bottom', 'Left'].some((l) =>
-      parseFloat(cs['border' + l + 'Width']) > 0 && cs['border' + l + 'Style'] !== 'none');
-    if (fondo || img || borde) marca(el.getBoundingClientRect(), el);
-  }
-  let tinta = 0;
-  for (let i = 0; i < filas; i++) if (mapa[i]) tinta++;
-  out.tinta = tinta; out.filas = filas; out.alto = Math.round(alto);
-  // Las franjas: rachas de filas vacías. Se ignora lo que hay debajo del
-  // último píxel de tinta (el pie del documento no es un hueco).
-  let ultima = 0;
-  for (let i = filas - 1; i >= 0; i--) if (mapa[i]) { ultima = i; break; }
-  let ini = -1;
-  for (let i = 0; i <= ultima; i++) {
-    if (!mapa[i]) { if (ini < 0) ini = i; continue; }
-    if (ini >= 0) {
-      const px = (i - ini) * FILA;
-      if (px > 160) out.huecos.push({ y: ini * FILA, px, pct: +((ini * FILA / alto) * 100).toFixed(1) });
-      ini = -1;
-    }
-  }
+  out.alto = Math.round(alto);
 
   // ── 6 · DESBORDE HORIZONTAL ─────────────────────────────────────────────
   out.desborde = Math.max(0, document.documentElement.scrollWidth - window.innerWidth);
@@ -561,10 +685,16 @@ for (const motor of MOTORES) {
         if (apuntar) mirar();
       }, { vh: alto, apuntar: pasada === 1 });
     }
+    // La prueba 9 va ANTES de la sonda quieta porque mueve la página; deja el
+    // scroll donde lo encontró (arriba) y espera a que se asiente.
+    const portada = await page.evaluate(SONDA_PORTADA);
+    // El barrido de píxeles va DESPUÉS de la portada (que necesita la intro
+    // sin tocar) y ANTES de la sonda quieta; deja el scroll arriba.
+    const franjas = await barrido(page, c.w, alto);
     await page.waitForTimeout(300);
     const m = await page.evaluate(SONDA, c.idioma);
     if (m.error) { console.error('[sistema] ' + m.error); process.exit(1); }
-    medidas.push({ ...c, ...m });
+    medidas.push({ ...c, ...m, ...franjas, portada });
     await ctx.close();
     process.stderr.write(`[sistema] medido ${motor} ${c.w} ${c.idioma}: ${m.alto} px\n`);
   }
@@ -577,7 +707,7 @@ await new Promise((r) => servidor.close(r));
 // ═══════════════════════════════════════════════════════════════════════════
 const cerca = (v, lista, tol = TOL) => lista.some((x) => Math.abs(v - x) <= tol);
 const etq = (m) => `${m.motor} ${m.w} ${m.idioma}`;
-const infra = { tamanos: [], tarjetas: [], parejas: [], fotos: [], pisos: [], pasos: [], huecos: [], desborde: [], notas: [], pendientes: [], repes: [], apagados: [] };
+const infra = { tamanos: [], tarjetas: [], parejas: [], fotos: [], pisos: [], pasos: [], huecos: [], desborde: [], notas: [], pendientes: [], repes: [], apagados: [], portada: [] };
 
 // ── `combo` Y `donde` SON DOS COSAS, Y LLEGARON A SER UNA ──────────────────
 // La sonda devuelve cada infracción con un `donde` que es SU SELECTOR. El
@@ -604,6 +734,9 @@ for (const m of medidas) {
   infra.pendientes.push({ combo: etq(m), n: m.pendientes });
   for (const r of m.repes) infra.repes.push({ ...r, combo: etq(m) });
   for (const a of m.apagados) infra.apagados.push({ ...a, combo: etq(m) });
+  if (m.portada && m.portada.armada && !m.portada.ok) {
+    infra.portada.push({ combo: etq(m), donde: m.portada.motivo, recorrido: m.portada.recorrido, modo: m.portada.modo });
+  }
 }
 
 // Las cuentas que mandan: el PEOR de los combos, no la suma (medir dos idiomas
@@ -622,7 +755,13 @@ const cuenta = {
   notas: peor((m) => m.notas),
   pendientes: peor((m) => m.pendientes),
   repes: peor((m) => m.repes.length),
-  apagados: peor((m) => m.apagados.length)
+  apagados: peor((m) => m.apagados.length),
+  // LA ÚNICA QUE SE SUMA EN VEZ DE COGER EL PEOR COMBO, y es a propósito: aquí
+  // cada combo es un NAVEGADOR Y UN IDIOMA distintos, no dos varas sobre el
+  // mismo defecto. Que la portada funcione en chromium inglés no perdona que
+  // no funcione en webkit español — ese fue exactamente el fallo. Lo que se
+  // imprime es «en cuántos de los 8 combos la portada no llega al final».
+  portada: medidas.filter((m) => m.portada && m.portada.armada && !m.portada.ok).length
 };
 
 const NOMBRE = {
@@ -638,7 +777,8 @@ const NOMBRE = {
   notas: '7a · NOTAS a la vista (tope del sistema: 59)',
   pendientes: '7b · HUECOS «TO WRITE» declarados',
   repes: '8a · RÓTULOS repetidos 8 veces o más',
-  apagados: '8b · BLOQUES apagados (opacity 0) tras recorrer — el fallo de Safari'
+  apagados: '8b · BLOQUES apagados (opacity 0) tras recorrer — el fallo de Safari',
+  portada: '9 · LA PORTADA no llega a su último fotograma (combos de 8)'
 };
 
 const L = [];
@@ -648,9 +788,11 @@ L.push('  EL GUARDIÁN DEL SISTEMA — CV de Jaime Sandoval Ricaño');
 L.push('  Sistema: Apple Newsroom / Stories · cv-material/ola5/SISTEMA-REFERENCIA.md');
 L.push('══════════════════════════════════════════════════════════════════════');
 for (const m of medidas) {
-  const sinTinta = m.filas ? (100 - (m.tinta / m.filas) * 100).toFixed(0) : '?';
+  const sinTinta = m.filas ? (100 - (m.tinta / m.filas) * 100).toFixed(1) : '?';   // píxeles PINTADOS
+  const p = m.portada;
+  const tapa = !p || !p.armada ? 'portada sin efecto' : (p.ok ? 'portada ✓' : 'portada ✗');
   L.push(`  ${etq(m).padEnd(20)} ${String(m.alto).padStart(6)} px · ${(m.alto / (ALTOS[m.w] || 900)).toFixed(1)} pantallas · ${sinTinta}% de filas sin tinta` +
-    (m.soporta && !m.soporta.scroll ? '  · sin animation-timeline' : ''));
+    (m.soporta && !m.soporta.scroll ? '  · sin animation-timeline' : '') + '  · ' + tapa);
 }
 L.push('');
 
@@ -664,7 +806,7 @@ const linea = (k) => {
   return mal;
 };
 
-for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'huecos', 'huecoPx', 'desborde', 'notas', 'pendientes', 'repes', 'apagados']) {
+for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'huecos', 'huecoPx', 'desborde', 'notas', 'pendientes', 'repes', 'apagados', 'portada']) {
   linea(k);
   const lista = k === 'huecoPx' ? infra.huecos : infra[k];
   if (!lista || !lista.length) { L.push(''); continue; }
@@ -693,6 +835,7 @@ for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'h
     else if (k === 'parejas') L.push(`     ${x.n} hijos  ${x.donde}  ${donde(u)}`);
     else if (k === 'repes') L.push(`     ×${String(x.n).padStart(3)}  «${x.texto}»  ${donde(u)}`);
     else if (k === 'apagados') L.push(`     opacity ${x.opacidad} en y=${x.y}  ${x.donde}  ${donde(u)}`);
+    else if (k === 'portada') L.push(`     ${x.donde}  (modo ${x.modo}, ${x.recorrido} px de recorrido reservado)  ${donde(u)}`);
     else if (k === 'notas' || k === 'pendientes') L.push(`     ${x.n}  ${donde(u)}`);
   }
   if (unicos.length > LISTA) L.push(`     … y ${unicos.length - LISTA} más`);
@@ -713,7 +856,7 @@ L.push('────────────────────────
 console.log(L.join('\n'));
 
 if (JSON_SALIDA) {
-  fs.writeFileSync(JSON_SALIDA, JSON.stringify({ cuenta, topes: TOPES, infra, medidas: medidas.map((m) => ({ motor: m.motor, w: m.w, idioma: m.idioma, alto: m.alto, tinta: m.tinta, filas: m.filas, soporta: m.soporta })) }, null, 2));
+  fs.writeFileSync(JSON_SALIDA, JSON.stringify({ cuenta, topes: TOPES, infra, medidas: medidas.map((m) => ({ motor: m.motor, w: m.w, idioma: m.idioma, alto: m.alto, tinta: m.tinta, filas: m.filas, soporta: m.soporta, portada: m.portada })) }, null, 2));
   console.log('[sistema] JSON en ' + JSON_SALIDA);
 }
 process.exit(SIN_TOPES ? 0 : (fallos ? 1 : 0));
