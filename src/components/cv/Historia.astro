@@ -445,6 +445,10 @@ const num = (i: number) => ({ n: String(i + 1).padStart(2, '0'), t: String(capit
 // tarde (ver la cabecera de Cv.astro).
 const fuenteCarta = (quien: string) =>
   c.cartas.fuenteCarta.replace('{n}', quien).replace('{s}', c.caps.cartas);
+// LAS COMILLAS LAS PONE EL PANEL, NO LA CADENA (ola 6): « » en español y “ ”
+// en inglés, porque son puntuación del idioma que las rodea. Las cadenas de
+// las cartas en cv.ts van sin comillas a propósito.
+const Q = (s: string) => (locale === 'es' ? '«' + s + '»' : '“' + s + '”');
 
 // ── LA MARCA CORTA DEL AÑO EN DISPUTA ───────────────────────────────────
 // ── AQUÍ VIVÍA `anioCorto`, Y SE FUE CON SU APARATO (2026-09-02) ────────
@@ -1249,214 +1253,112 @@ const certsFranja = c.franja.certsDe
     </details>
   </section>
 
-  {/* ════ 04 · Cartas de recomendación — DOS ENTREGADAS, y las que faltan ═
-       La sección nació vacía (brief del 2026-08-28) con tres recuadros
-       marcados. El 2026-08-29 llegaron las dos primeras, así que ahora tiene
-       dos mitades: las entregadas, con su ficha y una cita corta de la
-       carta, y los recuadros de las que faltan, que se quedan porque Jaime
-       dijo «todavía faltan varias, ahí vamos».
+  {/* ════ 04 · Lo que dos CEOs escribieron sobre mí ═══════════════════════
+       LAS CARTAS SE QUEDAN AQUÍ, en el 4: decisión de Jaime (OLA4 §6.2
+       proponía bajarlas al 6 y no se hace). Son lo único de la página que una
+       persona firma sobre él, y van pegadas a lo que confirman.
 
-       LOS PDF SIGUEN SIN PUBLICARSE. Va la ficha —quién, cargo, empresa,
-       relación, año—, DOS frases verbatim y el contacto que el propio
-       firmante ofreció. El hueco del programa de Singapur ya no está: las
-       dos cartas que llegaron son justo de ahí.
+       DESDE LA OLA 6 el capítulo está hecho SOLO con plantillas de
+       SISTEMA-REFERENCIA.md §3.4: la apertura (i); por cada carta la (vii) —
+       la frase que más pesa en la cita grande de 40/44 y la ficha en la placa
+       de 980 sobre papel-2, que es el único fondo del documento—; las dos
+       fotos con los firmantes en PAREJA 482 × 642 (iii); lo que las cartas
+       verifican como tabla de filas de 112 (vi), a la vista y no plegado; y el
+       hueco de la carta que falta, plegado (x). Fuera: «Proven…», el rótulo
+       «The two lines that carry the most weight» ×2, «The letter itself» ×2
+       (la línea del archivo se queda, en una), el año suelto («2026» ×2, de
+       un rótulo que se repetía catorce veces) y la nota de traducción de cada
+       ficha, que dice UNA vez el bloque de notas del final.
 
-       CAMBIO DEL 2026-08-30 (Jaime): «en recommendation no pongas las de "to
-       comey", solo pon las 2 frases más importantes de cada una y sus
-       contactos directos también que proporcionaron». Lo de «to comey» es el
-       encabezado «To the Admissions Committee» con el que ABREN las dos
-       cartas — y NUNCA estuvo en esta página: se buscó la cadena en el CV
-       entero y solo vive dentro de los PDF, que no se publican. O sea que no
-       había nada que quitar, y lo que sí cambia es lo otro: de UNA cita se
-       pasa a DOS por carta, y aparece el correo.
-
-       EL CORREO SÍ, EL TELÉFONO NO. Los dos correos son de trabajo (el buzón
-       de consultas de TAQ y el dominio de Bluesky Education); el teléfono
-       personal que trae la carta de Lloyd George se queda fuera. Por qué, y
-       cómo revertirlo si Jaime quiere, está escrito en src/i18n/cv.ts sobre
-       `cartas` — junto con la razón de que el `mailto:` vaya a pelo.
-
-       Las citas son de un TERCERO, no de Jaime, así que no llevan la marca
-       de `voz.*` sino la suya, y van en <blockquote> con <cite> real. */}
-  <section class="cap" aria-labelledby={`${p}-cap-4-h`}>
+       LOS PDF SIGUEN SIN PUBLICARSE, y el porqué entero está en src/i18n/cv.ts
+       sobre `cartas` (ruta fija que no pasa por CV_SLUG, repositorio público,
+       datos de terceros). Aquí va la ficha —quién, cargo, empresa, relación,
+       año—, DOS frases verbatim (Jaime, 2026-08-30: «solo pon las 2 frases
+       más importantes de cada una y sus contactos directos») y el contacto
+       que el propio firmante ofreció. El correo sí, el teléfono no (también
+       en cv.ts). Las citas son de un TERCERO, no de Jaime: <blockquote> con
+       <cite>, y las comillas las pone el panel (`Q`). */}
+  <section class="cap cap--sf" aria-labelledby={`${p}-cap-4-h`}>
     <span id={`${p}-cap-4`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(3).n}</span><span class="cap-de">/ {num(3).t}</span></p>
-    <h2 class="cap-h" id={`${p}-cap-4-h`}>{c.caps.cartas}</h2>
-    <p class="cap-lede">{c.cartas.lede}</p>
-
-    <h3 class="t-h3 cartas-h">{c.cartas.entregadasH}</h3>
-    <div class="cartas">
-      {c.cartas.entregadas.map((k) => (
-        <article class="carta">
-          <p class="carta-nombre">{k.nombre}</p>
-          <p class="etiqueta">{k.cargo}</p>
-          <p class="carta-donde pie">{k.donde}</p>
-          <p class="carta-anio num">{k.anio}</p>
-          <p class="carta-relacion">{k.relacion}</p>
-          {/* DOS FRASES por carta, verbatim (Jaime, 2026-08-30: «solo pon las
-               2 frases más importantes de cada una»). Un solo <figure> con
-               las dos citas dentro y UN solo <figcaption>: son dos frases de
-               la MISMA carta y de la misma persona, así que repetir la
-               atribución debajo de cada una sería leerlo dos veces. */}
-          <figure class="carta-cita">
-            <p class="meta-mono carta-cita-tag">{c.cartas.citaTag}</p>
-            {k.citas.map((cita) => (
-              <blockquote><p>{'“' + cita + '”'}</p></blockquote>
-            ))}
-            <figcaption class="pie">— <cite>{k.nombre}</cite></figcaption>
-          </figure>
-          {/* EL CONTACTO QUE DIO ÉL MISMO. `mailto:` a pelo y sin truco
-               anti-scraping: la razón entera está en src/i18n/cv.ts, sobre
-               `cartas`. El teléfono que trae una de las cartas NO se publica,
-               y también está escrito allí por qué. */}
-          <p class="carta-contacto">
-            <span class="meta-mono carta-contacto-tag">{c.cartas.contactoTag}</span>
-            <a class="hist-link" href={`mailto:${k.correo}`}>{k.correo}</a>
-          </p>
-          {/* LA FOTO CON QUIEN FIRMA. La de Lloyd George es la 1 del lote del
-               2026-08-30 y ya está puesta. La de Andy Toh NO EXISTE: el lote
-               son 13 archivos y ninguno es Jaime con él, así que ahí sigue el
-               hueco diciendo a quién espera (`k.foto` es la clave del texto
-               del hueco, no un archivo). Este comentario decía que la carpeta
-               del lote «aún no existe» y era falso. */}
-          {/* ══ LA CARTA FIRMADA, COMO ARCHIVO (Jaime, 2026-08-31) ══════════
-               Textual: «sube en cada carta de recomendación el archivo de la
-               carta». Los dos PDF viajan ENTEROS y byte a byte iguales a los
-               que él recibió (comprobado con sha256 contra
-               cv-material/cartas/): un documento firmado al que se le recorta
-               un renglón deja de ser el documento que se firmó, y un comité
-               que note el recorte tiene razón en desconfiar. La carta de
-               Lloyd George trae su teléfono personal y NO se toca; Jaime
-               asume que quien tenga la dirección de esta página lo verá, y la
-               dirección de esta página es su credencial (CV_SLUG, noindex,
-               fuera del sitemap y del buscador). La nota que decía lo
-               contrario (cv-material/cartas/CARTAS.md, 2026-08-29) queda
-               revocada y allí está anotado.
-
-               ── EL ENLACE SE RETIRÓ EL 2026-09-01, Y EL MOTIVO IMPORTA ────
-               Los dos PDF se servían en `/assets/cv/carta-*.pdf`. Esa ruta es
-               FIJA y NO pasa por `CV_SLUG`: el `noindex`/`no-referrer` del
-               `<head>` protege la PÁGINA, no un archivo estático que se pide
-               directo. Y peor: `public/` se commitea, este repositorio es
-               PÚBLICO, y los dos archivos estaban empujados en él —
-               comprobado con una descarga anónima a raw.githubusercontent.com
-               que devolvía 200 y los 374 826 bytes.
-
-               Jaime SÍ autorizó publicarlos («sube en cada carta de
-               recomendación el archivo de la carta»), pero con un alcance
-               escrito: «quien tenga el enlace del CV ve el teléfono de Lloyd
-               George» (NOTAS-DEL-BRIEF.md, 2026-08-31). Ese alcance no se
-               puede construir con un repositorio público: el sitio es
-               estático y Vercel sirve lo que hay en el repo, así que
-               cualquier archivo que esta página entregue lo puede bajar
-               cualquiera, no solo quien reciba la dirección. El permiso se
-               dio sobre una protección que no existe, y son datos de
-               TERCEROS: las dos cartas van dirigidas «To the Admissions
-               Committee» y llevan el móvil personal de un firmante, los dos
-               correos y la dirección registrada de una empresa.
-
-               Así que el archivo sale de la página y del repo hasta que Jaime
-               decida con el alcance real delante (las tres opciones y la
-               pregunta exacta están en el informe de esta ola). Lo demás de
-               la carta se queda: la ficha entera, las dos citas verbatim, el
-               contacto que el propio firmante escribió y su foto. Los
-               originales siguen en cv-material/cartas/, fuera del repo.
-               PARA VOLVER A PONERLO hacen falta las dos cosas a la vez: el
-               archivo y una forma de servirlo que no sea pública. */}
-          <p class="carta-pdf">
-            <span class="meta-mono carta-contacto-tag">{c.cartas.pdfTag}</span>
-            <span class="carta-pdf-no">{c.cartas.pdfNo.replace('{n}', k.nombre)}</span>
-          </p>
-          {k.lote === 'lloyd' ? (
-            <figure class="caja-tarjeta lote-fig">
-              <a class="mini" href={foto('cv-lote-carta-lloyd.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="560" style="--nat-w:560" height="996" loading="lazy" decoding="async" /></span></a>
-              <figcaption class="pie">{c.lote.cartaLloydPie}</figcaption>
-            </figure>
-          ) : k.lote === 'andy' ? (
-            <figure class="caja-tarjeta lote-fig">
-              <a class="mini" href={foto('breakdown-andy-toh.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('breakdown-andy-toh.webp')} alt={c.lote.cartaAndyAlt} width="480" style="--nat-w:480" height="360" loading="lazy" decoding="async" /></span></a>
-              <figcaption class="pie">{c.lote.cartaAndyPie}</figcaption>
-            </figure>
-          ) : null}
-          {/* LA RAMA DEL HUECO DE FOTO SE FUE, Y NO POR GUSTO: desde que las
-               DOS cartas tienen foto, `foto` vale `null` en las dos y
-               TypeScript estrecha el tipo a `never` — `astro check` daba tres
-               errores sobre una rama que ya no se podía alcanzar. Si algún
-               día llega una tercera carta sin foto, se vuelve a poner
-               `foto: 'clave'` en cv.ts y aquí el `: k.foto ? <FotoHueco … />`
-               que había. El texto del hueco (`fotosPend.cartaAndy`) sigue
-               escrito para eso. */}
-        </article>
-      ))}
+    <header class="sf-cap">
+      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(3).n} / {num(3).t}</p>
+      <h2 class="sf-titular" id={`${p}-cap-4-h`}>{c.caps.cartas}</h2>
+      <p class="sf-entra">{c.cartas.lede}</p>
+    </header>
+    {c.cartas.entregadas.map((k) => (
+      <>
+        {/* (vii) 1 · la frase que se lleva la carta, FUERA de la placa. En la
+             de Lloyd George es la frase de la página entera: «Two weeks is a
+             short period, but it is long enough to tell apart the student who
+             works from the student who merely attends». */}
+        <blockquote class="sf-cita-grande">
+          <p>{Q(k.citas[0])}</p>
+          <p class="sf-credito"><cite>{k.nombre}</cite> · {k.cargo}</p>
+        </blockquote>
+        {/* (vii) 2 · la ficha, DENTRO de la placa: la segunda frase, quién
+             firma, dónde y cuándo, la relación con él, el contacto que dio y
+             la línea del archivo. Todo lo que había en la tarjeta; en una
+             caja, sin rótulos. */}
+        <div class="sf-placa">
+          <blockquote><p>{Q(k.citas[1])}</p></blockquote>
+          <p class="sf-firma"><cite>{k.nombre}</cite> · {k.cargo}</p>
+          <p class="sf-fuente">{k.donde} · {k.anio}</p>
+          <p>{k.relacion}</p>
+          <p class="sf-fuente">{c.cartas.contactoTag}: <a class="hist-link" href={`mailto:${k.correo}`}>{k.correo}</a></p>
+          <p class="sf-fuente">{c.cartas.pdfNo.replace('{n}', k.nombre)}</p>
+        </div>
+      </>
+    ))}
+    {/* (iii) LAS DOS PRUEBAS EN PAREJA 482 × 642 (CURADURIA-FOTOS.md, cap. 4):
+         con Lloyd George —las banderas, 1125 px de origen y sin subtítulo
+         quemado— y con Andy Toh —la mesa baja de la entrevista, 900 px—.
+         Eran 154 × 274 y 154 × 116. Andy Toh vive SOLO aquí: era el único
+         archivo repetido de las 39 fotos. Las dos se recortan a 3:4 en
+         build-photos.mjs, con las cabezas dentro. SE IMPRIMEN: Cv.astro ya
+         carga las diferidas al imprimir porque «un CV que imprime rectángulos
+         blancos donde van las fotos con quien firma sus cartas está roto». */}
+    <div class="sf-par">
+      <figure>
+        <img src={foto('cv-lote-carta-lloyd.webp')} alt={c.lote.cartaLloydAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.cartaLloydPie}</figcaption>
+      </figure>
+      <figure>
+        <img src={foto('cv-carta-andy.webp')} alt={c.lote.cartaAndyAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.cartaAndyPie}</figcaption>
+      </figure>
     </div>
-
-    {/* ── LO QUE LAS CARTAS VERIFICAN ─────────────────────────────────────
-         Seis hechos que hasta el 2026-08-29 eran solo palabra de Jaime y que
-         ahora firma un tercero. Cada renglón dice QUIÉN lo firma: «un
-         tercero» a secas no es una fuente. En los sitios del CV donde esos
-         hechos ya estaban dichos con su voz hay una línea apuntando aquí.
-
-         EL PREMIO YA NO ESTÁ AQUÍ (2026-08-31): tiene capítulo propio
-         («Premios»), porque Ivey los evalúa en sección aparte y porque
-         enterrado al final de este capítulo no lo veía nadie. Lo que se
-         queda es la última línea de la lista de arriba, que es otra cosa: no
-         es el premio, es lo que Andy Toh firma sobre su trabajo en el Green
-         Tech Youth Summit. */}
-    {/* ── A DOS COLUMNAS (spec-ola4-sitios §C): lo que verifican, en la
-         prosa; «las que faltan» —dos huecos de carta, un plegable corto— en
-         la pista de margen. Medido antes: de aquí al cierre el capítulo era
-         una columna de 688 con el 40 % derecho vacío (f11 a 1440: 1.4 % de
-         tinta). Los huecos y los plegables cortos son justo lo que el spec
-         manda al margen. */}
-    <div class="con-aparte cartas-verifica">
-    <div class="prosa-col">
-    <h3 class="t-h3 cartas-h">{c.cartas.verificaH}</h3>
-    <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.verifica}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
-    <p class="cap-lede">{c.cartas.verificaLede}</p>
-    {/* EL RÓTULO SOLO SALE EN ESPAÑOL (en inglés la cadena va vacía): en ese
-         panel las tres citas son inglés dentro de un párrafo español, y las
-         cuatro citas largas de las cartas sí avisan de que están traducidas.
-         Sin este renglón, el mismo capítulo traduce unas frases y deja otras
-         en inglés sin decir por qué. */}
-    {c.cartas.verificaCitaTag && <p class="meta-mono">{c.cartas.verificaCitaTag}</p>}
-    <ul class="verifica">
+    {/* (vi) LO QUE LAS CARTAS VERIFICAN: seis filas de 980 × 112. Seis hechos
+         que hasta el 2026-08-29 eran solo palabra de Jaime y que ahora firma
+         un tercero; cada renglón dice QUIÉN —«un tercero» a secas no es una
+         fuente—. Sin miniatura: la carta no se publica, y el sitio de la
+         miniatura no se rellena con nada. Estaba plegado; ahora a la vista,
+         porque es la pieza que convierte las cartas en verificación.
+         LA CITA VA EN `lang="en"`: en el panel español son tres trozos de
+         inglés dentro de un párrafo en español, y sin la marca un lector de
+         pantalla los pronuncia con fonemas españoles. */}
+    <h3 class="sf-sub">{c.cartas.verificaH}</h3>
+    <div class="sf-prosa"><p>{c.cartas.verificaLede}</p></div>
+    <ul class="sf-tabla sf-tabla--texto">
       {c.cartas.verifica.map((v) => (
-        <li class="verifica-fila">
-          {/* LA CITA VA EN `lang="en"`. Es la frase literal de la carta, y en
-               el panel español es inglés metido en un párrafo en español: sin
-               la marca, un lector de pantalla la pronuncia con fonemas
-               españoles («entirely on his own steam» leído en español no se
-               entiende). Las comillas las pone el panel, no la cadena, porque
-               son puntuación del idioma que las rodea: « » en español y “ ”
-               en inglés. */}
-          <p>{v.que}{v.cita && (
-            <>{' '}{locale === 'es' ? '«' : '“'}<span lang="en">{v.cita}</span>{locale === 'es' ? '»' : '”'}.</>
-          )}</p>
-          <p class="meta-mono fuente-carta">{v.quien}</p>
+        <li>
+          <div>
+            <p class="sf-nombre">{v.que}{v.cita && (
+              <>{' '}{locale === 'es' ? '«' : '“'}<span lang="en">{v.cita}</span>{locale === 'es' ? '»' : '”'}.</>
+            )}</p>
+            <p class="sf-emisor">{v.quien}</p>
+          </div>
         </li>
       ))}
     </ul>
-    </details>
-    </div>
-    <div class="aparte">
-    <details class="ref-plegable">
+    {/* (x) LA CARTA QUE FALTA, PLEGADA: Jaime dijo «todavía faltan varias,
+         ahí vamos». Plegado no anuncia una carencia en pantalla; dentro, la
+         caja tiene la geometría de seis líneas de prosa, sin nombrar a nadie. */}
+    <details class="ref-plegable sf-lectura">
       <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.cartas.faltanH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
-    {/* <div> y no <ul>: `role="note"` no está permitido en un <li> (lo
-         atrapó axe) y estos recuadros son notas, como los FotoHueco. */}
-    <div class="cartas">
-      {c.cartas.slots.map((pista) => (
-        <div class="carta-hueco" role="note" aria-label={`${c.cartas.tag}: ${pista}`}>
-          <p class="carta-tag" aria-hidden="true">{c.cartas.tag}</p>
-          <p class="carta-pista" aria-hidden="true">{pista}</p>
-          <p class="carta-campos meta-mono">{c.cartas.campos}</p>
-        </div>
-      ))}
-    </div>
+      <div class="sf-pendiente sf-pendiente--prosa" role="note" aria-label={`${c.cartas.tag}: ${c.cartas.slots[0]}`}>
+        <p class="pend-que" aria-hidden="true">{c.cartas.slots[0]}</p>
+      </div>
     </details>
-    </div>
-    </div>
-    <p class="meta-mono cap-cierre">{c.cierre.cartas}</p>
   </section>
 
   {/* ════ 05 · Lo que organizo con el grupo ═══════════════════════════════
@@ -1464,291 +1366,310 @@ const certsFranja = c.franja.certsDe
        `apertura-jaime.txt` [00:00:00 → 00:00:17] «este taller lo
        organizamos»; `gustavo-apertura.txt` [00:00:12 → 00:00:26]; la
        diapositiva S.M.A.R.T. en la foto 4603; once testimonios grabados por
-       él a la salida, siete aquí, tres a la vista) y EL RETO ACTINVER, que
-       venía del capítulo «Reto y private equity» (el PE se fue a «Lo que
-       construí»). Lo que no está en el material no se escribe: cuántos
-       fueron, cuándo, el apellido y cargo de Gustavo. El impacto lo dicen
-       ellos. Los testimonios van sin nombre: son compañeros menores de edad.
-       Las fotos del taller entran en el paso 3 (build-photos.mjs). */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
+       él a la salida, siete aquí) y EL RETO ACTINVER. Lo que no está en el
+       material no se escribe: cuántos fueron, cuándo, el apellido y cargo de
+       Gustavo. El impacto lo dicen ellos. Los testimonios van sin nombre:
+       son compañeros menores de edad.
+
+       ── DESDE LA OLA 6 · PASO B, SOLO PLANTILLAS DE §3.4 ──────────────────
+       AQUÍ VIVÍA EL HUECO #1 DE LA AUDITORÍA: 1 426 px de columna de prosa
+       vacía, porque `div.bloques` era una rejilla de dos columnas y la de
+       margen seguía 1 450 px después de que muriera la de texto. Ya no hay
+       dos columnas: cada bloque ocupa los 980 y va 44 debajo del anterior,
+       y las cajas son iguales por construcción (INVENTARIO.md §8).
+         (i)   apertura: ojo con el número · titular · entradilla
+         (ii)  «el taller», prosa a 653 con su fuente pegada
+         (iii) PAREJA 482 × 642: él abriendo · Gustavo ante la lámina
+               S.M.A.R.T. (CURADURIA-FOTOS.md, cap. 5: «la única de las once
+               donde sale Jaime» y «la prueba del CONTENIDO»)
+         (vii) su apertura: la frase que se lleva el discurso en la cita
+               grande, y el discurso ENTERO en la placa con las palabras del
+               profesor Gustavo debajo (<cite>)
+         (ii)  «lo que enseñó», prosa con su fuente
+         (ii)  COLUMNA 653 × 435: el auditorio con una mano levantada — «la
+               prueba del ALCANCE: se cuentan las butacas ocupadas». La 4573
+               SE FUE (mismo plano, de espaldas, la sala pareciendo vacía).
+         (x)   UN recuadro con lo que falta del taller: cuánta gente vino (la
+               cifra que le falta al capítulo) y el apellido de Gustavo
+         (iv)  los SIETE testimonios en el carrusel de tarjetas 482 × 288, ya
+               no tres a la vista y cuatro plegados
+         (ii)  el Reto: su cita y la entradilla en la prosa, la marca de
+               tercero con su línea (regla de CLAUDE.md) y los dos enlaces
+         (x)   plegado: calendario, cartera, «lo que quiero del reto» y la
+               foto que falta, con su caja de 653 × 435
+       Fuera: «Proven: one workshop…», los rótulos «That day», «The
+       calendar» y «What they said» sobre cada testimonio, y las dos notas de
+       traducción, que dice UNA vez el bloque de notas del final. */}
+  <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-5-h`}>
     <span id={`${p}-cap-5`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(4).n}</span><span class="cap-de">/ {num(4).t}</span></p>
-    <h2 class="cap-h" id={`${p}-cap-5-h`}>{c.caps.grupoHace}</h2>
-    <p class="cap-lede">{c.grupoHace.lede}</p>
+    <header class="sf-cap">
+      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(4).n} / {num(4).t}</p>
+      <h2 class="sf-titular" id={`${p}-cap-5-h`}>{c.caps.grupoHace}</h2>
+      <p class="sf-entra">{c.grupoHace.lede}</p>
+    </header>
 
-    {/* ── LOS DOS BLOQUES VAN A DOS COLUMNAS (spec-ola4-sitios §C) ──────
-         Antes eran una columna de 688 hasta el cierre: a 1440 el cuadro del
-         Reto tenía 0.0 % de tinta en el 40 % derecho. Taller: el texto a la
-         izquierda; a la derecha el hueco de asistencia, la foto `mitad` (él
-         abriendo, vertical 332×590) con las tres de compañeros como
-         miniaturas de 154, y los testimonios. Reto: el
-         texto a la izquierda; el plegable del calendario y la cartera, a la
-         derecha. Todo lo del aparte baja a 15 px (regla del margen). */}
-    <div class="bloques">
-      <div class="bloque taller con-aparte">
-        <div class="prosa-col">
-        <h3 class="t-h3">{c.taller.h}</h3>
-        <p class="cap-frases">{c.taller.que}</p>
-        <p class="meta-mono fuente-carta">{c.taller.queFuente}</p>
-
-        <details class="ref-plegable">
-          <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.taller.aperturaH}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
-        {/* Voz de Jaime, verbatim de la cinta, pulida solo en puntuación. */}
-        <blockquote class="voz">
-          {c.taller.aperturaTag && <p class="meta-mono">{c.taller.aperturaTag}</p>}
-          <p>{c.taller.apertura}</p>
-        </blockquote>
-        {/* Cita de un TERCERO: <blockquote> con <cite>, como las cartas. */}
-        <blockquote class="tercero">
-          {c.cintaTag && <p class="meta-mono">{c.cintaTag}</p>}
-          <p>{c.taller.gustavo}</p>
-          <footer class="pie">— <cite>{c.taller.gustavoQuien}</cite></footer>
-        </blockquote>
-        <HuecoMaterial c={c} que={c.taller.gustavoQue} />
-        </details>
-        <h4 class="etiqueta">{c.taller.temaH}</h4>
-        <p class="cap-frases">{c.taller.tema}</p>
-        <p class="meta-mono fuente-carta">{c.taller.temaFuente}</p>
-        </div>
-        <div class="aparte">
-        <HuecoMaterial c={c} que={c.taller.asistenciaQue} />
-        <h4 class="etiqueta">{c.taller.fotosH}</h4>
-        {/* LA GRANDE es Jaime abriendo el taller (cuadro de su video IMG_6041,
-             1080×1920 → 664×1180, 9:16 sin recorte: una vertical no se
-             recorta a horizontal). En la caja `mitad` pinta 332×590. Las
-             tres de compañeros (1500×2000 → 560×747, 3:4, sin recorte: son
-             fotos que alguien encuadró) van de miniatura. Caras de compañeros
-             MENORES: Jaime dio el permiso el 2026-09-03 («que sí salgan mis
-             compañeros, solo que salga yo también»). */}
-        <div class="aparte-fotos">
-          <figure class="lote-fig caja-mitad fig-9-16">
-            <span class="recuerdo"><img src={foto(c.taller.aperturaFoto.id)} alt={c.taller.aperturaFoto.alt} width="664" height="1180" style="--nat-w:664" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.taller.aperturaFoto.pie}</figcaption>
-          </figure>
-          {c.taller.fotos.map((f) => (
-            <figure class="lote-fig caja-tarjeta">
-              <a class="mini" href={foto(f.id)} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto(f.id)} alt={f.alt} width="560" height="747" style="--nat-w:560" loading="lazy" decoding="async" /></span></a>
-              <figcaption class="pie">{f.pie}</figcaption>
-            </figure>
-          ))}
-        </div>
-
-        <h4 class="etiqueta">{c.taller.testimoniosH}</h4>
-        <p class="pie">{c.taller.testimoniosLede}</p>
-        {c.taller.testimoniosTag && <p class="meta-mono">{c.taller.testimoniosTag}</p>}
-        <ul class="testimonios">
-          {c.taller.testimonios.slice(0, 3).map((x) => (
-          <li><blockquote class="tercero"><p>{x.cita}</p><footer class="pie">— <cite>{x.quien}</cite></footer></blockquote></li>
-          ))}
-        </ul>
-    <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.masDijeron}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
-        <ul class="testimonios">
-          {c.taller.testimonios.slice(3).map((x) => (
-          <li><blockquote class="tercero"><p>{x.cita}</p><footer class="pie">— <cite>{x.quien}</cite></footer></blockquote></li>
-          ))}
-        </ul>
-    </details>
-        </div>
-      </div>
-
-      {/* ── El Reto Actinver ── El calendario sale de src/lib/reto/actinver.mjs
-           por FECHAS, la cartera del mismo archivo que lee la página pública.
-           El logo con las reglas del repo: pequeño, placa oscura, línea de no
-           afiliación. Calendario, cartera, nota y hueco de foto van PLEGADOS
-           (OLA4 §6.3): hasta el 5 de octubre no dicen nada. */}
-      <div class="bloque reto con-aparte">
-        <div class="prosa-col">
-        <h3 class="t-h3">{c.dos.actinverH}</h3>
-        {/* texto de Jaime, pendiente de su revisión final */}
-        <blockquote class="voz"><p>{c.voz.actinver}</p></blockquote>
-        <p class="cap-lede">{c.reto.lede}</p>
-        <div class="reto-marca">
-          <span class="logo-placa"><img src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" style="--nat-w:182" height="108" loading="lazy" decoding="async" /></span>
-          <p class="pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
-        </div>
-        <p class="links-row">
-          <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
-          <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
-        </p>
-        </div>
-        <div class="aparte">
-    <details class="ref-plegable">
-      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.reto}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
-        <h4 class="etiqueta">{c.reto.calH}</h4>
-        <ol class="cal">
-          {filasCal.map((f) => (
-            <li>
-              <span class="cal-que">{c.reto.cal[f.id]}</span>
-              <span class="cal-cuando num">{f.cuando}</span>
-            </li>
-          ))}
-        </ol>
-        {hayCartera ? (
-          <>
-            {g && (
-              <figure class="curva">
-                <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
-                  aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
-                  {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
-                  <path class="curva-area" d={g.area} />
-                  <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
-                </svg>
-              </figure>
-            )}
-            {fotoNoct && <p class="pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
-          </>
-        ) : (
-          <p class="cap-frases">{c.reto.empty}</p>
-        )}
-        <Hueco c={c} id="retoNota" />
-        <div class="fila-fotos">
-          <FotoHueco c={c} que={c.fotosPend.actinver} />
-        </div>
-    </details>
-        </div>
-      </div>
+    {/* ══ EL TALLER ══════════════════════════════════════════════════════ */}
+    <h3 class="sf-sub">{c.taller.h}</h3>
+    <div class="sf-prosa"><p>{c.taller.que}</p></div>
+    <p class="sf-pie sf-lectura">{c.taller.queFuente}</p>
+    {/* (iii) Él abriendo el taller (cuadro 9:16 de su vídeo IMG_6041,
+         recortado a 3:4 en build-photos.mjs con él y la diapositiva dentro)
+         y Gustavo ante la lámina «Metas Financieras» (3:4 nativa, 3.11×).
+         Eran 332 × 590 y 154 × 205. Caras de compañeros MENORES: Jaime dio
+         el permiso el 2026-09-03 («que sí salgan mis compañeros, solo que
+         salga yo también»). */}
+    <div class="sf-par">
+      <figure>
+        <img src={foto(c.taller.aperturaFoto.id)} alt={c.taller.aperturaFoto.alt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.taller.aperturaFoto.pie}</figcaption>
+      </figure>
+      <figure>
+        <img src={foto(c.taller.fotos[0].id)} alt={c.taller.fotos[0].alt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.taller.fotos[0].pie}</figcaption>
+      </figure>
     </div>
-    <p class="meta-mono cap-cierre">{c.cierre.grupoHace}</p>
+    {/* (vii) SUS PALABRAS AL ABRIR. La cita grande lleva un fragmento
+         VERBATIM del discurso (subcadena exacta; a 40/44 el discurso entero
+         serían siete líneas y la cita grande de Apple es de veinte). El
+         discurso ENTERO va debajo, en la placa, sin perder una palabra —
+         ninguna cita suya se recorta: se reparte—, y con él la del profesor
+         Gustavo, que es de un TERCERO (<blockquote> con <cite>). El hueco
+         de su apellido y cargo va pegado a su nombre, con la geometría de
+         una línea de placa. En inglés las tres son traducción y lo dice el
+         bloque de notas del final, una vez. */}
+    <blockquote class="sf-cita-grande">
+      <p>{c.taller.aperturaCita}</p>
+      <p class="sf-credito">{c.taller.aperturaQuien}</p>
+    </blockquote>
+    <div class="sf-placa">
+      <blockquote><p>{c.taller.apertura}</p></blockquote>
+      <p class="sf-firma">{c.taller.aperturaQuien}</p>
+      <blockquote><p>{c.taller.gustavo}</p></blockquote>
+      <p class="sf-firma"><cite>{c.taller.gustavoQuien}</cite></p>
+    </div>
+
+    <h3 class="sf-sub">{c.taller.temaH}</h3>
+    <div class="sf-prosa"><p>{c.taller.tema}</p></div>
+    <p class="sf-pie sf-lectura">{c.taller.temaFuente}</p>
+    {/* (ii) EL AUDITORIO, a lo ancho: «que es como se lee un auditorio». La
+         banda 3:2 se corta del retrato en build-photos.mjs con la mano
+         levantada dentro; 1306 a densidad 2. */}
+    <figure class="sf-foto sf-foto--columna sf-foto--h32">
+      <img src={foto(c.taller.fotos[1].id)} alt={c.taller.fotos[1].alt} width="653" height="435" loading="lazy" decoding="async" />
+      <figcaption>{c.taller.fotos[1].pie}</figcaption>
+    </figure>
+    {/* (x) UN SOLO RECUADRO para el material que le falta al taller, como el
+         del capítulo de las conversaciones (INVENTARIO.md §6): cuánta gente
+         vino —la cifra que una rúbrica de impacto pide primero; el día que
+         Jaime la tenga con su fuente, entra como cifra de (viii)— y el
+         apellido y el cargo del profesor Gustavo, que antes vivía plegado
+         bajo su cita. Dos recuadros eran el hueco número 20 contra un tope de
+         19: dos datos que faltan de la misma tarde son UNA lista, no dos
+         cajas. Sin rótulo repetido: el borde punteado ya dice que falta. */}
+    <div class="sf-pendiente sf-pendiente--lista sf-lectura" role="note" aria-label={`${c.materialHueco.tag}: ${c.plegado.pendiente}`}>
+      <p class="pend-h">{c.plegado.pendiente}</p>
+      <ul class="pend-lista">
+        <li>{c.taller.asistenciaQue}</li>
+        <li>{c.taller.gustavoQue}</li>
+      </ul>
+    </div>
+
+    {/* ══ (iv) LO QUE DIJERON A LA SALIDA: SIETE TARJETAS DE 482 × 288 ═════
+         «La prueba de impacto más directa del CV: gente saliendo del taller
+         diciendo qué se llevó» (INVENTARIO.md §8). Estaban partidos en dos
+         sitios —tres a la vista, cuatro plegados—; ahora son siete tarjetas
+         iguales en el mismo carrusel que las conversaciones (cv-citas.ts
+         engancha todos los `[data-citas]`). Dentro: la cita, cuatro líneas
+         como mucho, y el crédito con <cite>: son palabras de un tercero.
+         Sin nombre a propósito: compañeros menores de edad. Una cita que no
+         quepa en cuatro líneas se recorta; la tarjeta no crece. */}
+    <h3 class="sf-sub">{c.taller.testimoniosH}</h3>
+    <div class="sf-prosa"><p>{c.taller.testimoniosLede}</p></div>
+    <div class="sf-carrusel" data-citas>
+      <ul class="citas sf-pista" tabindex="0" aria-label={c.taller.testimoniosH}>
+        {c.taller.testimonios.map((x) => (
+          <li class="cita sf-tarjeta sf-tarjeta--dijo">
+            <blockquote><p>{x.cita}</p></blockquote>
+            <p class="sf-credito"><cite>{x.quien}</cite></p>
+          </li>
+        ))}
+      </ul>
+      <div class="sf-flechas">
+        <button type="button" class="sf-flecha sf-flecha--izq" data-citas-prev aria-label={c.entrevistas.prev}>‹</button>
+        <button type="button" class="sf-flecha sf-flecha--der" data-citas-next aria-label={c.entrevistas.next}>›</button>
+      </div>
+      <ol class="sf-puntos" aria-hidden="true">
+        {c.taller.testimonios.map((_, i) => <li aria-current={i === 0 ? 'true' : undefined}></li>)}
+      </ol>
+    </div>
+
+    {/* ══ EL RETO ACTINVER ═══════════════════════════════════════════════
+         (ii) Su cita —verbatim, es suya— y la entradilla del concurso, en la
+         prosa. La marca de tercero con las reglas de CLAUDE.md: pequeña
+         (154, original de 182: `data-marca` la saca del suelo de 480 del
+         guardián, que la cuenta aparte), sobre placa oscura fija en los dos
+         temas, con la línea de no afiliación AL LADO y la fecha de consulta
+         del calendario. Los dos enlaces, a la fase de hoy y a la cartera.
+         (x) PLEGADO, nota tipo 2: el calendario sale de
+         src/lib/reto/actinver.mjs por FECHAS; la cartera del mismo archivo
+         que lee la página pública; «lo que quiero del reto» (su hueco, con
+         la geometría de seis líneas) y la foto que falta, con su caja de
+         653 × 435. Hasta el 5 de octubre no dicen nada (OLA4 §6.3). */}
+    <h3 class="sf-sub">{c.dos.actinverH}</h3>
+    <div class="sf-prosa">
+      {/* texto de Jaime, pendiente de su revisión final */}
+      <blockquote><p>{c.voz.actinver}</p></blockquote>
+      <p>{c.reto.lede}</p>
+    </div>
+    <div class="reto-marca sf-lectura">
+      <span class="logo-placa"><img data-marca src={foto('reto-actinver.webp')} alt="Reto Actinver" width="182" height="108" loading="lazy" decoding="async" /></span>
+      <p class="sf-pie">{c.reto.source.replace('{d}', day(cal.fuente.consultada, locale))}</p>
+    </div>
+    <p class="sf-link sf-lectura links-row">
+      <a class="hist-link" href={L('research') + '#reto-actinver'}>{c.reto.linkPhase} →</a>
+      <a class="hist-link" href={L('actinver')}>{c.reto.linkMine} →</a>
+    </p>
+    <details class="ref-plegable sf-lectura">
+      <summary class="ref-ver"><span class="ref-ver-fila"><span class="ref-ver-txt">{c.plegado.reto}</span><span class="ref-flecha" aria-hidden="true"></span></span></summary>
+      <ol class="cal">
+        {filasCal.map((f) => (
+          <li>
+            <span class="cal-que">{c.reto.cal[f.id]}</span>
+            <span class="cal-cuando num">{f.cuando}</span>
+          </li>
+        ))}
+      </ol>
+      {hayCartera ? (
+        <>
+          {g && (
+            <figure class="curva">
+              <svg class="curva-svg" viewBox="0 0 600 120" preserveAspectRatio="none" role="img"
+                aria-label={`${c.reto.linkMine}: ${D(g.primero)} → ${D(g.ultimo)}, ${P(g.cambioPct)}`}>
+                {g.baseY !== null && <line class="curva-base" x1="0" x2="600" y1={g.baseY} y2={g.baseY} />}
+                <path class="curva-area" d={g.area} />
+                <path class={'curva-line ' + claseDir(g.cambioPct)} d={g.line} />
+              </svg>
+            </figure>
+          )}
+          {fotoNoct && <p class="sf-pie">{fmt(c.reto.snapshot, { date: dia(fotoNoct.fecha, locale) })}</p>}
+        </>
+      ) : (
+        <p class="sf-pie">{c.reto.empty}</p>
+      )}
+      <Hueco c={c} id="retoNota" class="sf-pendiente--prosa" />
+      <div class="sf-pendiente sf-pendiente--foto" role="note" aria-label={`${c.fotoHueco.tag}: ${c.fotosPend.actinver}`}>
+        <p class="pend-que" aria-hidden="true">{c.fotosPend.actinver}</p>
+      </div>
+    </details>
   </section>
 
   {/* ════ 06 · Servir — los voluntariados ════════════════════════════════
-       "Experiencias, voluntariados": van pegados, en ese orden.
-       EL GRUPO ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos
-       (capítulo 5), que es donde Jaime lo puso. Aquí se quedan los dos
-       voluntariados de su frase: los animalitos y las playas. La comunidad
-       sigue nombrada en su cita, que es verbatim y no se toca. */}
-  <section class="cap sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
-    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
-    <p class="cap-num" aria-hidden="true"><span class="cap-aro">{num(5).n}</span><span class="cap-de">/ {num(5).t}</span></p>
-    <h2 class="cap-h" id={`${p}-cap-6-h`}>{c.caps.voluntariados}</h2>
-    {/* texto de Jaime, pendiente de su revisión final */}
-    <blockquote class="voz"><p>{c.voz.servir}</p></blockquote>
+       "Experiencias, voluntariados": van pegados, en ese orden. EL GRUPO
+       ESTUDIANTIL YA NO ESTÁ AQUÍ: se fue a encabezar los proyectos, que es
+       donde Jaime lo puso. Aquí se quedan los dos voluntariados de su frase:
+       los animalitos y las playas. La comunidad sigue nombrada en su cita,
+       que es verbatim y no se toca.
 
-    <div class="servir">
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.animales}</h3>
-        {/* EL APARTE (spec-ola4-sitios §C.2): LA foto del bloque a `mitad` y las
-             otras dos de miniatura, en el margen, al lado del texto que ilustran. */}
-        <div class="con-aparte">
-          <div class="prosa-col">
-        {/* ── EL CLIP VA AL LADO DE SU TEXTO, NO ENCIMA (escritorio) ───────
-             El clip es 9:16 y su tope son 300 px de ancho, así que apilado
-             ocupaba el 20.8 % del marco a 1440 y dejaba 1075 px de blanco a
-             su derecha: era el medio más huérfano del documento. Y NO se
-             arregla ensanchándolo — a ancho de prosa un 9:16 mide 1223 px de
-             alto, más de una pantalla para un clip.
-             Lo que necesitaba era compañía, no anchura: `.clip-par` lo empareja
-             con el párrafo que ya venía justo debajo. En escritorio son dos
-             columnas (el clip a la izquierda, el texto a la derecha) y la
-             banda se llena; en el teléfono el envoltorio es la MISMA columna
-             flex con el MISMO hueco que `.servir-bloque`, así que no mueve un
-             píxel. Es el mismo bento de `.grupo`. */}
-        <div class="clip-par">
-          <div class="clip-par-media">
-            {/* El clip existe en su TikTok: se sirve desde aquí, sin bucle y
-                 sin sonar solo (`controls` + `preload="none"`). */}
-            <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-              data-poster="/assets/cv/cv-poster-animales.jpg"></video>
-            <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip)}
-              poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
-            <p class="pie">{c.servir.animalesClip} <a class="hist-link" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver} ↗</a></p>
-          </div>
-          {/* La donación al stand de adopción: hecho de su publicación en
-               LinkedIn (2026). Las fotos no se pudieron guardar en esta
-               cosecha; el hecho entra igual, sin foto. */}
-          <p class="cap-frases">{c.servir.donacion}</p>
-        </div>
-        {/* Fotos 5, 6 y 13 del lote del 2026-08-30, YA COLOCADAS: él
-             entregando el alimento, los perritos del stand y la marcha. La
-             cuarta de este tema (él con Sol, la 11) NO se publica —el cartel
-             enseña un teléfono— y su hueco, en la tarjeta de Sol del
-             capítulo 4, lo dice en pantalla. */}
-        <Hueco c={c} id="servirAnimales" />
-          </div>
-          <div class="aparte">
-          <figure class="caja-mitad lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-donacion.webp')} alt={c.lote.donacionAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.donacionPie}</figcaption>
-          </figure>
-            <div class="mini-tira">
-          <figure class="caja-tarjeta lote-fig">
-            <a class="mini" href={foto('cv-lote-perritos.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-perritos.webp')} alt={c.lote.perritosAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span></a>
-            <figcaption class="pie">{c.lote.perritosPie}</figcaption>
-          </figure>
-          <figure class="caja-tarjeta lote-fig">
-            <a class="mini" href={foto('cv-lote-marcha.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span></a>
-            <figcaption class="pie">{c.lote.marchaPie}</figcaption>
-          </figure>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="servir-bloque">
-        <h3 class="t-h3">{c.servir.bloques.playas}</h3>
-        {/* EL APARTE (spec-ola4-sitios §C.2): LA foto del bloque a `mitad` y las
-             otras dos de miniatura, en el margen, al lado del texto que ilustran. */}
-        <div class="con-aparte">
-          <div class="prosa-col">
-        {/* LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
-             línea sale de su propia publicación sobre el voluntariado del
-             curso de Green Technology. */}
-        <p class="cap-frases">{c.servir.playa}</p>
-        {/* ── ES EL MISMO PROGRAMA DEL CERTIFICADO ────────────────────────
-             La publicación de la playa y el certificado 4 del capítulo de
-             certificaciones son LA MISMA COSA: el 2026 Green Technology
-             Programme de Bluesky Education. Estaban escritos como dos
-             actividades sueltas y no lo son — la limpieza es la parte de
-             servicio del programa que certifica el diploma. */}
-        <p class="cap-frases">{c.servir.playaPrograma}</p>
-        {/* SUS PALABRAS, recuperadas el 2026-08-29. La publicación se daba
-             por perdida y este bloque iba con una sola frase escrita por la
-             página; está publicada, se encontró y se transcribió. */}
-        <blockquote class="voz">
-          {c.voz.playaTag && <p class="meta-mono">{c.voz.playaTag}</p>}
-          <p>{c.voz.playa}</p>
-        </blockquote>
-        <p class="pie">{c.voz.playaFuente}</p>
-        {/* La limpieza de playa la firma ahora un tercero: la carta de Lloyd
-             George la nombra («including a beach cleaning project during his
-             stay»). Antes solo estaba su propia publicación. */}
-        <p class="meta-mono fuente-carta">{fuenteCarta('Lloyd George')}</p>
-        {/* TRES huecos, uno por foto: la publicación tiene tres y están
-             descritas una por una. Un hueco genérico decía «faltan fotos»;
-             tres dicen CUÁLES, que es lo que hace falta para traerlas. No
-             se pudieron bajar porque Chrome activó su bloqueo de descargas
-             automáticas para linkedin.com — es un permiso del navegador de
-             Jaime, no algo que se arregle desde aquí. */}
-          </div>
-          <div class="aparte">
-          <figure class="caja-mitad lote-fig">
-            <span class="recuerdo"><img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span>
-            <figcaption class="pie">{c.lote.playa1Pie}</figcaption>
-          </figure>
-            <div class="mini-tira">
-          <figure class="caja-tarjeta lote-fig">
-            <a class="mini" href={foto('cv-lote-playa-2.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-playa-2.webp')} alt={c.lote.playa2Alt} width="560" style="--nat-w:560" height="747" loading="lazy" decoding="async" /></span></a>
-            <figcaption class="pie">{c.lote.playa2Pie}</figcaption>
-          </figure>
-          <figure class="caja-tarjeta lote-fig">
-            <a class="mini" href={foto('cv-lote-playa-3.webp')} data-abre-foto title={c.plegado.abrir}><span class="recuerdo"><img src={foto('cv-lote-playa-3.webp')} alt={c.lote.playa3Alt} width="560" style="--nat-w:560" height="731" loading="lazy" decoding="async" /></span></a>
-            <figcaption class="pie">{c.lote.playa3Pie}</figcaption>
-          </figure>
-            </div>
-          </div>
-        </div>
+       ── DESDE LA OLA 6 · PASO B, SOLO PLANTILLAS DE §3.4 (INVENTARIO §9) ──
+         (i)   ojo con el número · titular
+         (vii) sus nueve palabras en la cita grande: el capítulo en su voz
+         (v)   el clip de la marcha en la tarjeta de vídeo 308 × 385,
+               centrada (era 154 de ancho), con su pie y el enlace debajo
+         (ii)  la donación, prosa a 653
+         (x)   «los animales, en mis palabras»: el hueco que más falta hace
+               del capítulo, con la geometría de seis líneas
+         (iii) PAREJA 482 × 642: la marcha (él con el cartel de Canelo) y el
+               stand de Callejeritos con dos voluntarias y los carteles
+               hechos a mano — la 11 del lote, que ENTRA en lugar de la
+               donación («una es una donación, la otra es una organización»,
+               CURADURIA-FOTOS.md §5.5) con el teléfono del cartel PIXELADO
+               desde build-photos.mjs. Perritos (decorado) SE VA.
+         (ii)  la playa y el programa que la incluía, prosa
+         (iii) la playa SOLA a 482 × 642 (`--sola`: su original mide 800 y no
+               da para 653); playa-2 (nadie) y playa-3 (de espaldas) SE VAN
+         (vii) su publicación de LinkedIn: la primera oración en la cita
+               grande y la publicación entera en la placa, con su fuente
+       Fuera: «Proven: my posts…», la tercera mención a la carta de Lloyd
+       George (vive UNA vez, en el capítulo del grupo; lo que la carta firma
+       de la playa está en la tabla del capítulo de las cartas) y la nota de
+       traducción de la publicación, que dice el bloque de notas del final. */}
+  <section class="cap cap--sf sin-imprimir" aria-labelledby={`${p}-cap-6-h`}>
+    <span id={`${p}-cap-6`} class="cap-ancla" aria-hidden="true"></span>
+    <header class="sf-cap">
+      <p class="sf-ojo" aria-hidden="true">{c.head.eyebrow} · {num(5).n} / {num(5).t}</p>
+      <h2 class="sf-titular" id={`${p}-cap-6-h`}>{c.caps.voluntariados}</h2>
+    </header>
+    {/* (vii) texto de Jaime, verbatim, pendiente de su revisión final */}
+    <blockquote class="sf-cita-grande"><p>{c.voz.servir}</p></blockquote>
+
+    {/* ══ LOS ANIMALES ══════════════════════════════════════════════════ */}
+    <h3 class="sf-sub">{c.servir.bloques.animales}</h3>
+    {/* (v) EL CLIP en la tarjeta de vídeo del sistema, sola y centrada
+         (`--uno`): existe en su TikTok y se sirve desde aquí, sin bucle y
+         sin sonar solo (`controls` + `preload="none"`), con su gemelo en
+         <noscript> (regla de CLAUDE.md). `contain` y no `cover`: un CV no
+         recorta la cara de quien habla. Sin rótulo de país: el pie va
+         debajo, con el enlace al original. */}
+    <div class="sf-paises sf-paises--uno">
+      <div class="sf-pais sf-pais--clip">
+        <video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip, false, 360, 640, 'clip-pais')}
+          data-poster="/assets/cv/cv-poster-animales.jpg"></video>
+        <noscript><video {...attrsClip('/assets/cv/cv-clip-animales.mp4', c.servir.animalesClip, false, 360, 640, 'clip-pais')}
+          poster="/assets/cv/cv-poster-animales.jpg"></video></noscript>
       </div>
     </div>
+    <p class="sf-pie sf-lectura">{c.servir.animalesClip} <a class="hist-link sf-ext" href={urlVideo('7677118351327431956')} target="_blank" rel="noopener">{c.clip.ver}</a></p>
+    {/* La donación al stand de adopción: hecho de su publicación en
+         LinkedIn (2026). */}
+    <div class="sf-prosa"><p>{c.servir.donacion}</p></div>
+    <Hueco c={c} id="servirAnimales" class="sf-pendiente--prosa" />
+    {/* (iii) Las dos acciones con el grupo detrás: la marcha (13 del lote,
+         1280 px, 2.66×) y el stand con las voluntarias (11 del lote, 1206
+         px, 2.50×, teléfono pixelado). Eran 154 × 205 y no estaba. */}
+    <div class="sf-par">
+      <figure>
+        <img src={foto('cv-lote-marcha.webp')} alt={c.lote.marchaAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.marchaPie}</figcaption>
+      </figure>
+      <figure>
+        <img src={foto('cv-lote-sol.webp')} alt={c.lote.solAlt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.solPie}</figcaption>
+      </figure>
+    </div>
 
-    {/* ══ AQUÍ IBA «LO QUE VIENE» Y SE FUE (2026-09-02) ═══════════════════
-         Anunciaba una colecta de ropa y otro voluntariado. El tiempo verbal
-         era correcto; la fuente no existía. Cero coincidencias en TODO el
-         material —MATERIAL.md, NOTAS-DEL-BRIEF.md, PENDIENTE.md, CARTAS.md,
-         EVIDENCIA-LINKEDIN-TIKTOK.md y ESTADO-NOCTURNO.md, que es donde se
-         apuntan sus decisiones del 2026-09-02—, y anunciar un compromiso que
-         él no declaró es una afirmación inventada como cualquier otra, con el
-         agravante de que compromete al futuro. La nota está en cv.ts. */}
-    <p class="meta-mono cap-cierre">{c.cierre.voluntariados}</p>
+    {/* ══ LA PLAYA ══════════════════════════════════════════════════════
+         LA PLAYA FUE EN SINGAPUR (corrección del brief 2026-08-28): la
+         línea sale de su propia publicación sobre el voluntariado del curso
+         de Green Technology. Y ES EL MISMO PROGRAMA DEL CERTIFICADO: la
+         publicación y el certificado 4 del expediente son LA MISMA COSA, el
+         2026 Green Technology Programme de Bluesky Education — la limpieza
+         es la parte de servicio del programa que certifica el diploma. */}
+    <h3 class="sf-sub">{c.servir.bloques.playas}</h3>
+    <div class="sf-prosa">
+      <p>{c.servir.playa}</p>
+      <p>{c.servir.playaPrograma}</p>
+    </div>
+    {/* (iii) SOLA a 482 × 642: él con la pinza y la cubeta, el camión detrás
+         y el mar al fondo — «la única de la playa donde se ve quién lo
+         hace». Su original mide 800 px (1.66× a 482): subirla de caja sería
+         estirarla, así que va en la media caja de la pareja, centrada. */}
+    <div class="sf-par sf-par--sola">
+      <figure>
+        <img src={foto('cv-lote-playa-1.webp')} alt={c.lote.playa1Alt} width="482" height="642" loading="lazy" decoding="async" />
+        <figcaption>{c.lote.playa1Pie}</figcaption>
+      </figure>
+    </div>
+    {/* (vii) SUS PALABRAS, recuperadas el 2026-08-29: la publicación se daba
+         por perdida; está publicada, se encontró y se transcribió. La cita
+         grande lleva su primera oración (subcadena exacta) y la placa la
+         publicación entera con su fuente pegada: nada se recorta, se
+         reparte. Lo que la carta de Lloyd George firma de este día está en
+         la tabla del capítulo de las cartas. */}
+    <blockquote class="sf-cita-grande"><p>{c.voz.playaCita}</p></blockquote>
+    <div class="sf-placa">
+      <blockquote><p>{c.voz.playa}</p></blockquote>
+      <p class="sf-fuente">{c.voz.playaFuente}</p>
+    </div>
   </section>
 
   {/* ════ 07 · Lo que construí ════════════════════════════════════════════
@@ -2735,6 +2656,9 @@ const certsFranja = c.franja.certsDe
       <div class="sf-nota notas-final">
         <h3>{c.notas.h}</h3>
         <p>{c.notas.traduccion}</p>
+        {/* Paso B: la nota de las cartas (solo en español, donde hay algo
+             que avisar; en inglés la cadena va vacía y no se pinta). */}
+        {c.notas.cartas && <p>{c.notas.cartas}</p>}
       </div>
       <p class="pie">{c.hueco.note}</p>
       <p class="pie"><strong>{c.disc.h}.</strong> {c.disc.p}</p>
@@ -4200,65 +4124,6 @@ const certsFranja = c.franja.certsDe
     .cert-fila { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }
   }
 
-  /* ---- Cartas de recomendación: las entregadas y los huecos ---- */
-  .cartas {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(16em, 100%), 1fr));
-    gap: var(--sp-4); max-width: 960px;
-  }
-  /* Los dos encabezados («Entregadas» / «Las que faltan») separan las dos
-     mitades. El primero va pegado al lede y el segundo respira más, que es
-     donde cambia de sentido la lista. */
-  .cartas-h { margin-top: var(--sp-5); }
-  /* La tarjeta de una carta ENTREGADA: tarjeta llena, como las de
-     certificaciones — borde continuo y papel. El borde discontinuo es del
-     hueco, y confundirlos sería decir que falta algo que ya está. */
-  .carta {
-    display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0;
-    border: 1px solid var(--cvh-raya); border-radius: 20px;
-    padding: var(--sp-5); background: var(--cvh-papel);
-  }
-  .carta-nombre { font-weight: 600; font-size: var(--fs-h4, 1.05rem); }
-  .carta-donde, .carta-anio { color: var(--cvh-tinta-2); }
-  .carta-anio { font-size: var(--fs-small); }
-  .carta-relacion { color: var(--cvh-tinta); }
-  /* Las DOS citas: pegadas al pie de la tarjeta, con su marca encima. Son de
-     un TERCERO, así que se leen distinto del resto — filete a la izquierda,
-     como las citas de todo el sitio. Al ser dos, el hueco entre ellas es
-     `--sp-3` y no `--sp-2`: con el mismo aire que hay entre la marca y la
-     primera, las dos frases se leían como un solo párrafo partido. */
-  .carta-cita {
-    margin: auto 0 0; padding-top: var(--sp-3);
-    display: flex; flex-direction: column; gap: var(--sp-2);
-  }
-  .carta-cita-tag { color: var(--cvh-tinta-2); }
-  .carta-cita blockquote {
-    margin: 0; padding-left: var(--sp-3);
-    border-left: 2px solid var(--cvh-raya);
-  }
-  .carta-cita blockquote + blockquote { margin-top: var(--sp-1); }
-  .carta-cita cite { font-style: normal; }
-  /* EL CONTACTO. Va DEBAJO de las citas y fuera del <figure>: no es parte de
-     la cita, es el canal que el firmante ofreció. En columna y no en una
-     fila con dos puntos, porque el correo es largo y a 320 px una fila lo
-     partía por la arroba. El `overflow-wrap: anywhere` es la única forma de
-     que `Enquiries.TAQ@outlook.com` quepa en la tarjeta más estrecha sin
-     desbordarla — es la excepción que `check-reflow` mide. */
-  .carta-contacto {
-    display: flex; flex-direction: column; gap: 2px;
-    padding-top: var(--sp-3);
-    overflow-wrap: anywhere;
-  }
-  .carta-contacto-tag { color: var(--cvh-tinta-2); }
-  /* La fila del PDF se lee como la del contacto: rótulo mono arriba, enlace
-     debajo y el peso pegado al enlace. El peso va `aria-hidden` porque el
-     nombre accesible del enlace ya lo lleva dentro — si no, un lector de
-     pantalla diría «PDF 366 KB» dos veces seguidas. */
-  .carta-pdf { display: flex; flex-direction: column; gap: 2px; }
-  /* `.carta-pdf-peso` se fue con el enlace (ya no hay archivo que pesar).
-     Lo que queda debajo del rótulo es la explicación de por qué no está,
-     en el gris de los pies: es una nota, no el contenido de la ficha. */
-  .carta-pdf-no { color: var(--cvh-tinta-2); font-size: var(--fs-caption); }
 
   /* La marca de «esto lo firma un tercero». Mismo tono y mismo tamaño que
      `cifra-suya-marca`: las dos son recibos, no frases, y tienen que leerse
@@ -4266,10 +4131,6 @@ const certsFranja = c.franja.certsDe
      (una dice «esto lo afirmo yo», la otra «esto lo firma otro»). */
   .fuente-carta { color: var(--cvh-tinta-2); }
 
-  /* La lista de lo que las cartas verifican: un hecho por renglón con quien
-     lo firma debajo. No es una tabla: son seis frases sueltas. */
-  .verifica { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 720px; }
-  .verifica-fila { display: flex; flex-direction: column; gap: 4px; }
   /* ---- Premios (capítulo propio desde la ola 2) ----
      LA TARJETA ES LLENA, NO DISCONTINUA, y eso cambió con el capítulo. En su
      versión anterior —enterrada al final de las cartas— el premio iba en un
@@ -4318,18 +4179,6 @@ const certsFranja = c.franja.certsDe
   .carta-pista { color: var(--cvh-tinta); }
   .carta-campos { margin-top: auto; color: var(--cvh-tinta-2); }
 
-  /* ---- Servir ---- */
-  .servir { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: var(--sp-5) var(--sp-4); }
-  /* Los tres huecos de las fotos de la playa, uno por foto. En columna: la
-     de arriba es vertical y las otras dos apaisadas, y ponerlas en fila las
-     dejaría a las tres del tamaño de un sello dentro de media columna. */
-  .playa-fotos { display: flex; flex-direction: column; gap: var(--sp-3); }
-  .servir-bloque { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
-  /* EN EL TELÉFONO NO EXISTE: la misma columna y el mismo hueco que su padre,
-     así que envolver el clip y su párrafo no mueve nada. La segunda columna
-     solo aparece en escritorio (bloque de `min-aspect-ratio`, más abajo). */
-  .clip-par { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
-  .clip-par-media { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
 
   /* ---- Los proyectos (cap 5): tarjetas blancas redondeadas (Ondo) ----
      Tres tarjetas una debajo de la otra: el grupo, el sitio (con la cinta y
@@ -6241,7 +6090,6 @@ const certsFranja = c.franja.certsDe
   .tercero { margin: 0; padding-left: var(--sp-3); border-left: 2px solid var(--cvh-raya); max-width: 688px; display: flex; flex-direction: column; gap: var(--sp-1); }
   .tercero p { margin: 0; }
   .tercero cite { font-style: normal; }
-  .testimonios { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); max-width: 688px; }
   .grupo-cap { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
   .grupo-fig { max-width: 332px; }
   .cita-dijo { margin-top: var(--sp-2); }
@@ -6326,7 +6174,6 @@ const certsFranja = c.franja.certsDe
   .cap-de { vertical-align: middle; }
   .con-aparte { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
   .aparte { display: flex; flex-direction: column; gap: var(--sp-3); max-width: 332px; }
-  .mini-tira { display: flex; flex-wrap: wrap; gap: 24px; align-items: end; }
   .mini { display: block; border-radius: 20px; }
   .mini:focus-visible { outline: 2px solid var(--cvh-tinta); outline-offset: 3px; }
   /* Los paneles con borde de «Mis proyectos» se van: la única tarjeta del
@@ -6392,10 +6239,6 @@ const certsFranja = c.franja.certsDe
   .aparte .tercero, .aparte .premios-huecos, .aparte .cartas, .aparte .acad-huecos { max-width: 332px; }
   .aparte .cartas, .aparte .premios-huecos, .aparte .acad-huecos { grid-template-columns: minmax(0, 1fr); }
   .aparte .testimonios { gap: var(--sp-3); }
-  /* La `mitad` arriba (332) y las dos miniaturas de 154 en fila debajo:
-     154 + 24 + 154 = 332, el ancho del aparte. Abren al natural. */
-  .aparte-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 154px)); gap: 24px; max-width: 332px; align-items: end; }
-  .aparte-fotos > .caja-mitad { grid-column: 1 / -1; }
   .premio-cita-fig { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   /* El h3 «What I have» queda como hijo directo del capítulo, a 96 de la
      cabecera; la fila que lo sigue va pegada a él (24), no a 96. */
@@ -6434,9 +6277,16 @@ const certsFranja = c.franja.certsDe
     width: 100%; max-width: var(--sf-ancho); margin-inline: auto;
     padding-block: var(--sf-aire-4) 0; padding-inline: 0;
   }
-  .cap--sf > * + * { margin-block-start: var(--sf-aire-2); }
+  /* `:global(* + *)` Y NO `* + *`, y esto está medido (ola 6 · paso B): Astro
+     compila `* + *` a `[cid] + [cid]`, o sea que los DOS hermanos tienen que
+     ser elementos de ESTE archivo. La raíz de un componente hijo (Hueco,
+     HuecoMaterial, SitioVivo…) lleva OTRO cid, así que el hueco «los
+     animales, en mis palabras» nacía sin sus 44 por arriba y la pareja de
+     fotos de debajo sin sus 44 por abajo — se vio en la captura de WebKit y
+     Chromium, y el guardián no lo cuenta porque 16 y 0 son pasos legales. */
+  .cap--sf > :global(* + *) { margin-block-start: var(--sf-aire-2); }
   .cap--sf > :global(.sf-cita-grande) { margin-block: var(--sf-aire-3); }
-  .cap--sf > :global(.sf-cita-grande) + * { margin-block-start: var(--sf-aire-3); }
+  .cap--sf > :global(.sf-cita-grande + *) { margin-block-start: var(--sf-aire-3); }
   /* Una nota o un enlace PEGADOS a lo que describen: 16, no 44. Y dos filas
      de losas o dos plegables seguidos son un mismo bloque. */
   .cap--sf > :global(.sf-prosa) + :global(.sf-pie),
@@ -6542,7 +6392,15 @@ const certsFranja = c.franja.certsDe
     inset-block-start: var(--sf-canal); inset-block-end: auto;
     background: var(--sf-oscuro); border-radius: var(--sf-r-pildora); padding: 6px 12px;
   }
-  .sf-pendiente--lista { display: block; text-align: left; padding: var(--sf-aire-cabeza); box-sizing: border-box; }
+  /* `place-items: normal` Y ESTÁ MEDIDO (ola 6 · paso B): la base
+     `.sf-pendiente` es una rejilla con `place-items: center`, y Chromium
+     aplica ese `justify-items` también a los hijos de un contenedor de
+     BLOQUE (alineación de cajas de nivel 3, que WebKit no tiene): el rótulo
+     «Still to come» salía centrado en Chrome y a la izquierda en Safari, en
+     este recuadro y en el del capítulo 3. Sondado con getComputedStyle en
+     los dos motores: mismo `display: block`, mismo `text-align: left`, y el
+     rótulo a 284 px del borde en Chromium contra 21 en WebKit. */
+  .sf-pendiente--lista { display: block; text-align: left; place-items: normal; padding: var(--sf-aire-cabeza); box-sizing: border-box; }
   .pend-h { margin: 0 0 var(--sf-aire-0); font: var(--sf-t-rotulo); color: var(--sf-tinta-2); }
   .pend-lista { margin: 0; padding-inline-start: 1.25em; font: var(--sf-t-pie); color: var(--sf-tinta-2); }
 
@@ -6551,8 +6409,71 @@ const certsFranja = c.franja.certsDe
   .notas-final h3 { margin: 0 0 var(--sf-aire-0); }
   .notas-final p { margin: 0; }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     OLA 6 · PASO B — LAS CARTAS, EL TALLER Y EL SERVICIO (capítulos 4-6)
+     ═══════════════════════════════════════════════════════════════════════
+     Lo que estos tres capítulos necesitan por encima de cv.css: cuatro
+     pegados de 16 más, la geometría interior de la tarjeta de testimonio, la
+     tarjeta de vídeo suelta, la marca del Reto y el calendario plegado a los
+     tamaños del sistema. Ninguna caja nueva. */
+  .cap--sf > :global(.sf-paises) + :global(.sf-pie),
+  .cap--sf > :global(.sf-placa) + :global(.sf-pie) { margin-block-start: var(--sf-aire-1); }
+  /* Un hueco pendiente escrito a mano (no el componente Hueco): lo de dentro
+     va en 12/16, centrado, con 20 de relleno; el nombre accesible lo lleva
+     el `aria-label` del recuadro, igual que en Hueco.astro. */
+  .pend-que { margin: 0; padding: var(--sf-aire-cabeza); font: var(--sf-t-pie); color: inherit; text-align: center; overflow-wrap: anywhere; }
+  .sf-pendiente--lista .pend-lista { padding-block: var(--sf-aire-0); }
+  /* Dentro de una placa (vii) puede ir una cita de tercero: <blockquote> con
+     <cite>, sin margen propio —el aire lo pone la placa, 16— y el cite en
+     redonda, como en las tarjetas. */
+  .sf-placa blockquote { margin: 0; }
+  .sf-placa cite, .sf-cita-grande cite, .sf-tarjeta cite { font-style: normal; }
+  /* Una segunda cita dentro de la misma placa (el profesor Gustavo debajo
+     del discurso de Jaime): 20 por encima, que es el paso interior de una
+     idea nueva. */
+  .sf-placa > * + blockquote { margin-block-start: var(--sf-aire-cabeza); }
+  /* Una cita de Jaime DENTRO de la prosa (el Reto): misma letra que el
+     párrafo, sin margen propio, y 20 hasta el párrafo que la sigue. */
+  .sf-prosa blockquote { margin: 0; }
+  .sf-prosa blockquote + p { margin-block-start: var(--sf-aire-cabeza); }
+  .sf-tarjeta--dijo blockquote p { margin: 0; font: inherit; }
+  /* (iv) LA TARJETA DE TESTIMONIO: cita de cuatro líneas (100) y crédito de
+     dos (36), CENTRADOS en los 224 útiles y con 16 entre los dos. Los dos
+     altos van escritos para que el aire entre ellos sea el mismo en las
+     siete tarjetas —con alturas de contenido, el guardián contaba siete
+     pasos distintos que no existen en el sistema. */
+  .sf-carrusel .sf-tarjeta--dijo { justify-content: center; }
+  .sf-tarjeta--dijo blockquote { height: 100px; }
+  .sf-tarjeta--dijo .sf-credito { height: 36px; }
+  /* (v) LA TARJETA DE VÍDEO SUELTA del capítulo de servir: negro detrás,
+     `contain` y no `cover` (un CV no recorta la cara de quien habla), y
+     sin el degradado del rótulo porque no lleva rótulo — el pie va debajo. */
+  .sf-pais--clip { background: var(--sf-oscuro); }
+  .sf-pais--clip::after { display: none; }
+  .sf-pais--clip :global(.clip-pais) {
+    width: 100%; height: 100%; max-width: none; max-block-size: none;
+    object-fit: contain; background: var(--sf-oscuro); display: block; border-radius: 0;
+  }
+  /* La marca del Reto (154 sobre placa oscura, regla de CLAUDE.md) con su
+     línea de no afiliación al lado, en la misma fila. */
+  .cap--sf .reto-marca { gap: var(--sf-canal); }
+  .cap--sf .reto-marca .sf-pie { margin: 0; }
+  /* El calendario y la curva del Reto, plegados, a los tamaños del sistema. */
+  .cap--sf .cal { max-width: none; font: var(--sf-t-sec); }
+  .cap--sf .cal li { padding: var(--sf-aire-0) 0; border-top: 1px solid var(--sf-borde); }
+  .cap--sf .cal-cuando { font: var(--sf-t-pie); color: var(--sf-tinta-2); }
+  .cap--sf .curva { max-width: none; margin-block-start: var(--sf-aire-1); }
+  .cap--sf .ref-plegable > :global(.sf-pie), .cap--sf .ref-plegable > :global(.sf-pendiente) { margin-block-start: var(--sf-aire-1); }
+
   @media print {
     .cap--sf { padding-block: 0; }
+    /* Y SE SIGUE YENDO DEL PAPEL: `.sin-imprimir { display: none }` vive
+       arriba y `.cap--sf { display: block }` se declara DESPUÉS con la misma
+       especificidad, así que desde el paso A los capítulos narrativos que
+       ya viven en el sistema (3, 5 y 6) volvían a imprimirse — medido con
+       la sonda de impresión: el 5 salía con 5 097 px de papel. La decisión
+       de arriba no cambia; se le devuelve el peso. */
+    .cap--sf.sin-imprimir { display: none; }
     /* La línea que solo se ve en papel vive FUERA de la columna (ver el
        marcado): en papel se le da la misma columna que al resto. */
     .impresion-nota { max-width: var(--sf-util); margin-inline: auto; }

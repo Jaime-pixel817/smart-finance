@@ -197,7 +197,10 @@ const en = {
        cambia y es la que se escribe ahora: el del cartel es de un tercero que
        no me lo dio para publicarlo; el de la carta lo escribió quien la firma
        en un documento que me dio para entregarlo. */
-    sol: 'A portrait of Sol, or a frame from the march videos. The one from the stand is not published here: a phone number is legible on the sign.',
+    // La segunda oración («the one from the stand is not published here: a
+    // phone number is legible on the sign») se fue en la ola 6: la foto del
+    // puesto SÍ se publica, en «Serving», con el número pixelado.
+    sol: 'A portrait of Sol, or a frame from the march videos.',
     // La carpeta `pendiente/podcast-rendon-duran/fotos/` existe y está vacía.
     rendon: 'A frame from the recording with Miguel Ángel Rendón.',
     majo: 'A frame from the recording with María José Cortés.',
@@ -254,7 +257,15 @@ const en = {
     tilePodcastPie: 'Recording the podcast in the Financial Trading Room at Tec.',
     tileMajoPie: 'María José Cortés, the day I recorded our conversation.',
     marchaAlt: 'Me holding a hand-made poster about Canelo, a dog up for adoption, at the march, with the Tlalnepantla arch and the fountain behind me',
-    marchaPie: 'The march for street animals.'
+    marchaPie: 'The march for street animals (2026).',
+    // ── LA 11 DEL LOTE (ola 6): él con las voluntarias y los carteles ──────
+    // Sustituye a la donación (CURADURIA-FOTOS.md §5.5: «una es una donación,
+    // la otra es una organización»). El teléfono del cartel va pixelado desde
+    // build-photos.mjs. «Dos voluntarias» sale del mensaje de Jaime (MAPA.md:
+    // «junto a Sol y otra voluntaria»); el pie no dice cuál de las dos es Sol
+    // porque ninguna fuente lo dice.
+    solAlt: 'Me, on the right, under the awning of the Callejeritos stand with two of its volunteers, the three of us holding hand-made posters — “Adopta”, “Caminata por los peludos” and the one about Canelo',
+    solPie: 'At the Callejeritos stand, with two of its volunteers and the hand-made posters (2026).'
   },
   // Marca de clip pendiente (los marcos de vídeo del capítulo 6).
   clip: {
@@ -613,6 +624,16 @@ const en = {
     aperturaH: 'How I opened it',
     apertura: '“First of all, thank you very much to everyone who came, to everyone interested in this workshop. We organized it with a lot of care; it will be something very simple, with activities, so that it is interactive and not boring for you, like just another class. So, first, let’s start with this, our speaker, with Professor Gustavo.”',
     aperturaTag: 'Said in Spanish, on the recording. This is a translation; the original is in the Spanish panel.',
+    /* ── LA FRASE QUE SE LLEVA EL DISCURSO (ola 6, plantilla vii) ─────────
+       El discurso entero son 63 palabras y a 40/44 serían siete líneas; la
+       cita grande de Apple es de veinte. Así que la cita grande lleva UN
+       fragmento VERBATIM —es una subcadena exacta de `apertura`, y
+       `taller.test` no existe pero `voz.test` cuenta las cadenas— y el
+       discurso entero va debajo, en la placa, sin perder una palabra.
+       `aperturaQuien` es el crédito de las dos: sus palabras, de la
+       grabación. */
+    aperturaCita: '“We organized it with a lot of care; it will be something very simple, with activities, so that it is interactive and not boring for you, like just another class.”',
+    aperturaQuien: 'Me, opening the workshop — from the recording',
     gustavo: '“The truth is, this is the first time I give a talk at a high school. I have always given them at the business school or at the chambers.”',
     gustavoQuien: 'Professor Gustavo, opening the workshop',
     gustavoQue: 'Professor Gustavo’s surname and title',
@@ -644,7 +665,9 @@ const en = {
     // tema, la sala, y una pregunta desde el fondo.
     fotos: [
       { id: 'cv-taller-4603.webp', alt: 'Professor Gustavo, in a brown blazer and light-blue shirt, speaking in front of the projected slide “Metas Financieras”, with the S.M.A.R.T. method spelled out and a savings example in pesos', pie: 'The S.M.A.R.T. slide.' },
-      { id: 'cv-taller-4573.webp', alt: 'The speaker from behind, facing the rows of blue auditorium seats full of students; a classmate films with a phone on a gimbal', pie: 'The room, from the front.' },
+      // LA 4573 SE FUE (ola 6, CURADURIA-FOTOS.md): mismo plano que la 4574,
+      // de espaldas y con la sala pareciendo medio vacía — contradecía a la
+      // que sí cuenta el lleno. La 4609 pasa a la columna 653 × 435.
       { id: 'cv-taller-4609.webp', alt: 'Wide view of the auditorium; at the back, a student raises a hand', pie: 'A question from the back.' }
     ]
   },
@@ -2149,7 +2172,11 @@ const en = {
     // carries»: al retirar la promesa se había quedado en «it carries», y ese
     // «it» ya no tenía a qué apuntar más que a la propia página — o sea que
     // se leía como que la PÁGINA trae los datos de contacto.
-    pdfNo: 'Not on this page while I decide where to keep it: the file carries {n}’s own contact details, and everything this page serves is public. The record above is what the letter says.',
+    /* ── UNA LÍNEA DESDE LA OLA 6 (INVENTARIO.md §7: «reducir → una línea en
+       la placa»). La razón entera se queda arriba; en pantalla basta el
+       hecho: el archivo trae datos de contacto de un tercero y todo lo que
+       esta página sirve es público. */
+    pdfNo: 'The signed letter itself is not on this page: the file carries {n}’s own contact details, and everything this page serves is public.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -2287,7 +2314,12 @@ const en = {
   // terceros grabados en español y sus publicaciones de LinkedIn en inglés.
   notas: {
     h: 'Notes',
-    traduccion: 'Translations. My own words on this page, and what others said on my recordings, were said or written in Spanish; on this panel they are translations, and the originals are in the Spanish panel. What I quote from my LinkedIn posts is in English, the language I wrote them in.'
+    traduccion: 'Translations. My own words on this page, and what others said on my recordings, were said or written in Spanish; on this panel they are translations, and the originals are in the Spanish panel. What I quote from my LinkedIn posts is in English, the language I wrote them in.',
+    // VACÍA EN INGLÉS: las dos cartas están escritas en inglés y en este
+    // panel se citan tal cual; no hay nada que avisar. En español SÍ: era el
+    // rótulo «traducidas del inglés» de cada ficha y el renglón de la tabla
+    // («lo entrecomillado es la frase exacta»), que ahora viven aquí, una vez.
+    cartas: ''
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -2597,7 +2629,12 @@ const en = {
     //    puntuación se pulen, el sentido y las palabras no se tocan.
     playa: '“It was a rewarding experience that reminded me how meaningful small actions can be when a community works together toward a common goal. Taking care of the environment isn’t just about policies or technology; it’s also about people taking responsibility. […] Seeing how environmental initiatives and economic development go hand in hand has been one of the most interesting lessons of this experience.”',
     playaTag: '',
-    playaFuente: 'From my LinkedIn post on the volunteer beach clean-up in Singapore (2026). The “[…]” marks a sentence this page does not reproduce.'
+    playaFuente: 'From my LinkedIn post on the volunteer beach clean-up in Singapore (2026). The “[…]” marks a sentence this page does not reproduce.',
+    /* ── LA FRASE QUE SE LLEVA LA PUBLICACIÓN (ola 6, plantilla vii) ──────
+       Subcadena EXACTA de `playa`: la cita grande lleva la primera oración
+       y la publicación entera va debajo, en la placa, con su fuente. Nada se
+       recorta: se reparte. */
+    playaCita: '“It was a rewarding experience that reminded me how meaningful small actions can be when a community works together toward a common goal.”'
   }
 };
 
@@ -2638,7 +2675,7 @@ const es: typeof en = {
     research: 'Yo trabajando: una pantalla, un cuaderno, algo real.',
     actinver: 'La visita, la prepa, el equipo, las pláticas.',
     // Ver la nota de la tabla inglesa.
-    sol: 'Un retrato de Sol, o un cuadro de los vídeos de la marcha. La del puesto no se publica aquí: en el cartel se lee un número de teléfono.',
+    sol: 'Un retrato de Sol, o un cuadro de los vídeos de la marcha.',
     rendon: 'Un cuadro de la grabación con Miguel Ángel Rendón.',
     majo: 'Un cuadro de la grabación con María José Cortés.',
     duran: 'Un cuadro de la grabación con Manuel Durán.',
@@ -2676,7 +2713,9 @@ const es: typeof en = {
     tilePodcastPie: 'Grabando el podcast en el Financial Trading Room del Tec.',
     tileMajoPie: 'María José Cortés, el día que grabé nuestra conversación.',
     marchaAlt: 'Yo con un cartel hecho a mano sobre Canelo, un perro en adopción, en la marcha, con el arco y la fuente de Tlalnepantla detrás',
-    marchaPie: 'La marcha por los animales callejeros.'
+    marchaPie: 'La marcha por los animales callejeros (2026).',
+    solAlt: 'Yo, a la derecha, bajo la carpa del stand de Callejeritos con dos de sus voluntarias, los tres con carteles hechos a mano: «Adopta», «Caminata por los peludos» y el de Canelo',
+    solPie: 'En el stand de Callejeritos, con dos de sus voluntarias y los carteles hechos a mano (2026).'
   },
   clip: {
     tag: 'Falta el clip',
@@ -2806,6 +2845,8 @@ const es: typeof en = {
     aperturaH: 'Cómo lo abrí',
     apertura: '«Primero que nada, muchas gracias a todos los que vinieron, a todos los que están interesados en este taller. Lo organizamos con mucho cariño; va a ser algo muy sencillo y con actividades, para que sea algo interactivo y no sea aburrido para ustedes, como una clase más. Y pues bueno, primero vamos a empezar con este, nuestro orador, con el profesor Gustavo.»',
     aperturaTag: '',
+    aperturaCita: '«Lo organizamos con mucho cariño; va a ser algo muy sencillo y con actividades, para que sea algo interactivo y no sea aburrido para ustedes, como una clase más.»',
+    aperturaQuien: 'Yo, al abrir el taller — de la grabación',
     gustavo: '«La realidad es la primera vez que doy una plática en prepa. Siempre las he dado en la escuela de negocios o en las cámaras.»',
     gustavoQuien: 'el profesor Gustavo, al abrir el taller',
     gustavoQue: 'El apellido y el cargo del profesor Gustavo',
@@ -2828,7 +2869,6 @@ const es: typeof en = {
     aperturaFoto: { id: 'cv-taller-apertura-jaime.webp', alt: 'Yo, de pie a la derecha de la diapositiva proyectada del título —«Taller de Finanzas Personales · Grupos Estudiantiles», con el logo de Smart Finance— en un salón, con una mano señalando la pantalla', pie: 'Abriendo el taller, junto a la diapositiva del título.' },
     fotos: [
       { id: 'cv-taller-4603.webp', alt: 'El profesor Gustavo, con saco café y camisa azul claro, hablando frente a la diapositiva proyectada «Metas Financieras», con el método S.M.A.R.T. desglosado y un ejemplo de ahorro en pesos', pie: 'La diapositiva S.M.A.R.T.' },
-      { id: 'cv-taller-4573.webp', alt: 'El ponente de espaldas, frente a las filas de butacas azules llenas de estudiantes; una compañera graba con un celular en un estabilizador', pie: 'El auditorio, desde el frente.' },
       { id: 'cv-taller-4609.webp', alt: 'Plano abierto del auditorio; al fondo, un estudiante levanta la mano', pie: 'Una pregunta desde el fondo.' }
     ]
   },
@@ -3348,7 +3388,7 @@ const es: typeof en = {
     // La segunda oración («se la mando a quien me la pida») se retiró el
     // 2026-09-01: el porqué entero está sobre la cadena inglesa. Y el sujeto
     // vuelve a ser «el archivo», como en `main`.
-    pdfNo: 'No está en esta página mientras decido dónde guardarla: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público. Lo de arriba es lo que dice la carta.',
+    pdfNo: 'La carta firmada no está en esta página: el archivo trae los datos de contacto de {n} y todo lo que esta página sirve es público.',
     entregadas: [
       {
         nombre: 'Lloyd George',
@@ -3443,7 +3483,8 @@ const es: typeof en = {
 
   notas: {
     h: 'Notas',
-    traduccion: 'Traducciones. Mis palabras en esta página, y lo que otros dijeron en mis grabaciones, se dijeron o escribieron en español y aquí van tal cual. Lo que cito de mis publicaciones de LinkedIn está en inglés; en este panel es traducción, y el original está en el panel en inglés.'
+    traduccion: 'Traducciones. Mis palabras en esta página, y lo que otros dijeron en mis grabaciones, se dijeron o escribieron en español y aquí van tal cual. Lo que cito de mis publicaciones de LinkedIn está en inglés; en este panel es traducción, y el original está en el panel en inglés.',
+    cartas: 'Las dos cartas de recomendación están escritas en inglés. Sus frases largas van traducidas en este panel; en la tabla de lo que verifican, lo entrecomillado es la frase exacta de la carta, en inglés.'
   },
 
   huecos: {
@@ -3665,7 +3706,8 @@ const es: typeof en = {
     // texto de Jaime (traducción), pendiente de su revisión final
     playa: '«Fue una experiencia gratificante que me recordó cuánto significan las acciones pequeñas cuando una comunidad trabaja junta hacia una meta común. Cuidar el medio ambiente no es solo cuestión de políticas o de tecnología; también es que la gente asuma su responsabilidad. […] Ver cómo las iniciativas ambientales y el desarrollo económico van de la mano ha sido una de las lecciones más interesantes de esta experiencia.»',
     playaTag: 'Mi publicación está en inglés. Esto es una traducción; el original está en el panel en inglés.',
-    playaFuente: 'De mi publicación en LinkedIn sobre la limpieza de playa voluntaria en Singapur (2026). El «[…]» marca una frase que esta página no reproduce.'
+    playaFuente: 'De mi publicación en LinkedIn sobre la limpieza de playa voluntaria en Singapur (2026). El «[…]» marca una frase que esta página no reproduce.',
+    playaCita: '«Fue una experiencia gratificante que me recordó cuánto significan las acciones pequeñas cuando una comunidad trabaja junta hacia una meta común.»'
   }
 };
 

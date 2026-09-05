@@ -205,19 +205,48 @@ const TOL = 1;                                              // ±1 px
 // Los que NO bajaron son la deuda de los pasos B y C: tamanos (el h2
 // `visually-hidden` de la frase), las 25 fotos bajo el piso de los capítulos
 // 4-9, las 107 notas contra 59, y el «2026» repetido de cartas y expediente.
+// ── LOS TOPES QUE BAJÓ LA OLA 6 · PASO B (2026-09-05): LAS PRUEBAS DE TERCEROS
+//    Y EL SERVICIO ───────────────────────────────────────────────────────────
+// Las cartas (4), el taller y el Reto (5) y el servicio (6) se reconstruyeron
+// SOLO con las plantillas de §3.4, con las fotos de CURADURIA-FOTOS.md.
+// Medido con `--sin-topes` en los 8 combos sobre el build de esta rama:
+//   fotos      27 → 13    las dos cartas en pareja 482 · él abriendo + la lámina
+//                         S.M.A.R.T. en pareja 482 · el auditorio 653 · el clip
+//                         308 · marcha + stand 482 · la playa sola 482; 13
+//                         fotos de 154 fuera y 4 WebP huérfanos borrados. Las
+//                         13 que quedan son de los capítulos 7-9
+//   pisos      25 → 11    ninguna foto de los capítulos 1-6 baja de 308
+//   pasos      61 → 32    las 32 que quedan son del 7 en adelante y del cierre
+//   huecos      1 → 0     la franja de 182 px (capítulos 6-7) ya no existe
+//   huecoPx   200 → 0     cero píxeles vacíos sumados, en los 8 combos
+//   notas     107 → 74    -33: «Proven» ×3, «The letter itself» ×2, «See it on
+//                         LinkedIn / Open the scan», los rótulos de cada
+//                         testimonio y del calendario, las notas de traducción
+//                         del taller y de la playa (al bloque único), la tercera
+//                         mención a la carta de Lloyd George
+//   pendientes 19 → 19    no baja: los huecos siguen todos. Los dos materiales
+//                         que faltan del taller (cuánta gente vino, el apellido
+//                         de Gustavo) son UN recuadro, como en el capítulo 3
+//   repes       1 → 1     «2026» ×14 → ×12: los dos de las fichas de las cartas
+//                         se fueron; los doce que quedan son del expediente
+// La marca del Reto Actinver (154 px, original de 182) sale de la cuenta de
+// fotos con `data-marca` (ver la sonda): es una marca de tercero, no una foto.
+// Los que NO bajaron son la deuda del paso C: tamanos (el h2 `visually-hidden`
+// de la frase), las 11 fotos bajo el piso de los capítulos 7-9, las 75 notas
+// contra 59, y el «2026» repetido del expediente.
 const TOPES = {
   tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
-  tarjetas: 0,     // las 12 tarjetas oscuras miden 482 × 288 — y se queda en cero
+  tarjetas: 0,     // las 12 + 7 tarjetas oscuras miden 482 × 288 — y se queda en cero
   parejas: 0,      // .sf-par mal formada — nace en cero y se queda en cero
-  fotos: 27,       // imágenes con un ancho que no es del sistema (capítulos 4-9)
-  pisos: 25,       // imágenes por debajo de 308 px (capítulos 4-9; la moda sigue en 154)
-  pasos: 61,       // distancias que no son un paso del sistema (capítulos 4-9)
-  huecos: 1,       // la franja de 182 px del 60 % del documento
-  huecoPx: 200,    // sobre 182 medidos
+  fotos: 13,       // imágenes con un ancho que no es del sistema (capítulos 7-9)
+  pisos: 11,       // imágenes por debajo de 308 px (capítulos 7-9; la moda sigue en 154)
+  pasos: 32,       // distancias que no son un paso del sistema (capítulos 7-9 y el cierre)
+  huecos: 0,       // ninguna franja de más de 160 px sin tinta — y se queda en cero
+  huecoPx: 0,      // cero píxeles vacíos sumados
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
-  notas: 107,      // bloques de nota a la vista, vara de la auditoría (≤ 59)
-  pendientes: 19,  // huecos declarados (15 en los capítulos 1-3, con su geometría final)
-  repes: 1,        // «2026» ×14
+  notas: 74,       // bloques de nota a la vista, vara de la auditoría (≤ 59)
+  pendientes: 19,  // huecos declarados, todos con su geometría final
+  repes: 1,        // «2026» ×12 (expediente)
   apagados: 0,     // bloques que nunca llegan a verse — el fallo de Safari 16.6
   portada: 0       // combos donde la tapa NO llega a su último fotograma
 };
@@ -558,8 +587,16 @@ const SONDA = (lang) => {
   }
 
   // ── 3 · FOTOS ───────────────────────────────────────────────────────────
+  // UNA EXCEPCIÓN, ESCRITA EN EL MARCADO Y NO AQUÍ: `data-marca`. Es la
+  // marca de un tercero (el logo del Reto Actinver, original de 182 px), no
+  // una foto: CLAUDE.md manda que vaya pequeña junto al nombre del concurso y
+  // sobre placa oscura fija, y CURADURIA-FOTOS.md §3 (cap. 5) la deja fuera
+  // del suelo de 480 a propósito: «el suelo de 480 no aplica». Se salta y se
+  // cuenta aparte (`marcas`), para que no desaparezca en silencio.
+  out.marcas = 0;
   for (const el of raiz.querySelectorAll('img, video, canvas')) {
     if (fuera(el)) continue;
+    if (el.hasAttribute('data-marca')) { out.marcas++; continue; }
     const r = el.getBoundingClientRect();
     out.fotos.push({
       donde: cadena(el),
