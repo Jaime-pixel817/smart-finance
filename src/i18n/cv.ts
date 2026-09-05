@@ -686,7 +686,6 @@ const en = {
   plegado: {
     masFotos: 'More photos',
     masDijeron: 'More of what they said',
-    otrosDos: 'The other two',
     reto: 'The contest calendar and my portfolio',
     abrir: 'Open the photo at full size',
     pendiente: 'Still to come',
@@ -695,16 +694,8 @@ const en = {
     mas: 'More'
   },
 
-  // LA LÍNEA DE CIERRE DE CADA CAPÍTULO (mono, una por capítulo): dice qué
-  // queda probado y con qué. Es la regla 3 de la especificación de estructura.
-  cierre: {
-    cartas: 'Proven: two signed letters, quoted untouched, with the contact each signatory gave.',
-    grupoHace: 'Proven: one workshop with its recordings, its photos and the attendees’ own words; the contest calendar from its source.',
-    voluntariados: 'Proven: my posts, my photos, the clip — and the beach clean-up signed by Lloyd George.',
-    construi: 'Proven: a site loaded live inside this page; four figures counted by the build; a store you can open.',
-    premios: 'Proven by one source only — a letter. The diploma is still to come.',
-    expediente: 'Proven: seven certifications, six with a credential ID; one English exam still to sit.'
-  },
+  // LOS OCHO CIERRES «Proven: …» SE FUERON EN LA OLA 6 (INVENTARIO.md §14):
+  // ocho veces la misma fórmula, y la prueba viaja pegada a lo que prueba.
 
   head: {
     eyebrow: 'Curriculum vitae',
@@ -875,7 +866,6 @@ const en = {
     // enlace es INTERNO (`route('lessons', locale)`), o sea /lessons en el
     // panel inglés y /es/lecciones en el español: el mismo destino que
     // https://smartfinance.lat/lessons, y además cada panel en su idioma.
-    leccionesH: 'The lessons',
     leccionesQue: 'The part I would show first: {n} lessons, each written in English and Spanish, each one citing its sources.',
     leccionesLink: 'Read the lessons',
     // ── LA CIFRA DEL BOLETÍN ES SUYA, NO CONTADA ───────────────────────
@@ -885,15 +875,13 @@ const en = {
     // fecha — el mismo trato que el A2 de francés. Escribirla al lado de
     // las contadas sin marcarla sería prestarle su recibo.
     boletin: 'More than 100 people are signed up to the newsletter.',
-    boletinH: 'The newsletter',
+    // ── LA FUENTE DE LAS TRES CIFRAS CONTADAS (ola 6, plantilla viii) ────
+    // Regla del sistema: cada cifra lleva su fuente pegada en el mismo
+    // bloque. Estas tres las cuenta src/lib/cv/cifras.mjs en el build.
+    cifrasFuente: 'Counted by the build from the repository’s own files',
     // Las cifras de al lado se CUENTAN en el build desde los archivos reales
     // del repo (Historia.astro); estos son solo sus rótulos.
     stats: {
-      // Este ya NO es un rótulo de cifra grande: va en una frase, con el
-      // número delante, porque un «10» al tamaño de un titular no se sostiene.
-      // Rótulo del renglón que acompaña a las cifras grandes. Ya NO lleva la
-      // promoción de las lecciones: esa se fue a su propio bloque, arriba.
-      lecciones: 'lessons — the sources above are theirs.',
       // Los tres rótulos de las cifras grandes. Cortos a propósito: van
       // debajo de un número enorme y compiten con él si se alargan.
       pruebas: 'automated tests, run on every change',
@@ -903,8 +891,7 @@ const en = {
       // Una frase, no dos (2026-08-30, «omite tanto texto»). Lo que no se
       // puede perder es el 403: es la promesa comprobable, no un eslogan.
       promesa: 'One promise you can test: no AI-written text is published without a person approving it — asking the public endpoint for unreviewed drafts answers 403, on purpose.'
-    },
-    abrir: 'Open the site'
+    }
   },
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -1018,9 +1005,11 @@ const en = {
   // la NUS y se movió al carrusel, con su clip).
   tiktok: {
     perfil: '@smart.financee, on TikTok',
-    // La línea que conecta los clips con las lecciones del sitio.
-    nota: 'The clips and the site’s lessons are the same work in two formats: the same sources, a different length.',
     ensenaH: 'Why I record',
+    // El rótulo del índice plegado de las seis piezas (ola 6 · paso C). Los
+    // cuatro clips de país se ven una sola vez, en el micrófono; aquí va la
+    // lista con sus enlaces y el clip de la visita a J.P. Morgan.
+    piezasH: 'The six pieces, on TikTok',
     // La voz de la página: qué es este bloque y de dónde sale cada pieza.
     // ── LOS SEIS QUE ELIGIÓ JAIME (2026-08-29) ──────────────────────────
     // Su mandato fue «solo los siguientes», y estos son, en su orden. Los
@@ -1041,7 +1030,6 @@ const en = {
     //    que un lector con audio abierto necesita ANTES de pulsar.
     // Cuesta 17 palabras de 3 608. La regla del recorte era quitar
     // repetición, no quitar avisos.
-    ensenaLede: 'Six pieces I recorded myself, in the order I would show them. Four are videos served from this domain — with sound, and they only start when you press play. The last two are photo carousels on TikTok, so they link out.',
     // Títulos de los vídeos, tal como los publicó (o descritos por lo que se
     // ve cuando el vídeo no trae título). El año va aparte, en pantalla.
     // ── LO ENTRECOMILLADO ES EL ORIGINAL, EN SU IDIOMA (2026-08-29) ──────
@@ -1051,22 +1039,20 @@ const en = {
     // peTag/torontoTag: el original verbatim entre comillas (español si así
     // lo publicó) y la traducción FUERA, marcada «in English:». Los títulos
     // que ya estaban en inglés no llevan gloss.
+    // ── EN EL IDIOMA DEL PANEL, SIN COMILLAS (ola 6 · paso C) ────────────
+    // INVENTARIO.md §10: «la traducción en línea dentro del título es una
+    // nota de traducción disfrazada». Aquí cada pieza se DESCRIBE en inglés;
+    // no se entrecomilla porque no es lo que él publicó palabra por palabra
+    // (cuatro títulos son en español y dos llegan truncados en su info.json).
+    // El panel español lleva los originales verbatim donde son en español.
     videos: {
-      // El título del 2026-08-27 llega TRUNCADO en su info.json («…about the
-      // fin…»), así que se cita solo hasta donde el original se puede leer y
-      // el corte lleva su «…» dentro de las comillas. Inventarle el final a
-      // una cita es exactamente lo que este archivo no hace.
-      jpmvisit: '“📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…” — the visit, told to camera',
-      nus: '“Tuve la oportunidad de presentar sobre México a estudiantes de la National University of Singapore” (in English: I had the chance to present about Mexico to National University of Singapore students)',
-      singapur: '“Ahora entendí por qué aquí vive el dinero del mundo” (in English: Now I understood why the world’s money lives here) — Singapore',
-      japon: '“Datos financieros de Japón” (in English: Financial data from Japan)',
-      tokio: '“Lo creerías?” (in English: Would you believe it?) — financial facts about Japan, from the Tokyo Tower',
-      canada: '“Canada is not just beautiful it’s one of the smartest places in the w…” — five financial facts about Canada'
+      jpmvisit: 'Visiting J.P. Morgan in Singapore — the visit, told to camera',
+      nus: 'Presenting about Mexico to students at the National University of Singapore',
+      singapur: 'Why the world’s money lives in Singapore',
+      japon: 'Financial data from Japan',
+      tokio: 'Financial facts about Japan, from the Tokyo Tower',
+      canada: 'Five financial facts about Canada'
     },
-    // El carrusel de Canadá lleva la foto que YA ESTÁ en el capítulo 1 (la
-    // Torre CN que hizo él), y la regla de Jaime es que ninguna imagen se
-    // repite: aquí va el enlace y esta línea diciendo dónde está la foto.
-    canadaNota: 'Its photo is the CN Tower one that opens this CV — it is not repeated here.',
     // ── LO QUE HABÍA DEBAJO Y YA NO ESTÁ (Jaime, 2026-08-30) ─────────────
     // «abajo de eso hay más fechas con títulos, quítalos y pon de link a mi
     // perfil de TikTok para ver todo mi contenido, con un botón ese, y nos
@@ -1441,7 +1427,6 @@ const en = {
     // —con razón, es la regla de fechas de Jaime— y no tocó la frase que los
     // anuncia, así que el capítulo que «un comité escanea» abría prometiendo
     // una columna que no cumple, y se ve sin desplegar nada.
-    lede: 'What, where, and the year where the year says something. This chapter and the next are the ones a committee scans.',
     // ── PLEGADO DESDE EL 2026-08-30 ─────────────────────────────────────
     // Jaime: «experience consume mucho, mejor que sea una cosa que diga view
     // y ya se deslice toda mi experience». El rótulo es el suyo. `pista`
@@ -1454,8 +1439,9 @@ const en = {
     // de la sección y la flecha —que gira 180° con `[open]`— dice el estado.
     // La palabra de Jaime («una cosa que diga view») sigue teniendo sentido
     // el día que alguien lo cierre: el control es el mismo.
-    ver: 'My experience',
-    pista: '{n} entries',
+    // `ver`/`pista` y `lede` se fueron en la ola 6: la lista es una tabla
+    // (vi) abierta bajo el rótulo de `expedienteSub.exp`, y el lede era la
+    // página hablando de la página.
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       // ── AQUÍ VIVÍA EL JIUJITSU, Y SE FUE (2026-09-02) ─────────────────
@@ -1818,11 +1804,14 @@ const en = {
     // ser más comprobable que un identificador: sede y fechas impresas.
     lede: 'The receipts, as my LinkedIn publishes them. Six of the seven carry a credential ID; the seventh prints its venue and its dates on the certificate itself.',
     verLinkedIn: 'See it on LinkedIn',
-    // El escaneo se abre en una pestaña, a su tamaño natural (700 px de ancho),
-    // que es donde un folio se lee. La miniatura de la fila mide 154 px: es la
-    // señal de que el escaneo existe, no el escaneo.
-    verEscaneo: 'Open the scan',
     credencial: 'Credential ID',
+    // ── LOS DOS ESCANEOS QUE SE QUEDAN, EN PAREJA (CURADURIA-FOTOS.md, cap. 9)
+    // El B2 First con la calificación desglosada y el Investment Foundations
+    // con folio y QR. Los otros cuatro salen de las imágenes y se quedan en la
+    // tabla con su folio: «seis miniaturas de PDF se leen como un volcado; una
+    // tabla de folios se lee como un expediente». Pies de una línea.
+    cambridgePie: 'My B2 First certificate, Cambridge English (2024): the scan, cut above its control numbers',
+    cfaPie: 'Investment Foundations Certificate, CFA Institute (2026): certificate number and verification QR',
     // ═══════════════════════════════════════════════════════════════════
     // EL GREEN TECHNOLOGY PROGRAMME: SIN ID, PERO NO SIN RECIBO
     // ═══════════════════════════════════════════════════════════════════
@@ -1854,17 +1843,9 @@ const en = {
     // esta línea pasó de ser el contenido del hueco a ser el pie de la
     // insignia: sigue diciendo que el diploma de verdad no está.
     fotoPend: 'The diploma itself, when I scan it: it is the only one of the seven with no image on my LinkedIn.',
-    // ── LA INSIGNIA DEL DELF A2 (Jaime, 2026-08-30) ─────────────────────
-    // «pon el logo de la compañía o de DELF A2 para que no esté vacío».
-    // Se eligió una insignia TIPOGRÁFICA y no un logotipo; la razón entera
-    // está en Historia.astro, junto al marcado. El nombre grande y el emisor
-    // salen de la propia fila, así que no se repiten aquí: lo único escrito
-    // es el nivel del marco europeo, que es lo que se lee de un DELF.
-    insigniaNivel: 'CEFR level A2',
-    // El rótulo que impide que la insignia se lea como un escaneo del
-    // diploma. Va DENTRO del marco, arriba, en mono, como todos los rótulos
-    // de recibo del CV.
-    insigniaTag: 'Designed by this page — not the diploma',
+    // LA INSIGNIA DIBUJADA DEL DELF A2 SE FUE con la columna de miniaturas
+    // (ola 6 · paso C): sin marco vacío, no hay nada que rellenar. Su fila
+    // dice con `fotoPend` que el diploma no tiene imagen.
     // SIN « — » dentro de los nombres de las simulaciones: los certificados
     // publicados dicen «Vista Equity Partners - Demystifying Private Equity
     // Job Simulation» y «Bank of America - Investment Banking Job
@@ -1876,14 +1857,14 @@ const en = {
         que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
         dondeCuando: '',
-        img: 'cv-cert-vista.webp', w: 700, h: 495,
+        img: '', w: 0, h: 0,
         alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Vista Equity Partners Demystifying Private Equity job simulation, with the Vista and Forage logos.'
       },
       {
         que: 'Bank of America - Investment Banking Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
         dondeCuando: '',
-        img: 'cv-cert-bofa.webp', w: 700, h: 495,
+        img: '', w: 0, h: 0,
         alt: 'Forage certificate of completion in the name of Jaime Sandoval Ricaño for the Bank of America investment banking job simulation, with the Bank of America and Forage logos.'
       },
       {
@@ -1913,14 +1894,14 @@ const en = {
         // se comprueba igual: «Shaw Foundation Alumni House» es un nombre
         // único, y quien pregunte por él llega al mismo sitio.
         dondeCuando: 'Shaw Foundation Alumni House · 22 June – 11 July 2026',
-        img: 'cv-cert-green-tech.webp', w: 501, h: 700,
+        img: '', w: 0, h: 0,
         alt: 'Bluesky Education certificate of completion for the 2026 Green Technology Programme, hosted at Shaw Foundation Alumni House in Singapore, in the name of Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
         de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
         dondeCuando: '',
-        img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
+        img: '', w: 0, h: 0,
         alt: 'Bloomberg for Education certificate of completion for the Bloomberg Finance Fundamentals course, on a black background with candlestick charts.'
       },
       {
@@ -1959,17 +1940,9 @@ const en = {
   // más sin nombrar a nadie que no lo haya dado (misma regla que las cartas).
   premios: {
     lede: 'Awards are evaluated separately from courses, so they are separate here. Courses I have completed are in “Certifications”; this is what someone gave me for competing.',
-    entregadosH: 'What I have',
-    faltanH: 'Room for more',
-    // DECÍA «who gives it» / «quién lo da» Y LA FICHA RELLENABA ESE CAMPO CON
-    // EL NOMBRE DEL PROPIO EVENTO. La única fuente declarada —la carta de
-    // Lloyd George— nombra el certamen y a los rivales, y NO dice quién
-    // entregó el premio. Un rótulo que promete el otorgante y enseña el
-    // evento es una cifra sin fuente disfrazada de ficha. El rótulo pasa a
-    // decir lo que de verdad hay debajo.
-    campos: 'Award · event · year · what for',
-    slot: 'Space reserved for the next award.',
-    tag: 'Award to come',
+    // «What I have», «Room for more» y el recuadro «Award to come» se fueron
+    // en la ola 6 (INVENTARIO.md §11): un recuadro que anuncia en pantalla lo
+    // que no hay resta. Hay UN premio y se enseña como cifra (viii).
     // {s} es el título del capítulo de las cartas: se enlaza por TÍTULO y no
     // por número, como `cartas.fuenteCarta`.
     fuenteTag: 'Only source: Lloyd George’s letter, in “{s}”',
@@ -1985,9 +1958,8 @@ const en = {
     // porque la oración abre con «That same excellence», que apunta al
     // párrafo anterior y fuera de él no se entiende; el fragmento empieza
     // donde empieza el hecho. Misma regla que «entirely on his own steam».
-    // `citaTag` sólo se pinta en español, donde la cita es inglés dentro de
-    // un párrafo español y hay que avisarlo; en inglés va vacío.
-    citaTag: '',
+    // El aviso de que la cita va en inglés dentro del panel español lo da UNA
+    // vez el bloque de notas del final (`notas.cartas`).
     entregados: [
       {
         // SIN «in Singapore»: la carta de Lloyd George —la ÚNICA fuente que
@@ -2286,8 +2258,9 @@ const en = {
     // cv-clips/EVIDENCIA-LINKEDIN-TIKTOK.md, entrada del 2026-08-30.
     texto: 'Si la vida destruye tus planes, es porque tus planes te pudieron haber destruido a ti. Haz tu mejor esfuerzo y los resultados se darán, y si no, te quedarás con que lo diste todo.',
     // Traducción de la frase, solo para el panel inglés, marcada como tal.
-    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”',
-    traduccionTag: 'My words, in Spanish. In English:'
+    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”'
+    // `traduccionTag` («My words, in Spanish. In English:») se fue en la ola
+    // 6: era la quinta nota de traducción, y lo dice UNA vez `notas.traduccion`.
   },
 
   // ---- Contacto (bajo la frase) ----
@@ -2296,7 +2269,10 @@ const en = {
   contacto: {
     h: 'Where to find me',
     linkedin: 'LinkedIn',
-    tiktok: 'TikTok',
+    // «TikTok @smart.financee» y no «TikTok» a secas: el micrófono ya dice
+    // «TikTok» siete veces como fuente de sus piezas, y un rótulo que sale
+    // ocho veces se borra (§3.4 x). El handle además dice dónde buscarlo.
+    tiktok: 'TikTok @smart.financee',
     site: 'smartfinance.lat'
   },
 
@@ -2347,7 +2323,9 @@ const en = {
       pista: 'The part that was harder than you expected, in one short paragraph.'
     },
     tiktokNota: {
-      que: 'Why I record',
+      // No dice «Why I record»: ese es el rótulo del bloque, y un rótulo
+      // dos veces a 300 px es lo que INVENTARIO.md §10 manda fundir.
+      que: 'Why the camera, and who I picture watching',
       pista: 'Two sentences. Why the camera, and who you picture watching.'
     },
     entrevistaAndy: {
@@ -2882,7 +2860,6 @@ const es: typeof en = {
   plegado: {
     masFotos: 'Más fotos',
     masDijeron: 'Más de lo que dijeron',
-    otrosDos: 'Los otros dos',
     reto: 'El calendario del reto y mi cartera',
     abrir: 'Abrir la foto a su tamaño',
     pendiente: 'Lo que falta',
@@ -2891,14 +2868,6 @@ const es: typeof en = {
     mas: 'Más'
   },
 
-  cierre: {
-    cartas: 'Probado: dos cartas firmadas, citadas sin tocar, con el contacto que dio cada quien.',
-    grupoHace: 'Probado: un taller con sus grabaciones, sus fotos y las palabras de los asistentes; el calendario del reto desde su fuente.',
-    voluntariados: 'Probado: mis publicaciones, mis fotos, el clip — y la limpieza de playa firmada por Lloyd George.',
-    construi: 'Probado: un sitio cargado en vivo dentro de esta página; cuatro cifras contadas por el build; una tienda que se puede abrir.',
-    premios: 'Probado por una sola fuente — una carta. El diploma está por llegar.',
-    expediente: 'Probado: siete certificaciones, seis con ID de credencial; un examen de inglés por presentar.'
-  },
 
   head: {
     eyebrow: 'Currículum',
@@ -2946,19 +2915,16 @@ const es: typeof en = {
 
   prueba: {
     lede: 'Empecé smartfinance.lat para que las finanzas sean más fáciles de entender para cualquier estudiante. Esta es su portada.',
-    leccionesH: 'Las lecciones',
     leccionesQue: 'Lo que enseñaría primero: {n} lecciones, cada una escrita en inglés y en español, y cada una citando sus fuentes.',
     leccionesLink: 'Leer las lecciones',
     boletin: 'Más de 100 personas están inscritas al boletín.',
-    boletinH: 'El boletín',
+    cifrasFuente: 'Contada por el build de los archivos del propio repositorio',
     stats: {
-      lecciones: 'lecciones — las fuentes de arriba son suyas.',
       pruebas: 'pruebas automáticas, en cada cambio',
       fuentes: 'fuentes primarias citadas en las lecciones',
       glosario: 'términos de glosario, bilingües',
       promesa: 'Una promesa que se puede comprobar: ningún texto escrito por IA se publica sin que una persona lo apruebe — pedirle al endpoint público los borradores sin revisar contesta 403, a propósito.'
-    },
-    abrir: 'Abrir el sitio'
+    }
   },
 
   // Ver la nota larga de la tabla inglesa: uno solo, real, con su fuente en
@@ -3018,20 +2984,18 @@ const es: typeof en = {
 
   tiktok: {
     perfil: '@smart.financee, en TikTok',
-    nota: 'Los clips y las lecciones del sitio son el mismo trabajo en dos formatos: las mismas fuentes, otra duración.',
     ensenaH: 'Por qué grabo',
-    // La oración de en medio vuelve, igual que en el panel inglés: el porqué
-    // entero está sobre la cadena inglesa.
-    ensenaLede: 'Seis piezas que grabé yo, en el orden en que las enseñaría. Cuatro son vídeos servidos desde este dominio — con sonido, y solo arrancan si le das a reproducir. Las dos últimas son carruseles de fotos de TikTok, así que enlazan allá.',
+    piezasH: 'Las seis piezas, en TikTok',
+    // Lo entrecomillado es lo que él publicó, verbatim, cuando lo publicó en
+    // español; las dos piezas con título en inglés se describen en español.
     videos: {
-      jpmvisit: '«📍🇸🇬 Visiting J.P. Morgan in Singapore and learning more about the fin…» (en español: visitando J.P. Morgan en Singapur y aprendiendo más sobre las fin…) — la visita, contada a cámara',
+      jpmvisit: 'Visitando J.P. Morgan en Singapur — la visita, contada a cámara',
       nus: '«Tuve la oportunidad de presentar sobre México a estudiantes de la National University of Singapore»',
       singapur: '«Ahora entendí por qué aquí vive el dinero del mundo» — Singapur',
       japon: '«Datos financieros de Japón»',
       tokio: '«Lo creerías?» — datos financieros de Japón, desde la Torre de Tokio',
-      canada: '«Canada is not just beautiful it’s one of the smartest places in the w…» (en español: Canadá no solo es bonito, es uno de los lugares más inteligentes del m…) — cinco datos financieros de Canadá'
+      canada: 'Cinco datos financieros de Canadá'
     },
-    canadaNota: 'Su foto es la de la Torre CN que abre este CV — aquí no se repite.',
     verTodo: 'Ver todo mi contenido',
     arcoImgAlt: 'Yo, con micrófono de solapa, hablando junto a una laptop con la lámina «Finance facts of Mexico», en un aula de la NUS',
     arcoImgPie: 'La presentación sobre México en la NUS — una foto mía'
@@ -3141,10 +3105,7 @@ const es: typeof en = {
   exp: {
     // Ver la nota del bloque inglés: cinco de los doce renglones no llevan
     // fecha, así que «solo el año» prometía una columna que no está.
-    lede: 'Qué, dónde, y el año donde el año dice algo. Este capítulo y el siguiente son los que un comité escanea.',
     // Ver la nota de la tabla inglesa: el plegable nace abierto.
-    ver: 'Mi experiencia',
-    pista: '{n} renglones',
     filas: [
       { cuando: '2024–2027', que: 'Tec de Monterrey, Prepa Tec CEM — High School Diploma, Multicultural Program, Finance & Business' },
       // El jiujitsu se fue: ver la nota larga en la tabla inglesa.
@@ -3285,12 +3246,11 @@ const es: typeof en = {
   certs: {
     lede: 'Los recibos, tal como los publica mi LinkedIn. Seis de los siete llevan ID de credencial; el séptimo trae impresas en el propio certificado la sede y las fechas.',
     verLinkedIn: 'Verlo en LinkedIn',
-    verEscaneo: 'Abrir el escaneo',
     credencial: 'ID de la credencial',
+    cambridgePie: 'Mi certificado B2 First, Cambridge English (2024): el escaneo, cortado por encima de sus números de control',
+    cfaPie: 'Investment Foundations Certificate, CFA Institute (2026): número de certificado y QR de verificación',
     sinCred: 'Impreso en el certificado en vez de un ID',
     fotoPend: 'El diploma mismo, cuando yo lo escanee: es el único de los siete sin imagen en mi LinkedIn.',
-    insigniaNivel: 'Nivel A2 del marco europeo',
-    insigniaTag: 'Diseñada por esta página — no es el diploma',
     // Los NOMBRES no se traducen: son el nombre propio del certificado, y es
     // lo que un comité va a buscar. Lo que sí va en español es todo lo demás.
     filas: [
@@ -3298,14 +3258,14 @@ const es: typeof en = {
         que: 'Vista Equity Partners - Demystifying Private Equity Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a83e06078fe04cae6937a9e',
         dondeCuando: '',
-        img: 'cv-cert-vista.webp', w: 700, h: 495,
+        img: '', w: 0, h: 0,
         alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de private equity de Vista Equity Partners, con los logotipos de Vista y de Forage.'
       },
       {
         que: 'Bank of America - Investment Banking Job Simulation',
         de: 'Forage', anio: '2026', cred: '6a80869baa694bdf898c2581',
         dondeCuando: '',
-        img: 'cv-cert-bofa.webp', w: 700, h: 495,
+        img: '', w: 0, h: 0,
         alt: 'Certificado de Forage a nombre de Jaime Sandoval Ricaño por la simulación de trabajo de banca de inversión de Bank of America, con los logotipos de Bank of America y de Forage.'
       },
       {
@@ -3321,14 +3281,14 @@ const es: typeof en = {
         // Sin «National University of Singapore»: el certificado no la
         // imprime. El porqué entero está sobre la cadena inglesa.
         dondeCuando: 'Shaw Foundation Alumni House · 22 de junio – 11 de julio de 2026',
-        img: 'cv-cert-green-tech.webp', w: 501, h: 700,
+        img: '', w: 0, h: 0,
         alt: 'Certificado de Bluesky Education por el 2026 Green Technology Programme, celebrado en la Shaw Foundation Alumni House de Singapur, a nombre de Jaime Sandoval Ricaño.'
       },
       {
         que: 'Bloomberg Finance Fundamentals',
         de: 'Bloomberg', anio: '2026', cred: 'Xsgrm4LYnvGBWeskx8HpEut9',
         dondeCuando: '',
-        img: 'cv-cert-bloomberg.webp', w: 700, h: 497,
+        img: '', w: 0, h: 0,
         alt: 'Certificado de Bloomberg for Education por el curso Bloomberg Finance Fundamentals, sobre fondo negro con gráficas de velas.'
       },
       {
@@ -3351,15 +3311,7 @@ const es: typeof en = {
   // los premios aparte, y el descargo se dice una vez y en mono.
   premios: {
     lede: 'Un premio no es un curso, así que va aparte. Los cursos que terminé están en «Certificaciones»; esto es lo que alguien me dio por competir.',
-    entregadosH: 'Lo que tengo',
-    faltanH: 'Espacio para más',
-    campos: 'Premio · evento · año · por qué',
-    slot: 'Espacio reservado para el siguiente premio.',
-    tag: 'Premio por llegar',
     fuenteTag: 'Única fuente: la carta de Lloyd George, en «{s}»',
-    // Aquí sí se pinta: la cita es inglés dentro de un párrafo en español,
-    // igual que en `cartas.verificaCitaTag`.
-    citaTag: 'Lo entrecomillado es la frase exacta de la carta, en inglés.',
     entregados: [
       {
         que: 'Un premio en el GreenTech Summit 2026, con mis compañeros de equipo, compitiendo contra estudiantes de Taiwán y Rusia.',
@@ -3463,16 +3415,16 @@ const es: typeof en = {
 
   frase: {
     texto: 'Si la vida destruye tus planes, es porque tus planes te pudieron haber destruido a ti. Haz tu mejor esfuerzo y los resultados se darán, y si no, te quedarás con que lo diste todo.',
-    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”',
-    // Esta clave solo se PINTA en el panel inglés (Historia mira el locale);
-    // aquí existe porque `typeof en` exige las mismas llaves en las dos tablas.
-    traduccionTag: 'His words, in Spanish. In English:'
+    traduccion: '“If life destroys your plans, it is because your plans could have destroyed you. Do your best and the results will come — and if they don’t, you will be left knowing you gave it everything.”'
   },
 
   contacto: {
     h: 'Dónde encontrarme',
     linkedin: 'LinkedIn',
-    tiktok: 'TikTok',
+    // «TikTok @smart.financee» y no «TikTok» a secas: el micrófono ya dice
+    // «TikTok» siete veces como fuente de sus piezas, y un rótulo que sale
+    // ocho veces se borra (§3.4 x). El handle además dice dónde buscarlo.
+    tiktok: 'TikTok @smart.financee',
     site: 'smartfinance.lat'
   },
 
@@ -3484,7 +3436,7 @@ const es: typeof en = {
   notas: {
     h: 'Notas',
     traduccion: 'Traducciones. Mis palabras en esta página, y lo que otros dijeron en mis grabaciones, se dijeron o escribieron en español y aquí van tal cual. Lo que cito de mis publicaciones de LinkedIn está en inglés; en este panel es traducción, y el original está en el panel en inglés.',
-    cartas: 'Las dos cartas de recomendación están escritas en inglés. Sus frases largas van traducidas en este panel; en la tabla de lo que verifican, lo entrecomillado es la frase exacta de la carta, en inglés.'
+    cartas: 'Las dos cartas de recomendación están escritas en inglés. Sus frases largas van traducidas en este panel; en la tabla de lo que verifican y en el premio, lo entrecomillado es la frase exacta de la carta, en inglés.'
   },
 
   huecos: {
@@ -3501,7 +3453,7 @@ const es: typeof en = {
       pista: 'La parte que costó más de lo que esperabas, en un párrafo corto.'
     },
     tiktokNota: {
-      que: 'Por qué grabo',
+      que: 'Por qué la cámara, y a quién me imagino viendo',
       pista: 'Dos frases. Por qué la cámara, y a quién te imaginas viendo.'
     },
     entrevistaAndy: {

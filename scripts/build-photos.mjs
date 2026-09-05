@@ -590,12 +590,15 @@ console.log('Jaime');
   // `tt-linkedin`): estaban desplegados con `immutable` y no los pedía ningún
   // fichero de src/ (CURADURIA-FOTOS.md §4). Los dos del set FTR eran además
   // la misma escena que `breakdown-trading-room-podcast`. Las dos infografías
-  // vuelven al capítulo 7 a 482 × 642 en la ola de los capítulos, y Tokio se
-  // va de ahí cuando ese capítulo se reconstruya; mientras, se generan.
+  // (oro, 4 noticias) se generan a 964 = pareja 482 × 642 a densidad 2, que
+  // es la caja que CURADURIA-FOTOS.md les da en el capítulo 7.
+  // TOKIO SE FUE EN LA OLA 6 · PASO C: era la imagen ROTA del documento
+  // (declarada 0×0) y, aunque no lo estuviera, «torre iluminada de noche con
+  // subtítulo quemado: decorado puro» (CURADURIA-FOTOS.md, cap. 7). El
+  // original sigue en cv-fotos/; su WebP sale del manifiesto.
   const CUADROS = [
     ['tt-oro', 'tt-noticias-oro.jpg', 964],                   // infografía vertical
-    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 964],   // infografía vertical
-    ['tt-tokio', 'tt-viaje-japon-tokyo-tower.jpg', 720]       // Torre de Tokio, 3:4
+    ['tt-noticias', 'tt-noticias-4-que-movieron.jpg', 964]    // infografía vertical
   ];
   for (const [id, src, ancho] of CUADROS) {
     const m2 = await sharp(CVF(src)).metadata();
@@ -626,12 +629,20 @@ console.log('Jaime');
    * cambia el contenido y con él la huella, que es justo para lo que está.
    * El fotograma viejo (tt-viaje-presentar-mexico-nus.jpg) se queda en
    * cv-fotos/ sin publicar: es el original del vídeo, no una foto de más. */
+  /* ── OLA 6 · PASO C: A LA COLUMNA 653 × 435 (CURADURIA-FOTOS.md, cap. 7) ──
+   * Era la escala más baja de las 39 fotos (154 × 111, 0.16×) para una de las
+   * mejores pruebas: él presentando sobre México en la NUS. La caja de (ii)
+   * en horizontal es 3:2; el original es 1655 × 1192 (1.39:1), así que se
+   * corta la banda 3:2 centrada —él y la lámina quedan dentro, sobra techo y
+   * suelo— y sale a 1306, la columna de 653 a densidad 2 (2.0×). */
   {
     const src = CVF('lote-12-nus-explicando-mexico.jpg');
     const m2 = await sharp(src).metadata();
-    const buf = await sharp(src).resize(960).webp({ quality: 78 }).toBuffer();
+    const c = cajaRatio(m2.width, m2.height, 3 / 2, 0.50, 0.50);
+    const w = Math.min(1306, c.width);
+    const buf = await sharp(src).extract(c).resize(w).webp({ quality: 78 }).toBuffer();
     const archivo = publicar('cv-tt-nus-presentacion.webp', buf);
-    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   960x' + Math.round(960 * m2.height / m2.width));
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' + w + 'x' + Math.round(w * c.height / c.width) + ' (banda 3:2 desde y=' + c.top + ')');
   }
 
   /* ── EL LOTE DE 13 FOTOS QUE JAIME MANDÓ EL 2026-08-30 ──────────────────
@@ -998,33 +1009,45 @@ console.log('Jaime');
   const CVF = (n) => p('public/assets/cv-fotos', n);
   console.log('certificados y tienda (cv-fotos/, a color)');
 
-  // Nombre lógico → archivo original y lado LARGO de la salida. El lado largo
-  // y no el ancho: cuatro son apaisados y dos verticales, y lo que tiene que
-  // caber igual en la tarjeta es el lado mayor.
+  /* ── OLA 6 · PASO C: DOS ESCANEOS EN PAREJA, CUATRO SALEN DE LAS IMÁGENES
+   * (CURADURIA-FOTOS.md, cap. 9). Se quedan el B2 First de Cambridge (examen
+   * de un tercero con la calificación desglosada) y el Investment Foundations
+   * del CFA Institute (folio y QR), en la pareja de 482 × 455 del expediente:
+   * el ancho de salida es 964, la media columna a densidad 2, sin ampliar
+   * (Cambridge mide 899 y sale a 899: 1.87×). Vista, BofA, Bloomberg y Green
+   * Technology dejan de generarse: sus filas siguen en la tabla con su folio
+   * («una captura de un PDF no prueba más que su folio»); los originales
+   * siguen en cv-fotos/ por si Jaime los quiere de vuelta, y el script borra
+   * sus WebP como huérfanos. */
   const DOCS = [
-    ['cv-cert-vista', 'cert-vista.png', 700],
-    ['cv-cert-bofa', 'cert-bofa.png', 700],
-    ['cv-cert-cfa', 'cert-cfa-investment-foundations.png', 700],
-    ['cv-cert-green-tech', 'cert-green-technology-programme.png', 700],
-    ['cv-cert-bloomberg', 'cert-bloomberg-finance-fundamentals.png', 700],
-    ['cv-cert-b2-cambridge', 'cert-b2-first-cambridge-recortado.png', 700],
-    // La portada de la tienda que construyó él. 1280x1600 es 4:5 clavado, o
-    // sea la misma proporción del marco donde se pinta: entra sin letterbox.
-    // 1000 Y NO 800 DESDE LA OLA 2b: en escritorio esta captura se pinta a
-    // ancho de la pista `texto` (688 px) y con 640 px de origen el navegador
-    // la estiraba. Es una captura de una tienda —lo que hay que poder leer
-    // son sus rótulos—, así que se sirve reduciendo y nunca ampliando.
-    ['cv-jasa-tienda', 'jasa-tienda.png', 1000]
+    ['cv-cert-cfa', 'cert-cfa-investment-foundations.png', 964],
+    ['cv-cert-b2-cambridge', 'cert-b2-first-cambridge-recortado.png', 964]
   ];
-  for (const [id, src, largo] of DOCS) {
-    const m2 = await sharp(CVF(src)).metadata();
-    const opciones = m2.width >= m2.height ? { width: largo } : { height: largo };
-    const buf = await sharp(CVF(src)).resize({ ...opciones, withoutEnlargement: true })
+  for (const [id, src, ancho] of DOCS) {
+    const buf = await sharp(CVF(src)).resize({ width: ancho, withoutEnlargement: true })
       .webp({ quality: 80 }).toBuffer();
     const archivo = publicar(id + '.webp', buf);
     const salida = await sharp(buf).metadata();
     console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' +
                 salida.width + 'x' + salida.height);
+  }
+  /* LA TIENDA DE JASA, A LA COLUMNA 653 × 435 (CURADURIA-FOTOS.md, cap. 7):
+   * «recorte horizontal de la banda de arriba (logo, buscador por marca/
+   * modelo/año, banner) y no la captura vertical entera: la parrilla de
+   * productos es ilegible a cualquier tamaño y una ventana de navegador es
+   * apaisada». La captura mide 1280 × 1600; la banda 3:2 desde arriba es
+   * 1280 × 853 y sale a 1280 (1.96× a 653). Se sirve reduciendo, nunca
+   * ampliando: lo que hay que poder leer son sus rótulos. */
+  {
+    const src = CVF('jasa-tienda.png');
+    const m2 = await sharp(src).metadata();
+    const banda = { left: 0, top: 0, width: m2.width, height: Math.min(m2.height, Math.round(m2.width * 2 / 3)) };
+    const buf = await sharp(src).extract(banda).resize({ width: 1280, withoutEnlargement: true })
+      .webp({ quality: 80 }).toBuffer();
+    const archivo = publicar('cv-jasa-tienda.webp', buf);
+    const salida = await sharp(buf).metadata();
+    console.log('  ' + archivo.padEnd(44) + kb(buf).padStart(9) + '   ' +
+                salida.width + 'x' + salida.height + ' (banda 3:2 desde arriba)');
   }
 }
 

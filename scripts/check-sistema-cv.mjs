@@ -234,19 +234,59 @@ const TOL = 1;                                              // ±1 px
 // Los que NO bajaron son la deuda del paso C: tamanos (el h2 `visually-hidden`
 // de la frase), las 11 fotos bajo el piso de los capítulos 7-9, las 75 notas
 // contra 59, y el «2026» repetido del expediente.
+// ── LOS TOPES QUE BAJÓ LA OLA 6 · PASO C (2026-09-05): LO QUE CONSTRUYÓ, EL
+//    EXPEDIENTE Y EL CIERRE ───────────────────────────────────────────────
+// Los capítulos 7 (el sitio, el canal, la tienda, el research), 8 (el premio),
+// 9 (escuela, inglés, certificaciones y la lista) y 10 (la frase y el bloque
+// único de notas) se reconstruyeron SOLO con las plantillas de §3.4, con las
+// decisiones de INVENTARIO.md §10-§13 y las fotos de CURADURIA-FOTOS.md
+// (caps. 7 y 9). Medido con `--sin-topes` en los 8 combos:
+//   tamanos     1 → 0     el h2 oculto de la frase vive dentro de `.sf-cap` y
+//                         mide 40 como todo titular; el 44 de la frase pasa a 56
+//   fotos      13 → 0     NUS 653 · Jasa 653 (banda 3:2) · Cambridge + CFA en
+//                         pareja 482; la captura tapada por el iframe, Tokio (la
+//                         imagen rota, 0×0) y cuatro escaneos de certificado
+//                         (Vista, BofA, Bloomberg, Green Tech) SE FUERON
+//   pisos      11 → 0     ninguna foto del documento baja de 308: la moda pasa
+//                         de 154 a 482
+//   pasos      32 → 0     el marco del sitio (ix) a los pasos del sistema; el
+//                         `sf-doc` de dentro de las cifras y del marco ponía 44
+//                         entre hermanos que van a 16; y el ancla de cada
+//                         capítulo dejó de contar como bloque (ponía 44 sobre
+//                         los 80 entre capítulos, en los nueve)
+//   notas      74 → 52    -22: «Proven» ×3, «TO WRITE»/«PHOTO TO COME» ×7 en un
+//                         recuadro por bloque, «See it on LinkedIn ↗ Open the
+//                         scan ↗» ×6 → un enlace por fila, «What I took from
+//                         it», los rótulos de la tarjeta del reporte, «My words,
+//                         in Spanish. In English:», «Room for more». Por debajo
+//                         del 59 del sistema por primera vez
+//   repes       1 → 0     «2026» ×12 va dentro del renglón «emisor · año · ID»
+//                         (un nodo de texto); «TikTok» ×8 (siete del micrófono
+//                         + el contacto) → el contacto dice «TikTok
+//                         @smart.financee»
+//   pendientes 19 → 23    SUBE, Y ES A PROPÓSITO: los huecos de los capítulos
+//                         7-9 vivían PLEGADOS (el contratiempo, el research, el
+//                         diploma, los cinco académicos) y no se contaban; el
+//                         inventario los quiere a la vista con su geometría
+//                         final (§15: «los huecos se quedan todos»). Los huecos
+//                         REALES de esos capítulos bajan de 16 a 9 (cinco
+//                         cajas académicas → una lista; dos del research → una;
+//                         el recuadro «Award to come» se fue). Este tope no es
+//                         deuda de diseño: es la cuenta de lo que Jaime tiene
+//                         que escribir, y baja cada vez que él llene uno.
 const TOPES = {
-  tamanos: 1,      // el único que queda: un h2 `visually-hidden` a 25.5 px
+  tamanos: 0,      // los ocho del sistema, y ninguno más
   tarjetas: 0,     // las 12 + 7 tarjetas oscuras miden 482 × 288 — y se queda en cero
   parejas: 0,      // .sf-par mal formada — nace en cero y se queda en cero
-  fotos: 13,       // imágenes con un ancho que no es del sistema (capítulos 7-9)
-  pisos: 11,       // imágenes por debajo de 308 px (capítulos 7-9; la moda sigue en 154)
-  pasos: 32,       // distancias que no son un paso del sistema (capítulos 7-9 y el cierre)
+  fotos: 0,        // toda imagen del cuerpo mide un ancho del sistema
+  pisos: 0,        // ninguna baja de 308
+  pasos: 0,        // todo aire es un paso del sistema
   huecos: 0,       // ninguna franja de más de 160 px sin tinta — y se queda en cero
   huecoPx: 0,      // cero píxeles vacíos sumados
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
-  notas: 74,       // bloques de nota a la vista, vara de la auditoría (≤ 59)
-  pendientes: 19,  // huecos declarados, todos con su geometría final
-  repes: 1,        // «2026» ×12 (expediente)
+  notas: 52,       // bloques de nota a la vista, vara de la auditoría (≤ 59: dentro)
+  pendientes: 23,  // huecos declarados, todos a la vista y con su geometría final
+  repes: 0,        // ningún rótulo sale 8 veces o más
   apagados: 0,     // bloques que nunca llegan a verse — el fallo de Safari 16.6
   portada: 0       // combos donde la tapa NO llega a su último fotograma
 };

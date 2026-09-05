@@ -119,21 +119,26 @@ test('el CV pinta las cifras del módulo y no un número escrito a mano', () => 
     fuente, /import \{ contarCifras, contarPruebas \} from '\.\.\/\.\.\/lib\/cv\/cifras\.mjs'/,
     'Historia.astro dejó de usar src/lib/cv/cifras.mjs: la cuenta volvió a un sitio sin pruebas'
   );
-  const bloque = /<ul class="cifras">([\s\S]*?)<\/ul>/.exec(fuente);
-  assert.ok(bloque, 'no se encontró el bloque <ul class="cifras"> del capítulo 5');
+  // Desde la ola 6 las tres cifras van en la fila (viii) del sistema
+  // (`<ul class="sf-cifras …">`), y hay más de una fila así en el documento
+  // (la del grupo, la del premio): la que se comprueba es la que pinta
+  // `{nPruebas}`.
+  const bloques = [...fuente.matchAll(/<ul class="sf-cifras[^"]*">([\s\S]*?)<\/ul>/g)].map((m) => m[1]);
+  const bloque = bloques.find((b) => b.includes('{nPruebas}'));
+  assert.ok(bloque, 'no se encontró la fila de cifras (viii) del sitio con {nPruebas}');
   for (const v of ['{nPruebas}', '{nFuentes}', '{nGlosario}']) {
-    assert.ok(bloque[1].includes(v), `el bloque de cifras ya no pinta ${v}`);
+    assert.ok(bloque.includes(v), `el bloque de cifras ya no pinta ${v}`);
   }
   assert.doesNotMatch(
-    bloque[1], /\d/,
+    bloque, /\d/,
     'hay un dígito escrito a mano en el bloque de cifras del CV. Esas tres cifras se cuentan de los archivos reales; ' +
     'una escrita a mano se queda vieja en silencio y la página miente sin que falle nada.'
   );
   // Las lecciones salieron de las cifras grandes (un «10» a 200 px no es un
-  // titular) pero SIGUEN pintándose, con el número delante de su frase. Si
+  // titular) pero SIGUEN pintándose, con el número dentro de su frase. Si
   // alguien las quita del todo, la página deja de decir cuántas hay.
   assert.match(
-    fuente, /\{nLecciones\} \{c\.prueba\.stats\.lecciones\}/,
+    fuente, /leccionesQue\.replace\('\{n\}', String\(nLecciones\)\)/,
     'el CV dejó de pintar el número de lecciones'
   );
 });
