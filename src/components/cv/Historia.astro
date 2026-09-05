@@ -3354,16 +3354,47 @@ const cifrasFranja = c.franja.sitioQ
      Aquí una sola foto tiene DOS composiciones (a sangre / tarjeta), así que
      «degradar al último fotograma» dejaría a Firefox sin portada a sangre —
      el estado que es el LCP y la identidad de la página. Por eso el gate no
-     es de keyframes sino de LAYOUT: sin scroll-driven animations, o con
-     «menos movimiento», la intro nace en su ESTADO ESTABLE INICIAL — la
-     portada a sangre de siempre, y después el papel con el manifiesto, sin
-     tarjeta y sin nombre repetido (escena y aro ni existen: display none
-     arriba). Nada se duplica, nada queda a medias, y el primer pantallazo es
-     idéntico al de los navegadores con efecto. Los keyframes de aquí dentro
-     declaran from Y to porque la degradación ya no depende de ellos.
+     es de keyframes sino de LAYOUT: sin conductor, o con «menos movimiento»,
+     la intro nace en su ESTADO ESTABLE INICIAL — la portada a sangre de
+     siempre, y después el papel con el manifiesto, sin tarjeta y sin nombre
+     repetido (escena y aro ni existen: display none arriba). Nada se
+     duplica, nada queda a medias, y el primer pantallazo es idéntico al de
+     los navegadores con efecto. Los keyframes de aquí dentro declaran from Y
+     to porque la degradación ya no depende de ellos.
+
+     ══ EL GATE YA NO ES `@supports`, Y ESTO ES LO QUE JAIME REPORTÓ ═══════
+     «En Safari no funciona el header la transición» (2026-09-04). Su Mac es
+     macOS 13.5 con Safari 16.6, donde `CSS.supports('animation-timeline:
+     view()')` es **false**: todo este bloque vivía dentro de ese `@supports`
+     y en su navegador NO SE EJECUTABA NADA. Medido en WebKit sobre `dist`:
+     la barra de 36 px se iba con la página en vez de encoger, `clip-path:
+     none`, la escena en `display: none`, «SCROLL TO READ» todavía visible a
+     600 px de rueda y la foto a sangre cortándose por abajo con el papel.
+
+     El gate pasa a ser **`html[data-intro]`**: no «este motor sabe
+     conducirlo» sino «HAY QUIEN LO CONDUZCA». La marca la pone el guion en
+     línea de `Cv.astro` con dos valores, y solo uno está vivo a la vez:
+       · `css` — el navegador tiene `animation-timeline`. Conduce él, con el
+                 `view-timeline` de la pista. Esta vía no cambia ni un byte.
+       · `js`  — no lo tiene. Conduce el respaldo: un `scroll` pasivo con
+                 `requestAnimationFrame` que escribe `--intro-p` (0→1), y
+                 estas MISMAS animaciones, pausadas, con el fotograma elegido
+                 por un `animation-delay` negativo. Ver el bloque «EL
+                 RESPALDO» al final de este @media.
+     No hay dos motores: `animation-timeline` solo existe donde el gate vale
+     `css`, y las tres declaraciones del respaldo solo donde vale `js`.
+     SIN JAVASCRIPT no hay marca, no se aplica NADA de aquí dentro, y la tapa
+     es la de siempre: una pantalla de foto a sangre, legible, sin pista
+     reservada de más. Esa es la razón de que el gate sea la marca y no
+     `@supports not (…)`: una pista de 306 px que nadie conduce es 306 px de
+     rueda sin que pase nada, que es justo la queja.
+
+     Y `@media screen` fuera: al imprimir no hay scroll, así que el efecto no
+     tiene ni línea de tiempo ni sentido. El bloque de `@media print` de más
+     abajo sigue desmontando lo suyo (llega a cosas que están fuera de aquí).
 
      `linear` a propósito: el easing lo pone el dedo. */
-  @supports (animation-timeline: view()) {
+  @media screen {
     @media (prefers-reduced-motion: no-preference) {
       /* ── `view()` Y NO UNA APERTURA POR TIEMPO: ESTÁ DECIDIDO ──────────
          La línea de tiempo de todo lo de aquí dentro es el SCROLL. En Ondo
@@ -3381,7 +3412,7 @@ const cifrasFranja = c.franja.sitioQ
          entre las dos mitades en 1280×800. El centro va al 42 % — más arriba
          del centro geométrico — para que bajo la mitad de abajo quepa el
          manifiesto que sube, como en la referencia. */
-      .cap-portada {
+      :global(html[data-intro]) .cap-portada {
         --carta-w: min(88vw, 420px, 46svh);
         --carta-h: calc(var(--carta-w) * 1.1);
         --carta-top: calc(42svh - var(--carta-h) / 2);
@@ -3433,26 +3464,50 @@ const cifrasFranja = c.franja.sitioQ
          ve, y eso MEJORA: el recorte va por el 12.9 % de su propio avance
          (antes 16.7 %), o sea menos papel bajo la tinta blanca. Aun así
          `check-contraste-cv` se volvió a correr entero. */
-      .intro-pista {
+      :global(html[data-intro]) .intro-pista {
         height: calc(100svh + clamp(250px, 36svh, 330px));
         view-timeline: --pista block;
+        /* ── EL PAPEL DE LA PISTA CIERRA UN HUECO DE 172 px MEDIDO ────────
+           La pista mide una pantalla MÁS el recorrido, y el lienzo que se
+           clava dentro mide una pantalla justa: por debajo de su caja quedan
+           172 px a 1440 y 200 px a 1920 que no tienen fondo propio. Nadie los
+           ve —el lienzo clavado los está pintando, y en cuanto se despega
+           llega el papel del manifiesto—, pero la máscara de tinta de
+           `check-sistema-cv` mide CAJAS, no lo pintado, y ahí eran una franja
+           vacía: la más alta de todo el documento en Chromium
+           (`172 px vacíos desde y=900`), y la que WebKit iba a heredar en
+           cuanto el respaldo le diera la misma pista larga. El fondo lo
+           declara la pista, que es de quien son esas filas. Mismo papel que
+           el lienzo, así que no cambia ni un píxel de lo que se ve. */
+        background: var(--cvh-papel);
       }
       /* Lo que el recorte revela alrededor de la ventana es PAPEL: el mismo
          del manifiesto que sube, para que no haya costura. El negro
          pre-foto sigue existiendo: es del marco, que a sangre lo tapa todo. */
-      .portada-lienzo { background: var(--cvh-papel); }
-      .portada-marco {
+      :global(html[data-intro]) .portada-lienzo { background: var(--cvh-papel); }
+      /* ── `--t0` Y `--t1` SON EL TRAMO, Y SON UNA SOLA FUENTE ────────────
+         El tramo de cada pieza lo leen DOS conductores: `animation-range`
+         (la vía nativa) y el `animation-duration`/`animation-delay` del
+         respaldo. Escrito dos veces, un retoque en uno de los dos deja a
+         Safari y a Chrome enseñando transiciones distintas — que es
+         exactamente el defecto que esta ola vino a cerrar. Así que se
+         escribe UNA vez, en número (`.22` = `contain 22 %`), y las dos vías
+         lo derivan por cuenta. Los porcentajes siguen saliendo idénticos:
+         `getComputedStyle` devuelve `contain 22% contain 84%`. */
+      :global(html[data-intro]) .portada-marco {
         animation: intro-marco linear both;
         animation-timeline: --pista;
-        animation-range: contain 22% contain 84%;
+        --t0: .22; --t1: .84;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* El zum corto de la referencia: la ventana se cierra y la foto se
          acerca a la Torre (el origen es su mástil, 38 % del ancho). */
-      .portada-zoom {
+      :global(html[data-intro]) .portada-zoom {
         transform-origin: 38% 42%;
         animation: intro-zoom linear both;
         animation-timeline: --pista;
-        animation-range: contain 22% contain 84%;
+        --t0: .22; --t1: .84;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* La tapa se clava con el lienzo y se disuelve ENTERA: velo y texto en
          una sola opacidad de grupo, así que mientras el texto se vea, su velo
@@ -3464,30 +3519,34 @@ const cifrasFranja = c.franja.sitioQ
          fotograma final apaga `visibility`: las pastillas de idioma son
          enlaces y, invisibles, no pueden seguir recibiendo foco ni toques.
          Subir de vuelta las devuelve. */
-      .portada-uno {
+      :global(html[data-intro]) .portada-uno {
         position: sticky; top: 0;
         animation: intro-tapa linear both;
         animation-timeline: --pista;
-        animation-range: contain 4% contain 30%;
+        --t0: .04; --t1: .3;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* El señuelo se va primero (en la referencia, «Swipe to explore»
          desaparece antes de que el titular se mueva)… */
-      .portada-senuelo {
+      :global(html[data-intro]) .portada-senuelo {
         animation: intro-senuelo linear both;
         animation-timeline: --pista;
-        animation-range: contain 1% contain 12%;
+        --t0: .01; --t1: .12;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* …y las dos mitades del nombre se separan un paso — el gesto de la
          referencia — mientras la tapa entera se funde. */
-      .portada-n1 {
+      :global(html[data-intro]) .portada-n1 {
         animation: intro-n1 linear both;
         animation-timeline: --pista;
-        animation-range: contain 3% contain 30%;
+        --t0: .03; --t1: .3;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
-      .portada-n2 {
+      :global(html[data-intro]) .portada-n2 {
         animation: intro-n2 linear both;
         animation-timeline: --pista;
-        animation-range: contain 3% contain 30%;
+        --t0: .03; --t1: .3;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* Las mitades de tinta, ancladas a la ventana: la de arriba con su
          BORDE DE ABAJO fijo (crece hacia arriba) y la de abajo con su borde
@@ -3545,21 +3604,22 @@ const cifrasFranja = c.franja.sitioQ
          que el nombre no aparezca de golpe al final, que sería un salto) y
          se queda ahí mientras el recorte trabaja; el tramo de .22 a 1 cae
          entero en la cola, ya con papel debajo. */
-      .intro-escena {
+      :global(html[data-intro]) .intro-escena {
         display: block; position: absolute; inset: 0;
         animation: intro-tinta linear both;
         animation-timeline: --pista;
-        animation-range: contain 26% contain 78%;
+        --t0: .26; --t1: .78;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
-      .intro-n1 {
+      :global(html[data-intro]) .intro-n1 {
         position: absolute; left: 0; right: 0;
         bottom: calc(100% - var(--carta-top) + var(--sp-4));
       }
-      .intro-n2 {
+      :global(html[data-intro]) .intro-n2 {
         position: absolute; left: 0; right: 0;
         top: calc(var(--carta-top) + var(--carta-h) + var(--sp-4));
       }
-      .intro-aro {
+      :global(html[data-intro]) .intro-aro {
         display: block; position: absolute;
         top: var(--carta-top); left: calc((100% - var(--carta-w)) / 2);
         width: var(--carta-w); height: var(--carta-h);
@@ -3568,7 +3628,8 @@ const cifrasFranja = c.franja.sitioQ
         pointer-events: none;
         animation: intro-aro linear both;
         animation-timeline: --pista;
-        animation-range: contain 48% contain 92%;
+        --t0: .48; --t1: .92;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* El manifiesto sube por debajo durante la cola del clavado: entra
          cuando el recorte ya terminó, así que nunca tapa foto viva ni la
@@ -3578,7 +3639,7 @@ const cifrasFranja = c.franja.sitioQ
          válvulas del repo, para que al 200 % de texto la reserva crezca con
          la letra («Ricaño» medía 554–623 px en 1280×800 y un -28svh fijo le
          montaba el papel encima desde 576). */
-      .portada-tarjeta {
+      :global(html[data-intro]) .portada-tarjeta {
         margin-top: calc(var(--carta-top) + var(--carta-h) - 100svh + 9em);
         min-height: 0;
         justify-content: flex-start;
@@ -5221,9 +5282,9 @@ const cifrasFranja = c.franja.sitioQ
      torres anónimas. Al 62 % la ventana recupera la relación 1.60 del
      recorte panorámico que ya se genera y vuelve a caber el skyline, que es
      el tema de la portada. */
-  @supports (animation-timeline: view()) {
+  @media screen {
     @media screen and (prefers-reduced-motion: no-preference) and (min-aspect-ratio: 1/1) {
-      .cap-portada {
+      :global(html[data-intro]) .cap-portada {
         --carta-w: min(62vw, 1180px);
         --carta-h: 62svh;                                  /* la tarjeta hereda la forma de la ventana */
         --carta-top: calc((100svh - var(--carta-h)) / 2);  /* CENTRADA, no al 42 % */
@@ -5237,7 +5298,7 @@ const cifrasFranja = c.franja.sitioQ
          uno: 800→280 · 864→294 · 900→306 · 1080→367. Ondo gasta 225 px
          (25 % del alto) en su hero de escritorio; aquí es algo más porque
          aquí sí hay una transformación que leer. */
-      .intro-pista { height: calc(100svh + clamp(280px, 34svh, 380px)); }
+      :global(html[data-intro]) .intro-pista { height: calc(100svh + clamp(280px, 34svh, 380px)); }
 
       /* LA ESCENA DE TINTA: UNA SOLA LÍNEA, EN EL HUECO DE ENCIMA DE LA
          TARJETA, Y SUBE CON UN SOLO `translateY`.
@@ -5246,7 +5307,7 @@ const cifrasFranja = c.franja.sitioQ
          a ser dos palabras de la misma línea, centradas en la franja que
          hay sobre la tarjeta. La franja mide `--carta-top` exacto, así que
          el nombre no puede pisar la ventana del recorte. */
-      .intro-escena {
+      :global(html[data-intro]) .intro-escena {
         inset: 0 0 auto;
         height: var(--carta-top);
         display: flex; flex-wrap: wrap;
@@ -5265,7 +5326,7 @@ const cifrasFranja = c.franja.sitioQ
         gap: 0 .1875em;
         animation-name: intro-tinta-ancho;
       }
-      .intro-n1, .intro-n2 {
+      :global(html[data-intro]) .intro-n1, :global(html[data-intro]) .intro-n2 {
         position: static; inset: auto;
         text-align: center;
         /* EL TECHO POR LA FRANJA CIERRA EL RECORTE DEL NOMBRE POR
@@ -5289,7 +5350,7 @@ const cifrasFranja = c.franja.sitioQ
          titular ni un píxel (medido: `head@y=422` constante en los 40
          fotogramas): la tarjeta crece detrás del texto. Aquí igual — el
          titular se queda quieto y se disuelve con su velo. */
-      .portada-n1, .portada-n2 { animation: none; }
+      :global(html[data-intro]) .portada-n1, :global(html[data-intro]) .portada-n2 { animation: none; }
       /* LA TAPA AGUANTA. Ver `intro-tapa-ancho`: sostiene la opacidad hasta
          `contain 46 %` y cae en los diez puntos siguientes, en vez de
          disolverse linealmente entre el 4 % y el 30 %. Con esto el nombre
@@ -5301,18 +5362,20 @@ const cifrasFranja = c.franja.sitioQ
          Y NO ROMPE LAS PASTILLAS: viven en esta capa, así que aguantan
          pulsables MÁS tiempo, no menos; el fotograma final sigue apagando
          `visibility`. */
-      .portada-uno {
+      :global(html[data-intro]) .portada-uno {
         animation-name: intro-tapa-ancho;
-        animation-range: contain 4% contain 56%;
+        --t0: .04; --t1: .56;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* EL VELO SE ENCOGE CON LA FOTO. Mismo `clip-path`, misma línea de
          tiempo y MISMO tramo que `.portada-marco`, así que por construcción
          no puede desincronizarse: el negro del velo termina exactamente donde
          termina la foto, y el papel de alrededor nunca se ve gris. */
-      .portada-uno::before {
+      :global(html[data-intro]) .portada-uno::before {
         animation: intro-marco linear both;
         animation-timeline: --pista;
-        animation-range: contain 22% contain 84%;
+        --t0: .22; --t1: .84;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* LA BANDA DE ARRIBA SE VA CUANDO SE IBA, y esto NO es una regresión:
          es exactamente el tramo que tenía la tapa entera hasta esta ola
@@ -5328,10 +5391,11 @@ const cifrasFranja = c.franja.sitioQ
          que ahora vive la tapa de más — un destino invisible que se puede
          pulsar es peor que uno que no está. Con esto desaparecen del
          tabulado en el mismo fotograma que antes. */
-      .portada-barra {
+      :global(html[data-intro]) .portada-barra {
         animation: intro-tapa linear both;
         animation-timeline: --pista;
-        animation-range: contain 4% contain 30%;
+        --t0: .04; --t1: .3;
+        animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
       /* EL ARO NO SE PINTA EN APAISADO. Medido: a `sy=210` en 1440 el aro
          mide 346×381 mientras la ventana del recorte todavía mide ≈1134×571
@@ -5340,7 +5404,7 @@ const cifrasFranja = c.franja.sitioQ
          `animation-range` (contain 48–92 %) nunca estuvo sincronizado con
          el del recorte en la relación apaisada. Y de paso: `motion.css`
          pide una sola animación llamando la atención por pantalla. */
-      .intro-aro { display: none; }
+      :global(html[data-intro]) .intro-aro { display: none; }
       /* ── LA ANTENA DE LA TORRE CN SE CORTABA EN PLANO, EN LAS CUATRO ─────
          Medido sobre `dist` en el fotograma final, buscando el píxel más alto
          que sea ≥ 26 niveles más oscuro que la mediana de su fila (el cielo
@@ -5391,16 +5455,69 @@ const cifrasFranja = c.franja.sitioQ
          28.8·t; de alto, 18·t. Las dos diferencias son ≥ 0 para toda t y
          crecen, así que la foto desborda la ventana durante todo el
          recorrido. */
-      .portada-zoom { transform-origin: 50% 50%; animation-name: intro-zoom-ancho; }
+      :global(html[data-intro]) .portada-zoom { transform-origin: 50% 50%; animation-name: intro-zoom-ancho; }
       /* El manifiesto sube por debajo, pegado al borde de abajo de la
          tarjeta. La reserva de 9em de la composición móvil era el hueco de
          la MITAD DE ABAJO del nombre; en apaisado no hay mitad de abajo,
          así que la reserva es un respiro y nada más. */
-      .portada-tarjeta {
+      :global(html[data-intro]) .portada-tarjeta {
         margin-top: calc(var(--carta-top) + var(--carta-h) - 100svh + var(--sp-10));
       }
     }
   }
+
+  /* ══ EL RESPALDO: LAS MISMAS ANIMACIONES, CONDUCIDAS A MANO ═════════════
+     Tres declaraciones. No hay una segunda versión del efecto: son las
+     animaciones de arriba —los mismos `@keyframes`, los mismos tramos— y lo
+     único que cambia es QUIÉN les dice por qué fotograma van.
+
+     CÓMO PINTA UN FOTOGRAMA UNA ANIMACIÓN PAUSADA. `animation-delay` no es
+     el arranque del reloj: en el modelo de animaciones web es el `delay` del
+     EFECTO, así que el tiempo local de una animación pausada vale
+     `−delay`. Con `delay` negativo, una animación en pausa se queda pintando
+     el fotograma de ese instante, y cambiar el `delay` lo mueve. Es el
+     mecanismo que usaban los polyfills de scroll-timeline antes de que
+     existiera `animation-timeline`, y funciona en Safari 16.6.
+     Comprobado en los dos motores antes de escribir esto: con `--intro-p:
+     .5`, tramo .2–.8, los dos devuelven `opacity: .5`,
+     `matrix(0.75, …)` y `inset(50px 25px round 10px)`, el mismo fotograma.
+
+     EL TRAMO SALE DE `--t0`/`--t1`, no de dos números nuevos:
+       duración = (t1 − t0) s      ← el largo del tramo, en segundos
+       retardo  = (t0 − p) s       ← p es el avance de la pista, 0…1
+     o sea tiempo local = (p − t0) s y avance = (p − t0) / (t1 − t0), que es
+     literalmente lo que hace `animation-range: contain t0% contain t1%`.
+     Fuera del tramo el `both` sujeta los extremos, igual que allí: antes de
+     `t0` el retardo es positivo y la animación aún no empezó (fotograma 0);
+     pasado `t1` el tiempo local supera la duración (fotograma final).
+
+     `--intro-p` LO ESCRIBE `Cv.astro`, en un `scroll` pasivo con
+     `requestAnimationFrame` y un solo `setProperty` por fotograma, y solo
+     cuando el valor cambia. Es el patrón de la propia Apple: una variable
+     CSS, no una animación por elemento.
+
+     Y NO SE ESCRIBE `animation-play-state: running` en la vía nativa: allí
+     esta regla no existe, porque el gate es el valor de la marca. Una sola
+     vía viva por navegador. */
+  @media screen {
+    @media (prefers-reduced-motion: no-preference) {
+      :global(html[data-intro='js']) .portada-marco,
+      :global(html[data-intro='js']) .portada-zoom,
+      :global(html[data-intro='js']) .portada-uno,
+      :global(html[data-intro='js']) .portada-uno::before,
+      :global(html[data-intro='js']) .portada-barra,
+      :global(html[data-intro='js']) .portada-senuelo,
+      :global(html[data-intro='js']) .portada-n1,
+      :global(html[data-intro='js']) .portada-n2,
+      :global(html[data-intro='js']) .intro-escena,
+      :global(html[data-intro='js']) .intro-aro {
+        animation-play-state: paused;
+        animation-duration: calc((var(--t1) - var(--t0)) * 1s);
+        animation-delay: calc((var(--t0) - var(--intro-p, 0)) * 1s);
+      }
+    }
+  }
+
   /* La misma meseta de `intro-tinta` (la tinta negra no puede llegar antes
      que el papel: sube a .22 enseguida y el tramo de .22 a 1 cae entero en
      la cola, ya con papel debajo) MÁS el ascenso. Un solo `translateY`, de

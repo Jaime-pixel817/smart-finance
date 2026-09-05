@@ -133,13 +133,20 @@ const TOPES = {
   fotos: 42,       // imágenes con un ancho que no es del sistema
   pisos: 39,       // imágenes por debajo de 308 px (la moda es 154)
   pasos: 132,      // distancias que no son un paso del sistema
-  huecos: 5,       // franjas de más de 160 px sin tinta en la columna útil
-  // 1 200 y no los 1 120 medidos hoy: es la ÚNICA cuenta que se mueve entre
+  // 5 → 4 EN EL PASO DE SAFARI (2026-09-04). La franja que se fue es la de la
+  // pista de la intro: `172 px vacíos desde y=900` a 1440 y 200 px a 1920, que
+  // eran las filas de la pista por debajo de la caja del lienzo clavado. No se
+  // tapó con nada — las pinta el lienzo mientras está clavado y el papel del
+  // manifiesto en cuanto se despega —: la pista declara ahora el fondo que le
+  // corresponde, y de paso WebKit ya no las va a heredar al recibir la misma
+  // pista larga que Chromium.
+  huecos: 4,       // franjas de más de 160 px sin tinta en la columna útil
+  // 1 000 y no los 920 medidos hoy: es la ÚNICA cuenta que se mueve entre
   // corridas, porque sale de barrer el documento en filas de 4 px buscando
-  // tinta y las fotos no siempre llegan en el mismo fotograma. Medido 1 140 ·
-  // 1 140 · 1 120 en tres corridas. El margen es de UNA franja corta, no de
-  // una holgura cómoda: 1 200 sigue siendo el 40 % de los 3 036 de la ola 4.
-  huecoPx: 1200,   // suma de esas franjas, en px
+  // tinta y las fotos no siempre llegan en el mismo fotograma. Antes iba en
+  // 1 200 sobre 1 120 medidos (1 140 · 1 140 · 1 120 en tres corridas); el
+  // margen relativo se conserva. Sigue siendo el 33 % de los 3 036 de la ola 4.
+  huecoPx: 1000,   // suma de esas franjas, en px
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
   notas: 50,       // bloques de nota a la vista (el sistema admite 59)
   pendientes: 24,  // huecos «TO WRITE» declarados

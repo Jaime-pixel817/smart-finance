@@ -135,6 +135,76 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vi
   {/* Blanca en los dos esquemas: el blanco es del documento. */}
   <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href={FAVICON}>
+
+  {/* ═══ QUIÉN CONDUCE LA TRANSICIÓN DE LA PORTADA ═══════════════════════
+       Jaime, 2026-09-04: «en Safari no funciona el header la transición, y
+       además abajo dejas un buen de espacios». Su Mac es macOS 13.5 con
+       Safari 16.6, y ahí `CSS.supports('animation-timeline: view()')` es
+       **false**: toda la secuencia de la tapa vivía en un `@supports` sin
+       respaldo y en su navegador no ocurría NADA — la barra se iba con la
+       página, la foto seguía a sangre, «SCROLL TO READ» seguía puesto a
+       600 px de rueda y el manifiesto se quedaba con 200 px de alto vacío
+       por debajo (`min-height: 100svh` sin el margen del efecto).
+
+       Estas doce líneas son el interruptor. Escriben en `<html>` una marca
+       con DOS valores y nada más:
+         data-intro="css"  el navegador tiene `animation-timeline` → conduce
+                           él, con el `view-timeline` de la pista. Esa vía no
+                           cambia ni un byte.
+         data-intro="js"   no lo tiene → conduce este guion: escribe
+                           `--intro-p` (0→1) y el CSS de Historia.astro pinta
+                           el fotograma con un `animation-delay` negativo
+                           sobre LAS MISMAS animaciones. Un solo motor vivo.
+       Sin marca —JavaScript apagado— no se aplica nada del efecto y la tapa
+       es una pantalla de foto a sangre, legible, sin pista reservada.
+
+       ── POR QUÉ EN LÍNEA Y EN EL `<head>`, Y NO EN UN MÓDULO ────────────
+       Lo que la marca enciende incluye el ALTO de la pista (una pantalla más
+       el recorrido). Puesta desde un módulo diferido, la pista crecería
+       DESPUÉS del primer pintado y eso es un salto de composición en el
+       elemento del LCP: el presupuesto de CLS de esta página es 0.02. Aquí
+       corre antes de que exista un solo píxel pintado, y no cuesta ninguna
+       petición. El guardia de la pista (`document.querySelector`) es
+       perezoso a propósito: en el `<head>` el marcado todavía no existe.
+
+       ── EL RECORRIDO ES EL TRAMO `contain`, Y SALE DE UNA CUENTA ────────
+       `view-timeline` sobre la pista con `animation-range: contain …` corre
+       exactamente mientras la pista CONTIENE la ventana: empieza cuando su
+       borde de arriba toca el de la ventana y termina `alto − ventana` px
+       después. O sea `p = −rect.top / (rect.height − innerHeight)`, acotado
+       a 0…1. No es una aproximación del efecto nativo: es su definición.
+
+       `passive: true` para no bloquear el scroll, un `requestAnimationFrame`
+       por ráfaga (no uno por evento) y `setProperty` SOLO cuando el valor
+       cambia de milésima — a 1440 una milésima son 0.3 px de recorrido. */}
+  <script is:inline>
+    (function () {
+      var raiz = document.documentElement;
+      var nativo = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline', 'view()'));
+      raiz.setAttribute('data-intro', nativo ? 'css' : 'js');
+      if (nativo || !window.requestAnimationFrame) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var pista = null, pedido = false, ultimo = -1;
+      function medir() {
+        pedido = false;
+        if (!pista) pista = document.querySelector('.intro-pista');
+        if (!pista) return;
+        var caja = pista.getBoundingClientRect();
+        var recorrido = caja.height - window.innerHeight;
+        var p = recorrido > 0 ? -caja.top / recorrido : 0;
+        p = p < 0 ? 0 : p > 1 ? 1 : p;
+        p = Math.round(p * 1000) / 1000;
+        if (p === ultimo) return;
+        ultimo = p;
+        raiz.style.setProperty('--intro-p', String(p));
+      }
+      function pedir() { if (!pedido) { pedido = true; requestAnimationFrame(medir); } }
+      addEventListener('scroll', pedir, { passive: true });
+      addEventListener('resize', pedir, { passive: true });
+      document.addEventListener('DOMContentLoaded', medir);
+    })();
+  </script>
+
   <link rel="preload" href="/assets/fonts/geist-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/geist-mono-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/fraunces-600.woff2" as="font" type="font/woff2" crossorigin>
