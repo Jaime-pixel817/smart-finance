@@ -200,7 +200,16 @@ const TOPES = {
   // el margen relativo es el de siempre, ~5 %.
   huecoPx: 700,    // suma de esas franjas, en px
   desborde: 0,     // scrollWidth > innerWidth — esto ya está limpio, y sigue
-  notas: 50,       // bloques de nota a la vista (el sistema admite 59)
+  // 50 → 136, Y ES LA SEGUNDA VARA QUE SE CORRIGE HOY. El 50 salía de contar
+  // tres familias de clases, así que la línea se imprimía «50 · tope del
+  // sistema 59» y se leía como «esta regla ya está dentro del sistema». No lo
+  // está: la auditoría contó 227 bloques = 2 137 palabras = 50.6 % del cuerpo
+  // mirando TODO el aparato que rodea al documento, pies de figura y rótulos
+  // incluidos, y con esa vara hoy siguen a la vista 134 en inglés y 136 en
+  // español = 1 424 palabras = 33.6 % de las que se ven. La mejora es real
+  // —227 → 136 bloques, 50.6 % → 33.6 %— pero el sistema pide 59, y ahora el
+  // número lo dice. Este tope es el que la ola de los CAPÍTULOS tiene que bajar.
+  notas: 136,      // bloques de nota a la vista, vara de la auditoría (≤ 59)
   pendientes: 24,  // huecos «TO WRITE» declarados
   repes: 7,        // rótulos que salen 8 veces o más («↓» ×19, «To write» ×16)
   apagados: 0,     // bloques que nunca llegan a verse — el fallo de Safari 16.6
@@ -489,7 +498,7 @@ const SONDA = (lang) => {
 
   const out = {
     tamanos: [], tarjetas: [], fotos: [], pasos: [], huecos: [], parejas: [],
-    notas: 0, pendientes: 0, repes: [], apagados: [], texto: [],
+    notas: 0, notasPalabras: 0, palabras: 0, pendientes: 0, repes: [], apagados: [], texto: [],
     alto: 0, desborde: 0, tinta: 0, filas: 0
   };
 
@@ -506,6 +515,9 @@ const SONDA = (lang) => {
     const fs = Math.round(parseFloat(getComputedStyle(el).fontSize) * 2) / 2;
     if (!vistos.has(fs)) vistos.set(fs, { px: fs, n: 0, donde: cadena(el), muestra: txt.slice(0, 40) });
     vistos.get(fs).n++;
+    // Las palabras A LA VISTA del cuerpo (la tapa va aparte, como en todo
+    // este archivo): es el denominador del porcentaje de notas.
+    out.palabras += txt.split(/\s+/).filter(Boolean).length;
     // ── 8 · REPETICIONES. Un rótulo corto que sale 8 veces o más no informa
     //    de nada (§3.4 x). Solo cuentan los cortos: un párrafo repetido es
     //    otro problema, y la prosa larga no se repite por accidente.
@@ -589,9 +601,27 @@ const SONDA = (lang) => {
   out.desborde = Math.max(0, document.documentElement.scrollWidth - window.innerWidth);
 
   // ── 7 · NOTAS Y HUECOS PENDIENTES ───────────────────────────────────────
+  // LA VARA SE AMPLIÓ EL 2026-09-04, Y ESTO IMPORTA MÁS DE LO QUE PARECE.
+  // Contaba tres familias de clases y salía «50 · tope del sistema 59», que en
+  // este formato se lee como «esta regla ya está dentro del sistema». No lo
+  // está: el 227 que Jaime tiene en la cabeza salió de contar TODO el aparato
+  // que rodea al documento —notas y fuentes, sí, pero también los pies de
+  // figura, los rótulos y los huecos «TO WRITE»—, y con esa vara hoy siguen a
+  // la vista 136 bloques. Un guardián que mide un tercio de lo que midió la
+  // auditoría no puede decir si la auditoría se está cerrando.
+  // Se cuenta con la vara de la auditoría, se DEDUPLICA por anidamiento (un
+  // `.meta-mono` dentro de un `figcaption` es una nota, no dos) y se imprimen
+  // además las PALABRAS y su porcentaje sobre las que se ven, que es la cifra
+  // que él comparó: 2 137 palabras = 50.6 % del cuerpo.
   const esNota = (el) => !plegado(el) && seVe(el);
-  out.notas = [...raiz.querySelectorAll('.meta-mono, .sf-nota, .nota, .fuente, .pie-fuente')]
-    .filter(esNota).length;
+  const cuentaPal = (t) => (t || '').trim().split(/\s+/).filter(Boolean).length;
+  const NOTA_SEL = '.meta-mono, .sf-nota, .nota, .fuente, .pie-fuente,'
+    + ' .hueco, .hueco-mat, .foto-hueco, .sf-pendiente, .pendiente,'
+    + ' figcaption, .pie, .etiqueta';
+  const nodosNota = [...raiz.querySelectorAll(NOTA_SEL)].filter(esNota);
+  const raicesNota = nodosNota.filter((n) => !nodosNota.some((o) => o !== n && o.contains(n)));
+  out.notas = raicesNota.length;
+  out.notasPalabras = raicesNota.reduce((s, n) => s + cuentaPal(n.textContent), 0);
   out.pendientes = [...raiz.querySelectorAll('.hueco, .hueco-mat, .foto-hueco, .sf-pendiente, .pendiente')]
     .filter(esNota).length;
 
@@ -730,7 +760,7 @@ for (const m of medidas) {
   }
   for (const h of m.huecos) infra.huecos.push({ ...h, combo: etq(m) });
   if (m.desborde > 0) infra.desborde.push({ combo: etq(m), px: m.desborde });
-  if (m.notas > NOTAS_MAX) infra.notas.push({ combo: etq(m), n: m.notas });
+  if (m.notas > NOTAS_MAX) infra.notas.push({ combo: etq(m), n: m.notas, pal: m.notasPalabras, pct: m.palabras ? +((m.notasPalabras / m.palabras) * 100).toFixed(1) : 0 });
   infra.pendientes.push({ combo: etq(m), n: m.pendientes });
   for (const r of m.repes) infra.repes.push({ ...r, combo: etq(m) });
   for (const a of m.apagados) infra.apagados.push({ ...a, combo: etq(m) });
@@ -774,7 +804,7 @@ const NOMBRE = {
   huecos: '5a · FRANJAS de más de 160 px sin tinta',
   huecoPx: '5b · PÍXELES vacíos, sumados',
   desborde: '6 · DESBORDE horizontal (scrollWidth > innerWidth)',
-  notas: '7a · NOTAS a la vista (tope del sistema: 59)',
+  notas: '7a · NOTAS a la vista — vara de la auditoría (el sistema pide ≤ 59)',
   pendientes: '7b · HUECOS «TO WRITE» declarados',
   repes: '8a · RÓTULOS repetidos 8 veces o más',
   apagados: '8b · BLOQUES apagados (opacity 0) tras recorrer — el fallo de Safari',
@@ -836,7 +866,8 @@ for (const k of ['tamanos', 'tarjetas', 'parejas', 'fotos', 'pisos', 'pasos', 'h
     else if (k === 'repes') L.push(`     ×${String(x.n).padStart(3)}  «${x.texto}»  ${donde(u)}`);
     else if (k === 'apagados') L.push(`     opacity ${x.opacidad} en y=${x.y}  ${x.donde}  ${donde(u)}`);
     else if (k === 'portada') L.push(`     ${x.donde}  (modo ${x.modo}, ${x.recorrido} px de recorrido reservado)  ${donde(u)}`);
-    else if (k === 'notas' || k === 'pendientes') L.push(`     ${x.n}  ${donde(u)}`);
+    else if (k === 'notas') L.push(`     ${x.n} bloques · ${x.pal} palabras · ${x.pct}% de las que se ven  ${donde(u)}`);
+    else if (k === 'pendientes') L.push(`     ${x.n}  ${donde(u)}`);
   }
   if (unicos.length > LISTA) L.push(`     … y ${unicos.length - LISTA} más`);
   L.push('');
