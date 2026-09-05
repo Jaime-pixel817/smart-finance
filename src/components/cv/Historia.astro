@@ -3522,6 +3522,33 @@ const cifrasFranja = c.franja.sitioQ
         --t0: .04; --t1: .3;
         animation-range: contain calc(var(--t0) * 100%) contain calc(var(--t1) * 100%);
       }
+      /* ── EL `visibility: hidden` DE LA TAPA NO PUEDE LLEVARSE AL <h1> ────
+         El único `<h1>` del documento —«Jaime Sandoval Ricaño»— vive dentro
+         de `.portada-uno`, y el fotograma final de la tapa apaga
+         `visibility`. Eso saca el titular del árbol de accesibilidad: en
+         cuanto el lector pasa la portada, el CV se queda SIN encabezado de
+         nivel uno, y axe lo marca (`page-has-heading-one`). Medido: 12 de
+         los 16 combos tras recorrer el documento; los 4 que faltaban eran
+         los de webkit en español, y solo porque ahí la intro no corría —o
+         sea que el 0 era síntoma de otro fallo, no un aprobado.
+         MIENTRAS VIVIÓ TRAS `@supports (animation-timeline: view())` esto
+         solo le pasaba a Chrome. Al pasar el gate a `html[data-intro]`,
+         Safari lo heredó: no es un defecto previo, lo trajo esta ola.
+         EL TITULAR SE QUEDA VISIBLE Y NO SE VE, que no es una contradicción:
+         `visibility` es suya, pero la OPACIDAD es del grupo —la tapa entera
+         se disuelve en una sola alfa— y a opacidad 0 no pinta ni un píxel.
+         Un lector de pantalla lo sigue encontrando; un ojo, no.
+         Y NO DEVUELVE NADA PULSABLE. Lo único que se puede tocar dentro de
+         la tapa son las dos pastillas de idioma, que viven en
+         `.portada-barra` y tienen su PROPIO fotograma de `visibility` (ver
+         más abajo): esas siguen desapareciendo del tabulado cuando siempre.
+         El `<h1>` no es focalizable y no contiene enlaces, pero a opacidad 0
+         seguiría recibiendo el ratón sobre media pantalla, así que
+         `pointer-events: none`. */
+      :global(html[data-intro]) .portada-h1 {
+        visibility: visible;
+        pointer-events: none;
+      }
       /* El señuelo se va primero (en la referencia, «Swipe to explore»
          desaparece antes de que el titular se mueva)… */
       :global(html[data-intro]) .portada-senuelo {
